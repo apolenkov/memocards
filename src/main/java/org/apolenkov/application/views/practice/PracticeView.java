@@ -52,6 +52,9 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private final List<Long> knownCardIdsDelta = new ArrayList<>();
     private final List<Long> failedCardIds = new ArrayList<>();
     
+    // Направление сессии: "front_to_back" или "back_to_front"
+    private String sessionDirection = "front_to_back";
+    
     // UI Components
     private H2 deckTitle;
     private Div progressSection;
@@ -113,6 +116,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         int configured = practiceSettingsService.getDefaultCount();
         int defaultCount = Math.max(1, Math.min(configured, (int) notKnown));
         boolean random = practiceSettingsService.isDefaultRandomOrder();
+        // Устанавливаем направление на сессию из глобальных настроек
+        sessionDirection = Optional.ofNullable(practiceSettingsService.getDefaultDirection()).orElse("front_to_back");
         startPractice(defaultCount, random);
     }
 
@@ -308,6 +313,14 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                 current, total, totalViewed, correctCount, hardCount, percent));
     }
 
+    private String getQuestionText(Flashcard card) {
+        return "back_to_front".equals(sessionDirection) ? card.getBackText() : card.getFrontText();
+    }
+
+    private String getAnswerText(Flashcard card) {
+        return "back_to_front".equals(sessionDirection) ? card.getFrontText() : card.getBackText();
+    }
+
     private void showCurrentCard() {
         if (practiceCards == null || practiceCards.isEmpty() || currentCardIndex >= practiceCards.size()) {
             showPracticeComplete();
@@ -323,12 +336,12 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         cardLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         cardLayout.setSpacing(true);
         
-        H1 frontText = new H1(currentCard.getFrontText());
-        frontText.getStyle().set("margin", "0");
+        H1 question = new H1(Optional.ofNullable(getQuestionText(currentCard)).orElse(""));
+        question.getStyle().set("margin", "0");
         Span transcription = new Span(" ");
         transcription.getStyle().set("color", "var(--lumo-secondary-text-color)");
         
-        cardLayout.add(frontText, transcription);
+        cardLayout.add(question, transcription);
         cardContent.add(cardLayout);
         
         showAnswerButton.setVisible(true);
@@ -348,12 +361,12 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         cardLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         cardLayout.setSpacing(true);
         
-        H2 frontText = new H2(currentCard.getFrontText());
+        H2 question = new H2(Optional.ofNullable(getQuestionText(currentCard)).orElse(""));
         Hr divider = new Hr();
         divider.getStyle().set("width", "60%");
-        H1 backText = new H1(currentCard.getBackText());
+        H1 answer = new H1(Optional.ofNullable(getAnswerText(currentCard)).orElse(""));
         
-        cardLayout.add(frontText, divider, backText);
+        cardLayout.add(question, divider, answer);
         if (currentCard.getExample() != null && !currentCard.getExample().isBlank()) {
             Span exampleText = new Span("Пример: " + currentCard.getExample());
             exampleText.getStyle().set("color", "var(--lumo-secondary-text-color)");
