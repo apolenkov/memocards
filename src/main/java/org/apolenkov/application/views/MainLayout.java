@@ -64,25 +64,75 @@ public class MainLayout extends AppLayout {
 
     private void openStatsDialog() {
         Dialog dialog = new Dialog();
-        dialog.setWidth("720px");
+        dialog.setWidth("760px");
         VerticalLayout layout = new VerticalLayout();
         layout.setPadding(true);
         layout.setSpacing(true);
-        layout.add(new H3("Статистика"));
+        layout.add(new H3("Статистика практик"));
 
         List<Deck> decks = flashcardService.getDecksByUserId(flashcardService.getCurrentUser().getId());
+        LocalDate today = LocalDate.now();
+
+        // Глобальные итоги по всем колодам
+        int totalSessionsAll = 0;
+        int totalSessionsToday = 0;
+        int totalViewedAll = 0;
+        int totalViewedToday = 0;
+        int totalCorrectAll = 0;
+        int totalCorrectToday = 0;
+        int totalHardAll = 0;
+        int totalHardToday = 0;
+
         for (Deck deck : decks) {
-            int size = deck.getFlashcardCount();
-            int percent = statsService.getDeckProgressPercent(deck.getId(), size);
-            List<StatsService.DailyStats> daily = statsService.getDailyStatsForDeck(deck.getId());
-            String todayLine = "";
-            if (!daily.isEmpty()) {
-                var last = daily.get(daily.size() - 1);
-                if (last.date.equals(LocalDate.now())) {
-                    todayLine = String.format(" | Сегодня: сессий %d, просмотрено %d, правильных %d", last.sessions, last.viewed, last.correct);
+            var daily = statsService.getDailyStatsForDeck(deck.getId());
+            for (var ds : daily) {
+                totalSessionsAll += ds.sessions;
+                totalViewedAll += ds.viewed;
+                totalCorrectAll += ds.correct;
+                totalHardAll += ds.hard;
+                if (today.equals(ds.date)) {
+                    totalSessionsToday += ds.sessions;
+                    totalViewedToday += ds.viewed;
+                    totalCorrectToday += ds.correct;
+                    totalHardToday += ds.hard;
                 }
             }
-            layout.add(new Span(String.format("%s — прогресс %d%%%s", deck.getTitle(), percent, todayLine)));
+        }
+
+        layout.add(new Span(String.format(
+                "Всего: сессий %d, просмотрено %d, правильных %d, сложно %d",
+                totalSessionsAll, totalViewedAll, totalCorrectAll, totalHardAll
+        )));
+        layout.add(new Span(String.format(
+                "За сегодня: сессий %d, просмотрено %d, правильных %d, сложно %d",
+                totalSessionsToday, totalViewedToday, totalCorrectToday, totalHardToday
+        )));
+
+        // Разбивка по колодам
+        layout.add(new H3("По колодам"));
+        for (Deck deck : decks) {
+            int sessionsAll = 0, sessionsToday = 0;
+            int viewedAll = 0, viewedToday = 0;
+            int correctAll = 0, correctToday = 0;
+            int hardAll = 0, hardToday = 0;
+            var daily = statsService.getDailyStatsForDeck(deck.getId());
+            for (var ds : daily) {
+                sessionsAll += ds.sessions;
+                viewedAll += ds.viewed;
+                correctAll += ds.correct;
+                hardAll += ds.hard;
+                if (today.equals(ds.date)) {
+                    sessionsToday += ds.sessions;
+                    viewedToday += ds.viewed;
+                    correctToday += ds.correct;
+                    hardToday += ds.hard;
+                }
+            }
+            Span line = new Span(String.format(
+                    "%s — сессий: %d (сегодня %d), просмотрено: %d (сегодня %d), правильных: %d (сегодня %d), сложно: %d (сегодня %d)",
+                    deck.getTitle(), sessionsAll, sessionsToday, viewedAll, viewedToday, correctAll, correctToday, hardAll, hardToday
+            ));
+            layout.add(line);
         }
 
         Button close = new Button("Закрыть", e -> dialog.close());
