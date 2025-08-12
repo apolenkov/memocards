@@ -100,7 +100,10 @@ public class HomeView extends Composite<VerticalLayout> {
             }
             
             Div deckCard = createDeckCard(decks.get(i));
-            deckCard.getStyle().set("flex", "1");
+            deckCard.getStyle()
+                .set("flex", "0 0 50%")
+                .set("max-width", "50%")
+                .set("min-width", "50%");
             currentRow.add(deckCard);
         }
     }
