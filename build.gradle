@@ -2,14 +2,24 @@ buildscript {
     repositories {
     	mavenCentral()
 	    maven { setUrl("https://maven.vaadin.com/vaadin-prereleases") }
-			maven { setUrl("https://repo.spring.io/milestone") }
-		}
+		maven { setUrl("https://repo.spring.io/milestone") }
+	}
 }
+
 plugins {
-	id 'org.springframework.boot' version '3.5.3'
+	id 'org.springframework.boot' version '3.5.4'
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'java'
 	id 'com.vaadin'
+}
+
+group = 'org.apolenkov.application'
+version = '1.0-SNAPSHOT'
+description = 'flashcards'
+
+java {
+	sourceCompatibility = '21'
+	targetCompatibility = '21'
 }
 
 repositories {
@@ -27,11 +37,28 @@ configurations {
 }
 
 dependencies {
+	// Vaadin dependencies
+	implementation('com.vaadin:vaadin')
 	implementation('com.vaadin:vaadin-spring-boot-starter')
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	implementation('org.parttio:line-awesome:2.1.0')
+
+	// Spring Boot starters
+// 	implementation('org.springframework.boot:spring-boot-starter-security')
+// 	implementation('org.springframework.boot:spring-boot-starter-oauth2-client')
+	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+	implementation('org.springframework.boot:spring-boot-starter-validation')
+
+	// Database
+	runtimeOnly('org.postgresql:postgresql')
+
+	// Development tools
+	developmentOnly('org.springframework.boot:spring-boot-devtools')
+
+	// Testing
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
+	testImplementation('com.vaadin:vaadin-testbench-junit5')
 }
 
 dependencyManagement {
@@ -39,3 +66,13 @@ dependencyManagement {
 		mavenBom "com.vaadin:vaadin-bom:$vaadinVersion"
 	}
 }
+
+// Production profile equivalent
+if (project.hasProperty('production')) {
+	configurations.all {
+		exclude group: 'com.vaadin', module: 'vaadin-dev'
+	}
+}
+
+// Default goal equivalent for Gradle
+defaultTasks 'bootRun'
