@@ -156,15 +156,19 @@ public class HomeView extends Composite<VerticalLayout> {
         progressLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         progressLayout.setWidth("100%");
         
+        int deckSize = deck.getFlashcardCount();
+        int known = statsService.getKnownCardIds(deck.getId()).size();
+        int percent = statsService.getDeckProgressPercent(deck.getId(), deckSize);
+        
         Span progressLabel = new Span("Прогресс:");
         ProgressBar progressBar = new ProgressBar();
-        int deckSize = deck.getFlashcardCount();
-        int percent = statsService.getDeckProgressPercent(deck.getId(), deckSize);
         progressBar.setValue(Math.min(1.0, Math.max(0.0, percent / 100.0)));
         progressBar.setWidth("140px");
         Span progressText = new Span(percent + "%");
+        Span progressDetails = new Span(known + " выучено из " + deckSize);
+        progressDetails.getStyle().set("color", "var(--lumo-secondary-text-color)");
         
-        progressLayout.add(progressLabel, progressBar, progressText);
+        progressLayout.add(progressLabel, progressBar, progressText, progressDetails);
         
         Button practiceButton = new Button("▶ Начать практику");
         practiceButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
@@ -207,18 +211,18 @@ public class HomeView extends Composite<VerticalLayout> {
         Button save = new Button("Создать", VaadinIcon.CHECK.create());
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         save.addClickListener(e -> {
-            String title = titleField.getValue() != null ? titleField.getValue().trim() : "";
+            String titleStr = titleField.getValue() != null ? titleField.getValue().trim() : "";
             String desc = descriptionArea.getValue() != null ? descriptionArea.getValue().trim() : "";
-            if (title.isEmpty()) {
+            if (titleStr.isEmpty()) {
                 Notification.show("Введите название колоды", 3000, Notification.Position.MIDDLE);
                 titleField.focus();
                 return;
             }
-            Deck deck = new Deck();
-            deck.setUserId(flashcardService.getCurrentUser().getId());
-            deck.setTitle(title);
-            deck.setDescription(desc);
-            Deck saved = flashcardService.saveDeck(deck);
+            Deck newDeck = new Deck();
+            newDeck.setUserId(flashcardService.getCurrentUser().getId());
+            newDeck.setTitle(titleStr);
+            newDeck.setDescription(desc);
+            Deck saved = flashcardService.saveDeck(newDeck);
             Notification.show("Колода создана", 2000, Notification.Position.BOTTOM_START);
             dialog.close();
             loadDecks();
