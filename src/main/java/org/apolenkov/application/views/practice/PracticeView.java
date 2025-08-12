@@ -39,10 +39,11 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private int currentCardIndex = 0;
     private boolean showingAnswer = false;
     private boolean sessionStarted = false;
+    private boolean autoStartAttempted = false;
+    private boolean noCardsNotified = false;
 
     // session stats
     private int correctCount = 0;
-    private int repeatCount = 0;
     private int hardCount = 0;
     private int totalViewed = 0;
     private Instant sessionStart;
@@ -59,7 +60,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private HorizontalLayout actionButtons;
     private Button showAnswerButton;
     private Button knowButton;
-    private Button repeatButton;
     private Button hardButton;
     private Span statsSpan;
 
@@ -84,7 +84,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         try {
             Long deckId = Long.parseLong(parameter);
             loadDeck(deckId);
-            if (currentDeck != null && !sessionStarted) {
+            if (currentDeck != null && !autoStartAttempted) {
+                autoStartAttempted = true;
                 startDefaultPractice();
             }
         } catch (NumberFormatException e) {
@@ -96,18 +97,30 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        if (currentDeck != null && !sessionStarted) {
+        if (currentDeck != null && !autoStartAttempted) {
+            autoStartAttempted = true;
             startDefaultPractice();
         }
     }
 
     private void startDefaultPractice() {
         List<Flashcard> all = flashcardService.getFlashcardsByDeckId(currentDeck.getId());
-        int notKnown = (int) all.stream().filter(fc -> !statsService.isCardKnown(currentDeck.getId(), fc.getId())).count();
+        long notKnown = all.stream().filter(fc -> !statsService.isCardKnown(currentDeck.getId(), fc.getId())).count();
+        if (notKnown <= 0) {
+            showNoCardsOnce();
+            return;
+        }
         int configured = practiceSettingsService.getDefaultCount();
-        int defaultCount = Math.max(1, Math.min(configured, notKnown > 0 ? notKnown : all.size()));
+        int defaultCount = Math.max(1, Math.min(configured, (int) notKnown));
         boolean random = practiceSettingsService.isDefaultRandomOrder();
         startPractice(defaultCount, random);
+    }
+
+    private void showNoCardsOnce() {
+        if (!noCardsNotified) {
+            noCardsNotified = true;
+            Notification.show("Все карточки выучены — нечего практиковать", 3000, Notification.Position.MIDDLE);
+        }
     }
 
     private void createHeader() {
@@ -196,17 +209,12 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         knowButton.addClickListener(e -> { markLabeled("know"); });
         knowButton.setVisible(false);
 
-        repeatButton = new Button("Повторить", VaadinIcon.REFRESH.create());
-        repeatButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
-        repeatButton.addClickListener(e -> { markLabeled("repeat"); });
-        repeatButton.setVisible(false);
-
         hardButton = new Button("Сложно", VaadinIcon.WARNING.create());
         hardButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_LARGE);
         hardButton.addClickListener(e -> { markLabeled("hard"); });
         hardButton.setVisible(false);
         
-        actionButtons.add(showAnswerButton, knowButton, repeatButton, hardButton);
+        actionButtons.add(showAnswerButton, knowButton, hardButton);
         getContent().add(actionButtons);
     }
 
@@ -270,25 +278,24 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         Set<Long> known = statsService.getKnownCardIds(currentDeck.getId());
         List<Flashcard> filtered = all.stream().filter(fc -> !known.contains(fc.getId())).collect(Collectors.toList());
         if (filtered.isEmpty()) {
-            Notification.show("Все карточки выучены — нечего практиковать", 3000, Notification.Position.MIDDLE);
+            showNoCardsOnce();
             return;
         }
         practiceCards = random ? new ArrayList<>(filtered) : filtered;
-        if (random) java.util.Collections.shuffle(practiceCards);
+        if (random) Collections.shuffle(practiceCards);
         if (count < practiceCards.size()) practiceCards = practiceCards.subList(0, count);
         
         sessionStarted = true;
         currentCardIndex = 0;
         showingAnswer = false;
         correctCount = 0;
-        repeatCount = 0;
         hardCount = 0;
         totalViewed = 0;
         totalAnswerDelayMs = 0L;
         knownCardIdsDelta.clear();
         failedCardIds.clear();
         sessionStart = Instant.now();
-        updateProgress();
+        noCardsNotified = false;
         showCurrentCard();
     }
 
@@ -297,8 +304,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         int current = Math.min(currentCardIndex + 1, practiceCards.size());
         int total = practiceCards.size();
         int percent = (int) Math.round((current * 100.0) / Math.max(1, total));
-        statsSpan.setText(String.format("Карточка %d из %d | Просмотрено: %d | Правильных: %d | Повтор: %d | Сложно: %d | Прогресс: %d%%",
-                current, total, totalViewed, correctCount, repeatCount, hardCount, percent));
+        statsSpan.setText(String.format("Карточка %d из %d | Просмотрено: %d | Правильных: %d | Сложно: %d | Прогресс: %d%%",
+                current, total, totalViewed, correctCount, hardCount, percent));
     }
 
     private void showCurrentCard() {
@@ -306,6 +313,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             showPracticeComplete();
             return;
         }
+        updateProgress();
         Flashcard currentCard = practiceCards.get(currentCardIndex);
         showingAnswer = false;
         cardShowTime = Instant.now();
@@ -325,7 +333,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         
         showAnswerButton.setVisible(true);
         knowButton.setVisible(false);
-        repeatButton.setVisible(false);
         hardButton.setVisible(false);
     }
 
@@ -356,7 +363,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         
         showAnswerButton.setVisible(false);
         knowButton.setVisible(true);
-        repeatButton.setVisible(true);
         hardButton.setVisible(true);
     }
 
@@ -364,23 +370,14 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         if (!showingAnswer) return;
         totalViewed++;
         Flashcard currentCard = practiceCards.get(currentCardIndex);
-        switch (label) {
-            case "know" -> {
-                correctCount++;
-                knownCardIdsDelta.add(currentCard.getId());
-            }
-            case "repeat" -> {
-                repeatCount++;
-                failedCardIds.add(currentCard.getId());
-            }
-            case "hard" -> {
-                hardCount++;
-                failedCardIds.add(currentCard.getId());
-            }
+        if ("know".equals(label)) {
+            correctCount++;
+            knownCardIdsDelta.add(currentCard.getId());
+        } else {
+            hardCount++;
+            failedCardIds.add(currentCard.getId());
         }
-        updateProgress();
         knowButton.setVisible(false);
-        repeatButton.setVisible(false);
         hardButton.setVisible(false);
         nextCard();
     }
@@ -394,13 +391,21 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         }
     }
 
+    private void showSessionButtons() {
+        actionButtons.removeAll();
+        actionButtons.add(showAnswerButton, knowButton, hardButton);
+        showAnswerButton.setVisible(true);
+        knowButton.setVisible(false);
+        hardButton.setVisible(false);
+    }
+
     private void showPracticeComplete() {
         Duration sessionDuration = Duration.between(sessionStart, Instant.now());
         statsService.recordSession(
                 currentDeck.getId(),
                 totalViewed,
                 correctCount,
-                repeatCount,
+                0,
                 hardCount,
                 sessionDuration,
                 totalAnswerDelayMs,
@@ -414,7 +419,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         
         int total = practiceCards != null ? practiceCards.size() : totalViewed;
         H1 completionTitle = new H1("Сессия завершена — Колода: " + currentDeck.getTitle());
-        H3 results = new H3(String.format("Правильно: %d/%d    На повтор: %d", correctCount, total, repeatCount));
+        H3 results = new H3(String.format("Правильно: %d/%d    Сложно: %d", correctCount, total, hardCount));
         Span timeInfo = new Span(String.format("Время: %d мин    Средняя задержка: %d сек/кар",
                 Math.max(1, sessionDuration.toMinutes()), Math.round((totalAnswerDelayMs / Math.max(1.0, totalViewed)) / 1000.0)));
         
@@ -422,15 +427,16 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         cardContent.add(completionLayout);
         
         actionButtons.removeAll();
-        Button againButton = new Button("Повторить ошибочные", e -> {
+        Button againButton = new Button("Повторить сложные", e -> {
             List<Flashcard> all = flashcardService.getFlashcardsByDeckId(currentDeck.getId());
             Set<Long> known = statsService.getKnownCardIds(currentDeck.getId());
             List<Flashcard> failed = all.stream()
                     .filter(fc -> failedCardIds.contains(fc.getId()))
                     .filter(fc -> !known.contains(fc.getId()))
                     .collect(Collectors.toList());
+            // восстановим кнопки сессии перед стартом
+            showSessionButtons();
             if (failed.isEmpty()) {
-                Notification.show("Нет ошибочных для повтора — стартуем по невыученным", 2500, Notification.Position.MIDDLE);
                 startDefaultPractice();
                 return;
             }
@@ -440,14 +446,12 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             currentCardIndex = 0;
             showingAnswer = false;
             correctCount = 0;
-            repeatCount = 0;
             hardCount = 0;
             totalViewed = 0;
             totalAnswerDelayMs = 0L;
             knownCardIdsDelta.clear();
             failedCardIds.clear();
             sessionStart = Instant.now();
-            updateProgress();
             showCurrentCard();
         });
         Button backToDeckButton = new Button("К колоде", e ->
