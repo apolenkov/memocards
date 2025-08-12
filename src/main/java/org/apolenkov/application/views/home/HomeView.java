@@ -14,15 +14,17 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.FlashcardService;
 import org.apolenkov.application.views.deskview.DeskviewView;
-import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @PageTitle("Колоды")
 @Route("")
@@ -31,6 +33,7 @@ public class HomeView extends Composite<VerticalLayout> {
 
     private final FlashcardService flashcardService;
     private VerticalLayout decksContainer;
+    private TextField searchField;
 
     public HomeView(FlashcardService flashcardService) {
         this.flashcardService = flashcardService;
@@ -41,7 +44,7 @@ public class HomeView extends Composite<VerticalLayout> {
         
         createHeader();
         createSearchAndActions();
-        createDecksGrid();
+        createDecksList();
         loadDecks();
     }
 
@@ -57,27 +60,27 @@ public class HomeView extends Composite<VerticalLayout> {
         searchLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         searchLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         
-        TextField searchField = new TextField();
+        searchField = new TextField();
         searchField.setPlaceholder("Поиск колоды...");
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setWidth("300px");
+        searchField.setClearButtonVisible(true);
+        searchField.setValueChangeMode(ValueChangeMode.LAZY);
+        searchField.addValueChangeListener(e -> loadDecks());
         
         Button addDeckButton = new Button("Добавить колоду", VaadinIcon.PLUS.create());
         addDeckButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        addDeckButton.addClickListener(e -> {
-            getUI().ifPresent(ui -> ui.navigate("decks/new"));
-        });
+        addDeckButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("decks/new")));
         
         searchLayout.add(searchField, addDeckButton);
         getContent().add(searchLayout);
     }
 
-    private void createDecksGrid() {
+    private void createDecksList() {
         decksContainer = new VerticalLayout();
         decksContainer.setWidth("100%");
         decksContainer.setPadding(false);
         decksContainer.setSpacing(true);
-        
         getContent().add(decksContainer);
     }
 
@@ -88,29 +91,26 @@ public class HomeView extends Composite<VerticalLayout> {
             flashcardService.getCurrentUser().getId()
         );
         
-        // Create grid layout for decks (2 columns)
-        HorizontalLayout currentRow = null;
+        String query = searchField != null && searchField.getValue() != null
+                ? searchField.getValue().toLowerCase(Locale.ROOT).trim() : "";
+        if (!query.isEmpty()) {
+            decks = decks.stream()
+                    .filter(d -> (d.getTitle() != null && d.getTitle().toLowerCase(Locale.ROOT).contains(query))
+                            || (d.getDescription() != null && d.getDescription().toLowerCase(Locale.ROOT).contains(query)))
+                    .collect(Collectors.toList());
+        }
         
-        for (int i = 0; i < decks.size(); i++) {
-            if (i % 2 == 0) {
-                currentRow = new HorizontalLayout();
-                currentRow.setWidth("100%");
-                currentRow.setSpacing(true);
-                decksContainer.add(currentRow);
-            }
-            
-            Div deckCard = createDeckCard(decks.get(i));
+        for (Deck deck : decks) {
+            Div deckCard = createDeckCard(deck);
             deckCard.getStyle()
-                .set("flex", "0 0 50%")
-                .set("max-width", "50%")
-                .set("min-width", "50%");
-            currentRow.add(deckCard);
+                .set("width", "100%")
+                .set("box-sizing", "border-box");
+            decksContainer.add(deckCard);
         }
     }
 
     private Div createDeckCard(Deck deck) {
         Div card = new Div();
-        card.addClassName("deck-card");
         card.getStyle()
             .set("border", "1px solid var(--lumo-contrast-20pct)")
             .set("border-radius", "var(--lumo-border-radius-m)")
@@ -119,15 +119,7 @@ public class HomeView extends Composite<VerticalLayout> {
             .set("transition", "box-shadow 0.2s")
             .set("background", "var(--lumo-base-color)");
         
-        // Add hover effect
-        card.getElement().addEventListener("mouseenter", e -> 
-            card.getStyle().set("box-shadow", "var(--lumo-box-shadow-s)"));
-        card.getElement().addEventListener("mouseleave", e -> 
-            card.getStyle().set("box-shadow", "none"));
-        
-        // Click to navigate to deck view
         card.addClickListener(e -> {
-            System.out.println("Navigating to deck with ID: " + deck.getId());
             if (deck.getId() != null) {
                 getUI().ifPresent(ui -> ui.navigate(DeskviewView.class, deck.getId().toString()));
             } else {
@@ -139,7 +131,6 @@ public class HomeView extends Composite<VerticalLayout> {
         cardContent.setPadding(false);
         cardContent.setSpacing(false);
         
-        // Deck icon and title
         HorizontalLayout titleLayout = new HorizontalLayout();
         titleLayout.setSpacing(true);
         titleLayout.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -148,40 +139,30 @@ public class HomeView extends Composite<VerticalLayout> {
         icon.getStyle().set("font-size", "1.5em");
         
         H3 title = new H3(deck.getTitle() + " (" + deck.getFlashcardCount() + ")");
-        title.getStyle().set("margin", "0").set("color", "var(--lumo-primary-text-color)");
+        title.getStyle().set("margin", "0");
         
         titleLayout.add(icon, title);
         
-        // Description
         Span description = new Span(deck.getDescription());
-        description.getStyle()
-            .set("color", "var(--lumo-secondary-text-color)")
-            .set("font-size", "var(--lumo-font-size-s)");
+        description.getStyle().set("color", "var(--lumo-secondary-text-color)");
         
-        // Progress bar (demo data)
         HorizontalLayout progressLayout = new HorizontalLayout();
         progressLayout.setSpacing(true);
         progressLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         progressLayout.setWidth("100%");
         
         Span progressLabel = new Span("Прогресс:");
-        progressLabel.getStyle().set("font-size", "var(--lumo-font-size-s)");
-        
         ProgressBar progressBar = new ProgressBar();
-        progressBar.setValue(Math.random() * 0.8 + 0.2); // Demo progress
-        progressBar.setWidth("100px");
-        
+        progressBar.setValue(Math.random() * 0.8 + 0.2);
+        progressBar.setWidth("120px");
         int progressPercent = (int) (progressBar.getValue() * 100);
         Span progressText = new Span(progressPercent + "%");
-        progressText.getStyle().set("font-size", "var(--lumo-font-size-s)");
         
         progressLayout.add(progressLabel, progressBar, progressText);
         
-        // Practice button
         Button practiceButton = new Button("▶ Начать практику");
         practiceButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
         practiceButton.addClickListener(e -> {
-            System.out.println("Navigating to practice with deck ID: " + deck.getId());
             if (deck.getId() != null) {
                 getUI().ifPresent(ui -> ui.navigate(org.apolenkov.application.views.practice.PracticeView.class, deck.getId().toString()));
             } else {
@@ -191,7 +172,6 @@ public class HomeView extends Composite<VerticalLayout> {
         
         cardContent.add(titleLayout, description, progressLayout, practiceButton);
         card.add(cardContent);
-        
         return card;
     }
 }
