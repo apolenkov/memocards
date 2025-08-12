@@ -17,6 +17,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.model.Deck;
@@ -38,6 +40,8 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
     private H2 deckTitle;
     private Span deckDescription;
     private Span deckStats;
+    private TextField flashcardSearchField;
+    private ListDataProvider<Flashcard> flashcardsDataProvider;
 
     public DeskviewView(FlashcardService flashcardService) {
         this.flashcardService = flashcardService;
@@ -137,6 +141,21 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
         H3 flashcardsTitle = new H3("Карточки");
         getContent().add(flashcardsTitle);
         
+        // search bar
+        HorizontalLayout searchRow = new HorizontalLayout();
+        searchRow.setWidth("100%");
+        searchRow.setAlignItems(FlexComponent.Alignment.CENTER);
+        
+        flashcardSearchField = new TextField();
+        flashcardSearchField.setPlaceholder("Поиск по карточкам...");
+        flashcardSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
+        flashcardSearchField.setClearButtonVisible(true);
+        flashcardSearchField.setValueChangeMode(ValueChangeMode.EAGER);
+        flashcardSearchField.addValueChangeListener(e -> applyFlashcardsFilter());
+        
+        searchRow.add(flashcardSearchField);
+        getContent().add(searchRow);
+        
         flashcardGrid = new Grid<>(Flashcard.class, false);
         flashcardGrid.setWidth("100%");
         flashcardGrid.setHeight("400px");
@@ -201,7 +220,24 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
     private void loadFlashcards() {
         if (currentDeck != null) {
             List<Flashcard> flashcards = flashcardService.getFlashcardsByDeckId(currentDeck.getId());
-            flashcardGrid.setItems(flashcards);
+            flashcardsDataProvider = new ListDataProvider<>(flashcards);
+            flashcardGrid.setDataProvider(flashcardsDataProvider);
+            applyFlashcardsFilter();
+        }
+    }
+
+    private void applyFlashcardsFilter() {
+        if (flashcardsDataProvider == null) return;
+        String q = flashcardSearchField != null && flashcardSearchField.getValue() != null
+                ? flashcardSearchField.getValue().toLowerCase().trim() : "";
+        flashcardsDataProvider.clearFilters();
+        if (!q.isEmpty()) {
+            flashcardsDataProvider.addFilter(fc -> {
+                String front = fc.getFrontText() != null ? fc.getFrontText().toLowerCase() : "";
+                String back = fc.getBackText() != null ? fc.getBackText().toLowerCase() : "";
+                String ex = fc.getExample() != null ? fc.getExample().toLowerCase() : "";
+                return front.contains(q) || back.contains(q) || ex.contains(q);
+            });
         }
     }
 

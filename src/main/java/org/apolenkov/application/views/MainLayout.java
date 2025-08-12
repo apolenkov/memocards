@@ -28,13 +28,18 @@ public class MainLayout extends AppLayout {
         addToNavbar(true, viewTitle);
     }
 
-
-
-
     @Override
     protected void afterNavigation() {
         super.afterNavigation();
         viewTitle.setText(getCurrentPageTitle());
+        if (getContent() != null) {
+            // Center the routed content with side paddings
+            getContent().getElement().getStyle()
+                .set("max-width", "1040px")
+                .set("margin", "0 auto")
+                .set("padding-left", "var(--lumo-space-m)")
+                .set("padding-right", "var(--lumo-space-m)");
+        }
     }
 
     private String getCurrentPageTitle() {
