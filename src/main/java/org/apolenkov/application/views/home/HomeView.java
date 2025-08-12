@@ -65,7 +65,6 @@ public class HomeView extends Composite<VerticalLayout> {
         Button addDeckButton = new Button("Добавить колоду", VaadinIcon.PLUS.create());
         addDeckButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addDeckButton.addClickListener(e -> {
-            // TODO: Open deck creation dialog
             getUI().ifPresent(ui -> ui.navigate("decks/new"));
         });
         
