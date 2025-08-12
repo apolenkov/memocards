@@ -3,9 +3,11 @@ package org.apolenkov.application.views.deskview;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
@@ -24,10 +26,11 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.FlashcardService;
-import org.vaadin.lineawesome.LineAwesomeIconUrl;
+import org.apolenkov.application.service.StatsService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @PageTitle("Просмотр колоды")
 @Route("decks")
@@ -35,6 +38,7 @@ import java.util.Optional;
 public class DeskviewView extends Composite<VerticalLayout> implements HasUrlParameter<String> {
 
     private final FlashcardService flashcardService;
+    private final StatsService statsService;
     private Deck currentDeck;
     private Grid<Flashcard> flashcardGrid;
     private H2 deckTitle;
@@ -42,9 +46,11 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
     private Span deckStats;
     private TextField flashcardSearchField;
     private ListDataProvider<Flashcard> flashcardsDataProvider;
+    private Checkbox hideKnownCheckbox;
 
-    public DeskviewView(FlashcardService flashcardService) {
+    public DeskviewView(FlashcardService flashcardService, StatsService statsService) {
         this.flashcardService = flashcardService;
+        this.statsService = statsService;
         
         getContent().setWidth("100%");
         getContent().setPadding(true);
@@ -66,8 +72,6 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
             getUI().ifPresent(ui -> ui.navigate(""));
         }
     }
-
-
 
     private void createHeader() {
         HorizontalLayout headerLayout = new HorizontalLayout();
@@ -115,9 +119,7 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
     private void createActions() {
         HorizontalLayout actionsLayout = new HorizontalLayout();
         actionsLayout.setWidth("100%");
-        actionsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        
-        HorizontalLayout leftActions = new HorizontalLayout();
+        actionsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         
         Button practiceButton = new Button("▶ Начать сессию", VaadinIcon.PLAY.create());
         practiceButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
@@ -131,9 +133,7 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
         addFlashcardButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addFlashcardButton.addClickListener(e -> openFlashcardDialog(null));
         
-        leftActions.add(practiceButton, addFlashcardButton);
-        actionsLayout.add(leftActions);
-        
+        actionsLayout.add(practiceButton, addFlashcardButton);
         getContent().add(actionsLayout);
     }
 
@@ -141,10 +141,10 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
         H3 flashcardsTitle = new H3("Карточки");
         getContent().add(flashcardsTitle);
         
-        // search bar
         HorizontalLayout searchRow = new HorizontalLayout();
         searchRow.setWidth("100%");
         searchRow.setAlignItems(FlexComponent.Alignment.CENTER);
+        searchRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         
         flashcardSearchField = new TextField();
         flashcardSearchField.setPlaceholder("Поиск по карточкам...");
@@ -153,12 +153,28 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
         flashcardSearchField.setValueChangeMode(ValueChangeMode.EAGER);
         flashcardSearchField.addValueChangeListener(e -> applyFlashcardsFilter());
         
-        searchRow.add(flashcardSearchField);
+        HorizontalLayout rightFilters = new HorizontalLayout();
+        rightFilters.setAlignItems(FlexComponent.Alignment.CENTER);
+        hideKnownCheckbox = new Checkbox("Скрыть выученные", true);
+        hideKnownCheckbox.addValueChangeListener(e -> applyFlashcardsFilter());
+        Button resetProgress = new Button("Сбросить прогресс", VaadinIcon.ROTATE_LEFT.create());
+        resetProgress.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
+        resetProgress.addClickListener(e -> {
+            if (currentDeck != null) {
+                statsService.resetDeckProgress(currentDeck.getId());
+                Notification.show("Прогресс колоды сброшен", 2000, Notification.Position.BOTTOM_START);
+                loadFlashcards();
+            }
+        });
+        rightFilters.add(hideKnownCheckbox, resetProgress);
+        
+        searchRow.add(flashcardSearchField, rightFilters);
         getContent().add(searchRow);
         
         flashcardGrid = new Grid<>(Flashcard.class, false);
+        flashcardGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         flashcardGrid.setWidth("100%");
-        flashcardGrid.setHeight("400px");
+        flashcardGrid.setHeight("420px");
         
         flashcardGrid.addColumn(Flashcard::getFrontText)
             .setHeader("Лицевая сторона")
@@ -174,6 +190,13 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
         })
             .setHeader("Пример")
             .setFlexGrow(3);
+
+        flashcardGrid.addComponentColumn(flashcard -> {
+            boolean known = currentDeck != null && statsService.isCardKnown(currentDeck.getId(), flashcard.getId());
+            Span mark = new Span(known ? "✓ Выучено" : "");
+            mark.getStyle().set("color", "var(--lumo-success-text-color)");
+            return mark;
+        }).setHeader("Статус").setFlexGrow(0).setWidth("130px");
         
         flashcardGrid.addComponentColumn(flashcard -> {
             HorizontalLayout actions = new HorizontalLayout();
@@ -183,15 +206,25 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
             editButton.addClickListener(e -> openFlashcardDialog(flashcard));
             
+            Button toggleKnown = new Button(VaadinIcon.CHECK.create());
+            toggleKnown.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_SUCCESS);
+            toggleKnown.getElement().setProperty("title", "Отметить как выучено/снять отметку");
+            toggleKnown.addClickListener(e -> {
+                boolean known = statsService.isCardKnown(currentDeck.getId(), flashcard.getId());
+                statsService.setCardKnown(currentDeck.getId(), flashcard.getId(), !known);
+                flashcardGrid.getDataProvider().refreshAll();
+                applyFlashcardsFilter();
+            });
+            
             Button deleteButton = new Button(VaadinIcon.TRASH.create());
             deleteButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
             deleteButton.addClickListener(e -> deleteFlashcard(flashcard));
             
-            actions.add(editButton, deleteButton);
+            actions.add(editButton, toggleKnown, deleteButton);
             return actions;
         })
             .setHeader("Действия")
-            .setWidth("120px")
+            .setWidth("220px")
             .setFlexGrow(0);
         
         getContent().add(flashcardGrid);
@@ -227,18 +260,20 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void applyFlashcardsFilter() {
-        if (flashcardsDataProvider == null) return;
+        if (flashcardsDataProvider == null || currentDeck == null) return;
         String q = flashcardSearchField != null && flashcardSearchField.getValue() != null
                 ? flashcardSearchField.getValue().toLowerCase().trim() : "";
+        Set<Long> knownIds = statsService.getKnownCardIds(currentDeck.getId());
+        boolean hideKnown = hideKnownCheckbox != null && Boolean.TRUE.equals(hideKnownCheckbox.getValue());
         flashcardsDataProvider.clearFilters();
-        if (!q.isEmpty()) {
-            flashcardsDataProvider.addFilter(fc -> {
-                String front = fc.getFrontText() != null ? fc.getFrontText().toLowerCase() : "";
-                String back = fc.getBackText() != null ? fc.getBackText().toLowerCase() : "";
-                String ex = fc.getExample() != null ? fc.getExample().toLowerCase() : "";
-                return front.contains(q) || back.contains(q) || ex.contains(q);
-            });
-        }
+        flashcardsDataProvider.addFilter(fc -> {
+            boolean matches = (fc.getFrontText() != null && fc.getFrontText().toLowerCase().contains(q))
+                    || (fc.getBackText() != null && fc.getBackText().toLowerCase().contains(q))
+                    || (fc.getExample() != null && fc.getExample().toLowerCase().contains(q));
+            if (!matches) return false;
+            if (hideKnown && knownIds.contains(fc.getId())) return false;
+            return true;
+        });
     }
 
     private void openFlashcardDialog(Flashcard flashcard) {

@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.practice;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,10 +18,13 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.FlashcardService;
-import org.vaadin.lineawesome.LineAwesomeIconUrl;
+import org.apolenkov.application.service.PracticeSettingsService;
+import org.apolenkov.application.service.StatsService;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @PageTitle("Практика")
 @Route("practice")
@@ -28,12 +32,24 @@ import java.util.Optional;
 public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String> {
 
     private final FlashcardService flashcardService;
+    private final StatsService statsService;
+    private final PracticeSettingsService practiceSettingsService;
     private Deck currentDeck;
     private List<Flashcard> practiceCards;
     private int currentCardIndex = 0;
     private boolean showingAnswer = false;
+    private boolean sessionStarted = false;
+
+    // session stats
     private int correctCount = 0;
+    private int repeatCount = 0;
+    private int hardCount = 0;
     private int totalViewed = 0;
+    private Instant sessionStart;
+    private Instant cardShowTime;
+    private long totalAnswerDelayMs = 0L;
+    private final List<Long> knownCardIdsDelta = new ArrayList<>();
+    private final List<Long> failedCardIds = new ArrayList<>();
     
     // UI Components
     private H2 deckTitle;
@@ -42,13 +58,15 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private Div cardContent;
     private HorizontalLayout actionButtons;
     private Button showAnswerButton;
-    private Button correctButton;
-    private Button incorrectButton;
-    private Button nextButton;
+    private Button knowButton;
+    private Button repeatButton;
+    private Button hardButton;
     private Span statsSpan;
 
-    public PracticeView(FlashcardService flashcardService) {
+    public PracticeView(FlashcardService flashcardService, StatsService statsService, PracticeSettingsService practiceSettingsService) {
         this.flashcardService = flashcardService;
+        this.statsService = statsService;
+        this.practiceSettingsService = practiceSettingsService;
         
         getContent().setWidth("100%");
         getContent().setPadding(true);
@@ -66,10 +84,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         try {
             Long deckId = Long.parseLong(parameter);
             loadDeck(deckId);
-            
-            // Show practice setup dialog after loading deck
-            if (currentDeck != null) {
-                getUI().ifPresent(ui -> ui.access(() -> showPracticeSetupDialog()));
+            if (currentDeck != null && !sessionStarted) {
+                startDefaultPractice();
             }
         } catch (NumberFormatException e) {
             Notification.show("Неверный ID колоды", 3000, Notification.Position.MIDDLE);
@@ -77,7 +93,22 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         }
     }
 
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        if (currentDeck != null && !sessionStarted) {
+            startDefaultPractice();
+        }
+    }
 
+    private void startDefaultPractice() {
+        List<Flashcard> all = flashcardService.getFlashcardsByDeckId(currentDeck.getId());
+        int notKnown = (int) all.stream().filter(fc -> !statsService.isCardKnown(currentDeck.getId(), fc.getId())).count();
+        int configured = practiceSettingsService.getDefaultCount();
+        int defaultCount = Math.max(1, Math.min(configured, notKnown > 0 ? notKnown : all.size()));
+        boolean random = practiceSettingsService.isDefaultRandomOrder();
+        startPractice(defaultCount, random);
+    }
 
     private void createHeader() {
         HorizontalLayout headerLayout = new HorizontalLayout();
@@ -88,7 +119,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
         
-        Button backButton = new Button("← Назад", VaadinIcon.ARROW_LEFT.create());
+        Button backButton = new Button("← Колода", VaadinIcon.ARROW_LEFT.create());
         backButton.addClickListener(e -> {
             if (currentDeck != null) {
                 getUI().ifPresent(ui -> ui.navigate(org.apolenkov.application.views.deskview.DeskviewView.class, currentDeck.getId().toString()));
@@ -102,11 +133,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         
         leftSection.add(backButton, deckTitle);
         
-        Button setupButton = new Button("Настройки", VaadinIcon.COG.create());
-        setupButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        setupButton.addClickListener(e -> showPracticeSetupDialog());
-        
-        headerLayout.add(leftSection, setupButton);
+        headerLayout.add(leftSection);
         getContent().add(headerLayout);
     }
 
@@ -129,7 +156,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private void createCardContainer() {
         cardContainer = new Div();
         cardContainer.setWidth("100%");
-        cardContainer.setMaxWidth("600px");
+        cardContainer.setMaxWidth("720px");
         cardContainer.getStyle()
             .set("border", "2px solid var(--lumo-contrast-20pct)")
             .set("border-radius", "var(--lumo-border-radius-l)")
@@ -137,7 +164,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             .set("margin", "var(--lumo-space-l) auto")
             .set("background", "var(--lumo-base-color)")
             .set("box-shadow", "var(--lumo-box-shadow-s)")
-            .set("min-height", "300px")
+            .set("min-height", "320px")
             .set("display", "flex")
             .set("align-items", "center")
             .set("justify-content", "center");
@@ -164,39 +191,39 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         showAnswerButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
         showAnswerButton.addClickListener(e -> showAnswer());
         
-        correctButton = new Button("Правильно", VaadinIcon.CHECK.create());
-        correctButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_LARGE);
-        correctButton.addClickListener(e -> markAnswer(true));
-        correctButton.setVisible(false);
+        knowButton = new Button("Знаю", VaadinIcon.CHECK.create());
+        knowButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_LARGE);
+        knowButton.addClickListener(e -> { markLabeled("know"); nextCard(); });
+        knowButton.setVisible(false);
+
+        repeatButton = new Button("Повторить", VaadinIcon.REFRESH.create());
+        repeatButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
+        repeatButton.addClickListener(e -> { markLabeled("repeat"); nextCard(); });
+        repeatButton.setVisible(false);
+
+        hardButton = new Button("Сложно", VaadinIcon.WARNING.create());
+        hardButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_LARGE);
+        hardButton.addClickListener(e -> { markLabeled("hard"); nextCard(); });
+        hardButton.setVisible(false);
         
-        incorrectButton = new Button("Неправильно", VaadinIcon.CLOSE.create());
-        incorrectButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_LARGE);
-        incorrectButton.addClickListener(e -> markAnswer(false));
-        incorrectButton.setVisible(false);
-        
-        nextButton = new Button("Следующая", VaadinIcon.ARROW_RIGHT.create());
-        nextButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
-        nextButton.addClickListener(e -> nextCard());
-        nextButton.setVisible(false);
-        
-        actionButtons.add(showAnswerButton, correctButton, incorrectButton, nextButton);
+        actionButtons.add(showAnswerButton, knowButton, repeatButton, hardButton);
         getContent().add(actionButtons);
     }
 
     private void loadDeck(Long deckId) {
         Optional<Deck> deckOpt = flashcardService.getDeckById(deckId);
-        if (deckOpt.isPresent()) {
-            currentDeck = deckOpt.get();
+        deckOpt.ifPresentOrElse(deck -> {
+            currentDeck = deck;
             deckTitle.setText("Практика: " + currentDeck.getTitle());
-        } else {
+        }, () -> {
             Notification.show("Колода не найдена", 3000, Notification.Position.MIDDLE);
             getUI().ifPresent(ui -> ui.navigate(""));
-        }
+        });
     }
 
     private void showPracticeSetupDialog() {
         Dialog setupDialog = new Dialog();
-        setupDialog.setWidth("400px");
+        setupDialog.setWidth("420px");
         
         VerticalLayout layout = new VerticalLayout();
         layout.add(new H3("Настройки практики"));
@@ -213,7 +240,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         
         RadioButtonGroup<String> directionGroup = new RadioButtonGroup<>();
         directionGroup.setLabel("Направление");
-        directionGroup.setItems("Лицевая → Обратная", "Обратная → Лицевая", "Смешанный");
+        directionGroup.setItems("Лицевая → Обратная", "Обратная → Лицевая");
         directionGroup.setValue("Лицевая → Обратная");
         
         HorizontalLayout buttons = new HorizontalLayout();
@@ -223,20 +250,12 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         startButton.addClickListener(e -> {
             int count = countSelect.getValue();
             boolean random = "Случайный порядок".equals(modeGroup.getValue());
-            
             startPractice(count, random);
             setupDialog.close();
         });
         
         Button cancelButton = new Button("Отмена");
-        cancelButton.addClickListener(e -> {
-            setupDialog.close();
-            if (currentDeck != null) {
-                getUI().ifPresent(ui -> ui.navigate(org.apolenkov.application.views.deskview.DeskviewView.class, currentDeck.getId().toString()));
-            } else {
-                getUI().ifPresent(ui -> ui.navigate(""));
-            }
-        });
+        cancelButton.addClickListener(e -> setupDialog.close());
         
         buttons.add(startButton, cancelButton);
         layout.add(countSelect, modeGroup, directionGroup, buttons);
@@ -247,35 +266,39 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     private void startPractice(int count, boolean random) {
         if (currentDeck == null) return;
-        
-        practiceCards = flashcardService.getFlashcardsForPractice(currentDeck.getId(), count, random);
-        
-        if (practiceCards.isEmpty()) {
-            Notification.show("В колоде нет карточек для практики", 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate(org.apolenkov.application.views.deskview.DeskviewView.class, currentDeck.getId().toString()));
+        List<Flashcard> all = flashcardService.getFlashcardsByDeckId(currentDeck.getId());
+        Set<Long> known = statsService.getKnownCardIds(currentDeck.getId());
+        List<Flashcard> filtered = all.stream().filter(fc -> !known.contains(fc.getId())).collect(Collectors.toList());
+        if (filtered.isEmpty()) {
+            Notification.show("Все карточки выучены — нечего практиковать", 3000, Notification.Position.MIDDLE);
             return;
         }
+        practiceCards = random ? new ArrayList<>(filtered) : filtered;
+        if (random) java.util.Collections.shuffle(practiceCards);
+        if (count < practiceCards.size()) practiceCards = practiceCards.subList(0, count);
         
+        sessionStarted = true;
         currentCardIndex = 0;
         showingAnswer = false;
         correctCount = 0;
+        repeatCount = 0;
+        hardCount = 0;
         totalViewed = 0;
-        
+        totalAnswerDelayMs = 0L;
+        knownCardIdsDelta.clear();
+        failedCardIds.clear();
+        sessionStart = Instant.now();
         updateProgress();
         showCurrentCard();
     }
 
     private void updateProgress() {
         if (practiceCards == null || practiceCards.isEmpty()) return;
-        
-        int current = currentCardIndex + 1;
+        int current = Math.min(currentCardIndex + 1, practiceCards.size());
         int total = practiceCards.size();
-        double percentage = totalViewed > 0 ? (double) correctCount / totalViewed * 100 : 0;
-        
-        statsSpan.setText(String.format(
-            "Карточка %d из %d | Просмотрено: %d | Правильных: %d (%.0f%%)",
-            current, total, totalViewed, correctCount, percentage
-        ));
+        int percent = (int) Math.round((current * 100.0) / Math.max(1, total));
+        statsSpan.setText(String.format("Карточка %d из %d | Просмотрено: %d | Правильных: %d | Повтор: %d | Сложно: %d | Прогресс: %d%%",
+                current, total, totalViewed, correctCount, repeatCount, hardCount, percent));
     }
 
     private void showCurrentCard() {
@@ -283,10 +306,9 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             showPracticeComplete();
             return;
         }
-        
         Flashcard currentCard = practiceCards.get(currentCardIndex);
         showingAnswer = false;
-        
+        cardShowTime = Instant.now();
         cardContent.removeAll();
         
         VerticalLayout cardLayout = new VerticalLayout();
@@ -294,101 +316,77 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         cardLayout.setSpacing(true);
         
         H1 frontText = new H1(currentCard.getFrontText());
-        frontText.getStyle()
-            .set("margin", "0")
-            .set("color", "var(--lumo-primary-text-color)")
-            .set("text-align", "center");
+        frontText.getStyle().set("margin", "0");
+        Span transcription = new Span(" ");
+        transcription.getStyle().set("color", "var(--lumo-secondary-text-color)");
         
-        Span hintText = new Span("Подумайте над ответом, затем нажмите 'Показать ответ'");
-        hintText.getStyle()
-            .set("color", "var(--lumo-secondary-text-color)")
-            .set("font-style", "italic");
-        
-        cardLayout.add(frontText, hintText);
+        cardLayout.add(frontText, transcription);
         cardContent.add(cardLayout);
         
-        // Update button visibility
         showAnswerButton.setVisible(true);
-        correctButton.setVisible(false);
-        incorrectButton.setVisible(false);
-        nextButton.setVisible(false);
+        knowButton.setVisible(false);
+        repeatButton.setVisible(false);
+        hardButton.setVisible(false);
     }
 
     private void showAnswer() {
         if (practiceCards == null || currentCardIndex >= practiceCards.size()) return;
-        
         Flashcard currentCard = practiceCards.get(currentCardIndex);
         showingAnswer = true;
+        long delay = Duration.between(cardShowTime, Instant.now()).toMillis();
+        totalAnswerDelayMs += Math.max(delay, 0);
         
         cardContent.removeAll();
-        
         VerticalLayout cardLayout = new VerticalLayout();
         cardLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         cardLayout.setSpacing(true);
         
         H2 frontText = new H2(currentCard.getFrontText());
-        frontText.getStyle()
-            .set("margin", "0")
-            .set("color", "var(--lumo-secondary-text-color)");
-        
         Hr divider = new Hr();
-        divider.getStyle().set("width", "50%");
-        
+        divider.getStyle().set("width", "60%");
         H1 backText = new H1(currentCard.getBackText());
-        backText.getStyle()
-            .set("margin", "0")
-            .set("color", "var(--lumo-primary-text-color)")
-            .set("text-align", "center");
         
         cardLayout.add(frontText, divider, backText);
-        
-        // Add example if exists
-        if (currentCard.getExample() != null && !currentCard.getExample().trim().isEmpty()) {
+        if (currentCard.getExample() != null && !currentCard.getExample().isBlank()) {
             Span exampleText = new Span("Пример: " + currentCard.getExample());
-            exampleText.getStyle()
-                .set("color", "var(--lumo-secondary-text-color)")
-                .set("font-style", "italic")
-                .set("text-align", "center");
+            exampleText.getStyle().set("color", "var(--lumo-secondary-text-color)");
             cardLayout.add(exampleText);
         }
-        
         cardContent.add(cardLayout);
         
-        // Update button visibility
         showAnswerButton.setVisible(false);
-        correctButton.setVisible(true);
-        incorrectButton.setVisible(true);
-        nextButton.setVisible(false);
+        knowButton.setVisible(true);
+        repeatButton.setVisible(true);
+        hardButton.setVisible(true);
     }
 
-    private void markAnswer(boolean correct) {
+    private void markLabeled(String label) {
         if (!showingAnswer) return;
-        
         totalViewed++;
-        if (correct) {
-            correctCount++;
+        Flashcard currentCard = practiceCards.get(currentCardIndex);
+        switch (label) {
+            case "know" -> {
+                correctCount++;
+                knownCardIdsDelta.add(currentCard.getId());
+            }
+            case "repeat" -> {
+                repeatCount++;
+                failedCardIds.add(currentCard.getId());
+            }
+            case "hard" -> {
+                hardCount++;
+                failedCardIds.add(currentCard.getId());
+            }
         }
-        
         updateProgress();
-        
-        // Update button visibility
-        correctButton.setVisible(false);
-        incorrectButton.setVisible(false);
-        nextButton.setVisible(true);
-        
-        // Change next button text if this is the last card
-        if (currentCardIndex >= practiceCards.size() - 1) {
-            nextButton.setText("Завершить");
-            nextButton.setIcon(VaadinIcon.CHECK.create());
-        } else {
-            nextButton.setText("Следующая");
-            nextButton.setIcon(VaadinIcon.ARROW_RIGHT.create());
-        }
+        knowButton.setVisible(false);
+        repeatButton.setVisible(false);
+        hardButton.setVisible(false);
+        nextCard();
     }
 
     private void nextCard() {
         currentCardIndex++;
-        
         if (currentCardIndex >= practiceCards.size()) {
             showPracticeComplete();
         } else {
@@ -397,42 +395,64 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void showPracticeComplete() {
-        cardContent.removeAll();
+        Duration sessionDuration = Duration.between(sessionStart, Instant.now());
+        statsService.recordSession(
+                currentDeck.getId(),
+                totalViewed,
+                correctCount,
+                repeatCount,
+                hardCount,
+                sessionDuration,
+                totalAnswerDelayMs,
+                knownCardIdsDelta
+        );
         
+        cardContent.removeAll();
         VerticalLayout completionLayout = new VerticalLayout();
         completionLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         completionLayout.setSpacing(true);
         
-        H1 completionTitle = new H1("🎉 Практика завершена!");
-        completionTitle.getStyle()
-            .set("margin", "0")
-            .set("color", "var(--lumo-success-text-color)")
-            .set("text-align", "center");
+        int total = practiceCards != null ? practiceCards.size() : totalViewed;
+        H1 completionTitle = new H1("Сессия завершена — Колода: " + currentDeck.getTitle());
+        H3 results = new H3(String.format("Правильно: %d/%d    На повтор: %d", correctCount, total, repeatCount));
+        Span timeInfo = new Span(String.format("Время: %d мин    Средняя задержка: %d сек/кар",
+                Math.max(1, sessionDuration.toMinutes()), Math.round((totalAnswerDelayMs / Math.max(1.0, totalViewed)) / 1000.0)));
         
-        double percentage = totalViewed > 0 ? (double) correctCount / totalViewed * 100 : 0;
-        H3 results = new H3(String.format(
-            "Результат: %d из %d правильных (%.0f%%)",
-            correctCount, totalViewed, percentage
-        ));
-        results.getStyle().set("text-align", "center");
-        
-        completionLayout.add(completionTitle, results);
+        completionLayout.add(completionTitle, results, timeInfo);
         cardContent.add(completionLayout);
         
-        // Update buttons
         actionButtons.removeAll();
-        
-        Button againButton = new Button("Еще раз", VaadinIcon.REFRESH.create());
-        againButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        againButton.addClickListener(e -> showPracticeSetupDialog());
-        
-        Button backToDeckButton = new Button("К колоде", VaadinIcon.CLIPBOARD.create());
-        backToDeckButton.addClickListener(e -> 
-            getUI().ifPresent(ui -> ui.navigate(org.apolenkov.application.views.deskview.DeskviewView.class, currentDeck.getId().toString())));
-        
-        Button homeButton = new Button("На главную", VaadinIcon.HOME.create());
-        homeButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
-        
+        Button againButton = new Button("Повторить ошибочные", e -> {
+            List<Flashcard> all = flashcardService.getFlashcardsByDeckId(currentDeck.getId());
+            Set<Long> known = statsService.getKnownCardIds(currentDeck.getId());
+            List<Flashcard> failed = all.stream()
+                    .filter(fc -> failedCardIds.contains(fc.getId()))
+                    .filter(fc -> !known.contains(fc.getId()))
+                    .collect(Collectors.toList());
+            if (failed.isEmpty()) {
+                Notification.show("Нет ошибочных для повтора — стартуем по невыученным", 2500, Notification.Position.MIDDLE);
+                startDefaultPractice();
+                return;
+            }
+            practiceCards = new ArrayList<>(failed);
+            Collections.shuffle(practiceCards);
+            sessionStarted = true;
+            currentCardIndex = 0;
+            showingAnswer = false;
+            correctCount = 0;
+            repeatCount = 0;
+            hardCount = 0;
+            totalViewed = 0;
+            totalAnswerDelayMs = 0L;
+            knownCardIdsDelta.clear();
+            failedCardIds.clear();
+            sessionStart = Instant.now();
+            updateProgress();
+            showCurrentCard();
+        });
+        Button backToDeckButton = new Button("К колоде", e ->
+                getUI().ifPresent(ui -> ui.navigate(org.apolenkov.application.views.deskview.DeskviewView.class, currentDeck.getId().toString())));
+        Button homeButton = new Button("К колодам", e -> getUI().ifPresent(ui -> ui.navigate("")));
         actionButtons.add(againButton, backToDeckButton, homeButton);
     }
 }

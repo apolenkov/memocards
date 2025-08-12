@@ -22,6 +22,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.FlashcardService;
+import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.views.deskview.DeskviewView;
 
 import java.util.List;
@@ -34,11 +35,13 @@ import java.util.stream.Collectors;
 public class HomeView extends Composite<VerticalLayout> {
 
     private final FlashcardService flashcardService;
+    private final StatsService statsService;
     private VerticalLayout decksContainer;
     private TextField searchField;
 
-    public HomeView(FlashcardService flashcardService) {
+    public HomeView(FlashcardService flashcardService, StatsService statsService) {
         this.flashcardService = flashcardService;
+        this.statsService = statsService;
         
         getContent().setWidth("100%");
         getContent().setPadding(true);
@@ -155,10 +158,11 @@ public class HomeView extends Composite<VerticalLayout> {
         
         Span progressLabel = new Span("Прогресс:");
         ProgressBar progressBar = new ProgressBar();
-        progressBar.setValue(Math.random() * 0.8 + 0.2);
-        progressBar.setWidth("120px");
-        int progressPercent = (int) (progressBar.getValue() * 100);
-        Span progressText = new Span(progressPercent + "%");
+        int deckSize = deck.getFlashcardCount();
+        int percent = statsService.getDeckProgressPercent(deck.getId(), deckSize);
+        progressBar.setValue(Math.min(1.0, Math.max(0.0, percent / 100.0)));
+        progressBar.setWidth("140px");
+        Span progressText = new Span(percent + "%");
         
         progressLayout.add(progressLabel, progressBar, progressText);
         
@@ -218,7 +222,6 @@ public class HomeView extends Composite<VerticalLayout> {
             Notification.show("Колода создана", 2000, Notification.Position.BOTTOM_START);
             dialog.close();
             loadDecks();
-            // Навигация к созданной колоде по желанию
             getUI().ifPresent(ui -> ui.navigate(DeskviewView.class, saved.getId().toString()));
         });
 
