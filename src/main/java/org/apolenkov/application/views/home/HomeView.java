@@ -3,6 +3,7 @@ package org.apolenkov.application.views.home;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
@@ -70,7 +72,7 @@ public class HomeView extends Composite<VerticalLayout> {
         
         Button addDeckButton = new Button("Добавить колоду", VaadinIcon.PLUS.create());
         addDeckButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        addDeckButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("decks/new")));
+        addDeckButton.addClickListener(e -> openCreateDeckDialog());
         
         searchLayout.add(searchField, addDeckButton);
         getContent().add(searchLayout);
@@ -173,5 +175,59 @@ public class HomeView extends Composite<VerticalLayout> {
         cardContent.add(titleLayout, description, progressLayout, practiceButton);
         card.add(cardContent);
         return card;
+    }
+
+    private void openCreateDeckDialog() {
+        Dialog dialog = new Dialog();
+        dialog.setWidth("520px");
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setPadding(false);
+        layout.setSpacing(true);
+
+        H3 header = new H3("Новая колода");
+
+        TextField titleField = new TextField("Название колоды");
+        titleField.setWidth("100%");
+        titleField.setRequiredIndicatorVisible(true);
+        titleField.setMaxLength(120);
+        titleField.setClearButtonVisible(true);
+
+        TextArea descriptionArea = new TextArea("Описание");
+        descriptionArea.setWidth("100%");
+        descriptionArea.setMaxHeight("140px");
+        descriptionArea.setMaxLength(500);
+        descriptionArea.setPlaceholder("Краткое описание (опционально)");
+
+        HorizontalLayout buttons = new HorizontalLayout();
+        Button save = new Button("Создать", VaadinIcon.CHECK.create());
+        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        save.addClickListener(e -> {
+            String title = titleField.getValue() != null ? titleField.getValue().trim() : "";
+            String desc = descriptionArea.getValue() != null ? descriptionArea.getValue().trim() : "";
+            if (title.isEmpty()) {
+                Notification.show("Введите название колоды", 3000, Notification.Position.MIDDLE);
+                titleField.focus();
+                return;
+            }
+            Deck deck = new Deck();
+            deck.setUserId(flashcardService.getCurrentUser().getId());
+            deck.setTitle(title);
+            deck.setDescription(desc);
+            Deck saved = flashcardService.saveDeck(deck);
+            Notification.show("Колода создана", 2000, Notification.Position.BOTTOM_START);
+            dialog.close();
+            loadDecks();
+            // Навигация к созданной колоде по желанию
+            getUI().ifPresent(ui -> ui.navigate(DeskviewView.class, saved.getId().toString()));
+        });
+
+        Button cancel = new Button("Отмена", VaadinIcon.CLOSE.create());
+        cancel.addClickListener(e -> dialog.close());
+        buttons.add(save, cancel);
+
+        layout.add(header, titleField, descriptionArea, buttons);
+        dialog.add(layout);
+        dialog.open();
     }
 }
