@@ -193,17 +193,17 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         
         knowButton = new Button("Знаю", VaadinIcon.CHECK.create());
         knowButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_LARGE);
-        knowButton.addClickListener(e -> { markLabeled("know"); nextCard(); });
+        knowButton.addClickListener(e -> { markLabeled("know"); });
         knowButton.setVisible(false);
 
         repeatButton = new Button("Повторить", VaadinIcon.REFRESH.create());
         repeatButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
-        repeatButton.addClickListener(e -> { markLabeled("repeat"); nextCard(); });
+        repeatButton.addClickListener(e -> { markLabeled("repeat"); });
         repeatButton.setVisible(false);
 
         hardButton = new Button("Сложно", VaadinIcon.WARNING.create());
         hardButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_LARGE);
-        hardButton.addClickListener(e -> { markLabeled("hard"); nextCard(); });
+        hardButton.addClickListener(e -> { markLabeled("hard"); });
         hardButton.setVisible(false);
         
         actionButtons.add(showAnswerButton, knowButton, repeatButton, hardButton);
