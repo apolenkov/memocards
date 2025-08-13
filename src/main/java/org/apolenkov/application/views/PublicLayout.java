@@ -20,7 +20,7 @@ public class PublicLayout extends AppLayout {
         HorizontalLayout bar = new HorizontalLayout();
         bar.addClassName("main-layout__navbar");
 
-        Button homeBtn = new Button("Home", e -> getUI().ifPresent(ui -> ui.navigate("")));
+        Button homeBtn = new Button(getTranslation("main.home"), e -> getUI().ifPresent(ui -> ui.navigate("")));
 
         HorizontalLayout right = new HorizontalLayout();
         right.addClassName("main-layout__right");

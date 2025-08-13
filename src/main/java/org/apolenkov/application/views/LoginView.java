@@ -1,8 +1,8 @@
 package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -27,12 +27,20 @@ public class LoginView extends Div implements BeforeEnterObserver {
         wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
         wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
-        H2 title = new H2("Sign in to continue");
         loginForm = new LoginForm();
         loginForm.setAction("login");
         loginForm.setForgotPasswordButtonVisible(false);
 
-        wrapper.add(title, loginForm);
+        LoginI18n i18n = LoginI18n.createDefault();
+        i18n.getForm().setTitle(getTranslation("auth.login.subtitle"));
+        i18n.getForm().setUsername(getTranslation("auth.login.username"));
+        i18n.getForm().setPassword(getTranslation("auth.login.password"));
+        i18n.getForm().setSubmit(getTranslation("auth.login.submit"));
+        i18n.getErrorMessage().setTitle(getTranslation("auth.login.errorTitle"));
+        i18n.getErrorMessage().setMessage(getTranslation("auth.login.errorMessage"));
+        loginForm.setI18n(i18n);
+
+        wrapper.add(loginForm);
         add(wrapper);
     }
 

@@ -3,6 +3,7 @@ package org.apolenkov.application.views;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -23,6 +24,7 @@ public class MainLayout extends AppLayout {
     private final PracticeSettingsService practiceSettingsService;
     private H1 viewTitle;
     private final org.apolenkov.application.views.components.LanguageSwitcher languageSwitcher;
+    private Span greetingSpan;
 
     public MainLayout(
             DeckUseCase deckUseCase,
@@ -57,7 +59,10 @@ public class MainLayout extends AppLayout {
 
         HorizontalLayout right = new HorizontalLayout();
         right.addClassName("main-layout__right");
-        right.add(languageSwitcher);
+        greetingSpan = new Span("");
+        greetingSpan.addClassName("main-layout__greeting");
+        updateGreeting();
+        right.add(greetingSpan, languageSwitcher);
 
         bar.add(viewTitle, menu, right);
         addToNavbar(true, bar);
@@ -77,6 +82,7 @@ public class MainLayout extends AppLayout {
     protected void afterNavigation() {
         super.afterNavigation();
         viewTitle.setText("");
+        updateGreeting();
         if (getContent() != null) {
             getContent()
                     .getElement()
@@ -85,6 +91,16 @@ public class MainLayout extends AppLayout {
                     .set("margin", "0 auto")
                     .set("padding-left", "var(--lumo-space-m)")
                     .set("padding-right", "var(--lumo-space-m)");
+        }
+    }
+
+    private void updateGreeting() {
+        try {
+            String name = userUseCase.getCurrentUser().getName();
+            greetingSpan.setText(getTranslation("main.greeting", name));
+            greetingSpan.setVisible(true);
+        } catch (Exception ex) {
+            greetingSpan.setVisible(false);
         }
     }
 }

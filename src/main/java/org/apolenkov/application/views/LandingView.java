@@ -31,20 +31,19 @@ public class LandingView extends VerticalLayout implements BeforeEnterObserver {
         setSizeFull();
 
         H1 title = new H1("Flashcards");
-        Paragraph subtitle = new Paragraph(
-                "Practice languages with beautiful, simple flashcards. Track progress and improve every day.");
+        Paragraph subtitle = new Paragraph(getTranslation("landing.subtitle"));
 
         Image hero = new Image(
                 new StreamResource(
                         "icon.png", () -> getClass().getResourceAsStream("/META-INF/resources/icons/icon.png")),
-                "Flashcards");
+                getTranslation("landing.heroAlt"));
         hero.setMaxWidth("160px");
 
-        Button login = new Button("Login");
+        Button login = new Button(getTranslation("auth.login"));
         login.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         login.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("login")));
 
-        Button register = new Button("Register");
+        Button register = new Button(getTranslation("auth.register"));
         register.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("register")));
 
         HorizontalLayout actions = new HorizontalLayout(login, register);
