@@ -37,6 +37,7 @@ dependencies {
     // Persistence (enable via profiles memory/jpa)
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("com.h2database:h2")
 
@@ -48,6 +49,9 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("com.vaadin:vaadin-testbench-junit5")
+    // Testcontainers for integration tests
+    testImplementation("org.testcontainers:junit-jupiter:1.20.1")
+    testImplementation("org.testcontainers:postgresql:1.20.1")
 }
 
 dependencyManagement {
@@ -72,29 +76,27 @@ spotless {
 }
 
 checkstyle {
-    toolVersion = "10.16.0"
-    // Use upstream Google style to avoid local config issues
-    config = resources.text.fromUri("https://raw.githubusercontent.com/checkstyle/checkstyle/master/src/main/resources/google_checks.xml")
-    // Do not fail the build on style warnings during migration
-    isIgnoreFailures = true
+    toolVersion = "10.12.1"
+    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
+    isShowViolations = true
 }
 
 tasks.named("spotlessJava") {
     dependsOn("vaadinPrepareFrontend")
 }
 
-// Re-enable Checkstyle
-tasks.named("checkstyleMain") { enabled = true }
-tasks.named("checkstyleTest") { enabled = true }
+tasks.check {
+    description =
+        "Check formatting and SonarLint for this project and all subprojects."
+    group = JavaBasePlugin.VERIFICATION_GROUP
 
-// Temporarily disable all Checkstyle tasks to unblock builds due to tool config issues
-tasks.withType<Checkstyle>().configureEach { enabled = false }
-
-tasks.withType<Checkstyle> {
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
+    dependsOn("spotlessCheck")
+//    dependsOn("sonarlintMain")
+//    dependsOn("sonarlintTest")
+    dependsOn("checkstyleMain")
+    dependsOn("checkstyleTest")
+//    dependsOn("spotbugsMain")
+//    dependsOn("spotbugsTest")
 }
 
 jacoco {
@@ -134,5 +136,3 @@ tasks.withType<JacocoCoverageVerification> {
 tasks.check {
     dependsOn(tasks.named("spotlessCheck"))
 }
-
-
