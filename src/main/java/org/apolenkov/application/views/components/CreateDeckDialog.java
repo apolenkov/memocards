@@ -9,8 +9,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import org.apolenkov.application.application.usecase.DeckUseCase;
+import org.apolenkov.application.application.usecase.UserUseCase;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.service.FlashcardService;
 import org.apolenkov.application.views.DeckView;
 
 import java.util.function.Consumer;
@@ -20,11 +21,13 @@ import java.util.function.Consumer;
  */
 public class CreateDeckDialog extends Dialog {
 
-    private final FlashcardService flashcardService;
+    private final DeckUseCase deckUseCase;
+    private final UserUseCase userUseCase;
     private final Consumer<Deck> onCreated;
 
-    public CreateDeckDialog(FlashcardService flashcardService, Consumer<Deck> onCreated) {
-        this.flashcardService = flashcardService;
+    public CreateDeckDialog(DeckUseCase deckUseCase, UserUseCase userUseCase, Consumer<Deck> onCreated) {
+        this.deckUseCase = deckUseCase;
+        this.userUseCase = userUseCase;
         this.onCreated = onCreated;
         setWidth("520px");
         build();
@@ -61,10 +64,10 @@ public class CreateDeckDialog extends Dialog {
                 return;
             }
             Deck newDeck = new Deck();
-            newDeck.setUserId(flashcardService.getCurrentUser().getId());
+            newDeck.setUserId(userUseCase.getCurrentUser().getId());
             newDeck.setTitle(titleStr);
             newDeck.setDescription(desc);
-            Deck saved = flashcardService.saveDeck(newDeck);
+            Deck saved = deckUseCase.saveDeck(newDeck);
             Notification.show(getTranslation("home.deckCreated"), 2000, Notification.Position.BOTTOM_START);
             close();
             if (onCreated != null) onCreated.accept(saved);

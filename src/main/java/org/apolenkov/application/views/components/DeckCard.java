@@ -75,7 +75,7 @@ public class DeckCard extends Div {
         progressBar.setValue(Math.min(1.0, Math.max(0.0, percent / 100.0)));
         progressBar.setWidth("140px");
         Span progressText = new Span(percent + "%");
-        Span progressDetails = new Span(known + " выучено из " + deckSize);
+        Span progressDetails = new Span(getTranslation("home.progress.details", null, known, deckSize));
         progressDetails.addClassName("deck-card__progress-details");
 
         layout.add(progressLabel, progressBar, progressText, progressDetails);

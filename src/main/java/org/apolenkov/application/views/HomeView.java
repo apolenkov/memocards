@@ -21,7 +21,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.service.FlashcardService;
+import org.apolenkov.application.application.usecase.DeckUseCase;
+import org.apolenkov.application.application.usecase.UserUseCase;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.views.components.CreateDeckDialog;
 import org.apolenkov.application.views.components.DeckCard;
@@ -37,16 +38,18 @@ import java.util.stream.Collectors;
 @AnonymousAllowed
 public class HomeView extends Composite<VerticalLayout> {
 
-    private final FlashcardService flashcardService;
+    private final DeckUseCase deckUseCase;
+    private final UserUseCase userUseCase;
     private final StatsService statsService;
     private VerticalLayout decksContainer;
     private final HomePresenter presenter;
     private TextField searchField;
 
-    public HomeView(FlashcardService flashcardService, StatsService statsService) {
-        this.flashcardService = flashcardService;
+    public HomeView(DeckUseCase deckUseCase, UserUseCase userUseCase, StatsService statsService) {
+        this.deckUseCase = deckUseCase;
+        this.userUseCase = userUseCase;
         this.statsService = statsService;
-        this.presenter = new HomePresenter(flashcardService, statsService);
+        this.presenter = new HomePresenter(deckUseCase, userUseCase, statsService);
         getContent().addClassName("home-view");
         
         createHeader();
@@ -97,7 +100,7 @@ public class HomeView extends Composite<VerticalLayout> {
     }
 
     private void openCreateDeckDialog() {
-        CreateDeckDialog dialog = new CreateDeckDialog(flashcardService, saved -> loadDecks());
+        CreateDeckDialog dialog = new CreateDeckDialog(deckUseCase, userUseCase, saved -> loadDecks());
         dialog.open();
     }
 }

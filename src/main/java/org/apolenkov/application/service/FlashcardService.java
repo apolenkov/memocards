@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
  * Delegates persistence to repositories (ports).
  */
 @Service
+@Deprecated(since = "refactor-usecases", forRemoval = true)
 public class FlashcardService implements 
         org.apolenkov.application.application.usecase.DeckUseCase,
         org.apolenkov.application.application.usecase.FlashcardUseCase,

@@ -49,10 +49,10 @@ public class DeckCreateView extends Composite<VerticalLayout> {
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
         
-        Button backButton = new Button("Назад", VaadinIcon.ARROW_LEFT.create());
+        Button backButton = new Button(getTranslation("deckCreate.back"), VaadinIcon.ARROW_LEFT.create());
         backButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
         
-        H2 title = new H2("Добавить новую колоду");
+        H2 title = new H2(getTranslation("deckCreate.title"));
         title.getStyle().set("margin-left", "var(--lumo-space-m)");
         
         leftSection.add(backButton, title);
@@ -77,28 +77,28 @@ public class DeckCreateView extends Composite<VerticalLayout> {
         formLayout.setSpacing(true);
         formLayout.setWidth("100%");
         
-        H3 formTitle = new H3("Информация о колоде");
+        H3 formTitle = new H3(getTranslation("deckCreate.section"));
         formTitle.getStyle().set("margin-top", "0");
         
-        titleField = new TextField("Название колоды");
+        titleField = new TextField(getTranslation("deckCreate.name"));
         titleField.setWidth("100%");
         titleField.setRequired(true);
-        titleField.setPlaceholder("Например: Английские слова");
+        titleField.setPlaceholder(getTranslation("deckCreate.name.placeholder"));
         
-        descriptionArea = new TextArea("Описание");
+        descriptionArea = new TextArea(getTranslation("deckCreate.description"));
         descriptionArea.setWidth("100%");
         descriptionArea.setMaxHeight("150px");
-        descriptionArea.setPlaceholder("Краткое описание колоды (опционально)");
+        descriptionArea.setPlaceholder(getTranslation("deckCreate.description.placeholder"));
         
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSpacing(true);
         buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         
-        Button saveButton = new Button("Создать колоду", VaadinIcon.CHECK.create());
+        Button saveButton = new Button(getTranslation("deckCreate.create"), VaadinIcon.CHECK.create());
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
         saveButton.addClickListener(e -> saveDeck());
         
-        Button cancelButton = new Button("Отмена", VaadinIcon.CLOSE.create());
+        Button cancelButton = new Button(getTranslation("deckCreate.cancel"), VaadinIcon.CLOSE.create());
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
         cancelButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
         
@@ -112,7 +112,7 @@ public class DeckCreateView extends Composite<VerticalLayout> {
 
     private void saveDeck() {
         if (titleField.isEmpty()) {
-            Notification.show("Введите название колоды", 3000, Notification.Position.MIDDLE);
+            Notification.show(getTranslation("deckCreate.enterTitle"), 3000, Notification.Position.MIDDLE);
             titleField.focus();
             return;
         }
@@ -125,14 +125,14 @@ public class DeckCreateView extends Composite<VerticalLayout> {
             
             Deck savedDeck = flashcardService.saveDeck(newDeck);
             
-            Notification.show("Колода '" + savedDeck.getTitle() + "' успешно создана!", 
+            Notification.show(getTranslation("deckCreate.created", null, savedDeck.getTitle()), 
                 3000, Notification.Position.BOTTOM_START);
             
             // Переходим к просмотру созданной колоды
             getUI().ifPresent(ui -> ui.navigate(DeckView.class, savedDeck.getId().toString()));
             
         } catch (Exception e) {
-            Notification.show("Ошибка при создании колоды: " + e.getMessage(), 
+            Notification.show(getTranslation("deckCreate.error", null, e.getMessage()), 
                 5000, Notification.Position.MIDDLE);
         }
     }
