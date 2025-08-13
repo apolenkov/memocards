@@ -1,10 +1,13 @@
 package org.apolenkov.application.config;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import java.util.Arrays;
 import org.apolenkov.application.views.LoginView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class SecurityConfig extends VaadinWebSecurity {
@@ -42,11 +46,11 @@ public class SecurityConfig extends VaadinWebSecurity {
         // Unauthenticated access → redirect to landing instead of /login
         http.exceptionHandling(ex -> ex.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/")));
 
-        // After logout: go to /home (LandingView will reroute anonymous back to "/")
-        http.logout(logout -> logout.logoutSuccessUrl("/home"));
+        // Allow GET /logout and redirect to /home afterwards
+        http.logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+                .logoutSuccessUrl("/home"));
 
-        boolean isProd =
-                java.util.Arrays.stream(environment.getActiveProfiles()).anyMatch(p -> p.equals("prod"));
+        boolean isProd = Arrays.asList(environment.getActiveProfiles()).contains("prod");
         if (isProd) {
             http.headers(
                     headers -> headers.contentSecurityPolicy(
@@ -78,5 +82,10 @@ public class SecurityConfig extends VaadinWebSecurity {
                 .roles("USER", "ADMIN")
                 .build());
         return manager;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 }
