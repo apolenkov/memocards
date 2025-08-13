@@ -11,6 +11,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
@@ -21,6 +22,7 @@ import org.apolenkov.application.views.home.DeckCardViewModel;
 import org.apolenkov.application.views.home.HomePresenter;
 
 @Route(value = "home", layout = MainLayout.class)
+@PermitAll
 public class HomeView extends Composite<VerticalLayout> implements HasDynamicTitle {
 
     private final DeckUseCase deckUseCase;
