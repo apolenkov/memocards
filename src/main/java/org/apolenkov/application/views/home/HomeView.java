@@ -170,7 +170,7 @@ public class HomeView extends Composite<VerticalLayout> {
         
         progressLayout.add(progressLabel, progressBar, progressText, progressDetails);
         
-        Button practiceButton = new Button("▶ Начать практику");
+        Button practiceButton = new Button("Начать практику");
         practiceButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
         practiceButton.addClickListener(e -> {
             if (deck.getId() != null) {

@@ -49,7 +49,7 @@ public class DeckCreateView extends Composite<VerticalLayout> {
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
         
-        Button backButton = new Button("← Назад", VaadinIcon.ARROW_LEFT.create());
+        Button backButton = new Button("Назад", VaadinIcon.ARROW_LEFT.create());
         backButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
         
         H2 title = new H2("Добавить новую колоду");

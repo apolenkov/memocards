@@ -82,7 +82,7 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
         
-        Button backButton = new Button("← Колоды", VaadinIcon.ARROW_LEFT.create());
+        Button backButton = new Button("Колоды", VaadinIcon.ARROW_LEFT.create());
         backButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
         
         deckTitle = new H2("Загрузка...");
@@ -121,7 +121,7 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
         actionsLayout.setWidth("100%");
         actionsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         
-        Button practiceButton = new Button("▶ Начать сессию", VaadinIcon.PLAY.create());
+        Button practiceButton = new Button("Начать сессию", VaadinIcon.PLAY.create());
         practiceButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
         practiceButton.addClickListener(e -> {
             if (currentDeck != null) {
@@ -129,7 +129,7 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
             }
         });
         
-        Button addFlashcardButton = new Button("✚ Добавить карточку", VaadinIcon.PLUS.create());
+        Button addFlashcardButton = new Button("Добавить карточку", VaadinIcon.PLUS.create());
         addFlashcardButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addFlashcardButton.addClickListener(e -> openFlashcardDialog(null));
         
