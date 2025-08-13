@@ -3,6 +3,9 @@ package org.apolenkov.application;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.Theme;
+import com.vaadin.flow.server.ServiceInitEvent;
+import com.vaadin.flow.server.VaadinServiceInitListener;
+import com.vaadin.flow.server.VaadinSession;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -15,9 +18,20 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 @PageTitle("Flashcards")
 @Theme(value = "flashcards")
-public class Application implements AppShellConfigurator {
+public class Application implements AppShellConfigurator, VaadinServiceInitListener {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
+    }
+
+    @Override
+    public void serviceInit(ServiceInitEvent event) {
+        event.getSource().addUIInitListener(uiEvent -> {
+            VaadinSession session = uiEvent.getUI().getSession();
+            Object preferred = session.getAttribute(org.apolenkov.application.views.components.LanguageSwitcher.SESSION_LOCALE_KEY);
+            if (preferred instanceof java.util.Locale locale) {
+                uiEvent.getUI().setLocale(locale);
+            }
+        });
     }
 }

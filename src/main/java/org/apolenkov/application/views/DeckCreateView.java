@@ -13,23 +13,25 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.service.FlashcardService;
+import org.apolenkov.application.application.usecase.DeckUseCase;
+import org.apolenkov.application.application.usecase.UserUseCase;
 
-@PageTitle("Добавить колоду")
 @Route("decks/new")
 @AnonymousAllowed
-public class DeckCreateView extends Composite<VerticalLayout> {
+public class DeckCreateView extends Composite<VerticalLayout> implements HasDynamicTitle {
 
-    private final FlashcardService flashcardService;
+    private final DeckUseCase deckUseCase;
+    private final UserUseCase userUseCase;
     private TextField titleField;
     private TextArea descriptionArea;
 
-    public DeckCreateView(FlashcardService flashcardService) {
-        this.flashcardService = flashcardService;
+    public DeckCreateView(DeckUseCase deckUseCase, UserUseCase userUseCase) {
+        this.deckUseCase = deckUseCase;
+        this.userUseCase = userUseCase;
         
         getContent().setWidth("100%");
         getContent().setPadding(true);
@@ -119,11 +121,11 @@ public class DeckCreateView extends Composite<VerticalLayout> {
         
         try {
             Deck newDeck = new Deck();
-            newDeck.setUserId(flashcardService.getCurrentUser().getId());
+            newDeck.setUserId(userUseCase.getCurrentUser().getId());
             newDeck.setTitle(titleField.getValue().trim());
             newDeck.setDescription(descriptionArea.getValue().trim());
             
-            Deck savedDeck = flashcardService.saveDeck(newDeck);
+            Deck savedDeck = deckUseCase.saveDeck(newDeck);
             
             Notification.show(getTranslation("deckCreate.created", null, savedDeck.getTitle()), 
                 3000, Notification.Position.BOTTOM_START);
@@ -135,5 +137,10 @@ public class DeckCreateView extends Composite<VerticalLayout> {
             Notification.show(getTranslation("deckCreate.error", null, e.getMessage()), 
                 5000, Notification.Position.MIDDLE);
         }
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("deckCreate.title");
     }
 }

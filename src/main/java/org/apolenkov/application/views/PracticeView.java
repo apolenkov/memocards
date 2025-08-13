@@ -17,7 +17,8 @@ import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.service.FlashcardService;
+import org.apolenkov.application.application.usecase.DeckUseCase;
+import org.apolenkov.application.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.model.PracticeDirection;
@@ -32,7 +33,8 @@ import java.util.stream.Collectors;
 @AnonymousAllowed
 public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String> {
 
-    private final FlashcardService flashcardService;
+    private final DeckUseCase deckUseCase;
+    private final FlashcardUseCase flashcardUseCase;
     private final StatsService statsService;
     private final PracticeSettingsService practiceSettingsService;
     private Deck currentDeck;
@@ -67,8 +69,9 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private Button hardButton;
     private Span statsSpan;
 
-    public PracticeView(FlashcardService flashcardService, StatsService statsService, PracticeSettingsService practiceSettingsService) {
-        this.flashcardService = flashcardService;
+    public PracticeView(DeckUseCase deckUseCase, FlashcardUseCase flashcardUseCase, StatsService statsService, PracticeSettingsService practiceSettingsService) {
+        this.deckUseCase = deckUseCase;
+        this.flashcardUseCase = flashcardUseCase;
         this.statsService = statsService;
         this.practiceSettingsService = practiceSettingsService;
         
@@ -93,7 +96,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                 startDefaultPractice();
             }
         } catch (NumberFormatException e) {
-            Notification.show("Неверный ID колоды", 3000, Notification.Position.MIDDLE);
+            Notification.show(getTranslation("practice.invalidId"), 3000, Notification.Position.MIDDLE);
             getUI().ifPresent(ui -> ui.navigate(""));
         }
     }
@@ -108,7 +111,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void startDefaultPractice() {
-        List<Flashcard> all = flashcardService.getFlashcardsByDeckId(currentDeck.getId());
+        List<Flashcard> all = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId());
         long notKnown = all.stream().filter(fc -> !statsService.isCardKnown(currentDeck.getId(), fc.getId())).count();
         if (notKnown <= 0) {
             showNoCardsOnce();
@@ -194,7 +197,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             .set("text-align", "center")
             .set("font-size", "var(--lumo-font-size-xl)");
         
-        cardContent.add(new Span("Загрузка карточек..."));
+        cardContent.add(new Span(getTranslation("practice.loadingCards")));
         cardContainer.add(cardContent);
         
         getContent().add(cardContainer);
@@ -225,7 +228,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void loadDeck(Long deckId) {
-        Optional<Deck> deckOpt = flashcardService.getDeckById(deckId);
+        Optional<Deck> deckOpt = deckUseCase.getDeckById(deckId);
         deckOpt.ifPresentOrElse(deck -> {
             currentDeck = deck;
             deckTitle.setText(getTranslation("practice.header", null, currentDeck.getTitle()));
@@ -240,35 +243,39 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         setupDialog.setWidth("420px");
         
         VerticalLayout layout = new VerticalLayout();
-        layout.add(new H3("Настройки практики"));
+        layout.add(new H3(getTranslation("practice.setup.title")));
         
         Select<Integer> countSelect = new Select<>();
-        countSelect.setLabel("Количество карточек");
+        countSelect.setLabel(getTranslation("practice.setup.count"));
         countSelect.setItems(5, 10, 15, 20, 25);
         countSelect.setValue(10);
         
         RadioButtonGroup<String> modeGroup = new RadioButtonGroup<>();
-        modeGroup.setLabel("Режим показа");
-        modeGroup.setItems("Случайный порядок", "По порядку");
-        modeGroup.setValue("Случайный порядок");
+        modeGroup.setLabel(getTranslation("practice.setup.mode"));
+        String randomText = getTranslation("practice.setup.mode.random");
+        String seqText = getTranslation("practice.setup.mode.seq");
+        modeGroup.setItems(randomText, seqText);
+        modeGroup.setValue(randomText);
         
         RadioButtonGroup<String> directionGroup = new RadioButtonGroup<>();
-        directionGroup.setLabel("Направление");
-        directionGroup.setItems("Лицевая → Обратная", "Обратная → Лицевая");
-        directionGroup.setValue("Лицевая → Обратная");
+        directionGroup.setLabel(getTranslation("practice.setup.direction"));
+        String f2bText = getTranslation("practice.setup.direction.f2b");
+        String b2fText = getTranslation("practice.setup.direction.b2f");
+        directionGroup.setItems(f2bText, b2fText);
+        directionGroup.setValue(f2bText);
         
         HorizontalLayout buttons = new HorizontalLayout();
         
-        Button startButton = new Button("Начать практику", VaadinIcon.PLAY.create());
+        Button startButton = new Button(getTranslation("practice.setup.start"), VaadinIcon.PLAY.create());
         startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         startButton.addClickListener(e -> {
             int count = countSelect.getValue();
-            boolean random = "Случайный порядок".equals(modeGroup.getValue());
+            boolean random = randomText.equals(modeGroup.getValue());
             startPractice(count, random);
             setupDialog.close();
         });
         
-        Button cancelButton = new Button("Отмена");
+        Button cancelButton = new Button(getTranslation("practice.setup.cancel"));
         cancelButton.addClickListener(e -> setupDialog.close());
         
         buttons.add(startButton, cancelButton);
@@ -280,7 +287,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     private void startPractice(int count, boolean random) {
         if (currentDeck == null) return;
-        List<Flashcard> all = flashcardService.getFlashcardsByDeckId(currentDeck.getId());
+        List<Flashcard> all = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId());
         Set<Long> known = statsService.getKnownCardIds(currentDeck.getId());
         List<Flashcard> filtered = all.stream().filter(fc -> !known.contains(fc.getId())).collect(Collectors.toList());
         if (filtered.isEmpty()) {
@@ -368,7 +375,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         
         cardLayout.add(question, divider, answer);
         if (currentCard.getExample() != null && !currentCard.getExample().isBlank()) {
-            Span exampleText = new Span("Пример: " + currentCard.getExample());
+            Span exampleText = new Span(getTranslation("practice.example.prefix", null, currentCard.getExample()));
             exampleText.getStyle().set("color", "var(--lumo-secondary-text-color)");
             cardLayout.add(exampleText);
         }
@@ -442,7 +449,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         
         actionButtons.removeAll();
         Button againButton = new Button(getTranslation("practice.repeatHard"), e -> {
-            List<Flashcard> all = flashcardService.getFlashcardsByDeckId(currentDeck.getId());
+            List<Flashcard> all = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId());
             Set<Long> known = statsService.getKnownCardIds(currentDeck.getId());
             List<Flashcard> failed = all.stream()
                     .filter(fc -> failedCardIds.contains(fc.getId()))

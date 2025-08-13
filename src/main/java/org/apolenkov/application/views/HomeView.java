@@ -17,8 +17,8 @@ import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.application.usecase.DeckUseCase;
@@ -33,10 +33,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-@PageTitle("Колоды")
 @Route("")
 @AnonymousAllowed
-public class HomeView extends Composite<VerticalLayout> {
+public class HomeView extends Composite<VerticalLayout> implements HasDynamicTitle {
 
     private final DeckUseCase deckUseCase;
     private final UserUseCase userUseCase;
@@ -102,5 +101,10 @@ public class HomeView extends Composite<VerticalLayout> {
     private void openCreateDeckDialog() {
         CreateDeckDialog dialog = new CreateDeckDialog(deckUseCase, userUseCase, saved -> loadDecks());
         dialog.open();
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("home.title");
     }
 }

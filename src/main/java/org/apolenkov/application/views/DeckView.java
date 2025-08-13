@@ -25,19 +25,20 @@ import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.service.FlashcardService;
+import org.apolenkov.application.application.usecase.DeckUseCase;
+import org.apolenkov.application.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.service.StatsService;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@PageTitle("Просмотр колоды")
 @Route("decks")
 @AnonymousAllowed
-public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String> {
+public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
-    private final FlashcardService flashcardService;
+    private final DeckUseCase deckUseCase;
+    private final FlashcardUseCase flashcardUseCase;
     private final StatsService statsService;
     private Deck currentDeck;
     private Grid<Flashcard> flashcardGrid;
@@ -48,8 +49,9 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private ListDataProvider<Flashcard> flashcardsDataProvider;
     private Checkbox hideKnownCheckbox;
 
-    public DeckView(FlashcardService flashcardService, StatsService statsService) {
-        this.flashcardService = flashcardService;
+    public DeckView(DeckUseCase deckUseCase, FlashcardUseCase flashcardUseCase, StatsService statsService) {
+        this.deckUseCase = deckUseCase;
+        this.flashcardUseCase = flashcardUseCase;
         this.statsService = statsService;
 
         getContent().setWidth("100%");
@@ -61,6 +63,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         createDeckInfo();
         createActions();
         createFlashcardsGrid();
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("deck.cards");
     }
 
     @Override
@@ -232,7 +239,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     }
 
     private void loadDeck(Long deckId) {
-        Optional<Deck> deckOpt = flashcardService.getDeckById(deckId);
+        Optional<Deck> deckOpt = deckUseCase.getDeckById(deckId);
         if (deckOpt.isPresent()) {
             currentDeck = deckOpt.get();
             updateDeckInfo();
@@ -246,14 +253,14 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private void updateDeckInfo() {
         if (currentDeck != null) {
             deckTitle.setText(currentDeck.getTitle());
-            deckStats.setText("(" + currentDeck.getFlashcardCount() + " карточек)");
+            deckStats.setText(getTranslation("deck.count", null, currentDeck.getFlashcardCount()));
             deckDescription.setText(currentDeck.getDescription());
         }
     }
 
     private void loadFlashcards() {
         if (currentDeck != null) {
-            List<Flashcard> flashcards = flashcardService.getFlashcardsByDeckId(currentDeck.getId());
+            List<Flashcard> flashcards = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId());
             flashcardsDataProvider = new ListDataProvider<>(flashcards);
             flashcardGrid.setDataProvider(flashcardsDataProvider);
             applyFlashcardsFilter();
@@ -324,7 +331,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             cardToSave.setExample(exampleArea.getValue().trim());
             cardToSave.setImageUrl(imageUrlField.getValue().trim());
 
-            flashcardService.saveFlashcard(cardToSave);
+            flashcardUseCase.saveFlashcard(cardToSave);
             loadFlashcards();
             updateDeckInfo();
             dialog.close();
@@ -361,7 +368,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         Button confirmButton = new Button(getTranslation("dialog.delete"), VaadinIcon.TRASH.create());
         confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
         confirmButton.addClickListener(e -> {
-            flashcardService.deleteFlashcard(flashcard.getId());
+            flashcardUseCase.deleteFlashcard(flashcard.getId());
             loadFlashcards();
             updateDeckInfo();
             confirmDialog.close();
