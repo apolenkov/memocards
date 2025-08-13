@@ -11,7 +11,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import org.apolenkov.application.views.home.DeckCardViewModel;
-import org.apolenkov.application.views.DeskviewView;
+import org.apolenkov.application.views.DeckView;
 
 /**
  * Reusable deck card component for deck listing.
@@ -84,7 +84,7 @@ public class DeckCard extends Div {
 
     private void navigateToDeck() {
         if (viewModel.id != null) {
-            getUI().ifPresent(ui -> ui.navigate(DeskviewView.class, viewModel.id.toString()));
+            getUI().ifPresent(ui -> ui.navigate(DeckView.class, viewModel.id.toString()));
         }
     }
 
