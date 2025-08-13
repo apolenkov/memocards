@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class StatsService {
@@ -52,6 +53,7 @@ public class StatsService {
         this.statsRepository = statsRepository;
     }
 
+    @Transactional
     public void recordSession(
             long deckId,
             int viewed,
@@ -75,6 +77,7 @@ public class StatsService {
                 knownCardIdsDelta);
     }
 
+    @Transactional(readOnly = true)
     public List<DailyStats> getDailyStatsForDeck(long deckId) {
         return statsRepository.getDailyStats(deckId).stream()
                 .map(r -> new DailyStats(
@@ -90,6 +93,7 @@ public class StatsService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public int getDeckProgressPercent(long deckId, int deckSize) {
         if (deckSize <= 0) return 0;
         int known = statsRepository.getKnownCardIds(deckId).size();
@@ -99,18 +103,22 @@ public class StatsService {
         return percent;
     }
 
+    @Transactional(readOnly = true)
     public boolean isCardKnown(long deckId, long cardId) {
         return statsRepository.getKnownCardIds(deckId).contains(cardId);
     }
 
+    @Transactional(readOnly = true)
     public Set<Long> getKnownCardIds(long deckId) {
         return statsRepository.getKnownCardIds(deckId);
     }
 
+    @Transactional
     public void setCardKnown(long deckId, long cardId, boolean known) {
         statsRepository.setCardKnown(deckId, cardId, known);
     }
 
+    @Transactional
     public void resetDeckProgress(long deckId) {
         statsRepository.resetDeckProgress(deckId);
     }

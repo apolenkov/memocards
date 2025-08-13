@@ -7,22 +7,22 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.service.DeckFacade;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DeckPresenter {
 
     private final DeckUseCase deckUseCase;
-    private final FlashcardUseCase flashcardUseCase;
     private final StatsService statsService;
+    private final DeckFacade deckFacade;
 
-    public DeckPresenter(DeckUseCase deckUseCase, FlashcardUseCase flashcardUseCase, StatsService statsService) {
+    public DeckPresenter(DeckUseCase deckUseCase, StatsService statsService, DeckFacade deckFacade) {
         this.deckUseCase = deckUseCase;
-        this.flashcardUseCase = flashcardUseCase;
         this.statsService = statsService;
+        this.deckFacade = deckFacade;
     }
 
     public Optional<Deck> loadDeck(long deckId) {
@@ -30,7 +30,7 @@ public class DeckPresenter {
     }
 
     public List<Flashcard> loadFlashcards(long deckId) {
-        return flashcardUseCase.getFlashcardsByDeckId(deckId);
+        return deckFacade.loadFlashcards(deckId);
     }
 
     public List<Flashcard> filterFlashcards(List<Flashcard> base, String query, Set<Long> knownIds, boolean hideKnown) {
@@ -47,8 +47,15 @@ public class DeckPresenter {
                 .collect(Collectors.toList());
     }
 
+    /** High-level query for UI: returns flashcards already filtered by search and known-status. */
+    public List<Flashcard> listFilteredFlashcards(long deckId, String rawQuery, boolean hideKnown) {
+        List<Flashcard> all = loadFlashcards(deckId);
+        Set<Long> known = getKnown(deckId);
+        return filterFlashcards(all, rawQuery, known, hideKnown);
+    }
+
     public Set<Long> getKnown(long deckId) {
-        return statsService.getKnownCardIds(deckId);
+        return deckFacade.getKnown(deckId);
     }
 
     public boolean isKnown(long deckId, long cardId) {
@@ -56,16 +63,15 @@ public class DeckPresenter {
     }
 
     public void toggleKnown(long deckId, long cardId) {
-        boolean known = statsService.isCardKnown(deckId, cardId);
-        statsService.setCardKnown(deckId, cardId, !known);
+        deckFacade.toggleKnown(deckId, cardId);
     }
 
     public void resetProgress(long deckId) {
-        statsService.resetDeckProgress(deckId);
+        deckFacade.resetProgress(deckId);
     }
 
     public int deckSize(long deckId) {
-        return loadFlashcards(deckId).size();
+        return deckFacade.deckSize(deckId);
     }
 
     public int knownCount(long deckId) {
@@ -73,7 +79,6 @@ public class DeckPresenter {
     }
 
     public int progressPercent(long deckId) {
-        int size = deckSize(deckId);
-        return statsService.getDeckProgressPercent(deckId, size);
+        return deckFacade.progressPercent(deckId);
     }
 }
