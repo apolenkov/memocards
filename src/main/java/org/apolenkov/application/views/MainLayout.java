@@ -59,10 +59,13 @@ public class MainLayout extends AppLayout {
         Button decksBtn = new Button(getTranslation("main.decks"), e -> getUI().ifPresent(ui -> ui.navigate("")));
         Button statsBtn = new Button(getTranslation("main.stats"), e -> openStatsDialog());
         Button settingsBtn = new Button(getTranslation("main.settings"), e -> openSettingsDialog());
-        LanguageSwitcher lang = new LanguageSwitcher();
-        menu.add(decksBtn, statsBtn, settingsBtn, lang);
+        menu.add(decksBtn, statsBtn, settingsBtn);
 
-        bar.add(viewTitle, menu);
+        HorizontalLayout right = new HorizontalLayout();
+        right.addClassName("main-layout__right");
+        right.add(new LanguageSwitcher());
+
+        bar.add(viewTitle, menu, right);
         addToNavbar(true, bar);
     }
 

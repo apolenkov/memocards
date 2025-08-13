@@ -2,6 +2,7 @@ package org.apolenkov.application.views.components;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.ComboBoxVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.server.VaadinSession;
@@ -24,9 +25,12 @@ public class LanguageSwitcher extends HorizontalLayout {
     public LanguageSwitcher() {
         setSpacing(true);
         setPadding(false);
+        addClassName("language-switcher");
 
         Span label = new Span(getTranslation("language.label"));
+        label.addClassName("language-switcher__label");
         ComboBox<String> combo = new ComboBox<>();
+        combo.addClassName("language-switcher__combo");
         String en = getTranslation("language.en");
         String ru = getTranslation("language.ru");
         String es = getTranslation("language.es");
@@ -40,6 +44,9 @@ public class LanguageSwitcher extends HorizontalLayout {
                             ? es
                             : en
         );
+
+        combo.addThemeVariants(ComboBoxVariant.LUMO_SMALL);
+        combo.setWidth("92px");
 
         combo.addValueChangeListener(e -> {
             if (e.getValue() == null) return;
