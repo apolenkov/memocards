@@ -23,6 +23,10 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.FlashcardService;
 import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.views.components.CreateDeckDialog;
+import org.apolenkov.application.views.components.DeckCard;
+import org.apolenkov.application.views.home.HomePresenter;
+import org.apolenkov.application.views.home.DeckCardViewModel;
 
 import java.util.List;
 import java.util.Locale;
@@ -36,15 +40,14 @@ public class HomeView extends Composite<VerticalLayout> {
     private final FlashcardService flashcardService;
     private final StatsService statsService;
     private VerticalLayout decksContainer;
+    private final HomePresenter presenter;
     private TextField searchField;
 
     public HomeView(FlashcardService flashcardService, StatsService statsService) {
         this.flashcardService = flashcardService;
         this.statsService = statsService;
-        
-        getContent().setWidth("100%");
-        getContent().setPadding(true);
-        getContent().setSpacing(true);
+        this.presenter = new HomePresenter(flashcardService, statsService);
+        getContent().addClassName("home-view");
         
         createHeader();
         createSearchAndActions();
@@ -53,26 +56,24 @@ public class HomeView extends Composite<VerticalLayout> {
     }
 
     private void createHeader() {
-        H2 title = new H2("Мои колоды");
-        title.getStyle().set("margin", "0");
+        H2 title = new H2(getTranslation("home.title"));
+        title.addClassName("home-view__title");
         getContent().add(title);
     }
 
     private void createSearchAndActions() {
         HorizontalLayout searchLayout = new HorizontalLayout();
-        searchLayout.setWidth("100%");
-        searchLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        searchLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        searchLayout.addClassName("home-view__toolbar");
         
         searchField = new TextField();
-        searchField.setPlaceholder("Поиск колоды...");
+        searchField.setPlaceholder(getTranslation("home.search"));
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
-        searchField.setWidth("300px");
+        searchField.addClassName("home-view__search");
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
         searchField.addValueChangeListener(e -> loadDecks());
         
-        Button addDeckButton = new Button("Добавить колоду", VaadinIcon.PLUS.create());
+        Button addDeckButton = new Button(getTranslation("home.addDeck"), VaadinIcon.PLUS.create());
         addDeckButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addDeckButton.addClickListener(e -> openCreateDeckDialog());
         
@@ -82,158 +83,21 @@ public class HomeView extends Composite<VerticalLayout> {
 
     private void createDecksList() {
         decksContainer = new VerticalLayout();
-        decksContainer.setWidth("100%");
-        decksContainer.setPadding(false);
-        decksContainer.setSpacing(true);
+        decksContainer.addClassName("home-view__decks");
         getContent().add(decksContainer);
     }
 
     private void loadDecks() {
         decksContainer.removeAll();
         
-        List<Deck> decks = flashcardService.getDecksByUserId(
-            flashcardService.getCurrentUser().getId()
-        );
-        
-        String query = searchField != null && searchField.getValue() != null
-                ? searchField.getValue().toLowerCase(Locale.ROOT).trim() : "";
-        if (!query.isEmpty()) {
-            decks = decks.stream()
-                    .filter(d -> (d.getTitle() != null && d.getTitle().toLowerCase(Locale.ROOT).contains(query))
-                            || (d.getDescription() != null && d.getDescription().toLowerCase(Locale.ROOT).contains(query)))
-                    .collect(Collectors.toList());
+        String query = searchField != null ? searchField.getValue() : null;
+        for (DeckCardViewModel vm : presenter.listDecksForCurrentUser(query)) {
+            decksContainer.add(new DeckCard(vm));
         }
-        
-        for (Deck deck : decks) {
-            Div deckCard = createDeckCard(deck);
-            deckCard.getStyle()
-                .set("width", "100%")
-                .set("box-sizing", "border-box");
-            decksContainer.add(deckCard);
-        }
-    }
-
-    private Div createDeckCard(Deck deck) {
-        Div card = new Div();
-        card.getStyle()
-            .set("border", "1px solid var(--lumo-contrast-20pct)")
-            .set("border-radius", "var(--lumo-border-radius-m)")
-            .set("padding", "var(--lumo-space-m)")
-            .set("cursor", "pointer")
-            .set("transition", "box-shadow 0.2s")
-            .set("background", "var(--lumo-base-color)");
-        
-        card.addClickListener(e -> {
-            if (deck.getId() != null) {
-                getUI().ifPresent(ui -> ui.navigate(DeskviewView.class, deck.getId().toString()));
-            } else {
-                Notification.show("Ошибка: ID колоды не найден", 3000, Notification.Position.MIDDLE);
-            }
-        });
-        
-        VerticalLayout cardContent = new VerticalLayout();
-        cardContent.setPadding(false);
-        cardContent.setSpacing(false);
-        
-        HorizontalLayout titleLayout = new HorizontalLayout();
-        titleLayout.setSpacing(true);
-        titleLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        
-        Span icon = new Span("📚");
-        icon.getStyle().set("font-size", "1.5em");
-        
-        H3 title = new H3(deck.getTitle() + " (" + deck.getFlashcardCount() + ")");
-        title.getStyle().set("margin", "0");
-        
-        titleLayout.add(icon, title);
-        
-        Span description = new Span(deck.getDescription());
-        description.getStyle().set("color", "var(--lumo-secondary-text-color)");
-        
-        HorizontalLayout progressLayout = new HorizontalLayout();
-        progressLayout.setSpacing(true);
-        progressLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        progressLayout.setWidth("100%");
-        
-        int deckSize = deck.getFlashcardCount();
-        int known = statsService.getKnownCardIds(deck.getId()).size();
-        int percent = statsService.getDeckProgressPercent(deck.getId(), deckSize);
-        
-        Span progressLabel = new Span("Прогресс:");
-        ProgressBar progressBar = new ProgressBar();
-        progressBar.setValue(Math.min(1.0, Math.max(0.0, percent / 100.0)));
-        progressBar.setWidth("140px");
-        Span progressText = new Span(percent + "%");
-        Span progressDetails = new Span(known + " выучено из " + deckSize);
-        progressDetails.getStyle().set("color", "var(--lumo-secondary-text-color)");
-        
-        progressLayout.add(progressLabel, progressBar, progressText, progressDetails);
-        
-        Button practiceButton = new Button("Начать практику");
-        practiceButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
-        practiceButton.addClickListener(e -> {
-            if (deck.getId() != null) {
-                getUI().ifPresent(ui -> ui.navigate(PracticeView.class, deck.getId().toString()));
-            } else {
-                Notification.show("Ошибка: ID колоды не найден", 3000, Notification.Position.MIDDLE);
-            }
-        });
-        
-        cardContent.add(titleLayout, description, progressLayout, practiceButton);
-        card.add(cardContent);
-        return card;
     }
 
     private void openCreateDeckDialog() {
-        Dialog dialog = new Dialog();
-        dialog.setWidth("520px");
-
-        VerticalLayout layout = new VerticalLayout();
-        layout.setPadding(false);
-        layout.setSpacing(true);
-
-        H3 header = new H3("Новая колода");
-
-        TextField titleField = new TextField("Название колоды");
-        titleField.setWidth("100%");
-        titleField.setRequiredIndicatorVisible(true);
-        titleField.setMaxLength(120);
-        titleField.setClearButtonVisible(true);
-
-        TextArea descriptionArea = new TextArea("Описание");
-        descriptionArea.setWidth("100%");
-        descriptionArea.setMaxHeight("140px");
-        descriptionArea.setMaxLength(500);
-        descriptionArea.setPlaceholder("Краткое описание (опционально)");
-
-        HorizontalLayout buttons = new HorizontalLayout();
-        Button save = new Button("Создать", VaadinIcon.CHECK.create());
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        save.addClickListener(e -> {
-            String titleStr = titleField.getValue() != null ? titleField.getValue().trim() : "";
-            String desc = descriptionArea.getValue() != null ? descriptionArea.getValue().trim() : "";
-            if (titleStr.isEmpty()) {
-                Notification.show("Введите название колоды", 3000, Notification.Position.MIDDLE);
-                titleField.focus();
-                return;
-            }
-            Deck newDeck = new Deck();
-            newDeck.setUserId(flashcardService.getCurrentUser().getId());
-            newDeck.setTitle(titleStr);
-            newDeck.setDescription(desc);
-            Deck saved = flashcardService.saveDeck(newDeck);
-            Notification.show("Колода создана", 2000, Notification.Position.BOTTOM_START);
-            dialog.close();
-            loadDecks();
-            getUI().ifPresent(ui -> ui.navigate(DeskviewView.class, saved.getId().toString()));
-        });
-
-        Button cancel = new Button("Отмена", VaadinIcon.CLOSE.create());
-        cancel.addClickListener(e -> dialog.close());
-        buttons.add(save, cancel);
-
-        layout.add(header, titleField, descriptionArea, buttons);
-        dialog.add(layout);
+        CreateDeckDialog dialog = new CreateDeckDialog(flashcardService, saved -> loadDecks());
         dialog.open();
     }
 }

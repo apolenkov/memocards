@@ -1,12 +1,13 @@
 package org.apolenkov.application.service;
 
+import org.apolenkov.application.model.PracticeDirection;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PracticeSettingsService {
     private int defaultCount = 10;
     private boolean defaultRandomOrder = true;
-    private String defaultDirection = "front_to_back"; // or back_to_front
+    private PracticeDirection defaultDirection = PracticeDirection.FRONT_TO_BACK;
 
     public int getDefaultCount() {
         return defaultCount;
@@ -24,11 +25,11 @@ public class PracticeSettingsService {
         this.defaultRandomOrder = defaultRandomOrder;
     }
 
-    public String getDefaultDirection() {
+    public PracticeDirection getDefaultDirection() {
         return defaultDirection;
     }
 
-    public void setDefaultDirection(String defaultDirection) {
+    public void setDefaultDirection(PracticeDirection defaultDirection) {
         this.defaultDirection = defaultDirection;
     }
 }
