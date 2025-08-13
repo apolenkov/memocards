@@ -21,15 +21,15 @@ public class DataInitializer {
     return args -> {
       if (!users.findAll().isEmpty()) return;
 
-      User demo = new User(null, "demo@example.com", "Demo User");
-      users.save(demo);
+      User demo = users.save(new User(null, "demo@example.com", "Demo User"));
 
-      Deck travel = new Deck(null, demo.getId(), "Travel — фразы", "Короткие фразы для поездок");
-      Deck it = new Deck(null, demo.getId(), "IT — термины", "Основные термины программирования");
-      Deck english = new Deck(null, demo.getId(), "English Basics", "Базовые английские слова");
-      decks.save(travel);
-      decks.save(it);
-      decks.save(english);
+      Deck travel =
+          decks.save(new Deck(null, demo.getId(), "Travel — фразы", "Короткие фразы для поездок"));
+      Deck it =
+          decks.save(
+              new Deck(null, demo.getId(), "IT — термины", "Основные термины программирования"));
+      Deck english =
+          decks.save(new Deck(null, demo.getId(), "English Basics", "Базовые английские слова"));
 
       List<Flashcard> travelCards =
           List.of(

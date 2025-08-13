@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import jakarta.annotation.security.RolesAllowed;
+
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.usecase.DeckUseCase;
@@ -35,10 +37,9 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "decks", layout = MainLayout.class)
-@AnonymousAllowed
+@RolesAllowed("USER")
 public class DeckView extends Composite<VerticalLayout>
     implements HasUrlParameter<String>, HasDynamicTitle {
 

@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import jakarta.annotation.security.RolesAllowed;
+
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
@@ -26,10 +28,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "practice", layout = MainLayout.class)
-@AnonymousAllowed
+@RolesAllowed("USER")
 public class PracticeView extends Composite<VerticalLayout>
     implements HasUrlParameter<String>, HasDynamicTitle {
 
