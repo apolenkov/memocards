@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deskview;
+package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
@@ -125,7 +125,7 @@ public class DeskviewView extends Composite<VerticalLayout> implements HasUrlPar
         practiceButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
         practiceButton.addClickListener(e -> {
             if (currentDeck != null) {
-                getUI().ifPresent(ui -> ui.navigate(org.apolenkov.application.views.practice.PracticeView.class, currentDeck.getId().toString()));
+                getUI().ifPresent(ui -> ui.navigate(PracticeView.class, currentDeck.getId().toString()));
             }
         });
         
