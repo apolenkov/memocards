@@ -10,11 +10,22 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 @Route(value = "register", layout = PublicLayout.class)
 @PageTitle("Register")
@@ -23,10 +34,15 @@ public class RegisterView extends VerticalLayout {
 
     private final transient UserDetailsService userDetailsService;
     private final transient PasswordEncoder passwordEncoder;
+    private final transient AuthenticationManager authenticationManager;
 
-    public RegisterView(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    public RegisterView(
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder,
+            AuthenticationManager authenticationManager) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
 
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -65,8 +81,30 @@ public class RegisterView extends VerticalLayout {
                         .password(passwordEncoder.encode(password.getValue()))
                         .roles("USER")
                         .build());
-                Notification.show("Registered! You can login now");
-                getUI().ifPresent(ui -> ui.navigate("login"));
+                // Auto-login the user and persist security context in HTTP session
+                try {
+                    UsernamePasswordAuthenticationToken authRequest =
+                            new UsernamePasswordAuthenticationToken(email.getValue(), password.getValue());
+                    Authentication auth = authenticationManager.authenticate(authRequest);
+
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(auth);
+                    SecurityContextHolder.setContext(context);
+
+                    VaadinServletRequest vsr = (VaadinServletRequest) VaadinService.getCurrentRequest();
+                    VaadinServletResponse vsp = (VaadinServletResponse) VaadinService.getCurrentResponse();
+                    if (vsr != null && vsp != null) {
+                        HttpServletRequest req = vsr.getHttpServletRequest();
+                        HttpServletResponse resp = vsp.getHttpServletResponse();
+                        new HttpSessionSecurityContextRepository().saveContext(context, req, resp);
+                    }
+
+                    Notification.show("Welcome, you are now logged in");
+                    getUI().ifPresent(ui -> ui.navigate("home"));
+                } catch (Exception ex) {
+                    Notification.show("Registered, but auto-login failed. Please sign in.");
+                    getUI().ifPresent(ui -> ui.navigate("login"));
+                }
             } else {
                 Notification.show("Registration is not available");
             }

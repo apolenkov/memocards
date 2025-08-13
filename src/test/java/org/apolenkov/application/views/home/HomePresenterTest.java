@@ -88,6 +88,6 @@ class HomePresenterTest {
 
         List<DeckCardViewModel> vms = presenter.listDecksForCurrentUser("a");
         assertFalse(vms.isEmpty());
-        assertTrue(vms.stream().anyMatch(vm -> vm.title.equals("Alpha")));
+        assertTrue(vms.stream().anyMatch(vm -> vm.title().equals("Alpha")));
     }
 }

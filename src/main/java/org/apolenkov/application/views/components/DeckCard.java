@@ -39,11 +39,11 @@ public class DeckCard extends Div {
         Span icon = new Span("📚");
         icon.addClassName("deck-card__icon");
 
-        H3 title = new H3(viewModel.title + " (" + viewModel.deckSize + ")");
+        H3 title = new H3(viewModel.title() + " (" + viewModel.deckSize() + ")");
 
         titleLayout.add(icon, title);
 
-        Span description = new Span(viewModel.description);
+        Span description = new Span(viewModel.description());
         description.addClassName("deck-card__description");
 
         HorizontalLayout progressLayout = buildProgress();
@@ -63,9 +63,9 @@ public class DeckCard extends Div {
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         layout.setWidth("100%");
 
-        int deckSize = viewModel.deckSize;
-        int known = viewModel.knownCount;
-        int percent = viewModel.progressPercent;
+        int deckSize = viewModel.deckSize();
+        int known = viewModel.knownCount();
+        int percent = viewModel.progressPercent();
 
         Span progressLabel = new Span(getTranslation("home.progress"));
         ProgressBar progressBar = new ProgressBar();
@@ -79,15 +79,16 @@ public class DeckCard extends Div {
     }
 
     private void navigateToDeck() {
-        if (viewModel.id != null) {
-            getUI().ifPresent(ui -> ui.navigate(DeckView.class, viewModel.id.toString()));
+        if (viewModel.id() != null) {
+            getUI().ifPresent(ui -> ui.navigate(DeckView.class, viewModel.id().toString()));
         }
     }
 
     private void navigateToPractice() {
-        if (viewModel.id != null) {
-            getUI().ifPresent(ui ->
-                    ui.navigate(org.apolenkov.application.views.PracticeView.class, viewModel.id.toString()));
+        if (viewModel.id() != null) {
+            getUI().ifPresent(ui -> ui.navigate(
+                    org.apolenkov.application.views.PracticeView.class,
+                    viewModel.id().toString()));
         }
     }
 }
