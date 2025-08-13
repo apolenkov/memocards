@@ -11,13 +11,13 @@ import org.springframework.context.annotation.Profile;
 @TestConfiguration
 @Profile("jpa")
 public class TestStatsConfig {
-  @Bean
-  public StatsRepository statsRepository() {
-    return new InMemoryStatsRepository();
-  }
+    @Bean
+    public StatsRepository statsRepository() {
+        return new InMemoryStatsRepository();
+    }
 
-  @Bean
-  public UserSettingsRepository userSettingsRepository() {
-    return new InMemoryUserSettingsRepository();
-  }
+    @Bean
+    public UserSettingsRepository userSettingsRepository() {
+        return new InMemoryUserSettingsRepository();
+    }
 }

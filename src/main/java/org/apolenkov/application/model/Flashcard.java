@@ -1,157 +1,158 @@
 package org.apolenkov.application.model;
 
-import java.time.LocalDateTime;
-import java.util.Objects;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 /** Flashcard model for flashcards application */
 public class Flashcard {
-  private Long id;
-  @NotNull private Long deckId;
+    private Long id;
 
-  @NotBlank
-  @Size(max = 300)
-  private String frontText;
+    @NotNull
+    private Long deckId;
 
-  @NotBlank
-  @Size(max = 300)
-  private String backText;
+    @NotBlank
+    @Size(max = 300)
+    private String frontText;
 
-  @Size(max = 500)
-  private String example;
+    @NotBlank
+    @Size(max = 300)
+    private String backText;
 
-  @Size(max = 2048)
-  private String imageUrl;
+    @Size(max = 500)
+    private String example;
 
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+    @Size(max = 2048)
+    private String imageUrl;
 
-  public Flashcard() {
-    this.createdAt = LocalDateTime.now();
-    this.updatedAt = LocalDateTime.now();
-  }
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-  public Flashcard(Long id, Long deckId, String frontText, String backText) {
-    this();
-    this.id = id;
-    this.deckId = deckId;
-    this.frontText = frontText;
-    this.backText = backText;
-  }
+    public Flashcard() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
 
-  public Flashcard(Long id, Long deckId, String frontText, String backText, String example) {
-    this(id, deckId, frontText, backText);
-    this.example = example;
-  }
+    public Flashcard(Long id, Long deckId, String frontText, String backText) {
+        this();
+        this.id = id;
+        this.deckId = deckId;
+        this.frontText = frontText;
+        this.backText = backText;
+    }
 
-  // Getters and setters
-  public Long getId() {
-    return id;
-  }
+    public Flashcard(Long id, Long deckId, String frontText, String backText, String example) {
+        this(id, deckId, frontText, backText);
+        this.example = example;
+    }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+    // Getters and setters
+    public Long getId() {
+        return id;
+    }
 
-  public Long getDeckId() {
-    return deckId;
-  }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-  public void setDeckId(Long deckId) {
-    this.deckId = deckId;
-  }
+    public Long getDeckId() {
+        return deckId;
+    }
 
-  public String getFrontText() {
-    return frontText;
-  }
+    public void setDeckId(Long deckId) {
+        this.deckId = deckId;
+    }
 
-  public void setFrontText(String frontText) {
-    this.frontText = frontText;
-    this.updatedAt = LocalDateTime.now();
-  }
+    public String getFrontText() {
+        return frontText;
+    }
 
-  public String getBackText() {
-    return backText;
-  }
+    public void setFrontText(String frontText) {
+        this.frontText = frontText;
+        this.updatedAt = LocalDateTime.now();
+    }
 
-  public void setBackText(String backText) {
-    this.backText = backText;
-    this.updatedAt = LocalDateTime.now();
-  }
+    public String getBackText() {
+        return backText;
+    }
 
-  public String getExample() {
-    return example;
-  }
+    public void setBackText(String backText) {
+        this.backText = backText;
+        this.updatedAt = LocalDateTime.now();
+    }
 
-  public void setExample(String example) {
-    this.example = example;
-    this.updatedAt = LocalDateTime.now();
-  }
+    public String getExample() {
+        return example;
+    }
 
-  public String getImageUrl() {
-    return imageUrl;
-  }
+    public void setExample(String example) {
+        this.example = example;
+        this.updatedAt = LocalDateTime.now();
+    }
 
-  public void setImageUrl(String imageUrl) {
-    this.imageUrl = imageUrl;
-    this.updatedAt = LocalDateTime.now();
-  }
+    public String getImageUrl() {
+        return imageUrl;
+    }
 
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+        this.updatedAt = LocalDateTime.now();
+    }
 
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-  }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
-  }
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
-  public void setUpdatedAt(LocalDateTime updatedAt) {
-    this.updatedAt = updatedAt;
-  }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Flashcard flashcard = (Flashcard) o;
-    return Objects.equals(id, flashcard.id);
-  }
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id);
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Flashcard flashcard = (Flashcard) o;
+        return Objects.equals(id, flashcard.id);
+    }
 
-  @Override
-  public String toString() {
-    return "Flashcard{"
-        + "id="
-        + id
-        + ", deckId="
-        + deckId
-        + ", frontText='"
-        + frontText
-        + '\''
-        + ", backText='"
-        + backText
-        + '\''
-        + ", example='"
-        + example
-        + '\''
-        + ", imageUrl='"
-        + imageUrl
-        + '\''
-        + ", createdAt="
-        + createdAt
-        + ", updatedAt="
-        + updatedAt
-        + '}';
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Flashcard{"
+                + "id="
+                + id
+                + ", deckId="
+                + deckId
+                + ", frontText='"
+                + frontText
+                + '\''
+                + ", backText='"
+                + backText
+                + '\''
+                + ", example='"
+                + example
+                + '\''
+                + ", imageUrl='"
+                + imageUrl
+                + '\''
+                + ", createdAt="
+                + createdAt
+                + ", updatedAt="
+                + updatedAt
+                + '}';
+    }
 }
