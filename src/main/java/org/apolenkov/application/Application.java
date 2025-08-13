@@ -31,6 +31,8 @@ public class Application implements AppShellConfigurator, VaadinServiceInitListe
             Object preferred = session.getAttribute(org.apolenkov.application.views.components.LanguageSwitcher.SESSION_LOCALE_KEY);
             if (preferred instanceof java.util.Locale locale) {
                 uiEvent.getUI().setLocale(locale);
+            } else {
+                uiEvent.getUI().setLocale(java.util.Locale.ENGLISH);
             }
         });
     }

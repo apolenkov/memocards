@@ -28,10 +28,9 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@PageTitle("Практика")
 @Route("practice")
 @AnonymousAllowed
-public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String> {
+public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
     private final DeckUseCase deckUseCase;
     private final FlashcardUseCase flashcardUseCase;
@@ -76,9 +75,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         this.practiceSettingsService = practiceSettingsService;
         
         getContent().setWidth("100%");
-        getContent().setPadding(true);
-        getContent().setSpacing(true);
-        getContent().setAlignItems(FlexComponent.Alignment.CENTER);
+        getContent().addClassName("practice-view");
         
         createHeader();
         createProgressSection();
@@ -134,12 +131,10 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     private void createHeader() {
         HorizontalLayout headerLayout = new HorizontalLayout();
-        headerLayout.setWidth("100%");
-        headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        headerLayout.addClassName("practice-view__header");
         
         HorizontalLayout leftSection = new HorizontalLayout();
-        leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
+        leftSection.addClassName("practice-view__header-left");
         
         Button backButton = new Button(getTranslation("practice.backToDeck"), VaadinIcon.ARROW_LEFT.create());
         backButton.addClickListener(e -> {
@@ -151,7 +146,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         });
         
         deckTitle = new H2(getTranslation("practice.title"));
-        deckTitle.getStyle().set("margin-left", "var(--lumo-space-m)");
+        deckTitle.addClassName("practice-view__title");
         
         leftSection.add(backButton, deckTitle);
         
@@ -161,13 +156,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     private void createProgressSection() {
         progressSection = new Div();
-        progressSection.setWidth("100%");
-        progressSection.getStyle()
-            .set("text-align", "center")
-            .set("padding", "var(--lumo-space-m)")
-            .set("background", "var(--lumo-contrast-5pct)")
-            .set("border-radius", "var(--lumo-border-radius-m)")
-            .set("margin-bottom", "var(--lumo-space-l)");
+        progressSection.addClassName("practice-view__progress");
         
         statsSpan = new Span(getTranslation("practice.getReady"));
         progressSection.add(statsSpan);
@@ -177,25 +166,10 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     private void createCardContainer() {
         cardContainer = new Div();
-        cardContainer.setWidth("100%");
-        cardContainer.setMaxWidth("720px");
-        cardContainer.getStyle()
-            .set("border", "2px solid var(--lumo-contrast-20pct)")
-            .set("border-radius", "var(--lumo-border-radius-l)")
-            .set("padding", "var(--lumo-space-xl)")
-            .set("margin", "var(--lumo-space-l) auto")
-            .set("background", "var(--lumo-base-color)")
-            .set("box-shadow", "var(--lumo-box-shadow-s)")
-            .set("min-height", "320px")
-            .set("display", "flex")
-            .set("align-items", "center")
-            .set("justify-content", "center");
+        cardContainer.addClassName("practice-view__card-container");
         
         cardContent = new Div();
-        cardContent.setWidth("100%");
-        cardContent.getStyle()
-            .set("text-align", "center")
-            .set("font-size", "var(--lumo-font-size-xl)");
+        cardContent.addClassName("practice-view__card-content");
         
         cardContent.add(new Span(getTranslation("practice.loadingCards")));
         cardContainer.add(cardContent);
@@ -205,9 +179,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     private void createActionButtons() {
         actionButtons = new HorizontalLayout();
-        actionButtons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        actionButtons.setSpacing(true);
-        actionButtons.setWidth("100%");
+        actionButtons.addClassName("practice-view__actions");
         
         showAnswerButton = new Button(getTranslation("practice.showAnswer"), VaadinIcon.EYE.create());
         showAnswerButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
@@ -370,7 +342,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         
         H2 question = new H2(Optional.ofNullable(getQuestionText(currentCard)).orElse(""));
         Hr divider = new Hr();
-        divider.getStyle().set("width", "60%");
+        divider.addClassName("practice-view__divider");
         H1 answer = new H1(Optional.ofNullable(getAnswerText(currentCard)).orElse(""));
         
         cardLayout.add(question, divider, answer);
@@ -479,5 +451,10 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                 getUI().ifPresent(ui -> ui.navigate(DeckView.class, currentDeck.getId().toString())));
         Button homeButton = new Button(getTranslation("practice.backToDecks"), e -> getUI().ifPresent(ui -> ui.navigate("")));
         actionButtons.add(againButton, backToDeckButton, homeButton);
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("practice.title");
     }
 }
