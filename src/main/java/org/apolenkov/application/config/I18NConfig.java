@@ -8,14 +8,12 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 @Configuration
 public class I18NConfig {
 
-    @Bean
-    public MessageSource messageSource() {
-        ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
-        ms.setBasename("i18n/messages");
-        ms.setDefaultEncoding("UTF-8");
-        ms.setUseCodeAsDefaultMessage(true);
-        return ms;
-    }
+  @Bean
+  public MessageSource messageSource() {
+    ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
+    ms.setBasename("i18n/messages");
+    ms.setDefaultEncoding("UTF-8");
+    ms.setUseCodeAsDefaultMessage(true);
+    return ms;
+  }
 }
-
-

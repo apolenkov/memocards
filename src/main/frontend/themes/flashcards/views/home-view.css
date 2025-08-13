@@ -46,9 +46,17 @@
   font-size: 1.5em;
 }
 
+.deck-card__title h3 {
+  margin: 0;
+}
+
 .deck-card__description,
 .deck-card__progress-details {
   color: var(--lumo-secondary-text-color);
+}
+
+.deck-card__progress .vaadin-progress-bar {
+  width: 140px;
 }
 
 .home-view[dragging] {
