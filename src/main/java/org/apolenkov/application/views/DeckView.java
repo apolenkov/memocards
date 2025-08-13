@@ -27,7 +27,6 @@ import com.vaadin.flow.router.*;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.usecase.DeckUseCase;
@@ -286,11 +285,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         String q = flashcardSearchField != null && flashcardSearchField.getValue() != null
                 ? flashcardSearchField.getValue().toLowerCase().trim()
                 : "";
-        Set<Long> knownIds = presenter.getKnown(currentDeck.getId());
         boolean hideKnown = hideKnownCheckbox != null && Boolean.TRUE.equals(hideKnownCheckbox.getValue());
-        flashcardsDataProvider.clearFilters();
-        flashcardsDataProvider.addFilter(fc ->
-                presenter.filterFlashcards(List.of(fc), q, knownIds, hideKnown).contains(fc));
+        List<Flashcard> filtered = presenter.listFilteredFlashcards(currentDeck.getId(), q, hideKnown);
+        flashcardsDataProvider.getItems().clear();
+        flashcardsDataProvider.getItems().addAll(filtered);
+        flashcardsDataProvider.refreshAll();
     }
 
     private void openFlashcardDialog(Flashcard flashcard) {

@@ -15,8 +15,6 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.RolesAllowed;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apolenkov.application.model.Deck;
@@ -36,9 +34,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private final FlashcardUseCase flashcardUseCase;
     private final PracticePresenter presenter;
     private Deck currentDeck;
-    private List<Flashcard> practiceCards;
-    private int currentCardIndex = 0;
-    private boolean showingAnswer = false;
+    private PracticePresenter.Session session;
 
     @SuppressWarnings("unused")
     private boolean sessionStarted = false; // kept for UI state, may be used by future features
@@ -50,11 +46,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private int correctCount = 0;
     private int hardCount = 0;
     private int totalViewed = 0;
-    private Instant sessionStart;
-    private Instant cardShowTime;
-    private long totalAnswerDelayMs = 0L;
-    private final List<Long> knownCardIdsDelta = new ArrayList<>();
-    private final List<Long> failedCardIds = new ArrayList<>();
 
     // Направление сессии
     private PracticeDirection sessionDirection = PracticeDirection.FRONT_TO_BACK;
@@ -270,29 +261,20 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             showNoCardsOnce();
             return;
         }
-        practiceCards = presenter.prepareSession(currentDeck.getId(), count, random);
-
+        session = presenter.startSession(currentDeck.getId(), count, random, sessionDirection);
         sessionStarted = true;
-        currentCardIndex = 0;
-        showingAnswer = false;
         correctCount = 0;
         hardCount = 0;
         totalViewed = 0;
-        totalAnswerDelayMs = 0L;
-        knownCardIdsDelta.clear();
-        failedCardIds.clear();
-        sessionStart = Instant.now();
         noCardsNotified = false;
         showCurrentCard();
     }
 
     private void updateProgress() {
-        if (practiceCards == null || practiceCards.isEmpty()) return;
-        int current = Math.min(currentCardIndex + 1, practiceCards.size());
-        int total = practiceCards.size();
-        int percent = (int) Math.round((current * 100.0) / Math.max(1, total));
-        statsSpan.setText(
-                getTranslation("practice.progressLine", current, total, totalViewed, correctCount, hardCount, percent));
+        if (session == null || session.cards == null || session.cards.isEmpty()) return;
+        var p = presenter.progress(session);
+        statsSpan.setText(getTranslation(
+                "practice.progressLine", p.current(), p.total(), p.totalViewed(), p.correct(), p.hard(), p.percent()));
     }
 
     private String getQuestionText(Flashcard card) {
@@ -304,14 +286,13 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void showCurrentCard() {
-        if (practiceCards == null || practiceCards.isEmpty() || currentCardIndex >= practiceCards.size()) {
+        if (session == null || presenter.isComplete(session)) {
             showPracticeComplete();
             return;
         }
         updateProgress();
-        Flashcard currentCard = practiceCards.get(currentCardIndex);
-        showingAnswer = false;
-        cardShowTime = Instant.now();
+        Flashcard currentCard = presenter.currentCard(session);
+        presenter.startQuestion(session);
         cardContent.removeAll();
 
         VerticalLayout cardLayout = new VerticalLayout();
@@ -332,11 +313,9 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void showAnswer() {
-        if (practiceCards == null || currentCardIndex >= practiceCards.size()) return;
-        Flashcard currentCard = practiceCards.get(currentCardIndex);
-        showingAnswer = true;
-        long delay = Duration.between(cardShowTime, Instant.now()).toMillis();
-        totalAnswerDelayMs += Math.max(delay, 0);
+        if (session == null || presenter.isComplete(session)) return;
+        Flashcard currentCard = presenter.currentCard(session);
+        presenter.reveal(session);
 
         cardContent.removeAll();
         VerticalLayout cardLayout = new VerticalLayout();
@@ -363,24 +342,20 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void markLabeled(String label) {
-        if (!showingAnswer) return;
-        totalViewed++;
-        Flashcard currentCard = practiceCards.get(currentCardIndex);
-        if ("know".equals(label)) {
-            correctCount++;
-            knownCardIdsDelta.add(currentCard.getId());
-        } else {
-            hardCount++;
-            failedCardIds.add(currentCard.getId());
-        }
+        if (session == null) return;
+        if (!session.showingAnswer) return;
+        if ("know".equals(label)) presenter.markKnow(session);
+        else presenter.markHard(session);
+        totalViewed = session.totalViewed;
+        correctCount = session.correctCount;
+        hardCount = session.hardCount;
         knowButton.setVisible(false);
         hardButton.setVisible(false);
         nextCard();
     }
 
     private void nextCard() {
-        currentCardIndex++;
-        if (currentCardIndex >= practiceCards.size()) {
+        if (presenter.isComplete(session)) {
             showPracticeComplete();
         } else {
             showCurrentCard();
@@ -396,28 +371,20 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void showPracticeComplete() {
-        Duration sessionDuration = Duration.between(sessionStart, Instant.now());
-        presenter.recordSession(
-                currentDeck.getId(),
-                totalViewed,
-                correctCount,
-                hardCount,
-                sessionDuration,
-                totalAnswerDelayMs,
-                knownCardIdsDelta);
+        presenter.recordAndPersist(session);
 
         cardContent.removeAll();
         VerticalLayout completionLayout = new VerticalLayout();
         completionLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         completionLayout.setSpacing(true);
 
-        int total = practiceCards != null ? practiceCards.size() : totalViewed;
+        int total = (session != null && session.cards != null) ? session.cards.size() : totalViewed;
         H1 completionTitle = new H1(getTranslation("practice.sessionComplete", currentDeck.getTitle()));
         H3 results = new H3(getTranslation("practice.results", correctCount, total, hardCount));
         Span timeInfo = new Span(getTranslation(
                 "practice.time",
-                Math.max(1, sessionDuration.toMinutes()),
-                Math.round((totalAnswerDelayMs / Math.max(1.0, totalViewed)) / 1000.0)));
+                Math.max(1, java.time.Duration.between(session.sessionStart, java.time.Instant.now()).toMinutes()),
+                Math.round((session.totalAnswerDelayMs / Math.max(1.0, (double) totalViewed)) / 1000.0)));
 
         completionLayout.add(completionTitle, results, timeInfo);
         cardContent.add(completionLayout);
@@ -425,7 +392,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         actionButtons.removeAll();
         Button againButton = new Button(getTranslation("practice.repeatHard"), e -> {
             List<Flashcard> failed = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId()).stream()
-                    .filter(fc -> failedCardIds.contains(fc.getId()))
+                    .filter(fc -> session.failedCardIds.contains(fc.getId()))
                     .filter(fc -> presenter.getNotKnownCards(currentDeck.getId()).stream()
                             .map(Flashcard::getId)
                             .collect(Collectors.toSet())
@@ -437,18 +404,13 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                 startDefaultPractice();
                 return;
             }
-            practiceCards = new ArrayList<>(failed);
-            Collections.shuffle(practiceCards);
+            session = new PracticePresenter.Session(
+                    currentDeck.getId(), new ArrayList<>(failed), presenter.defaultDirection());
+            Collections.shuffle(session.cards);
             sessionStarted = true;
-            currentCardIndex = 0;
-            showingAnswer = false;
             correctCount = 0;
             hardCount = 0;
             totalViewed = 0;
-            totalAnswerDelayMs = 0L;
-            knownCardIdsDelta.clear();
-            failedCardIds.clear();
-            sessionStart = Instant.now();
             showCurrentCard();
         });
         Button backToDeckButton = new Button(getTranslation("practice.backToDeck"), e -> getUI().ifPresent(
