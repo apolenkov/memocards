@@ -28,6 +28,7 @@ import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.application.usecase.DeckUseCase;
 import org.apolenkov.application.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.views.components.DeckEditDialog;
 
 import java.util.List;
 import java.util.Optional;
@@ -141,7 +142,16 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         addFlashcardButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addFlashcardButton.addClickListener(e -> openFlashcardDialog(null));
 
-        actionsLayout.add(practiceButton, addFlashcardButton);
+        Button editDeckButton = new Button(VaadinIcon.EDIT.create());
+        editDeckButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        editDeckButton.getElement().setProperty("title", getTranslation("deck.edit.tooltip"));
+        editDeckButton.addClickListener(e -> {
+            if (currentDeck != null) {
+                new DeckEditDialog(deckUseCase, currentDeck, updated -> updateDeckInfo()).open();
+            }
+        });
+
+        actionsLayout.add(practiceButton, addFlashcardButton, editDeckButton);
         getContent().add(actionsLayout);
     }
 

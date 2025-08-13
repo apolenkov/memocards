@@ -14,7 +14,7 @@ import java.util.ResourceBundle;
 public class AppI18NProvider implements I18NProvider {
 
     public static final String BUNDLE_PREFIX = "i18n.messages";
-    private static final List<Locale> PROVIDED_LOCALES = Arrays.asList(Locale.ENGLISH, new Locale("ru"));
+    private static final List<Locale> PROVIDED_LOCALES = Arrays.asList(Locale.ENGLISH, new Locale("ru"), new Locale("es"));
 
     @Override
     public List<Locale> getProvidedLocales() {
