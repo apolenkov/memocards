@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.components;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Span;
@@ -32,7 +33,13 @@ public class LanguageSwitcher extends HorizontalLayout {
         combo.setItems(en, ru, es);
 
         Locale current = getCurrentLocale();
-        combo.setValue(current.getLanguage().equalsIgnoreCase("ru") ? ru : current.getLanguage().equalsIgnoreCase("es") ? es : en);
+        combo.setValue(
+                current.getLanguage().equalsIgnoreCase("ru")
+                        ? ru
+                        : current.getLanguage().equalsIgnoreCase("es")
+                            ? es
+                            : en
+        );
 
         combo.addValueChangeListener(e -> {
             if (e.getValue() == null) return;
@@ -60,7 +67,7 @@ public class LanguageSwitcher extends HorizontalLayout {
         if (attr instanceof Locale) {
             return (Locale) attr;
         }
-        return getUI().map(ui -> ui.getLocale()).orElse(Locale.ENGLISH);
+        return getUI().map(UI::getLocale).orElse(Locale.ENGLISH);
     }
 
     private void persistIfLoggedIn(Locale locale) {

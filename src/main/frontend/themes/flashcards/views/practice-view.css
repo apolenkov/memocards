@@ -1,0 +1,60 @@
+.practice-view {
+  padding: var(--lumo-space-m);
+  box-sizing: border-box;
+}
+
+.practice-view__header {
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.practice-view__header-left {
+  align-items: center;
+}
+
+.practice-view__title {
+  margin-left: var(--lumo-space-m);
+}
+
+.practice-view__progress {
+  width: 100%;
+  text-align: center;
+  padding: var(--lumo-space-m);
+  background: var(--lumo-contrast-5pct);
+  border-radius: var(--lumo-border-radius-m);
+  margin-bottom: var(--lumo-space-l);
+}
+
+.practice-view__card-container {
+  width: 100%;
+  max-width: 720px;
+  border: 2px solid var(--lumo-contrast-20pct);
+  border-radius: var(--lumo-border-radius-l);
+  padding: var(--lumo-space-xl);
+  margin: var(--lumo-space-l) auto;
+  background: var(--lumo-base-color);
+  box-shadow: var(--lumo-box-shadow-s);
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.practice-view__card-content {
+  width: 100%;
+  text-align: center;
+  font-size: var(--lumo-font-size-xl);
+}
+
+.practice-view__actions {
+  width: 100%;
+  justify-content: center;
+  gap: var(--lumo-space-m);
+}
+
+.practice-view__divider {
+  width: 60%;
+}
+
+
