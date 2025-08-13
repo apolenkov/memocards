@@ -7,4 +7,7 @@
   overflow-y: auto;
 }
 
+.deckedit-view__header-title { margin-left: var(--lumo-space-m); }
+.deckedit-view__section-title { margin-top: 0; }
+
 

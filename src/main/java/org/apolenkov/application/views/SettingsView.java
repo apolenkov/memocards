@@ -9,13 +9,13 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @Route("settings")
 @AnonymousAllowed
 public class SettingsView extends VerticalLayout implements HasDynamicTitle {
-    public SettingsView() {
-        setWidth("100%");
-        add(new H2(getTranslation("settings.page.underConstruction")));
-    }
+  public SettingsView() {
+    setWidth("100%");
+    add(new H2(getTranslation("settings.page.underConstruction")));
+  }
 
-    @Override
-    public String getPageTitle() {
-        return getTranslation("settings.page.title");
-    }
+  @Override
+  public String getPageTitle() {
+    return getTranslation("settings.page.title");
+  }
 }

@@ -7,4 +7,29 @@
   overflow-y: auto;
 }
 
+.deckview-view__header-title {
+  margin-left: var(--lumo-space-m);
+}
+
+.deckview-view__header-stats {
+  margin-left: var(--lumo-space-s);
+  color: var(--lumo-secondary-text-color);
+}
+
+.deckview-view__info {
+  background: var(--lumo-contrast-5pct);
+  padding: var(--lumo-space-m);
+  border-radius: var(--lumo-border-radius-m);
+  margin-bottom: var(--lumo-space-m);
+}
+
+.deckview-view__info-description {
+  color: var(--lumo-secondary-text-color);
+  font-style: italic;
+}
+
+.deckview-view__status-known {
+  color: var(--lumo-success-text-color);
+}
+
 

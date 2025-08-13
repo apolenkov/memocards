@@ -47,6 +47,16 @@
   font-size: var(--lumo-font-size-xl);
 }
 
+.practice-view__question h1,
+.practice-view__question h2 {
+  margin: 0;
+}
+
+.practice-view__transcription,
+.practice-view__example {
+  color: var(--lumo-secondary-text-color);
+}
+
 .practice-view__actions {
   width: 100%;
   justify-content: center;
