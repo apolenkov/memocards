@@ -8,16 +8,21 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-@Route("")
+@Route(value = "", layout = PublicLayout.class)
 @PageTitle("Flashcards — Learn smarter")
 @AnonymousAllowed
 @CssImport(value = "./themes/flashcards/views/home-view.css", themeFor = "vaadin-vertical-layout")
-public class LandingView extends VerticalLayout {
+public class LandingView extends VerticalLayout implements BeforeEnterObserver {
 
     public LandingView() {
         addClassName("landing-view");
@@ -48,5 +53,13 @@ public class LandingView extends VerticalLayout {
         add(title, subtitle, hero, actions);
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
+            event.rerouteTo(HomeView.class);
+        }
     }
 }

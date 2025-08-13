@@ -5,7 +5,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Layout;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.service.StatsService;
@@ -16,7 +15,6 @@ import org.apolenkov.application.views.components.StatsDialogComponent;
 
 /** The main view is a top-level placeholder for other views. */
 @Layout
-@AnonymousAllowed
 public class MainLayout extends AppLayout {
 
     private final DeckUseCase deckUseCase;

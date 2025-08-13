@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 @Configuration
 public class SecurityConfig extends VaadinWebSecurity {
@@ -30,6 +31,20 @@ public class SecurityConfig extends VaadinWebSecurity {
 
         super.configure(http);
         setLoginView(http, LoginView.class, "/home");
+        // Always go to /home after successful login (instead of returning to saved request like "/")
+        http.formLogin(form -> form.defaultSuccessUrl("/home", true));
+
+        // Remember-me so you don't have to login every time in dev
+        http.rememberMe(remember -> remember
+                .key("flashcards-remember-me-key")
+                .tokenValiditySeconds(60 * 60 * 24 * 30) // 30 days
+                .alwaysRemember(true));
+
+        // Unauthenticated access → redirect to landing instead of /login
+        http.exceptionHandling(ex -> ex.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/")));
+
+        // After logout: go to /home (LandingView will reroute anonymous back to "/")
+        http.logout(logout -> logout.logoutSuccessUrl("/home"));
 
         boolean isProd =
                 java.util.Arrays.stream(environment.getActiveProfiles()).anyMatch(p -> p.equals("prod"));

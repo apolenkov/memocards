@@ -78,7 +78,6 @@ public class LanguageSwitcher extends HorizontalLayout {
 
     private void persistIfLoggedIn(Locale locale) {
         if (userUseCase == null || userSettingsService == null) return;
-        userUseCase.getCurrentUser();
         try {
             long userId = userUseCase.getCurrentUser().getId();
             userSettingsService.setPreferredLocale(userId, locale);

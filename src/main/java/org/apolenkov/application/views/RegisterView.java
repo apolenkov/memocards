@@ -16,13 +16,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Route("register")
+@Route(value = "register", layout = PublicLayout.class)
 @PageTitle("Register")
 @AnonymousAllowed
 public class RegisterView extends VerticalLayout {
 
-    private final UserDetailsService userDetailsService;
-    private final PasswordEncoder passwordEncoder;
+    private final transient UserDetailsService userDetailsService;
+    private final transient PasswordEncoder passwordEncoder;
 
     public RegisterView(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
