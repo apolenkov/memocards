@@ -28,3 +28,20 @@ vaadin-side-nav-item vaadin-icon {
 .main-layout__menu {
   gap: var(--lumo-space-s);
 }
+
+.main-layout__right {
+  margin-left: auto;
+  align-items: center;
+}
+
+.language-switcher {
+  align-items: center;
+}
+
+.language-switcher__label {
+  color: var(--lumo-secondary-text-color);
+}
+
+.language-switcher__combo::part(input-field) {
+  min-width: 92px;
+}
