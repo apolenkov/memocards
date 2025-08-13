@@ -22,9 +22,12 @@ public class StatsDialogComponent extends Dialog {
         setWidth("760px");
 
         VerticalLayout layout = new VerticalLayout();
+        layout.addClassName("stats-dialog");
         layout.setPadding(true);
         layout.setSpacing(true);
-        layout.add(new H3(getTranslation("stats.title")));
+        H3 title = new H3(getTranslation("stats.title"));
+        title.addClassName("stats-dialog__title");
+        layout.add(title);
 
         List<Deck> decks = deckUseCase.getDecksByUserId(userUseCase.getCurrentUser().getId());
         LocalDate today = LocalDate.now();
@@ -54,10 +57,15 @@ public class StatsDialogComponent extends Dialog {
             }
         }
 
-        layout.add(new Span(getTranslation("stats.total", null, totalSessionsAll, totalViewedAll, totalCorrectAll, totalHardAll)));
-        layout.add(new Span(getTranslation("stats.today", null, totalSessionsToday, totalViewedToday, totalCorrectToday, totalHardToday)));
+        Span total = new Span(getTranslation("stats.total", null, totalSessionsAll, totalViewedAll, totalCorrectAll, totalHardAll));
+        total.addClassName("stats-dialog__summary");
+        Span todayLine = new Span(getTranslation("stats.today", null, totalSessionsToday, totalViewedToday, totalCorrectToday, totalHardToday));
+        todayLine.addClassName("stats-dialog__summary--today");
+        layout.add(total, todayLine);
 
-        layout.add(new H3(getTranslation("stats.byDeck")));
+        H3 byDeck = new H3(getTranslation("stats.byDeck"));
+        byDeck.addClassName("stats-dialog__subtitle");
+        layout.add(byDeck);
         for (Deck deck : decks) {
             int sessionsAll = 0, sessionsToday = 0;
             int viewedAll = 0, viewedToday = 0;
