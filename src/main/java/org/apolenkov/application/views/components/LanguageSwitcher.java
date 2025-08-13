@@ -5,8 +5,14 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.ComboBoxVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.spring.annotation.UIScope;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Locale;
 import org.apolenkov.application.service.UserSettingsService;
 import org.apolenkov.application.usecase.UserUseCase;
@@ -17,6 +23,7 @@ import org.springframework.stereotype.Component;
 public class LanguageSwitcher extends HorizontalLayout {
 
     public static final String SESSION_LOCALE_KEY = "preferredLocale";
+    private static final String COOKIE_LOCALE_KEY = "preferredLocale";
 
     private final transient UserUseCase userUseCase;
     private final transient UserSettingsService userSettingsService;
@@ -58,6 +65,7 @@ public class LanguageSwitcher extends HorizontalLayout {
                 newLocale = Locale.ENGLISH;
             }
             VaadinSession.getCurrent().setAttribute(SESSION_LOCALE_KEY, newLocale);
+            persistPreferredLocaleCookie(newLocale);
             persistIfLoggedIn(newLocale);
             getUI().ifPresent(ui -> {
                 ui.setLocale(newLocale);
@@ -73,6 +81,14 @@ public class LanguageSwitcher extends HorizontalLayout {
         if (attr instanceof Locale) {
             return (Locale) attr;
         }
+        // Fallback to cookie if present
+        Locale fromCookie = readPreferredLocaleCookie();
+        if (fromCookie != null) {
+            // Store into session for this UI and apply
+            VaadinSession.getCurrent().setAttribute(SESSION_LOCALE_KEY, fromCookie);
+            getUI().ifPresent(ui -> ui.setLocale(fromCookie));
+            return fromCookie;
+        }
         return getUI().map(UI::getLocale).orElse(Locale.ENGLISH);
     }
 
@@ -84,5 +100,33 @@ public class LanguageSwitcher extends HorizontalLayout {
         } catch (Exception ex) {
             // ignore for anonymous
         }
+    }
+
+    private void persistPreferredLocaleCookie(Locale locale) {
+        VaadinServletResponse vresp = (VaadinServletResponse) VaadinService.getCurrentResponse();
+        if (vresp == null) return;
+        HttpServletResponse resp = vresp.getHttpServletResponse();
+        Cookie c = new Cookie(COOKIE_LOCALE_KEY, locale.toLanguageTag());
+        c.setPath("/");
+        c.setMaxAge(60 * 60 * 24 * 365); // 1 year
+        c.setHttpOnly(false);
+        resp.addCookie(c);
+    }
+
+    private Locale readPreferredLocaleCookie() {
+        VaadinServletRequest vreq = (VaadinServletRequest) VaadinService.getCurrentRequest();
+        if (vreq == null) return null;
+        HttpServletRequest req = vreq.getHttpServletRequest();
+        Cookie[] cookies = req.getCookies();
+        if (cookies == null) return null;
+        for (Cookie c : cookies) {
+            if (COOKIE_LOCALE_KEY.equals(c.getName())) {
+                try {
+                    return Locale.forLanguageTag(c.getValue());
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        return null;
     }
 }

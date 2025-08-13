@@ -34,6 +34,11 @@ vaadin-side-nav-item vaadin-icon {
   align-items: center;
 }
 
+.main-layout__greeting {
+  margin-right: var(--lumo-space-m);
+  color: var(--lumo-secondary-text-color);
+}
+
 .language-switcher {
   align-items: center;
 }

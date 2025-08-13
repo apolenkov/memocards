@@ -48,27 +48,27 @@ public class RegisterView extends VerticalLayout {
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
 
-        H2 title = new H2("Create your account");
+        H2 title = new H2(getTranslation("auth.register.title"));
         FormLayout form = new FormLayout();
-        TextField name = new TextField("Name");
-        EmailField email = new EmailField("Email");
-        PasswordField password = new PasswordField("Password");
-        PasswordField confirm = new PasswordField("Confirm password");
+        TextField name = new TextField(getTranslation("auth.name"));
+        EmailField email = new EmailField(getTranslation("auth.email"));
+        PasswordField password = new PasswordField(getTranslation("auth.password"));
+        PasswordField confirm = new PasswordField(getTranslation("auth.password.confirm"));
 
-        Button submit = new Button("Register");
+        Button submit = new Button(getTranslation("auth.register"));
         submit.addClickListener(e -> {
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Notification.show("All fields are required");
+                Notification.show(getTranslation("auth.validation.allRequired"));
                 return;
             }
             if (!password.getValue().equals(confirm.getValue())) {
-                Notification.show("Passwords do not match");
+                Notification.show(getTranslation("auth.validation.passwordsMismatch"));
                 return;
             }
             try {
                 UserDetails existing = userDetailsService.loadUserByUsername(email.getValue());
                 if (existing != null) {
-                    Notification.show("User already exists");
+                    Notification.show(getTranslation("auth.validation.userExists"));
                     return;
                 }
             } catch (Exception ignored) {
@@ -99,14 +99,14 @@ public class RegisterView extends VerticalLayout {
                         new HttpSessionSecurityContextRepository().saveContext(context, req, resp);
                     }
 
-                    Notification.show("Welcome, you are now logged in");
+                    Notification.show(getTranslation("auth.register.successLogin"));
                     getUI().ifPresent(ui -> ui.navigate("home"));
                 } catch (Exception ex) {
-                    Notification.show("Registered, but auto-login failed. Please sign in.");
+                    Notification.show(getTranslation("auth.register.autoLoginFailed"));
                     getUI().ifPresent(ui -> ui.navigate("login"));
                 }
             } else {
-                Notification.show("Registration is not available");
+                Notification.show(getTranslation("auth.register.notAvailable"));
             }
         });
 
