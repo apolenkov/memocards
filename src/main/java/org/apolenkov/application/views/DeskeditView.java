@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deskedit;
+package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;

@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deckcreate;
+package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
@@ -129,7 +129,7 @@ public class DeckCreateView extends Composite<VerticalLayout> {
                 3000, Notification.Position.BOTTOM_START);
             
             // Переходим к просмотру созданной колоды
-            getUI().ifPresent(ui -> ui.navigate(org.apolenkov.application.views.deskview.DeskviewView.class, savedDeck.getId().toString()));
+            getUI().ifPresent(ui -> ui.navigate(DeskviewView.class, savedDeck.getId().toString()));
             
         } catch (Exception e) {
             Notification.show("Ошибка при создании колоды: " + e.getMessage(), 

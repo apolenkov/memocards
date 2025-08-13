@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.home;
+package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
@@ -23,7 +23,6 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.FlashcardService;
 import org.apolenkov.application.service.StatsService;
-import org.apolenkov.application.views.deskview.DeskviewView;
 
 import java.util.List;
 import java.util.Locale;
@@ -174,7 +173,7 @@ public class HomeView extends Composite<VerticalLayout> {
         practiceButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
         practiceButton.addClickListener(e -> {
             if (deck.getId() != null) {
-                getUI().ifPresent(ui -> ui.navigate(org.apolenkov.application.views.practice.PracticeView.class, deck.getId().toString()));
+                getUI().ifPresent(ui -> ui.navigate(PracticeView.class, deck.getId().toString()));
             } else {
                 Notification.show("Ошибка: ID колоды не найден", 3000, Notification.Position.MIDDLE);
             }

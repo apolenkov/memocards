@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.stats;
+package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

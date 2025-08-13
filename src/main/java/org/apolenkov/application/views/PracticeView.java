@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.practice;
+package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Composite;
@@ -140,7 +140,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         Button backButton = new Button("Колода", VaadinIcon.ARROW_LEFT.create());
         backButton.addClickListener(e -> {
             if (currentDeck != null) {
-                getUI().ifPresent(ui -> ui.navigate(org.apolenkov.application.views.deskview.DeskviewView.class, currentDeck.getId().toString()));
+                getUI().ifPresent(ui -> ui.navigate(DeskviewView.class, currentDeck.getId().toString()));
             } else {
                 getUI().ifPresent(ui -> ui.navigate(""));
             }
@@ -468,7 +468,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             showCurrentCard();
         });
         Button backToDeckButton = new Button("К колоде", e ->
-                getUI().ifPresent(ui -> ui.navigate(org.apolenkov.application.views.deskview.DeskviewView.class, currentDeck.getId().toString())));
+                getUI().ifPresent(ui -> ui.navigate(DeskviewView.class, currentDeck.getId().toString())));
         Button homeButton = new Button("К колодам", e -> getUI().ifPresent(ui -> ui.navigate("")));
         actionButtons.add(againButton, backToDeckButton, homeButton);
     }
