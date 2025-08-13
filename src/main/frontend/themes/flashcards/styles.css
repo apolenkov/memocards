@@ -1,5 +1,5 @@
 @import url('./main-layout.css');
 @import url('./views/home-view.css');
-@import url('./views/desklist-view.css');
-@import url('./views/deskview-view.css');
-@import url('./views/deskedit-view.css');
+@import url('./views/decklist-view.css');
+@import url('./views/deckview-view.css');
+@import url('./views/deckedit-view.css');

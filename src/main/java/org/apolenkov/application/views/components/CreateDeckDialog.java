@@ -11,7 +11,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.FlashcardService;
-import org.apolenkov.application.views.DeskviewView;
+import org.apolenkov.application.views.DeckView;
 
 import java.util.function.Consumer;
 
@@ -68,7 +68,7 @@ public class CreateDeckDialog extends Dialog {
             Notification.show(getTranslation("home.deckCreated"), 2000, Notification.Position.BOTTOM_START);
             close();
             if (onCreated != null) onCreated.accept(saved);
-            getUI().ifPresent(ui -> ui.navigate(DeskviewView.class, saved.getId().toString()));
+            getUI().ifPresent(ui -> ui.navigate(DeckView.class, saved.getId().toString()));
         });
 
         Button cancel = new Button(getTranslation("dialog.cancel"));
