@@ -5,8 +5,9 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import org.apolenkov.application.application.usecase.DeckUseCase;
+import org.apolenkov.application.application.usecase.UserUseCase;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.service.FlashcardService;
 import org.apolenkov.application.service.StatsService;
 
 import java.time.LocalDate;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public class StatsDialogComponent extends Dialog {
 
-    public StatsDialogComponent(FlashcardService flashcardService, StatsService statsService) {
+    public StatsDialogComponent(DeckUseCase deckUseCase, UserUseCase userUseCase, StatsService statsService) {
         setWidth("760px");
 
         VerticalLayout layout = new VerticalLayout();
@@ -25,7 +26,7 @@ public class StatsDialogComponent extends Dialog {
         layout.setSpacing(true);
         layout.add(new H3(getTranslation("stats.title")));
 
-        List<Deck> decks = flashcardService.getDecksByUserId(flashcardService.getCurrentUser().getId());
+        List<Deck> decks = deckUseCase.getDecksByUserId(userUseCase.getCurrentUser().getId());
         LocalDate today = LocalDate.now();
 
         int totalSessionsAll = 0;
@@ -75,9 +76,14 @@ public class StatsDialogComponent extends Dialog {
                     hardToday += ds.hard;
                 }
             }
-            Span line = new Span(String.format(
-                    "%s — сессий: %d (сегодня %d), просмотрено: %d (сегодня %d), правильных: %d (сегодня %d), сложно: %d (сегодня %d)",
-                    deck.getTitle(), sessionsAll, sessionsToday, viewedAll, viewedToday, correctAll, correctToday, hardAll, hardToday
+            Span line = new Span(getTranslation(
+                    "stats.deckLine",
+                    null,
+                    deck.getTitle(),
+                    sessionsAll, sessionsToday,
+                    viewedAll, viewedToday,
+                    correctAll, correctToday,
+                    hardAll, hardToday
             ));
             layout.add(line);
         }

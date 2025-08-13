@@ -14,11 +14,12 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.service.FlashcardService;
+import org.apolenkov.application.application.usecase.DeckUseCase;
+import org.apolenkov.application.application.usecase.UserUseCase;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.views.components.PracticeSettingsDialog;
+import org.apolenkov.application.views.components.LanguageSwitcher;
 import org.apolenkov.application.views.components.StatsDialogComponent;
 
 import java.time.LocalDate;
@@ -31,13 +32,15 @@ import java.util.List;
 @AnonymousAllowed
 public class MainLayout extends AppLayout {
 
-    private final FlashcardService flashcardService;
+    private final DeckUseCase deckUseCase;
+    private final UserUseCase userUseCase;
     private final StatsService statsService;
     private final PracticeSettingsService practiceSettingsService;
     private H1 viewTitle;
 
-    public MainLayout(FlashcardService flashcardService, StatsService statsService, PracticeSettingsService practiceSettingsService) {
-        this.flashcardService = flashcardService;
+    public MainLayout(DeckUseCase deckUseCase, UserUseCase userUseCase, StatsService statsService, PracticeSettingsService practiceSettingsService) {
+        this.deckUseCase = deckUseCase;
+        this.userUseCase = userUseCase;
         this.statsService = statsService;
         this.practiceSettingsService = practiceSettingsService;
         setPrimarySection(Section.NAVBAR);
@@ -56,14 +59,15 @@ public class MainLayout extends AppLayout {
         Button decksBtn = new Button(getTranslation("main.decks"), e -> getUI().ifPresent(ui -> ui.navigate("")));
         Button statsBtn = new Button(getTranslation("main.stats"), e -> openStatsDialog());
         Button settingsBtn = new Button(getTranslation("main.settings"), e -> openSettingsDialog());
-        menu.add(decksBtn, statsBtn, settingsBtn);
+        LanguageSwitcher lang = new LanguageSwitcher();
+        menu.add(decksBtn, statsBtn, settingsBtn, lang);
 
         bar.add(viewTitle, menu);
         addToNavbar(true, bar);
     }
 
     private void openStatsDialog() {
-        StatsDialogComponent dialog = new StatsDialogComponent(flashcardService, statsService);
+        StatsDialogComponent dialog = new StatsDialogComponent(deckUseCase, userUseCase, statsService);
         dialog.open();
     }
 

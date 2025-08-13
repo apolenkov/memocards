@@ -50,7 +50,7 @@ public class CreateDeckDialog extends Dialog {
         descriptionArea.setWidth("100%");
         descriptionArea.setMaxHeight("140px");
         descriptionArea.setMaxLength(500);
-        descriptionArea.setPlaceholder("Краткое описание (опционально)");
+        descriptionArea.setPlaceholder(getTranslation("dialog.description.placeholder"));
 
         HorizontalLayout buttons = new HorizontalLayout();
         Button save = new Button(getTranslation("dialog.create"));
