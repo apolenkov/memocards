@@ -2,7 +2,6 @@ package org.apolenkov.application.domain.port;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.apolenkov.application.model.Deck;
 
 /**
@@ -10,13 +9,13 @@ import org.apolenkov.application.model.Deck;
  * infrastructure adapters.
  */
 public interface DeckRepository {
-  List<Deck> findAll();
+    List<Deck> findAll();
 
-  List<Deck> findByUserId(Long userId);
+    List<Deck> findByUserId(Long userId);
 
-  Optional<Deck> findById(Long id);
+    Optional<Deck> findById(Long id);
 
-  Deck save(Deck deck);
+    Deck save(Deck deck);
 
-  void deleteById(Long id);
+    void deleteById(Long id);
 }

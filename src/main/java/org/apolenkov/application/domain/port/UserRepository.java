@@ -2,16 +2,15 @@ package org.apolenkov.application.domain.port;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.apolenkov.application.model.User;
 
 /** Port for accessing Users. */
 public interface UserRepository {
-  List<User> findAll();
+    List<User> findAll();
 
-  Optional<User> findById(Long id);
+    Optional<User> findById(Long id);
 
-  Optional<User> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
-  User save(User user);
+    User save(User user);
 }
