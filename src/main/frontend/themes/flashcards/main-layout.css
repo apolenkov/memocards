@@ -18,3 +18,13 @@ vaadin-side-nav-item vaadin-icon {
 [slot="drawer"]:is(header, footer):is(:empty) {
   display: none;
 }
+
+.main-layout__navbar {
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.main-layout__menu {
+  gap: var(--lumo-space-s);
+}

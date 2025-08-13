@@ -20,6 +20,7 @@ import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.FlashcardService;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.model.PracticeDirection;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -52,8 +53,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private final List<Long> knownCardIdsDelta = new ArrayList<>();
     private final List<Long> failedCardIds = new ArrayList<>();
     
-    // Направление сессии: "front_to_back" или "back_to_front"
-    private String sessionDirection = "front_to_back";
+    // Направление сессии
+    private PracticeDirection sessionDirection = PracticeDirection.FRONT_TO_BACK;
     
     // UI Components
     private H2 deckTitle;
@@ -117,7 +118,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         int defaultCount = Math.max(1, Math.min(configured, (int) notKnown));
         boolean random = practiceSettingsService.isDefaultRandomOrder();
         // Устанавливаем направление на сессию из глобальных настроек
-        sessionDirection = Optional.ofNullable(practiceSettingsService.getDefaultDirection()).orElse("front_to_back");
+        sessionDirection = Optional.ofNullable(practiceSettingsService.getDefaultDirection()).orElse(PracticeDirection.FRONT_TO_BACK);
         startPractice(defaultCount, random);
     }
 
@@ -314,11 +315,11 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private String getQuestionText(Flashcard card) {
-        return "back_to_front".equals(sessionDirection) ? card.getBackText() : card.getFrontText();
+        return sessionDirection == PracticeDirection.BACK_TO_FRONT ? card.getBackText() : card.getFrontText();
     }
 
     private String getAnswerText(Flashcard card) {
-        return "back_to_front".equals(sessionDirection) ? card.getFrontText() : card.getBackText();
+        return sessionDirection == PracticeDirection.BACK_TO_FRONT ? card.getFrontText() : card.getBackText();
     }
 
     private void showCurrentCard() {

@@ -1,5 +1,9 @@
 package org.apolenkov.application.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -8,10 +12,17 @@ import java.util.Objects;
  */
 public class Flashcard {
     private Long id;
+    @NotNull
     private Long deckId;
+    @NotBlank
+    @Size(max = 300)
     private String frontText;
+    @NotBlank
+    @Size(max = 300)
     private String backText;
+    @Size(max = 500)
     private String example;
+    @Size(max = 2048)
     private String imageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

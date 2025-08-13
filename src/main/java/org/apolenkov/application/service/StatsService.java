@@ -1,11 +1,14 @@
 package org.apolenkov.application.service;
 
+import org.apolenkov.application.domain.port.StatsRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class StatsService {
@@ -29,8 +32,11 @@ public class StatsService {
         }
     }
 
-    private final Map<Long, Map<LocalDate, DailyStats>> deckIdToDailyStats = new ConcurrentHashMap<>();
-    private final Map<Long, Set<Long>> deckIdToKnownCardIds = new ConcurrentHashMap<>();
+    private final StatsRepository statsRepository;
+
+    public StatsService(StatsRepository statsRepository) {
+        this.statsRepository = statsRepository;
+    }
 
     public void recordSession(long deckId,
                               int viewed,
@@ -42,31 +48,39 @@ public class StatsService {
                               Collection<Long> knownCardIdsDelta) {
         if (viewed <= 0) return;
         LocalDate today = LocalDate.now();
-        Map<LocalDate, DailyStats> byDate = deckIdToDailyStats.computeIfAbsent(deckId, k -> new ConcurrentHashMap<>());
-        DailyStats stats = byDate.computeIfAbsent(today, DailyStats::new);
-        stats.sessions += 1;
-        stats.viewed += viewed;
-        stats.correct += correct;
-        stats.repeat += repeat;
-        stats.hard += hard;
-        stats.totalDurationMs += sessionDuration.toMillis();
-        stats.totalAnswerDelayMs += totalAnswerDelayMs;
-
-        if (knownCardIdsDelta != null && !knownCardIdsDelta.isEmpty()) {
-            deckIdToKnownCardIds.computeIfAbsent(deckId, k -> Collections.synchronizedSet(new HashSet<>())).addAll(knownCardIdsDelta);
-        }
+        statsRepository.appendSession(
+                deckId,
+                today,
+                viewed,
+                correct,
+                repeat,
+                hard,
+                sessionDuration.toMillis(),
+                totalAnswerDelayMs,
+                knownCardIdsDelta
+        );
     }
 
     public List<DailyStats> getDailyStatsForDeck(long deckId) {
-        return deckIdToDailyStats.getOrDefault(deckId, Collections.emptyMap())
-                .values().stream()
+        return statsRepository.getDailyStats(deckId).stream()
+                .map(r -> {
+                    DailyStats ds = new DailyStats(r.date);
+                    ds.sessions = r.sessions;
+                    ds.viewed = r.viewed;
+                    ds.correct = r.correct;
+                    ds.repeat = r.repeat;
+                    ds.hard = r.hard;
+                    ds.totalDurationMs = r.totalDurationMs;
+                    ds.totalAnswerDelayMs = r.totalAnswerDelayMs;
+                    return ds;
+                })
                 .sorted(Comparator.comparing(ds -> ds.date))
                 .toList();
     }
 
     public int getDeckProgressPercent(long deckId, int deckSize) {
         if (deckSize <= 0) return 0;
-        int known = deckIdToKnownCardIds.getOrDefault(deckId, Collections.emptySet()).size();
+        int known = statsRepository.getKnownCardIds(deckId).size();
         int percent = (int) Math.round(100.0 * known / deckSize);
         if (percent < 0) percent = 0;
         if (percent > 100) percent = 100;
@@ -74,23 +88,18 @@ public class StatsService {
     }
 
     public boolean isCardKnown(long deckId, long cardId) {
-        return deckIdToKnownCardIds.getOrDefault(deckId, Collections.emptySet()).contains(cardId);
+        return statsRepository.getKnownCardIds(deckId).contains(cardId);
     }
 
     public Set<Long> getKnownCardIds(long deckId) {
-        return Collections.unmodifiableSet(deckIdToKnownCardIds.getOrDefault(deckId, Collections.emptySet()));
+        return statsRepository.getKnownCardIds(deckId);
     }
 
     public void setCardKnown(long deckId, long cardId, boolean known) {
-        deckIdToKnownCardIds.computeIfAbsent(deckId, k -> Collections.synchronizedSet(new HashSet<>()));
-        if (known) {
-            deckIdToKnownCardIds.get(deckId).add(cardId);
-        } else {
-            deckIdToKnownCardIds.get(deckId).remove(cardId);
-        }
+        statsRepository.setCardKnown(deckId, cardId, known);
     }
 
     public void resetDeckProgress(long deckId) {
-        deckIdToKnownCardIds.remove(deckId);
+        statsRepository.resetDeckProgress(deckId);
     }
 }

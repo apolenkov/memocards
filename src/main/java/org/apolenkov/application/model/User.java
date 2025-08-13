@@ -1,5 +1,9 @@
 package org.apolenkov.application.model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -8,8 +12,13 @@ import java.util.Objects;
  */
 public class User {
     private Long id;
+    @Email
+    @NotBlank
     private String email;
+    @Size(max = 255)
     private String passwordHash;
+    @NotBlank
+    @Size(max = 120)
     private String name;
     private LocalDateTime createdAt;
 
