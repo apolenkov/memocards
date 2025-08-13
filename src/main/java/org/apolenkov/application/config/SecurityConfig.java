@@ -15,7 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class SecurityConfig extends VaadinWebSecurity {
@@ -46,9 +45,8 @@ public class SecurityConfig extends VaadinWebSecurity {
         // Unauthenticated access → redirect to landing instead of /login
         http.exceptionHandling(ex -> ex.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/")));
 
-        // Allow GET /logout and redirect to /home afterwards
-        http.logout(logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-                .logoutSuccessUrl("/home"));
+        // Logout handled via MVC controller (/logout GET)
+        http.logout(logout -> logout.logoutUrl("/perform-logout").logoutSuccessUrl("/home"));
 
         boolean isProd = Arrays.asList(environment.getActiveProfiles()).contains("prod");
         if (isProd) {
