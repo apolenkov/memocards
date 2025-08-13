@@ -1,7 +1,8 @@
 package org.apolenkov.application.views.home;
 
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.service.FlashcardService;
+import org.apolenkov.application.application.usecase.DeckUseCase;
+import org.apolenkov.application.application.usecase.UserUseCase;
 import org.apolenkov.application.service.StatsService;
 
 import java.util.Comparator;
@@ -14,17 +15,19 @@ import java.util.stream.Collectors;
  */
 public class HomePresenter {
 
-    private final FlashcardService flashcardService;
+    private final DeckUseCase deckUseCase;
+    private final UserUseCase userUseCase;
     private final StatsService statsService;
 
-    public HomePresenter(FlashcardService flashcardService, StatsService statsService) {
-        this.flashcardService = flashcardService;
+    public HomePresenter(DeckUseCase deckUseCase, UserUseCase userUseCase, StatsService statsService) {
+        this.deckUseCase = deckUseCase;
+        this.userUseCase = userUseCase;
         this.statsService = statsService;
     }
 
     public List<DeckCardViewModel> listDecksForCurrentUser(String query) {
-        Long userId = flashcardService.getCurrentUser().getId();
-        List<Deck> decks = flashcardService.getDecksByUserId(userId);
+        Long userId = userUseCase.getCurrentUser().getId();
+        List<Deck> decks = deckUseCase.getDecksByUserId(userId);
 
         String normalized = query != null ? query.toLowerCase(Locale.ROOT).trim() : "";
         if (!normalized.isEmpty()) {

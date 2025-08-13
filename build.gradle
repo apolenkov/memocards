@@ -11,6 +11,9 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'java'
 	id 'com.vaadin'
+	id 'com.diffplug.spotless' version '6.25.0'
+	id 'checkstyle'
+	id 'jacoco'
 }
 
 group = 'org.apolenkov.application'
@@ -76,3 +79,65 @@ if (project.hasProperty('production')) {
 
 // Default goal equivalent for Gradle
 defaultTasks 'bootRun'
+
+// Code quality: Spotless, Checkstyle, Jacoco
+spotless {
+    java {
+        target 'src/**/*.java'
+        googleJavaFormat('1.17.0')
+        // Organize imports and trim
+        importOrder 'java', 'javax', 'jakarta', 'org', 'com', ''
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+checkstyle {
+    toolVersion = '10.16.0'
+    configFile = file('config/checkstyle/checkstyle.xml')
+    ignoreFailures = false
+}
+
+tasks.withType(Checkstyle).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+jacoco {
+    toolVersion = '0.8.12'
+}
+
+tasks.test {
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.60
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.spotlessCheck)
+    dependsOn(tasks.jacocoTestCoverageVerification)
+}
