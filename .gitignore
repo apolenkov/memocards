@@ -40,3 +40,6 @@ out
 pnpmfile.js
 .npmrc
 src/main/frontend/generated
+
+# Mac OS
+.DS_Store

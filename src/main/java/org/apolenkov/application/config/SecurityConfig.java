@@ -35,8 +35,7 @@ public class SecurityConfig extends VaadinWebSecurity {
         http.formLogin(form -> form.defaultSuccessUrl("/home", true));
 
         // Remember-me so you don't have to login every time in dev
-        http.rememberMe(remember -> remember
-                .key("flashcards-remember-me-key")
+        http.rememberMe(remember -> remember.key("flashcards-remember-me-key")
                 .tokenValiditySeconds(60 * 60 * 24 * 30) // 30 days
                 .alwaysRemember(true));
 
