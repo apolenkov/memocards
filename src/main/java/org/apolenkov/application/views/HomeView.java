@@ -11,7 +11,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.DeckFacade;
@@ -22,7 +22,7 @@ import org.apolenkov.application.views.home.DeckCardViewModel;
 import org.apolenkov.application.views.home.HomePresenter;
 
 @Route(value = "home", layout = MainLayout.class)
-@PermitAll
+@RolesAllowed("USER")
 public class HomeView extends Composite<VerticalLayout> implements HasDynamicTitle {
 
     private final DeckFacade deckFacade;
@@ -59,10 +59,12 @@ public class HomeView extends Composite<VerticalLayout> implements HasDynamicTit
         searchField.addClassName("home-view__search");
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
+        searchField.getElement().setAttribute("data-testid", "home-search");
         searchField.addValueChangeListener(e -> loadDecks());
 
         Button addDeckButton = new Button(getTranslation("home.addDeck"), VaadinIcon.PLUS.create());
         addDeckButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        addDeckButton.getElement().setAttribute("data-testid", "home-add-deck");
         addDeckButton.addClickListener(e -> openCreateDeckDialog());
 
         searchLayout.add(searchField, addDeckButton);

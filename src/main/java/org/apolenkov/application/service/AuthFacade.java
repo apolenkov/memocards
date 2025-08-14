@@ -24,14 +24,19 @@ public class AuthFacade {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final org.apolenkov.application.service.user.JpaRegistrationService
+            jpaRegistrationService; // nullable for dev
 
     public AuthFacade(
             UserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder,
-            AuthenticationManager authenticationManager) {
+            AuthenticationManager authenticationManager,
+            @org.springframework.beans.factory.annotation.Autowired(required = false)
+                    org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationService) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.jpaRegistrationService = jpaRegistrationService;
     }
 
     public boolean userExists(String username) {
@@ -44,14 +49,26 @@ public class AuthFacade {
     }
 
     public void registerUser(String username, String rawPassword) {
+        // Simple password policy
+        if (rawPassword == null
+                || rawPassword.length() < 8
+                || !rawPassword.matches(".*\\d.*")
+                || !rawPassword.matches(".*[A-Za-z].*")) {
+            throw new IllegalArgumentException("Password must be at least 8 characters and contain letters and digits");
+        }
         if (userDetailsService instanceof InMemoryUserDetailsManager manager) {
             manager.createUser(User.withUsername(username)
                     .password(passwordEncoder.encode(rawPassword))
-                    .roles("USER")
+                    .roles(org.apolenkov.application.config.SecurityConstants.ROLE_USER.replace("ROLE_", ""))
                     .build());
-        } else {
-            throw new IllegalStateException("Registration is not available");
+            return;
         }
+        // For JPA/prod, delegate to registration service bean if present
+        if (jpaRegistrationService != null) {
+            jpaRegistrationService.register(username, username, rawPassword); // name == email fallback
+            return;
+        }
+        throw new IllegalStateException("Registration is not available");
     }
 
     public void authenticateAndPersist(String username, String rawPassword) {
@@ -71,4 +88,6 @@ public class AuthFacade {
             new HttpSessionSecurityContextRepository().saveContext(context, req, resp);
         }
     }
+
+    // no Vaadin lookups
 }

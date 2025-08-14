@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FlashcardJpaRepository extends JpaRepository<FlashcardEntity, Long> {
     List<FlashcardEntity> findByDeckId(Long deckId);
+
+    long countByDeckId(Long deckId);
 }

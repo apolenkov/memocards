@@ -4,7 +4,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /** User model for flashcards application */
 public class User {
@@ -22,6 +25,8 @@ public class User {
     private String name;
 
     private LocalDateTime createdAt;
+
+    private Set<String> roles = new HashSet<>();
 
     public User() {
         this.createdAt = LocalDateTime.now();
@@ -75,6 +80,20 @@ public class User {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Set<String> getRoles() {
+        return Collections.unmodifiableSet(roles);
+    }
+
+    public void setRoles(Set<String> roles) {
+        this.roles = roles != null ? new HashSet<>(roles) : new HashSet<>();
+    }
+
+    public void addRole(String role) {
+        if (role != null && !role.isBlank()) {
+            this.roles.add(role.startsWith("ROLE_") ? role : "ROLE_" + role);
+        }
     }
 
     @Override

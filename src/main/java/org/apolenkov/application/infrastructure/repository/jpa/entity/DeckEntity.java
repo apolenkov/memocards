@@ -21,10 +21,10 @@ public class DeckEntity {
     private String description;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
     public Long getId() {
         return id;
@@ -74,6 +74,18 @@ public class DeckEntity {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        if (createdAt == null) createdAt = now;
+        if (updatedAt == null) updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
     @Override

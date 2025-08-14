@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles({"dev", "memory"})
+@org.junit.jupiter.api.Tag("integration")
 class StatsIT {
 
     @Autowired
@@ -24,7 +25,7 @@ class StatsIT {
         statsService.recordSession(deckId, 10, 7, 1, 2, Duration.ofMinutes(5), 12000L, List.of(1L, 2L));
         var daily = statsService.getDailyStatsForDeck(deckId);
         assertThat(daily).isNotEmpty();
-        assertThat(daily.get(0).viewed).isGreaterThanOrEqualTo(10);
+        assertThat(daily.get(0).viewed()).isGreaterThanOrEqualTo(10);
         Set<Long> known = statsService.getKnownCardIds(deckId);
         assertThat(known).contains(1L, 2L);
         int progress = statsService.getDeckProgressPercent(deckId, 10);

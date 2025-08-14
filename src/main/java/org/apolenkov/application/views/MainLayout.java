@@ -51,11 +51,33 @@ public class MainLayout extends AppLayout {
         HorizontalLayout menu = new HorizontalLayout();
         menu.addClassName("main-layout__menu");
         Button decksBtn = new Button(getTranslation("main.decks"), e -> getUI().ifPresent(ui -> ui.navigate("home")));
+        decksBtn.getElement().setAttribute("data-testid", "nav-decks");
         Button statsBtn = new Button(getTranslation("main.stats"), e -> openStatsDialog());
+        statsBtn.getElement().setAttribute("data-testid", "nav-stats");
+        Button adminBtn =
+                new Button(getTranslation("main.admin"), e -> getUI().ifPresent(ui -> ui.navigate("admin/users")));
+        adminBtn.getElement().setAttribute("data-testid", "nav-admin");
+        Button auditBtn = new Button(
+                getTranslation("main.adminAudit"), e -> getUI().ifPresent(ui -> ui.navigate("admin/role-audit")));
+        auditBtn.getElement().setAttribute("data-testid", "nav-audit");
+        try {
+            var auth = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                    .getAuthentication();
+            boolean isAdmin =
+                    auth != null && auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+            adminBtn.setVisible(isAdmin);
+            auditBtn.setVisible(isAdmin);
+        } catch (Exception ignored) {
+            adminBtn.setVisible(false);
+            auditBtn.setVisible(false);
+        }
         Button settingsBtn = new Button(getTranslation("main.settings"), e -> openSettingsDialog());
-        Button logoutBtn = new Button(getTranslation("main.logout"), e -> getUI().ifPresent(
-                        ui -> ui.getPage().setLocation("/logout")));
-        menu.add(decksBtn, statsBtn, settingsBtn, logoutBtn);
+        settingsBtn.getElement().setAttribute("data-testid", "nav-settings");
+        Button logoutBtn = new Button(
+                getTranslation("main.logout"),
+                e -> getUI().ifPresent(ui -> ui.getPage().executeJs("location.assign('/logout-confirm')")));
+        logoutBtn.getElement().setAttribute("data-testid", "nav-logout");
+        menu.add(decksBtn, statsBtn, settingsBtn, adminBtn, auditBtn, logoutBtn);
 
         HorizontalLayout right = new HorizontalLayout();
         right.addClassName("main-layout__right");

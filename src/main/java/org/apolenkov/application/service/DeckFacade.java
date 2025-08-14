@@ -2,9 +2,7 @@ package org.apolenkov.application.service;
 
 import jakarta.validation.Validator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.usecase.DeckUseCase;
@@ -87,19 +85,5 @@ public class DeckFacade {
         deckUseCase.deleteDeck(deckId);
     }
 
-    @Transactional(readOnly = true)
-    public List<Flashcard> listFilteredFlashcards(long deckId, String query, boolean hideKnown) {
-        String q = query != null ? query.toLowerCase(Locale.ROOT).trim() : "";
-        Set<Long> knownIds = getKnown(deckId);
-        return loadFlashcards(deckId).stream()
-                .filter(fc -> q.isEmpty()
-                        || (fc.getFrontText() != null
-                                && fc.getFrontText().toLowerCase(Locale.ROOT).contains(q))
-                        || (fc.getBackText() != null
-                                && fc.getBackText().toLowerCase(Locale.ROOT).contains(q))
-                        || (fc.getExample() != null
-                                && fc.getExample().toLowerCase(Locale.ROOT).contains(q)))
-                .filter(fc -> !hideKnown || !knownIds.contains(fc.getId()))
-                .collect(Collectors.toList());
-    }
+    // Filtering moved to CardQueryService
 }

@@ -21,7 +21,9 @@ import org.apolenkov.application.service.AuthFacade;
 @AnonymousAllowed
 public class RegisterView extends VerticalLayout {
 
+    @SuppressWarnings("unused")
     private final transient AuthFacade authFacade;
+
     private final Binder<RegisterForm> binder = new Binder<>(RegisterForm.class);
 
     public RegisterView(AuthFacade authFacade) {
@@ -49,7 +51,10 @@ public class RegisterView extends VerticalLayout {
                 .bind(RegisterForm::getEmail, RegisterForm::setEmail);
         binder.forField(password)
                 .asRequired(getTranslation("auth.validation.allRequired"))
-                .withValidator(v -> v != null && v.length() >= 4, getTranslation("auth.validation.allRequired"))
+                .withValidator(v -> v != null && v.length() >= 8, getTranslation("auth.validation.passwordPolicy"))
+                .withValidator(
+                        v -> v != null && v.matches(".*[A-Za-z].*"), getTranslation("auth.validation.passwordPolicy"))
+                .withValidator(v -> v != null && v.matches(".*\\d.*"), getTranslation("auth.validation.passwordPolicy"))
                 .bind(RegisterForm::getPassword, RegisterForm::setPassword);
         binder.forField(confirm)
                 .asRequired(getTranslation("auth.validation.allRequired"))
@@ -70,10 +75,7 @@ public class RegisterView extends VerticalLayout {
                 Notification.show(getTranslation("auth.validation.passwordsMismatch"));
                 return;
             }
-            if (authFacade.userExists(bean.getEmail())) {
-                Notification.show(getTranslation("auth.validation.userExists"));
-                return;
-            }
+            // existence check перенесён в сервис регистрации (JPA) или в InMemory менеджер
 
             try {
                 authFacade.registerUser(bean.getEmail(), bean.getPassword());

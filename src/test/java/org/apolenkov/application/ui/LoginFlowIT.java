@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.vaadin.testbench.BrowserTest;
 import com.vaadin.testbench.TestBench;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import java.net.MalformedURLException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +17,6 @@ class LoginFlowIT {
 
     @BeforeEach
     void setUp() throws MalformedURLException {
-        WebDriverManager.chromedriver().setup();
         driver = TestBench.createDriver(new ChromeDriver());
     }
 

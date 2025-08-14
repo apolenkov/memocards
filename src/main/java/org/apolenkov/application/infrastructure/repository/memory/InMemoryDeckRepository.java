@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.model.Deck;
 import org.springframework.stereotype.Repository;
@@ -27,7 +26,7 @@ public class InMemoryDeckRepository implements DeckRepository {
     public List<Deck> findByUserId(Long userId) {
         return idToDeck.values().stream()
                 .filter(d -> userId != null && userId.equals(d.getUserId()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

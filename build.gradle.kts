@@ -50,7 +50,6 @@ java {
 
 repositories {
     gradlePluginPortal()
-    mavenLocal()
     mavenCentral()
     maven(url = "https://maven.vaadin.com/vaadin-addons")
 }
@@ -104,12 +103,28 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("com.vaadin:vaadin-testbench-junit5")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.assertj:assertj-core:3.26.0")
     testImplementation("org.mockito:mockito-core:5.12.0")
     testImplementation("io.github.bonigarcia:webdrivermanager:5.9.2")
+
+    // Centralized constraints instead of resolutionStrategy.force
+    constraints {
+        val asm: String by project
+        implementation("commons-io:commons-io") { version { strictly("2.19.0") } }
+        implementation("org.checkerframework:checker-qual") { version { strictly("3.45.0") } }
+        implementation("org.apache.commons:commons-compress") { version { strictly("1.27.1") } }
+        implementation("org.jetbrains:annotations") { version { strictly("17.0.0") } }
+        implementation("io.github.classgraph:classgraph") { version { strictly("4.8.179") } }
+        implementation("com.google.errorprone:error_prone_annotations") { version { strictly("2.38.0") } }
+        implementation("org.ow2.asm:asm") { version { strictly(asm) } }
+        implementation("org.ow2.asm:asm-tree") { version { strictly(asm) } }
+        implementation("org.ow2.asm:asm-analysis") { version { strictly(asm) } }
+        implementation("org.ow2.asm:asm-util") { version { strictly(asm) } }
+    }
 }
 
 // Default task
@@ -223,10 +238,8 @@ tasks.withType<Test> {
     group = JavaBasePlugin.VERIFICATION_GROUP
     description = "Run tests"
 
-    useJUnitPlatform()
-    useJUnitPlatform {
-        excludeTags("ui")
-    }
+    // Exclude only UI by default for all Test tasks
+    useJUnitPlatform { excludeTags("ui") }
     testLogging {
         events("passed", "skipped", "failed")
         showExceptions = true
@@ -261,7 +274,7 @@ tasks.withType<JavaCompile> {
             "-Xlint:all,-serial,-processing",
         ),
     )
-    dependsOn("spotlessApply")
+    // Avoid formatting during compilation in CI; run explicitly in lint stage
 }
 
 /*
@@ -303,6 +316,21 @@ tasks.register<Test>("uiTest") {
     shouldRunAfter(tasks.test)
 }
 
+// Separate Integration test task that only runs @Tag("integration") tests
+tasks.register<Test>("integrationTest") {
+    description = "Runs integration tests"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform { includeTags("integration") }
+    shouldRunAfter(tasks.test)
+}
+
+// Ensure unit test task excludes integration explicitly
+tasks.named<Test>("test").configure {
+    useJUnitPlatform { excludeTags("integration", "ui") }
+}
+
 /*
  * Configuration ordering
  */
@@ -316,31 +344,35 @@ tasks.named("spotlessJava") {
 configurations.all {
     resolutionStrategy {
         failOnVersionConflict()
+    }
+}
 
-        // Force commons-io version to resolve conflicts with SonarLint
-        force("commons-io:commons-io:2.19.0")
+// Gradle dependency locking
+dependencyLocking {
+    lockAllConfigurations()
+}
 
-        // Force ASM version to resolve conflicts between JaCoCo and SpotBugs
+configurations.named("jacocoAnt").configure {
+    resolutionStrategy {
         val asm: String by project
         force("org.ow2.asm:asm:$asm")
         force("org.ow2.asm:asm-tree:$asm")
         force("org.ow2.asm:asm-analysis:$asm")
         force("org.ow2.asm:asm-util:$asm")
+    }
+}
 
-        // Force checker-qual version to resolve Spotless conflicts
-        force("org.checkerframework:checker-qual:3.45.0")
-
-        // Force commons-compress version to resolve test classpath conflicts
-        force("org.apache.commons:commons-compress:1.27.1")
-
-        // Force jetbrains annotations version to resolve test classpath conflicts
-        force("org.jetbrains:annotations:17.0.0")
-
-        // Force classgraph version to resolve test classpath conflicts
-        force("io.github.classgraph:classgraph:4.8.179")
-
-        // Resolve conflict com.google.errorprone:error_prone_annotations
-        force("com.google.errorprone:error_prone_annotations:2.38.0")
+// Spotless creates dynamic configurations (e.g. :spotless12345). Align their dependency versions.
+configurations.configureEach {
+    if (name.startsWith("spotless")) {
+        resolutionStrategy {
+            force("org.checkerframework:checker-qual:3.45.0")
+            force("com.google.errorprone:error_prone_annotations:2.38.0")
+            force("org.jetbrains:annotations:17.0.0")
+            force("commons-io:commons-io:2.19.0")
+            force("org.apache.commons:commons-compress:1.27.1")
+            force("io.github.classgraph:classgraph:4.8.179")
+        }
     }
 }
 
