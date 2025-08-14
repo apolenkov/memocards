@@ -30,8 +30,8 @@ public class User {
     public User(Long id, String email, String name) {
         this();
         this.id = id;
-        this.email = email;
-        this.name = name;
+        setEmail(email);
+        setName(name);
     }
 
     // Getters and setters
@@ -48,7 +48,8 @@ public class User {
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        if (email == null || email.isBlank()) throw new IllegalArgumentException("email is required");
+        this.email = email.trim();
     }
 
     public String getPasswordHash() {
@@ -64,7 +65,8 @@ public class User {
     }
 
     public void setName(String name) {
-        this.name = name;
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("name is required");
+        this.name = name.trim();
     }
 
     public LocalDateTime getCreatedAt() {

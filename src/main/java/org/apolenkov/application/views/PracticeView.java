@@ -383,7 +383,10 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         H3 results = new H3(getTranslation("practice.results", correctCount, total, hardCount));
         Span timeInfo = new Span(getTranslation(
                 "practice.time",
-                Math.max(1, java.time.Duration.between(session.sessionStart, java.time.Instant.now()).toMinutes()),
+                Math.max(
+                        1,
+                        java.time.Duration.between(session.sessionStart, java.time.Instant.now())
+                                .toMinutes()),
                 Math.round((session.totalAnswerDelayMs / Math.max(1.0, (double) totalViewed)) / 1000.0)));
 
         completionLayout.add(completionTitle, results, timeInfo);

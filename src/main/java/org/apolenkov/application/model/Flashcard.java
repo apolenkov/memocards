@@ -38,9 +38,9 @@ public class Flashcard {
     public Flashcard(Long id, Long deckId, String frontText, String backText) {
         this();
         this.id = id;
-        this.deckId = deckId;
-        this.frontText = frontText;
-        this.backText = backText;
+        setDeckId(deckId);
+        setFrontText(frontText);
+        setBackText(backText);
     }
 
     public Flashcard(Long id, Long deckId, String frontText, String backText, String example) {
@@ -62,6 +62,7 @@ public class Flashcard {
     }
 
     public void setDeckId(Long deckId) {
+        if (deckId == null) throw new IllegalArgumentException("deckId is required");
         this.deckId = deckId;
     }
 
@@ -70,7 +71,9 @@ public class Flashcard {
     }
 
     public void setFrontText(String frontText) {
-        this.frontText = frontText;
+        String t = frontText != null ? frontText.trim() : null;
+        if (t == null || t.isEmpty()) throw new IllegalArgumentException("frontText is required");
+        this.frontText = t;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -79,7 +82,9 @@ public class Flashcard {
     }
 
     public void setBackText(String backText) {
-        this.backText = backText;
+        String t = backText != null ? backText.trim() : null;
+        if (t == null || t.isEmpty()) throw new IllegalArgumentException("backText is required");
+        this.backText = t;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -88,7 +93,7 @@ public class Flashcard {
     }
 
     public void setExample(String example) {
-        this.example = example;
+        this.example = example != null ? example.trim() : null;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -97,7 +102,7 @@ public class Flashcard {
     }
 
     public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+        this.imageUrl = imageUrl != null ? imageUrl.trim() : null;
         this.updatedAt = LocalDateTime.now();
     }
 

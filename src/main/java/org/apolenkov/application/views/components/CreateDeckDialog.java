@@ -13,20 +13,20 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.usecase.DeckUseCase;
+import org.apolenkov.application.service.DeckFacade;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.DeckView;
 
 /** Dialog for creating a deck. Emits callback upon successful save. */
 public class CreateDeckDialog extends Dialog {
 
-    private final DeckUseCase deckUseCase;
+    private final DeckFacade deckFacade;
     private final UserUseCase userUseCase;
     private final Consumer<Deck> onCreated;
     private BeanValidationBinder<Deck> binder;
 
-    public CreateDeckDialog(DeckUseCase deckUseCase, UserUseCase userUseCase, Consumer<Deck> onCreated) {
-        this.deckUseCase = deckUseCase;
+    public CreateDeckDialog(DeckFacade deckFacade, UserUseCase userUseCase, Consumer<Deck> onCreated) {
+        this.deckFacade = deckFacade;
         this.userUseCase = userUseCase;
         this.onCreated = onCreated;
         setWidth("520px");
@@ -66,7 +66,7 @@ public class CreateDeckDialog extends Dialog {
             bean.setUserId(userUseCase.getCurrentUser().getId());
             try {
                 binder.writeBean(bean);
-                Deck saved = deckUseCase.saveDeck(bean);
+                Deck saved = deckFacade.saveDeck(bean);
                 Notification.show(getTranslation("home.deckCreated"), 2000, Notification.Position.BOTTOM_START);
                 close();
                 if (onCreated != null) onCreated.accept(saved);

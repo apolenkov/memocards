@@ -107,6 +107,9 @@ dependencies {
     testImplementation("com.vaadin:vaadin-testbench-junit5")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.assertj:assertj-core:3.26.0")
+    testImplementation("org.mockito:mockito-core:5.12.0")
+    testImplementation("io.github.bonigarcia:webdrivermanager:5.9.2")
 }
 
 // Default task
@@ -221,6 +224,9 @@ tasks.withType<Test> {
     description = "Run tests"
 
     useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags("ui")
+    }
     testLogging {
         events("passed", "skipped", "failed")
         showExceptions = true
@@ -278,6 +284,25 @@ tasks.named("check") {
     )
 }
 
+// Basic UI TestBench config hint: runs as regular junit5 tests
+configurations.testImplementation {
+    resolutionStrategy {
+        force("org.seleniumhq.selenium:selenium-java:4.24.0")
+    }
+}
+
+// Separate UI test task that only runs @Tag("ui") tests
+tasks.register<Test>("uiTest") {
+    description = "Runs UI (TestBench) tests"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform {
+        includeTags("ui")
+    }
+    shouldRunAfter(tasks.test)
+}
+
 /*
  * Configuration ordering
  */
@@ -313,6 +338,9 @@ configurations.all {
 
         // Force classgraph version to resolve test classpath conflicts
         force("io.github.classgraph:classgraph:4.8.179")
+
+        // Resolve conflict com.google.errorprone:error_prone_annotations
+        force("com.google.errorprone:error_prone_annotations:2.38.0")
     }
 }
 

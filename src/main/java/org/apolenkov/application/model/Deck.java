@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,9 +36,9 @@ public class Deck {
     public Deck(Long id, Long userId, String title, String description) {
         this();
         this.id = id;
-        this.userId = userId;
-        this.title = title;
-        this.description = description;
+        setUserId(userId);
+        setTitle(title);
+        setDescription(description);
     }
 
     // Convenience methods
@@ -49,6 +50,9 @@ public class Deck {
         if (flashcards == null) {
             flashcards = new ArrayList<>();
         }
+        if (flashcard == null) {
+            throw new IllegalArgumentException("flashcard is null");
+        }
         flashcards.add(flashcard);
         flashcard.setDeckId(this.id);
         this.updatedAt = LocalDateTime.now();
@@ -59,6 +63,18 @@ public class Deck {
             flashcards.remove(flashcard);
             this.updatedAt = LocalDateTime.now();
         }
+    }
+
+    // Domain factory with invariants
+    public static Deck create(Long userId, String title, String description) {
+        if (userId == null) throw new IllegalArgumentException("userId is required");
+        String t = title != null ? title.trim() : null;
+        if (t == null || t.isEmpty()) throw new IllegalArgumentException("title is required");
+        Deck d = new Deck();
+        d.setUserId(userId);
+        d.setTitle(t);
+        d.setDescription(description != null ? description.trim() : null);
+        return d;
     }
 
     // Getters and setters
@@ -75,6 +91,7 @@ public class Deck {
     }
 
     public void setUserId(Long userId) {
+        if (userId == null) throw new IllegalArgumentException("userId is required");
         this.userId = userId;
     }
 
@@ -83,7 +100,9 @@ public class Deck {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        String t = title != null ? title.trim() : null;
+        if (t == null || t.isEmpty()) throw new IllegalArgumentException("title is required");
+        this.title = t;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -92,7 +111,7 @@ public class Deck {
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        this.description = description != null ? description.trim() : null;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -113,11 +132,11 @@ public class Deck {
     }
 
     public List<Flashcard> getFlashcards() {
-        return flashcards;
+        return flashcards == null ? List.of() : Collections.unmodifiableList(flashcards);
     }
 
     public void setFlashcards(List<Flashcard> flashcards) {
-        this.flashcards = flashcards;
+        this.flashcards = new ArrayList<>(flashcards != null ? flashcards : List.of());
     }
 
     @Override

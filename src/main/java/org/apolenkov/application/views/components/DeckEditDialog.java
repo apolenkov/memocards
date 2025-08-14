@@ -13,17 +13,17 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.usecase.DeckUseCase;
+import org.apolenkov.application.service.DeckFacade;
 
 public class DeckEditDialog extends Dialog {
 
-    private final DeckUseCase deckUseCase;
+    private final DeckFacade deckFacade;
     private final Deck deck;
     private final Consumer<Deck> onSaved;
     private BeanValidationBinder<Deck> binder;
 
-    public DeckEditDialog(DeckUseCase deckUseCase, Deck deck, Consumer<Deck> onSaved) {
-        this.deckUseCase = deckUseCase;
+    public DeckEditDialog(DeckFacade deckFacade, Deck deck, Consumer<Deck> onSaved) {
+        this.deckFacade = deckFacade;
         this.deck = deck;
         this.onSaved = onSaved;
         setWidth("520px");
@@ -63,7 +63,7 @@ public class DeckEditDialog extends Dialog {
         save.addClickListener(e -> {
             try {
                 binder.writeBean(deck);
-                Deck saved = deckUseCase.saveDeck(deck);
+                Deck saved = deckFacade.saveDeck(deck);
                 Notification.show(getTranslation("deck.edit.success"), 2000, Notification.Position.BOTTOM_START);
                 close();
                 if (onSaved != null) onSaved.accept(saved);
