@@ -1,14 +1,13 @@
 package org.apolenkov.application.views.presenter;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.DeckFacade;
 import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.service.query.CardQueryService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.springframework.stereotype.Component;
 
@@ -18,11 +17,17 @@ public class DeckPresenter {
     private final DeckUseCase deckUseCase;
     private final StatsService statsService;
     private final DeckFacade deckFacade;
+    private final CardQueryService cardQueryService;
 
-    public DeckPresenter(DeckUseCase deckUseCase, StatsService statsService, DeckFacade deckFacade) {
+    public DeckPresenter(
+            DeckUseCase deckUseCase,
+            StatsService statsService,
+            DeckFacade deckFacade,
+            CardQueryService cardQueryService) {
         this.deckUseCase = deckUseCase;
         this.statsService = statsService;
         this.deckFacade = deckFacade;
+        this.cardQueryService = cardQueryService;
     }
 
     public Optional<Deck> loadDeck(long deckId) {
@@ -34,24 +39,12 @@ public class DeckPresenter {
     }
 
     public List<Flashcard> filterFlashcards(List<Flashcard> base, String query, Set<Long> knownIds, boolean hideKnown) {
-        String q = query != null ? query.toLowerCase(Locale.ROOT).trim() : "";
-        return base.stream()
-                .filter(fc -> q.isEmpty()
-                        || (fc.getFrontText() != null
-                                && fc.getFrontText().toLowerCase(Locale.ROOT).contains(q))
-                        || (fc.getBackText() != null
-                                && fc.getBackText().toLowerCase(Locale.ROOT).contains(q))
-                        || (fc.getExample() != null
-                                && fc.getExample().toLowerCase(Locale.ROOT).contains(q)))
-                .filter(fc -> !hideKnown || !knownIds.contains(fc.getId()))
-                .collect(Collectors.toList());
+        return cardQueryService.filterFlashcards(base, query, knownIds, hideKnown);
     }
 
     /** High-level query for UI: returns flashcards already filtered by search and known-status. */
     public List<Flashcard> listFilteredFlashcards(long deckId, String rawQuery, boolean hideKnown) {
-        List<Flashcard> all = loadFlashcards(deckId);
-        Set<Long> known = getKnown(deckId);
-        return filterFlashcards(all, rawQuery, known, hideKnown);
+        return cardQueryService.listFilteredFlashcards(deckId, rawQuery, hideKnown);
     }
 
     public Set<Long> getKnown(long deckId) {

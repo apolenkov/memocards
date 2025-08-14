@@ -22,15 +22,15 @@ class AuthFacadeTest {
     void setUp() {
         uds = new InMemoryUserDetailsManager();
         encoder = mock(PasswordEncoder.class);
-        when(encoder.encode("pwd")).thenReturn("ENC");
+        when(encoder.encode(anyString())).thenReturn("ENC");
         authManager = mock(AuthenticationManager.class);
         when(authManager.authenticate(any())).thenReturn(mock(Authentication.class));
-        facade = new AuthFacade(uds, encoder, authManager);
+        facade = new AuthFacade(uds, encoder, authManager, null);
     }
 
     @Test
     void registerAndExists() {
-        facade.registerUser("u", "pwd");
+        facade.registerUser("u", "Password1");
         assertThat(facade.userExists("u")).isTrue();
     }
 }

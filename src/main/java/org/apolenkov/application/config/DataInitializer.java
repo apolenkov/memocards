@@ -12,18 +12,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@org.springframework.context.annotation.Profile({"dev", "memory"})
 public class DataInitializer {
 
     @Bean
     CommandLineRunner initDemoData(UserRepository users, DeckRepository decks, FlashcardRepository cards) {
         return args -> {
-            if (!users.findAll().isEmpty()) return;
+            // ensure dev login user exists
+            User devUser =
+                    users.findByEmail("u").orElseGet(() -> users.save(new User(null, "u", "u")));
 
-            User demo = users.save(new User(null, "demo@example.com", "Demo User"));
+            if (!decks.findByUserId(devUser.getId()).isEmpty()) return;
 
-            Deck travel = decks.save(new Deck(null, demo.getId(), "Travel — фразы", "Короткие фразы для поездок"));
-            Deck it = decks.save(new Deck(null, demo.getId(), "IT — термины", "Основные термины программирования"));
-            Deck english = decks.save(new Deck(null, demo.getId(), "English Basics", "Базовые английские слова"));
+            Deck travel = decks.save(new Deck(null, devUser.getId(), "Travel — фразы", "Короткие фразы для поездок"));
+            Deck it = decks.save(new Deck(null, devUser.getId(), "IT — термины", "Основные термины программирования"));
+            Deck english = decks.save(new Deck(null, devUser.getId(), "English Basics", "Базовые английские слова"));
 
             List<Flashcard> travelCards = List.of(
                     new Flashcard(null, travel.getId(), "Hello", "Привет", "Hello, how are you?"),

@@ -38,7 +38,6 @@ import org.apolenkov.application.views.presenter.DeckPresenter;
 @RolesAllowed("USER")
 public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
-    private final DeckUseCase deckUseCase;
     private final DeckFacade deckFacade;
     private final DeckPresenter presenter;
     private Deck currentDeck;
@@ -51,7 +50,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private Checkbox hideKnownCheckbox;
 
     public DeckView(DeckUseCase deckUseCase, DeckPresenter presenter, DeckFacade deckFacade) {
-        this.deckUseCase = deckUseCase;
         this.presenter = presenter;
         this.deckFacade = deckFacade;
 
@@ -133,6 +131,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         Button addFlashcardButton = new Button(getTranslation("deck.addCard"), VaadinIcon.PLUS.create());
         addFlashcardButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        addFlashcardButton.getElement().setAttribute("data-testid", "deck-add-card");
         addFlashcardButton.addClickListener(e -> openFlashcardDialog(null));
 
         Button editDeckButton = new Button(VaadinIcon.EDIT.create());
@@ -267,14 +266,15 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         if (currentDeck != null) {
             deckTitle.setText(currentDeck.getTitle());
             deckStats.setText(getTranslation("deck.count", presenter.deckSize(currentDeck.getId())));
-            deckDescription.setText(currentDeck.getDescription());
+            deckDescription.setText(
+                    java.util.Optional.ofNullable(currentDeck.getDescription()).orElse(""));
         }
     }
 
     private void loadFlashcards() {
         if (currentDeck != null) {
             List<Flashcard> flashcards = presenter.loadFlashcards(currentDeck.getId());
-            flashcardsDataProvider = new ListDataProvider<>(flashcards);
+            flashcardsDataProvider = new ListDataProvider<>(new java.util.ArrayList<>(flashcards));
             flashcardGrid.setDataProvider(flashcardsDataProvider);
             applyFlashcardsFilter();
         }
@@ -287,9 +287,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 : "";
         boolean hideKnown = hideKnownCheckbox != null && Boolean.TRUE.equals(hideKnownCheckbox.getValue());
         List<Flashcard> filtered = presenter.listFilteredFlashcards(currentDeck.getId(), q, hideKnown);
-        flashcardsDataProvider.getItems().clear();
-        flashcardsDataProvider.getItems().addAll(filtered);
-        flashcardsDataProvider.refreshAll();
+        flashcardsDataProvider = new ListDataProvider<>(new java.util.ArrayList<>(filtered));
+        flashcardGrid.setDataProvider(flashcardsDataProvider);
     }
 
     private void openFlashcardDialog(Flashcard flashcard) {

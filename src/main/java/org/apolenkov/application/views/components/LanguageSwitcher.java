@@ -22,8 +22,8 @@ import org.springframework.stereotype.Component;
 @UIScope
 public class LanguageSwitcher extends HorizontalLayout {
 
-    public static final String SESSION_LOCALE_KEY = "preferredLocale";
-    private static final String COOKIE_LOCALE_KEY = "preferredLocale";
+    public static final String SESSION_LOCALE_KEY = org.apolenkov.application.config.LocaleConstants.SESSION_LOCALE_KEY;
+    private static final String COOKIE_LOCALE_KEY = org.apolenkov.application.config.LocaleConstants.COOKIE_LOCALE_KEY;
 
     private final transient UserUseCase userUseCase;
     private final transient UserSettingsService userSettingsService;

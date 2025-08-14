@@ -5,6 +5,9 @@ import java.util.Optional;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.apolenkov.application.usecase.UserUseCase;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,10 +32,23 @@ public class UserUseCaseService implements UserUseCase {
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @org.springframework.transaction.annotation.Transactional
     public User getCurrentUser() {
-        return userRepository.findAll().stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No users initialized"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new IllegalStateException("Unauthenticated");
+        }
+        Object principal = authentication.getPrincipal();
+        String username;
+        if (principal instanceof UserDetails ud) {
+            username = ud.getUsername();
+        } else if (principal instanceof String s) {
+            username = s;
+        } else {
+            throw new IllegalStateException("Unsupported principal type: " + principal.getClass());
+        }
+        return userRepository
+                .findByEmail(username)
+                .orElseGet(() -> userRepository.save(new User(null, username, username)));
     }
 }

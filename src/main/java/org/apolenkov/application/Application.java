@@ -34,7 +34,7 @@ public class Application implements AppShellConfigurator, VaadinServiceInitListe
                 var req = (VaadinServletRequest) VaadinService.getCurrentRequest();
                 if (req != null && req.getCookies() != null) {
                     for (jakarta.servlet.http.Cookie c : req.getCookies()) {
-                        if ("preferredLocale".equals(c.getName())) {
+                        if (org.apolenkov.application.config.LocaleConstants.COOKIE_LOCALE_KEY.equals(c.getName())) {
                             cookieLocale = java.util.Locale.forLanguageTag(c.getValue());
                             break;
                         }
@@ -44,15 +44,14 @@ public class Application implements AppShellConfigurator, VaadinServiceInitListe
             }
 
             if (cookieLocale != null) {
-                session.setAttribute(
-                        org.apolenkov.application.views.components.LanguageSwitcher.SESSION_LOCALE_KEY, cookieLocale);
+                session.setAttribute(org.apolenkov.application.config.LocaleConstants.SESSION_LOCALE_KEY, cookieLocale);
                 uiEvent.getUI().setLocale(cookieLocale);
                 return;
             }
 
             // 2) Fallback to session attribute
-            Object preferred = session.getAttribute(
-                    org.apolenkov.application.views.components.LanguageSwitcher.SESSION_LOCALE_KEY);
+            Object preferred =
+                    session.getAttribute(org.apolenkov.application.config.LocaleConstants.SESSION_LOCALE_KEY);
             if (preferred instanceof java.util.Locale locale) {
                 uiEvent.getUI().setLocale(locale);
             } else {

@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.model.Flashcard;
 import org.springframework.stereotype.Repository;
@@ -21,7 +20,7 @@ public class InMemoryFlashcardRepository implements FlashcardRepository {
     public List<Flashcard> findByDeckId(Long deckId) {
         return idToCard.values().stream()
                 .filter(c -> deckId != null && deckId.equals(c.getDeckId()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

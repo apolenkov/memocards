@@ -42,15 +42,15 @@ public class StatsDialogComponent extends Dialog {
         for (Deck deck : decks) {
             var daily = statsService.getDailyStatsForDeck(deck.getId());
             for (var ds : daily) {
-                totalSessionsAll += ds.sessions;
-                totalViewedAll += ds.viewed;
-                totalCorrectAll += ds.correct;
-                totalHardAll += ds.hard;
-                if (today.equals(ds.date)) {
-                    totalSessionsToday += ds.sessions;
-                    totalViewedToday += ds.viewed;
-                    totalCorrectToday += ds.correct;
-                    totalHardToday += ds.hard;
+                totalSessionsAll += ds.sessions();
+                totalViewedAll += ds.viewed();
+                totalCorrectAll += ds.correct();
+                totalHardAll += ds.hard();
+                if (today.equals(ds.date())) {
+                    totalSessionsToday += ds.sessions();
+                    totalViewedToday += ds.viewed();
+                    totalCorrectToday += ds.correct();
+                    totalHardToday += ds.hard();
                 }
             }
         }
@@ -73,15 +73,15 @@ public class StatsDialogComponent extends Dialog {
             int hardAll = 0, hardToday = 0;
             var daily = statsService.getDailyStatsForDeck(deck.getId());
             for (var ds : daily) {
-                sessionsAll += ds.sessions;
-                viewedAll += ds.viewed;
-                correctAll += ds.correct;
-                hardAll += ds.hard;
-                if (today.equals(ds.date)) {
-                    sessionsToday += ds.sessions;
-                    viewedToday += ds.viewed;
-                    correctToday += ds.correct;
-                    hardToday += ds.hard;
+                sessionsAll += ds.sessions();
+                viewedAll += ds.viewed();
+                correctAll += ds.correct();
+                hardAll += ds.hard();
+                if (today.equals(ds.date())) {
+                    sessionsToday += ds.sessions();
+                    viewedToday += ds.viewed();
+                    correctToday += ds.correct();
+                    hardToday += ds.hard();
                 }
             }
             Span line = new Span(getTranslation(

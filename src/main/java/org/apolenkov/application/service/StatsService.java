@@ -13,35 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StatsService {
 
-    public static class DailyStats {
-        public final LocalDate date;
-        public final int sessions;
-        public final int viewed;
-        public final int correct;
-        public final int repeat;
-        public final int hard;
-        public final long totalDurationMs;
-        public final long totalAnswerDelayMs;
-
-        public DailyStats(
-                LocalDate date,
-                int sessions,
-                int viewed,
-                int correct,
-                int repeat,
-                int hard,
-                long totalDurationMs,
-                long totalAnswerDelayMs) {
-            this.date = date;
-            this.sessions = sessions;
-            this.viewed = viewed;
-            this.correct = correct;
-            this.repeat = repeat;
-            this.hard = hard;
-            this.totalDurationMs = totalDurationMs;
-            this.totalAnswerDelayMs = totalAnswerDelayMs;
-        }
-
+    public static record DailyStats(
+            LocalDate date,
+            int sessions,
+            int viewed,
+            int correct,
+            int repeat,
+            int hard,
+            long totalDurationMs,
+            long totalAnswerDelayMs) {
         public double getAvgDelayMs() {
             return viewed > 0 ? (double) totalAnswerDelayMs / viewed : 0.0;
         }
@@ -89,7 +69,7 @@ public class StatsService {
                         r.hard(),
                         r.totalDurationMs(),
                         r.totalAnswerDelayMs()))
-                .sorted(Comparator.comparing(ds -> ds.date))
+                .sorted(Comparator.comparing(DailyStats::date))
                 .toList();
     }
 

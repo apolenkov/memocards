@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS decks (
   id BIGSERIAL PRIMARY KEY,
-  user_id BIGINT NOT NULL,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   title VARCHAR(120) NOT NULL,
   description VARCHAR(500),
   created_at TIMESTAMP NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS decks (
 
 CREATE TABLE IF NOT EXISTS flashcards (
   id BIGSERIAL PRIMARY KEY,
-  deck_id BIGINT NOT NULL,
+  deck_id BIGINT NOT NULL REFERENCES decks(id) ON DELETE CASCADE,
   front_text VARCHAR(300) NOT NULL,
   back_text VARCHAR(300) NOT NULL,
   example VARCHAR(500),
@@ -28,5 +28,11 @@ CREATE TABLE IF NOT EXISTS flashcards (
 
 CREATE INDEX IF NOT EXISTS idx_decks_user ON decks(user_id);
 CREATE INDEX IF NOT EXISTS idx_cards_deck ON flashcards(deck_id);
+
+CREATE TABLE IF NOT EXISTS user_roles (
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role VARCHAR(50) NOT NULL,
+  PRIMARY KEY (user_id, role)
+);
 
 

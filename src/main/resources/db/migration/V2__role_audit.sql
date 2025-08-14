@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS role_audit (
+  id BIGSERIAL PRIMARY KEY,
+  admin_email VARCHAR(255) NOT NULL,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  roles_before TEXT NOT NULL,
+  roles_after TEXT NOT NULL,
+  changed_at TIMESTAMP NOT NULL
+);
+
+

@@ -84,7 +84,10 @@ class HomePresenterTest {
                 return java.util.List.of();
             }
         };
-        HomePresenter presenter = new HomePresenter(deckUseCase, userUseCase, stats, flashcardUseCase);
+        org.apolenkov.application.service.query.DeckQueryService dqs =
+                new org.apolenkov.application.service.query.DeckQueryService(
+                        deckUseCase, flashcardUseCase, stats, userUseCase, null);
+        HomePresenter presenter = new HomePresenter(dqs);
 
         List<DeckCardViewModel> vms = presenter.listDecksForCurrentUser("a");
         assertFalse(vms.isEmpty());

@@ -3,7 +3,9 @@ package org.apolenkov.application.integration;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.apolenkov.application.infrastructure.repository.jpa.entity.DeckEntity;
+import org.apolenkov.application.infrastructure.repository.jpa.entity.UserEntity;
 import org.apolenkov.application.infrastructure.repository.jpa.springdata.DeckJpaRepository;
+import org.apolenkov.application.infrastructure.repository.jpa.springdata.UserJpaRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -22,6 +24,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
             "spring.jpa.hibernate.ddl-auto=none"
         })
 @ActiveProfiles({"jpa"})
+@org.junit.jupiter.api.Tag("integration")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 class JpaWithPostgresIT {
@@ -34,15 +37,21 @@ class JpaWithPostgresIT {
 
     @Autowired
     DeckJpaRepository deckRepo;
+    @Autowired
+    UserJpaRepository userRepo;
 
     @Test
     void contextAndJpaWorks() {
+        UserEntity u = new UserEntity();
+        u.setEmail("u@test");
+        u.setName("U");
+        UserEntity savedUser = userRepo.save(u);
         DeckEntity d = new DeckEntity();
-        d.setUserId(1L);
+        d.setUserId(savedUser.getId());
         d.setTitle("IT");
         d.setDescription("terms");
         DeckEntity saved = deckRepo.save(d);
         assertNotNull(saved.getId());
-        assertFalse(deckRepo.findByUserId(1L).isEmpty());
+        assertFalse(deckRepo.findByUserId(savedUser.getId()).isEmpty());
     }
 }

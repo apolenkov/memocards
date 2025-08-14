@@ -24,6 +24,7 @@ public class UserJpaAdapter implements UserRepository {
         User u = new User(e.getId(), e.getEmail(), e.getName());
         u.setPasswordHash(e.getPasswordHash());
         u.setCreatedAt(e.getCreatedAt());
+        u.setRoles(new java.util.HashSet<>(e.getRoles()));
         return u;
     }
 
@@ -34,6 +35,7 @@ public class UserJpaAdapter implements UserRepository {
         e.setPasswordHash(u.getPasswordHash());
         e.setName(u.getName());
         e.setCreatedAt(u.getCreatedAt() != null ? u.getCreatedAt() : java.time.LocalDateTime.now());
+        e.setRoles(new java.util.HashSet<>(u.getRoles()));
         return e;
     }
 
