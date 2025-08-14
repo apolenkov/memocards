@@ -2,7 +2,7 @@ spring:
   application:
     name: flashcards
   profiles:
-    active: dev,memory
+    active: dev
 
 vaadin:
   launch-browser: true

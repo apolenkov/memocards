@@ -7,10 +7,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.model.Flashcard;
-import org.springframework.stereotype.Repository;
 
-@org.springframework.context.annotation.Profile("memory")
-@Repository
+/** Test-only in-memory repository to support unit tests after removing prod in-memory code. */
 public class InMemoryFlashcardRepository implements FlashcardRepository {
 
     private final ConcurrentMap<Long, Flashcard> idToCard = new ConcurrentHashMap<>();

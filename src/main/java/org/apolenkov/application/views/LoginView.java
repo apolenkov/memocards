@@ -28,7 +28,7 @@ public class LoginView extends Div implements BeforeEnterObserver {
         wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         loginForm = new LoginForm();
-        loginForm.setAction("login");
+        loginForm.setAction("/login");
         loginForm.setForgotPasswordButtonVisible(false);
 
         LoginI18n i18n = LoginI18n.createDefault();

@@ -1,5 +1,8 @@
 package org.apolenkov.application.service.user;
 
+import java.time.LocalDateTime;
+import java.util.Set;
+import org.apolenkov.application.domain.port.RoleAuditRepository;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.springframework.context.annotation.Profile;
@@ -13,10 +16,13 @@ public class JpaRegistrationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleAuditRepository roleAuditRepository;
 
-    public JpaRegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public JpaRegistrationService(
+            UserRepository userRepository, PasswordEncoder passwordEncoder, RoleAuditRepository roleAuditRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleAuditRepository = roleAuditRepository;
     }
 
     @Transactional
@@ -29,6 +35,8 @@ public class JpaRegistrationService {
         user.setName(name);
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
         user.addRole(org.apolenkov.application.config.SecurityConstants.ROLE_USER);
-        userRepository.save(user);
+        User created = userRepository.save(user);
+        roleAuditRepository.recordChange(
+                "self-register", created.getId(), Set.of(), created.getRoles(), LocalDateTime.now());
     }
 }

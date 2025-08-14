@@ -56,8 +56,8 @@ class HomePresenterTest {
             @Override
             public void deleteDeck(Long id) {}
         };
-        StatsService stats = new StatsService(
-                new org.apolenkov.application.infrastructure.repository.memory.InMemoryStatsRepository());
+        StatsService stats =
+                new StatsService(org.mockito.Mockito.mock(org.apolenkov.application.domain.port.StatsRepository.class));
         FlashcardUseCase flashcardUseCase = new FlashcardUseCase() {
             @Override
             public java.util.List<org.apolenkov.application.model.Flashcard> getFlashcardsByDeckId(Long deckId) {

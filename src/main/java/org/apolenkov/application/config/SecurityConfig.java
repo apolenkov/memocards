@@ -6,8 +6,6 @@ import org.apolenkov.application.views.LoginView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,29 +26,29 @@ public class SecurityConfig extends VaadinWebSecurity {
         // Delegate matcher configuration to Vaadin's defaults to avoid conflicts
         super.configure(http);
         setLoginView(http, LoginView.class, "/home");
-        // Always go to /home after successful login (instead of returning to saved request like "/")
-        http.formLogin(form -> form.defaultSuccessUrl("/home", true));
+        // On success: admins -> /admin, others -> /home
+        http.formLogin(form -> form.successHandler((request, response, authentication) -> {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+            response.sendRedirect(isAdmin ? "/admin" : "/home");
+        }));
 
         // CSRF via cookie for use from Vaadin client; header name X-XSRF-TOKEN
         // Enforce CSRF for all state-changing endpoints including /logout
-        http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
+        http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .ignoringRequestMatchers("/login"));
         // Ensure XSRF cookie is present so our logout JS can read it
         http.addFilterAfter(new CsrfCookieFilter(), org.springframework.security.web.csrf.CsrfFilter.class);
 
         // Unauthenticated → redirect to landing; AccessDenied → custom page for all profiles
-        http.exceptionHandling(ex -> ex
-                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/"))
-                .accessDeniedPage("/access-denied"));
+        http.exceptionHandling(ex -> ex.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")));
 
-        // Strict: only POST /logout with CSRF
-        http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
+        // Strict: only POST /logout with CSRF (configured above)
 
-        http.logout(logout -> logout
-                .logoutUrl("/logout")
+        http.logout(logout -> logout.logoutUrl("/logout")
                 .logoutSuccessUrl("/home")
                 .deleteCookies("JSESSIONID", "remember-me")
-                .invalidateHttpSession(true)
-        );
+                .invalidateHttpSession(true));
 
         boolean isProd = Arrays.asList(environment.getActiveProfiles()).contains("prod");
         if (isProd) {
@@ -73,8 +71,6 @@ public class SecurityConfig extends VaadinWebSecurity {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
+    // Do not expose AuthenticationManager as a bean to avoid proxy recursion; obtain it from
+    // AuthenticationConfiguration when needed
 }

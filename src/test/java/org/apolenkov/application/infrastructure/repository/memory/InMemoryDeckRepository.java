@@ -8,10 +8,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.model.Deck;
-import org.springframework.stereotype.Repository;
 
-@org.springframework.context.annotation.Profile("memory")
-@Repository
+/** Test-only in-memory repository to support unit tests after removing prod in-memory code. */
 public class InMemoryDeckRepository implements DeckRepository {
 
     private final ConcurrentMap<Long, Deck> idToDeck = new ConcurrentHashMap<>();

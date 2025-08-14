@@ -5,8 +5,8 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,19 +23,19 @@ public class AuthFacade {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationConfiguration authenticationConfiguration;
     private final org.apolenkov.application.service.user.JpaRegistrationService
             jpaRegistrationService; // nullable for dev
 
     public AuthFacade(
             UserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder,
-            AuthenticationManager authenticationManager,
+            AuthenticationConfiguration authenticationConfiguration,
             @org.springframework.beans.factory.annotation.Autowired(required = false)
                     org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationService) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
+        this.authenticationConfiguration = authenticationConfiguration;
         this.jpaRegistrationService = jpaRegistrationService;
     }
 
@@ -74,7 +74,12 @@ public class AuthFacade {
     public void authenticateAndPersist(String username, String rawPassword) {
         UsernamePasswordAuthenticationToken authRequest =
                 new UsernamePasswordAuthenticationToken(username, rawPassword);
-        Authentication auth = authenticationManager.authenticate(authRequest);
+        Authentication auth;
+        try {
+            auth = authenticationConfiguration.getAuthenticationManager().authenticate(authRequest);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(auth);

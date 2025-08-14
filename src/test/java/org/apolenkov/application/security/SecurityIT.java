@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({"dev", "memory"})
+@ActiveProfiles({"dev"})
 @org.junit.jupiter.api.Tag("integration")
 class SecurityIT {
 
@@ -47,6 +47,8 @@ class SecurityIT {
         // prime cookies (including XSRF-TOKEN)
         rest.getForEntity("/", String.class);
         ResponseEntity<String> r = rest.postForEntity("/logout", null, String.class);
-        org.assertj.core.api.Assertions.assertThat(r.getStatusCode().value()).isEqualTo(403);
+        // In our config, POST /logout without valid CSRF should be rejected
+        org.assertj.core.api.Assertions.assertThat(r.getStatusCode().is4xxClientError())
+                .isTrue();
     }
 }

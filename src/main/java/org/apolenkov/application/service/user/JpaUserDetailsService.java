@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile({"jpa", "prod"})
+@Profile({"dev", "jpa", "prod"})
 public class JpaUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -30,7 +30,10 @@ public class JpaUserDetailsService implements UserDetailsService {
         Collection<? extends GrantedAuthority> authorities = user.getRoles().isEmpty()
                 ? List.of(new SimpleGrantedAuthority("ROLE_USER"))
                 : user.getRoles().stream().map(SimpleGrantedAuthority::new).toList();
-        String password = user.getPasswordHash() == null ? "{noop}" : user.getPasswordHash();
+        if (user.getPasswordHash() == null || user.getPasswordHash().isBlank()) {
+            throw new IllegalStateException("User has no password hash: " + username);
+        }
+        String password = user.getPasswordHash();
         return org.springframework.security.core.userdetails.User.withUsername(user.getEmail())
                 .password(password)
                 .authorities(authorities)
