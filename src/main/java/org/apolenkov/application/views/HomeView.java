@@ -14,7 +14,7 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.usecase.DeckUseCase;
+import org.apolenkov.application.service.DeckFacade;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.components.CreateDeckDialog;
 import org.apolenkov.application.views.components.DeckCard;
@@ -25,14 +25,14 @@ import org.apolenkov.application.views.home.HomePresenter;
 @PermitAll
 public class HomeView extends Composite<VerticalLayout> implements HasDynamicTitle {
 
-    private final DeckUseCase deckUseCase;
+    private final DeckFacade deckFacade;
     private final UserUseCase userUseCase;
     private VerticalLayout decksContainer;
     private final HomePresenter presenter;
     private TextField searchField;
 
-    public HomeView(DeckUseCase deckUseCase, UserUseCase userUseCase, HomePresenter presenter) {
-        this.deckUseCase = deckUseCase;
+    public HomeView(DeckFacade deckFacade, UserUseCase userUseCase, HomePresenter presenter) {
+        this.deckFacade = deckFacade;
         this.userUseCase = userUseCase;
         this.presenter = presenter;
         getContent().addClassName("home-view");
@@ -86,7 +86,7 @@ public class HomeView extends Composite<VerticalLayout> implements HasDynamicTit
 
     private void openCreateDeckDialog() {
         Consumer<Deck> onCreated = d -> loadDecks();
-        CreateDeckDialog dialog = new CreateDeckDialog(deckUseCase, userUseCase, onCreated);
+        CreateDeckDialog dialog = new CreateDeckDialog(deckFacade, userUseCase, onCreated);
         dialog.open();
     }
 

@@ -37,7 +37,6 @@ class FlashcardUseCaseServiceTest {
 
     @Test
     void saveFlashcard_invalid_throws() {
-        Flashcard c = new Flashcard(null, null, "", "");
-        assertThrows(IllegalArgumentException.class, () -> service.saveFlashcard(c));
+        assertThrows(IllegalArgumentException.class, () -> new Flashcard(null, null, "", ""));
     }
 }

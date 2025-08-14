@@ -1,71 +1,48 @@
-# Vaadin Gradle Skeleton Starter Spring Boot
+# Flashcards — Spring Boot + Vaadin (Clean Architecture)
 
-This project demos the possibility of having Vaadin project in npm+webpack mode using Gradle.
-Please see the [Starting a Vaadin project using Gradle](https://vaadin.com/docs/latest/getting-started/project/gradle) for the documentation.
+Приложение для изучения языков с карточками, реализованное на Spring Boot и Vaadin.
 
+### Слои и структура
+- `application/usecase` — интерфейсы сценариев (use cases)
+- `domain` — доменные модели и инварианты
+- `infrastructure/repository` — хранилища (in‑memory/JPA)
+- `ui/view` — представления Vaadin
+- `ui/presenter` — презентеры/фасады для UI
 
-Prerequisites:
-* Java 17 or higher
-* Git
-* (Optionally): Intellij Community
-* (Optionally): Node.js and npm, if you have JavaScript/TypeScript customisations in your project.
-  * You can either let the Vaadin Gradle plugin to install `Node.js` and `npm/pnpm` for you automatically, or you can install it to your OS:
-  * Windows: [node.js Download site](https://nodejs.org/en/download/) - use the .msi 64-bit installer
-  * Linux: `sudo apt install npm`
-
-## Vaadin Versions
-
-* The [v24](https://github.com/vaadin/base-starter-spring-gradle) branch (the default one) contains the example app for Vaadin latest version
-* See other branches for other Vaadin versions.
-
-## Running With Spring Boot via Gradle In Development Mode
-
-Run the following command in this repo:
-
+### Запуск (Dev)
 ```bash
 ./gradlew clean bootRun
 ```
+Откройте `http://localhost:8080`.
 
-Now you can open the [http://localhost:8080](http://localhost:8080) with your browser.
+Профили по умолчанию: `dev,memory`. Dev использует H2 + Flyway, memory‑реализации репозиториев.
 
-## Running With Spring Boot from your IDE In Development Mode
-
-Run the following command in this repo, to create necessary Vaadin config files:
-
-```bash
-./gradlew clean vaadinPrepareFrontend
-```
-
-The `build/vaadin-generated/` folder will now contain proper configuration files.
-
-Open the `DemoApplication` class, and Run/Debug its main method from your IDE.
-
-Now you can open the [http://localhost:8080](http://localhost:8080) with your browser.
-
-## Building In Production Mode
-
-Run the following command in this repo:
-
+### Prod‑сборка
 ```bash
 ./gradlew clean build -Pvaadin.productionMode
 ```
+Jar будет в `build/libs/`. Переменные БД для prod передаются через `application.yml` (профиль `prod`).
 
-That will build this app in production mode as a runnable jar archive; please find the jar file in `build/libs/base-starter-spring-gradle*.jar`.
-You can run the JAR file with:
-
+### Тесты
+- Юнит/интеграционные:
 ```bash
-cd build/libs/
-java -jar base-starter-spring-gradle*.jar
+./gradlew test
+```
+- UI (Vaadin TestBench — запускаются отдельно и требуют локального браузера):
+```bash
+./gradlew uiTest
 ```
 
-Now you can open the [http://localhost:8080](http://localhost:8080) with your browser.
+### Качество/линтеры/покрытие
+- Spotless (форматирование) — запускается автоматически перед компиляцией
+- Jacoco отчёты — публикуются в `build/reports/jacoco`
 
-### Building In Production On CI
+### Безопасность
+- Spring Security: публичные страницы (`/`, `/login`, `/register`), защищённые — в остальном
+- Logout — через MVC‑контроллер, очистка сессии и remember‑me
+- CSP заголовки: строгий в prod, ослабленный в dev
 
-Usually the CI images will not have node.js+npm available. Vaadin uses pre-compiled bundle when possible, i.e. Node.js is not always needed.
-Or Vaadin Gradle Plugin will download Node.js for you automatically if it finds any front-end customisations, there is no need for you to do anything.
-To build your app for production in CI, just run:
+### Локализация
+- i18n ключи для landing/login/register и UI навигации
+- Выбор языка хранится в cookie и восстанавливается при старте UI
 
-```bash
-./gradlew clean build -Pvaadin.productionMode
-```

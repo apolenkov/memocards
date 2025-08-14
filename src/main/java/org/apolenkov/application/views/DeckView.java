@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.service.DeckFacade;
 import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.components.DeckEditDialog;
 import org.apolenkov.application.views.presenter.DeckPresenter;
 
@@ -39,7 +39,7 @@ import org.apolenkov.application.views.presenter.DeckPresenter;
 public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
     private final DeckUseCase deckUseCase;
-    private final FlashcardUseCase flashcardUseCase;
+    private final DeckFacade deckFacade;
     private final DeckPresenter presenter;
     private Deck currentDeck;
     private Grid<Flashcard> flashcardGrid;
@@ -50,10 +50,10 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private ListDataProvider<Flashcard> flashcardsDataProvider;
     private Checkbox hideKnownCheckbox;
 
-    public DeckView(DeckUseCase deckUseCase, FlashcardUseCase flashcardUseCase, DeckPresenter presenter) {
+    public DeckView(DeckUseCase deckUseCase, DeckPresenter presenter, DeckFacade deckFacade) {
         this.deckUseCase = deckUseCase;
-        this.flashcardUseCase = flashcardUseCase;
         this.presenter = presenter;
+        this.deckFacade = deckFacade;
 
         getContent().setWidth("100%");
         getContent().setPadding(true);
@@ -140,7 +140,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         editDeckButton.getElement().setProperty("title", getTranslation("deck.edit.tooltip"));
         editDeckButton.addClickListener(e -> {
             if (currentDeck != null) {
-                new DeckEditDialog(deckUseCase, currentDeck, updated -> updateDeckInfo()).open();
+                new DeckEditDialog(deckFacade, currentDeck, updated -> updateDeckInfo()).open();
             }
         });
 
@@ -341,7 +341,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             try {
                 bean.setDeckId(currentDeck.getId());
                 binder.writeBean(bean);
-                flashcardUseCase.saveFlashcard(bean);
+                deckFacade.saveFlashcard(bean);
                 loadFlashcards();
                 updateDeckInfo();
                 dialog.close();
@@ -386,7 +386,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         Button confirmButton = new Button(getTranslation("dialog.delete"), VaadinIcon.TRASH.create());
         confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
         confirmButton.addClickListener(e -> {
-            flashcardUseCase.deleteFlashcard(flashcard.getId());
+            deckFacade.deleteFlashcard(flashcard.getId());
             loadFlashcards();
             updateDeckInfo();
             confirmDialog.close();

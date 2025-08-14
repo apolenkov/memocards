@@ -77,6 +77,16 @@ public class DeckFacade {
         flashcardUseCase.deleteFlashcard(id);
     }
 
+    @Transactional
+    public Deck saveDeck(Deck deck) {
+        return deckUseCase.saveDeck(deck);
+    }
+
+    @Transactional
+    public void deleteDeck(Long deckId) {
+        deckUseCase.deleteDeck(deckId);
+    }
+
     @Transactional(readOnly = true)
     public List<Flashcard> listFilteredFlashcards(long deckId, String query, boolean hideKnown) {
         String q = query != null ? query.toLowerCase(Locale.ROOT).trim() : "";

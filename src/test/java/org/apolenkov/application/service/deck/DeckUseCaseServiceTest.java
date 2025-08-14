@@ -36,8 +36,10 @@ class DeckUseCaseServiceTest {
 
     @Test
     void saveDeck_invalid_throws() {
-        Deck d = new Deck(null, 1L, "", "Desc");
-        assertThrows(IllegalArgumentException.class, () -> service.saveDeck(d));
+        assertThrows(IllegalArgumentException.class, () -> {
+            Deck d = new Deck(null, 1L, "", "Desc");
+            service.saveDeck(d);
+        });
     }
 
     @Test

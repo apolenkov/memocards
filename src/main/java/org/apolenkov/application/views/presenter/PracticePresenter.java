@@ -167,6 +167,13 @@ public class PracticePresenter {
 
     public void recordAndPersist(Session s) {
         Duration duration = Duration.between(s.sessionStart, Instant.now());
-        recordSession(s.deckId, s.totalViewed, s.correctCount, s.hardCount, duration, s.totalAnswerDelayMs, s.knownCardIdsDelta);
+        recordSession(
+                s.deckId,
+                s.totalViewed,
+                s.correctCount,
+                s.hardCount,
+                duration,
+                s.totalAnswerDelayMs,
+                s.knownCardIdsDelta);
     }
 }
