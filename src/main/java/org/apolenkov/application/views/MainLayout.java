@@ -54,6 +54,8 @@ public class MainLayout extends AppLayout {
         decksBtn.getElement().setAttribute("data-testid", "nav-decks");
         Button statsBtn = new Button(getTranslation("main.stats"), e -> openStatsDialog());
         statsBtn.getElement().setAttribute("data-testid", "nav-stats");
+        Button settingsBtn = new Button(getTranslation("main.settings"), e -> openSettingsDialog());
+        settingsBtn.getElement().setAttribute("data-testid", "nav-settings");
         Button adminBtn =
                 new Button(getTranslation("main.admin"), e -> getUI().ifPresent(ui -> ui.navigate("admin/users")));
         adminBtn.getElement().setAttribute("data-testid", "nav-admin");
@@ -63,19 +65,25 @@ public class MainLayout extends AppLayout {
         try {
             var auth = org.springframework.security.core.context.SecurityContextHolder.getContext()
                     .getAuthentication();
-            boolean isAdmin =
+            boolean hasUser =
+                    auth != null && auth.getAuthorities().stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority()));
+            boolean hasAdmin =
                     auth != null && auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
-            adminBtn.setVisible(isAdmin);
-            auditBtn.setVisible(isAdmin);
+
+            decksBtn.setVisible(hasUser);
+            statsBtn.setVisible(hasUser);
+            settingsBtn.setVisible(hasUser);
+            adminBtn.setVisible(hasAdmin);
+            auditBtn.setVisible(hasAdmin);
         } catch (Exception ignored) {
+            decksBtn.setVisible(false);
+            statsBtn.setVisible(false);
+            settingsBtn.setVisible(false);
             adminBtn.setVisible(false);
             auditBtn.setVisible(false);
         }
-        Button settingsBtn = new Button(getTranslation("main.settings"), e -> openSettingsDialog());
-        settingsBtn.getElement().setAttribute("data-testid", "nav-settings");
-        Button logoutBtn = new Button(
-                getTranslation("main.logout"),
-                e -> getUI().ifPresent(ui -> ui.getPage().executeJs("location.assign('/logout-confirm')")));
+        Button logoutBtn = new Button(getTranslation("main.logout"), e -> getUI().ifPresent(
+                        ui -> ui.getPage().executeJs("location.assign('/logout-confirm')")));
         logoutBtn.getElement().setAttribute("data-testid", "nav-logout");
         menu.add(decksBtn, statsBtn, settingsBtn, adminBtn, auditBtn, logoutBtn);
 

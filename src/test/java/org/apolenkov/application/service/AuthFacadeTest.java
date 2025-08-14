@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,7 @@ class AuthFacadeTest {
     private UserDetailsService uds;
     private PasswordEncoder encoder;
     private AuthenticationManager authManager;
+    private AuthenticationConfiguration authConfig;
     private AuthFacade facade;
 
     @BeforeEach
@@ -25,7 +27,13 @@ class AuthFacadeTest {
         when(encoder.encode(anyString())).thenReturn("ENC");
         authManager = mock(AuthenticationManager.class);
         when(authManager.authenticate(any())).thenReturn(mock(Authentication.class));
-        facade = new AuthFacade(uds, encoder, authManager, null);
+        authConfig = mock(AuthenticationConfiguration.class);
+        try {
+            when(authConfig.getAuthenticationManager()).thenReturn(authManager);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        facade = new AuthFacade(uds, encoder, authConfig, null);
     }
 
     @Test

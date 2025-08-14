@@ -10,7 +10,7 @@ import org.apolenkov.application.model.Flashcard;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
-@Profile("jpa")
+@Profile({"dev", "jpa", "prod"})
 @Repository
 public class FlashcardJpaAdapter implements FlashcardRepository {
 

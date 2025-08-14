@@ -8,8 +8,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -24,7 +22,7 @@ public class RegisterView extends VerticalLayout {
     @SuppressWarnings("unused")
     private final transient AuthFacade authFacade;
 
-    private final Binder<RegisterForm> binder = new Binder<>(RegisterForm.class);
+    private final EmailValidator emailValidator = new EmailValidator("invalid");
 
     public RegisterView(AuthFacade authFacade) {
         this.authFacade = authFacade;
@@ -40,46 +38,60 @@ public class RegisterView extends VerticalLayout {
         PasswordField password = new PasswordField(getTranslation("auth.password"));
         PasswordField confirm = new PasswordField(getTranslation("auth.password.confirm"));
 
-        // Binder validation
-        binder.forField(name)
-                .asRequired(getTranslation("auth.validation.allRequired"))
-                .withValidator(v -> v != null && v.trim().length() >= 2, getTranslation("auth.validation.allRequired"))
-                .bind(RegisterForm::getName, RegisterForm::setName);
-        binder.forField(email)
-                .asRequired(getTranslation("auth.validation.allRequired"))
-                .withValidator(new EmailValidator(getTranslation("auth.validation.userExists")))
-                .bind(RegisterForm::getEmail, RegisterForm::setEmail);
-        binder.forField(password)
-                .asRequired(getTranslation("auth.validation.allRequired"))
-                .withValidator(v -> v != null && v.length() >= 8, getTranslation("auth.validation.passwordPolicy"))
-                .withValidator(
-                        v -> v != null && v.matches(".*[A-Za-z].*"), getTranslation("auth.validation.passwordPolicy"))
-                .withValidator(v -> v != null && v.matches(".*\\d.*"), getTranslation("auth.validation.passwordPolicy"))
-                .bind(RegisterForm::getPassword, RegisterForm::setPassword);
-        binder.forField(confirm)
-                .asRequired(getTranslation("auth.validation.allRequired"))
-                .withValidator(v -> v != null && v.length() >= 4, getTranslation("auth.validation.allRequired"))
-                .bind(RegisterForm::getConfirm, RegisterForm::setConfirm);
+        // Валидация только по клику на кнопку: не подсвечиваем поля заранее
+        name.setRequiredIndicatorVisible(true);
+        email.setRequiredIndicatorVisible(true);
+        password.setRequiredIndicatorVisible(true);
+        confirm.setRequiredIndicatorVisible(true);
 
         Button submit = new Button(getTranslation("auth.register"));
         submit.addClickListener(e -> {
-            RegisterForm bean = new RegisterForm();
-            try {
-                binder.writeBean(bean);
-            } catch (ValidationException ex) {
+            // очистка предыдущих ошибок
+            name.setInvalid(false);
+            email.setInvalid(false);
+            password.setInvalid(false);
+            confirm.setInvalid(false);
+
+            boolean ok = true;
+            String allReq = getTranslation("auth.validation.allRequired");
+            String pwdPolicy = getTranslation("auth.validation.passwordPolicy");
+
+            String vName = name.getValue() == null ? "" : name.getValue().trim();
+            if (vName.length() < 2) {
+                name.setErrorMessage(allReq);
+                name.setInvalid(true);
+                ok = false;
+            }
+
+            String vEmail = email.getValue() == null ? "" : email.getValue().trim();
+            if (vEmail.isEmpty() || emailValidator.apply(vEmail, null).isError()) {
+                email.setErrorMessage(getTranslation("auth.validation.invalidEmail", allReq));
+                email.setInvalid(true);
+                ok = false;
+            }
+
+            String vPwd = password.getValue() == null ? "" : password.getValue();
+            if (vPwd.length() < 8 || !vPwd.matches(".*[A-Za-z].*") || !vPwd.matches(".*\\d.*")) {
+                password.setErrorMessage(pwdPolicy);
+                password.setInvalid(true);
+                ok = false;
+            }
+
+            String vConfirm = confirm.getValue() == null ? "" : confirm.getValue();
+            if (!vPwd.equals(vConfirm)) {
+                confirm.setErrorMessage(getTranslation("auth.validation.passwordsMismatch"));
+                confirm.setInvalid(true);
+                ok = false;
+            }
+
+            if (!ok) {
                 Notification.show(getTranslation("auth.validation.allRequired"));
                 return;
             }
 
-            if (!bean.getPassword().equals(bean.getConfirm())) {
-                Notification.show(getTranslation("auth.validation.passwordsMismatch"));
-                return;
-            }
-            // existence check перенесён в сервис регистрации (JPA) или в InMemory менеджер
-
             try {
-                authFacade.registerUser(bean.getEmail(), bean.getPassword());
-                authFacade.authenticateAndPersist(bean.getEmail(), bean.getPassword());
+                authFacade.registerUser(vEmail, vPwd);
+                authFacade.authenticateAndPersist(vEmail, vPwd);
                 Notification.show(getTranslation("auth.register.successLogin"));
                 getUI().ifPresent(ui -> ui.navigate("home"));
             } catch (Exception ex) {

@@ -33,5 +33,3 @@ public class NotFoundView extends Div implements HasErrorParameter<NotFoundExcep
         return HttpStatusCode.NOT_FOUND.getCode();
     }
 }
-
-

@@ -37,6 +37,7 @@ class JpaWithPostgresIT {
 
     @Autowired
     DeckJpaRepository deckRepo;
+
     @Autowired
     UserJpaRepository userRepo;
 

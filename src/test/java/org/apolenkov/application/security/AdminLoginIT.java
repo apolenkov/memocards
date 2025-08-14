@@ -14,7 +14,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({"dev", "memory"})
+@ActiveProfiles({"dev"})
 @org.junit.jupiter.api.Tag("integration")
 class AdminLoginIT {
 
@@ -32,9 +32,11 @@ class AdminLoginIT {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         ResponseEntity<String> login = rest.postForEntity("/login", new HttpEntity<>(form, headers), String.class);
-        org.assertj.core.api.Assertions.assertThat(login.getStatusCode().is3xxRedirection()).isTrue();
+        org.assertj.core.api.Assertions.assertThat(login.getStatusCode().is3xxRedirection())
+                .isTrue();
 
         ResponseEntity<String> r = rest.getForEntity("/admin/users", String.class);
-        org.assertj.core.api.Assertions.assertThat(r.getStatusCode().is2xxSuccessful()).isTrue();
+        org.assertj.core.api.Assertions.assertThat(r.getStatusCode().is2xxSuccessful())
+                .isTrue();
     }
 }

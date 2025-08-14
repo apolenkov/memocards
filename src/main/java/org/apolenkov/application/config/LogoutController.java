@@ -22,7 +22,8 @@ class LogoutController {
                 + "<script>"
                 + "if(!confirm('Вы действительно хотите выйти?')){window.location='/home';}else{"
                 + "var f=document.createElement('form');f.method='POST';f.action='/logout';"
-                + "var i=document.createElement('input');i.type='hidden';i.name='" + param + "';i.value='" + val + "';f.appendChild(i);"
+                + "var i=document.createElement('input');i.type='hidden';i.name='" + param + "';i.value='" + val
+                + "';f.appendChild(i);"
                 + "document.body.appendChild(f);f.submit();}"
                 + "</script>"
                 + "</body></html>";
@@ -31,5 +32,3 @@ class LogoutController {
                 .body(html);
     }
 }
-
-

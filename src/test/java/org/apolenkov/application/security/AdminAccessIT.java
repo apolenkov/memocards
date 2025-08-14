@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({"dev", "memory"})
+@ActiveProfiles({"dev"})
 @org.junit.jupiter.api.Tag("integration")
 class AdminAccessIT {
 
@@ -21,6 +21,8 @@ class AdminAccessIT {
         ResponseEntity<String> r = rest.getForEntity("/admin/users", String.class);
         boolean redirected = r.getStatusCode().is3xxRedirection();
         boolean loginContent = r.getBody() != null && r.getBody().toLowerCase().contains("vaadin-login");
-        org.assertj.core.api.Assertions.assertThat(redirected || loginContent).isTrue();
+        boolean forbidden = r.getStatusCode().value() == 403;
+        org.assertj.core.api.Assertions.assertThat(redirected || loginContent || forbidden)
+                .isTrue();
     }
 }

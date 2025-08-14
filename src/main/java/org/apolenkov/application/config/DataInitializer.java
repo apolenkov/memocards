@@ -16,17 +16,21 @@ import org.springframework.context.annotation.Configuration;
 public class DataInitializer {
 
     @Bean
+    @org.springframework.core.annotation.Order(20)
     CommandLineRunner initDemoData(UserRepository users, DeckRepository decks, FlashcardRepository cards) {
         return args -> {
-            // ensure dev login user exists
-            User devUser =
-                    users.findByEmail("u").orElseGet(() -> users.save(new User(null, "u", "u")));
+            // Local seeding of users moved to DevSecurityUsers; here we only seed decks for existing 'user'
+            java.util.Optional<User> opt = users.findByEmail("user");
+            if (opt.isEmpty()) {
+                return; // no domain user yet → skip deck seeding; created lazily on first login
+            }
+            User user = opt.get();
 
-            if (!decks.findByUserId(devUser.getId()).isEmpty()) return;
+            if (!decks.findByUserId(user.getId()).isEmpty()) return;
 
-            Deck travel = decks.save(new Deck(null, devUser.getId(), "Travel — фразы", "Короткие фразы для поездок"));
-            Deck it = decks.save(new Deck(null, devUser.getId(), "IT — термины", "Основные термины программирования"));
-            Deck english = decks.save(new Deck(null, devUser.getId(), "English Basics", "Базовые английские слова"));
+            Deck travel = decks.save(new Deck(null, user.getId(), "Travel — фразы", "Короткие фразы для поездок"));
+            Deck it = decks.save(new Deck(null, user.getId(), "IT — термины", "Основные термины программирования"));
+            Deck english = decks.save(new Deck(null, user.getId(), "English Basics", "Базовые английские слова"));
 
             List<Flashcard> travelCards = List.of(
                     new Flashcard(null, travel.getId(), "Hello", "Привет", "Hello, how are you?"),
