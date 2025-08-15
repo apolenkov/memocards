@@ -54,35 +54,7 @@ public class TopMenu extends HorizontalLayout {
         title.addClassName("top-menu__title");
 
         initializeMenuButtons();
-
-        HorizontalLayout left = new HorizontalLayout();
-        left.setAlignItems(Alignment.CENTER);
-        left.setSpacing(true);
-
-        left.add(title);
-
-        Authentication auth = SecurityContextHolder.getContext() != null
-                ? SecurityContextHolder.getContext().getAuthentication()
-                : null;
-        boolean isAuthenticated = auth != null && !(auth instanceof AnonymousAuthenticationToken);
-        if (isAuthenticated) {
-            String displayName;
-            try {
-                displayName = userUseCase.getCurrentUser().getName();
-                if (displayName == null || displayName.isBlank()) {
-                    displayName = auth != null ? auth.getName() : "";
-                }
-            } catch (Exception e) {
-                displayName = auth != null ? auth.getName() : "";
-            }
-            Div greeting = new Div();
-            greeting.setText(getTranslation("main.greeting", displayName));
-            greeting.getElement().getClassList().add("top-menu__greeting");
-            left.add(greeting);
-        }
-
-        add(left);
-        add(createMenuButtonsLayout());
+        refreshMenu();
     }
 
     private void initializeMenuButtons() {
@@ -122,6 +94,38 @@ public class TopMenu extends HorizontalLayout {
         }
 
         return buttonsLayout;
+    }
+
+    public void refreshMenu() {
+        removeAll();
+
+        HorizontalLayout left = new HorizontalLayout();
+        left.setAlignItems(Alignment.CENTER);
+        left.setSpacing(true);
+        left.add(title);
+
+        Authentication auth = SecurityContextHolder.getContext() != null
+                ? SecurityContextHolder.getContext().getAuthentication()
+                : null;
+        boolean isAuthenticated = auth != null && !(auth instanceof AnonymousAuthenticationToken);
+        if (isAuthenticated) {
+            String displayName;
+            try {
+                displayName = userUseCase.getCurrentUser().getName();
+                if (displayName == null || displayName.isBlank()) {
+                    displayName = auth != null ? auth.getName() : "";
+                }
+            } catch (Exception e) {
+                displayName = auth != null ? auth.getName() : "";
+            }
+            Div greeting = new Div();
+            greeting.setText(getTranslation("main.greeting", displayName));
+            greeting.getElement().getClassList().add("top-menu__greeting");
+            left.add(greeting);
+        }
+
+        add(left);
+        add(createMenuButtonsLayout());
     }
 
     private boolean shouldShowButton(MenuButton menuButton, Authentication auth, boolean isAuthenticated) {
