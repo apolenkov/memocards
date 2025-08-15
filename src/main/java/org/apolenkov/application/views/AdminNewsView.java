@@ -1,10 +1,12 @@
 package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -64,7 +66,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
                 return new com.vaadin.flow.component.html.Span(
                         news.getUpdatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
             }
-            return new com.vaadin.flow.component.html.Span("-");
+            return new com.vaadin.flow.component.html.Span(getTranslation("common.emDash"));
         }));
 
         // Ограничение ширины колонок
@@ -79,15 +81,21 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
                     HorizontalLayout actions = new HorizontalLayout();
                     actions.setSpacing(true);
 
-                    Button editBtn = new Button(getTranslation("dialog.edit"), e -> showNewsDialog(news));
-                    Button deleteBtn = new Button(getTranslation("dialog.delete"), e -> deleteNews(news));
-                    deleteBtn.getStyle().set("color", "red");
+                    Button editBtn = new Button(VaadinIcon.EDIT.create(), e -> showNewsDialog(news));
+                    editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+                    editBtn.getElement().setAttribute("title", getTranslation("dialog.edit"));
+
+                    Button deleteBtn = new Button(VaadinIcon.TRASH.create(), e -> deleteNews(news));
+                    deleteBtn.addThemeVariants(
+                            ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+                    deleteBtn.getElement().setAttribute("title", getTranslation("dialog.delete"));
 
                     actions.add(editBtn, deleteBtn);
                     return actions;
                 })
                 .setHeader(getTranslation("admin.users.actions"))
-                .setWidth("200px");
+                .setWidth("140px")
+                .setFlexGrow(0);
 
         dataProvider = new ListDataProvider<>(newsList);
         newsGrid.setDataProvider(dataProvider);
@@ -139,10 +147,25 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
 
         HorizontalLayout buttons = new HorizontalLayout();
         Button saveBtn = new Button(getTranslation("dialog.save"), e -> {
+            String t =
+                    titleField.getValue() == null ? "" : titleField.getValue().trim();
+            String c = contentField.getValue() == null
+                    ? ""
+                    : contentField.getValue().trim();
+            if (t.isEmpty()) {
+                titleField.setErrorMessage(getTranslation("admin.news.validation.titleRequired"));
+                titleField.setInvalid(true);
+                return;
+            }
+            if (c.isEmpty()) {
+                contentField.setErrorMessage(getTranslation("admin.news.validation.contentRequired"));
+                contentField.setInvalid(true);
+                return;
+            }
             if (news == null) {
-                createNews(titleField.getValue(), contentField.getValue(), authorField.getValue());
+                createNews(t, c, authorField.getValue());
             } else {
-                updateNews(news.getId(), titleField.getValue(), contentField.getValue(), authorField.getValue());
+                updateNews(news.getId(), t, c, authorField.getValue());
             }
             dialog.close();
             refreshNews();

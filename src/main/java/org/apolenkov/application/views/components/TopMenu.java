@@ -44,7 +44,7 @@ public class TopMenu extends HorizontalLayout {
         addClassName("top-menu");
 
         // Заголовок-прямая ссылка на главную
-        title = new Anchor("/", getTranslation("main.home"));
+        title = new Anchor("/", getTranslation("app.title"));
         title.addClassName("top-menu__title");
 
         // Инициализируем кнопки меню

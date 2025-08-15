@@ -44,7 +44,7 @@ public class SecurityConfig extends VaadinWebSecurity {
         // Strict: only POST /logout with CSRF (configured above)
 
         http.logout(logout -> logout.logoutUrl("/logout")
-                .logoutSuccessUrl("/home")
+                .logoutSuccessUrl("/")
                 .deleteCookies("JSESSIONID", "remember-me")
                 .invalidateHttpSession(true));
 
