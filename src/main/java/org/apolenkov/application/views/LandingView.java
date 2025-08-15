@@ -64,7 +64,8 @@ public class LandingView extends VerticalLayout {
             // Если пользователь авторизован, показываем кнопку для перехода к колодам только для ROLE_USER
             boolean hasUser = auth.getAuthorities().stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority()));
             if (hasUser) {
-                Button goToDecks = new Button("Перейти к колодам", e -> getUI().ifPresent(ui -> ui.navigate("decks")));
+                Button goToDecks = new Button(
+                        getTranslation("landing.goToDecks"), e -> getUI().ifPresent(ui -> ui.navigate("decks")));
                 goToDecks.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                 actions.add(goToDecks);
             }

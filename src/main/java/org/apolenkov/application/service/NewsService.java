@@ -27,6 +27,7 @@ public class NewsService {
     }
 
     public News createNews(String title, String content, String author) {
+        validate(title, content);
         News news = new News(null, title, content, author, LocalDateTime.now());
         return newsRepository.save(news);
     }
@@ -36,6 +37,7 @@ public class NewsService {
         if (existingOpt.isEmpty()) {
             throw new IllegalArgumentException("News not found with id: " + id);
         }
+        validate(title, content);
 
         News existing = existingOpt.get();
         existing.setTitle(title);
@@ -48,5 +50,14 @@ public class NewsService {
 
     public void deleteNews(Long id) {
         newsRepository.deleteById(id);
+    }
+
+    private static void validate(String title, String content) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title is required");
+        }
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Content is required");
+        }
     }
 }

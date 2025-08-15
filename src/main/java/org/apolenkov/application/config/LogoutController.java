@@ -20,7 +20,8 @@ class LogoutController {
         String val = token != null ? token.getToken() : "";
         String html = "<!doctype html><html><head><meta charset='utf-8'><title>Logout</title></head><body>"
                 + "<script>"
-                + "if(!confirm('Вы действительно хотите выйти?')){window.location='/home';}else{"
+                + "var back=(document.referrer&&document.referrer!==''?document.referrer:'/');"
+                + "if(!confirm('Вы действительно хотите выйти?')){window.location=back;}else{"
                 + "var f=document.createElement('form');f.method='POST';f.action='/logout';"
                 + "var i=document.createElement('input');i.type='hidden';i.name='" + param + "';i.value='" + val
                 + "';f.appendChild(i);"

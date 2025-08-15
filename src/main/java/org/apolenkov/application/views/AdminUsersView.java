@@ -2,12 +2,14 @@ package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -106,7 +108,7 @@ public class AdminUsersView extends VerticalLayout {
         rolesBox.setLabel(getTranslation("admin.users.columns.roles"));
         rolesBox.setValue(user.getRoles().stream().map(this::roleToLabel).collect(Collectors.toSet()));
 
-        Button save = new Button(getTranslation("admin.users.actions.save"), e -> {
+        Button save = new Button(VaadinIcon.CHECK.create(), e -> {
             Set<String> selected = rolesBox.getValue();
             if (selected == null || selected.isEmpty()) {
                 Notification.show(getTranslation("admin.users.error.rolesRequired"));
@@ -116,7 +118,7 @@ public class AdminUsersView extends VerticalLayout {
 
             Dialog confirm = new Dialog();
             confirm.add(new Span(getTranslation("admin.users.confirm.apply")));
-            Button ok = new Button(getTranslation("dialog.save"), ev -> {
+            Button ok = new Button(VaadinIcon.CHECK.create(), ev -> {
                 try {
                     String adminEmail = SecurityContextHolder.getContext()
                             .getAuthentication()
@@ -131,12 +133,12 @@ public class AdminUsersView extends VerticalLayout {
                     Notification.show(getTranslation("dialog.saveFailed", ex.getMessage()));
                 }
             });
-            Button cancel = new Button(getTranslation("dialog.cancel"), ev -> confirm.close());
+            Button cancel = new Button(VaadinIcon.CLOSE_SMALL.create(), ev -> confirm.close());
             confirm.add(new HorizontalLayout(ok, cancel));
             confirm.open();
         });
 
-        Button edit = new Button(getTranslation("dialog.edit"), e -> {
+        Button edit = new Button(VaadinIcon.EDIT.create(), e -> {
             new org.apolenkov.application.views.components.EditUserDialog(adminUserService, user, saved -> {
                         updateCurrentSessionIfSelf(saved);
                         refresh();
@@ -144,10 +146,10 @@ public class AdminUsersView extends VerticalLayout {
                     .open();
         });
 
-        Button delete = new Button(getTranslation("dialog.delete"), e -> {
+        Button delete = new Button(VaadinIcon.TRASH.create(), e -> {
             Dialog confirm = new Dialog();
             confirm.add(new Span(getTranslation("admin.users.confirm.delete")));
-            Button ok = new Button(getTranslation("dialog.delete"), ev -> {
+            Button ok = new Button(VaadinIcon.TRASH.create(), ev -> {
                 try {
                     String current = org.springframework.security.core.context.SecurityContextHolder.getContext()
                             .getAuthentication()
@@ -176,10 +178,18 @@ public class AdminUsersView extends VerticalLayout {
                     Notification.show(getTranslation("dialog.saveFailed", ex.getMessage()));
                 }
             });
-            Button cancel = new Button(getTranslation("dialog.cancel"), ev -> confirm.close());
+            Button cancel = new Button(VaadinIcon.CLOSE_SMALL.create(), ev -> confirm.close());
             confirm.add(new HorizontalLayout(ok, cancel));
             confirm.open();
         });
+
+        // Add minimal icon styles and tooltips
+        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+        save.getElement().setAttribute("title", getTranslation("dialog.save"));
+        edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+        edit.getElement().setAttribute("title", getTranslation("dialog.edit"));
+        delete.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+        delete.getElement().setAttribute("title", getTranslation("dialog.delete"));
 
         HorizontalLayout buttons = new HorizontalLayout(save, edit, delete);
         buttons.setWidthFull();
