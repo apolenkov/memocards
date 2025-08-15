@@ -48,7 +48,7 @@ public class LoginView extends Div implements BeforeEnterObserver {
     public void beforeEnter(BeforeEnterEvent event) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            event.rerouteTo(HomeView.class);
+            event.rerouteTo("");
             return;
         }
         boolean hasError =

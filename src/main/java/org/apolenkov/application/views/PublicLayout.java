@@ -1,17 +1,20 @@
 package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.apolenkov.application.views.components.LanguageSwitcher;
+import org.apolenkov.application.views.components.TopMenu;
 
 @AnonymousAllowed
 public class PublicLayout extends AppLayout {
 
-    private final org.apolenkov.application.views.components.LanguageSwitcher languageSwitcher;
+    private final LanguageSwitcher languageSwitcher;
+    private final TopMenu topMenu;
 
-    public PublicLayout(org.apolenkov.application.views.components.LanguageSwitcher languageSwitcher) {
+    public PublicLayout(LanguageSwitcher languageSwitcher, TopMenu topMenu) {
         this.languageSwitcher = languageSwitcher;
+        this.topMenu = topMenu;
         setPrimarySection(Section.NAVBAR);
         addHeaderContent();
     }
@@ -20,13 +23,21 @@ public class PublicLayout extends AppLayout {
         HorizontalLayout bar = new HorizontalLayout();
         bar.addClassName("main-layout__navbar");
 
-        Button homeBtn = new Button(getTranslation("main.home"), e -> getUI().ifPresent(ui -> ui.navigate("")));
+        // Добавляем TopMenu (инжектится Spring'ом)
 
         HorizontalLayout right = new HorizontalLayout();
         right.addClassName("main-layout__right");
         right.add(languageSwitcher);
 
-        bar.add(homeBtn, right);
+        bar.add(topMenu, right);
         addToNavbar(true, bar);
+    }
+
+    @Override
+    protected void afterNavigation() {
+        super.afterNavigation();
+        if (getContent() != null) {
+            getContent().addClassName("app-content");
+        }
     }
 }

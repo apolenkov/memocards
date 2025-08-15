@@ -34,7 +34,7 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.views.components.DeckEditDialog;
 import org.apolenkov.application.views.presenter.DeckPresenter;
 
-@Route(value = "decks", layout = MainLayout.class)
+@Route(value = "deck", layout = PublicLayout.class)
 @RolesAllowed("USER")
 public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
@@ -90,7 +90,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
         Button backButton = new Button(getTranslation("main.decks"), VaadinIcon.ARROW_LEFT.create());
-        backButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
+        backButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("decks")));
 
         deckTitle = new H2(getTranslation("deck.loading"));
         deckTitle.addClassName("deckview-view__header-title");

@@ -1,12 +1,15 @@
 package org.apolenkov.application.views;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -20,9 +23,12 @@ import java.util.stream.Collectors;
 import org.apolenkov.application.config.SecurityConstants;
 import org.apolenkov.application.model.User;
 import org.apolenkov.application.service.user.AdminUserService;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-@Route(value = "admin/users", layout = MainLayout.class)
-@PageTitle("Users (Admin)")
+@Route(value = "admin/users", layout = PublicLayout.class)
+@PageTitle("admin.users.page.title")
 @RolesAllowed("ADMIN")
 public class AdminUsersView extends VerticalLayout {
 
@@ -32,6 +38,9 @@ public class AdminUsersView extends VerticalLayout {
     public AdminUsersView(AdminUserService adminUserService) {
         this.adminUserService = adminUserService;
         setSizeFull();
+        setPadding(false);
+        setSpacing(false);
+
         // Guard: explicit redirect for non-admins to avoid blank page in dev mode
         try {
             var auth = org.springframework.security.core.context.SecurityContextHolder.getContext()
@@ -46,11 +55,27 @@ public class AdminUsersView extends VerticalLayout {
             getUI().ifPresent(ui -> ui.navigate("access-denied"));
             return;
         }
-        build();
+
+        // Содержимое страницы
+        VerticalLayout content = new VerticalLayout();
+        content.setSizeFull();
+        content.setPadding(true);
+        content.setSpacing(true);
+
+        // Добавляем заголовок
+        H2 title = new H2(getTranslation("admin.users.page.title"));
+        Button createBtn = new Button(getTranslation("user.create.title"), e -> {
+            new org.apolenkov.application.views.components.CreateUserDialog(adminUserService, saved -> refresh())
+                    .open();
+        });
+        content.add(title, createBtn);
+
+        add(content);
+        build(content);
         refresh();
     }
 
-    private void build() {
+    private void build(VerticalLayout content) {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addColumn(User::getId)
                 .setHeader(getTranslation("admin.users.columns.id"))
@@ -61,26 +86,25 @@ public class AdminUsersView extends VerticalLayout {
         grid.addColumn(User::getName)
                 .setHeader(getTranslation("admin.users.columns.name"))
                 .setAutoWidth(true);
-        grid.addColumn(u -> String.join(", ", u.getRoles())).setHeader(getTranslation("admin.users.columns.roles"));
+        grid.addColumn(u -> u.getRoles().stream().map(this::roleToLabel).collect(Collectors.joining(", ")))
+                .setHeader(getTranslation("admin.users.columns.roles"));
         grid.addComponentColumn(this::buildActions)
-                .setHeader(getTranslation("admin.users.actions"))
+                .setHeader(getTranslation("admin.users.columns.actions"))
                 .setWidth("620px")
                 .setFlexGrow(0);
-        add(grid);
+        content.add(grid);
     }
 
     private HorizontalLayout buildActions(User user) {
         Map<String, String> labelToRole = new LinkedHashMap<>();
-        labelToRole.put("USER", SecurityConstants.ROLE_USER);
-        labelToRole.put("ADMIN", SecurityConstants.ROLE_ADMIN);
+        labelToRole.put(getTranslation("admin.users.role.USER"), SecurityConstants.ROLE_USER);
+        labelToRole.put(getTranslation("admin.users.role.ADMIN"), SecurityConstants.ROLE_ADMIN);
 
         CheckboxGroup<String> rolesBox = new CheckboxGroup<>();
         rolesBox.setItems(labelToRole.keySet());
         rolesBox.setWidth("280px");
         rolesBox.setLabel(getTranslation("admin.users.columns.roles"));
-        rolesBox.setValue(user.getRoles().stream()
-                .map(r -> r.startsWith("ROLE_") ? r.substring(5) : r)
-                .collect(Collectors.toSet()));
+        rolesBox.setValue(user.getRoles().stream().map(this::roleToLabel).collect(Collectors.toSet()));
 
         Button save = new Button(getTranslation("admin.users.actions.save"), e -> {
             Set<String> selected = rolesBox.getValue();
@@ -94,20 +118,30 @@ public class AdminUsersView extends VerticalLayout {
             confirm.add(new Span(getTranslation("admin.users.confirm.apply")));
             Button ok = new Button(getTranslation("dialog.save"), ev -> {
                 try {
-                    String adminEmail = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                    String adminEmail = SecurityContextHolder.getContext()
                             .getAuthentication()
                             .getName();
                     adminUserService.updateRolesWithAudit(adminEmail, user.getId(), roles);
+                    // Если меняли роли текущему пользователю — обновим SecurityContext немедленно
+                    adminUserService.getById(user.getId()).ifPresent(this::updateCurrentSessionIfSelf);
                     Notification.show(getTranslation("admin.users.updated"), 1500, Notification.Position.BOTTOM_START);
                     confirm.close();
                     refresh();
                 } catch (Exception ex) {
-                    Notification.show("Error: " + ex.getMessage());
+                    Notification.show(getTranslation("dialog.saveFailed", ex.getMessage()));
                 }
             });
             Button cancel = new Button(getTranslation("dialog.cancel"), ev -> confirm.close());
             confirm.add(new HorizontalLayout(ok, cancel));
             confirm.open();
+        });
+
+        Button edit = new Button(getTranslation("dialog.edit"), e -> {
+            new org.apolenkov.application.views.components.EditUserDialog(adminUserService, user, saved -> {
+                        updateCurrentSessionIfSelf(saved);
+                        refresh();
+                    })
+                    .open();
         });
 
         Button delete = new Button(getTranslation("dialog.delete"), e -> {
@@ -124,24 +158,22 @@ public class AdminUsersView extends VerticalLayout {
                         confirm.close();
                         return;
                     }
-                    // simple delete via service
                     adminUserService.getById(user.getId()).ifPresent(u -> {
-                        // ensure not deleting the last admin
                         boolean lastAdmin = adminUserService.listAll().stream()
-                                .filter(x -> x.getRoles().contains(SecurityConstants.ROLE_ADMIN))
-                                .count() <= 1 && u.getRoles().contains(SecurityConstants.ROLE_ADMIN);
+                                                .filter(x -> x.getRoles().contains(SecurityConstants.ROLE_ADMIN))
+                                                .count()
+                                        <= 1
+                                && u.getRoles().contains(SecurityConstants.ROLE_ADMIN);
                         if (lastAdmin) {
                             Notification.show(getTranslation("admin.users.error.lastAdmin"));
                         } else {
-                            // use repository through service
-                            adminUserService.save(new User(u.getId(), u.getEmail(), u.getName()));
-                            // hacky: service lacks delete; keep as placeholder for real delete use case
+                            adminUserService.delete(u.getId());
                         }
                     });
                     confirm.close();
                     refresh();
                 } catch (Exception ex) {
-                    Notification.show("Error: " + ex.getMessage());
+                    Notification.show(getTranslation("dialog.saveFailed", ex.getMessage()));
                 }
             });
             Button cancel = new Button(getTranslation("dialog.cancel"), ev -> confirm.close());
@@ -149,13 +181,47 @@ public class AdminUsersView extends VerticalLayout {
             confirm.open();
         });
 
-        HorizontalLayout row = new HorizontalLayout(rolesBox, save, delete);
+        HorizontalLayout buttons = new HorizontalLayout(save, edit, delete);
+        buttons.setWidthFull();
+        buttons.setSpacing(true);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttons.setAlignItems(Alignment.CENTER);
+
+        HorizontalLayout row = new HorizontalLayout(rolesBox, buttons);
         row.setWidthFull();
         row.setSpacing(true);
+        row.setAlignItems(Alignment.CENTER);
+        row.setFlexGrow(0, rolesBox);
+        row.setFlexGrow(1, buttons);
         return row;
+    }
+
+    private String roleToLabel(String role) {
+        String normalized = role;
+        if (normalized == null) return "";
+        if (normalized.startsWith("ROLE_")) normalized = normalized.substring(5);
+        if ("ADMIN".equalsIgnoreCase(normalized)) return getTranslation("admin.users.role.ADMIN");
+        return getTranslation("admin.users.role.USER");
     }
 
     private void refresh() {
         grid.setItems(adminUserService.listAll());
+    }
+
+    private void updateCurrentSessionIfSelf(User updated) {
+        try {
+            var auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null) return;
+            String currentEmail = auth.getName();
+            if (!updated.getEmail().equalsIgnoreCase(currentEmail)) return;
+            var newAuthorities =
+                    updated.getRoles().stream().map(SimpleGrantedAuthority::new).toList();
+            var newAuth =
+                    new UsernamePasswordAuthenticationToken(auth.getPrincipal(), auth.getCredentials(), newAuthorities);
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
+            // Перерисуем UI, чтобы меню и доступные кнопки соответствовали новым ролям
+            UI.getCurrent().getPage().reload();
+        } catch (Exception ignored) {
+        }
     }
 }

@@ -25,12 +25,10 @@ public class SecurityConfig extends VaadinWebSecurity {
     protected void configure(HttpSecurity http) throws Exception {
         // Delegate matcher configuration to Vaadin's defaults to avoid conflicts
         super.configure(http);
-        setLoginView(http, LoginView.class, "/home");
-        // On success: admins -> /admin, others -> /home
+        setLoginView(http, LoginView.class, "/");
+        // On success: all users -> / (root page with news)
         http.formLogin(form -> form.successHandler((request, response, authentication) -> {
-            boolean isAdmin = authentication.getAuthorities().stream()
-                    .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
-            response.sendRedirect(isAdmin ? "/admin" : "/home");
+            response.sendRedirect("/");
         }));
 
         // CSRF via cookie for use from Vaadin client; header name X-XSRF-TOKEN

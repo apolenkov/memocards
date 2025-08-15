@@ -58,4 +58,9 @@ public class UserJpaAdapter implements UserRepository {
     public User save(User user) {
         return toModel(repo.save(toEntity(user)));
     }
+
+    @Override
+    public void deleteById(Long id) {
+        repo.deleteById(id);
+    }
 }

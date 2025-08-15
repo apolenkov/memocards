@@ -26,7 +26,7 @@ public class NotFoundView extends Div implements HasErrorParameter<NotFoundExcep
 
         H2 title = new H2("Page not found");
         Button goHome = new Button("Go to Home", VaadinIcon.HOME.create());
-        goHome.addClickListener(e -> event.getUI().navigate("home"));
+        goHome.addClickListener(e -> event.getUI().navigate("decks"));
 
         layout.add(title, goHome);
         add(layout);
