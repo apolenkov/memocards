@@ -38,7 +38,6 @@ public class RegisterView extends VerticalLayout {
         PasswordField password = new PasswordField(getTranslation("auth.password"));
         PasswordField confirm = new PasswordField(getTranslation("auth.password.confirm"));
 
-        // Валидация только по клику на кнопку: не подсвечиваем поля заранее
         name.setRequiredIndicatorVisible(true);
         email.setRequiredIndicatorVisible(true);
         password.setRequiredIndicatorVisible(true);
@@ -46,7 +45,6 @@ public class RegisterView extends VerticalLayout {
 
         Button submit = new Button(getTranslation("auth.register"));
         submit.addClickListener(e -> {
-            // очистка предыдущих ошибок
             name.setInvalid(false);
             email.setInvalid(false);
             password.setInvalid(false);
@@ -101,9 +99,7 @@ public class RegisterView extends VerticalLayout {
                 authFacade.registerUser(vEmail, vPwd);
                 authFacade.authenticateAndPersist(vEmail, vPwd);
                 Notification.show(getTranslation("auth.register.successLogin"));
-
-                // Перезагрузим UI, чтобы меню и доступ обновились сразу после авто‑логина
-                getUI().ifPresent(ui -> ui.getPage().reload());
+                getUI().ifPresent(ui -> ui.navigate(""));
             } catch (Exception ex) {
                 Notification.show(getTranslation("auth.register.autoLoginFailed"));
                 getUI().ifPresent(ui -> ui.navigate("login"));

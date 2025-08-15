@@ -39,6 +39,19 @@ vaadin-side-nav-item vaadin-icon {
   color: var(--lumo-secondary-text-color);
 }
 
+/* Top menu (header) */
+.top-menu__greeting {
+  color: var(--lumo-secondary-text-color);
+  margin-right: var(--lumo-space-m);
+}
+
+/* Logout dialog styling */
+.logout-dialog__title {
+  font-weight: 600;
+  font-size: var(--lumo-font-size-l);
+  margin-bottom: var(--lumo-space-m);
+}
+
 .language-switcher {
   align-items: center;
 }

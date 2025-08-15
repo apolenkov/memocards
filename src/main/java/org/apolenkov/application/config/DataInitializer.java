@@ -78,7 +78,6 @@ public class DataInitializer {
             itCards.forEach(cards::save);
             englishCards.forEach(cards::save);
 
-            // Создаем демо-новости
             if (news.findAllOrderByCreatedDesc().isEmpty()) {
                 news.save(new News(
                         null,

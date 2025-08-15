@@ -58,13 +58,11 @@ public class AdminUsersView extends VerticalLayout {
             return;
         }
 
-        // Содержимое страницы
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         content.setPadding(true);
         content.setSpacing(true);
 
-        // Добавляем заголовок
         H2 title = new H2(getTranslation("admin.users.page.title"));
         Button createBtn = new Button(getTranslation("user.create.title"), e -> {
             new org.apolenkov.application.views.components.CreateUserDialog(adminUserService, saved -> refresh())
@@ -124,7 +122,6 @@ public class AdminUsersView extends VerticalLayout {
                             .getAuthentication()
                             .getName();
                     adminUserService.updateRolesWithAudit(adminEmail, user.getId(), roles);
-                    // Если меняли роли текущему пользователю — обновим SecurityContext немедленно
                     adminUserService.getById(user.getId()).ifPresent(this::updateCurrentSessionIfSelf);
                     Notification.show(getTranslation("admin.users.updated"), 1500, Notification.Position.BOTTOM_START);
                     confirm.close();
@@ -229,7 +226,6 @@ public class AdminUsersView extends VerticalLayout {
             var newAuth =
                     new UsernamePasswordAuthenticationToken(auth.getPrincipal(), auth.getCredentials(), newAuthorities);
             SecurityContextHolder.getContext().setAuthentication(newAuth);
-            // Перерисуем UI, чтобы меню и доступные кнопки соответствовали новым ролям
             UI.getCurrent().getPage().reload();
         } catch (Exception ignored) {
         }

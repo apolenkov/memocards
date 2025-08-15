@@ -1,14 +1,11 @@
 package org.apolenkov.application.views;
 
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -23,62 +20,33 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @AnonymousAllowed
 public class LoginView extends Div implements BeforeEnterObserver {
 
-    private final TextField username;
-    private final PasswordField password;
-
     public LoginView() {
         VerticalLayout wrapper = new VerticalLayout();
         wrapper.setSizeFull();
         wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
         wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
-        username = new TextField(getTranslation("auth.login.username"));
-        username.setRequiredIndicatorVisible(true);
-        username.setClearButtonVisible(true);
-        username.setWidth("320px");
-        username.setAutofocus(true);
-        username.setErrorMessage(getTranslation("vaadin.validation.username.required"));
+        LoginForm form = new LoginForm();
+        form.setAction("/login");
 
-        password = new PasswordField(getTranslation("auth.login.password"));
-        password.setRequiredIndicatorVisible(true);
-        password.setWidth("320px");
-        password.setErrorMessage(getTranslation("vaadin.validation.password.required"));
+        LoginI18n i18n = LoginI18n.createDefault();
+        i18n.setHeader(new LoginI18n.Header());
+        i18n.getHeader().setTitle(getTranslation("auth.login"));
+        i18n.getHeader().setDescription(getTranslation("auth.login.subtitle"));
+        i18n.getForm().setTitle(getTranslation("auth.login"));
+        i18n.getForm().setUsername(getTranslation("auth.login.username"));
+        i18n.getForm().setPassword(getTranslation("auth.login.password"));
+        i18n.getForm().setSubmit(getTranslation("auth.login.submit"));
+        form.setI18n(i18n);
 
-        Button submit = new Button(getTranslation("auth.login.submit"));
-        submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        submit.addClickShortcut(Key.ENTER);
-        submit.addClickListener(e -> doSubmit());
+        form.addLoginListener(e -> {});
+        form.addForgotPasswordListener(
+                e -> Notification.show(getTranslation("auth.login.forgotUnsupported", "Not implemented")));
 
-        wrapper.add(new Div(getTranslation("auth.login.subtitle")), username, password, submit);
+        form.setError(false);
+
+        wrapper.add(form);
         add(wrapper);
-    }
-
-    private void doSubmit() {
-        boolean ok = true;
-        username.setInvalid(false);
-        password.setInvalid(false);
-        String u = username.getValue() == null ? "" : username.getValue().trim();
-        String p = password.getValue() == null ? "" : password.getValue();
-        if (u.isEmpty()) {
-            username.setInvalid(true);
-            ok = false;
-        }
-        if (p.isEmpty()) {
-            password.setInvalid(true);
-            ok = false;
-        }
-        if (!ok) {
-            Notification.show(getTranslation("auth.validation.fixErrors"));
-            return;
-        }
-        getElement()
-                .executeJs(
-                        "var f=document.createElement('form');f.method='POST';f.action='/login';"
-                                + "var u=document.createElement('input');u.type='hidden';u.name='username';u.value=$0;f.appendChild(u);"
-                                + "var p=document.createElement('input');p.type='hidden';p.name='password';p.value=$1;f.appendChild(p);"
-                                + "document.body.appendChild(f);f.submit();",
-                        u,
-                        p);
     }
 
     @Override

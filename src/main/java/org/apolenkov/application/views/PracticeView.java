@@ -47,7 +47,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private int hardCount = 0;
     private int totalViewed = 0;
 
-    // Направление сессии
     private PracticeDirection sessionDirection = PracticeDirection.FRONT_TO_BACK;
 
     // UI Components
@@ -177,16 +176,12 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
         knowButton = new Button(getTranslation("practice.know"), VaadinIcon.CHECK.create());
         knowButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_LARGE);
-        knowButton.addClickListener(e -> {
-            markLabeled("know");
-        });
+        knowButton.addClickListener(e -> markLabeled("know"));
         knowButton.setVisible(false);
 
         hardButton = new Button(getTranslation("practice.hard"), VaadinIcon.WARNING.create());
         hardButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_LARGE);
-        hardButton.addClickListener(e -> {
-            markLabeled("hard");
-        });
+        hardButton.addClickListener(e -> markLabeled("hard"));
         hardButton.setVisible(false);
 
         actionButtons.add(showAnswerButton, knowButton, hardButton);
@@ -400,8 +395,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                             .map(Flashcard::getId)
                             .collect(Collectors.toSet())
                             .contains(fc.getId()))
-                    .collect(Collectors.toList());
-            // восстановим кнопки сессии перед стартом
+                    .toList();
             showSessionButtons();
             if (failed.isEmpty()) {
                 startDefaultPractice();
