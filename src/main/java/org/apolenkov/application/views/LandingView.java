@@ -10,26 +10,25 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import org.apolenkov.application.domain.port.NewsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apolenkov.application.config.SecurityConstants;
+import org.apolenkov.application.service.NewsService;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route(value = "", layout = PublicLayout.class)
-@PageTitle("Flashcards — Learn smarter")
 @AnonymousAllowed
 @CssImport(value = "./themes/flashcards/views/home-view.css", themeFor = "vaadin-vertical-layout")
-public class LandingView extends VerticalLayout {
+public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
-    private final NewsRepository newsRepository;
+    private final NewsService newsService;
 
-    public LandingView(@Autowired(required = false) NewsRepository newsRepository) {
-        this.newsRepository = newsRepository;
+    public LandingView(NewsService newsService) {
+        this.newsService = newsService;
         addClassName("landing-view");
         setSpacing(true);
         setPadding(true);
@@ -37,7 +36,7 @@ public class LandingView extends VerticalLayout {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        H1 title = new H1("Flashcards");
+        H1 title = new H1(getTranslation("app.title"));
         Paragraph subtitle = new Paragraph(getTranslation("landing.subtitle"));
 
         Image hero = new Image(
@@ -59,7 +58,8 @@ public class LandingView extends VerticalLayout {
 
             actions.add(login, register);
         } else {
-            boolean hasUser = auth.getAuthorities().stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority()));
+            boolean hasUser =
+                    auth.getAuthorities().stream().anyMatch(a -> SecurityConstants.ROLE_USER.equals(a.getAuthority()));
             if (hasUser) {
                 Button goToDecks = new Button(
                         getTranslation("landing.goToDecks"), e -> getUI().ifPresent(ui -> ui.navigate("decks")));
@@ -72,25 +72,25 @@ public class LandingView extends VerticalLayout {
         newsBlock.getStyle().set("max-width", "720px");
         newsBlock.getStyle().set("margin-top", "var(--lumo-space-l)");
         newsBlock.add(new H3(getTranslation("landing.news")));
-        try {
-            if (this.newsRepository != null) {
-                for (var item : this.newsRepository.findAllOrderByCreatedDesc()) {
-                    Div card = new Div();
-                    card.getStyle()
-                            .set("border", "1px solid var(--lumo-contrast-20pct)")
-                            .set("border-radius", "8px")
-                            .set("padding", "var(--lumo-space-m)")
-                            .set("margin-bottom", "var(--lumo-space-m)");
-                    card.add(new H3(item.getTitle()));
-                    card.add(new Paragraph(item.getContent()));
-                    newsBlock.add(card);
-                }
-            }
-        } catch (Exception ignored) {
+        for (var item : this.newsService.getAllNews()) {
+            Div card = new Div();
+            card.getStyle()
+                    .set("border", "1px solid var(--lumo-contrast-20pct)")
+                    .set("border-radius", "8px")
+                    .set("padding", "var(--lumo-space-m)")
+                    .set("margin-bottom", "var(--lumo-space-m)");
+            card.add(new H3(item.getTitle()));
+            card.add(new Paragraph(item.getContent()));
+            newsBlock.add(card);
         }
 
         add(title, subtitle, hero, actions, newsBlock);
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("app.title");
     }
 }

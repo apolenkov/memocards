@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import org.apolenkov.application.infrastructure.repository.jpa.springdata.FlashcardJpaRepository;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
@@ -24,20 +23,16 @@ public class DeckQueryService {
     private final FlashcardUseCase flashcardUseCase;
     private final StatsService statsService;
     private final UserUseCase userUseCase;
-    private final FlashcardJpaRepository jpaFlashcardRepo; // optional
 
     public DeckQueryService(
             DeckUseCase deckUseCase,
             FlashcardUseCase flashcardUseCase,
             StatsService statsService,
-            UserUseCase userUseCase,
-            @org.springframework.beans.factory.annotation.Autowired(required = false)
-                    FlashcardJpaRepository jpaFlashcardRepo) {
+            UserUseCase userUseCase) {
         this.deckUseCase = deckUseCase;
         this.flashcardUseCase = flashcardUseCase;
         this.statsService = statsService;
         this.userUseCase = userUseCase;
-        this.jpaFlashcardRepo = jpaFlashcardRepo;
     }
 
     @Transactional(readOnly = true)
@@ -57,9 +52,7 @@ public class DeckQueryService {
 
     @Transactional(readOnly = true)
     public DeckCardViewModel toViewModel(Deck deck) {
-        int deckSize = jpaFlashcardRepo != null
-                ? (int) jpaFlashcardRepo.countByDeckId(deck.getId())
-                : flashcardUseCase.getFlashcardsByDeckId(deck.getId()).size();
+        int deckSize = (int) flashcardUseCase.countByDeckId(deck.getId());
         int known = statsService.getKnownCardIds(deck.getId()).size();
         int percent = statsService.getDeckProgressPercent(deck.getId(), deckSize);
         return new DeckCardViewModel(deck.getId(), deck.getTitle(), deck.getDescription(), deckSize, known, percent);

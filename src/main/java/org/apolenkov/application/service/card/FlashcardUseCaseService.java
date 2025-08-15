@@ -62,4 +62,10 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
         }
         return allCards.stream().limit(count).collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countByDeckId(Long deckId) {
+        return flashcardRepository.countByDeckId(deckId);
+    }
 }

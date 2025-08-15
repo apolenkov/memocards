@@ -35,7 +35,7 @@ public class DeckCard extends Div {
         titleLayout.setSpacing(true);
         titleLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        Span icon = new Span("📚");
+        Span icon = new Span(getTranslation("home.deckIcon"));
         icon.addClassName("deck-card__icon");
 
         H3 title = new H3(viewModel.title() + " (" + viewModel.deckSize() + ")");
@@ -69,7 +69,7 @@ public class DeckCard extends Div {
         Span progressLabel = new Span(getTranslation("home.progress"));
         ProgressBar progressBar = new ProgressBar();
         progressBar.setValue(Math.min(1.0, Math.max(0.0, percent / 100.0)));
-        Span progressText = new Span(percent + "%");
+        Span progressText = new Span(percent + getTranslation("home.percentSuffix"));
         Span progressDetails = new Span(getTranslation("home.progress.details", known, deckSize));
         progressDetails.addClassName("deck-card__progress-details");
 

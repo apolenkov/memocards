@@ -14,4 +14,6 @@ public interface FlashcardUseCase {
     void deleteFlashcard(Long id);
 
     List<Flashcard> getFlashcardsForPractice(Long deckId, int count, boolean random);
+
+    long countByDeckId(Long deckId);
 }

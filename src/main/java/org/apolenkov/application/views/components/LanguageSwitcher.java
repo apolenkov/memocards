@@ -109,7 +109,8 @@ public class LanguageSwitcher extends HorizontalLayout {
         Cookie c = new Cookie(COOKIE_LOCALE_KEY, locale.toLanguageTag());
         c.setPath("/");
         c.setMaxAge(60 * 60 * 24 * 365); // 1 year
-        c.setHttpOnly(false);
+        c.setHttpOnly(true);
+        c.setSecure(true);
         resp.addCookie(c);
     }
 

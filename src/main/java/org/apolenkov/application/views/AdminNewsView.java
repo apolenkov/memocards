@@ -26,7 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route(value = "admin/news", layout = PublicLayout.class)
 @RouteAlias(value = "admin/content", layout = PublicLayout.class)
-@RolesAllowed("ADMIN")
+@RolesAllowed("ROLE_ADMIN")
 public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
 
     private final NewsService newsService;
@@ -165,7 +165,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
             refreshNews();
         });
 
-        Button cancelBtn = new Button(getTranslation("dialog.cancel"), e -> dialog.close());
+        Button cancelBtn = new Button(getTranslation("common.cancel"), e -> dialog.close());
         buttons.add(saveBtn, cancelBtn);
         content.add(buttons);
 
@@ -226,7 +226,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         });
         confirmBtn.getStyle().set("color", "red");
 
-        Button cancelBtn = new Button(getTranslation("dialog.cancel"), e -> confirmDialog.close());
+        Button cancelBtn = new Button(getTranslation("common.cancel"), e -> confirmDialog.close());
         buttons.add(confirmBtn, cancelBtn);
         confirmDialog.add(buttons);
 

@@ -74,7 +74,7 @@ public class DeckEditDialog extends Dialog {
             }
         });
 
-        Button cancel = new Button(getTranslation("dialog.cancel"));
+        Button cancel = new Button(getTranslation("common.cancel"));
         cancel.addClickListener(e -> close());
         buttons.add(save, cancel);
 

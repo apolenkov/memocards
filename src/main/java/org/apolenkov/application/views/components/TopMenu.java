@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.service.StatsService;
-import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,20 +28,11 @@ public class TopMenu extends HorizontalLayout {
     private final List<MenuButton> menuButtons = new ArrayList<>();
     private final Anchor title;
 
-    private final DeckUseCase deckUseCase;
     private final UserUseCase userUseCase;
-    private final StatsService statsService;
-    private final PracticeSettingsService practiceSettingsService;
 
     public TopMenu(
-            DeckUseCase deckUseCase,
-            UserUseCase userUseCase,
-            StatsService statsService,
-            PracticeSettingsService practiceSettingsService) {
-        this.deckUseCase = deckUseCase;
+            UserUseCase userUseCase, StatsService statsService, PracticeSettingsService practiceSettingsService) {
         this.userUseCase = userUseCase;
-        this.statsService = statsService;
-        this.practiceSettingsService = practiceSettingsService;
         setWidthFull();
         setPadding(true);
         setSpacing(true);
@@ -58,11 +48,10 @@ public class TopMenu extends HorizontalLayout {
     }
 
     private void initializeMenuButtons() {
-        menuButtons.add(new MenuButton(getTranslation("main.home"), "", "nav-home", true));
         menuButtons.add(new MenuButton(getTranslation("main.decks"), "/decks", "nav-decks", false, "ROLE_USER"));
-        menuButtons.add(new MenuButton(getTranslation("main.stats"), "#stats", "nav-stats", false, "ROLE_USER"));
+        menuButtons.add(new MenuButton(getTranslation("main.stats"), "/stats", "nav-stats", false, "ROLE_USER"));
         menuButtons.add(
-                new MenuButton(getTranslation("main.settings"), "#settings", "nav-settings", false, "ROLE_USER"));
+                new MenuButton(getTranslation("main.settings"), "/settings", "nav-settings", false, "ROLE_USER"));
         menuButtons.add(new MenuButton(
                 getTranslation("admin.users.page.title"), "/admin/users", "nav-admin-users", false, "ROLE_ADMIN"));
         menuButtons.add(new MenuButton(
@@ -169,18 +158,6 @@ public class TopMenu extends HorizontalLayout {
             button.getElement().setAttribute("data-testid", menuButton.getTestId());
             button.addClickListener(e -> {
                 String route = menuButton.getRoute();
-                if ("#stats".equals(route)) {
-                    if (deckUseCase != null && userUseCase != null && statsService != null) {
-                        new StatsDialogComponent(deckUseCase, userUseCase, statsService).open();
-                    }
-                    return;
-                }
-                if ("#settings".equals(route)) {
-                    if (practiceSettingsService != null) {
-                        new PracticeSettingsDialog(practiceSettingsService).open();
-                    }
-                    return;
-                }
                 getUI().ifPresent(ui -> ui.navigate(route));
             });
         }
@@ -218,10 +195,10 @@ public class TopMenu extends HorizontalLayout {
             try {
                 var req = VaadinServletRequest.getCurrent().getHttpServletRequest();
                 new SecurityContextLogoutHandler().logout(req, null, null);
-                getUI().ifPresent(ui -> ui.navigate(""));
+                getUI().ifPresent(ui -> ui.getPage().setLocation("/"));
                 dialog.close();
             } catch (Exception ignored) {
-                getUI().ifPresent(ui -> ui.navigate(""));
+                getUI().ifPresent(ui -> ui.getPage().setLocation("/error"));
                 dialog.close();
             }
         });

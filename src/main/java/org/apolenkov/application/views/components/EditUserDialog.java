@@ -100,7 +100,7 @@ public class EditUserDialog extends Dialog {
                 Notification.show(getTranslation("dialog.saveFailed", ex.getMessage()));
             }
         });
-        Button cancel = new Button(getTranslation("dialog.cancel"), e -> close());
+        Button cancel = new Button(getTranslation("common.cancel"), e -> close());
         getFooter().add(cancel, save);
         add(form);
         setWidth("520px");

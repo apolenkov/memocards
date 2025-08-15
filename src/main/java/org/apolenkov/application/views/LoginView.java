@@ -1,51 +1,98 @@
 package org.apolenkov.application.views;
 
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.login.LoginForm;
-import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.PasswordField;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.apolenkov.application.service.AuthFacade;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route(value = "login", layout = PublicLayout.class)
-@PageTitle("Login")
 @AnonymousAllowed
-public class LoginView extends Div implements BeforeEnterObserver {
+public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTitle {
 
-    public LoginView() {
+    private static final class LoginModel {
+        private String username;
+        private String password;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+    }
+
+    private final transient AuthFacade authFacade;
+
+    public LoginView(AuthFacade authFacade) {
+        this.authFacade = authFacade;
+
         VerticalLayout wrapper = new VerticalLayout();
         wrapper.setSizeFull();
         wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
         wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
-        LoginForm form = new LoginForm();
-        form.setAction("/login");
+        TextField username = new TextField(getTranslation("auth.login.username"));
+        username.setWidth("420px");
+        username.setRequiredIndicatorVisible(true);
 
-        LoginI18n i18n = LoginI18n.createDefault();
-        i18n.setHeader(new LoginI18n.Header());
-        i18n.getHeader().setTitle(getTranslation("auth.login"));
-        i18n.getHeader().setDescription(getTranslation("auth.login.subtitle"));
-        i18n.getForm().setTitle(getTranslation("auth.login"));
-        i18n.getForm().setUsername(getTranslation("auth.login.username"));
-        i18n.getForm().setPassword(getTranslation("auth.login.password"));
-        i18n.getForm().setSubmit(getTranslation("auth.login.submit"));
-        form.setI18n(i18n);
+        PasswordField password = new PasswordField(getTranslation("auth.login.password"));
+        password.setWidth("420px");
+        password.setRequiredIndicatorVisible(true);
 
-        form.addLoginListener(e -> {});
-        form.addForgotPasswordListener(
-                e -> Notification.show(getTranslation("auth.login.forgotUnsupported", "Not implemented")));
+        Button submit = new Button(getTranslation("auth.login.submit"));
+        submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        submit.setWidth("420px");
 
-        form.setError(false);
+        Button forgot = new Button(getTranslation("auth.login.forgotPassword"));
+        forgot.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        forgot.addClickListener(e -> Notification.show(getTranslation("auth.login.forgotUnsupported")));
 
-        wrapper.add(form);
+        Binder<LoginModel> binder = new Binder<>(LoginModel.class);
+        LoginModel model = new LoginModel();
+        binder.setBean(model);
+
+        binder.forField(username)
+                .asRequired(getTranslation("vaadin.validation.username.required"))
+                .bind(LoginModel::getUsername, LoginModel::setUsername);
+        binder.forField(password)
+                .asRequired(getTranslation("vaadin.validation.password.required"))
+                .bind(LoginModel::getPassword, LoginModel::setPassword);
+
+        submit.addClickListener(e -> {
+            if (binder.validate().isOk()) {
+                try {
+                    authFacade.authenticateAndPersist(model.getUsername(), model.getPassword());
+                    getUI().ifPresent(ui -> ui.navigate(""));
+                } catch (Exception ex) {
+                    Notification.show(getTranslation("auth.login.errorMessage"));
+                }
+            }
+        });
+
+        wrapper.add(username, password, submit, forgot);
         add(wrapper);
     }
 
@@ -58,8 +105,11 @@ public class LoginView extends Div implements BeforeEnterObserver {
         }
         boolean hasError =
                 event.getLocation().getQueryParameters().getParameters().containsKey("error");
-        if (hasError) {
-            Notification.show(getTranslation("auth.login.errorMessage"));
-        }
+        if (hasError) Notification.show(getTranslation("auth.login.errorMessage"));
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("auth.login");
     }
 }

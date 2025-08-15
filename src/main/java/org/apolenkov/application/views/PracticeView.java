@@ -25,7 +25,7 @@ import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.presenter.PracticePresenter;
 
 @Route(value = "practice", layout = PublicLayout.class)
-@RolesAllowed("USER")
+@RolesAllowed("ROLE_USER")
 public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
     @SuppressWarnings("unused")
@@ -85,7 +85,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             }
         } catch (NumberFormatException e) {
             Notification.show(getTranslation("practice.invalidId"), 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate(""));
+            getUI().ifPresent(ui -> ui.navigate("error"));
         }
     }
 
@@ -130,7 +130,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                 getUI().ifPresent(
                                 ui -> ui.navigate("deck/" + currentDeck.getId().toString()));
             } else {
-                getUI().ifPresent(ui -> ui.navigate(""));
+                getUI().ifPresent(ui -> ui.navigate("error"));
             }
         });
 
@@ -197,7 +197,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                 },
                 () -> {
                     Notification.show(getTranslation("deck.notFound"), 3000, Notification.Position.MIDDLE);
-                    getUI().ifPresent(ui -> ui.navigate(""));
+                    getUI().ifPresent(ui -> ui.navigate("error"));
                 });
     }
 

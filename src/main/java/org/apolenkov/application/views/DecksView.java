@@ -18,7 +18,7 @@ import org.apolenkov.application.views.home.DeckCardViewModel;
 import org.apolenkov.application.views.home.HomePresenter;
 
 @Route(value = "decks", layout = PublicLayout.class)
-@RolesAllowed({"USER", "ADMIN"})
+@RolesAllowed({"ROLE_USER", "ROLE_ADMIN"})
 public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
     private final HomePresenter homePresenter;

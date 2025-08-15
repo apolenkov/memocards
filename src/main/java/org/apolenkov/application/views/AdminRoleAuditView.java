@@ -11,7 +11,7 @@ import org.apolenkov.application.domain.port.RoleAuditRepository;
 
 @Route(value = "admin/audit", layout = PublicLayout.class)
 @RouteAlias(value = "admin/role-audit", layout = PublicLayout.class)
-@RolesAllowed("ADMIN")
+@RolesAllowed("ROLE_ADMIN")
 public class AdminRoleAuditView extends VerticalLayout implements HasDynamicTitle {
 
     public AdminRoleAuditView(RoleAuditRepository repo) {

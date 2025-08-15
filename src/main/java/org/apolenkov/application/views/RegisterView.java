@@ -9,15 +9,14 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.validator.EmailValidator;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.service.AuthFacade;
 
 @Route(value = "register", layout = PublicLayout.class)
-@PageTitle("Register")
 @AnonymousAllowed
-public class RegisterView extends VerticalLayout {
+public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     @SuppressWarnings("unused")
     private final transient AuthFacade authFacade;
@@ -51,7 +50,7 @@ public class RegisterView extends VerticalLayout {
             confirm.setInvalid(false);
 
             boolean ok = true;
-            String allReq = getTranslation("auth.validation.allRequired");
+            // keep allReq key for future form-level validation messages if needed
             String pwdPolicy = getTranslation("auth.validation.passwordPolicy");
 
             String vName = name.getValue() == null ? "" : name.getValue().trim();
@@ -108,6 +107,11 @@ public class RegisterView extends VerticalLayout {
 
         form.add(name, email, password, confirm);
         add(title, form, submit);
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("auth.register");
     }
 
     public static class RegisterForm {
