@@ -37,5 +37,9 @@ public class PublicLayout extends AppLayout {
         if (getContent() != null) {
             getContent().addClassName("app-content");
         }
+        // Refresh header menu (greeting, buttons) after route changes, including login/logout
+        if (topMenu != null) {
+            topMenu.refreshMenu();
+        }
     }
 }
