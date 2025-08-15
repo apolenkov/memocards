@@ -38,7 +38,6 @@ public class EditUserDialog extends Dialog {
         name.setValue(user.getName() == null ? "" : user.getName());
 
         Button save = new Button(getTranslation("dialog.save"), e -> {
-            // Очистка предыдущих ошибок
             email.setInvalid(false);
             name.setInvalid(false);
             password.setInvalid(false);
@@ -94,7 +93,6 @@ public class EditUserDialog extends Dialog {
                 onSaved.handle(saved);
                 close();
             } catch (IllegalArgumentException ex) {
-                // Отразим возможную политику пароля с бекенда
                 password.setErrorMessage(ex.getMessage());
                 password.setInvalid(true);
                 Notification.show(ex.getMessage());

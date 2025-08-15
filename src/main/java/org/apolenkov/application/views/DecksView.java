@@ -42,7 +42,6 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
         H2 title = new H2(getTranslation("home.title"));
 
-        // Панель инструментов: поиск и создание новой колоды
         TextField search = new TextField();
         search.setPlaceholder(getTranslation("home.search"));
         search.setClearButtonVisible(true);
@@ -54,19 +53,16 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         HorizontalLayout toolbar = new HorizontalLayout(search, addDeckBtn);
         toolbar.setAlignItems(Alignment.END);
 
-        // Список колод
         deckList = new VerticalLayout();
         deckList.setPadding(false);
         deckList.setSpacing(true);
         deckList.setWidthFull();
 
-        // Реакция на поиск
         search.addValueChangeListener(e -> refreshDecks(e.getValue()));
 
         content.add(title, toolbar, deckList);
         add(content);
 
-        // Начальная загрузка
         refreshDecks("");
     }
 

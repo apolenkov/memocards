@@ -35,7 +35,6 @@ public class LandingView extends VerticalLayout {
         setPadding(true);
         setSizeFull();
 
-        // Получаем информацию об аутентификации
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         H1 title = new H1("Flashcards");
@@ -50,7 +49,6 @@ public class LandingView extends VerticalLayout {
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(true);
 
-        // Показываем кнопки логина/регистрации только для неавторизованных пользователей
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {
             Button login = new Button(getTranslation("auth.login"));
             login.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -61,7 +59,6 @@ public class LandingView extends VerticalLayout {
 
             actions.add(login, register);
         } else {
-            // Если пользователь авторизован, показываем кнопку для перехода к колодам только для ROLE_USER
             boolean hasUser = auth.getAuthorities().stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority()));
             if (hasUser) {
                 Button goToDecks = new Button(

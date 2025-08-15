@@ -36,7 +36,7 @@ public class CreateUserDialog extends Dialog {
         password.setWidthFull();
         password.setRequiredIndicatorVisible(true);
         password.setHelperText(getTranslation("user.password.helper"));
-        // Выбор ролей
+
         LinkedHashMap<String, String> labelToRole = new LinkedHashMap<>();
         labelToRole.put(getTranslation("admin.users.role.USER"), SecurityConstants.ROLE_USER);
         labelToRole.put(getTranslation("admin.users.role.ADMIN"), SecurityConstants.ROLE_ADMIN);

@@ -23,8 +23,6 @@ public class PublicLayout extends AppLayout {
         HorizontalLayout bar = new HorizontalLayout();
         bar.addClassName("main-layout__navbar");
 
-        // Добавляем TopMenu (инжектится Spring'ом)
-
         HorizontalLayout right = new HorizontalLayout();
         right.addClassName("main-layout__right");
         right.add(languageSwitcher);

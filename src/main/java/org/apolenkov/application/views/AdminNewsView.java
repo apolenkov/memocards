@@ -56,8 +56,6 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         newsGrid.getColumnByKey("author").setHeader(getTranslation("admin.news.author"));
         newsGrid.getColumnByKey("createdAt").setHeader(getTranslation("admin.news.createdAt"));
         newsGrid.getColumnByKey("updatedAt").setHeader(getTranslation("admin.news.updatedAt"));
-
-        // Форматирование дат
         newsGrid.getColumnByKey("createdAt")
                 .setRenderer(new com.vaadin.flow.data.renderer.LocalDateTimeRenderer<News>(
                         News::getCreatedAt, "dd.MM.yyyy HH:mm"));
@@ -69,14 +67,11 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
             return new com.vaadin.flow.component.html.Span(getTranslation("common.emDash"));
         }));
 
-        // Ограничение ширины колонок
         newsGrid.getColumnByKey("title").setWidth("200px");
         newsGrid.getColumnByKey("content").setWidth("300px");
         newsGrid.getColumnByKey("author").setWidth("150px");
         newsGrid.getColumnByKey("createdAt").setWidth("150px");
         newsGrid.getColumnByKey("updatedAt").setWidth("150px");
-
-        // Добавление колонки с действиями
         newsGrid.addComponentColumn(news -> {
                     HorizontalLayout actions = new HorizontalLayout();
                     actions.setSpacing(true);
@@ -136,7 +131,6 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         if (news != null) {
             authorField.setValue(news.getAuthor());
         } else {
-            // Установить текущего пользователя как автора
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null && auth.isAuthenticated()) {
                 authorField.setValue(auth.getName());
