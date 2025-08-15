@@ -3,9 +3,11 @@ package org.apolenkov.application.config;
 import java.util.List;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.domain.port.FlashcardRepository;
+import org.apolenkov.application.domain.port.NewsRepository;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.model.News;
 import org.apolenkov.application.model.User;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +19,8 @@ public class DataInitializer {
 
     @Bean
     @org.springframework.core.annotation.Order(20)
-    CommandLineRunner initDemoData(UserRepository users, DeckRepository decks, FlashcardRepository cards) {
+    CommandLineRunner initDemoData(
+            UserRepository users, DeckRepository decks, FlashcardRepository cards, NewsRepository news) {
         return args -> {
             // Local seeding of users moved to DevSecurityUsers; here we only seed decks for existing 'user'
             java.util.Optional<User> opt = users.findByEmail("user");
@@ -74,6 +77,25 @@ public class DataInitializer {
             travelCards.forEach(cards::save);
             itCards.forEach(cards::save);
             englishCards.forEach(cards::save);
+
+            // Создаем демо-новости
+            if (news.findAllOrderByCreatedDesc().isEmpty()) {
+                news.save(new News(
+                        null,
+                        "Добро пожаловать в Flashcards!",
+                        "Наше приложение поможет вам эффективно изучать новые слова и фразы. "
+                                + "Создавайте колоды карточек, практикуйтесь и отслеживайте свой прогресс.",
+                        "admin",
+                        java.time.LocalDateTime.now()));
+
+                news.save(new News(
+                        null,
+                        "Новые функции в приложении",
+                        "Мы добавили возможность отслеживания статистики, настройки практики и многое другое. "
+                                + "Оставайтесь в курсе обновлений!",
+                        "admin",
+                        java.time.LocalDateTime.now()));
+            }
         };
     }
 }

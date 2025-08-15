@@ -24,7 +24,7 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.presenter.PracticePresenter;
 
-@Route(value = "practice", layout = MainLayout.class)
+@Route(value = "practice", layout = PublicLayout.class)
 @RolesAllowed("USER")
 public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
@@ -128,8 +128,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         Button backButton = new Button(getTranslation("practice.backToDeck"), VaadinIcon.ARROW_LEFT.create());
         backButton.addClickListener(e -> {
             if (currentDeck != null) {
-                getUI().ifPresent(ui ->
-                        ui.navigate(DeckView.class, currentDeck.getId().toString()));
+                getUI().ifPresent(
+                                ui -> ui.navigate("deck/" + currentDeck.getId().toString()));
             } else {
                 getUI().ifPresent(ui -> ui.navigate(""));
             }
@@ -417,9 +417,9 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             showCurrentCard();
         });
         Button backToDeckButton = new Button(getTranslation("practice.backToDeck"), e -> getUI().ifPresent(
-                        ui -> ui.navigate(DeckView.class, currentDeck.getId().toString())));
+                        ui -> ui.navigate("deck/" + currentDeck.getId().toString())));
         Button homeButton =
-                new Button(getTranslation("practice.backToDecks"), e -> getUI().ifPresent(ui -> ui.navigate("")));
+                new Button(getTranslation("practice.backToDecks"), e -> getUI().ifPresent(ui -> ui.navigate("decks")));
         actionButtons.add(againButton, backToDeckButton, homeButton);
     }
 

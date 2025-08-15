@@ -25,7 +25,7 @@ public class AccessDeniedErrorView extends Div implements HasErrorParameter<Acce
 
         H2 title = new H2(getTranslation("error.403"));
         Button goHome = new Button(getTranslation("main.gohome"), VaadinIcon.HOME.create());
-        goHome.addClickListener(e -> event.getUI().navigate("home"));
+        goHome.addClickListener(e -> event.getUI().navigate("decks"));
 
         layout.add(title, goHome);
         add(layout);

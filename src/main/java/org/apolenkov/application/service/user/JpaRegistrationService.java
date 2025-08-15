@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Profile({"jpa", "prod"})
+@Profile({"dev", "jpa", "prod"})
 public class JpaRegistrationService {
 
     private final UserRepository userRepository;

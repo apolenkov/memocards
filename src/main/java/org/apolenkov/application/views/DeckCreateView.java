@@ -55,7 +55,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
         Button backButton = new Button(getTranslation("deckCreate.back"), VaadinIcon.ARROW_LEFT.create());
-        backButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
+        backButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("decks")));
 
         H2 title = new H2(getTranslation("deckCreate.title"));
         title.addClassName("deckedit-view__header-title");
@@ -112,7 +112,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
         Button cancelButton = new Button(getTranslation("deckCreate.cancel"), VaadinIcon.CLOSE.create());
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
-        cancelButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
+        cancelButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("decks")));
 
         buttonsLayout.add(saveButton, cancelButton);
 
@@ -132,8 +132,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
                     getTranslation("deckCreate.created", savedDeck.getTitle()),
                     3000,
                     Notification.Position.BOTTOM_START);
-            getUI().ifPresent(
-                            ui -> ui.navigate(DeckView.class, savedDeck.getId().toString()));
+            getUI().ifPresent(ui -> ui.navigate("deck/" + savedDeck.getId().toString()));
         } catch (ValidationException vex) {
             Notification.show(getTranslation("dialog.fillRequired"), 3000, Notification.Position.MIDDLE);
         } catch (Exception e) {

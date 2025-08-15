@@ -15,7 +15,6 @@ import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.DeckFacade;
 import org.apolenkov.application.usecase.UserUseCase;
-import org.apolenkov.application.views.DeckView;
 
 /** Dialog for creating a deck. Emits callback upon successful save. */
 public class CreateDeckDialog extends Dialog {
@@ -70,8 +69,7 @@ public class CreateDeckDialog extends Dialog {
                 Notification.show(getTranslation("home.deckCreated"), 2000, Notification.Position.BOTTOM_START);
                 close();
                 if (onCreated != null) onCreated.accept(saved);
-                getUI().ifPresent(
-                                ui -> ui.navigate(DeckView.class, saved.getId().toString()));
+                getUI().ifPresent(ui -> ui.navigate("deck/" + saved.getId().toString()));
             } catch (ValidationException vex) {
                 Notification.show(getTranslation("dialog.fillRequired"), 3000, Notification.Position.MIDDLE);
             } catch (Exception ex) {

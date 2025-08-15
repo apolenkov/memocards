@@ -50,3 +50,12 @@ vaadin-side-nav-item vaadin-icon {
 .language-switcher__combo::part(input-field) {
   min-width: 92px;
 }
+
+/* Global content wrapper applied by PublicLayout */
+.app-content {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: var(--lumo-space-m);
+  padding-right: var(--lumo-space-m);
+  box-sizing: border-box;
+}

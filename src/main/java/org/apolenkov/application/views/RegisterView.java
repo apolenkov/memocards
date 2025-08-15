@@ -57,15 +57,23 @@ public class RegisterView extends VerticalLayout {
             String pwdPolicy = getTranslation("auth.validation.passwordPolicy");
 
             String vName = name.getValue() == null ? "" : name.getValue().trim();
-            if (vName.length() < 2) {
-                name.setErrorMessage(allReq);
+            if (vName.isEmpty()) {
+                name.setErrorMessage(getTranslation("auth.validation.nameRequired"));
+                name.setInvalid(true);
+                ok = false;
+            } else if (vName.length() < 2) {
+                name.setErrorMessage(getTranslation("auth.validation.nameMin2"));
                 name.setInvalid(true);
                 ok = false;
             }
 
             String vEmail = email.getValue() == null ? "" : email.getValue().trim();
-            if (vEmail.isEmpty() || emailValidator.apply(vEmail, null).isError()) {
-                email.setErrorMessage(getTranslation("auth.validation.invalidEmail", allReq));
+            if (vEmail.isEmpty()) {
+                email.setErrorMessage(getTranslation("auth.validation.emailRequired"));
+                email.setInvalid(true);
+                ok = false;
+            } else if (emailValidator.apply(vEmail, null).isError()) {
+                email.setErrorMessage(getTranslation("auth.validation.invalidEmail"));
                 email.setInvalid(true);
                 ok = false;
             }
@@ -85,7 +93,7 @@ public class RegisterView extends VerticalLayout {
             }
 
             if (!ok) {
-                Notification.show(getTranslation("auth.validation.allRequired"));
+                Notification.show(getTranslation("auth.validation.fixErrors"));
                 return;
             }
 
@@ -93,7 +101,9 @@ public class RegisterView extends VerticalLayout {
                 authFacade.registerUser(vEmail, vPwd);
                 authFacade.authenticateAndPersist(vEmail, vPwd);
                 Notification.show(getTranslation("auth.register.successLogin"));
-                getUI().ifPresent(ui -> ui.navigate("home"));
+
+                // Перезагрузим UI, чтобы меню и доступ обновились сразу после авто‑логина
+                getUI().ifPresent(ui -> ui.getPage().reload());
             } catch (Exception ex) {
                 Notification.show(getTranslation("auth.register.autoLoginFailed"));
                 getUI().ifPresent(ui -> ui.navigate("login"));
