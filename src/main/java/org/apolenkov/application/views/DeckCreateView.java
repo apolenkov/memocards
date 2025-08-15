@@ -23,7 +23,7 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 
 @Route("decks/new")
-@RolesAllowed("USER")
+@RolesAllowed("ROLE_USER")
 public class DeckCreateView extends Composite<VerticalLayout> implements HasDynamicTitle {
 
     private final DeckUseCase deckUseCase;

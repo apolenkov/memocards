@@ -13,4 +13,8 @@ public interface FlashcardRepository {
     Flashcard save(Flashcard flashcard);
 
     void deleteById(Long id);
+
+    long countByDeckId(Long deckId);
+
+    void deleteByDeckId(Long deckId);
 }

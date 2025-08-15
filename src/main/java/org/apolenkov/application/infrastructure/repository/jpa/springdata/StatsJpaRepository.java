@@ -24,4 +24,8 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
             @Param("ans") long totalAnswerDelayMs);
 
     List<DeckDailyStatsEntity> findById_DeckIdOrderById_DateAsc(long deckId);
+
+    @Query(
+            "select s.id.deckId, s.id.date, s.sessions, s.viewed, s.correct, s.repeatCount, s.hard from DeckDailyStatsEntity s where s.id.deckId in :deckIds")
+    List<Object[]> findAllByDeckIds(@Param("deckIds") List<Long> deckIds);
 }

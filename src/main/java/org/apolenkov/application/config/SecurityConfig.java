@@ -31,12 +31,10 @@ public class SecurityConfig extends VaadinWebSecurity {
             response.sendRedirect("/");
         }));
 
-        // CSRF via cookie for use from Vaadin client; header name X-XSRF-TOKEN
-        // Enforce CSRF for all state-changing endpoints including /logout
-        http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/login"));
-        // Ensure XSRF cookie is present so our logout JS can read it
-        http.addFilterAfter(new CsrfCookieFilter(), org.springframework.security.web.csrf.CsrfFilter.class);
+        // CSRF via HttpOnly cookie; Vaadin handles token automatically. No need to expose to JS.
+        CookieCsrfTokenRepository csrfRepo = new CookieCsrfTokenRepository();
+        csrfRepo.setCookieHttpOnly(true);
+        http.csrf(csrf -> csrf.csrfTokenRepository(csrfRepo).ignoringRequestMatchers("/login"));
 
         // Unauthenticated → redirect to landing; AccessDenied → custom page for all profiles
         http.exceptionHandling(ex -> ex.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")));

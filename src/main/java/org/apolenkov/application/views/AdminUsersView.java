@@ -14,7 +14,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.HashSet;
@@ -30,9 +30,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route(value = "admin/users", layout = PublicLayout.class)
-@PageTitle("admin.users.page.title")
-@RolesAllowed("ADMIN")
-public class AdminUsersView extends VerticalLayout {
+@RolesAllowed("ROLE_ADMIN")
+public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
 
     private final AdminUserService adminUserService;
     private final Grid<User> grid = new Grid<>(User.class, false);
@@ -229,5 +228,10 @@ public class AdminUsersView extends VerticalLayout {
             UI.getCurrent().getPage().reload();
         } catch (Exception ignored) {
         }
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("admin.users.page.title");
     }
 }

@@ -27,7 +27,16 @@ public class Application implements AppShellConfigurator, VaadinServiceInitListe
     @Override
     public void serviceInit(ServiceInitEvent event) {
         event.getSource().addUIInitListener(uiEvent -> {
-            VaadinSession session = uiEvent.getUI().getSession();
+            // Global UI-level error handler: navigate to /error on unhandled exceptions
+            final var ui = uiEvent.getUI();
+            ui.getSession().setErrorHandler(errorEvent -> {
+                try {
+                    ui.access(() -> ui.navigate("error"));
+                } catch (Exception ignored) {
+                }
+            });
+
+            VaadinSession session = ui.getSession();
             // 1) Try from cookie first
             java.util.Locale cookieLocale = null;
             try {
@@ -45,7 +54,7 @@ public class Application implements AppShellConfigurator, VaadinServiceInitListe
 
             if (cookieLocale != null) {
                 session.setAttribute(org.apolenkov.application.config.LocaleConstants.SESSION_LOCALE_KEY, cookieLocale);
-                uiEvent.getUI().setLocale(cookieLocale);
+                ui.setLocale(cookieLocale);
                 return;
             }
 
@@ -53,9 +62,9 @@ public class Application implements AppShellConfigurator, VaadinServiceInitListe
             Object preferred =
                     session.getAttribute(org.apolenkov.application.config.LocaleConstants.SESSION_LOCALE_KEY);
             if (preferred instanceof java.util.Locale locale) {
-                uiEvent.getUI().setLocale(locale);
+                ui.setLocale(locale);
             } else {
-                uiEvent.getUI().setLocale(java.util.Locale.ENGLISH);
+                ui.setLocale(java.util.Locale.ENGLISH);
             }
         });
     }

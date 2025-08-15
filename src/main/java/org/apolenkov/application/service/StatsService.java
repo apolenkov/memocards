@@ -102,4 +102,10 @@ public class StatsService {
     public void resetDeckProgress(long deckId) {
         statsRepository.resetDeckProgress(deckId);
     }
+
+    @Transactional(readOnly = true)
+    public java.util.Map<Long, org.apolenkov.application.domain.port.StatsRepository.DeckAggregate> getDeckAggregates(
+            java.util.List<Long> deckIds, java.time.LocalDate today) {
+        return statsRepository.getAggregatesForDecks(deckIds, today);
+    }
 }

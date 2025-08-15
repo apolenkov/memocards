@@ -53,7 +53,7 @@ public class PracticeSettingsDialog extends Dialog {
                             : org.apolenkov.application.model.PracticeDirection.BACK_TO_FRONT);
             close();
         });
-        Button cancel = new Button(getTranslation("dialog.cancel"), e -> close());
+        Button cancel = new Button(getTranslation("common.cancel"), e -> close());
         buttons.add(save, cancel);
 
         layout.add(countSelect, modeGroup, dirGroup, buttons);

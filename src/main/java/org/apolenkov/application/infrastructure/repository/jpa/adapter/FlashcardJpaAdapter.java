@@ -63,4 +63,14 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
     public void deleteById(Long id) {
         repo.deleteById(id);
     }
+
+    @Override
+    public long countByDeckId(Long deckId) {
+        return repo.countByDeckId(deckId);
+    }
+
+    @Override
+    public void deleteByDeckId(Long deckId) {
+        repo.deleteByDeckId(deckId);
+    }
 }

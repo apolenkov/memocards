@@ -32,7 +32,7 @@ public class UserUseCaseService implements UserUseCase {
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
@@ -49,6 +49,7 @@ public class UserUseCaseService implements UserUseCase {
         }
         return userRepository
                 .findByEmail(username)
-                .orElseGet(() -> userRepository.save(new User(null, username, username)));
+                .orElseThrow(
+                        () -> new IllegalStateException("Authenticated principal has no domain user: " + username));
     }
 }

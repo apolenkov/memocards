@@ -35,7 +35,7 @@ import org.apolenkov.application.views.components.DeckEditDialog;
 import org.apolenkov.application.views.presenter.DeckPresenter;
 
 @Route(value = "deck", layout = PublicLayout.class)
-@RolesAllowed("USER")
+@RolesAllowed("ROLE_USER")
 public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
     private final DeckFacade deckFacade;
@@ -76,7 +76,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             loadDeck(deckId);
         } catch (NumberFormatException e) {
             Notification.show(getTranslation("deck.invalidId"), 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate(""));
+            getUI().ifPresent(ui -> ui.navigate("error"));
         }
     }
 
@@ -258,7 +258,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             loadFlashcards();
         } else {
             Notification.show(getTranslation("deck.notFound"), 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate(""));
+            getUI().ifPresent(ui -> ui.navigate("error"));
         }
     }
 
@@ -355,7 +355,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             }
         });
 
-        Button cancelButton = new Button(getTranslation("dialog.cancel"));
+        Button cancelButton = new Button(getTranslation("common.cancel"));
         cancelButton.addClickListener(e -> dialog.close());
 
         buttonsLayout.add(saveButton, cancelButton);
@@ -392,7 +392,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             Notification.show(getTranslation("deck.card.deleted"), 2000, Notification.Position.BOTTOM_START);
         });
 
-        Button cancelButton = new Button(getTranslation("dialog.cancel"));
+        Button cancelButton = new Button(getTranslation("common.cancel"));
         cancelButton.addClickListener(e -> confirmDialog.close());
 
         buttons.add(confirmButton, cancelButton);

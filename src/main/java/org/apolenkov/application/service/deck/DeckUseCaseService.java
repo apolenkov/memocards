@@ -58,7 +58,7 @@ public class DeckUseCaseService implements DeckUseCase {
     @Override
     @Transactional
     public void deleteDeck(Long id) {
-        flashcardRepository.findByDeckId(id).forEach(card -> flashcardRepository.deleteById(card.getId()));
+        flashcardRepository.deleteByDeckId(id);
         deckRepository.deleteById(id);
     }
 }

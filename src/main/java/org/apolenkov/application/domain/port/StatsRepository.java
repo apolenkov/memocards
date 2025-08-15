@@ -34,4 +34,17 @@ public interface StatsRepository {
     void setCardKnown(long deckId, long cardId, boolean known);
 
     void resetDeckProgress(long deckId);
+
+    record DeckAggregate(
+            int sessionsAll,
+            int viewedAll,
+            int correctAll,
+            int hardAll,
+            int sessionsToday,
+            int viewedToday,
+            int correctToday,
+            int hardToday) {}
+
+    java.util.Map<Long, DeckAggregate> getAggregatesForDecks(
+            java.util.Collection<Long> deckIds, java.time.LocalDate today);
 }
