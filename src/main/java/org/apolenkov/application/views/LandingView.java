@@ -82,9 +82,6 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         Div newsBlock = new Div();
         newsBlock.addClassName("landing-view__news-block");
 
-        newsBlock.getStyle().set("max-width", "720px");
-        newsBlock.getStyle().set("margin-top", "var(--lumo-space-l)");
-        
         H3 newsTitle = new H3(getTranslation("landing.news"));
         newsTitle.addClassName("landing-view__news-title");
         newsBlock.add(newsTitle);
@@ -92,11 +89,6 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         for (var item : this.newsService.getAllNews()) {
             Div card = new Div();
             card.addClassName("landing-view__news-card");
-            card.getStyle()
-                    .set("border", "1px solid var(--lumo-contrast-20pct)")
-                    .set("border-radius", "8px")
-                    .set("padding", "var(--lumo-space-m)")
-                    .set("margin-bottom", "var(--lumo-space-m)");
             
             H3 cardTitle = new H3(item.getTitle());
             cardTitle.addClassName("landing-view__news-card-title");
