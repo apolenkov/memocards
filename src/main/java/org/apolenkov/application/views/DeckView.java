@@ -76,7 +76,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             loadDeck(deckId);
         } catch (NumberFormatException e) {
             Notification.show(getTranslation("deck.invalidId"), 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate("error"));
+            getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", "decks")));
         }
     }
 
@@ -258,7 +258,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             loadFlashcards();
         } else {
             Notification.show(getTranslation("deck.notFound"), 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate("error"));
+            getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", "decks")));
         }
     }
 

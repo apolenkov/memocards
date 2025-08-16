@@ -22,7 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route(value = "", layout = PublicLayout.class)
 @AnonymousAllowed
-@CssImport(value = "./themes/flashcards/views/home-view.css", themeFor = "vaadin-vertical-layout")
+@CssImport(value = "./themes/flashcards/views/landing-view.css", themeFor = "vaadin-vertical-layout")
 public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
     private final NewsService newsService;
@@ -32,28 +32,38 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         addClassName("landing-view");
         setSpacing(true);
         setPadding(true);
-        setSizeFull();
+        setWidthFull();
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        H1 title = new H1(getTranslation("app.title"));
-        Paragraph subtitle = new Paragraph(getTranslation("landing.subtitle"));
+        Div heroIcon = new Div();
+        heroIcon.addClassName("landing-view__hero-icon");
 
         Image hero = new Image(
-                new StreamResource(
-                        "icon.png", () -> getClass().getResourceAsStream("/META-INF/resources/icons/icon.png")),
+                new StreamResource("pixel-icon.svg", () -> getClass()
+                        .getResourceAsStream("/META-INF/resources/icons/pixel-icon.svg")),
                 getTranslation("landing.heroAlt"));
-        hero.setMaxWidth("160px");
+        hero.addClassName("landing-view__hero");
+        heroIcon.add(hero);
+
+        H1 title = new H1(getTranslation("app.title"));
+        title.addClassName("landing-view__title");
+        
+        Paragraph subtitle = new Paragraph(getTranslation("landing.subtitle"));
+        subtitle.addClassName("landing-view__subtitle");
 
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(true);
+        actions.addClassName("landing-view__actions");
 
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {
             Button login = new Button(getTranslation("auth.login"));
             login.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            login.addClassName("landing-view__login-btn");
             login.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("login")));
 
             Button register = new Button(getTranslation("auth.register"));
+            register.addClassName("landing-view__register-btn");
             register.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("register")));
 
             actions.add(login, register);
@@ -64,27 +74,42 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
                 Button goToDecks = new Button(
                         getTranslation("landing.goToDecks"), e -> getUI().ifPresent(ui -> ui.navigate("decks")));
                 goToDecks.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                goToDecks.addClassName("landing-view__decks-btn");
                 actions.add(goToDecks);
             }
         }
 
         Div newsBlock = new Div();
+        newsBlock.addClassName("landing-view__news-block");
+
         newsBlock.getStyle().set("max-width", "720px");
         newsBlock.getStyle().set("margin-top", "var(--lumo-space-l)");
-        newsBlock.add(new H3(getTranslation("landing.news")));
+        
+        H3 newsTitle = new H3(getTranslation("landing.news"));
+        newsTitle.addClassName("landing-view__news-title");
+        newsBlock.add(newsTitle);
+
         for (var item : this.newsService.getAllNews()) {
             Div card = new Div();
+            card.addClassName("landing-view__news-card");
             card.getStyle()
                     .set("border", "1px solid var(--lumo-contrast-20pct)")
                     .set("border-radius", "8px")
                     .set("padding", "var(--lumo-space-m)")
                     .set("margin-bottom", "var(--lumo-space-m)");
-            card.add(new H3(item.getTitle()));
-            card.add(new Paragraph(item.getContent()));
+            
+            H3 cardTitle = new H3(item.getTitle());
+            cardTitle.addClassName("landing-view__news-card-title");
+            card.add(cardTitle);
+            
+            Paragraph cardContent = new Paragraph(item.getContent());
+            cardContent.addClassName("landing-view__news-card-content");
+            card.add(cardContent);
+            
             newsBlock.add(card);
         }
 
-        add(title, subtitle, hero, actions, newsBlock);
+        add(title, subtitle, heroIcon, actions, newsBlock);
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
     }

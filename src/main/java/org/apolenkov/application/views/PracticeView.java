@@ -85,7 +85,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             }
         } catch (NumberFormatException e) {
             Notification.show(getTranslation("practice.invalidId"), 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate("error"));
+            getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", "decks")));
         }
     }
 
@@ -124,13 +124,13 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.addClassName("practice-view__header-left");
 
-        Button backButton = new Button(getTranslation("practice.backToDeck"), VaadinIcon.ARROW_LEFT.create());
+        Button backButton = new Button(getTranslation("practice.back"), VaadinIcon.ARROW_LEFT.create());
         backButton.addClickListener(e -> {
             if (currentDeck != null) {
                 getUI().ifPresent(
                                 ui -> ui.navigate("deck/" + currentDeck.getId().toString()));
             } else {
-                getUI().ifPresent(ui -> ui.navigate("error"));
+                getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", "decks")));
             }
         });
 
@@ -193,11 +193,11 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         deckOpt.ifPresentOrElse(
                 deck -> {
                     currentDeck = deck;
-                    deckTitle.setText(getTranslation("practice.header", currentDeck.getTitle()));
+                    deckTitle.setText(getTranslation("practice.title", currentDeck.getTitle()));
                 },
                 () -> {
                     Notification.show(getTranslation("deck.notFound"), 3000, Notification.Position.MIDDLE);
-                    getUI().ifPresent(ui -> ui.navigate("error"));
+                    getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", "decks")));
                 });
     }
 

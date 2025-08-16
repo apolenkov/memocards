@@ -1,14 +1,21 @@
 package org.apolenkov.application.config;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
 import org.apolenkov.application.views.LoginView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
@@ -33,14 +40,14 @@ public class SecurityConfig extends VaadinWebSecurity {
 
         // CSRF via HttpOnly cookie; Vaadin handles token automatically. No need to expose to JS.
         CookieCsrfTokenRepository csrfRepo = new CookieCsrfTokenRepository();
-        csrfRepo.setCookieHttpOnly(true);
+        csrfRepo.setCookieHttpOnly(true); // TODO: Replace when Spring Security provides alternative
         http.csrf(csrf -> csrf.csrfTokenRepository(csrfRepo).ignoringRequestMatchers("/login"));
 
         // Unauthenticated → redirect to landing; AccessDenied → custom page for all profiles
-        http.exceptionHandling(ex -> ex.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")));
+        http.exceptionHandling(ex -> ex.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
+                .accessDeniedHandler(accessDeniedHandler()));
 
         // Strict: only POST /logout with CSRF (configured above)
-
         http.logout(logout -> logout.logoutUrl("/logout")
                 .logoutSuccessUrl("/")
                 .deleteCookies("JSESSIONID", "remember-me")
@@ -60,6 +67,36 @@ public class SecurityConfig extends VaadinWebSecurity {
                             csp -> csp.policyDirectives(
                                     "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; connect-src 'self' ws: wss:; font-src 'self' data:; frame-src 'self' blob:; worker-src 'self' blob:")));
         }
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return new AccessDeniedHandler() {
+            @Override
+            public void handle(
+                    HttpServletRequest request,
+                    HttpServletResponse response,
+                    AccessDeniedException accessDeniedException)
+                    throws IOException, ServletException {
+
+                // Check if request is for UI (Vaadin) or API/static content
+                String acceptHeader = request.getHeader("Accept");
+                boolean isApiRequest = acceptHeader != null
+                        && (acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE)
+                                || acceptHeader.contains(MediaType.APPLICATION_XML_VALUE))
+                        && !acceptHeader.contains(MediaType.TEXT_HTML_VALUE);
+
+                if (isApiRequest) {
+                    // Return JSON error for API requests
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    response.getWriter().write("{\"error\":\"Access denied\",\"status\":403}");
+                } else {
+                    // Redirect to UI access denied page for browser requests
+                    response.sendRedirect("/access-denied");
+                }
+            }
+        };
     }
 
     @Bean

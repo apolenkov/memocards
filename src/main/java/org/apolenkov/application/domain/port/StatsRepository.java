@@ -39,10 +39,12 @@ public interface StatsRepository {
             int sessionsAll,
             int viewedAll,
             int correctAll,
+            int repeatAll,
             int hardAll,
             int sessionsToday,
             int viewedToday,
             int correctToday,
+            int repeatToday,
             int hardToday) {}
 
     java.util.Map<Long, DeckAggregate> getAggregatesForDecks(

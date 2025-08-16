@@ -35,8 +35,8 @@ class AppI18NProviderTest {
             // Then
             assertThat(result).hasSize(3);
             assertThat(result).contains(Locale.ENGLISH);
-            assertThat(result).contains(new Locale("ru"));
-            assertThat(result).contains(new Locale("es"));
+            assertThat(result).contains(Locale.forLanguageTag("ru"));
+            assertThat(result).contains(Locale.forLanguageTag("es"));
         }
 
         @Test
@@ -65,7 +65,7 @@ class AppI18NProviderTest {
             String result = i18nProvider.getTranslation(key, locale);
 
             // Then
-            assertThat(result).isEqualTo("Flashcards");
+            assertThat(result).isEqualTo("Cards");
         }
 
         @Test
@@ -73,13 +73,13 @@ class AppI18NProviderTest {
         void getTranslationShouldReturnTranslationForRussianLocale() {
             // Given
             String key = "app.title";
-            Locale locale = new Locale("ru");
+            Locale locale = Locale.forLanguageTag("ru");
 
             // When
             String result = i18nProvider.getTranslation(key, locale);
 
             // Then
-            assertThat(result).isEqualTo("Флэшкарточки");
+            assertThat(result).isEqualTo("Карточки");
         }
 
         @Test
@@ -87,13 +87,13 @@ class AppI18NProviderTest {
         void getTranslationShouldReturnTranslationForSpanishLocale() {
             // Given
             String key = "app.title";
-            Locale locale = new Locale("es");
+            Locale locale = Locale.forLanguageTag("es");
 
             // When
             String result = i18nProvider.getTranslation(key, locale);
 
             // Then
-            assertThat(result).isEqualTo("Tarjetas de Memoria");
+            assertThat(result).isEqualTo("Tarjetas");
         }
 
         @Test
@@ -135,7 +135,7 @@ class AppI18NProviderTest {
             String result = i18nProvider.getTranslation(key, locale);
 
             // Then
-            assertThat(result).isEqualTo("Flashcards");
+            assertThat(result).isEqualTo("Cards");
         }
 
         @Test
@@ -213,7 +213,7 @@ class AppI18NProviderTest {
             String result = i18nProvider.getTranslation(key, locale, params);
 
             // Then
-            assertThat(result).isEqualTo("Flashcards");
+            assertThat(result).isEqualTo("Cards");
         }
 
         @Test
@@ -228,7 +228,7 @@ class AppI18NProviderTest {
             String result = i18nProvider.getTranslation(key, locale, params);
 
             // Then
-            assertThat(result).isEqualTo("Flashcards");
+            assertThat(result).isEqualTo("Cards");
         }
     }
 
@@ -328,7 +328,7 @@ class AppI18NProviderTest {
                 String result = i18nProvider.getTranslation("app.title", locale);
                 assertThat(result).isNotNull();
                 // Should either return a translation or the key itself
-                assertThat(result).isIn("Flashcards", "Флэшкарточки", "Tarjetas de Memoria", "app.title");
+                assertThat(result).isIn("Cards", "Карточки", "Tarjetas", "app.title");
             }
         }
 
@@ -336,8 +336,8 @@ class AppI18NProviderTest {
         @DisplayName("Should handle locale variants")
         void shouldHandleLocaleVariants() {
             // Given
-            Locale russianVariant = new Locale("ru", "RU");
-            Locale spanishVariant = new Locale("es", "ES");
+            Locale russianVariant = Locale.forLanguageTag("ru-RU");
+            Locale spanishVariant = Locale.forLanguageTag("es-ES");
 
             // When
             String russianResult = i18nProvider.getTranslation("app.title", russianVariant);

@@ -123,18 +123,21 @@ public class StatsJpaAdapter implements StatsRepository {
         for (Object[] r : rows) {
             long deckId = (Long) r[0];
             java.time.LocalDate date = (java.time.LocalDate) r[1];
-            int sessions = (Integer) r[2];
-            int viewed = (Integer) r[3];
-            int correct = (Integer) r[4];
-            int hard = (Integer) r[5];
-            DeckAggregate agg = result.getOrDefault(deckId, new DeckAggregate(0, 0, 0, 0, 0, 0, 0, 0));
+            int sessions = ((Number) r[2]).intValue();
+            int viewed = ((Number) r[3]).intValue();
+            int correct = ((Number) r[4]).intValue();
+            int repeatCount = ((Number) r[5]).intValue();
+            int hard = ((Number) r[6]).intValue();
+            DeckAggregate agg = result.getOrDefault(deckId, new DeckAggregate(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
             int sessionsAll = agg.sessionsAll() + sessions;
             int viewedAll = agg.viewedAll() + viewed;
             int correctAll = agg.correctAll() + correct;
+            int repeatAll = agg.repeatAll() + repeatCount;
             int hardAll = agg.hardAll() + hard;
             int sessionsToday = agg.sessionsToday() + (date.equals(today) ? sessions : 0);
             int viewedToday = agg.viewedToday() + (date.equals(today) ? viewed : 0);
             int correctToday = agg.correctToday() + (date.equals(today) ? correct : 0);
+            int repeatToday = agg.repeatToday() + (date.equals(today) ? repeatCount : 0);
             int hardToday = agg.hardToday() + (date.equals(today) ? hard : 0);
             result.put(
                     deckId,
@@ -142,14 +145,16 @@ public class StatsJpaAdapter implements StatsRepository {
                             sessionsAll,
                             viewedAll,
                             correctAll,
+                            repeatAll,
                             hardAll,
                             sessionsToday,
                             viewedToday,
                             correctToday,
+                            repeatToday,
                             hardToday));
         }
         for (Long id : ids) {
-            result.putIfAbsent(id, new DeckAggregate(0, 0, 0, 0, 0, 0, 0, 0));
+            result.putIfAbsent(id, new DeckAggregate(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
         }
         return result;
     }
