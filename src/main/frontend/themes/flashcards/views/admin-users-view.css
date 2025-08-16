@@ -1,0 +1,111 @@
+.admin-users-view {
+  padding: var(--lumo-space-m);
+  box-sizing: border-box;
+  display: block;
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.admin-users-view__title {
+  margin: 0;
+  font-size: var(--lumo-font-size-xxl);
+  font-weight: 600;
+  color: var(--lumo-primary-text-color);
+  margin-bottom: var(--lumo-space-l);
+}
+
+.admin-users-view__toolbar {
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--lumo-space-l);
+}
+
+.admin-users-view__search {
+  width: 300px;
+}
+
+.admin-users-view__users-grid {
+  width: 100%;
+  padding: 0;
+  gap: var(--lumo-space-m);
+}
+
+.admin-users-view__user-card {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--lumo-contrast-20pct);
+  border-radius: var(--lumo-border-radius-m);
+  padding: var(--lumo-space-m);
+  background: var(--lumo-base-color);
+  transition: box-shadow 0.2s;
+}
+
+.admin-users-view__user-card:hover {
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.06);
+}
+
+.admin-users-view__user-info {
+  margin-bottom: var(--lumo-space-m);
+}
+
+.admin-users-view__user-name {
+  margin: 0 0 var(--lumo-space-s) 0;
+  color: var(--lumo-primary-text-color);
+  font-weight: 600;
+  font-size: var(--lumo-font-size-l);
+}
+
+.admin-users-view__user-email {
+  margin: 0;
+  color: var(--lumo-secondary-text-color);
+}
+
+.admin-users-view__user-actions {
+  gap: var(--lumo-space-s);
+}
+
+.admin-users-view__dialog {
+  min-width: 500px;
+}
+
+.admin-users-view__dialog-title {
+  margin: 0;
+  font-size: var(--lumo-font-size-l);
+  font-weight: 600;
+  color: var(--lumo-primary-text-color);
+  margin-bottom: var(--lumo-space-m);
+}
+
+.admin-users-view__form-field {
+  margin-bottom: var(--lumo-space-m);
+}
+
+.admin-users-view__dialog-actions {
+  justify-content: flex-end;
+  gap: var(--lumo-space-s);
+  margin-top: var(--lumo-space-l);
+}
+
+.admin-users-view__confirm-dialog {
+  min-width: 400px;
+}
+
+.admin-users-view__confirm-title {
+  margin: 0;
+  font-size: var(--lumo-font-size-l);
+  font-weight: 600;
+  color: var(--lumo-primary-text-color);
+  margin-bottom: var(--lumo-space-m);
+}
+
+.admin-users-view__confirm-message {
+  color: var(--lumo-secondary-text-color);
+  margin-bottom: var(--lumo-space-l);
+}
+
+.admin-users-view__confirm-actions {
+  justify-content: flex-end;
+  gap: var(--lumo-space-s);
+}

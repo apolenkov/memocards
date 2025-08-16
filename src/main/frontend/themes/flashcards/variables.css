@@ -1,0 +1,39 @@
+:root {
+  /* Custom color variables */
+  --cv-blue: 214 100% 50%;
+  --cv-dropzone-border-color: hsl(var(--cv-blue) / 0.3);
+  
+  /* Custom spacing variables */
+  --custom-space-xs: 4px;
+  --custom-space-s: 8px;
+  --custom-space-m: 16px;
+  --custom-space-l: 24px;
+  --custom-space-xl: 32px;
+  --custom-space-xxl: 48px;
+  
+  /* Custom border radius variables */
+  --custom-border-radius-s: 4px;
+  --custom-border-radius-m: 8px;
+  --custom-border-radius-l: 12px;
+  --custom-border-radius-xl: 16px;
+  
+  /* Custom shadow variables */
+  --custom-shadow-s: 0 2px 8px rgb(0 0 0 / 0.06);
+  --custom-shadow-m: 0 4px 16px rgba(0 0 0, 0.1);
+  --custom-shadow-l: 0 6px 30px rgba(0 0 0, 0.15);
+  
+  /* Custom transition variables */
+  --custom-transition-fast: 0.2s ease;
+  --custom-transition-medium: 0.3s ease;
+  --custom-transition-slow: 0.5s ease;
+  
+  /* Custom z-index variables */
+  --custom-z-dropdown: 1000;
+  --custom-z-modal: 2000;
+  --custom-z-tooltip: 3000;
+  
+  /* Custom breakpoint variables */
+  --custom-breakpoint-mobile: 768px;
+  --custom-breakpoint-tablet: 1024px;
+  --custom-breakpoint-desktop: 1200px;
+}

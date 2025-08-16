@@ -1,0 +1,55 @@
+.dialog {
+  min-width: 500px;
+}
+
+.dialog__title {
+  margin: 0;
+  font-size: var(--lumo-font-size-l);
+  font-weight: 600;
+  color: var(--lumo-primary-text-color);
+  margin-bottom: var(--lumo-space-m);
+}
+
+.dialog__content {
+  margin-bottom: var(--lumo-space-l);
+}
+
+.dialog__form-field {
+  margin-bottom: var(--lumo-space-m);
+}
+
+.dialog__actions {
+  justify-content: flex-end;
+  gap: var(--lumo-space-s);
+  margin-top: var(--lumo-space-l);
+}
+
+.dialog__confirm-dialog {
+  min-width: 400px;
+}
+
+.dialog__confirm-title {
+  margin: 0;
+  font-size: var(--lumo-font-size-l);
+  font-weight: 600;
+  color: var(--lumo-primary-text-color);
+  margin-bottom: var(--lumo-space-m);
+}
+
+.dialog__confirm-message {
+  color: var(--lumo-secondary-text-color);
+  margin-bottom: var(--lumo-space-l);
+}
+
+.dialog__confirm-actions {
+  justify-content: flex-end;
+  gap: var(--lumo-space-s);
+}
+
+.dialog__danger-btn {
+  color: var(--lumo-error-color);
+}
+
+.dialog__danger-btn:hover {
+  background: var(--lumo-error-color-10pct);
+}

@@ -6,9 +6,12 @@
   min-height: calc(100vh - var(--lumo-size-xl));
   margin-top: var(--lumo-space-s);
   overflow-y: auto;
+  text-align: center;
 }
 
 .landing-view__title {
+  display: block;
+  width: 100%;
   margin: 0;
   text-align: center;
   font-size: var(--lumo-font-size-xxxl);
@@ -18,10 +21,12 @@
 }
 
 .landing-view__subtitle {
+  display: block;
+  width: 100%;
   text-align: center;
   font-size: var(--lumo-font-size-l);
   color: var(--lumo-secondary-text-color);
-  margin-bottom: var(--lumo-space-xl);
+  margin: 0 auto var(--lumo-space-xl) auto;
   max-width: 600px;
   line-height: 1.5;
 }
@@ -83,6 +88,7 @@
   width: 100%;
   max-width: 720px;
   margin: 0 auto;
+  margin-top: var(--lumo-space-l);
 }
 
 .landing-view__news-title {
@@ -112,12 +118,14 @@
   color: var(--lumo-primary-text-color);
   font-weight: 600;
   font-size: var(--lumo-font-size-l);
+  text-align: center;
 }
 
 .landing-view__news-card-content {
   margin: 0;
   color: var(--lumo-secondary-text-color);
   line-height: 1.6;
+  text-align: center;
 }
 
 /* Responsive design */

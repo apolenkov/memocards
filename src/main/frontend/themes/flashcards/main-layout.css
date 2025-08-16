@@ -23,6 +23,11 @@ vaadin-side-nav-item vaadin-icon {
   width: 100%;
   align-items: center;
   justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--lumo-base-color);
+  border-bottom: 1px solid var(--lumo-contrast-20pct);
 }
 
 .main-layout__menu {
@@ -34,26 +39,32 @@ vaadin-side-nav-item vaadin-icon {
   align-items: center;
 }
 
-.main-layout__greeting {
-  margin-right: var(--lumo-space-m);
-  color: var(--lumo-secondary-text-color);
-}
-
 /* Top menu (header) */
 .top-menu {
   background: var(--lumo-base-color);
 }
 
-.top-menu__greeting {
-  color: var(--lumo-secondary-text-color);
-  margin-right: var(--lumo-space-m);
+.top-menu__title {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
 }
 
-/* Logout dialog styling */
-.logout-dialog__title {
-  font-weight: 600;
-  font-size: var(--lumo-font-size-l);
-  margin-bottom: var(--lumo-space-m);
+.top-menu__title:hover {
+  text-decoration: none;
+}
+
+.top-menu__icon {
+  width: 32px;
+  height: 32px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  cursor: pointer;
+}
+
+.top-menu__icon:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
 }
 
 .language-switcher {
@@ -76,37 +87,4 @@ vaadin-side-nav-item vaadin-icon {
   padding-right: var(--lumo-space-m);
   box-sizing: border-box;
   margin-top: var(--lumo-space-s);
-}
-
-/* Ensure navbar is properly positioned and doesn't overlap content */
-.main-layout__navbar {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: var(--lumo-base-color);
-  border-bottom: 1px solid var(--lumo-contrast-20pct);
-}
-
-/* Navigation icon styles */
-.top-menu__icon {
-  width: 32px;
-  height: 32px;
-  transition: transform 0.2s ease, filter 0.2s ease;
-  cursor: pointer;
-}
-
-.top-menu__icon:hover {
-  transform: scale(1.1);
-  filter: brightness(1.2);
-}
-
-.top-menu__title {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: inherit;
-}
-
-.top-menu__title:hover {
-  text-decoration: none;
 }

@@ -42,16 +42,14 @@ public class TopMenu extends HorizontalLayout {
         setJustifyContentMode(JustifyContentMode.BETWEEN);
         addClassName("top-menu");
 
-        // Create clickable icon instead of text title
         title = new Anchor("/", "");
         title.addClassName("top-menu__title");
 
-        // Add SVG icon to the anchor
         Image navIcon = new Image(
                 new StreamResource(
-                        "nav-icon.svg", () -> getClass().getResourceAsStream("/META-INF/resources/icons/nav-icon.svg")),
+                        "flashcards-logo.svg", () -> getClass().getResourceAsStream("/META-INF/resources/icons/flashcards-logo.svg")),
                 getTranslation("app.title"));
-        navIcon.addClassName("top-menu__icon");
+        navIcon.addClassName("top-menu__logo");
         title.add(navIcon);
 
         initializeMenuButtons();
@@ -113,10 +111,10 @@ public class TopMenu extends HorizontalLayout {
             try {
                 displayName = userUseCase.getCurrentUser().getName();
                 if (displayName == null || displayName.isBlank()) {
-                    displayName = auth != null ? auth.getName() : "";
+                    displayName = auth.getName();
                 }
             } catch (Exception e) {
-                displayName = auth != null ? auth.getName() : "";
+                displayName = auth.getName();
             }
             Div greeting = new Div();
             greeting.setText(getTranslation("main.greeting", displayName));
