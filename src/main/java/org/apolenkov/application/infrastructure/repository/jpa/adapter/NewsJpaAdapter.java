@@ -20,7 +20,9 @@ public class NewsJpaAdapter implements NewsRepository {
     }
 
     private static News toModel(NewsEntity e) {
-        return new News(e.getId(), e.getTitle(), e.getContent(), e.getAuthor(), e.getCreatedAt());
+        News news = new News(e.getId(), e.getTitle(), e.getContent(), e.getAuthor(), e.getCreatedAt());
+        news.setUpdatedAt(e.getUpdatedAt());
+        return news;
     }
 
     private static NewsEntity toEntity(News news) {

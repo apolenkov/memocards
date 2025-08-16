@@ -40,6 +40,10 @@ vaadin-side-nav-item vaadin-icon {
 }
 
 /* Top menu (header) */
+.top-menu {
+  background: var(--lumo-base-color);
+}
+
 .top-menu__greeting {
   color: var(--lumo-secondary-text-color);
   margin-right: var(--lumo-space-m);
@@ -71,4 +75,38 @@ vaadin-side-nav-item vaadin-icon {
   padding-left: var(--lumo-space-m);
   padding-right: var(--lumo-space-m);
   box-sizing: border-box;
+  margin-top: var(--lumo-space-s);
+}
+
+/* Ensure navbar is properly positioned and doesn't overlap content */
+.main-layout__navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--lumo-base-color);
+  border-bottom: 1px solid var(--lumo-contrast-20pct);
+}
+
+/* Navigation icon styles */
+.top-menu__icon {
+  width: 32px;
+  height: 32px;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  cursor: pointer;
+}
+
+.top-menu__icon:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
+
+.top-menu__title {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.top-menu__title:hover {
+  text-decoration: none;
 }

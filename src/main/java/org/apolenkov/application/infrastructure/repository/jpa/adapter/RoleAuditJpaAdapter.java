@@ -38,9 +38,16 @@ public class RoleAuditJpaAdapter implements RoleAuditRepository {
                 .map(e -> new RoleAuditRecord(
                         e.getAdminEmail(),
                         e.getUserId(),
-                        Set.copyOf(java.util.Arrays.asList(e.getRolesBefore().split(","))),
-                        Set.copyOf(java.util.Arrays.asList(e.getRolesAfter().split(","))),
+                        parseRoles(e.getRolesBefore()),
+                        parseRoles(e.getRolesAfter()),
                         e.getChangedAt()))
                 .collect(Collectors.toList());
+    }
+
+    private static Set<String> parseRoles(String rolesString) {
+        if (rolesString == null || rolesString.trim().isEmpty()) {
+            return Set.of();
+        }
+        return Set.copyOf(java.util.Arrays.asList(rolesString.split(",")));
     }
 }

@@ -16,7 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * installable on phones, tablets and some desktop browsers.
  */
 @SpringBootApplication
-@PageTitle("Flashcards")
+@PageTitle("app.title")
 @Theme(value = "flashcards")
 public class Application implements AppShellConfigurator, VaadinServiceInitListener {
 
@@ -31,7 +31,15 @@ public class Application implements AppShellConfigurator, VaadinServiceInitListe
             final var ui = uiEvent.getUI();
             ui.getSession().setErrorHandler(errorEvent -> {
                 try {
-                    ui.access(() -> ui.navigate("error"));
+                    // Get current route for 'from' parameter
+                    String currentRoute =
+                            ui.getInternals().getActiveViewLocation().getPath();
+                    if (currentRoute != null && !currentRoute.isEmpty() && !currentRoute.equals("error")) {
+                        ui.access(() ->
+                                ui.navigate("error", com.vaadin.flow.router.QueryParameters.of("from", currentRoute)));
+                    } else {
+                        ui.access(() -> ui.navigate("error"));
+                    }
                 } catch (Exception ignored) {
                 }
             });

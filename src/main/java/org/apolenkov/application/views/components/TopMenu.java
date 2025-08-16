@@ -6,8 +6,10 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.ArrayList;
@@ -40,8 +42,17 @@ public class TopMenu extends HorizontalLayout {
         setJustifyContentMode(JustifyContentMode.BETWEEN);
         addClassName("top-menu");
 
-        title = new Anchor("/", getTranslation("app.title"));
+        // Create clickable icon instead of text title
+        title = new Anchor("/", "");
         title.addClassName("top-menu__title");
+
+        // Add SVG icon to the anchor
+        Image navIcon = new Image(
+                new StreamResource(
+                        "nav-icon.svg", () -> getClass().getResourceAsStream("/META-INF/resources/icons/nav-icon.svg")),
+                getTranslation("app.title"));
+        navIcon.addClassName("top-menu__icon");
+        title.add(navIcon);
 
         initializeMenuButtons();
         refreshMenu();
@@ -195,10 +206,11 @@ public class TopMenu extends HorizontalLayout {
             try {
                 var req = VaadinServletRequest.getCurrent().getHttpServletRequest();
                 new SecurityContextLogoutHandler().logout(req, null, null);
-                getUI().ifPresent(ui -> ui.getPage().setLocation("/"));
+                getUI().ifPresent(ui -> ui.getPage().setLocation("/")); // Keep setLocation for logout (server redirect)
                 dialog.close();
             } catch (Exception ignored) {
-                getUI().ifPresent(ui -> ui.getPage().setLocation("/error"));
+                getUI().ifPresent(
+                                ui -> ui.navigate("error", com.vaadin.flow.router.QueryParameters.of("from", "home")));
                 dialog.close();
             }
         });

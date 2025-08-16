@@ -1,6 +1,7 @@
 package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.views.components.LanguageSwitcher;
@@ -29,6 +30,9 @@ public class PublicLayout extends AppLayout {
 
         bar.add(topMenu, right);
         addToNavbar(true, bar);
+        
+        // Ensure proper spacing and positioning
+        getElement().getStyle().set("margin-top", "0");
     }
 
     @Override

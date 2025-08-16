@@ -35,6 +35,8 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         int totalViewedAll = agg.values().stream().mapToInt(a -> a.viewedAll()).sum();
         int totalCorrectAll =
                 agg.values().stream().mapToInt(a -> a.correctAll()).sum();
+        int totalRepeatAll =
+                agg.values().stream().mapToInt(a -> a.repeatAll()).sum();
         int totalHardAll = agg.values().stream().mapToInt(a -> a.hardAll()).sum();
         int totalSessionsToday =
                 agg.values().stream().mapToInt(a -> a.sessionsToday()).sum();
@@ -42,17 +44,19 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
                 agg.values().stream().mapToInt(a -> a.viewedToday()).sum();
         int totalCorrectToday =
                 agg.values().stream().mapToInt(a -> a.correctToday()).sum();
+        int totalRepeatToday =
+                agg.values().stream().mapToInt(a -> a.repeatToday()).sum();
         int totalHardToday = agg.values().stream().mapToInt(a -> a.hardToday()).sum();
 
-        add(new Span(getTranslation("stats.total", totalSessionsAll, totalViewedAll, totalCorrectAll, totalHardAll)));
+        add(new Span(getTranslation("stats.total", totalSessionsAll, totalViewedAll, totalCorrectAll, totalRepeatAll, totalHardAll)));
         add(new Span(getTranslation(
-                "stats.today", totalSessionsToday, totalViewedToday, totalCorrectToday, totalHardToday)));
+                "stats.today", totalSessionsToday, totalViewedToday, totalCorrectToday, totalRepeatToday, totalHardToday)));
 
         add(new H3(getTranslation("stats.byDeck")));
         for (Deck deck : decks) {
             var a = agg.getOrDefault(
                     deck.getId(),
-                    new org.apolenkov.application.domain.port.StatsRepository.DeckAggregate(0, 0, 0, 0, 0, 0, 0, 0));
+                    new org.apolenkov.application.domain.port.StatsRepository.DeckAggregate(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
             add(new Span(getTranslation(
                     "stats.deckLine",
                     deck.getTitle(),
@@ -62,6 +66,8 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
                     a.viewedToday(),
                     a.correctAll(),
                     a.correctToday(),
+                    a.repeatAll(),
+                    a.repeatToday(),
                     a.hardAll(),
                     a.hardToday())));
         }
