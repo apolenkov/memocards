@@ -1,0 +1,28 @@
+.public-layout {
+  margin-top: 0;
+}
+
+.public-layout__navbar {
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--lumo-base-color);
+  border-bottom: 1px solid var(--lumo-contrast-20pct);
+}
+
+.public-layout__right {
+  margin-left: auto;
+  align-items: center;
+}
+
+.public-layout__content {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: var(--lumo-space-m);
+  padding-right: var(--lumo-space-m);
+  box-sizing: border-box;
+  margin-top: var(--lumo-space-s);
+}
