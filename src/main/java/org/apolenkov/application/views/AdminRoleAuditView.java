@@ -23,7 +23,7 @@ public class AdminRoleAuditView extends VerticalLayout implements HasDynamicTitl
         grid.addColumn(r -> String.valueOf(r.userId())).setHeader(getTranslation("admin.audit.columns.userId"));
         grid.addColumn(r -> String.join(", ", r.rolesBefore())).setHeader(getTranslation("admin.audit.columns.before"));
         grid.addColumn(r -> String.join(", ", r.rolesAfter())).setHeader(getTranslation("admin.audit.columns.after"));
-        grid.addColumn(new com.vaadin.flow.data.renderer.LocalDateTimeRenderer<RoleAuditRepository.RoleAuditRecord>(
+        grid.addColumn(new com.vaadin.flow.data.renderer.LocalDateTimeRenderer<>(
                         RoleAuditRepository.RoleAuditRecord::at,
                         () -> java.time.format.DateTimeFormatter.ofLocalizedDateTime(
                                         java.time.format.FormatStyle.MEDIUM)

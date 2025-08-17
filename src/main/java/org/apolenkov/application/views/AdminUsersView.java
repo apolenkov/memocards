@@ -33,7 +33,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @RolesAllowed("ROLE_ADMIN")
 public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
 
-    private final AdminUserService adminUserService;
+    private static final String TITLE_ATTRIBUTE = "title";
+
+    private final transient AdminUserService adminUserService;
     private final Grid<User> grid = new Grid<>(User.class, false);
 
     public AdminUsersView(AdminUserService adminUserService) {
@@ -63,10 +65,11 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
         content.setSpacing(true);
 
         H2 title = new H2(getTranslation("admin.users.page.title"));
-        Button createBtn = new Button(getTranslation("user.create.title"), e -> {
-            new org.apolenkov.application.views.components.CreateUserDialog(adminUserService, saved -> refresh())
-                    .open();
-        });
+        Button createBtn = new Button(
+                getTranslation("user.create.title"),
+                e -> new org.apolenkov.application.views.components.CreateUserDialog(
+                                adminUserService, saved -> refresh())
+                        .open());
         content.add(title, createBtn);
 
         add(content);
@@ -95,99 +98,12 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     private HorizontalLayout buildActions(User user) {
-        Map<String, String> labelToRole = new LinkedHashMap<>();
-        labelToRole.put(getTranslation("admin.users.role.USER"), SecurityConstants.ROLE_USER);
-        labelToRole.put(getTranslation("admin.users.role.ADMIN"), SecurityConstants.ROLE_ADMIN);
+        CheckboxGroup<String> rolesBox = createRolesCheckbox(user);
+        Button saveButton = createSaveButton(user, rolesBox);
+        Button editButton = createEditButton(user);
+        Button deleteButton = createDeleteButton(user);
 
-        CheckboxGroup<String> rolesBox = new CheckboxGroup<>();
-        rolesBox.setItems(labelToRole.keySet());
-        rolesBox.setWidth("280px");
-        rolesBox.setLabel(getTranslation("admin.users.columns.roles"));
-        rolesBox.setValue(user.getRoles().stream().map(this::roleToLabel).collect(Collectors.toSet()));
-
-        Button save = new Button(VaadinIcon.CHECK.create(), e -> {
-            Set<String> selected = rolesBox.getValue();
-            if (selected == null || selected.isEmpty()) {
-                Notification.show(getTranslation("admin.users.error.rolesRequired"));
-                return;
-            }
-            Set<String> roles = selected.stream().map(labelToRole::get).collect(Collectors.toCollection(HashSet::new));
-
-            Dialog confirm = new Dialog();
-            confirm.add(new Span(getTranslation("admin.users.confirm.apply")));
-            Button ok = new Button(VaadinIcon.CHECK.create(), ev -> {
-                try {
-                    String adminEmail = SecurityContextHolder.getContext()
-                            .getAuthentication()
-                            .getName();
-                    adminUserService.updateRolesWithAudit(adminEmail, user.getId(), roles);
-                    adminUserService.getById(user.getId()).ifPresent(this::updateCurrentSessionIfSelf);
-                    Notification.show(getTranslation("admin.users.updated"), 1500, Notification.Position.BOTTOM_START);
-                    confirm.close();
-                    refresh();
-                } catch (Exception ex) {
-                    Notification.show(getTranslation("dialog.saveFailed", ex.getMessage()));
-                }
-            });
-            Button cancel = new Button(VaadinIcon.CLOSE_SMALL.create(), ev -> confirm.close());
-            confirm.add(new HorizontalLayout(ok, cancel));
-            confirm.open();
-        });
-
-        Button edit = new Button(VaadinIcon.EDIT.create(), e -> {
-            new org.apolenkov.application.views.components.EditUserDialog(adminUserService, user, saved -> {
-                        updateCurrentSessionIfSelf(saved);
-                        refresh();
-                    })
-                    .open();
-        });
-
-        Button delete = new Button(VaadinIcon.TRASH.create(), e -> {
-            Dialog confirm = new Dialog();
-            confirm.add(new Span(getTranslation("admin.users.confirm.delete")));
-            Button ok = new Button(VaadinIcon.TRASH.create(), ev -> {
-                try {
-                    String current = org.springframework.security.core.context.SecurityContextHolder.getContext()
-                            .getAuthentication()
-                            .getName();
-                    if (current.equalsIgnoreCase(user.getEmail())
-                            && user.getRoles().contains(SecurityConstants.ROLE_ADMIN)) {
-                        Notification.show(getTranslation("admin.users.error.cannotDeleteSelfAdmin"));
-                        confirm.close();
-                        return;
-                    }
-                    adminUserService.getById(user.getId()).ifPresent(u -> {
-                        boolean lastAdmin = adminUserService.listAll().stream()
-                                                .filter(x -> x.getRoles().contains(SecurityConstants.ROLE_ADMIN))
-                                                .count()
-                                        <= 1
-                                && u.getRoles().contains(SecurityConstants.ROLE_ADMIN);
-                        if (lastAdmin) {
-                            Notification.show(getTranslation("admin.users.error.lastAdmin"));
-                        } else {
-                            adminUserService.delete(u.getId());
-                        }
-                    });
-                    confirm.close();
-                    refresh();
-                } catch (Exception ex) {
-                    Notification.show(getTranslation("dialog.saveFailed", ex.getMessage()));
-                }
-            });
-            Button cancel = new Button(VaadinIcon.CLOSE_SMALL.create(), ev -> confirm.close());
-            confirm.add(new HorizontalLayout(ok, cancel));
-            confirm.open();
-        });
-
-        // Add minimal icon styles and tooltips
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
-        save.getElement().setAttribute("title", getTranslation("dialog.save"));
-        edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
-        edit.getElement().setAttribute("title", getTranslation("dialog.edit"));
-        delete.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
-        delete.getElement().setAttribute("title", getTranslation("dialog.delete"));
-
-        HorizontalLayout buttons = new HorizontalLayout(save, edit, delete);
+        HorizontalLayout buttons = new HorizontalLayout(saveButton, editButton, deleteButton);
         buttons.setWidthFull();
         buttons.setSpacing(true);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
@@ -200,6 +116,126 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
         row.setFlexGrow(0, rolesBox);
         row.setFlexGrow(1, buttons);
         return row;
+    }
+
+    private CheckboxGroup<String> createRolesCheckbox(User user) {
+        Map<String, String> labelToRole = new LinkedHashMap<>();
+        labelToRole.put(getTranslation("admin.users.role.USER"), SecurityConstants.ROLE_USER);
+        labelToRole.put(getTranslation("admin.users.role.ADMIN"), SecurityConstants.ROLE_ADMIN);
+
+        CheckboxGroup<String> rolesBox = new CheckboxGroup<>();
+        rolesBox.setItems(labelToRole.keySet());
+        rolesBox.setWidth("280px");
+        rolesBox.setLabel(getTranslation("admin.users.columns.roles"));
+        rolesBox.setValue(user.getRoles().stream().map(this::roleToLabel).collect(Collectors.toSet()));
+        return rolesBox;
+    }
+
+    private Button createSaveButton(User user, CheckboxGroup<String> rolesBox) {
+        Button save = new Button(VaadinIcon.CHECK.create(), e -> showSaveConfirmationDialog(user, rolesBox));
+        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+        save.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation("dialog.save"));
+        return save;
+    }
+
+    private Button createEditButton(User user) {
+        Button edit =
+                new Button(VaadinIcon.EDIT.create(), e -> new org.apolenkov.application.views.components.EditUserDialog(
+                                adminUserService, user, saved -> {
+                                    updateCurrentSessionIfSelf(saved);
+                                    refresh();
+                                })
+                        .open());
+        edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+        edit.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation("dialog.edit"));
+        return edit;
+    }
+
+    private Button createDeleteButton(User user) {
+        Button delete = new Button(VaadinIcon.TRASH.create(), e -> showDeleteConfirmationDialog(user));
+        delete.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+        delete.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation("dialog.delete"));
+        return delete;
+    }
+
+    private void showSaveConfirmationDialog(User user, CheckboxGroup<String> rolesBox) {
+        Set<String> selected = rolesBox.getValue();
+        if (selected == null || selected.isEmpty()) {
+            Notification.show(getTranslation("admin.users.error.rolesRequired"));
+            return;
+        }
+
+        Map<String, String> labelToRole = Map.of(
+                getTranslation("admin.users.role.USER"), SecurityConstants.ROLE_USER,
+                getTranslation("admin.users.role.ADMIN"), SecurityConstants.ROLE_ADMIN);
+        Set<String> roles = selected.stream().map(labelToRole::get).collect(Collectors.toCollection(HashSet::new));
+
+        Dialog confirm = new Dialog();
+        confirm.add(new Span(getTranslation("admin.users.confirm.apply")));
+        Button ok = new Button(VaadinIcon.CHECK.create(), ev -> saveUserRoles(user, roles, confirm));
+        Button cancel = new Button(VaadinIcon.CLOSE_SMALL.create(), ev -> confirm.close());
+        confirm.add(new HorizontalLayout(ok, cancel));
+        confirm.open();
+    }
+
+    private void saveUserRoles(User user, Set<String> roles, Dialog confirm) {
+        try {
+            String adminEmail =
+                    SecurityContextHolder.getContext().getAuthentication().getName();
+            adminUserService.updateRolesWithAudit(adminEmail, user.getId(), roles);
+            adminUserService.getById(user.getId()).ifPresent(this::updateCurrentSessionIfSelf);
+            Notification.show(getTranslation("admin.users.updated"), 1500, Notification.Position.BOTTOM_START);
+            confirm.close();
+            refresh();
+        } catch (Exception ex) {
+            Notification.show(getTranslation("dialog.saveFailed", ex.getMessage()));
+        }
+    }
+
+    private void showDeleteConfirmationDialog(User user) {
+        Dialog confirm = new Dialog();
+        confirm.add(new Span(getTranslation("admin.users.confirm.delete")));
+        Button ok = new Button(VaadinIcon.TRASH.create(), ev -> deleteUser(user, confirm));
+        Button cancel = new Button(VaadinIcon.CLOSE_SMALL.create(), ev -> confirm.close());
+        confirm.add(new HorizontalLayout(ok, cancel));
+        confirm.open();
+    }
+
+    private void deleteUser(User user, Dialog confirm) {
+        try {
+            String current =
+                    SecurityContextHolder.getContext().getAuthentication().getName();
+
+            if (isCurrentAdminUser(current, user)) {
+                Notification.show(getTranslation("admin.users.error.cannotDeleteSelfAdmin"));
+                confirm.close();
+                return;
+            }
+
+            adminUserService.getById(user.getId()).ifPresent(u -> {
+                if (isLastAdmin(u)) {
+                    Notification.show(getTranslation("admin.users.error.lastAdmin"));
+                } else {
+                    adminUserService.delete(u.getId());
+                }
+            });
+            confirm.close();
+            refresh();
+        } catch (Exception ex) {
+            Notification.show(getTranslation("dialog.saveFailed", ex.getMessage()));
+        }
+    }
+
+    private boolean isCurrentAdminUser(String currentEmail, User user) {
+        return currentEmail.equalsIgnoreCase(user.getEmail()) && user.getRoles().contains(SecurityConstants.ROLE_ADMIN);
+    }
+
+    private boolean isLastAdmin(User user) {
+        return adminUserService.listAll().stream()
+                                .filter(x -> x.getRoles().contains(SecurityConstants.ROLE_ADMIN))
+                                .count()
+                        <= 1
+                && user.getRoles().contains(SecurityConstants.ROLE_ADMIN);
     }
 
     private String roleToLabel(String role) {
@@ -227,6 +263,7 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
             SecurityContextHolder.getContext().setAuthentication(newAuth);
             UI.getCurrent().getPage().reload();
         } catch (Exception ignored) {
+            // Will skip
         }
     }
 

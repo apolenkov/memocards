@@ -26,10 +26,8 @@ import org.apolenkov.application.usecase.UserUseCase;
 @RolesAllowed("ROLE_USER")
 public class DeckCreateView extends Composite<VerticalLayout> implements HasDynamicTitle {
 
-    private final DeckUseCase deckUseCase;
-    private final UserUseCase userUseCase;
-    private TextField titleField;
-    private TextArea descriptionArea;
+    private final transient DeckUseCase deckUseCase;
+    private final transient UserUseCase userUseCase;
     private BeanValidationBinder<Deck> binder;
 
     public DeckCreateView(DeckUseCase deckUseCase, UserUseCase userUseCase) {
@@ -86,12 +84,12 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         H3 formTitle = new H3(getTranslation("deckCreate.section"));
         formTitle.addClassName("deckedit-view__section-title");
 
-        titleField = new TextField(getTranslation("deckCreate.name"));
+        TextField titleField = new TextField(getTranslation("deckCreate.name"));
         titleField.setWidth("100%");
         titleField.setRequired(true);
         titleField.setPlaceholder(getTranslation("deckCreate.name.placeholder"));
 
-        descriptionArea = new TextArea(getTranslation("deckCreate.description"));
+        TextArea descriptionArea = new TextArea(getTranslation("deckCreate.description"));
         descriptionArea.setWidth("100%");
         descriptionArea.setMaxHeight("150px");
         descriptionArea.setPlaceholder(getTranslation("deckCreate.description.placeholder"));

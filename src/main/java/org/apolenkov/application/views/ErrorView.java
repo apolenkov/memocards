@@ -20,7 +20,7 @@ import org.springframework.core.env.Environment;
 @AnonymousAllowed
 public class ErrorView extends VerticalLayout implements HasDynamicTitle, BeforeEnterObserver {
 
-    private final Environment environment;
+    private final transient Environment environment;
     private String fromRoute;
 
     public ErrorView(Environment environment) {
@@ -61,7 +61,7 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
         fromRoute = queryParams
                 .getParameters()
                 .getOrDefault("from", java.util.List.of(""))
-                .get(0);
+                .getFirst();
 
         // Add "Go Back" button if we have a from route
         if (!fromRoute.isEmpty() && !fromRoute.equals("error")) {

@@ -23,13 +23,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Route(value = "", layout = PublicLayout.class)
 @AnonymousAllowed
 @CssImport(value = "./themes/flashcards/views/landing-view.css", themeFor = "vaadin-vertical-layout")
-@CssImport(value = "./themes/flashcards/views/landing-view-extra.css", themeFor = "vaadin-vertical-layout")
 public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
-    private final NewsService newsService;
-
     public LandingView(NewsService newsService) {
-        this.newsService = newsService;
         addClassName("landing-view");
         setSpacing(true);
         setPadding(true);
@@ -69,10 +65,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         Paragraph subtitle = new Paragraph(getTranslation("landing.subtitle"));
         subtitle.addClassName("landing-view__subtitle");
 
-        // Decorative astronaut element (no JS, animated via CSS)
-        Div astronaut = new Div();
-        astronaut.addClassName("landing-view__astronaut");
-        heroIcon.add(astronaut);
+        // Decorative astronaut removed
 
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(true);
@@ -108,7 +101,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         newsTitle.addClassName("landing-view__news-title");
         newsBlock.add(newsTitle);
 
-        for (var item : this.newsService.getAllNews()) {
+        for (var item : newsService.getAllNews()) {
             Div card = new Div();
             card.addClassName("landing-view__news-card");
 
