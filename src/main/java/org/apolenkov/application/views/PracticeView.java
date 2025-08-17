@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
-import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.presenter.PracticePresenter;
 
@@ -28,16 +27,15 @@ import org.apolenkov.application.views.presenter.PracticePresenter;
 @RolesAllowed("ROLE_USER")
 public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
-    @SuppressWarnings("unused")
-    private final DeckUseCase deckUseCase; // kept for navigation/context, may be removed later
+    // Constants for duplicated literals
+    private static final String ERROR_ROUTE = "error";
+    private static final String DECKS_ROUTE = "decks";
+    private static final String PRACTICE_TITLE_KEY = "practice.title";
 
-    private final FlashcardUseCase flashcardUseCase;
-    private final PracticePresenter presenter;
-    private Deck currentDeck;
-    private PracticePresenter.Session session;
-
-    @SuppressWarnings("unused")
-    private boolean sessionStarted = false; // kept for UI state, may be used by future features
+    private final transient FlashcardUseCase flashcardUseCase;
+    private final transient PracticePresenter presenter;
+    private transient Deck currentDeck;
+    private transient PracticePresenter.Session session;
 
     private boolean autoStartAttempted = false;
     private boolean noCardsNotified = false;
@@ -51,8 +49,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     // UI Components
     private H2 deckTitle;
-    private Div progressSection;
-    private Div cardContainer;
     private Div cardContent;
     private HorizontalLayout actionButtons;
     private Button showAnswerButton;
@@ -60,8 +56,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private Button hardButton;
     private Span statsSpan;
 
-    public PracticeView(DeckUseCase deckUseCase, FlashcardUseCase flashcardUseCase, PracticePresenter presenter) {
-        this.deckUseCase = deckUseCase;
+    public PracticeView(FlashcardUseCase flashcardUseCase, PracticePresenter presenter) {
         this.flashcardUseCase = flashcardUseCase;
         this.presenter = presenter;
 
@@ -85,7 +80,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             }
         } catch (NumberFormatException e) {
             Notification.show(getTranslation("practice.invalidId"), 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", "decks")));
+            getUI().ifPresent(ui -> ui.navigate(ERROR_ROUTE, QueryParameters.of("from", DECKS_ROUTE)));
         }
     }
 
@@ -130,11 +125,11 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                 getUI().ifPresent(
                                 ui -> ui.navigate("deck/" + currentDeck.getId().toString()));
             } else {
-                getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", "decks")));
+                getUI().ifPresent(ui -> ui.navigate(ERROR_ROUTE, QueryParameters.of("from", DECKS_ROUTE)));
             }
         });
 
-        deckTitle = new H2(getTranslation("practice.title"));
+        deckTitle = new H2(getTranslation(PRACTICE_TITLE_KEY));
         deckTitle.addClassName("practice-view__title");
 
         leftSection.add(backButton, deckTitle);
@@ -144,7 +139,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void createProgressSection() {
-        progressSection = new Div();
+        Div progressSection = new Div();
         progressSection.addClassName("practice-view__progress");
 
         statsSpan = new Span(getTranslation("practice.getReady"));
@@ -154,7 +149,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void createCardContainer() {
-        cardContainer = new Div();
+        Div cardContainer = new Div();
         cardContainer.addClassName("practice-view__card-container");
 
         cardContent = new Div();
@@ -193,11 +188,11 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         deckOpt.ifPresentOrElse(
                 deck -> {
                     currentDeck = deck;
-                    deckTitle.setText(getTranslation("practice.title", currentDeck.getTitle()));
+                    deckTitle.setText(getTranslation(PRACTICE_TITLE_KEY, currentDeck.getTitle()));
                 },
                 () -> {
                     Notification.show(getTranslation("deck.notFound"), 3000, Notification.Position.MIDDLE);
-                    getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", "decks")));
+                    getUI().ifPresent(ui -> ui.navigate(ERROR_ROUTE, QueryParameters.of("from", DECKS_ROUTE)));
                 });
     }
 
@@ -257,7 +252,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             return;
         }
         session = presenter.startSession(currentDeck.getId(), count, random, sessionDirection);
-        sessionStarted = true;
         correctCount = 0;
         hardCount = 0;
         totalViewed = 0;
@@ -382,7 +376,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                         1,
                         java.time.Duration.between(session.sessionStart, java.time.Instant.now())
                                 .toMinutes()),
-                Math.round((session.totalAnswerDelayMs / Math.max(1.0, (double) totalViewed)) / 1000.0)));
+                Math.round((session.totalAnswerDelayMs / Math.max(1.0, totalViewed)) / 1000.0)));
 
         completionLayout.add(completionTitle, results, timeInfo);
         cardContent.add(completionLayout);
@@ -404,7 +398,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             session = new PracticePresenter.Session(
                     currentDeck.getId(), new ArrayList<>(failed), presenter.defaultDirection());
             Collections.shuffle(session.cards);
-            sessionStarted = true;
             correctCount = 0;
             hardCount = 0;
             totalViewed = 0;
@@ -412,13 +405,13 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         });
         Button backToDeckButton = new Button(getTranslation("practice.backToDeck"), e -> getUI().ifPresent(
                         ui -> ui.navigate("deck/" + currentDeck.getId().toString())));
-        Button homeButton =
-                new Button(getTranslation("practice.backToDecks"), e -> getUI().ifPresent(ui -> ui.navigate("decks")));
+        Button homeButton = new Button(
+                getTranslation("practice.backToDecks"), e -> getUI().ifPresent(ui -> ui.navigate(DECKS_ROUTE)));
         actionButtons.add(againButton, backToDeckButton, homeButton);
     }
 
     @Override
     public String getPageTitle() {
-        return getTranslation("practice.title");
+        return getTranslation(PRACTICE_TITLE_KEY);
     }
 }

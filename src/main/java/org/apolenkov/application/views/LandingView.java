@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Route(value = "", layout = PublicLayout.class)
 @AnonymousAllowed
 @CssImport(value = "./themes/flashcards/views/landing-view.css", themeFor = "vaadin-vertical-layout")
+@CssImport(value = "./themes/flashcards/views/landing-view-extra.css", themeFor = "vaadin-vertical-layout")
 public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
     private final NewsService newsService;
@@ -44,6 +45,22 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
                         .getResourceAsStream("/META-INF/resources/icons/pixel-icon.svg")),
                 getTranslation("landing.heroAlt"));
         hero.addClassName("landing-view__hero");
+
+        // Add click handler for hero element - redirect to decks if user is authenticated with USER role
+        hero.addClickListener(e -> {
+            Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+            if (currentAuth != null && !(currentAuth instanceof AnonymousAuthenticationToken)) {
+                boolean hasUserRole = currentAuth.getAuthorities().stream()
+                        .anyMatch(a -> SecurityConstants.ROLE_USER.equals(a.getAuthority()));
+                if (hasUserRole) {
+                    getUI().ifPresent(ui -> ui.navigate("decks"));
+                }
+            } else {
+                // If anonymous or not authenticated, redirect to login
+                getUI().ifPresent(ui -> ui.navigate("login"));
+            }
+        });
+
         heroIcon.add(hero);
 
         H1 title = new H1(getTranslation("app.title"));
@@ -51,6 +68,11 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         Paragraph subtitle = new Paragraph(getTranslation("landing.subtitle"));
         subtitle.addClassName("landing-view__subtitle");
+
+        // Decorative astronaut element (no JS, animated via CSS)
+        Div astronaut = new Div();
+        astronaut.addClassName("landing-view__astronaut");
+        heroIcon.add(astronaut);
 
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(true);
