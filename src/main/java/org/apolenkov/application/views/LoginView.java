@@ -70,6 +70,11 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         forgot.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
         forgot.addClickListener(e -> Notification.show(getTranslation("auth.login.forgotUnsupported")));
 
+        Button backToHome = new Button(getTranslation("common.backToHome"));
+        backToHome.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        backToHome.setWidth("420px");
+        backToHome.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
+
         Binder<LoginModel> binder = new Binder<>(LoginModel.class);
         LoginModel model = new LoginModel();
         binder.setBean(model);
@@ -92,7 +97,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
             }
         });
 
-        wrapper.add(username, password, submit, forgot);
+        wrapper.add(username, password, submit, forgot, backToHome);
         add(wrapper);
     }
 

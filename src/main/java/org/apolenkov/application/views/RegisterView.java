@@ -108,13 +108,18 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
             }
         });
 
+        Button backToHome = new Button(getTranslation("common.backToHome"));
+        backToHome.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        backToHome.setWidth("420px");
+        backToHome.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
+
         name.setWidth("420px");
         email.setWidth("420px");
         password.setWidth("420px");
         confirm.setWidth("420px");
 
         form.add(name, email, password, confirm);
-        add(title, form, submit);
+        add(title, form, submit, backToHome);
     }
 
     @Override

@@ -30,7 +30,6 @@ import java.util.Optional;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.DeckFacade;
-import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.views.components.DeckEditDialog;
 import org.apolenkov.application.views.presenter.DeckPresenter;
 
@@ -38,9 +37,13 @@ import org.apolenkov.application.views.presenter.DeckPresenter;
 @RolesAllowed("ROLE_USER")
 public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
-    private final DeckFacade deckFacade;
-    private final DeckPresenter presenter;
-    private Deck currentDeck;
+    // Constants for duplicated literals
+    private static final String DECKS_ROUTE = "decks";
+    private static final String FILL_REQUIRED_KEY = "dialog.fillRequired";
+
+    private final transient DeckFacade deckFacade;
+    private final transient DeckPresenter presenter;
+    private transient Deck currentDeck;
     private Grid<Flashcard> flashcardGrid;
     private H2 deckTitle;
     private Span deckDescription;
@@ -49,7 +52,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private ListDataProvider<Flashcard> flashcardsDataProvider;
     private Checkbox hideKnownCheckbox;
 
-    public DeckView(DeckUseCase deckUseCase, DeckPresenter presenter, DeckFacade deckFacade) {
+    public DeckView(DeckPresenter presenter, DeckFacade deckFacade) {
         this.presenter = presenter;
         this.deckFacade = deckFacade;
 
@@ -76,7 +79,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             loadDeck(deckId);
         } catch (NumberFormatException e) {
             Notification.show(getTranslation("deck.invalidId"), 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", "decks")));
+            getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", DECKS_ROUTE)));
         }
     }
 
@@ -90,7 +93,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
         Button backButton = new Button(getTranslation("main.decks"), VaadinIcon.ARROW_LEFT.create());
-        backButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("decks")));
+        backButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(DECKS_ROUTE)));
 
         deckTitle = new H2(getTranslation("deck.loading"));
         deckTitle.addClassName("deckview-view__header-title");
@@ -257,7 +260,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             loadFlashcards();
         } else {
             Notification.show(getTranslation("deck.notFound"), 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", "decks")));
+            getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", DECKS_ROUTE)));
         }
     }
 
@@ -294,6 +297,24 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         Dialog dialog = new Dialog();
         dialog.setWidth("500px");
 
+        FormLayout formLayout = createFlashcardForm(flashcard);
+        BeanValidationBinder<Flashcard> binder = createFlashcardBinder(formLayout);
+        HorizontalLayout buttonsLayout = createDialogButtons(dialog, binder, flashcard);
+
+        VerticalLayout dialogLayout = new VerticalLayout();
+        dialogLayout.add(
+                new H3(
+                        flashcard == null
+                                ? getTranslation("deck.card.addTitle")
+                                : getTranslation("deck.card.editTitle")),
+                formLayout,
+                buttonsLayout);
+
+        dialog.add(dialogLayout);
+        dialog.open();
+    }
+
+    private FormLayout createFlashcardForm(Flashcard flashcard) {
         FormLayout formLayout = new FormLayout();
 
         TextField frontTextField = new TextField(getTranslation("deck.col.front"));
@@ -311,17 +332,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         TextField imageUrlField = new TextField(getTranslation("deck.imageUrl.optional"));
         imageUrlField.setWidth("100%");
 
-        BeanValidationBinder<Flashcard> binder = new BeanValidationBinder<>(Flashcard.class);
-        Flashcard bean = flashcard != null ? flashcard : new Flashcard();
-        binder.forField(frontTextField)
-                .asRequired(getTranslation("dialog.fillRequired"))
-                .bind(Flashcard::getFrontText, Flashcard::setFrontText);
-        binder.forField(backTextField)
-                .asRequired(getTranslation("dialog.fillRequired"))
-                .bind(Flashcard::getBackText, Flashcard::setBackText);
-        binder.forField(exampleArea).bind(Flashcard::getExample, Flashcard::setExample);
-        binder.forField(imageUrlField).bind(Flashcard::getImageUrl, Flashcard::setImageUrl);
-
         if (flashcard != null) {
             frontTextField.setValue(flashcard.getFrontText() != null ? flashcard.getFrontText() : "");
             backTextField.setValue(flashcard.getBackText() != null ? flashcard.getBackText() : "");
@@ -330,46 +340,62 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         }
 
         formLayout.add(frontTextField, backTextField, exampleArea, imageUrlField);
+        return formLayout;
+    }
 
+    private BeanValidationBinder<Flashcard> createFlashcardBinder(FormLayout formLayout) {
+        BeanValidationBinder<Flashcard> binder = new BeanValidationBinder<>(Flashcard.class);
+
+        TextField frontTextField = (TextField) formLayout.getChildren().toArray()[0];
+        TextField backTextField = (TextField) formLayout.getChildren().toArray()[1];
+        TextArea exampleArea = (TextArea) formLayout.getChildren().toArray()[2];
+        TextField imageUrlField = (TextField) formLayout.getChildren().toArray()[3];
+
+        binder.forField(frontTextField)
+                .asRequired(getTranslation(FILL_REQUIRED_KEY))
+                .bind(Flashcard::getFrontText, Flashcard::setFrontText);
+        binder.forField(backTextField)
+                .asRequired(getTranslation(FILL_REQUIRED_KEY))
+                .bind(Flashcard::getBackText, Flashcard::setBackText);
+        binder.forField(exampleArea).bind(Flashcard::getExample, Flashcard::setExample);
+        binder.forField(imageUrlField).bind(Flashcard::getImageUrl, Flashcard::setImageUrl);
+
+        return binder;
+    }
+
+    private HorizontalLayout createDialogButtons(
+            Dialog dialog, BeanValidationBinder<Flashcard> binder, Flashcard flashcard) {
         HorizontalLayout buttonsLayout = new HorizontalLayout();
 
         Button saveButton = new Button(getTranslation("dialog.save"), VaadinIcon.CHECK.create());
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        saveButton.addClickListener(e -> {
-            try {
-                bean.setDeckId(currentDeck.getId());
-                binder.writeBean(bean);
-                deckFacade.saveFlashcard(bean);
-                loadFlashcards();
-                updateDeckInfo();
-                dialog.close();
-                Notification.show(
-                        flashcard == null ? getTranslation("deck.card.added") : getTranslation("deck.card.updated"),
-                        2000,
-                        Notification.Position.BOTTOM_START);
-            } catch (ValidationException vex) {
-                Notification.show(getTranslation("dialog.fillRequired"), 3000, Notification.Position.MIDDLE);
-            } catch (Exception ex) {
-                Notification.show(ex.getMessage(), 4000, Notification.Position.MIDDLE);
-            }
-        });
+        saveButton.addClickListener(e -> handleFlashcardSave(dialog, binder, flashcard));
 
         Button cancelButton = new Button(getTranslation("common.cancel"));
         cancelButton.addClickListener(e -> dialog.close());
 
         buttonsLayout.add(saveButton, cancelButton);
+        return buttonsLayout;
+    }
 
-        VerticalLayout dialogLayout = new VerticalLayout();
-        dialogLayout.add(
-                new H3(
-                        flashcard == null
-                                ? getTranslation("deck.card.addTitle")
-                                : getTranslation("deck.card.editTitle")),
-                formLayout,
-                buttonsLayout);
-
-        dialog.add(dialogLayout);
-        dialog.open();
+    private void handleFlashcardSave(Dialog dialog, BeanValidationBinder<Flashcard> binder, Flashcard flashcard) {
+        try {
+            Flashcard bean = flashcard != null ? flashcard : new Flashcard();
+            bean.setDeckId(currentDeck.getId());
+            binder.writeBean(bean);
+            deckFacade.saveFlashcard(bean);
+            loadFlashcards();
+            updateDeckInfo();
+            dialog.close();
+            Notification.show(
+                    flashcard == null ? getTranslation("deck.card.added") : getTranslation("deck.card.updated"),
+                    2000,
+                    Notification.Position.BOTTOM_START);
+        } catch (ValidationException vex) {
+            Notification.show(getTranslation(FILL_REQUIRED_KEY), 3000, Notification.Position.MIDDLE);
+        } catch (Exception ex) {
+            Notification.show(ex.getMessage(), 4000, Notification.Position.MIDDLE);
+        }
     }
 
     private void deleteFlashcard(Flashcard flashcard) {

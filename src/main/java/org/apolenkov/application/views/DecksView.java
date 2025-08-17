@@ -22,9 +22,9 @@ import org.apolenkov.application.views.home.HomePresenter;
 @RolesAllowed({"ROLE_USER", "ROLE_ADMIN"})
 public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
-    private final HomePresenter homePresenter;
-    private final DeckFacade deckFacade;
-    private final UserUseCase userUseCase;
+    private final transient HomePresenter homePresenter;
+    private final transient DeckFacade deckFacade;
+    private final transient UserUseCase userUseCase;
     private final VerticalLayout deckList;
 
     public DecksView(HomePresenter homePresenter, DeckFacade deckFacade, UserUseCase userUseCase) {
@@ -49,6 +49,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         search.setClearButtonVisible(true);
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPrefixComponent(VaadinIcon.SEARCH.create());
+        search.setMaxWidth("250px");
 
         Button addDeckBtn = new Button(getTranslation("home.addDeck"));
         addDeckBtn.getElement().getThemeList().add("primary");
@@ -56,6 +57,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
         HorizontalLayout toolbar = new HorizontalLayout(search, addDeckBtn);
         toolbar.setAlignItems(Alignment.END);
+        toolbar.addClassName("toolbar-with-bottom-margin");
 
         deckList = new VerticalLayout();
         deckList.setPadding(false);
