@@ -10,6 +10,115 @@
   z-index: 1;
 }
 
+/* Background pixel-art rocket on the left */
+.landing-view::before {
+  content: "";
+  position: absolute;
+  left: max(12px, 3vw);
+  bottom: 12vh;
+  width: min(120px, 22vw);
+  height: calc(min(120px, 22vw) * 1.6);
+  background-image: url("../assets/rocket-pixel.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.92;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35));
+  animation: rocket-float 6.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure content stays above the decorative background */
+.landing-view > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes rocket-float {
+  0% {
+    transform: translate3d(-6%, 0, 0) rotate(-10deg) scale(1);
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35)) brightness(1);
+  }
+  25% {
+    transform: translate3d(2%, -10px, 0) rotate(-12deg) scale(1.02);
+    filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.38)) brightness(1.05);
+  }
+  50% {
+    transform: translate3d(6%, -16px, 0) rotate(-9deg) scale(1.03);
+    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.32)) brightness(1.08);
+  }
+  75% {
+    transform: translate3d(2%, -8px, 0) rotate(-11deg) scale(1.01);
+    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.36)) brightness(1.02);
+  }
+  100% {
+    transform: translate3d(-6%, 0, 0) rotate(-10deg) scale(1);
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35)) brightness(1);
+  }
+}
+
+/* Right-side UFO */
+.landing-view::after {
+  content: "";
+  position: absolute;
+  right: max(12px, 3vw);
+  top: 10vh;
+  width: min(128px, 24vw);
+  height: calc(min(128px, 24vw) * 0.66);
+  background-image: url("../assets/ufo-pixel.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.95;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35));
+  animation: ufo-float 7s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes ufo-float {
+  0% {
+    transform: translate3d(6%, 0, 0) rotate(6deg) scale(1);
+  }
+  25% {
+    transform: translate3d(-2%, 8px, 0) rotate(4deg) scale(1.02);
+  }
+  50% {
+    transform: translate3d(-6%, 12px, 0) rotate(5deg) scale(1.03);
+  }
+  75% {
+    transform: translate3d(-2%, 6px, 0) rotate(6deg) scale(1.01);
+  }
+  100% {
+    transform: translate3d(6%, 0, 0) rotate(6deg) scale(1);
+  }
+}
+
+/* Astronaut near rocket */
+.landing-view__astronaut {
+  position: absolute;
+  left: calc(max(12px, 3vw) - min(80px, 14vw) - 12px);
+  bottom: 12vh;
+  width: min(80px, 14vw);
+  height: calc(min(80px, 14vw) * 1.25);
+  background-image: url("../assets/astronaut-pixel.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  image-rendering: pixelated;
+  opacity: 0.95;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35));
+  animation: astronaut-bob 6.8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes astronaut-bob {
+  0% { transform: translate3d(0, 0, 0) rotate(-2deg) scale(1); }
+  50% { transform: translate3d(0, -10px, 0) rotate(2deg) scale(1.02); }
+  100% { transform: translate3d(0, 0, 0) rotate(-2deg) scale(1); }
+}
+
 .landing-view__title {
   display: block;
   width: 100%;
@@ -53,8 +162,6 @@
 
 .landing-view__hero:hover {
   transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.5);
-  filter: brightness(1.2);
 }
 
 .landing-view__actions {
@@ -80,8 +187,8 @@
 
 .landing-view__register-btn:hover {
   background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  border-color: #ffffff;
+  color: rgb(251, 251, 251);
+border-color: rgb(251, 251, 251);
   box-shadow: 0 10px 28px rgba(255, 255, 255, 0.28);
 }
 
@@ -145,6 +252,28 @@
     padding: var(--lumo-space-m);
     margin-top: var(--lumo-space-xs);
   }
+  .landing-view::before {
+    left: max(8px, 2vw);
+    bottom: 10vh;
+    width: min(88px, 28vw);
+    height: calc(min(88px, 28vw) * 1.6);
+    opacity: 0.85;
+    animation-duration: 7.2s;
+  }
+  .landing-view::after {
+    right: max(8px, 2vw);
+    top: 8vh;
+    width: min(96px, 32vw);
+    height: calc(min(96px, 32vw) * 0.66);
+    animation-duration: 7.6s;
+  }
+  .landing-view__astronaut {
+    left: calc(max(8px, 2vw) - min(68px, 18vw) - 8px);
+    bottom: 10vh;
+    width: min(68px, 18vw);
+    height: calc(min(68px, 18vw) * 1.25);
+    animation-duration: 7.6s;
+  }
   
   .landing-view__title {
     font-size: var(--lumo-font-size-xxl);
@@ -171,5 +300,27 @@
   .landing-view__decks-btn {
     width: 100%;
     max-width: 280px;
+  }
+}
+
+@media (max-width: 420px) {
+  .landing-view::before {
+    left: 4px;
+    bottom: 8vh;
+    width: 72px;
+    height: calc(72px * 1.6);
+    opacity: 0.78;
+  }
+  .landing-view::after {
+    right: 4px;
+    top: 6vh;
+    width: 72px;
+    height: calc(72px * 0.66);
+  }
+  .landing-view__astronaut {
+    left: 4px;
+    bottom: 8vh;
+    width: 56px;
+    height: calc(56px * 1.25);
   }
 }

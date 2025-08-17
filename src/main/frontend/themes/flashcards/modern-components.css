@@ -2,40 +2,40 @@
 
 /* Glassmorphism Card */
 .glass-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(251, 251, 251, 0.1);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(251, 251, 251, 0.2);
   border-radius: var(--custom-border-radius-l);
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    inset 0 1px 0 rgba(251, 251, 251, 0.2);
   transition: all var(--custom-transition-medium);
   color: var(--lumo-primary-text-color);
 }
 
 .glass-card:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(251, 251, 251, 0.15);
+  border-color: rgba(251, 251, 251, 0.3);
   box-shadow: 
     0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    inset 0 1px 0 rgba(251, 251, 251, 0.3);
   transform: translateY(-4px);
 }
 
 /* Enhanced Button Styles */
 .btn-modern {
   position: relative;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: var(--oneinch-gradient-main-gradient);
   border: none;
   border-radius: var(--custom-border-radius-m);
-  color: white;
+  color: rgb(251, 251, 251);
   font-weight: 600;
   padding: 12px 24px;
   cursor: pointer;
   overflow: hidden;
   transition: all var(--custom-transition-medium);
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 15px rgba(47, 138, 245, 0.3);
 }
 
 .btn-modern::before {
@@ -54,8 +54,8 @@
 }
 
 .btn-modern:hover {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  background: linear-gradient(313deg, rgb(32 120 224) 1%, rgb(15 190 228) 49%, rgb(47 138 245) 100%);
+  box-shadow: 0 6px 20px rgba(47, 138, 245, 0.4);
   transform: translateY(-2px);
 }
 
@@ -66,20 +66,20 @@
 /* Secondary Button */
 .btn-modern--secondary {
   background: transparent;
-  border: 2px solid #6366f1;
-  color: #6366f1;
+  border: 2px solid #2f8af5;
+  color: #2f8af5;
   box-shadow: none;
 }
 
 .btn-modern--secondary:hover {
-  background: #6366f1;
-  color: white;
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  background: #2f8af5;
+  color: rgb(251, 251, 251);
+  box-shadow: 0 6px 20px rgba(47, 138, 245, 0.4);
 }
 
 /* Gradient Text */
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+  background: var(--oneinch-gradient-main-gradient);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -89,9 +89,9 @@
 
 /* Enhanced Input Fields */
 .input-modern {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(251, 251, 251, 0.1);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(251, 251, 251, 0.2);
   border-radius: var(--custom-border-radius-m);
   padding: 12px 16px;
   color: var(--lumo-primary-text-color);
@@ -100,13 +100,13 @@
 
 .input-modern:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-  background: rgba(255, 255, 255, 0.15);
+  border-color: #2f8af5;
+  box-shadow: 0 0 0 3px rgba(47, 138, 245, 0.1);
+  background: rgba(251, 251, 251, 0.15);
 }
 
 .input-modern::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(251, 251, 251, 0.6);
 }
 
 /* Animated Border */
@@ -124,7 +124,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, #6366f1, #8b5cf6, #ec4899, #6366f1);
+  background: linear-gradient(45deg, #2f8af5, #0fbed4, #ec4899, #2f8af5);
   background-size: 400% 400%;
   animation: gradientShift 3s ease infinite;
   z-index: -1;
@@ -150,19 +150,19 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: var(--oneinch-gradient-main-gradient);
   border: none;
-  color: white;
+  color: rgb(251, 251, 251);
   font-size: 24px;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 20px rgba(47, 138, 245, 0.3);
   transition: all var(--custom-transition-medium);
   z-index: 1000;
 }
 
 .fab:hover {
   transform: scale(1.1) rotate(90deg);
-  box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 6px 25px rgba(47, 138, 245, 0.4);
 }
 
 /* Progress Bar */
@@ -177,7 +177,7 @@
 
 .progress-modern__bar {
   height: 100%;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+  background: linear-gradient(90deg, #2f8af5, #0fbed4, #ec4899);
   background-size: 200% 100%;
   border-radius: 4px;
   animation: shimmer 2s ease infinite;
@@ -189,10 +189,10 @@
   display: inline-flex;
   align-items: center;
   padding: 4px 12px;
-  background: rgba(99, 102, 241, 0.2);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: rgba(47, 138, 245, 0.2);
+  border: 1px solid rgba(47, 138, 245, 0.3);
   border-radius: 20px;
-  color: var(--modern-primary, #6366f1);
+  color: var(--modern-primary, #2f8af5);
   font-size: 12px;
   font-weight: 600;
   backdrop-filter: blur(10px);
@@ -230,7 +230,7 @@
   transform: translateX(-50%);
   padding: 8px 12px;
   background: rgba(0, 0, 0, 0.8);
-  color: white;
+  color: rgb(251, 251, 251);
   border-radius: var(--custom-border-radius-s);
   font-size: 12px;
   white-space: nowrap;
@@ -276,10 +276,10 @@
 .vaadin-email-field:focus-within,
 .vaadin-password-field:focus-within,
 .vaadin-text-area:focus-within {
-  border-color: var(--modern-primary, #6366f1) !important;
+  border-color: var(--modern-primary, #2f8af5) !important;
   box-shadow: 
-    0 0 0 2px rgba(99, 102, 241, 0.2),
-    0 4px 12px rgba(99, 102, 241, 0.15) !important;
+    0 0 0 2px rgba(47, 138, 245, 0.2),
+    0 4px 12px rgba(47, 138, 245, 0.15) !important;
   transform: translateY(-1px);
   transition: all 0.2s ease;
 }
@@ -295,9 +295,9 @@
   right: -2px;
   bottom: -2px;
   background: linear-gradient(45deg, 
-    rgba(99, 102, 241, 0.3), 
-    rgba(99, 102, 241, 0.1), 
-    rgba(99, 102, 241, 0.3));
+    rgba(47, 138, 245, 0.3), 
+    rgba(47, 138, 245, 0.1), 
+    rgba(47, 138, 245, 0.3));
   border-radius: inherit;
   z-index: -1;
   opacity: 0;
@@ -316,8 +316,8 @@
 .vaadin-text-field[placeholder*="поиск"],
 .vaadin-text-field[placeholder*="колоды"],
 .vaadin-text-field[placeholder*="карточек"] {
-  background: rgba(255, 255, 255, 0.12);
-  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: rgba(251, 251, 251, 0.12);
+  border: 2px solid rgba(251, 251, 251, 0.25);
   border-radius: var(--lumo-border-radius-m);
   transition: all 0.2s ease;
   position: relative;
@@ -328,11 +328,11 @@
 .vaadin-text-field[placeholder*="поиск"]:focus-within,
 .vaadin-text-field[placeholder*="колоды"]:focus-within,
 .vaadin-text-field[placeholder*="карточек"]:focus-within {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: var(--modern-primary, #6366f1);
+  background: rgba(251, 251, 251, 0.2);
+  border-color: var(--modern-primary, #2f8af5);
   box-shadow: 
-    0 0 0 3px rgba(99, 102, 241, 0.3),
-    0 8px 25px rgba(99, 102, 241, 0.25) !important;
+    0 0 0 3px rgba(47, 138, 245, 0.3),
+    0 8px 25px rgba(47, 138, 245, 0.25) !important;
   transform: translateY(-2px);
 }
 
@@ -380,7 +380,7 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--modern-primary, #6366f1);
+  color: var(--modern-primary, #2f8af5);
   font-weight: bold;
   font-size: 16px;
   animation: blink 1s infinite;
@@ -397,8 +397,8 @@
 .vaadin-email-field:hover,
 .vaadin-password-field:hover,
 .vaadin-text-area:hover {
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(251, 251, 251, 0.4);
+  background: rgba(251, 251, 251, 0.05);
   transform: translateY(-1px);
   transition: all 0.2s ease;
 }
@@ -409,7 +409,7 @@
 .vaadin-password-field input,
 .vaadin-text-area textarea {
   background: transparent !important;
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: rgba(251, 251, 251, 0.9) !important;
   border: none !important;
   outline: none !important;
   padding: var(--lumo-space-s) var(--lumo-space-m) !important;
@@ -420,7 +420,7 @@
 .vaadin-email-field input::placeholder,
 .vaadin-password-field input::placeholder,
 .vaadin-text-area textarea::placeholder {
-  color: rgba(255, 255, 255, 0.6) !important;
+  color: rgba(251, 251, 251, 0.6) !important;
   font-style: italic;
 }
 
@@ -428,14 +428,14 @@
 .vaadin-text-field [part="clear-button"],
 .vaadin-email-field [part="clear-button"],
 .vaadin-password-field [part="clear-button"] {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(251, 251, 251, 0.7) !important;
   transition: all 0.2s ease;
 }
 
 .vaadin-text-field [part="clear-button"]:hover,
 .vaadin-email-field [part="clear-button"]:hover,
 .vaadin-password-field [part="clear-button"]:hover {
-  color: var(--modern-primary, #6366f1) !important;
+  color: var(--modern-primary, #2f8af5) !important;
   transform: scale(1.1);
 }
 
@@ -447,13 +447,13 @@
 
 /* Specific button themes icon fixes */
 .vaadin-button[theme~="success"] vaadin-icon {
-  color: #ffffff !important;
+  color: rgb(251, 251, 251) !important;
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
   font-weight: bold;
 }
 
 .vaadin-button[theme~="error"] vaadin-icon {
-  color: #ffffff !important;
+  color: rgb(251, 251, 251) !important;
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
   font-weight: bold;
 }
@@ -482,14 +482,14 @@
 
 /* Ensure all interactive elements have proper contrast */
 .vaadin-button:not([theme~="primary"]):not([theme~="success"]):not([theme~="error"]) {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
+  background: rgba(251, 251, 251, 0.1) !important;
+  border: 1px solid rgba(251, 251, 251, 0.3) !important;
+  color: rgba(251, 251, 251, 0.9) !important;
 }
 
 .vaadin-button:not([theme~="primary"]):not([theme~="success"]):not([theme~="error"]):hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.5) !important;
+  background: rgba(251, 251, 251, 0.2) !important;
+  border-color: rgba(251, 251, 251, 0.5) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -507,7 +507,7 @@
 .vaadin-email-field::part(label),
 .vaadin-password-field::part(label),
 .vaadin-text-area::part(label) {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: rgba(251, 251, 251, 0.9) !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   font-weight: 500;
 }
@@ -543,25 +543,7 @@
   min-width: 80px !important;
 }
 
-/* Grid content visibility improvements */
-.vaadin-grid::part(cell) span,
-.vaadin-grid::part(cell) div,
-.vaadin-grid::part(cell) label {
-  color: #111827 !important;
-  font-weight: 500;
-}
-
-/* Specific grid cell content */
-.vaadin-grid::part(cell) .status-known,
-.vaadin-grid::part(cell) .status-studied,
-.vaadin-grid::part(cell) .status-completed,
-.vaadin-grid::part(cell) .status-unknown,
-.vaadin-grid::part(cell) .status-not-studied,
-.vaadin-grid::part(cell) .status-pending {
-  margin: 0 auto;
-  display: block;
-  width: fit-content;
-}
+/* Grid content visibility and status alignment are scoped under .app-content in main-layout.css */
 
 /* Additional status classes that might be used */
 .status-new,
@@ -594,22 +576,4 @@
   min-width: 80px !important;
 }
 
-/* Force visibility for any status-like text */
-[class*="status"],
-[class*="Status"] {
-  color: #111827 !important;
-  font-weight: 500 !important;
-}
-
-/* Grid cell content with any status */
-.vaadin-grid::part(cell) [class*="status"],
-.vaadin-grid::part(cell) [class*="Status"] {
-  margin: 0 auto;
-  display: block;
-  width: fit-content;
-  text-align: center;
-  padding: 6px 12px;
-  border-radius: 8px;
-  min-width: 80px;
-  font-weight: 600;
-}
+/* Global status chip base styles are above; per-grid alignment handled in main-layout.css */

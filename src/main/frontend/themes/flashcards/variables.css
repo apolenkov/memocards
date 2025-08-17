@@ -19,8 +19,8 @@
   
   /* Custom shadow variables */
   --custom-shadow-s: 0 2px 8px rgb(0 0 0 / 0.06);
-  --custom-shadow-m: 0 4px 16px rgba(0 0 0, 0.1);
-  --custom-shadow-l: 0 6px 30px rgba(0 0 0, 0.15);
+  --custom-shadow-m: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --custom-shadow-l: 0 6px 30px rgba(0, 0, 0, 0.15);
   
   /* Custom transition variables */
   --custom-transition-fast: 0.2s ease;
@@ -38,10 +38,10 @@
   --custom-breakpoint-desktop: 1200px;
   
   /* Modern color palette */
-  --modern-primary: #6366f1;
-  --modern-primary-dark: #4f46e5;
-  --modern-secondary: #8b5cf6;
-  --modern-secondary-dark: #7c3aed;
+  --modern-primary: #2f8af5;
+  --modern-primary-dark: #2078e0;
+  --modern-secondary: #0fbed4;
+  --modern-secondary-dark: #0da8bc;
   --modern-accent: #ec4899;
   --modern-accent-dark: #db2777;
   --modern-success: #22c55e;
@@ -49,19 +49,20 @@
   --modern-error: #ef4444;
   
   /* Modern gradients */
-  --modern-gradient-primary: linear-gradient(135deg, #6366f1, #8b5cf6);
-  --modern-gradient-secondary: linear-gradient(135deg, #8b5cf6, #ec4899);
-  --modern-gradient-accent: linear-gradient(135deg, #ec4899, #6366f1);
-  --modern-gradient-full: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+  --oneinch-gradient-main-gradient: linear-gradient(313deg, rgb(47 138 245) 1%, rgb(32 120 224) 49%, rgb(15 190 228) 100%);
+  --modern-gradient-primary: linear-gradient(313deg, rgb(47 138 245) 1%, rgb(32 120 224) 49%, rgb(15 190 228) 100%);
+  --modern-gradient-secondary: linear-gradient(135deg, #0fbed4, #2f8af5);
+  --modern-gradient-accent: linear-gradient(135deg, #ec4899, #2f8af5);
+  --modern-gradient-full: linear-gradient(135deg, #2f8af5, #0fbed4, #ec4899);
   
   /* Glassmorphism colors */
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-bg: rgba(251, 251, 251, 0.1);
+  --glass-border: rgba(251, 251, 251, 0.2);
   --glass-shadow: rgba(0, 0, 0, 0.1);
   
   /* Modern shadow variables */
-  --modern-shadow-s: 0 2px 8px rgba(99, 102, 241, 0.1);
-  --modern-shadow-m: 0 4px 20px rgba(99, 102, 241, 0.15);
-  --modern-shadow-l: 0 8px 32px rgba(99, 102, 241, 0.2);
-  --modern-shadow-xl: 0 12px 40px rgba(99, 102, 241, 0.25);
+  --modern-shadow-s: 0 2px 8px rgba(47, 138, 245, 0.1);
+  --modern-shadow-m: 0 4px 20px rgba(47, 138, 245, 0.15);
+  --modern-shadow-l: 0 8px 32px rgba(47, 138, 245, 0.2);
+  --modern-shadow-xl: 0 12px 40px rgba(47, 138, 245, 0.25);
 }
