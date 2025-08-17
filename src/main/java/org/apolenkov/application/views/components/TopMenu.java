@@ -15,7 +15,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.ArrayList;
 import java.util.List;
 import org.apolenkov.application.service.PracticeSettingsService;
-import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,14 +26,20 @@ import org.springframework.stereotype.Component;
 @UIScope
 public class TopMenu extends HorizontalLayout {
 
+    private static final String ROLE_USER = "ROLE_USER";
+    private static final String ROLE_ADMIN = "ROLE_ADMIN";
+    private static final String LOGOUT_ROUTE = "/logout";
+    private static final String DATA_TESTID_ATTRIBUTE = "data-testid";
+
     private final List<MenuButton> menuButtons = new ArrayList<>();
     private final Anchor title;
 
-    private final UserUseCase userUseCase;
+    private final transient UserUseCase userUseCase;
+    private final transient PracticeSettingsService practiceSettingsService;
 
-    public TopMenu(
-            UserUseCase userUseCase, StatsService statsService, PracticeSettingsService practiceSettingsService) {
+    public TopMenu(UserUseCase userUseCase, PracticeSettingsService practiceSettingsService) {
         this.userUseCase = userUseCase;
+        this.practiceSettingsService = practiceSettingsService;
         setWidthFull();
         setPadding(true);
         setSpacing(true);
@@ -57,21 +62,16 @@ public class TopMenu extends HorizontalLayout {
     }
 
     private void initializeMenuButtons() {
-        menuButtons.add(new MenuButton(getTranslation("main.decks"), "/decks", "nav-decks", false, "ROLE_USER"));
-        menuButtons.add(new MenuButton(getTranslation("main.stats"), "/stats", "nav-stats", false, "ROLE_USER"));
-        menuButtons.add(
-                new MenuButton(getTranslation("main.settings"), "/settings", "nav-settings", false, "ROLE_USER"));
+        menuButtons.add(new MenuButton(getTranslation("main.decks"), "/decks", "nav-decks", false, ROLE_USER));
+        menuButtons.add(new MenuButton(getTranslation("main.stats"), "/stats", "nav-stats", false, ROLE_USER));
+        menuButtons.add(new MenuButton(getTranslation("main.settings"), "/settings", "nav-settings", false, ROLE_USER));
         menuButtons.add(new MenuButton(
-                getTranslation("admin.users.page.title"), "/admin/users", "nav-admin-users", false, "ROLE_ADMIN"));
+                getTranslation("admin.users.page.title"), "/admin/users", "nav-admin-users", false, ROLE_ADMIN));
         menuButtons.add(new MenuButton(
-                getTranslation("admin.content.page.title"),
-                "/admin/content",
-                "nav-admin-content",
-                false,
-                "ROLE_ADMIN"));
+                getTranslation("admin.content.page.title"), "/admin/content", "nav-admin-content", false, ROLE_ADMIN));
         menuButtons.add(new MenuButton(
-                getTranslation("admin.audit.page.title"), "/admin/audit", "nav-admin-audit", false, "ROLE_ADMIN"));
-        menuButtons.add(new MenuButton(getTranslation("main.logout"), "/logout", "nav-logout", false));
+                getTranslation("admin.audit.page.title"), "/admin/audit", "nav-admin-audit", false, ROLE_ADMIN));
+        menuButtons.add(new MenuButton(getTranslation("main.logout"), LOGOUT_ROUTE, "nav-logout", false));
     }
 
     private HorizontalLayout createMenuButtonsLayout() {
@@ -79,9 +79,7 @@ public class TopMenu extends HorizontalLayout {
         buttonsLayout.setSpacing(true);
         buttonsLayout.setAlignItems(Alignment.CENTER);
 
-        Authentication auth = SecurityContextHolder.getContext() != null
-                ? SecurityContextHolder.getContext().getAuthentication()
-                : null;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isAuthenticated = auth != null && !(auth instanceof AnonymousAuthenticationToken);
 
         for (MenuButton menuButton : menuButtons) {
@@ -102,19 +100,18 @@ public class TopMenu extends HorizontalLayout {
         left.setSpacing(true);
         left.add(title);
 
-        Authentication auth = SecurityContextHolder.getContext() != null
-                ? SecurityContextHolder.getContext().getAuthentication()
-                : null;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isAuthenticated = auth != null && !(auth instanceof AnonymousAuthenticationToken);
         if (isAuthenticated) {
             String displayName;
+            String authName = auth.getName();
             try {
                 displayName = userUseCase.getCurrentUser().getName();
                 if (displayName == null || displayName.isBlank()) {
-                    displayName = auth.getName();
+                    displayName = authName;
                 }
             } catch (Exception e) {
-                displayName = auth.getName();
+                displayName = authName;
             }
             Div greeting = new Div();
             greeting.setText(getTranslation("main.greeting", displayName));
@@ -131,7 +128,7 @@ public class TopMenu extends HorizontalLayout {
             return true;
         }
 
-        if (menuButton.getRoute().equals("/logout")) {
+        if (menuButton.getRoute().equals(LOGOUT_ROUTE)) {
             return isAuthenticated;
         }
 
@@ -156,15 +153,20 @@ public class TopMenu extends HorizontalLayout {
     private Button createButton(MenuButton menuButton) {
         Button button;
 
-        if (menuButton.getRoute().equals("/logout")) {
+        if (menuButton.getRoute().equals(LOGOUT_ROUTE)) {
             button = new Button(menuButton.getText());
-            button.getElement().setAttribute("data-testid", menuButton.getTestId());
+            button.getElement().setAttribute(DATA_TESTID_ATTRIBUTE, menuButton.getTestId());
+            button.addClickListener(e -> openLogoutDialog());
+        } else if (menuButton.getRoute().equals("/settings")) {
+            button = new Button(menuButton.getText());
+            button.getElement().setAttribute(DATA_TESTID_ATTRIBUTE, menuButton.getTestId());
             button.addClickListener(e -> {
-                openLogoutDialog();
+                PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService);
+                dialog.open();
             });
         } else {
             button = new Button(menuButton.getText());
-            button.getElement().setAttribute("data-testid", menuButton.getTestId());
+            button.getElement().setAttribute(DATA_TESTID_ATTRIBUTE, menuButton.getTestId());
             button.addClickListener(e -> {
                 String route = menuButton.getRoute();
                 getUI().ifPresent(ui -> ui.navigate(route));

@@ -3,6 +3,8 @@ package org.apolenkov.application.views.components;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -51,6 +53,8 @@ public class PracticeSettingsDialog extends Dialog {
                     dirGroup.getValue().equals(f2b)
                             ? org.apolenkov.application.model.PracticeDirection.FRONT_TO_BACK
                             : org.apolenkov.application.model.PracticeDirection.BACK_TO_FRONT);
+            Notification n = Notification.show(getTranslation("settings.saved"), 3000, Notification.Position.MIDDLE);
+            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             close();
         });
         Button cancel = new Button(getTranslation("common.cancel"), e -> close());

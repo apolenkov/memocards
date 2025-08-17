@@ -15,7 +15,7 @@ import org.apolenkov.application.views.home.DeckCardViewModel;
 /** Reusable deck card component for deck listing. */
 public class DeckCard extends Div {
 
-    private final DeckCardViewModel viewModel;
+    private final transient DeckCardViewModel viewModel;
 
     public DeckCard(DeckCardViewModel viewModel) {
         this.viewModel = viewModel;
@@ -68,7 +68,7 @@ public class DeckCard extends Div {
 
         Span progressLabel = new Span(getTranslation("home.progress"));
         ProgressBar progressBar = new ProgressBar();
-        progressBar.setValue(Math.min(1.0, Math.max(0.0, percent / 100.0)));
+        progressBar.setValue(Math.clamp(percent / 100.0, 0.0, 1.0));
         Span progressText = new Span(percent + getTranslation("home.percentSuffix"));
         Span progressDetails = new Span(getTranslation("home.progress.details", known, deckSize));
         progressDetails.addClassName("deck-card__progress-details");
@@ -79,7 +79,7 @@ public class DeckCard extends Div {
 
     private void navigateToDeck() {
         if (viewModel.id() != null) {
-            getUI().ifPresent(ui -> ui.navigate("deck/" + viewModel.id().toString()));
+            getUI().ifPresent(ui -> ui.navigate("deck/" + viewModel.id()));
         }
     }
 

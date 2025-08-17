@@ -74,39 +74,7 @@
   display: inline-block;
 }
 
-/* Grid icons styling - make all icons black */
-.deckview-view .vaadin-grid vaadin-icon {
-  color: #000000 !important;
-}
-
-/* Specific icon types in grid */
-.deckview-view .vaadin-grid vaadin-icon[icon*="edit"] {
-  color: #000000 !important;
-}
-
-.deckview-view .vaadin-grid vaadin-icon[icon*="delete"] {
-  color: #000000 !important;
-}
-
-.deckview-view .vaadin-grid vaadin-icon[icon*="eye"] {
-  color: #000000 !important;
-}
-
-.deckview-view .vaadin-grid vaadin-icon[icon*="plus"] {
-  color: #000000 !important;
-}
-
-.deckview-view .vaadin-grid vaadin-icon[icon*="minus"] {
-  color: #000000 !important;
-}
-
-.deckview-view .vaadin-grid vaadin-icon[icon*="check"] {
-  color: #000000 !important;
-}
-
-.deckview-view .vaadin-grid vaadin-icon[icon*="close"] {
-  color: #000000 !important;
-}
+/* Grid icon coloring is handled globally under .app-content */
 
 /* Additional info block elements styling */
 .deckview-view__info h3,

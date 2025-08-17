@@ -17,10 +17,9 @@ import org.apolenkov.application.service.DeckFacade;
 
 public class DeckEditDialog extends Dialog {
 
-    private final DeckFacade deckFacade;
-    private final Deck deck;
-    private final Consumer<Deck> onSaved;
-    private BeanValidationBinder<Deck> binder;
+    private final transient DeckFacade deckFacade;
+    private final transient Deck deck;
+    private final transient Consumer<Deck> onSaved;
 
     public DeckEditDialog(DeckFacade deckFacade, Deck deck, Consumer<Deck> onSaved) {
         this.deckFacade = deckFacade;
@@ -51,7 +50,7 @@ public class DeckEditDialog extends Dialog {
         descriptionArea.setPlaceholder(getTranslation("dialog.description.placeholder"));
         descriptionArea.setValue(deck.getDescription() != null ? deck.getDescription() : "");
 
-        binder = new BeanValidationBinder<>(Deck.class);
+        BeanValidationBinder<Deck> binder = new BeanValidationBinder<>(Deck.class);
         binder.forField(titleField)
                 .asRequired(getTranslation("deckCreate.enterTitle"))
                 .bind(Deck::getTitle, Deck::setTitle);
