@@ -5,32 +5,32 @@
   --theme-primary: #1976d2;
   --theme-primary-light: #42a5f5;
   --theme-primary-dark: #1565c0;
-  --theme-primary-contrast: #ffffff;
+  --theme-primary-contrast: rgb(251, 251, 251);
   
   --theme-secondary: #424242;
   --theme-secondary-light: #616161;
   --theme-secondary-dark: #212121;
-  --theme-secondary-contrast: #ffffff;
+  --theme-secondary-contrast: rgb(251, 251, 251);
   
   --theme-success: #4caf50;
   --theme-success-light: #81c784;
   --theme-success-dark: #388e3c;
-  --theme-success-contrast: #ffffff;
+  --theme-success-contrast: rgb(251, 251, 251);
   
   --theme-warning: #ff9800;
   --theme-warning-light: #ffb74d;
   --theme-warning-dark: #f57c00;
-  --theme-warning-contrast: #ffffff;
+  --theme-warning-contrast: rgb(251, 251, 251);
   
   --theme-error: #f44336;
   --theme-error-light: #e57373;
   --theme-error-dark: #d32f2f;
-  --theme-error-contrast: #ffffff;
+  --theme-error-contrast: rgb(251, 251, 251);
   
   --theme-info: #2196f3;
   --theme-info-light: #64b5f6;
   --theme-info-dark: #1976d2;
-  --theme-info-contrast: #ffffff;
+  --theme-info-contrast: rgb(251, 251, 251);
 }
 
 /* Semantic color variables */
@@ -81,9 +81,9 @@
 /* Dark theme support */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-shadow-light: rgba(255, 255, 255, 0.1);
-    --color-shadow-medium: rgba(255, 255, 255, 0.15);
-    --color-shadow-heavy: rgba(255, 255, 255, 0.2);
+    --color-shadow-light: rgba(251, 251, 251, 0.1);
+    --color-shadow-medium: rgba(251, 251, 251, 0.15);
+    --color-shadow-heavy: rgba(251, 251, 251, 0.2);
   }
 }
 

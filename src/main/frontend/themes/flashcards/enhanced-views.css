@@ -7,9 +7,9 @@
 }
 
 .home-view__welcome {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(251, 251, 251, 0.08);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(251, 251, 251, 0.2);
   border-radius: var(--custom-border-radius-l);
   padding: var(--lumo-space-xl);
   margin-bottom: var(--lumo-space-xl);
@@ -19,17 +19,17 @@
 }
 
 .home-view__welcome:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(251, 251, 251, 0.15);
+  border-color: rgba(251, 251, 251, 0.3);
   box-shadow: var(--modern-shadow-xl);
   transform: translateY(-2px);
 }
 
 /* Deck Card Enhancements */
 .deck-card {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(251, 251, 251, 0.08);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(251, 251, 251, 0.2);
   border-radius: var(--custom-border-radius-l);
   padding: var(--lumo-space-l);
   margin-bottom: var(--lumo-space-m);
@@ -39,8 +39,8 @@
 }
 
 .deck-card:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(251, 251, 251, 0.15);
+  border-color: rgba(251, 251, 251, 0.3);
   box-shadow: var(--modern-shadow-l);
   transform: translateY(-2px);
 }
@@ -71,7 +71,7 @@
 }
 
 /* Progress bar (home deck cards) */
-.app-content vaadin-progress-bar::part(bar) { background: rgba(255,255,255,0.22); border-radius: 999px; }
+.app-content vaadin-progress-bar::part(bar) { background: rgba(251,251,251,0.22); border-radius: 999px; }
 .app-content vaadin-progress-bar::part(value) {
   background: linear-gradient(90deg, #22d3ee, #60a5fa, #a78bfa);
   border-radius: 999px;
@@ -86,8 +86,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, rgba(251, 251, 251, 0.2), rgba(251, 251, 251, 0.1));
+  border: 2px solid rgba(251, 251, 251, 0.3);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
@@ -100,14 +100,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(135deg, rgba(251, 251, 251, 0.1), transparent);
   border-radius: 50%;
 }
 
 .deck-card__icon svg {
   width: 24px;
   height: 24px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(251, 251, 251, 0.9);
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
   z-index: 1;
   position: relative;
@@ -115,15 +115,15 @@
 
 .deck-card:hover .deck-card__icon {
   transform: scale(1.05) rotate(5deg);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
-  border-color: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, rgba(251, 251, 251, 0.3), rgba(251, 251, 251, 0.2));
+  border-color: rgba(251, 251, 251, 0.5);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Icon fallback for emoji */
 .deck-card__icon:not(:has(svg)) {
   font-size: 20px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(251, 251, 251, 0.9);
   font-weight: bold;
 }
 
@@ -134,9 +134,9 @@
 }
 
 .practice-card {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(251, 251, 251, 0.08);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(251, 251, 251, 0.2);
   border-radius: var(--custom-border-radius-xl);
   padding: var(--lumo-space-xxl);
   margin: var(--lumo-space-xl) auto;
@@ -148,11 +148,11 @@
 
 .practice-card:hover {
   background: linear-gradient(135deg, 
-    rgba(99, 102, 241, 0.15) 0%, 
-    rgba(99, 102, 241, 0.08) 50%, 
-    rgba(99, 102, 241, 0.15) 100%);
-  border-color: var(--modern-primary, #6366f1);
-  box-shadow: 0 16px 48px rgba(99, 102, 241, 0.3), 0 0 20px rgba(99, 102, 241, 0.3);
+    rgba(47, 138, 245, 0.15) 0%, 
+    rgba(47, 138, 245, 0.08) 50%, 
+    rgba(47, 138, 245, 0.15) 100%);
+  border-color: var(--modern-primary, #2f8af5);
+  box-shadow: 0 16px 48px rgba(47, 138, 245, 0.3), 0 0 20px rgba(47, 138, 245, 0.3);
 }
 
 .practice-card__question {
@@ -183,9 +183,9 @@
 }
 
 .stats-card {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(251, 251, 251, 0.08);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(251, 251, 251, 0.2);
   border-radius: var(--custom-border-radius-l);
   padding: var(--lumo-space-l);
   margin-bottom: var(--lumo-space-m);
@@ -194,8 +194,8 @@
 }
 
 .stats-card:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(251, 251, 251, 0.15);
+  border-color: rgba(251, 251, 251, 0.3);
   box-shadow: var(--modern-shadow-l);
   transform: translateY(-2px);
 }
@@ -220,9 +220,9 @@
 }
 
 .admin-card {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(251, 251, 251, 0.08);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(251, 251, 251, 0.2);
   border-radius: var(--custom-border-radius-l);
   padding: var(--lumo-space-l);
   margin-bottom: var(--lumo-space-m);
@@ -231,8 +231,8 @@
 }
 
 .admin-card:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(251, 251, 251, 0.15);
+  border-color: rgba(251, 251, 251, 0.3);
   box-shadow: var(--modern-shadow-l);
   transform: translateY(-2px);
 }
@@ -256,9 +256,9 @@
 
 /* Form Enhancements */
 .form-modern {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(251, 251, 251, 0.1);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(251, 251, 251, 0.2);
   border-radius: var(--custom-border-radius-l);
   padding: var(--lumo-space-xl);
   box-shadow: var(--modern-shadow-l);
@@ -277,9 +277,9 @@
 
 .form-modern__input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(251, 251, 251, 0.1);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(251, 251, 251, 0.2);
   border-radius: var(--custom-border-radius-m);
   padding: var(--lumo-space-m);
   color: var(--lumo-primary-text-color);
@@ -289,8 +289,8 @@
 .form-modern__input:focus {
   outline: none;
   border-color: var(--modern-primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(47, 138, 245, 0.1);
+  background: rgba(251, 251, 251, 0.15);
 }
 
 .form-modern__input::placeholder {

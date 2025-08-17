@@ -37,7 +37,6 @@
   max-width: 720px;
   border: 2px solid var(--lumo-contrast-20pct);
   border-radius: var(--lumo-border-radius-l);
-  padding: var(--lumo-space-xl);
   margin: var(--lumo-space-l) auto;
   background: rgba(255, 255, 255, 0.98);
   box-shadow: var(--lumo-box-shadow-s);
@@ -67,6 +66,49 @@
   width: 100%;
   justify-content: center;
   gap: var(--lumo-space-m);
+  padding: var(--lumo-space-m);
+  border-radius: var(--lumo-border-radius-m);
+  backdrop-filter: blur(10px);
+}
+
+/* Enhanced button styling for better visibility */
+.practice-view__actions vaadin-button {
+  min-width: 160px;
+  height: 48px;
+  font-weight: 700;
+  font-size: var(--lumo-font-size-m);
+  border-radius: var(--lumo-border-radius-m);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.practice-view__actions vaadin-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(167, 139, 250, 0.4);
+  filter: brightness(1.1);
+}
+
+.practice-view__actions vaadin-button[theme~="primary"] {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  border: 2px solid rgba(139, 92, 246, 0.5);
+  color: rgb(251, 251, 251);
+}
+
+.practice-view__actions vaadin-button[theme~="success"] {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border: 2px solid rgba(34, 197, 94, 0.5);
+  color: rgb(251, 251, 251);
+}
+
+.practice-view__actions vaadin-button[theme~="error"] {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border: 2px solid rgba(239, 68, 68, 0.5);
+  color: rgb(251, 251, 251);
+}
+
+.practice-view__actions vaadin-button[theme~="large"] {
+  font-size: var(--lumo-font-size-l);
+  padding: var(--lumo-space-m) var(--lumo-space-l);
 }
 
 .practice-view__divider {

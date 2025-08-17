@@ -17,7 +17,7 @@
   border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: var(--lumo-border-radius-m);
   transition: all 0.3s ease;
-  min-width: 300px;
+  max-width: 250px;
   position: relative;
 }
 
@@ -29,7 +29,7 @@
 
 .decklist-view .vaadin-text-field:focus-within {
   background: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: rgb(251, 251, 251);
   transform: translateY(-2px);
 }
 
@@ -57,7 +57,7 @@
 
 .decklist-view vaadin-text-field:focus-within::part(input-field) {
   background: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: rgb(251, 251, 251);
 }
 
 .decklist-view vaadin-text-field:hover vaadin-icon[slot="prefix"],
@@ -72,6 +72,11 @@
   border-radius: var(--lumo-border-radius-m);
   margin-bottom: var(--lumo-space-l);
   backdrop-filter: blur(10px);
+}
+
+/* Toolbar with bottom margin */
+.toolbar-with-bottom-margin {
+  margin-bottom: var(--lumo-space-l);
 }
 
 

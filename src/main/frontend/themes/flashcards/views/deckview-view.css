@@ -174,7 +174,7 @@
 
 .deckview-view vaadin-text-field:focus-within::part(input-field) {
   background: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: rgb(251, 251, 251);
   /* border-color: var(--modern-primary, #6366f1); */
   /* box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25); */
 }

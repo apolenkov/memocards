@@ -197,9 +197,9 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   :root {
-    --custom-shadow-s: 0 2px 8px rgb(255 255 255 / 0.1);
-    --custom-shadow-m: 0 4px 16px rgba(255, 255, 255, 0.1);
-    --custom-shadow-l: 0 6px 30px rgba(255, 255, 255, 0.15);
+    --custom-shadow-s: 0 2px 8px rgb(251 251 251 / 0.1);
+    --custom-shadow-m: 0 4px 16px rgba(251, 251, 251, 0.1);
+    --custom-shadow-l: 0 6px 30px rgba(251, 251, 251, 0.15);
   }
 }
 
