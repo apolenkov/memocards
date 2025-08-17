@@ -29,10 +29,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @RolesAllowed("ROLE_ADMIN")
 public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
 
-    private final NewsService newsService;
-    private final Grid<News> newsGrid;
-    private final ListDataProvider<News> dataProvider;
-    private final List<News> newsList;
+    private final transient NewsService newsService;
+    private final transient ListDataProvider<News> dataProvider;
+    private final transient List<News> newsList;
 
     public AdminNewsView(NewsService newsService) {
         this.newsService = newsService;
@@ -49,7 +48,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         addNewsBtn.getStyle().set("margin-bottom", "1rem");
         add(addNewsBtn);
 
-        newsGrid = new Grid<>(News.class);
+        Grid<News> newsGrid = new Grid<>(News.class);
         newsGrid.setColumns("title", "content", "author", "createdAt", "updatedAt");
         newsGrid.getColumnByKey("title").setHeader(getTranslation("admin.news.title"));
         newsGrid.getColumnByKey("content").setHeader(getTranslation("admin.news.content"));
@@ -57,7 +56,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         newsGrid.getColumnByKey("createdAt").setHeader(getTranslation("admin.news.createdAt"));
         newsGrid.getColumnByKey("updatedAt").setHeader(getTranslation("admin.news.updatedAt"));
         newsGrid.getColumnByKey("createdAt")
-                .setRenderer(new com.vaadin.flow.data.renderer.LocalDateTimeRenderer<News>(
+                .setRenderer(new com.vaadin.flow.data.renderer.LocalDateTimeRenderer<>(
                         News::getCreatedAt, "dd.MM.yyyy HH:mm"));
         newsGrid.getColumnByKey("updatedAt").setRenderer(new com.vaadin.flow.data.renderer.ComponentRenderer<>(news -> {
             if (news.getUpdatedAt() != null) {
