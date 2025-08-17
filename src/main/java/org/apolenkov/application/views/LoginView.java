@@ -23,6 +23,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @AnonymousAllowed
 public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTitle {
 
+    private static final String COMPONENT_WIDTH = "420px";
+
     private static final class LoginModel {
         private String username;
         private String password;
@@ -44,27 +46,23 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         }
     }
 
-    private final transient AuthFacade authFacade;
-
     public LoginView(AuthFacade authFacade) {
-        this.authFacade = authFacade;
-
         VerticalLayout wrapper = new VerticalLayout();
         wrapper.setSizeFull();
         wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
         wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         TextField username = new TextField(getTranslation("auth.login.username"));
-        username.setWidth("420px");
+        username.setWidth(COMPONENT_WIDTH);
         username.setRequiredIndicatorVisible(true);
 
         PasswordField password = new PasswordField(getTranslation("auth.login.password"));
-        password.setWidth("420px");
+        password.setWidth(COMPONENT_WIDTH);
         password.setRequiredIndicatorVisible(true);
 
         Button submit = new Button(getTranslation("auth.login.submit"));
         submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        submit.setWidth("420px");
+        submit.setWidth(COMPONENT_WIDTH);
 
         Button forgot = new Button(getTranslation("auth.login.forgotPassword"));
         forgot.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
@@ -72,7 +70,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
 
         Button backToHome = new Button(getTranslation("common.backToHome"));
         backToHome.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        backToHome.setWidth("420px");
+        backToHome.setWidth(COMPONENT_WIDTH);
         backToHome.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
 
         Binder<LoginModel> binder = new Binder<>(LoginModel.class);
