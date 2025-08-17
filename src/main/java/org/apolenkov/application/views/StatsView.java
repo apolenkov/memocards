@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.apolenkov.application.config.SecurityConstants;
+import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
@@ -32,21 +33,21 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
                 statsService.getDeckAggregates(decks.stream().map(Deck::getId).toList(), LocalDate.now());
 
         int totalSessionsAll =
-                agg.values().stream().mapToInt(a -> a.sessionsAll()).sum();
-        int totalViewedAll = agg.values().stream().mapToInt(a -> a.viewedAll()).sum();
+                agg.values().stream().mapToInt(StatsRepository.DeckAggregate::sessionsAll).sum();
+        int totalViewedAll = agg.values().stream().mapToInt(StatsRepository.DeckAggregate::viewedAll).sum();
         int totalCorrectAll =
-                agg.values().stream().mapToInt(a -> a.correctAll()).sum();
-        int totalRepeatAll = agg.values().stream().mapToInt(a -> a.repeatAll()).sum();
-        int totalHardAll = agg.values().stream().mapToInt(a -> a.hardAll()).sum();
+                agg.values().stream().mapToInt(StatsRepository.DeckAggregate::correctAll).sum();
+        int totalRepeatAll = agg.values().stream().mapToInt(StatsRepository.DeckAggregate::repeatAll).sum();
+        int totalHardAll = agg.values().stream().mapToInt(StatsRepository.DeckAggregate::hardAll).sum();
         int totalSessionsToday =
-                agg.values().stream().mapToInt(a -> a.sessionsToday()).sum();
+                agg.values().stream().mapToInt(StatsRepository.DeckAggregate::sessionsToday).sum();
         int totalViewedToday =
-                agg.values().stream().mapToInt(a -> a.viewedToday()).sum();
+                agg.values().stream().mapToInt(StatsRepository.DeckAggregate::viewedToday).sum();
         int totalCorrectToday =
-                agg.values().stream().mapToInt(a -> a.correctToday()).sum();
+                agg.values().stream().mapToInt(StatsRepository.DeckAggregate::correctToday).sum();
         int totalRepeatToday =
-                agg.values().stream().mapToInt(a -> a.repeatToday()).sum();
-        int totalHardToday = agg.values().stream().mapToInt(a -> a.hardToday()).sum();
+                agg.values().stream().mapToInt(StatsRepository.DeckAggregate::repeatToday).sum();
+        int totalHardToday = agg.values().stream().mapToInt(StatsRepository.DeckAggregate::hardToday).sum();
 
         add(new Span(getTranslation(
                 "stats.total", totalSessionsAll, totalViewedAll, totalCorrectAll, totalRepeatAll, totalHardAll)));
