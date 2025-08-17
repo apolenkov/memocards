@@ -36,4 +36,32 @@
   --custom-breakpoint-mobile: 768px;
   --custom-breakpoint-tablet: 1024px;
   --custom-breakpoint-desktop: 1200px;
+  
+  /* Modern color palette */
+  --modern-primary: #6366f1;
+  --modern-primary-dark: #4f46e5;
+  --modern-secondary: #8b5cf6;
+  --modern-secondary-dark: #7c3aed;
+  --modern-accent: #ec4899;
+  --modern-accent-dark: #db2777;
+  --modern-success: #22c55e;
+  --modern-warning: #f59e0b;
+  --modern-error: #ef4444;
+  
+  /* Modern gradients */
+  --modern-gradient-primary: linear-gradient(135deg, #6366f1, #8b5cf6);
+  --modern-gradient-secondary: linear-gradient(135deg, #8b5cf6, #ec4899);
+  --modern-gradient-accent: linear-gradient(135deg, #ec4899, #6366f1);
+  --modern-gradient-full: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+  
+  /* Glassmorphism colors */
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: rgba(0, 0, 0, 0.1);
+  
+  /* Modern shadow variables */
+  --modern-shadow-s: 0 2px 8px rgba(99, 102, 241, 0.1);
+  --modern-shadow-m: 0 4px 20px rgba(99, 102, 241, 0.15);
+  --modern-shadow-l: 0 8px 32px rgba(99, 102, 241, 0.2);
+  --modern-shadow-xl: 0 12px 40px rgba(99, 102, 241, 0.25);
 }

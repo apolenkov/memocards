@@ -1,0 +1,54 @@
+<!-- Modern SVG Icons for Flashcards App -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  
+  <!-- Book/Deck Icon -->
+  <symbol id="icon-book" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M21,4H3A2,2 0 0,0 1,6V19A2,2 0 0,0 3,21H21A2,2 0 0,0 23,19V6A2,2 0 0,0 21,4M3,19V6H8V19H3M10,19V6H21V19H10Z"/>
+  </symbol>
+  
+  <!-- Study/Education Icon -->
+  <symbol id="icon-study" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z"/>
+  </symbol>
+  
+  <!-- Brain/Mind Icon -->
+  <symbol id="icon-brain" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>
+  </symbol>
+  
+  <!-- Flashcard Icon -->
+  <symbol id="icon-flashcard" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,5V19H5V5H19M17,17H7V15H17V17M17,13H7V11H17V13M17,9H7V7H17V9Z"/>
+  </symbol>
+  
+  <!-- Target/Goal Icon -->
+  <symbol id="icon-target" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10Z"/>
+  </symbol>
+  
+  <!-- Lightbulb/Idea Icon -->
+  <symbol id="icon-idea" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12,2A7,7 0 0,1 19,9C19,11.38 17.81,13.47 16,14.74V17A1,1 0 0,1 15,18H9A1,1 0 0,1 8,17V14.74C6.19,13.47 5,11.38 5,9A7,7 0 0,1 12,2M9,21V20H15V21A1,1 0 0,1 14,22H10A1,1 0 0,1 9,21M12,4A5,5 0 0,0 7,9C7,11.05 8.23,12.81 10,13.58V16H14V13.58C15.77,12.81 17,11.05 17,9A5,5 0 0,0 12,4Z"/>
+  </symbol>
+  
+  <!-- Chart/Statistics Icon -->
+  <symbol id="icon-chart" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M22,21H2V3H4V19H6V17H10V19H12V16H16V19H18V17H22V21M16,8H18V15H16V8M12,10H14V15H12V10M8,5H10V15H8V5Z"/>
+  </symbol>
+  
+  <!-- Trophy/Achievement Icon -->
+  <symbol id="icon-trophy" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20.2,2H20H17V0H15V2H9V0H7V2H4.5H3.8H2V4.8V6H4V20.2A1.8,1.8 0 0,0 5.8,22H18.2A1.8,1.8 0 0,0 20,20.2V6H22V4.8V2H20.2M18,20H6V6H4V4H6V2H7V4H9V2H15V4H17V2H18V4H20V6H18V20Z"/>
+  </symbol>
+  
+  <!-- Clock/Time Icon -->
+  <symbol id="icon-clock" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M16.2,16.2L11,13V7H12.5V12.2L17,14.9L16.2,16.2Z"/>
+  </symbol>
+  
+  <!-- Star/Rating Icon -->
+  <symbol id="icon-star" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12,2L15.09,8.26L22,9.27L17,14.14L18.18,21.02L12,17.77L5.82,21.02L7,14.14L2,9.27L8.91,8.26L12,2Z"/>
+  </symbol>
+  
+</svg>

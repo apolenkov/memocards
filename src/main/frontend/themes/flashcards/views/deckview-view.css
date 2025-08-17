@@ -9,27 +9,211 @@
 
 .deckview-view__header-title {
   margin-left: var(--lumo-space-m);
+  color: rgba(255, 255, 255, 0.98);
 }
 
 .deckview-view__header-stats {
   margin-left: var(--lumo-space-s);
-  color: var(--lumo-secondary-text-color);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .deckview-view__info {
-  background: var(--lumo-contrast-5pct);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: var(--lumo-space-m);
   border-radius: var(--lumo-border-radius-m);
   margin-bottom: var(--lumo-space-m);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
 }
+
+/* Hover effect removed for deckview-view__info */
 
 .deckview-view__info-description {
-  color: var(--lumo-secondary-text-color);
+  color: rgba(255, 255, 255, 0.95);
   font-style: italic;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  line-height: 1.5;
 }
+
+/* Actions and search row containers - opaque for readability */
+.deckview-view__actions,
+.deckview-view__search-row {
+  margin-bottom: var(--lumo-space-m);
+}
+
+
 
 .deckview-view__status-known {
-  color: var(--lumo-success-text-color);
+  color: #15803d !important;
+  font-weight: 500;
+  display: inline-block;
+  text-align: center;
 }
 
+.deckview-view__status-unknown {
+  color: #6b7280 !important;
+  font-weight: 600;
+  background: rgba(107, 114, 128, 0.15);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 2px solid rgba(107, 114, 128, 0.4);
+  display: inline-block;
+  text-align: center;
+  min-width: 80px;
+}
+
+/* Status text in grid cells */
+.deckview-view .vaadin-grid::part(cell) .deckview-view__status-known {
+  color: #15803d !important;
+  font-weight: 500;
+  text-align: center;
+  display: inline-block;
+}
+
+/* Grid icons styling - make all icons black */
+.deckview-view .vaadin-grid vaadin-icon {
+  color: #000000 !important;
+}
+
+/* Specific icon types in grid */
+.deckview-view .vaadin-grid vaadin-icon[icon*="edit"] {
+  color: #000000 !important;
+}
+
+.deckview-view .vaadin-grid vaadin-icon[icon*="delete"] {
+  color: #000000 !important;
+}
+
+.deckview-view .vaadin-grid vaadin-icon[icon*="eye"] {
+  color: #000000 !important;
+}
+
+.deckview-view .vaadin-grid vaadin-icon[icon*="plus"] {
+  color: #000000 !important;
+}
+
+.deckview-view .vaadin-grid vaadin-icon[icon*="minus"] {
+  color: #000000 !important;
+}
+
+.deckview-view .vaadin-grid vaadin-icon[icon*="check"] {
+  color: #000000 !important;
+}
+
+.deckview-view .vaadin-grid vaadin-icon[icon*="close"] {
+  color: #000000 !important;
+}
+
+/* Additional info block elements styling */
+.deckview-view__info h3,
+.deckview-view__info h4 {
+  color: rgba(255, 255, 255, 0.98);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  margin-bottom: var(--lumo-space-s);
+}
+
+.deckview-view__info p {
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  margin-bottom: var(--lumo-space-s);
+}
+
+.deckview-view__info .vaadin-button {
+  margin-top: var(--lumo-space-s);
+}
+
+/* Info block content spacing */
+.deckview-view__info > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Enhanced contrast for any icons in info block */
+.deckview-view__info vaadin-icon {
+  color: rgba(255, 255, 255, 0.9);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* Search field styling for card search */
+.deckview-view .vaadin-text-field {
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--lumo-border-radius-m);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.deckview-view .vaadin-text-field:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.deckview-view .vaadin-text-field:focus-within {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--modern-primary, #6366f1);
+  box-shadow: 
+    0 0 0 3px rgba(99, 102, 241, 0.3),
+    0 8px 25px rgba(99, 102, 241, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Search field active indicator */
+.deckview-view .vaadin-text-field:focus-within::after {
+  content: '🔍';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Ensure input text is readable on light containers */
+.deckview-view .vaadin-text-field input {
+  color: #111827;
+}
+
+.deckview-view .vaadin-text-field input::placeholder {
+  color: #6b7280;
+}
+
+/* Button styling in deckview */
+.deckview-view .vaadin-button {
+  transition: all 0.2s ease;
+}
+
+.deckview-view .vaadin-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+/* Stronger hover/focus indication for the search field */
+.deckview-view vaadin-text-field::part(input-field) {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.deckview-view vaadin-text-field:hover::part(input-field) {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+.deckview-view vaadin-text-field:focus-within::part(input-field) {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  /* border-color: var(--modern-primary, #6366f1); */
+  /* box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25); */
+}
+
+/* Prefix icon reacts on hover/focus */
+.deckview-view vaadin-text-field:hover vaadin-icon[slot="prefix"],
+.deckview-view vaadin-text-field:focus-within vaadin-icon[slot="prefix"] {
+  color: var(--modern-primary, #6366f1) !important;
+}
 

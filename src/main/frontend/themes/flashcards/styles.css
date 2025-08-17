@@ -1,6 +1,9 @@
 @import url('./variables.css');
 @import url('./utilities.css');
 @import url('./animations.css');
+@import url('./animated-background.css');
+@import url('./modern-components.css');
+@import url('./enhanced-views.css');
 @import url('./responsive.css');
 @import url('./main-layout.css');
 @import url('./views/home-view.css');
@@ -11,9 +14,18 @@
 @import url('./views/deck-create-view.css');
 @import url('./views/practice-view.css');
 @import url('./views/stats-view.css');
+@import url('./views/settings-view.css');
 @import url('./views/admin-news-view.css');
 @import url('./views/admin-users-view.css');
 @import url('./views/error-view.css');
 @import url('./views/public-layout.css');
 @import url('./views/components/top-menu.css');
 @import url('./views/components/dialogs.css');
+
+/* Contrast overrides loaded last */
+@import url('./contrast-fixes.css');
+
+/* Global readability helpers for dark backgrounds */
+:root {
+  --modern-primary: #6366f1;
+}

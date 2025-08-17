@@ -3,6 +3,7 @@ package org.apolenkov.application.views;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -39,6 +40,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         content.setSizeFull();
         content.setPadding(true);
         content.setSpacing(true);
+        content.addClassName("decklist-view");
 
         H2 title = new H2(getTranslation("home.title"));
 
@@ -46,8 +48,10 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         search.setPlaceholder(getTranslation("home.search"));
         search.setClearButtonVisible(true);
         search.setValueChangeMode(ValueChangeMode.EAGER);
+        search.setPrefixComponent(VaadinIcon.SEARCH.create());
 
         Button addDeckBtn = new Button(getTranslation("home.addDeck"));
+        addDeckBtn.getElement().getThemeList().add("primary");
         addDeckBtn.addClickListener(e -> openCreateDeckDialog());
 
         HorizontalLayout toolbar = new HorizontalLayout(search, addDeckBtn);

@@ -33,6 +33,7 @@ public class SecurityConfig extends VaadinWebSecurity {
         // Delegate matcher configuration to Vaadin's defaults to avoid conflicts
         super.configure(http);
         setLoginView(http, LoginView.class, "/");
+
         // On success: all users -> / (root page with news)
         http.formLogin(form -> form.successHandler((request, response, authentication) -> {
             response.sendRedirect("/");

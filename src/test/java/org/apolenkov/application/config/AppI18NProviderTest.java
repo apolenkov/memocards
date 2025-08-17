@@ -79,7 +79,7 @@ class AppI18NProviderTest {
             String result = i18nProvider.getTranslation(key, locale);
 
             // Then
-            assertThat(result).isEqualTo("Карточки");
+            assertThat(result).isEqualTo("Мемокарты");
         }
 
         @Test
@@ -328,7 +328,7 @@ class AppI18NProviderTest {
                 String result = i18nProvider.getTranslation("app.title", locale);
                 assertThat(result).isNotNull();
                 // Should either return a translation or the key itself
-                assertThat(result).isIn("Cards", "Карточки", "Tarjetas", "app.title");
+                assertThat(result).isIn("Cards", "Мемокарты", "Tarjetas", "app.title");
             }
         }
 

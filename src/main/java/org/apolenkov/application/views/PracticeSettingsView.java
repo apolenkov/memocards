@@ -22,6 +22,7 @@ public class PracticeSettingsView extends VerticalLayout implements HasDynamicTi
     public PracticeSettingsView(PracticeSettingsService practiceSettingsService) {
         setPadding(true);
         setSpacing(true);
+        addClassName("settings-view");
 
         add(new H3(getTranslation("settings.title")));
 
