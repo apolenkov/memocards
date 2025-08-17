@@ -284,7 +284,7 @@
 }
 
 .hover-gradient:hover {
-  background: var(--oneinch-gradient-main-gradient);
+  background: var(--main-gradient);
   background-size: 200% 200%;
   animation: gradientShift 2s ease infinite;
 }

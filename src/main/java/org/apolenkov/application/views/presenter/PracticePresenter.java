@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
@@ -43,7 +42,7 @@ public class PracticePresenter {
     public List<Flashcard> getNotKnownCards(long deckId) {
         List<Flashcard> all = flashcardUseCase.getFlashcardsByDeckId(deckId);
         Set<Long> known = statsService.getKnownCardIds(deckId);
-        return all.stream().filter(fc -> !known.contains(fc.getId())).collect(Collectors.toList());
+        return all.stream().filter(fc -> !known.contains(fc.getId())).toList();
     }
 
     public int resolveDefaultCount(long deckId) {

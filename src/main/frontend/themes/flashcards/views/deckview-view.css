@@ -101,31 +101,31 @@
 
 /* Enhanced contrast for any icons in info block */
 .deckview-view__info vaadin-icon {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(251, 251, 251, 0.9);
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
 /* Search field styling for card search */
 .deckview-view .vaadin-text-field {
-  background: rgba(255, 255, 255, 0.12);
-  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: rgba(251, 251, 251, 0.12);
+  border: 2px solid rgba(251, 251, 251, 0.25);
   border-radius: var(--lumo-border-radius-m);
   transition: all 0.3s ease;
   position: relative;
 }
 
 .deckview-view .vaadin-text-field:hover {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(251, 251, 251, 0.16);
+  border-color: rgba(251, 251, 251, 0.35);
   transform: translateY(-1px);
 }
 
 .deckview-view .vaadin-text-field:focus-within {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: var(--modern-primary, #6366f1);
+  background: rgba(251, 251, 251, 0.2);
+  border-color: var(--modern-primary, #2f8af5);
   box-shadow: 
-    0 0 0 3px rgba(99, 102, 241, 0.3),
-    0 8px 25px rgba(99, 102, 241, 0.25);
+    0 0 0 3px rgba(47, 138, 245, 0.3),
+    0 8px 25px rgba(47, 138, 245, 0.25);
   transform: translateY(-2px);
 }
 
@@ -168,20 +168,20 @@
 }
 
 .deckview-view vaadin-text-field:hover::part(input-field) {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(99, 102, 241, 0.5);
+  background: rgba(251, 251, 251, 0.16);
+  border-color: rgba(47, 138, 245, 0.5);
 }
 
 .deckview-view vaadin-text-field:focus-within::part(input-field) {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(251, 251, 251, 0.2);
   color: rgb(251, 251, 251);
-  /* border-color: var(--modern-primary, #6366f1); */
-  /* box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25); */
+  /* border-color: var(--modern-primary, #2f8af5); */
+  /* box-shadow: 0 0 0 3px rgba(47, 138, 245, 0.25); */
 }
 
 /* Prefix icon reacts on hover/focus */
 .deckview-view vaadin-text-field:hover vaadin-icon[slot="prefix"],
 .deckview-view vaadin-text-field:focus-within vaadin-icon[slot="prefix"] {
-  color: var(--modern-primary, #6366f1) !important;
+  color: var(--modern-primary, #2f8af5) !important;
 }
 

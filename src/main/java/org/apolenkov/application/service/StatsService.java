@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StatsService {
 
-    public static record DailyStats(
+    public record DailyStats(
             LocalDate date,
             int sessions,
             int viewed,

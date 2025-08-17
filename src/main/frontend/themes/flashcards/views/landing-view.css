@@ -179,17 +179,17 @@
   min-width: 180px;
   height: 44px;
   font-weight: 600;
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.96);
+  border: 2px solid rgba(251, 251, 251, 0.9);
+  background: rgba(251, 251, 251, 0.06);
+  color: rgba(251, 251, 251, 0.96);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
 }
 
 .landing-view__register-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(251, 251, 251, 0.12);
   color: rgb(251, 251, 251);
 border-color: rgb(251, 251, 251);
-  box-shadow: 0 10px 28px rgba(255, 255, 255, 0.28);
+  box-shadow: 0 10px 28px rgba(251, 251, 251, 0.28);
 }
 
 .landing-view__decks-btn {
@@ -213,10 +213,10 @@ border-color: rgb(251, 251, 251);
 }
 
 .landing-view__news-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(251, 251, 251, 0.1);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(251, 251, 251, 0.2);
   border-radius: 12px;
   padding: var(--lumo-space-m);
   margin-bottom: var(--lumo-space-m);
@@ -225,8 +225,8 @@ border-color: rgb(251, 251, 251);
 }
 
 .landing-view__news-card:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(251, 251, 251, 0.15);
+  border-color: rgba(251, 251, 251, 0.3);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   transform: translateY(-4px);
 }

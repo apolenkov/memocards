@@ -22,17 +22,13 @@ public class NewsService {
         return newsRepository.findAllOrderByCreatedDesc();
     }
 
-    public Optional<News> getNewsById(Long id) {
-        return newsRepository.findById(id);
-    }
-
-    public News createNews(String title, String content, String author) {
+    public void createNews(String title, String content, String author) {
         validate(title, content);
         News news = new News(null, title, content, author, LocalDateTime.now());
-        return newsRepository.save(news);
+        newsRepository.save(news);
     }
 
-    public News updateNews(Long id, String title, String content, String author) {
+    public void updateNews(Long id, String title, String content, String author) {
         Optional<News> existingOpt = newsRepository.findById(id);
         if (existingOpt.isEmpty()) {
             throw new IllegalArgumentException("News not found with id: " + id);
@@ -45,7 +41,7 @@ public class NewsService {
         existing.setAuthor(author);
         existing.setUpdatedAt(LocalDateTime.now());
 
-        return newsRepository.save(existing);
+        newsRepository.save(existing);
     }
 
     public void deleteNews(Long id) {
