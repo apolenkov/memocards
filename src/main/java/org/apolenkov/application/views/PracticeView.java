@@ -21,7 +21,7 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.usecase.FlashcardUseCase;
-import org.apolenkov.application.views.presenter.PracticePresenter;
+import org.apolenkov.application.views.presenter.practice.PracticePresenter;
 
 @Route(value = "practice", layout = PublicLayout.class)
 @RolesAllowed("ROLE_USER")
@@ -260,7 +260,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void updateProgress() {
-        if (session == null || session.cards == null || session.cards.isEmpty()) return;
+        if (session == null || session.getCards() == null || session.getCards().isEmpty()) return;
         var p = presenter.progress(session);
         statsSpan.setText(getTranslation(
                 "practice.progressLine", p.current(), p.total(), p.totalViewed(), p.correct(), p.hard(), p.percent()));
@@ -332,12 +332,12 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     private void markLabeled(String label) {
         if (session == null) return;
-        if (!session.showingAnswer) return;
+        if (!session.isShowingAnswer()) return;
         if ("know".equals(label)) presenter.markKnow(session);
         else presenter.markHard(session);
-        totalViewed = session.totalViewed;
-        correctCount = session.correctCount;
-        hardCount = session.hardCount;
+        totalViewed = session.getTotalViewed();
+        correctCount = session.getCorrectCount();
+        hardCount = session.getHardCount();
         knowButton.setVisible(false);
         hardButton.setVisible(false);
         nextCard();
@@ -367,16 +367,20 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         completionLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         completionLayout.setSpacing(true);
 
-        int total = (session != null && session.cards != null) ? session.cards.size() : totalViewed;
+        int total = (session != null && session.getCards() != null)
+                ? session.getCards().size()
+                : totalViewed;
         H1 completionTitle = new H1(getTranslation("practice.sessionComplete", currentDeck.getTitle()));
         H3 results = new H3(getTranslation("practice.results", correctCount, total, hardCount));
         Span timeInfo = new Span(getTranslation(
                 "practice.time",
-                Math.max(
+                Math.clamp(
+                        java.time.Duration.between(session.getSessionStart(), java.time.Instant.now())
+                                .toMinutes(),
                         1,
-                        java.time.Duration.between(session.sessionStart, java.time.Instant.now())
-                                .toMinutes()),
-                Math.round((session.totalAnswerDelayMs / Math.max(1.0, totalViewed)) / 1000.0)));
+                        Integer.MAX_VALUE),
+                Math.round(
+                        (session.getTotalAnswerDelayMs() / Math.clamp(totalViewed, 1.0, Double.MAX_VALUE)) / 1000.0)));
 
         completionLayout.add(completionTitle, results, timeInfo);
         cardContent.add(completionLayout);
@@ -384,7 +388,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         actionButtons.removeAll();
         Button againButton = new Button(getTranslation("practice.repeatHard"), e -> {
             List<Flashcard> failed = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId()).stream()
-                    .filter(fc -> session.failedCardIds.contains(fc.getId()))
+                    .filter(fc -> session.getFailedCardIds().contains(fc.getId()))
                     .filter(fc -> presenter.getNotKnownCards(currentDeck.getId()).stream()
                             .map(Flashcard::getId)
                             .collect(Collectors.toSet())
@@ -397,7 +401,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             }
             session = new PracticePresenter.Session(
                     currentDeck.getId(), new ArrayList<>(failed), presenter.defaultDirection());
-            Collections.shuffle(session.cards);
+            Collections.shuffle(session.getCards());
             correctCount = 0;
             hardCount = 0;
             totalViewed = 0;

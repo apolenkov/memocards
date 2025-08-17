@@ -70,7 +70,7 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
         Button createBtn = new Button(
                 getTranslation("user.create.title"),
                 e -> new org.apolenkov.application.views.components.CreateUserDialog(
-                        adminUserService, saved -> refresh())
+                                adminUserService, saved -> refresh())
                         .open());
         content.add(title, createBtn);
 
@@ -143,10 +143,10 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     private Button createEditButton(User user) {
         Button edit =
                 new Button(VaadinIcon.EDIT.create(), e -> new org.apolenkov.application.views.components.EditUserDialog(
-                        adminUserService, user, saved -> {
-                    updateCurrentSessionIfSelf(saved);
-                    refresh();
-                })
+                                adminUserService, user, saved -> {
+                                    updateCurrentSessionIfSelf(saved);
+                                    refresh();
+                                })
                         .open());
         edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
         edit.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation("dialog.edit"));
@@ -234,9 +234,9 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
 
     private boolean isLastAdmin(User user) {
         return adminUserService.listAll().stream()
-                .filter(x -> x.getRoles().contains(SecurityConstants.ROLE_ADMIN))
-                .count()
-                <= 1
+                                .filter(x -> x.getRoles().contains(SecurityConstants.ROLE_ADMIN))
+                                .count()
+                        <= 1
                 && user.getRoles().contains(SecurityConstants.ROLE_ADMIN);
     }
 
