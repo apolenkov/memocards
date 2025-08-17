@@ -22,17 +22,17 @@
 .stats-view__section {
   margin-bottom: var(--lumo-space-xl);
   padding: var(--lumo-space-l);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(251, 251, 251, 0.1);
   border-radius: var(--lumo-border-radius-l);
   backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(251, 251, 251, 0.2);
 }
 
 .stats-view__section-title {
   margin: 0 0 var(--lumo-space-l) 0;
   font-size: var(--lumo-font-size-xl);
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(251, 251, 251, 0.95);
   text-align: center;
 }
 
@@ -47,8 +47,8 @@
 
 /* Карточки статистики */
 .stats-view__stat-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.1));
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(251, 251, 251, 0.15), rgba(251, 251, 251, 0.1));
+  border: 1px solid rgba(251, 251, 251, 0.2);
   border-radius: var(--lumo-border-radius-m);
   padding: var(--lumo-space-l);
   text-align: center;
@@ -80,18 +80,18 @@
 
 /* Модификатор для сегодняшней статистики */
 .stats-view__stat-card--today {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.1));
-  border-color: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(251, 251, 251, 0.15), rgba(251, 251, 251, 0.1));
+  border-color: rgba(251, 251, 251, 0.2);
   border-width: 1px;
   box-shadow: none;
 }
 
 .stats-view__stat-card--today .stats-view__stat-value {
-  color: rgba(255, 255, 255, 0.98);
+  color: rgba(251, 251, 251, 0.98);
 }
 
 .stats-view__stat-card--today .stats-view__stat-label {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(251, 251, 251, 0.8);
 }
 
 /* Иконки в карточках - скрываем */
@@ -103,7 +103,7 @@
 .stats-view__stat-value {
   font-size: var(--lumo-font-size-xxxl);
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.98);
+  color: rgba(251, 251, 251, 0.98);
   margin: 0 0 var(--lumo-space-s) 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   line-height: 1.2;
@@ -112,7 +112,7 @@
 /* Подписи в карточках */
 .stats-view__stat-label {
   font-size: var(--lumo-font-size-s);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(251, 251, 251, 0.8);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -127,8 +127,8 @@
 }
 
 .stats-view__deck-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(251, 251, 251, 0.08);
+  border: 1px solid rgba(251, 251, 251, 0.15);
   border-radius: var(--lumo-border-radius-m);
   transition: none;
   width: 100%;
@@ -136,22 +136,22 @@
 }
 
 .stats-view__deck-card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(251, 251, 251, 0.08);
+  border-color: rgba(251, 251, 251, 0.15);
   transform: none;
 }
 
 .stats-view__deck-header {
   margin-bottom: var(--lumo-space-m);
   padding-bottom: var(--lumo-space-s);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(251, 251, 251, 0.1);
 }
 
 .stats-view__deck-title {
   margin: 0;
   font-size: var(--lumo-font-size-l);
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(251, 251, 251, 0.95);
   padding: var(--lumo-space-s);
 }
 
@@ -166,9 +166,9 @@
 .stats-view__deck-stat-item {
   text-align: center;
   padding: var(--lumo-space-m);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(251, 251, 251, 0.05);
   border-radius: var(--lumo-border-radius-s);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(251, 251, 251, 0.1);
   flex: 1;
   min-width: 0;
   max-width: calc(20% - var(--lumo-space-s) * 0.8);
@@ -177,14 +177,14 @@
 }
 
 .stats-view__deck-stat-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(251, 251, 251, 0.05);
+  border-color: rgba(251, 251, 251, 0.1);
 }
 
 .stats-view__deck-stat-total {
   font-size: var(--lumo-font-size-l);
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.98);
+  color: rgba(251, 251, 251, 0.98);
   margin-bottom: var(--lumo-space-xs);
 }
 
@@ -197,7 +197,7 @@
 
 .stats-view__deck-stat-label {
   font-size: var(--lumo-font-size-xs);
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(251, 251, 251, 0.7);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }

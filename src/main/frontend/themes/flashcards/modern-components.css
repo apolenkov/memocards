@@ -26,7 +26,7 @@
 /* Enhanced Button Styles */
 .btn-modern {
   position: relative;
-  background: var(--oneinch-gradient-main-gradient);
+  background: var(--main-gradient);
   border: none;
   border-radius: var(--custom-border-radius-m);
   color: rgb(251, 251, 251);
@@ -79,7 +79,7 @@
 
 /* Gradient Text */
 .gradient-text {
-  background: var(--oneinch-gradient-main-gradient);
+  background: var(--main-gradient);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -150,7 +150,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--oneinch-gradient-main-gradient);
+  background: var(--main-gradient);
   border: none;
   color: rgb(251, 251, 251);
   font-size: 24px;
