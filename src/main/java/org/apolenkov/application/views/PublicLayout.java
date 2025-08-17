@@ -11,6 +11,11 @@ import org.apolenkov.application.views.components.TopMenu;
 @AnonymousAllowed
 public class PublicLayout extends AppLayout {
 
+    private static final String FLOATING_SHAPE_CLASS = "floating-shape";
+    private static final String GLOW_ORB_CLASS = "glow-orb";
+    private static final String ANIMATED_LINE_CLASS = "animated-line";
+    private static final String WC_WORD_CLASS = "wc-word";
+
     private final LanguageSwitcher languageSwitcher;
     private final TopMenu topMenu;
     private Div wordCloud; // shown only on landing
@@ -67,31 +72,31 @@ public class PublicLayout extends AppLayout {
         background.add(grid);
 
         Div shape1 = new Div();
-        shape1.addClassNames("floating-shape", "floating-shape--1");
+        shape1.addClassNames(FLOATING_SHAPE_CLASS, "floating-shape--1");
         Div shape2 = new Div();
-        shape2.addClassNames("floating-shape", "floating-shape--2");
+        shape2.addClassNames(FLOATING_SHAPE_CLASS, "floating-shape--2");
         Div shape3 = new Div();
-        shape3.addClassNames("floating-shape", "floating-shape--3");
+        shape3.addClassNames(FLOATING_SHAPE_CLASS, "floating-shape--3");
         Div shape4 = new Div();
-        shape4.addClassNames("floating-shape", "floating-shape--4");
+        shape4.addClassNames(FLOATING_SHAPE_CLASS, "floating-shape--4");
         Div shape5 = new Div();
-        shape5.addClassNames("floating-shape", "floating-shape--5");
+        shape5.addClassNames(FLOATING_SHAPE_CLASS, "floating-shape--5");
         background.add(shape1, shape2, shape3, shape4, shape5);
 
         Div orb1 = new Div();
-        orb1.addClassNames("glow-orb", "glow-orb--1");
+        orb1.addClassNames(GLOW_ORB_CLASS, "glow-orb--1");
         Div orb2 = new Div();
-        orb2.addClassNames("glow-orb", "glow-orb--2");
+        orb2.addClassNames(GLOW_ORB_CLASS, "glow-orb--2");
         Div orb3 = new Div();
-        orb3.addClassNames("glow-orb", "glow-orb--3");
+        orb3.addClassNames(GLOW_ORB_CLASS, "glow-orb--3");
         background.add(orb1, orb2, orb3);
 
         Div line1 = new Div();
-        line1.addClassNames("animated-line", "animated-line--1");
+        line1.addClassNames(ANIMATED_LINE_CLASS, "animated-line--1");
         Div line2 = new Div();
-        line2.addClassNames("animated-line", "animated-line--2");
+        line2.addClassNames(ANIMATED_LINE_CLASS, "animated-line--2");
         Div line3 = new Div();
-        line3.addClassNames("animated-line", "animated-line--3");
+        line3.addClassNames(ANIMATED_LINE_CLASS, "animated-line--3");
         background.add(line1, line2, line3);
 
         // Left illustration (image defined in CSS)
@@ -106,10 +111,10 @@ public class PublicLayout extends AppLayout {
         Span w2 = new Span(getTranslation("bg.word.hola"));
         Span w3 = new Span(getTranslation("bg.word.bonjour"));
         Span w4 = new Span(getTranslation("bg.word.privet"));
-        w1.addClassName("wc-word");
-        w2.addClassName("wc-word");
-        w3.addClassName("wc-word");
-        w4.addClassName("wc-word");
+        w1.addClassName(WC_WORD_CLASS);
+        w2.addClassName(WC_WORD_CLASS);
+        w3.addClassName(WC_WORD_CLASS);
+        w4.addClassName(WC_WORD_CLASS);
         wordCloud.add(w1, w2, w3, w4);
         background.add(wordCloud);
 
