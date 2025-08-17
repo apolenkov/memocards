@@ -14,7 +14,7 @@ public class PracticeSettingsService {
     }
 
     public void setDefaultCount(int defaultCount) {
-        this.defaultCount = Math.max(1, defaultCount);
+        this.defaultCount = Math.clamp(defaultCount, 1, Integer.MAX_VALUE);
     }
 
     public boolean isDefaultRandomOrder() {
