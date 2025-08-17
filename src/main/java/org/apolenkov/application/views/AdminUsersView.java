@@ -34,6 +34,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
 
     private static final String TITLE_ATTRIBUTE = "title";
+    private static final String ROLE_USER_TRANSLATION_KEY = "admin.users.role.USER";
+    private static final String ROLE_ADMIN_TRANSLATION_KEY = "admin.users.role.ADMIN";
 
     private final transient AdminUserService adminUserService;
     private final Grid<User> grid = new Grid<>(User.class, false);
@@ -68,7 +70,7 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
         Button createBtn = new Button(
                 getTranslation("user.create.title"),
                 e -> new org.apolenkov.application.views.components.CreateUserDialog(
-                                adminUserService, saved -> refresh())
+                        adminUserService, saved -> refresh())
                         .open());
         content.add(title, createBtn);
 
@@ -120,8 +122,8 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
 
     private CheckboxGroup<String> createRolesCheckbox(User user) {
         Map<String, String> labelToRole = new LinkedHashMap<>();
-        labelToRole.put(getTranslation("admin.users.role.USER"), SecurityConstants.ROLE_USER);
-        labelToRole.put(getTranslation("admin.users.role.ADMIN"), SecurityConstants.ROLE_ADMIN);
+        labelToRole.put(getTranslation(ROLE_USER_TRANSLATION_KEY), SecurityConstants.ROLE_USER);
+        labelToRole.put(getTranslation(ROLE_ADMIN_TRANSLATION_KEY), SecurityConstants.ROLE_ADMIN);
 
         CheckboxGroup<String> rolesBox = new CheckboxGroup<>();
         rolesBox.setItems(labelToRole.keySet());
@@ -141,10 +143,10 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     private Button createEditButton(User user) {
         Button edit =
                 new Button(VaadinIcon.EDIT.create(), e -> new org.apolenkov.application.views.components.EditUserDialog(
-                                adminUserService, user, saved -> {
-                                    updateCurrentSessionIfSelf(saved);
-                                    refresh();
-                                })
+                        adminUserService, user, saved -> {
+                    updateCurrentSessionIfSelf(saved);
+                    refresh();
+                })
                         .open());
         edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
         edit.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation("dialog.edit"));
@@ -166,8 +168,8 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
         }
 
         Map<String, String> labelToRole = Map.of(
-                getTranslation("admin.users.role.USER"), SecurityConstants.ROLE_USER,
-                getTranslation("admin.users.role.ADMIN"), SecurityConstants.ROLE_ADMIN);
+                getTranslation(ROLE_USER_TRANSLATION_KEY), SecurityConstants.ROLE_USER,
+                getTranslation(ROLE_ADMIN_TRANSLATION_KEY), SecurityConstants.ROLE_ADMIN);
         Set<String> roles = selected.stream().map(labelToRole::get).collect(Collectors.toCollection(HashSet::new));
 
         Dialog confirm = new Dialog();
@@ -232,9 +234,9 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
 
     private boolean isLastAdmin(User user) {
         return adminUserService.listAll().stream()
-                                .filter(x -> x.getRoles().contains(SecurityConstants.ROLE_ADMIN))
-                                .count()
-                        <= 1
+                .filter(x -> x.getRoles().contains(SecurityConstants.ROLE_ADMIN))
+                .count()
+                <= 1
                 && user.getRoles().contains(SecurityConstants.ROLE_ADMIN);
     }
 
@@ -242,8 +244,8 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
         String normalized = role;
         if (normalized == null) return "";
         if (normalized.startsWith("ROLE_")) normalized = normalized.substring(5);
-        if ("ADMIN".equalsIgnoreCase(normalized)) return getTranslation("admin.users.role.ADMIN");
-        return getTranslation("admin.users.role.USER");
+        if ("ADMIN".equalsIgnoreCase(normalized)) return getTranslation(ROLE_ADMIN_TRANSLATION_KEY);
+        return getTranslation(ROLE_USER_TRANSLATION_KEY);
     }
 
     private void refresh() {
