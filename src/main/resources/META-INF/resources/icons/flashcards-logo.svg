@@ -59,13 +59,13 @@
   <text x="60" y="28" font-family="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" 
         font-size="14" font-weight="800" 
         fill="white" text-anchor="middle" filter="url(#textGlow)">
-    Flashcards
+    Memocards
   </text>
   <!-- Основной текст -->
   <text x="60" y="28" font-family="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" 
         font-size="14" font-weight="800" 
         fill="#1a1a1a" text-anchor="middle">
-    Flashcards
+    Memocards
   </text>
   
   <!-- Анимированные частицы с контрастными цветами -->

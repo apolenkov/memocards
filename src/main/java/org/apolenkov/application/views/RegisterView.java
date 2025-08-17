@@ -1,6 +1,7 @@
 package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
@@ -43,6 +44,8 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
         confirm.setRequiredIndicatorVisible(true);
 
         Button submit = new Button(getTranslation("auth.register"));
+        submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        submit.setWidth("420px");
         submit.addClickListener(e -> {
             name.setInvalid(false);
             email.setInvalid(false);
@@ -104,6 +107,11 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
                 getUI().ifPresent(ui -> ui.navigate("login"));
             }
         });
+
+        name.setWidth("420px");
+        email.setWidth("420px");
+        password.setWidth("420px");
+        confirm.setWidth("420px");
 
         form.add(name, email, password, confirm);
         add(title, form, submit);

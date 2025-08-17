@@ -119,6 +119,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         HorizontalLayout actionsLayout = new HorizontalLayout();
         actionsLayout.setWidth("100%");
         actionsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        actionsLayout.addClassName("deckview-view__actions");
 
         Button practiceButton = new Button(getTranslation("deck.startSession"), VaadinIcon.PLAY.create());
         practiceButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
@@ -148,13 +149,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     }
 
     private void createFlashcardsGrid() {
-        H3 flashcardsTitle = new H3(getTranslation("deck.cards"));
-        getContent().add(flashcardsTitle);
-
         HorizontalLayout searchRow = new HorizontalLayout();
         searchRow.setWidth("100%");
         searchRow.setAlignItems(FlexComponent.Alignment.CENTER);
         searchRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        searchRow.addClassName("deckview-view__search-row");
 
         flashcardSearchField = new TextField();
         flashcardSearchField.setPlaceholder(getTranslation("deck.searchCards"));

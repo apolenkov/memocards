@@ -87,4 +87,49 @@ vaadin-side-nav-item vaadin-icon {
   padding-right: var(--lumo-space-m);
   box-sizing: border-box;
   margin-top: var(--lumo-space-s);
+  position: relative;
+  z-index: 1;
+  /* Improve readability on dark animated background */
+  --lumo-primary-text-color: rgba(255, 255, 255, 0.96);
+  --lumo-secondary-text-color: rgba(255, 255, 255, 0.82);
+}
+
+/* High-contrast inputs inside content area */
+.app-content vaadin-text-field::part(input-field),
+.app-content vaadin-password-field::part(input-field),
+.app-content vaadin-text-area::part(input-field) {
+  background: rgba(255, 255, 255, 0.98);
+  color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+.app-content vaadin-text-field::part(label),
+.app-content vaadin-password-field::part(label),
+.app-content vaadin-text-area::part(label) {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Global headings on dark backgrounds */
+.app-content h1,
+.app-content h2,
+.app-content h3,
+.app-content h4,
+.app-content h5,
+.app-content h6 {
+  color: rgba(255, 255, 255, 0.98);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
+}
+
+.app-content p,
+.app-content span,
+.app-content label {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.app-content vaadin-email-field::part(input-field) {
+  background: rgba(255, 255, 255, 0.98);
+  color: #111827;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 }
