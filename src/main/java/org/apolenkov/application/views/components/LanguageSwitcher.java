@@ -45,10 +45,8 @@ public class LanguageSwitcher extends HorizontalLayout {
         combo.setItems(en, ru, es);
 
         Locale current = getCurrentLocale();
-        combo.setValue(
-                current.getLanguage().equalsIgnoreCase("ru")
-                        ? ru
-                        : current.getLanguage().equalsIgnoreCase("es") ? es : en);
+        String selectedValue = getSelectedValueForLocale(current, en, ru, es);
+        combo.setValue(selectedValue);
 
         combo.addThemeVariants(ComboBoxVariant.LUMO_SMALL);
         combo.setWidth("92px");
@@ -76,10 +74,21 @@ public class LanguageSwitcher extends HorizontalLayout {
         add(label, combo);
     }
 
+    private String getSelectedValueForLocale(Locale current, String en, String ru, String es) {
+        String language = current.getLanguage().toLowerCase();
+        if ("ru".equals(language)) {
+            return ru;
+        } else if ("es".equals(language)) {
+            return es;
+        } else {
+            return en;
+        }
+    }
+
     private Locale getCurrentLocale() {
-        Object attr = VaadinSession.getCurrent().getAttribute(SESSION_LOCALE_KEY);
-        if (attr instanceof Locale) {
-            return (Locale) attr;
+        Object sessionAttribute = VaadinSession.getCurrent().getAttribute(SESSION_LOCALE_KEY);
+        if (sessionAttribute instanceof Locale locale) {
+            return locale;
         }
         // Fallback to cookie if present
         Locale fromCookie = readPreferredLocaleCookie();
@@ -98,33 +107,35 @@ public class LanguageSwitcher extends HorizontalLayout {
             long userId = userUseCase.getCurrentUser().getId();
             userSettingsService.setPreferredLocale(userId, locale);
         } catch (Exception ex) {
-            // ignore for anonymous
+            // Intentionally ignoring exceptions for anonymous users or when user service is unavailable
+            // This allows the language switcher to work without authentication
         }
     }
 
     private void persistPreferredLocaleCookie(Locale locale) {
-        VaadinServletResponse vresp = (VaadinServletResponse) VaadinService.getCurrentResponse();
-        if (vresp == null) return;
-        HttpServletResponse resp = vresp.getHttpServletResponse();
-        Cookie c = new Cookie(COOKIE_LOCALE_KEY, locale.toLanguageTag());
-        c.setPath("/");
-        c.setMaxAge(60 * 60 * 24 * 365); // 1 year
-        c.setHttpOnly(true);
-        c.setSecure(true);
-        resp.addCookie(c);
+        VaadinServletResponse vaadinResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
+        if (vaadinResponse == null) return;
+        HttpServletResponse response = vaadinResponse.getHttpServletResponse();
+        Cookie cookie = new Cookie(COOKIE_LOCALE_KEY, locale.toLanguageTag());
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        response.addCookie(cookie);
     }
 
     private Locale readPreferredLocaleCookie() {
-        VaadinServletRequest vreq = (VaadinServletRequest) VaadinService.getCurrentRequest();
-        if (vreq == null) return null;
-        HttpServletRequest req = vreq.getHttpServletRequest();
-        Cookie[] cookies = req.getCookies();
+        VaadinServletRequest vaadinRequest = (VaadinServletRequest) VaadinService.getCurrentRequest();
+        if (vaadinRequest == null) return null;
+        HttpServletRequest request = vaadinRequest.getHttpServletRequest();
+        Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
-        for (Cookie c : cookies) {
-            if (COOKIE_LOCALE_KEY.equals(c.getName())) {
+        for (Cookie cookie : cookies) {
+            if (COOKIE_LOCALE_KEY.equals(cookie.getName())) {
                 try {
-                    return Locale.forLanguageTag(c.getValue());
+                    return Locale.forLanguageTag(cookie.getValue());
                 } catch (Exception ignored) {
+                    // Invalid locale format in cookie, continue searching
                 }
             }
         }

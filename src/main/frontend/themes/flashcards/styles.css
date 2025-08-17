@@ -22,9 +22,6 @@
 @import url('./views/components/top-menu.css');
 @import url('./views/components/dialogs.css');
 
-/* Contrast overrides loaded last */
-@import url('./contrast-fixes.css');
-
 /* Global readability helpers for dark backgrounds */
 :root {
   --modern-primary: #6366f1;

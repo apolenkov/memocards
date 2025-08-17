@@ -94,18 +94,21 @@ vaadin-side-nav-item vaadin-icon {
   --lumo-secondary-text-color: rgba(255, 255, 255, 0.82);
 }
 
-/* High-contrast inputs inside content area */
+/* Inputs (including email) on dark background */
 .app-content vaadin-text-field::part(input-field),
 .app-content vaadin-password-field::part(input-field),
+.app-content vaadin-email-field::part(input-field),
 .app-content vaadin-text-area::part(input-field) {
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
   border-radius: 10px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .app-content vaadin-text-field::part(label),
 .app-content vaadin-password-field::part(label),
+.app-content vaadin-email-field::part(label),
 .app-content vaadin-text-area::part(label) {
   color: rgba(255, 255, 255, 0.9);
 }
@@ -127,9 +130,272 @@ vaadin-side-nav-item vaadin-icon {
   color: rgba(255, 255, 255, 0.92);
 }
 
-.app-content vaadin-email-field::part(input-field) {
+/* Invalid input states - softened */
+.app-content vaadin-text-field[invalid]::part(error-message),
+.app-content vaadin-password-field[invalid]::part(error-message),
+.app-content vaadin-email-field[invalid]::part(error-message),
+.app-content vaadin-text-area[invalid]::part(error-message) {
+  color: #fca5a5; /* softer red */
+  background: transparent; /* remove heavy red band */
+  padding: 0;
+  border-radius: 0;
+  line-height: 1.2;
+  font-weight: 500;
+  text-shadow: none;
+}
+
+.app-content vaadin-text-field[invalid]::part(input-field),
+.app-content vaadin-password-field[invalid]::part(input-field),
+.app-content vaadin-email-field[invalid]::part(input-field),
+.app-content vaadin-text-area[invalid]::part(input-field) {
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+}
+
+.app-content vaadin-text-field[invalid]::part(label),
+.app-content vaadin-password-field[invalid]::part(label),
+.app-content vaadin-email-field[invalid]::part(label),
+.app-content vaadin-text-area[invalid]::part(label) {
+  color: #fca5a5;
+}
+
+/* Buttons in app content */
+.app-content vaadin-button[theme~="primary"]::part(label) { font-weight: 700; }
+.app-content vaadin-button::part(base) { border: 2px solid rgba(255, 255, 255, 0.7); }
+.app-content vaadin-button[theme~="primary"]::part(base) { box-shadow: 0 6px 22px rgba(99, 102, 241, 0.36); }
+.app-content vaadin-button[theme~="primary"]:hover::part(base) { filter: brightness(1.1); box-shadow: 0 10px 28px rgba(99, 102, 241, 0.5); }
+
+/* Success buttons */
+.app-content vaadin-button[theme~="success"]::part(base) {
+  background: #16a34a !important;
+  border: 2px solid #15803d !important;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3) !important;
+  color: white !important;
+}
+.app-content vaadin-button[theme~="success"]:hover::part(base) {
+  background: #15803d !important;
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.4) !important;
+}
+
+/* Error buttons */
+.app-content vaadin-button[theme~="error"]::part(base) {
+  background: #dc2626;
+  border: 2px solid #b91c1c;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+.app-content vaadin-button[theme~="error"]:hover::part(base) {
+  background: #b91c1c;
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+}
+
+/* Tertiary buttons */
+.app-content vaadin-button[theme*="tertiary"] { color: rgba(255, 255, 255, 0.92); }
+.app-content vaadin-button[theme*="tertiary"]::part(base) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  color: #000000 !important;
+}
+.app-content vaadin-button[theme*="tertiary"]:hover::part(base) {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Small buttons */
+.app-content vaadin-button[theme~="small"]::part(base) {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+/* Icons */
+.app-content vaadin-icon {
+  color: rgba(255, 255, 255, 0.95);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+/* Icon contrast improvements for different contexts */
+.app-content vaadin-icon[icon*="edit"] {
+  color: #fbbf24 !important;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+}
+
+/* Default icon colors for common actions */
+.app-content vaadin-icon[icon*="check"],
+.app-content vaadin-icon[icon*="trash"] {
+  color: #000000;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+}
+
+/* Tertiary button icons - black for better visibility */
+.app-content .vaadin-button[theme~="tertiary"] vaadin-icon {
+  color: #000000 !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+/* Ensure all button icons are visible */
+.app-content .vaadin-button vaadin-icon { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2)); }
+
+/* Success button icons - white with dark shadow */
+.app-content .vaadin-button[theme~="success"] vaadin-icon {
+  color: #ffffff !important;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+}
+
+/* Error button icons - white with dark shadow */
+.app-content .vaadin-button[theme~="error"] vaadin-icon {
+  color: #ffffff !important;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+}
+
+.app-content vaadin-icon[icon*="search"] {
+  color: rgba(255, 255, 255, 0.9) !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+/* Checkbox styling */
+.app-content vaadin-checkbox::part(label) { color: rgba(255, 255, 255, 0.94); }
+.app-content vaadin-checkbox::part(checkbox) {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease;
+}
+.app-content vaadin-checkbox:hover::part(checkbox) {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+.app-content vaadin-checkbox:checked::part(checkbox) {
+  background: var(--modern-primary, #6366f1) !important;
+  border-color: var(--modern-primary, #6366f1) !important;
+}
+.app-content vaadin-checkbox:checked::part(checkbox)::after {
+  content: '✓' !important;
+  color: white !important;
+  font-weight: bold !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Grid contrast */
+.app-content vaadin-grid {
   background: rgba(255, 255, 255, 0.98);
   color: #111827;
-  border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
 }
+.app-content vaadin-grid::part(header-cell) {
+  background: rgba(255, 255, 255, 0.98);
+  color: #0f172a;
+  font-weight: 700;
+}
+.app-content vaadin-grid::part(cell) {
+  color: #111827;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.app-content vaadin-grid::part(cell)[id*="vaadin-grid-cell"] {
+  padding: var(--lumo-space-s) var(--lumo-space-m);
+  vertical-align: middle;
+}
+.app-content vaadin-grid::part(even-row) { background: rgba(249, 250, 251, 0.96); }
+.app-content vaadin-grid::part(odd-row) { background: rgba(255, 255, 255, 0.98); }
+
+/* Ensure all text in grid is visible */
+.app-content vaadin-grid::part(cell) * { color: #111827 !important; }
+
+/* Re-apply semantic status colors inside grid */
+.app-content vaadin-grid::part(cell) .status-known,
+.app-content vaadin-grid::part(cell) .status-studied,
+.app-content vaadin-grid::part(cell) .status-completed {
+  color: #15803d !important;
+  background: rgba(22, 163, 74, 0.15) !important;
+  border: 2px solid rgba(22, 163, 74, 0.4) !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  display: inline-block !important;
+  min-width: 80px !important;
+}
+
+.app-content vaadin-grid::part(cell) .status-unknown,
+.app-content vaadin-grid::part(cell) .status-not-studied,
+.app-content vaadin-grid::part(cell) .status-pending {
+  color: #dc2626 !important;
+  background: rgba(220, 38, 38, 0.15) !important;
+  border: 2px solid rgba(220, 38, 38, 0.4) !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  display: inline-block !important;
+  min-width: 80px !important;
+}
+
+/* Search prefix icon dark in inputs */
+.app-content vaadin-text-field vaadin-icon[icon*="search"] { color: #111827 !important; filter: none !important; }
+
+/* Grid buttons: neutral buttons visible on white grid background */
+.app-content vaadin-grid vaadin-button:not([theme~="primary"]):not([theme~="success"]):not([theme~="error"])::part(base) {
+  background: #f3f4f6 !important; /* gray-100 */
+  color: #111827 !important;      /* gray-900 */
+  border: 1px solid #d1d5db !important; /* gray-300 */
+}
+.app-content vaadin-grid vaadin-button:not([theme~="primary"]):not([theme~="success"]):not([theme~="error"]):hover::part(base) {
+  background: #e5e7eb !important; /* gray-200 */
+}
+
+/* Default buttons with no theme: readable on dark app background */
+.app-content vaadin-button:not([theme]):not([theme~="primary"]):not([theme~="success"]):not([theme~="error"])::part(base) {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #111827 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ensure common action icons in buttons are dark unless success/error */
+.app-content vaadin-button:not([theme~="success"]):not([theme~="error"]) vaadin-icon[icon*="check"],
+.app-content vaadin-button:not([theme~="success"]):not([theme~="error"]) vaadin-icon[icon*="trash"] {
+  color: #000000 !important;
+  filter: none !important;
+}
+
+/* Group field visibility */
+.app-content vaadin-custom-field::part(label),
+.app-content vaadin-custom-field::part(helper-text),
+.app-content vaadin-custom-field::part(error-message) { color: #111827 !important; }
+.app-content .vaadin-group-field-container {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: var(--lumo-space-m);
+}
+.app-content .vaadin-group-field-container [part="label"],
+.app-content .vaadin-group-field-container [part="helper-text"],
+.app-content .vaadin-group-field-container [part="error-message"] { color: #111827 !important; }
+
+/* Grid-specific overrides: ensure icons and button text are black inside grids */
+.app-content vaadin-grid vaadin-icon { color: #000000 !important; filter: none !important; }
+.app-content vaadin-grid vaadin-icon[icon*="edit"],
+.app-content vaadin-grid vaadin-icon[icon*="trash"],
+.app-content vaadin-grid vaadin-icon[icon*="delete"],
+.app-content vaadin-grid vaadin-icon[icon*="eye"],
+.app-content vaadin-grid vaadin-icon[icon*="plus"],
+.app-content vaadin-grid vaadin-icon[icon*="minus"],
+.app-content vaadin-grid vaadin-icon[icon*="check"],
+.app-content vaadin-grid vaadin-icon[icon*="close"],
+.app-content vaadin-grid vaadin-icon[icon*="clear"] { color: #000000 !important; filter: none !important; }
+.app-content vaadin-grid vaadin-button:not([theme~="primary"]):not([theme~="success"]):not([theme~="error"])::part(label),
+.app-content vaadin-grid vaadin-button:not([theme~="primary"]):not([theme~="success"]):not([theme~="error"])::part(prefix),
+.app-content vaadin-grid vaadin-button:not([theme~="primary"]):not([theme~="success"]):not([theme~="error"])::part(suffix),
+.app-content vaadin-grid .vaadin-button:not([theme~="primary"]):not([theme~="success"]):not([theme~="error"])::part(label),
+.app-content vaadin-grid .vaadin-button:not([theme~="primary"]):not([theme~="success"]):not([theme~="error"])::part(prefix),
+.app-content vaadin-grid .vaadin-button:not([theme~="primary"]):not([theme~="success"]):not([theme~="error"])::part(suffix) { color: #000000 !important; }
+.app-content vaadin-grid vaadin-button:not([theme~="success"]):not([theme~="error"]) vaadin-icon,
+.app-content vaadin-grid .vaadin-button:not([theme~="success"]):not([theme~="error"]) vaadin-icon { color: #000000 !important; filter: none !important; }

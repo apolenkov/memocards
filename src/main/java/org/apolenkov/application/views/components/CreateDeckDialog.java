@@ -19,10 +19,9 @@ import org.apolenkov.application.usecase.UserUseCase;
 /** Dialog for creating a deck. Emits callback upon successful save. */
 public class CreateDeckDialog extends Dialog {
 
-    private final DeckFacade deckFacade;
-    private final UserUseCase userUseCase;
-    private final Consumer<Deck> onCreated;
-    private BeanValidationBinder<Deck> binder;
+    private final transient DeckFacade deckFacade;
+    private final transient UserUseCase userUseCase;
+    private final transient Consumer<Deck> onCreated;
 
     public CreateDeckDialog(DeckFacade deckFacade, UserUseCase userUseCase, Consumer<Deck> onCreated) {
         this.deckFacade = deckFacade;
@@ -51,7 +50,7 @@ public class CreateDeckDialog extends Dialog {
         descriptionArea.setMaxLength(500);
         descriptionArea.setPlaceholder(getTranslation("dialog.description.placeholder"));
 
-        binder = new BeanValidationBinder<>(Deck.class);
+        BeanValidationBinder<Deck> binder = new BeanValidationBinder<>(Deck.class);
         binder.forField(titleField)
                 .asRequired(getTranslation("home.enterTitle"))
                 .bind(Deck::getTitle, Deck::setTitle);
