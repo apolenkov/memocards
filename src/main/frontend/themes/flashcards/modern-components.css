@@ -89,9 +89,9 @@
 
 /* Enhanced Input Fields */
 .input-modern {
-  background: rgba(251, 251, 251, 0.1);
+  background: var(--fx-white-10);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(251, 251, 251, 0.2);
+  border: 1px solid var(--fx-white-20);
   border-radius: var(--custom-border-radius-m);
   padding: 12px 16px;
   color: var(--lumo-primary-text-color);
@@ -102,7 +102,7 @@
   outline: none;
   border-color: #2f8af5;
   box-shadow: 0 0 0 3px rgba(47, 138, 245, 0.1);
-  background: rgba(251, 251, 251, 0.15);
+  background: var(--fx-white-15);
 }
 
 .input-modern::placeholder {
@@ -112,7 +112,7 @@
 /* Animated Border */
 .animated-border {
   position: relative;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--fx-white-10);
   border-radius: var(--custom-border-radius-l);
   overflow: hidden;
 }
@@ -281,7 +281,7 @@
     0 0 0 2px rgba(47, 138, 245, 0.2),
     0 4px 12px rgba(47, 138, 245, 0.15) !important;
   transform: translateY(-1px);
-  transition: all 0.2s ease;
+  transition: all var(--custom-transition-fast);
 }
 
 .vaadin-text-field:focus-within::before,
@@ -319,7 +319,7 @@
   background: rgba(251, 251, 251, 0.12);
   border: 2px solid rgba(251, 251, 251, 0.25);
   border-radius: var(--lumo-border-radius-m);
-  transition: all 0.2s ease;
+  transition: all var(--custom-transition-fast);
   position: relative;
 }
 
@@ -400,7 +400,7 @@
   border-color: rgba(251, 251, 251, 0.4);
   background: rgba(251, 251, 251, 0.05);
   transform: translateY(-1px);
-  transition: all 0.2s ease;
+  transition: all var(--custom-transition-fast);
 }
 
 /* Input field styling */
@@ -420,7 +420,7 @@
 .vaadin-email-field input::placeholder,
 .vaadin-password-field input::placeholder,
 .vaadin-text-area textarea::placeholder {
-  color: rgba(251, 251, 251, 0.3) !important;
+  color: var(--fx-white-30) !important;
   opacity: 0.4;
   font-style: italic;
 }
@@ -474,7 +474,7 @@
 /* Icon button hover effects */
 .vaadin-button[theme~="icon"]:hover vaadin-icon {
   transform: scale(1.1);
-  transition: transform 0.2s ease;
+  transition: transform var(--custom-transition-fast);
 }
 
 /* Additional visibility improvements */

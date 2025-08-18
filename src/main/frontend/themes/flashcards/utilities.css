@@ -177,19 +177,19 @@
 }
 
 .transition-shadow {
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow var(--custom-transition-fast);
 }
 
 .transition-transform {
-  transition: transform 0.2s ease;
+  transition: transform var(--custom-transition-fast);
 }
 
 .transition-all {
-  transition: all 0.2s ease;
+  transition: all var(--custom-transition-fast);
 }
 
 .hover-scale {
-  transition: transform 0.2s ease;
+  transition: transform var(--custom-transition-fast);
 }
 
 .hover-scale:hover {
@@ -197,7 +197,7 @@
 }
 
 .hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform var(--custom-transition-fast), box-shadow var(--custom-transition-fast);
 }
 
 .hover-lift:hover {
@@ -248,7 +248,7 @@
 .font-size-xxxl {
     font-size: var(--lumo-font-size-xxxl);
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.98);
+    color: var(--fx-white-98);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -311,14 +311,14 @@
 /* Global placeholder styling - делаем все placeholder менее заметными */
 input::placeholder,
 textarea::placeholder {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--fx-white-30) !important;
   opacity: 0.4 !important;
   font-style: italic;
 }
 
 input:focus::placeholder,
 textarea:focus::placeholder {
-  color: rgba(255, 255, 255, 0.4) !important;
+  color: var(--fx-white-40) !important;
   opacity: 0.3 !important;
 }
 
@@ -327,7 +327,7 @@ input[type="text"]::placeholder,
 input[type="email"]::placeholder,
 input[type="password"]::placeholder,
 input[type="search"]::placeholder {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--fx-white-30) !important;
   opacity: 0.4 !important;
   font-style: italic;
 }
@@ -336,6 +336,6 @@ input[type="text"]:focus::placeholder,
 input[type="email"]:focus::placeholder,
 input[type="password"]:focus::placeholder,
 input[type="search"]:focus::placeholder {
-  color: rgba(255, 255, 255, 0.4) !important;
+  color: var(--fx-white-40) !important;
   opacity: 0.3 !important;
 }

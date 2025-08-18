@@ -65,4 +65,40 @@
   --modern-shadow-m: 0 4px 20px rgba(47, 138, 245, 0.15);
   --modern-shadow-l: 0 8px 32px rgba(47, 138, 245, 0.2);
   --modern-shadow-xl: 0 12px 40px rgba(47, 138, 245, 0.25);
+
+  /* Common white/black RGBA tokens (unify frequently used literals) */
+  --fx-white-05: rgba(255, 255, 255, 0.05);
+  --fx-white-10: rgba(255, 255, 255, 0.1);
+  --fx-white-15: rgba(255, 255, 255, 0.15);
+  --fx-white-20: rgba(255, 255, 255, 0.2);
+  --fx-white-25: rgba(255, 255, 255, 0.25);
+  --fx-white-30: rgba(255, 255, 255, 0.3);
+  --fx-white-40: rgba(255, 255, 255, 0.4);
+  --fx-white-60: rgba(255, 255, 255, 0.6);
+  --fx-white-90: rgba(255, 255, 255, 0.9);
+  --fx-white-95: rgba(255, 255, 255, 0.95);
+  --fx-white-98: rgba(255, 255, 255, 0.98);
+  --fx-black-10: rgba(0, 0, 0, 0.1);
+  --fx-black-12: rgba(0, 0, 0, 0.12);
+  --fx-black-20: rgba(0, 0, 0, 0.2);
+  --fx-black-28: rgba(0, 0, 0, 0.28);
+
+  /* Common shadows (exact matches used across theme) */
+  --fx-shadow-2-8-02: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --fx-shadow-4-12-03: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --fx-shadow-4-16-01: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --fx-shadow-6-16-04: 0 6px 16px rgba(0, 0, 0, 0.4);
+  --fx-shadow-10-34-028: 0 10px 34px rgba(0, 0, 0, 0.28);
+
+  /* Semantic colors (exact hues used in buttons/status) */
+  --fx-success: #16a34a;
+  --fx-success-dark: #15803d;
+  --fx-error: #dc2626;
+  --fx-error-dark: #b91c1c;
+
+  /* Input controls tokens */
+  --fx-input-button-bg: var(--fx-white-05);
+  --fx-input-button-border: var(--fx-white-10);
+  --fx-input-button-hover-bg: var(--fx-white-20);
+  --fx-input-button-icon: var(--fx-white-30);
 }
