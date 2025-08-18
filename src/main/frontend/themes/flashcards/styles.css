@@ -4,6 +4,7 @@
 @import url('./animated-background.css');
 @import url('./modern-components.css');
 @import url('./components/status.css');
+@import url('./views/components/deck-card.css');
 @import url('./enhanced-views.css');
 @import url('./responsive.css');
 @import url('./main-layout.css');
@@ -22,10 +23,6 @@
 @import url('./views/public-layout.css');
 @import url('./views/components/top-menu.css');
 @import url('./views/components/dialogs.css');
-@import url('./views/components/deck-card.css');
 @import url('./form-controls.css');
 
 /* Global readability helpers for dark backgrounds */
-:root {
-  --modern-primary: #2f8af5;
-}

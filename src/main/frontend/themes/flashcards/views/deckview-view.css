@@ -101,14 +101,14 @@
 
 /* Enhanced contrast for any icons in info block */
 .deckview-view__info vaadin-icon {
-  color: rgba(251, 251, 251, 0.9);
+  color: var(--fx-white-90);
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
 /* Search field styling for card search */
 .deckview-view .vaadin-text-field {
-  background: rgba(251, 251, 251, 0.12);
-  border: 2px solid rgba(251, 251, 251, 0.25);
+  background: var(--fx-white-12, rgba(251, 251, 251, 0.12));
+  border: 2px solid var(--fx-white-25);
   border-radius: var(--lumo-border-radius-m);
   transition: all 0.3s ease;
   position: relative;
@@ -121,7 +121,7 @@
 }
 
 .deckview-view .vaadin-text-field:focus-within {
-  background: rgba(251, 251, 251, 0.2);
+  background: var(--fx-white-20);
   border-color: var(--modern-primary, #2f8af5);
   box-shadow: 
     0 0 0 3px rgba(47, 138, 245, 0.3),
@@ -187,7 +187,7 @@
 
 /* Practice button with border style like register button */
 .deckview-view__practice-button {
-  border: 2px solid rgba(251, 251, 251, 0.9) !important;
+  border: 2px solid var(--fx-white-90) !important;
   background: rgba(251, 251, 251, 0.06) !important;
   color: rgba(251, 251, 251, 0.96) !important;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25) !important;
@@ -196,7 +196,7 @@
 }
 
 .deckview-view__practice-button:hover {
-  background: rgba(251, 251, 251, 0.12) !important;
+  background: var(--fx-white-12, rgba(251, 251, 251, 0.12)) !important;
   color: rgb(251, 251, 251) !important;
   border-color: rgb(251, 251, 251) !important;
   transform: translateY(-2px) !important;
