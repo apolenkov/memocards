@@ -26,6 +26,7 @@
 }
 
 /* Deck Card Enhancements */
+/* keep only hover/state enhancements here; base styles are in views/components/deck-card.css */
 .deck-card {
   background: rgba(251, 251, 251, 0.08);
   backdrop-filter: blur(20px);
