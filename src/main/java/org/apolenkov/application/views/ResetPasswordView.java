@@ -67,10 +67,12 @@ public class ResetPasswordView extends Div implements BeforeEnterObserver, HasDy
         title.addClassName("reset-password-form__title");
 
         PasswordField password = new PasswordField(getTranslation("auth.password"));
+        password.setPlaceholder(getTranslation("auth.password.placeholder"));
         password.setWidth(COMPONENT_WIDTH);
         password.setRequiredIndicatorVisible(true);
 
         PasswordField confirmPassword = new PasswordField(getTranslation("auth.password.confirm"));
+        confirmPassword.setPlaceholder(getTranslation("auth.password.confirm.placeholder"));
         confirmPassword.setWidth(COMPONENT_WIDTH);
         confirmPassword.setRequiredIndicatorVisible(true);
 

@@ -62,6 +62,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         email.setWidth(COMPONENT_WIDTH);
 
         PasswordField password = new PasswordField(getTranslation("auth.login.password"));
+        password.setPlaceholder(getTranslation("auth.password.placeholder"));
         password.setWidth(COMPONENT_WIDTH);
         password.setRequiredIndicatorVisible(true);
 

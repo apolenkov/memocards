@@ -48,8 +48,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
         H2 title = TextHelper.createPageTitle(getTranslation("home.title"));
 
-        TextField search = FormHelper.createOptionalTextField(
-                getTranslation("home.search"), getTranslation("home.search.placeholder"));
+        TextField search = FormHelper.createOptionalTextField("", getTranslation("home.search.placeholder"));
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPrefixComponent(IconHelper.createSearchIcon());
         search.setMaxWidth("250px");

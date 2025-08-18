@@ -132,6 +132,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             }
         });
         practiceButton.setText(getTranslation("deck.startSession"));
+        practiceButton.addClassName("deckview-view__practice-button");
 
         Button addFlashcardButton = ButtonHelper.createPlusButton(e -> openFlashcardDialog(null));
         addFlashcardButton.setText(getTranslation("deck.addCard"));

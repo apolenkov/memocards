@@ -26,3 +26,199 @@
 :root {
   --modern-primary: #2f8af5;
 }
+
+/* Global placeholder styling for Vaadin components */
+vaadin-text-field input::placeholder,
+vaadin-email-field input::placeholder,
+vaadin-password-field input::placeholder,
+vaadin-text-area textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 0.4 !important;
+  font-style: italic;
+}
+
+vaadin-text-field input:focus::placeholder,
+vaadin-email-field input:focus::placeholder,
+vaadin-password-field input:focus::placeholder,
+vaadin-text-area textarea:focus::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+  opacity: 0.3 !important;
+}
+
+/* Глобальные стили для кнопок в input полях */
+vaadin-password-field [part="reveal-button"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: var(--lumo-border-radius-s);
+  color: rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+vaadin-password-field [part="reveal-button"]:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: white !important;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+vaadin-text-field [part="clear-button"],
+vaadin-email-field [part="clear-button"],
+vaadin-password-field [part="clear-button"],
+vaadin-text-area [part="clear-button"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: var(--lumo-border-radius-s);
+  color: rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+vaadin-text-field [part="clear-button"]:hover,
+vaadin-email-field [part="clear-button"]:hover,
+vaadin-password-field [part="clear-button"]:hover,
+vaadin-text-area [part="clear-button"]:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: white !important;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Дополнительные стили для vaadin-password-field-button */
+vaadin-password-field-button {
+  color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 0.4;
+  transition: all 0.2s ease;
+}
+
+vaadin-password-field-button:hover {
+  color: white !important;
+  opacity: 1 !important;
+}
+
+/* Стили для иконок внутри кнопок - базовый цвет как у placeholder */
+vaadin-password-field [part="reveal-button"]::before,
+vaadin-password-field [part="clear-button"]::before,
+vaadin-text-field [part="clear-button"]::before,
+vaadin-email-field [part="clear-button"]::before,
+vaadin-text-area [part="clear-button"]::before,
+#clearButton {
+  color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 0.4;
+  transition: all 0.2s ease;
+}
+
+/* Hover для иконок */
+vaadin-password-field [part="reveal-button"]:hover::before,
+vaadin-password-field [part="clear-button"]:hover::before,
+vaadin-text-field [part="clear-button"]:hover::before,
+vaadin-email-field [part="clear-button"]:hover::before,
+vaadin-text-area [part="clear-button"]:hover::before,
+#clearButton:hover {
+  color: white !important;
+  opacity: 1 !important;
+}
+
+/* Стили для кнопок по селектору part$='button' */
+[part$='button'] {
+  color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 0.4;
+  transition: all 0.2s ease;
+}
+
+[part$='button']:hover {
+  color: white !important;
+  opacity: 1 !important;
+}
+
+/* Переопределяем Lumo переменную для кнопок */
+[part$='button']::before {
+  color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 0.4;
+  font-family: 'lumo-icons';
+  display: block;
+  transition: all 0.2s ease;
+}
+
+[part$='button']:hover::before {
+  color: white !important;
+  opacity: 1 !important;
+}
+
+/* Специфичные стили для кнопки очистки */
+[part='clear-button']::before {
+  color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 0.4;
+  content: var(--lumo-icons-cross);
+  transition: all 0.2s ease;
+}
+
+[part='clear-button']:hover::before {
+  color: white !important;
+  opacity: 1 !important;
+}
+
+/* Стили для reveal button в password field */
+vaadin-password-field [part='reveal-button']::before {
+  color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 0.4;
+  transition: all 0.2s ease;
+}
+
+vaadin-password-field [part='reveal-button']:hover::before {
+  color: white !important;
+  opacity: 1 !important;
+}
+
+/* Переопределяем переменную Lumo для контраста - используем цвет как у placeholder */
+vaadin-password-field,
+vaadin-text-field,
+vaadin-email-field,
+vaadin-text-area {
+  --lumo-contrast-60pct: rgba(255, 255, 255, 0.3);
+}
+
+/* Более специфичные стили для всех кнопок с иконками - базовый цвет как у placeholder */
+vaadin-password-field-button[slot="reveal"]::before,
+vaadin-password-field [part="reveal-button"] vaadin-icon,
+vaadin-text-field [part="clear-button"] vaadin-icon,
+vaadin-email-field [part="clear-button"] vaadin-icon,
+vaadin-password-field [part="clear-button"] vaadin-icon {
+  color: rgba(255, 255, 255, 0.3) !important;
+  fill: rgba(255, 255, 255, 0.3) !important;
+  opacity: 0.4;
+  transition: all 0.2s ease;
+}
+
+/* Hover стили для кнопок - делаем белыми */
+vaadin-password-field:hover [part="reveal-button"]::before,
+vaadin-password-field:hover [part="clear-button"]::before,
+vaadin-text-field:hover [part="clear-button"]::before,
+vaadin-email-field:hover [part="clear-button"]::before,
+vaadin-text-area:hover [part="clear-button"]::before,
+vaadin-password-field [part="reveal-button"]:hover::before,
+vaadin-password-field [part="clear-button"]:hover::before,
+vaadin-text-field [part="clear-button"]:hover::before,
+vaadin-email-field [part="clear-button"]:hover::before,
+vaadin-text-area [part="clear-button"]:hover::before {
+  color: white !important;
+  opacity: 1 !important;
+}
+
+/* Hover для vaadin-icon элементов */
+vaadin-password-field:hover [part="reveal-button"] vaadin-icon,
+vaadin-password-field:hover [part="clear-button"] vaadin-icon,
+vaadin-text-field:hover [part="clear-button"] vaadin-icon,
+vaadin-email-field:hover [part="clear-button"] vaadin-icon,
+vaadin-password-field [part="reveal-button"]:hover vaadin-icon,
+vaadin-password-field [part="clear-button"]:hover vaadin-icon,
+vaadin-text-field [part="clear-button"]:hover vaadin-icon,
+vaadin-email-field [part="clear-button"]:hover vaadin-icon {
+  color: white !important;
+  fill: white !important;
+  opacity: 1 !important;
+}

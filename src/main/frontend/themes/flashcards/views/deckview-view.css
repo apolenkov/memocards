@@ -185,3 +185,27 @@
   color: var(--modern-primary, #2f8af5) !important;
 }
 
+/* Practice button with border style like register button */
+.deckview-view__practice-button {
+  border: 2px solid rgba(251, 251, 251, 0.9) !important;
+  background: rgba(251, 251, 251, 0.06) !important;
+  color: rgba(251, 251, 251, 0.96) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25) !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+.deckview-view__practice-button:hover {
+  background: rgba(251, 251, 251, 0.12) !important;
+  color: rgb(251, 251, 251) !important;
+  border-color: rgb(251, 251, 251) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Ensure icon visibility in practice button */
+.deckview-view__practice-button vaadin-icon {
+  color: inherit !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+

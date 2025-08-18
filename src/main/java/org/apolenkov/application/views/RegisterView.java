@@ -34,9 +34,13 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
         H2 title = new H2(getTranslation("auth.register.title"));
         FormLayout form = new FormLayout();
         TextField name = new TextField(getTranslation("auth.name"));
+        name.setPlaceholder(getTranslation("auth.name.placeholder"));
         EmailField email = new EmailField(getTranslation("auth.email"));
+        email.setPlaceholder(getTranslation("auth.email.placeholder"));
         PasswordField password = new PasswordField(getTranslation("auth.password"));
+        password.setPlaceholder(getTranslation("auth.password.placeholder"));
         PasswordField confirm = new PasswordField(getTranslation("auth.password.confirm"));
+        confirm.setPlaceholder(getTranslation("auth.password.confirm.placeholder"));
 
         name.setRequiredIndicatorVisible(true);
         email.setRequiredIndicatorVisible(true);

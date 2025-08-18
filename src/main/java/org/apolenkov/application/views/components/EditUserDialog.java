@@ -40,6 +40,7 @@ public class EditUserDialog extends Dialog {
     private FormLayout createFormLayout() {
         FormLayout form = new FormLayout();
         email = new EmailField(getTranslation("auth.email"));
+        email.setPlaceholder(getTranslation("auth.email.placeholder"));
         email.setWidthFull();
         email.setRequiredIndicatorVisible(true);
         email.setHelperText(getTranslation("auth.email.helper"));

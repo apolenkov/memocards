@@ -28,6 +28,7 @@
   
   .landing-view__login-btn,
   .landing-view__register-btn,
+  .deckview-view__practice-button,
   .landing-view__decks-btn {
     width: 100%;
     max-width: 280px;
@@ -76,6 +77,7 @@
   
   .landing-view__login-btn,
   .landing-view__register-btn,
+  .deckview-view__practice-button,
   .landing-view__decks-btn {
     width: 100%;
     max-width: 320px;
