@@ -8,7 +8,7 @@
   padding: var(--lumo-space-m);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  background: var(--fx-white-12, rgba(251, 251, 251, 0.12));
+  background: var(--fx-white-12);
 }
 
 .deck-card__title {

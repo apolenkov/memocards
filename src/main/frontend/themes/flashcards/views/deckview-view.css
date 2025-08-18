@@ -107,7 +107,7 @@
 
 /* Search field styling for card search */
 .deckview-view .vaadin-text-field {
-  background: var(--fx-white-12, rgba(251, 251, 251, 0.12));
+  background: var(--fx-white-12);
   border: 2px solid var(--fx-white-25);
   border-radius: var(--lumo-border-radius-m);
   transition: all 0.3s ease;
@@ -196,7 +196,7 @@
 }
 
 .deckview-view__practice-button:hover {
-  background: var(--fx-white-12, rgba(251, 251, 251, 0.12)) !important;
+  background: var(--fx-white-12) !important;
   color: rgb(251, 251, 251) !important;
   border-color: rgb(251, 251, 251) !important;
   transform: translateY(-2px) !important;
