@@ -17,6 +17,8 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.views.utils.LayoutHelper;
+import org.apolenkov.application.views.utils.TextHelper;
 
 @Route(value = "stats", layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
@@ -61,13 +63,10 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         VerticalLayout section = new VerticalLayout();
         section.addClassName(CSS_SECTION);
 
-        H3 sectionTitle = new H3(getTranslation("stats.overall"));
-        sectionTitle.addClassName(CSS_SECTION_TITLE);
+        H3 sectionTitle = TextHelper.createSectionTitle(getTranslation("stats.overall"));
         section.add(sectionTitle);
 
-        HorizontalLayout statsGrid = new HorizontalLayout();
-        statsGrid.addClassName("stats-view__stats-grid");
-        statsGrid.setWidthFull();
+        HorizontalLayout statsGrid = LayoutHelper.createStatsGrid();
 
         int totalSessions = agg.values().stream()
                 .mapToInt(StatsRepository.DeckAggregate::sessionsAll)

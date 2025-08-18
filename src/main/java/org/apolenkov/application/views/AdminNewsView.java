@@ -1,12 +1,10 @@
 package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -21,6 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apolenkov.application.model.News;
 import org.apolenkov.application.service.NewsService;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.DialogHelper;
+import org.apolenkov.application.views.utils.GridHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
+import org.apolenkov.application.views.utils.TextHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -41,18 +44,19 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         setPadding(true);
         setSpacing(true);
 
-        H2 title = new H2(getTranslation("admin.content.page.title"));
+        H2 title = TextHelper.createPageTitle(getTranslation("admin.content.page.title"));
         add(title);
 
-        Button addNewsBtn = new Button(getTranslation("admin.news.add"), e -> showNewsDialog(null));
+        Button addNewsBtn = ButtonHelper.createPlusButton(e -> showNewsDialog(null));
+        addNewsBtn.setText(getTranslation("admin.news.add"));
         addNewsBtn.getStyle().set("margin-bottom", "1rem");
         add(addNewsBtn);
 
-        Grid<News> newsGrid = new Grid<>(News.class);
+        Grid<News> newsGrid = GridHelper.createBasicGrid(News.class);
         newsGrid.setColumns("title", "content", "author", "createdAt", "updatedAt");
-        newsGrid.getColumnByKey("title").setHeader(getTranslation("admin.news.title"));
-        newsGrid.getColumnByKey("content").setHeader(getTranslation("admin.news.content"));
-        newsGrid.getColumnByKey("author").setHeader(getTranslation("admin.news.author"));
+        GridHelper.addTextColumn(newsGrid, getTranslation("admin.news.title"), News::getTitle, 2);
+        GridHelper.addTextColumn(newsGrid, getTranslation("admin.news.content"), News::getContent, 3);
+        GridHelper.addTextColumn(newsGrid, getTranslation("admin.news.author"), News::getAuthor, 2);
         newsGrid.getColumnByKey("createdAt").setHeader(getTranslation("admin.news.createdAt"));
         newsGrid.getColumnByKey("updatedAt").setHeader(getTranslation("admin.news.updatedAt"));
         newsGrid.getColumnByKey("createdAt")
@@ -72,19 +76,9 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         newsGrid.getColumnByKey("createdAt").setWidth("150px");
         newsGrid.getColumnByKey("updatedAt").setWidth("150px");
         newsGrid.addComponentColumn(news -> {
-                    HorizontalLayout actions = new HorizontalLayout();
-                    actions.setSpacing(true);
-
-                    Button editBtn = new Button(VaadinIcon.EDIT.create(), e -> showNewsDialog(news));
-                    editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
-                    editBtn.getElement().setAttribute("title", getTranslation("dialog.edit"));
-
-                    Button deleteBtn = new Button(VaadinIcon.TRASH.create(), e -> deleteNews(news));
-                    deleteBtn.addThemeVariants(
-                            ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
-                    deleteBtn.getElement().setAttribute("title", getTranslation("dialog.delete"));
-
-                    actions.add(editBtn, deleteBtn);
+                    HorizontalLayout actions = LayoutHelper.createButtonRow(
+                            ButtonHelper.createEditButton(e -> showNewsDialog(news)),
+                            ButtonHelper.createDeleteButton(e -> deleteNews(news)));
                     return actions;
                 })
                 .setHeader(getTranslation("admin.users.actions"))
@@ -109,7 +103,8 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         content.setSpacing(true);
         content.setPadding(true);
 
-        H3 dialogTitle = new H3(news == null ? getTranslation("admin.news.add") : getTranslation("dialog.edit"));
+        H3 dialogTitle = TextHelper.createSectionTitle(
+                news == null ? getTranslation("admin.news.add") : getTranslation("dialog.edit"));
         content.add(dialogTitle);
 
         TextField titleField = new TextField(getTranslation("admin.news.title"));
@@ -139,7 +134,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         content.add(titleField, contentField, authorField);
 
         HorizontalLayout buttons = new HorizontalLayout();
-        Button saveBtn = new Button(getTranslation("dialog.save"), e -> {
+        Button saveBtn = ButtonHelper.createPrimaryButton(getTranslation("dialog.save"), e -> {
             String t =
                     titleField.getValue() == null ? "" : titleField.getValue().trim();
             String c = contentField.getValue() == null
@@ -164,9 +159,9 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
             refreshNews();
         });
 
-        Button cancelBtn = new Button(getTranslation("common.cancel"), e -> dialog.close());
-        buttons.add(saveBtn, cancelBtn);
-        content.add(buttons);
+        Button cancelBtn = ButtonHelper.createTertiaryButton(getTranslation("common.cancel"), e -> dialog.close());
+        HorizontalLayout buttonRow = LayoutHelper.createButtonRow(saveBtn, cancelBtn);
+        content.add(buttonRow);
 
         dialog.add(content);
         dialog.open();
@@ -176,10 +171,8 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         try {
             newsService.createNews(title, content, author);
         } catch (Exception e) {
-            com.vaadin.flow.component.notification.Notification.show(
-                    getTranslation("admin.news.error.create", e.getMessage()),
-                    3000,
-                    com.vaadin.flow.component.notification.Notification.Position.MIDDLE);
+            org.apolenkov.application.views.utils.NotificationHelper.showError(
+                    getTranslation("admin.news.error.create", e.getMessage()));
         }
     }
 
@@ -187,48 +180,32 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         try {
             newsService.updateNews(id, title, content, author);
         } catch (Exception e) {
-            com.vaadin.flow.component.notification.Notification.show(
-                    getTranslation("admin.news.error.update", e.getMessage()),
-                    3000,
-                    com.vaadin.flow.component.notification.Notification.Position.MIDDLE);
+            org.apolenkov.application.views.utils.NotificationHelper.showError(
+                    getTranslation("admin.news.error.update", e.getMessage()));
         }
     }
 
     private void deleteNews(News news) {
-        com.vaadin.flow.component.dialog.Dialog confirmDialog = new com.vaadin.flow.component.dialog.Dialog();
-        com.vaadin.flow.component.html.Span msg = new com.vaadin.flow.component.html.Span();
-        msg.getElement()
-                .setProperty(
-                        "innerHTML",
-                        getTranslation("admin.news.confirm.delete.prefix")
-                                + " <b>" + org.apache.commons.text.StringEscapeUtils.escapeHtml4(news.getTitle())
-                                + "</b>"
-                                + getTranslation("admin.news.confirm.delete.suffix"));
-        confirmDialog.add(msg);
+        String message = getTranslation("admin.news.confirm.delete.prefix")
+                + " <b>" + org.apache.commons.text.StringEscapeUtils.escapeHtml4(news.getTitle())
+                + "</b>"
+                + getTranslation("admin.news.confirm.delete.suffix");
 
-        HorizontalLayout buttons = new HorizontalLayout();
-        Button confirmBtn = new Button(getTranslation("dialog.delete"), e -> {
-            try {
-                newsService.deleteNews(news.getId());
-                confirmDialog.close();
-                refreshNews();
-                com.vaadin.flow.component.notification.Notification.show(
-                        getTranslation("admin.news.deleted"),
-                        2000,
-                        com.vaadin.flow.component.notification.Notification.Position.MIDDLE);
-            } catch (Exception ex) {
-                com.vaadin.flow.component.notification.Notification.show(
-                        getTranslation("admin.news.error.delete", ex.getMessage()),
-                        3000,
-                        com.vaadin.flow.component.notification.Notification.Position.MIDDLE);
-            }
-        });
-        confirmBtn.getStyle().set("color", "red");
-
-        Button cancelBtn = new Button(getTranslation("common.cancel"), e -> confirmDialog.close());
-        buttons.add(confirmBtn, cancelBtn);
-        confirmDialog.add(buttons);
-
+        Dialog confirmDialog = DialogHelper.createConfirmationDialog(
+                getTranslation("admin.news.confirm.delete.title"),
+                message,
+                () -> {
+                    try {
+                        newsService.deleteNews(news.getId());
+                        refreshNews();
+                        org.apolenkov.application.views.utils.NotificationHelper.showSuccess(
+                                getTranslation("admin.news.deleted"));
+                    } catch (Exception ex) {
+                        org.apolenkov.application.views.utils.NotificationHelper.showError(
+                                getTranslation("admin.news.error.delete", ex.getMessage()));
+                    }
+                },
+                null);
         confirmDialog.open();
     }
 

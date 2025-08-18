@@ -3,12 +3,12 @@ package org.apolenkov.application.service.deck;
 import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Optional;
+import org.apolenkov.application.config.TransactionAnnotations;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DeckUseCaseService implements DeckUseCase {
@@ -25,25 +25,25 @@ public class DeckUseCaseService implements DeckUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @TransactionAnnotations.ReadOnlyTransaction
     public List<Deck> getAllDecks() {
         return deckRepository.findAll();
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @TransactionAnnotations.ReadOnlyTransaction
     public List<Deck> getDecksByUserId(Long userId) {
         return deckRepository.findByUserId(userId);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @TransactionAnnotations.ReadOnlyTransaction
     public Optional<Deck> getDeckById(Long id) {
         return deckRepository.findById(id);
     }
 
     @Override
-    @Transactional
+    @TransactionAnnotations.WriteTransaction
     public Deck saveDeck(Deck deck) {
         var violations = validator.validate(deck);
         if (!violations.isEmpty()) {
@@ -56,7 +56,7 @@ public class DeckUseCaseService implements DeckUseCase {
     }
 
     @Override
-    @Transactional
+    @TransactionAnnotations.DeleteTransaction
     public void deleteDeck(Long id) {
         flashcardRepository.deleteByDeckId(id);
         deckRepository.deleteById(id);

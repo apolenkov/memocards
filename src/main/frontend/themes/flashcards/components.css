@@ -1,0 +1,38 @@
+/* Стили для placeholder - делаем их менее заметными */
+.vaadin-text-field input::placeholder {
+  color: var(--lumo-contrast-40pct);
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.vaadin-text-field input:focus::placeholder {
+  color: var(--lumo-contrast-50pct);
+  opacity: 0.5;
+}
+
+/* Стили для password field */
+.vaadin-password-field input::placeholder {
+  color: var(--lumo-contrast-40pct);
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.vaadin-password-field input:focus::placeholder {
+  color: var(--lumo-contrast-50pct);
+  opacity: 0.5;
+}
+
+/* Специальные стили для формы логина - делаем placeholder еще менее заметным */
+.login-form .vaadin-text-field input::placeholder,
+.login-form .vaadin-password-field input::placeholder {
+  color: var(--lumo-contrast-50pct);
+  opacity: 0.5;
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+.login-form .vaadin-text-field input:focus::placeholder,
+.login-form .vaadin-password-field input:focus::placeholder {
+  color: var(--lumo-contrast-60pct);
+  opacity: 0.3;
+}

@@ -1,7 +1,6 @@
 package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -16,6 +15,9 @@ import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.config.SecurityConstants;
 import org.apolenkov.application.service.NewsService;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.NavigationHelper;
+import org.apolenkov.application.views.utils.TextHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,17 +51,17 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
                 boolean hasUserRole = currentAuth.getAuthorities().stream()
                         .anyMatch(a -> SecurityConstants.ROLE_USER.equals(a.getAuthority()));
                 if (hasUserRole) {
-                    getUI().ifPresent(ui -> ui.navigate("decks"));
+                    NavigationHelper.navigateTo("decks");
                 }
             } else {
                 // If anonymous or not authenticated, redirect to login
-                getUI().ifPresent(ui -> ui.navigate("login"));
+                NavigationHelper.navigateTo("login");
             }
         });
 
         heroIcon.add(hero);
 
-        H1 title = new H1(getTranslation("app.title"));
+        H1 title = TextHelper.createMainTitle(getTranslation("app.title"));
         title.addClassName("landing-view__title");
 
         Paragraph subtitle = new Paragraph(getTranslation("landing.subtitle"));
@@ -72,23 +74,21 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         actions.addClassName("landing-view__actions");
 
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {
-            Button login = new Button(getTranslation("auth.login"));
-            login.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            Button login = ButtonHelper.createPrimaryButton(
+                    getTranslation("auth.login"), e -> NavigationHelper.navigateTo("login"));
             login.addClassName("landing-view__login-btn");
-            login.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("login")));
 
-            Button register = new Button(getTranslation("auth.register"));
+            Button register = ButtonHelper.createTertiaryButton(
+                    getTranslation("auth.register"), e -> NavigationHelper.navigateTo("register"));
             register.addClassName("landing-view__register-btn");
-            register.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("register")));
 
             actions.add(login, register);
         } else {
             boolean hasUser =
                     auth.getAuthorities().stream().anyMatch(a -> SecurityConstants.ROLE_USER.equals(a.getAuthority()));
             if (hasUser) {
-                Button goToDecks = new Button(
-                        getTranslation("landing.goToDecks"), e -> getUI().ifPresent(ui -> ui.navigate("decks")));
-                goToDecks.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                Button goToDecks = ButtonHelper.createPrimaryButton(
+                        getTranslation("landing.goToDecks"), e -> NavigationHelper.navigateTo("decks"));
                 goToDecks.addClassName("landing-view__decks-btn");
                 actions.add(goToDecks);
             }
@@ -97,7 +97,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         Div newsBlock = new Div();
         newsBlock.addClassName("landing-view__news-block");
 
-        H3 newsTitle = new H3(getTranslation("landing.news"));
+        H3 newsTitle = TextHelper.createSectionTitle(getTranslation("landing.news"));
         newsTitle.addClassName("landing-view__news-title");
         newsBlock.add(newsTitle);
 

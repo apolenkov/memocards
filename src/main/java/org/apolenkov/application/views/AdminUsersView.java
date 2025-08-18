@@ -6,7 +6,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -25,6 +24,9 @@ import java.util.stream.Collectors;
 import org.apolenkov.application.config.SecurityConstants;
 import org.apolenkov.application.model.User;
 import org.apolenkov.application.service.user.AdminUserService;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.GridHelper;
+import org.apolenkov.application.views.utils.TextHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -66,12 +68,11 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
         content.setPadding(true);
         content.setSpacing(true);
 
-        H2 title = new H2(getTranslation("admin.users.page.title"));
-        Button createBtn = new Button(
-                getTranslation("user.create.title"),
-                e -> new org.apolenkov.application.views.components.CreateUserDialog(
-                                adminUserService, saved -> refresh())
+        H2 title = TextHelper.createPageTitle(getTranslation("admin.users.page.title"));
+        Button createBtn = ButtonHelper.createPlusButton(e ->
+                new org.apolenkov.application.views.components.CreateUserDialog(adminUserService, saved -> refresh())
                         .open());
+        createBtn.setText(getTranslation("user.create.title"));
         content.add(title, createBtn);
 
         add(content);
@@ -80,23 +81,26 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     private void build(VerticalLayout content) {
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.addColumn(User::getId)
-                .setHeader(getTranslation("admin.users.columns.id"))
-                .setAutoWidth(true);
-        grid.addColumn(User::getEmail)
-                .setHeader(getTranslation("admin.users.columns.email"))
-                .setAutoWidth(true);
-        grid.addColumn(User::getName)
-                .setHeader(getTranslation("admin.users.columns.name"))
-                .setAutoWidth(true);
-        grid.addColumn(u -> u.getRoles().stream().map(this::roleToLabel).collect(Collectors.joining(", ")))
-                .setHeader(getTranslation("admin.users.columns.roles"));
-        grid.addComponentColumn(this::buildActions)
-                .setHeader(getTranslation("admin.users.columns.actions"))
-                .setWidth("620px")
-                .setFlexGrow(0);
+        GridHelper.addCommonFeatures(grid);
+        GridHelper.addTextColumn(grid, getTranslation("admin.users.columns.id"), u -> String.valueOf(u.getId()), 1);
+        GridHelper.addTextColumn(grid, getTranslation("admin.users.columns.email"), User::getEmail, 2);
+        GridHelper.addTextColumn(grid, getTranslation("admin.users.columns.name"), User::getName, 2);
+        GridHelper.addTextColumn(
+                grid,
+                getTranslation("admin.users.columns.roles"),
+                u -> u.getRoles().stream().map(this::roleToLabel).collect(Collectors.joining(", ")),
+                2);
+        GridHelper.addActionsColumn(grid, getTranslation("admin.users.columns.actions"), this::buildActionsArray);
         content.add(grid);
+    }
+
+    private Button[] buildActionsArray(User user) {
+        CheckboxGroup<String> rolesBox = createRolesCheckbox(user);
+        Button saveButton = createSaveButton(user, rolesBox);
+        Button editButton = createEditButton(user);
+        Button deleteButton = createDeleteButton(user);
+
+        return new Button[] {saveButton, editButton, deleteButton};
     }
 
     private HorizontalLayout buildActions(User user) {

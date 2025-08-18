@@ -22,9 +22,7 @@
 }
 
 .error-view__title {
-  margin: 0;
-  text-align: center;
-  font-size: var(--lumo-font-size-xxxl);
+  @extend .title-xxxl;
   font-weight: 600;
   color: var(--lumo-primary-text-color);
   margin-bottom: var(--lumo-space-m);

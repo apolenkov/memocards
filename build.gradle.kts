@@ -66,7 +66,6 @@ extensions.configure<DependencyManagementExtension> {
             val vaadinVersion: String by project
             mavenBom(BOM_COORDINATES)
             mavenBom("com.vaadin:vaadin-bom:$vaadinVersion")
-            mavenBom("org.testcontainers:testcontainers-bom:1.20.1")
         }
 
         // Explicit dependency versions for better control
@@ -96,7 +95,6 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.postgresql:postgresql")
-    runtimeOnly("com.h2database:h2")
 
     // Dev tools
     developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -107,8 +105,6 @@ dependencies {
     }
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("com.vaadin:vaadin-testbench-junit5")
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:postgresql")
     testImplementation("org.assertj:assertj-core:3.26.0")
     testImplementation("org.mockito:mockito-core:5.12.0")
     testImplementation("io.github.bonigarcia:webdrivermanager:5.9.2")

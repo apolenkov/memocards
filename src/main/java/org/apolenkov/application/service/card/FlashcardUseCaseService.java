@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apolenkov.application.config.TransactionAnnotations;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class FlashcardUseCaseService implements FlashcardUseCase {
@@ -23,19 +23,19 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @TransactionAnnotations.ReadOnlyTransaction
     public List<Flashcard> getFlashcardsByDeckId(Long deckId) {
         return flashcardRepository.findByDeckId(deckId);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @TransactionAnnotations.ReadOnlyTransaction
     public Optional<Flashcard> getFlashcardById(Long id) {
         return flashcardRepository.findById(id);
     }
 
     @Override
-    @Transactional
+    @TransactionAnnotations.WriteTransaction
     public Flashcard saveFlashcard(Flashcard flashcard) {
         var violations = validator.validate(flashcard);
         if (!violations.isEmpty()) {
@@ -48,13 +48,13 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     }
 
     @Override
-    @Transactional
+    @TransactionAnnotations.DeleteTransaction
     public void deleteFlashcard(Long id) {
         flashcardRepository.deleteById(id);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @TransactionAnnotations.ReadOnlyTransaction
     public List<Flashcard> getFlashcardsForPractice(Long deckId, int count, boolean random) {
         List<Flashcard> allCards = new ArrayList<>(getFlashcardsByDeckId(deckId));
         if (random) {
@@ -64,7 +64,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @TransactionAnnotations.ReadOnlyTransaction
     public long countByDeckId(Long deckId) {
         return flashcardRepository.countByDeckId(deckId);
     }

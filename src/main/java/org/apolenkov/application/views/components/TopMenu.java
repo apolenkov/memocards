@@ -1,14 +1,11 @@
 package org.apolenkov.application.views.components;
 
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -16,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.DialogHelper;
+import org.apolenkov.application.views.utils.NavigationHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -154,71 +154,41 @@ public class TopMenu extends HorizontalLayout {
         Button button;
 
         if (menuButton.getRoute().equals(LOGOUT_ROUTE)) {
-            button = new Button(menuButton.getText());
+            button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> openLogoutDialog());
             button.getElement().setAttribute(DATA_TESTID_ATTRIBUTE, menuButton.getTestId());
-            button.addClickListener(e -> openLogoutDialog());
         } else if (menuButton.getRoute().equals("/settings")) {
-            button = new Button(menuButton.getText());
-            button.getElement().setAttribute(DATA_TESTID_ATTRIBUTE, menuButton.getTestId());
-            button.addClickListener(e -> {
+            button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> {
                 PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService);
                 dialog.open();
             });
-        } else {
-            button = new Button(menuButton.getText());
             button.getElement().setAttribute(DATA_TESTID_ATTRIBUTE, menuButton.getTestId());
-            button.addClickListener(e -> {
-                String route = menuButton.getRoute();
-                getUI().ifPresent(ui -> ui.navigate(route));
-            });
+        } else {
+            button = ButtonHelper.createTertiaryButton(
+                    menuButton.getText(), e -> NavigationHelper.navigateTo(menuButton.getRoute()));
+            button.getElement().setAttribute(DATA_TESTID_ATTRIBUTE, menuButton.getTestId());
         }
 
         return button;
     }
 
     private void openLogoutDialog() {
-        Dialog dialog = new Dialog();
+        Dialog dialog = DialogHelper.createConfirmationDialog(
+                getTranslation("auth.logout.confirm"),
+                getTranslation("auth.logout.confirm"),
+                () -> {
+                    try {
+                        var req = VaadinServletRequest.getCurrent().getHttpServletRequest();
+                        new SecurityContextLogoutHandler().logout(req, null, null);
+                        getUI().ifPresent(ui ->
+                                ui.getPage().setLocation("/")); // Keep setLocation for logout (server redirect)
+                    } catch (Exception ignored) {
+                        getUI().ifPresent(ui ->
+                                ui.navigate("error", com.vaadin.flow.router.QueryParameters.of("from", "home")));
+                    }
+                },
+                null);
         dialog.setCloseOnEsc(true);
         dialog.setCloseOnOutsideClick(true);
-
-        VerticalLayout content = new VerticalLayout();
-        content.setPadding(true);
-        content.setSpacing(true);
-        content.setAlignItems(Alignment.STRETCH);
-        content.getStyle().set("minWidth", "360px");
-
-        Div question = new Div();
-        question.setText(getTranslation("auth.logout.confirm"));
-        question.getElement().getClassList().add("logout-dialog__title");
-        content.add(question);
-
-        HorizontalLayout actions = new HorizontalLayout();
-        actions.setSpacing(true);
-        actions.setAlignItems(Alignment.CENTER);
-        actions.setJustifyContentMode(JustifyContentMode.END);
-
-        Button cancel = new Button(getTranslation("common.cancel"));
-        cancel.addClickListener(e -> dialog.close());
-        Button submit = new Button(getTranslation("auth.logout.submit"));
-        submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
-        submit.addClickShortcut(Key.ENTER);
-        submit.addClickListener(e -> {
-            try {
-                var req = VaadinServletRequest.getCurrent().getHttpServletRequest();
-                new SecurityContextLogoutHandler().logout(req, null, null);
-                getUI().ifPresent(ui -> ui.getPage().setLocation("/")); // Keep setLocation for logout (server redirect)
-                dialog.close();
-            } catch (Exception ignored) {
-                getUI().ifPresent(
-                                ui -> ui.navigate("error", com.vaadin.flow.router.QueryParameters.of("from", "home")));
-                dialog.close();
-            }
-        });
-
-        actions.add(cancel, submit);
-        content.add(actions);
-
-        dialog.add(content);
         dialog.open();
     }
 

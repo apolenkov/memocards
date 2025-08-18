@@ -13,7 +13,6 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -27,18 +26,21 @@ import com.vaadin.flow.router.*;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.Optional;
+import org.apolenkov.application.config.RouteConstants;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.DeckFacade;
 import org.apolenkov.application.views.components.DeckEditDialog;
 import org.apolenkov.application.views.presenter.DeckPresenter;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.NavigationHelper;
+import org.apolenkov.application.views.utils.NotificationHelper;
 
 @Route(value = "deck", layout = PublicLayout.class)
 @RolesAllowed("ROLE_USER")
 public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
     // Constants for duplicated literals
-    private static final String DECKS_ROUTE = "decks";
     private static final String FILL_REQUIRED_KEY = "dialog.fillRequired";
 
     private final transient DeckFacade deckFacade;
@@ -78,8 +80,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             Long deckId = Long.parseLong(parameter);
             loadDeck(deckId);
         } catch (NumberFormatException e) {
-            Notification.show(getTranslation("deck.invalidId"), 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", DECKS_ROUTE)));
+            NotificationHelper.showError(getTranslation("deck.invalidId"));
+            NavigationHelper.navigateToError(RouteConstants.DECKS_ROUTE);
         }
     }
 
@@ -92,8 +94,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        Button backButton = new Button(getTranslation("main.decks"), VaadinIcon.ARROW_LEFT.create());
-        backButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(DECKS_ROUTE)));
+        Button backButton = ButtonHelper.createBackButton(e -> NavigationHelper.navigateToDecks());
+        backButton.setText(getTranslation("main.decks"));
 
         deckTitle = new H2(getTranslation("deck.loading"));
         deckTitle.addClassName("deckview-view__header-title");
@@ -124,28 +126,23 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         actionsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         actionsLayout.addClassName("deckview-view__actions");
 
-        Button practiceButton = new Button(getTranslation("deck.startSession"), VaadinIcon.PLAY.create());
-        practiceButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
-        practiceButton.addClickListener(e -> {
+        Button practiceButton = ButtonHelper.createPlayButton(e -> {
             if (currentDeck != null) {
-                getUI().ifPresent(ui ->
-                        ui.navigate(PracticeView.class, currentDeck.getId().toString()));
+                NavigationHelper.navigateToPractice(currentDeck.getId());
             }
         });
+        practiceButton.setText(getTranslation("deck.startSession"));
 
-        Button addFlashcardButton = new Button(getTranslation("deck.addCard"), VaadinIcon.PLUS.create());
-        addFlashcardButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button addFlashcardButton = ButtonHelper.createPlusButton(e -> openFlashcardDialog(null));
+        addFlashcardButton.setText(getTranslation("deck.addCard"));
         addFlashcardButton.getElement().setAttribute("data-testid", "deck-add-card");
-        addFlashcardButton.addClickListener(e -> openFlashcardDialog(null));
 
-        Button editDeckButton = new Button(VaadinIcon.EDIT.create());
-        editDeckButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        editDeckButton.getElement().setProperty("title", getTranslation("deck.edit.tooltip"));
-        editDeckButton.addClickListener(e -> {
+        Button editDeckButton = ButtonHelper.createEditButton(e -> {
             if (currentDeck != null) {
                 new DeckEditDialog(deckFacade, currentDeck, updated -> updateDeckInfo()).open();
             }
         });
+        editDeckButton.getElement().setProperty("title", getTranslation("deck.edit.tooltip"));
 
         actionsLayout.add(practiceButton, addFlashcardButton, editDeckButton);
         getContent().add(actionsLayout);
@@ -174,7 +171,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         resetProgress.addClickListener(e -> {
             if (currentDeck != null) {
                 presenter.resetProgress(currentDeck.getId());
-                Notification.show(getTranslation("deck.progressReset"), 2000, Notification.Position.BOTTOM_START);
+                NotificationHelper.showSuccessBottom(getTranslation("deck.progressReset"));
                 loadFlashcards();
             }
         });
@@ -259,8 +256,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             updateDeckInfo();
             loadFlashcards();
         } else {
-            Notification.show(getTranslation("deck.notFound"), 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate("error", QueryParameters.of("from", DECKS_ROUTE)));
+            NotificationHelper.showError(getTranslation("deck.notFound"));
+            NavigationHelper.navigateToError(RouteConstants.DECKS_ROUTE);
         }
     }
 
@@ -387,14 +384,12 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             loadFlashcards();
             updateDeckInfo();
             dialog.close();
-            Notification.show(
-                    flashcard == null ? getTranslation("deck.card.added") : getTranslation("deck.card.updated"),
-                    2000,
-                    Notification.Position.BOTTOM_START);
+            NotificationHelper.showSuccessBottom(
+                    flashcard == null ? getTranslation("deck.card.added") : getTranslation("deck.card.updated"));
         } catch (ValidationException vex) {
-            Notification.show(getTranslation(FILL_REQUIRED_KEY), 3000, Notification.Position.MIDDLE);
+            NotificationHelper.showValidationError();
         } catch (Exception ex) {
-            Notification.show(ex.getMessage(), 4000, Notification.Position.MIDDLE);
+            NotificationHelper.showErrorLong(ex.getMessage());
         }
     }
 
@@ -414,7 +409,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             loadFlashcards();
             updateDeckInfo();
             confirmDialog.close();
-            Notification.show(getTranslation("deck.card.deleted"), 2000, Notification.Position.BOTTOM_START);
+            NotificationHelper.showDeleteSuccess();
         });
 
         Button cancelButton = new Button(getTranslation("common.cancel"));

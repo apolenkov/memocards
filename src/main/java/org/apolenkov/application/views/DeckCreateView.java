@@ -2,12 +2,9 @@ package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -21,6 +18,12 @@ import jakarta.annotation.security.RolesAllowed;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.FormHelper;
+import org.apolenkov.application.views.utils.IconHelper;
+import org.apolenkov.application.views.utils.NavigationHelper;
+import org.apolenkov.application.views.utils.NotificationHelper;
+import org.apolenkov.application.views.utils.TextHelper;
 
 @Route("decks/new")
 @RolesAllowed("ROLE_USER")
@@ -52,10 +55,10 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        Button backButton = new Button(getTranslation("deckCreate.back"), VaadinIcon.ARROW_LEFT.create());
-        backButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("decks")));
+        Button backButton = ButtonHelper.createBackButton(e -> NavigationHelper.navigateTo("decks"));
+        backButton.setText(getTranslation("deckCreate.back"));
 
-        H2 title = new H2(getTranslation("deckCreate.title"));
+        H2 title = TextHelper.createPageTitle(getTranslation("deckCreate.title"));
         title.addClassName("deckedit-view__header-title");
 
         leftSection.add(backButton, title);
@@ -81,18 +84,17 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         formLayout.setSpacing(true);
         formLayout.setWidth("100%");
 
-        H3 formTitle = new H3(getTranslation("deckCreate.section"));
+        H3 formTitle = TextHelper.createSectionTitle(getTranslation("deckCreate.section"));
         formTitle.addClassName("deckedit-view__section-title");
 
-        TextField titleField = new TextField(getTranslation("deckCreate.name"));
+        TextField titleField = FormHelper.createRequiredTextField(
+                getTranslation("deckCreate.name"), getTranslation("deckCreate.name.placeholder"));
         titleField.setWidth("100%");
-        titleField.setRequired(true);
-        titleField.setPlaceholder(getTranslation("deckCreate.name.placeholder"));
 
-        TextArea descriptionArea = new TextArea(getTranslation("deckCreate.description"));
+        TextArea descriptionArea = FormHelper.createTextArea(
+                getTranslation("deckCreate.description"), getTranslation("deckCreate.description.placeholder"));
         descriptionArea.setWidth("100%");
         descriptionArea.setMaxHeight("150px");
-        descriptionArea.setPlaceholder(getTranslation("deckCreate.description.placeholder"));
 
         binder = new BeanValidationBinder<>(Deck.class);
         binder.forField(titleField)
@@ -104,13 +106,12 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         buttonsLayout.setSpacing(true);
         buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
-        Button saveButton = new Button(getTranslation("deckCreate.create"), VaadinIcon.CHECK.create());
-        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
-        saveButton.addClickListener(e -> saveDeck());
+        Button saveButton = ButtonHelper.createPrimaryButton(getTranslation("deckCreate.create"), e -> saveDeck());
+        saveButton.setIcon(IconHelper.createCheckIcon());
 
-        Button cancelButton = new Button(getTranslation("deckCreate.cancel"), VaadinIcon.CLOSE.create());
-        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
-        cancelButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("decks")));
+        Button cancelButton = ButtonHelper.createTertiaryButton(
+                getTranslation("deckCreate.cancel"), e -> NavigationHelper.navigateTo("decks"));
+        cancelButton.setIcon(IconHelper.createCloseIcon());
 
         buttonsLayout.add(saveButton, cancelButton);
 
@@ -126,15 +127,12 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
             newDeck.setUserId(userUseCase.getCurrentUser().getId());
             binder.writeBean(newDeck);
             Deck savedDeck = deckUseCase.saveDeck(newDeck);
-            Notification.show(
-                    getTranslation("deckCreate.created", savedDeck.getTitle()),
-                    3000,
-                    Notification.Position.BOTTOM_START);
-            getUI().ifPresent(ui -> ui.navigate("deck/" + savedDeck.getId().toString()));
+            NotificationHelper.showSuccessBottom(getTranslation("deckCreate.created", savedDeck.getTitle()));
+            NavigationHelper.navigateTo("deck/" + savedDeck.getId().toString());
         } catch (ValidationException vex) {
-            Notification.show(getTranslation("dialog.fillRequired"), 3000, Notification.Position.MIDDLE);
+            NotificationHelper.showValidationError();
         } catch (Exception e) {
-            Notification.show(getTranslation("deckCreate.error", e.getMessage()), 5000, Notification.Position.MIDDLE);
+            NotificationHelper.showError(getTranslation("deckCreate.error", e.getMessage()));
         }
     }
 

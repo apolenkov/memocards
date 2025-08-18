@@ -1,10 +1,8 @@
 package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -14,6 +12,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.service.AuthFacade;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.NotificationHelper;
 
 @Route(value = "register", layout = PublicLayout.class)
 @AnonymousAllowed
@@ -43,10 +43,7 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
         password.setRequiredIndicatorVisible(true);
         confirm.setRequiredIndicatorVisible(true);
 
-        Button submit = new Button(getTranslation("auth.register"));
-        submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        submit.setWidth("420px");
-        submit.addClickListener(e -> {
+        Button submit = ButtonHelper.createPrimaryButton(getTranslation("auth.register"), e -> {
             name.setInvalid(false);
             email.setInvalid(false);
             password.setInvalid(false);
@@ -93,25 +90,25 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
             }
 
             if (!ok) {
-                Notification.show(getTranslation("auth.validation.fixErrors"));
+                NotificationHelper.showError(getTranslation("auth.validation.fixErrors"));
                 return;
             }
 
             try {
                 authFacade.registerUser(vEmail, vPwd);
                 authFacade.authenticateAndPersist(vEmail, vPwd);
-                Notification.show(getTranslation("auth.register.successLogin"));
+                NotificationHelper.showSuccess(getTranslation("auth.register.successLogin"));
                 getUI().ifPresent(ui -> ui.navigate(""));
             } catch (Exception ex) {
-                Notification.show(getTranslation("auth.register.autoLoginFailed"));
+                NotificationHelper.showError(getTranslation("auth.register.autoLoginFailed"));
                 getUI().ifPresent(ui -> ui.navigate("login"));
             }
         });
+        submit.setWidth("420px");
 
-        Button backToHome = new Button(getTranslation("common.backToHome"));
-        backToHome.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        Button backToHome = ButtonHelper.createTertiaryButton(
+                getTranslation("common.backToHome"), e -> getUI().ifPresent(ui -> ui.navigate("")));
         backToHome.setWidth("420px");
-        backToHome.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
 
         name.setWidth("420px");
         email.setWidth("420px");
