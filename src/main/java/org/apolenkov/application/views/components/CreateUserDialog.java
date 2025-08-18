@@ -61,6 +61,7 @@ public class CreateUserDialog extends Dialog {
 
     private EmailField createEmailField() {
         EmailField field = new EmailField(getTranslation("auth.email"));
+        field.setPlaceholder(getTranslation("auth.email.placeholder"));
         field.setWidthFull();
         field.setRequiredIndicatorVisible(true);
         field.setHelperText(getTranslation("auth.email.helper"));
@@ -77,6 +78,7 @@ public class CreateUserDialog extends Dialog {
 
     private PasswordField createPasswordField() {
         PasswordField field = new PasswordField(getTranslation("auth.password"));
+        field.setPlaceholder(getTranslation("auth.password.placeholder"));
         field.setWidthFull();
         field.setRequiredIndicatorVisible(true);
         field.setHelperText(getTranslation("user.password.helper"));

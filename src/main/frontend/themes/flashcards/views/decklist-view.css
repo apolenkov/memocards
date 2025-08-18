@@ -76,6 +76,7 @@
 
 /* Toolbar with bottom margin */
 .toolbar-with-bottom-margin {
+  margin-top: var(--lumo-space-m);
   margin-bottom: var(--lumo-space-l);
 }
 

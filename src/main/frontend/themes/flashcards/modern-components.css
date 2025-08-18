@@ -420,7 +420,8 @@
 .vaadin-email-field input::placeholder,
 .vaadin-password-field input::placeholder,
 .vaadin-text-area textarea::placeholder {
-  color: rgba(251, 251, 251, 0.6) !important;
+  color: rgba(251, 251, 251, 0.3) !important;
+  opacity: 0.4;
   font-style: italic;
 }
 
@@ -428,14 +429,16 @@
 .vaadin-text-field [part="clear-button"],
 .vaadin-email-field [part="clear-button"],
 .vaadin-password-field [part="clear-button"] {
-  color: rgba(251, 251, 251, 0.7) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 0.4;
   transition: all 0.2s ease;
 }
 
 .vaadin-text-field [part="clear-button"]:hover,
 .vaadin-email-field [part="clear-button"]:hover,
 .vaadin-password-field [part="clear-button"]:hover {
-  color: var(--modern-primary, #2f8af5) !important;
+  color: white !important;
+  opacity: 1 !important;
   transform: scale(1.1);
 }
 

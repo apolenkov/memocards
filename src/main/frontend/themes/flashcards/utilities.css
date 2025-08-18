@@ -307,3 +307,35 @@
 .z-index-1000 {
   z-index: 1000;
 }
+
+/* Global placeholder styling - делаем все placeholder менее заметными */
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 0.4 !important;
+  font-style: italic;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+  opacity: 0.3 !important;
+}
+
+/* Специальные стили для разных типов input */
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="search"]::placeholder {
+  color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 0.4 !important;
+  font-style: italic;
+}
+
+input[type="text"]:focus::placeholder,
+input[type="email"]:focus::placeholder,
+input[type="password"]:focus::placeholder,
+input[type="search"]:focus::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+  opacity: 0.3 !important;
+}

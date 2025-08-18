@@ -15,7 +15,7 @@
 
 /* Секции */
 .stats-view__section {
-  margin-bottom: var(--lumo-space-xl);
+  margin-top: var(--lumo-space-xl);
   padding: var(--lumo-space-l);
   background: rgba(251, 251, 251, 0.1);
   border-radius: var(--lumo-border-radius-l);
@@ -58,6 +58,7 @@
   flex-direction: column;
   justify-content: center;
   min-height: 120px;
+  color: rgba(251, 251, 251, 0.98);
 }
 
 .stats-view__stat-card::before {
@@ -79,14 +80,6 @@
   border-color: rgba(251, 251, 251, 0.2);
   border-width: 1px;
   box-shadow: none;
-}
-
-.stats-view__stat-card--today .stats-view__stat-value {
-  color: rgba(251, 251, 251, 0.98);
-}
-
-.stats-view__stat-card--today .stats-view__stat-label {
-  color: rgba(251, 251, 251, 0.8);
 }
 
 /* Иконки в карточках - скрываем */
