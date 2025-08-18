@@ -26,3 +26,6 @@
 @import url('./form-controls.css');
 
 /* Global readability helpers for dark backgrounds */
+@media (prefers-reduced-motion: reduce) {
+  .hover-scale, .hover-lift, .transition-all { transition: none; }
+}
