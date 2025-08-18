@@ -188,7 +188,7 @@
 /* Practice button with border style like register button */
 .deckview-view__practice-button {
   border: 2px solid var(--fx-white-90) !important;
-  background: rgba(251, 251, 251, 0.06) !important;
+  background: var(--fx-white-06) !important;
   color: rgba(251, 251, 251, 0.96) !important;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25) !important;
   font-weight: 600 !important;

@@ -120,7 +120,9 @@
 }
 
 .landing-view__title {
-  @extend .title-xxxl;
+  /* @extend .title-xxxl; */
+  font-size: var(--lumo-font-size-xxxl);
+  font-weight: 700;
   display: block;
   width: 100%;
   font-weight: 600;
@@ -178,12 +180,12 @@
   height: 44px;
   font-weight: 600;
   border: 2px solid var(--fx-white-90);
-  background: rgba(251, 251, 251, 0.06);
-  color: rgba(251, 251, 251, 0.96);
+  background: var(--fx-white-06);
+  color: var(--fx-white-96);
 }
 
 .landing-view__register-btn:hover {
-  background: rgba(251, 251, 251, 0.12);
+  background: var(--fx-white-12);
   color: rgb(251, 251, 251);
   border-color: rgb(251, 251, 251);
 }
