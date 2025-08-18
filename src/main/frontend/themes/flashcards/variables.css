@@ -68,14 +68,18 @@
 
   /* Common white/black RGBA tokens (unify frequently used literals) */
   --fx-white-05: rgba(255, 255, 255, 0.05);
+  --fx-white-08: rgba(255, 255, 255, 0.08);
   --fx-white-10: rgba(255, 255, 255, 0.1);
+  --fx-white-12: rgba(255, 255, 255, 0.12);
   --fx-white-15: rgba(255, 255, 255, 0.15);
   --fx-white-20: rgba(255, 255, 255, 0.2);
   --fx-white-25: rgba(255, 255, 255, 0.25);
   --fx-white-30: rgba(255, 255, 255, 0.3);
   --fx-white-40: rgba(255, 255, 255, 0.4);
   --fx-white-60: rgba(255, 255, 255, 0.6);
+  --fx-white-92: rgba(255, 255, 255, 0.92);
   --fx-white-90: rgba(255, 255, 255, 0.9);
+  --fx-white-96: rgba(255, 255, 255, 0.96);
   --fx-white-95: rgba(255, 255, 255, 0.95);
   --fx-white-98: rgba(255, 255, 255, 0.98);
   --fx-black-10: rgba(0, 0, 0, 0.1);

@@ -6,6 +6,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -38,9 +39,11 @@ public final class DialogHelper {
         layout.add(new Span(message));
 
         HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
 
         Button confirmButton = new Button("Confirm", VaadinIcon.CHECK.create());
-        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_SUCCESS);
         confirmButton.addClickListener(e -> {
             onConfirm.run();
             dialog.close();

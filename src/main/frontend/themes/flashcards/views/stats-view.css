@@ -17,17 +17,17 @@
 .stats-view__section {
   margin-top: var(--lumo-space-xl);
   padding: var(--lumo-space-l);
-  background: rgba(251, 251, 251, 0.1);
+  background: var(--fx-white-10);
   border-radius: var(--lumo-border-radius-l);
   backdrop-filter: blur(15px);
-  border: 1px solid rgba(251, 251, 251, 0.2);
+  border: 1px solid var(--fx-white-20);
 }
 
 .stats-view__section-title {
   margin: 0 0 var(--lumo-space-l) 0;
   font-size: var(--lumo-font-size-xl);
   font-weight: 600;
-  color: rgba(251, 251, 251, 0.95);
+  color: var(--fx-white-95);
   text-align: center;
 }
 
@@ -43,7 +43,7 @@
 /* Карточки статистики */
 .stats-view__stat-card {
   background: linear-gradient(135deg, rgba(251, 251, 251, 0.15), rgba(251, 251, 251, 0.1));
-  border: 1px solid rgba(251, 251, 251, 0.2);
+  border: 1px solid var(--fx-white-20);
   border-radius: var(--lumo-border-radius-m);
   padding: var(--lumo-space-l);
   text-align: center;
@@ -77,7 +77,7 @@
 /* Модификатор для сегодняшней статистики */
 .stats-view__stat-card--today {
   background: linear-gradient(135deg, rgba(251, 251, 251, 0.15), rgba(251, 251, 251, 0.1));
-  border-color: rgba(251, 251, 251, 0.2);
+  border-color: var(--fx-white-20);
   border-width: 1px;
   box-shadow: none;
 }
@@ -129,14 +129,14 @@
 .stats-view__deck-header {
   margin-bottom: var(--lumo-space-m);
   padding-bottom: var(--lumo-space-s);
-  border-bottom: 1px solid rgba(251, 251, 251, 0.1);
+  border-bottom: 1px solid var(--fx-white-10);
 }
 
 .stats-view__deck-title {
   margin: 0;
   font-size: var(--lumo-font-size-l);
   font-weight: 600;
-  color: rgba(251, 251, 251, 0.95);
+  color: var(--fx-white-95);
   padding: var(--lumo-space-s);
 }
 
@@ -153,7 +153,7 @@
   padding: var(--lumo-space-m);
   background: rgba(251, 251, 251, 0.05);
   border-radius: var(--lumo-border-radius-s);
-  border: 1px solid rgba(251, 251, 251, 0.1);
+  border: 1px solid var(--fx-white-10);
   flex: 1;
   min-width: 0;
   max-width: calc(20% - var(--lumo-space-s) * 0.8);
@@ -163,13 +163,13 @@
 
 .stats-view__deck-stat-item:hover {
   background: rgba(251, 251, 251, 0.05);
-  border-color: rgba(251, 251, 251, 0.1);
+  border-color: var(--fx-white-10);
 }
 
 .stats-view__deck-stat-total {
   font-size: var(--lumo-font-size-l);
   font-weight: 700;
-  color: rgba(251, 251, 251, 0.98);
+  color: var(--fx-white-98);
   margin-bottom: var(--lumo-space-xs);
 }
 

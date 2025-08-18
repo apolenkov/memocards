@@ -8,13 +8,13 @@
 }
 
 .decklist-view h2 {
-  color: rgba(251, 251, 251, 0.98);
+  color: var(--fx-white-98);
 }
 
 /* Enhanced search field styling */
 .decklist-view .vaadin-text-field {
-  background: rgba(251, 251, 251, 0.12);
-  border: 2px solid rgba(251, 251, 251, 0.25);
+  background: var(--fx-white-12, rgba(251, 251, 251, 0.12));
+  border: 2px solid var(--fx-white-25);
   border-radius: var(--lumo-border-radius-m);
   transition: all 0.3s ease;
   max-width: 250px;
