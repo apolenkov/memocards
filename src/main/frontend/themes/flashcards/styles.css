@@ -32,7 +32,7 @@ vaadin-text-field input::placeholder,
 vaadin-email-field input::placeholder,
 vaadin-password-field input::placeholder,
 vaadin-text-area textarea::placeholder {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--fx-white-30) !important;
   opacity: 0.4 !important;
   font-style: italic;
 }
@@ -41,38 +41,38 @@ vaadin-text-field input:focus::placeholder,
 vaadin-email-field input:focus::placeholder,
 vaadin-password-field input:focus::placeholder,
 vaadin-text-area textarea:focus::placeholder {
-  color: rgba(255, 255, 255, 0.4) !important;
+  color: var(--fx-white-40) !important;
   opacity: 0.3 !important;
 }
 
 /* Глобальные стили для кнопок в input полях */
 vaadin-password-field [part="reveal-button"] {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: var(--fx-white-05) !important;
+  border: 1px solid var(--fx-white-10) !important;
   border-radius: var(--lumo-border-radius-s);
-  color: rgba(255, 255, 255, 0.3) !important;
-  transition: all 0.2s ease;
+  color: var(--fx-white-30) !important;
+  transition: all var(--custom-transition-fast);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
 }
 
 vaadin-password-field [part="reveal-button"]:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.4) !important;
+  background: var(--fx-white-20) !important;
+  border-color: var(--fx-white-40) !important;
   color: white !important;
   transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--fx-shadow-2-8-02);
 }
 
 vaadin-text-field [part="clear-button"],
 vaadin-email-field [part="clear-button"],
 vaadin-password-field [part="clear-button"],
 vaadin-text-area [part="clear-button"] {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: var(--fx-white-05) !important;
+  border: 1px solid var(--fx-white-10) !important;
   border-radius: var(--lumo-border-radius-s);
-  color: rgba(255, 255, 255, 0.3) !important;
-  transition: all 0.2s ease;
+  color: var(--fx-white-30) !important;
+  transition: all var(--custom-transition-fast);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
 }
@@ -81,18 +81,18 @@ vaadin-text-field [part="clear-button"]:hover,
 vaadin-email-field [part="clear-button"]:hover,
 vaadin-password-field [part="clear-button"]:hover,
 vaadin-text-area [part="clear-button"]:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.4) !important;
+  background: var(--fx-white-20) !important;
+  border-color: var(--fx-white-40) !important;
   color: white !important;
   transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--fx-shadow-2-8-02);
 }
 
 /* Дополнительные стили для vaadin-password-field-button */
 vaadin-password-field-button {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--fx-white-30) !important;
   opacity: 0.4;
-  transition: all 0.2s ease;
+  transition: all var(--custom-transition-fast);
 }
 
 vaadin-password-field-button:hover {
@@ -107,9 +107,9 @@ vaadin-text-field [part="clear-button"]::before,
 vaadin-email-field [part="clear-button"]::before,
 vaadin-text-area [part="clear-button"]::before,
 #clearButton {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--fx-white-30) !important;
   opacity: 0.4;
-  transition: all 0.2s ease;
+  transition: all var(--custom-transition-fast);
 }
 
 /* Hover для иконок */
@@ -125,9 +125,9 @@ vaadin-text-area [part="clear-button"]:hover::before,
 
 /* Стили для кнопок по селектору part$='button' */
 [part$='button'] {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--fx-white-30) !important;
   opacity: 0.4;
-  transition: all 0.2s ease;
+  transition: all var(--custom-transition-fast);
 }
 
 [part$='button']:hover {
@@ -137,11 +137,11 @@ vaadin-text-area [part="clear-button"]:hover::before,
 
 /* Переопределяем Lumo переменную для кнопок */
 [part$='button']::before {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--fx-white-30) !important;
   opacity: 0.4;
   font-family: 'lumo-icons';
   display: block;
-  transition: all 0.2s ease;
+  transition: all var(--custom-transition-fast);
 }
 
 [part$='button']:hover::before {
@@ -151,10 +151,10 @@ vaadin-text-area [part="clear-button"]:hover::before,
 
 /* Специфичные стили для кнопки очистки */
 [part='clear-button']::before {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--fx-white-30) !important;
   opacity: 0.4;
   content: var(--lumo-icons-cross);
-  transition: all 0.2s ease;
+  transition: all var(--custom-transition-fast);
 }
 
 [part='clear-button']:hover::before {
@@ -164,9 +164,9 @@ vaadin-text-area [part="clear-button"]:hover::before,
 
 /* Стили для reveal button в password field */
 vaadin-password-field [part='reveal-button']::before {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--fx-white-30) !important;
   opacity: 0.4;
-  transition: all 0.2s ease;
+  transition: all var(--custom-transition-fast);
 }
 
 vaadin-password-field [part='reveal-button']:hover::before {
@@ -179,7 +179,7 @@ vaadin-password-field,
 vaadin-text-field,
 vaadin-email-field,
 vaadin-text-area {
-  --lumo-contrast-60pct: rgba(255, 255, 255, 0.3);
+  --lumo-contrast-60pct: var(--fx-white-30);
 }
 
 /* Более специфичные стили для всех кнопок с иконками - базовый цвет как у placeholder */
@@ -188,10 +188,10 @@ vaadin-password-field [part="reveal-button"] vaadin-icon,
 vaadin-text-field [part="clear-button"] vaadin-icon,
 vaadin-email-field [part="clear-button"] vaadin-icon,
 vaadin-password-field [part="clear-button"] vaadin-icon {
-  color: rgba(255, 255, 255, 0.3) !important;
-  fill: rgba(255, 255, 255, 0.3) !important;
+  color: var(--fx-white-30) !important;
+  fill: var(--fx-white-30) !important;
   opacity: 0.4;
-  transition: all 0.2s ease;
+  transition: all var(--custom-transition-fast);
 }
 
 /* Hover стили для кнопок - делаем белыми */
