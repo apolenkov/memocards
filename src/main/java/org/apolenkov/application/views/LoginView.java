@@ -1,10 +1,7 @@
 package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -15,6 +12,10 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.service.AuthFacade;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.FormHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
+import org.apolenkov.application.views.utils.NotificationHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,15 +27,15 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
     private static final String COMPONENT_WIDTH = "420px";
 
     private static final class LoginModel {
-        private String username;
+        private String email;
         private String password;
 
-        public String getUsername() {
-            return username;
+        public String getEmail() {
+            return email;
         }
 
-        public void setUsername(String username) {
-            this.username = username;
+        public void setEmail(String email) {
+            this.email = email;
         }
 
         public String getPassword() {
@@ -47,55 +48,53 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
     }
 
     public LoginView(AuthFacade authFacade) {
-        VerticalLayout wrapper = new VerticalLayout();
+        VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();
-        wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
-        wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        wrapper.addClassName("login-form"); // Добавляем CSS класс для специальных стилей
 
-        TextField username = new TextField(getTranslation("auth.login.username"));
-        username.setWidth(COMPONENT_WIDTH);
-        username.setRequiredIndicatorVisible(true);
+        // Create binder and model first
+        Binder<LoginModel> binder = new Binder<>(LoginModel.class);
+        LoginModel model = new LoginModel();
+        binder.setBean(model);
+
+        TextField email = FormHelper.createRequiredTextField(
+                getTranslation("auth.email"), getTranslation("auth.email.placeholder"));
+        email.setWidth(COMPONENT_WIDTH);
 
         PasswordField password = new PasswordField(getTranslation("auth.login.password"));
         password.setWidth(COMPONENT_WIDTH);
         password.setRequiredIndicatorVisible(true);
 
-        Button submit = new Button(getTranslation("auth.login.submit"));
-        submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Button submit = ButtonHelper.createPrimaryButton(getTranslation("auth.login.submit"), e -> {
+            if (binder.validate().isOk()) {
+                try {
+                    authFacade.authenticateAndPersist(model.getEmail(), model.getPassword());
+                    getUI().ifPresent(ui -> ui.navigate(""));
+                } catch (Exception ex) {
+                    NotificationHelper.showError(getTranslation("auth.login.errorMessage"));
+                }
+            }
+        });
         submit.setWidth(COMPONENT_WIDTH);
 
-        Button forgot = new Button(getTranslation("auth.login.forgotPassword"));
-        forgot.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-        forgot.addClickListener(e -> Notification.show(getTranslation("auth.login.forgotUnsupported")));
+        Button forgot =
+                ButtonHelper.createTertiaryButton(getTranslation("auth.login.forgotPassword"), e -> getUI().ifPresent(
+                                ui -> ui.navigate("forgot-password")));
+        forgot.setWidth(COMPONENT_WIDTH);
 
-        Button backToHome = new Button(getTranslation("common.backToHome"));
-        backToHome.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        Button backToHome = ButtonHelper.createTertiaryButton(
+                getTranslation("common.backToHome"), e -> getUI().ifPresent(ui -> ui.navigate("")));
         backToHome.setWidth(COMPONENT_WIDTH);
-        backToHome.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("")));
 
-        Binder<LoginModel> binder = new Binder<>(LoginModel.class);
-        LoginModel model = new LoginModel();
-        binder.setBean(model);
-
-        binder.forField(username)
-                .asRequired(getTranslation("vaadin.validation.username.required"))
-                .bind(LoginModel::getUsername, LoginModel::setUsername);
+        // Bind fields to model
+        binder.forField(email)
+                .asRequired(getTranslation("vaadin.validation.email.required"))
+                .bind(LoginModel::getEmail, LoginModel::setEmail);
         binder.forField(password)
                 .asRequired(getTranslation("vaadin.validation.password.required"))
                 .bind(LoginModel::getPassword, LoginModel::setPassword);
 
-        submit.addClickListener(e -> {
-            if (binder.validate().isOk()) {
-                try {
-                    authFacade.authenticateAndPersist(model.getUsername(), model.getPassword());
-                    getUI().ifPresent(ui -> ui.navigate(""));
-                } catch (Exception ex) {
-                    Notification.show(getTranslation("auth.login.errorMessage"));
-                }
-            }
-        });
-
-        wrapper.add(username, password, submit, forgot, backToHome);
+        wrapper.add(email, password, submit, forgot, backToHome);
         add(wrapper);
     }
 
@@ -108,7 +107,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         }
         boolean hasError =
                 event.getLocation().getQueryParameters().getParameters().containsKey("error");
-        if (hasError) Notification.show(getTranslation("auth.login.errorMessage"));
+        if (hasError) NotificationHelper.showError(getTranslation("auth.login.errorMessage"));
     }
 
     @Override

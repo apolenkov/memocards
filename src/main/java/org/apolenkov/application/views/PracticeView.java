@@ -4,32 +4,29 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apolenkov.application.config.RouteConstants;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.presenter.practice.PracticePresenter;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.NavigationHelper;
+import org.apolenkov.application.views.utils.NotificationHelper;
 
 @Route(value = "practice", layout = PublicLayout.class)
 @RolesAllowed("ROLE_USER")
 public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
     // Constants for duplicated literals
-    private static final String ERROR_ROUTE = "error";
-    private static final String DECKS_ROUTE = "decks";
     private static final String PRACTICE_TITLE_KEY = "practice.title";
 
     private final transient FlashcardUseCase flashcardUseCase;
@@ -79,8 +76,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                 startDefaultPractice();
             }
         } catch (NumberFormatException e) {
-            Notification.show(getTranslation("practice.invalidId"), 3000, Notification.Position.MIDDLE);
-            getUI().ifPresent(ui -> ui.navigate(ERROR_ROUTE, QueryParameters.of("from", DECKS_ROUTE)));
+            NotificationHelper.showError(getTranslation("practice.invalidId"));
+            NavigationHelper.navigateToError(RouteConstants.DECKS_ROUTE);
         }
     }
 
@@ -108,7 +105,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private void showNoCardsOnce() {
         if (!noCardsNotified) {
             noCardsNotified = true;
-            Notification.show(getTranslation("practice.allKnown"), 3000, Notification.Position.MIDDLE);
+            NotificationHelper.showInfo(getTranslation("practice.allKnown"));
         }
     }
 
@@ -119,15 +116,14 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.addClassName("practice-view__header-left");
 
-        Button backButton = new Button(getTranslation("practice.back"), VaadinIcon.ARROW_LEFT.create());
-        backButton.addClickListener(e -> {
+        Button backButton = ButtonHelper.createBackButton(e -> {
             if (currentDeck != null) {
-                getUI().ifPresent(
-                                ui -> ui.navigate("deck/" + currentDeck.getId().toString()));
+                NavigationHelper.navigateToDeck(currentDeck.getId());
             } else {
-                getUI().ifPresent(ui -> ui.navigate(ERROR_ROUTE, QueryParameters.of("from", DECKS_ROUTE)));
+                NavigationHelper.navigateToError(RouteConstants.DECKS_ROUTE);
             }
         });
+        backButton.setText(getTranslation("practice.back"));
 
         deckTitle = new H2(getTranslation(PRACTICE_TITLE_KEY));
         deckTitle.addClassName("practice-view__title");
@@ -165,18 +161,15 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         actionButtons = new HorizontalLayout();
         actionButtons.addClassName("practice-view__actions");
 
-        showAnswerButton = new Button(getTranslation("practice.showAnswer"), VaadinIcon.EYE.create());
-        showAnswerButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
-        showAnswerButton.addClickListener(e -> showAnswer());
+        showAnswerButton = ButtonHelper.createLargeButton(getTranslation("practice.showAnswer"), e -> showAnswer());
+        showAnswerButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        knowButton = new Button(getTranslation("practice.know"), VaadinIcon.CHECK.create());
-        knowButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_LARGE);
-        knowButton.addClickListener(e -> markLabeled("know"));
+        knowButton = ButtonHelper.createLargeButton(getTranslation("practice.know"), e -> markLabeled("know"));
+        knowButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         knowButton.setVisible(false);
 
-        hardButton = new Button(getTranslation("practice.hard"), VaadinIcon.WARNING.create());
-        hardButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_LARGE);
-        hardButton.addClickListener(e -> markLabeled("hard"));
+        hardButton = ButtonHelper.createLargeButton(getTranslation("practice.hard"), e -> markLabeled("hard"));
+        hardButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         hardButton.setVisible(false);
 
         actionButtons.add(showAnswerButton, knowButton, hardButton);
@@ -191,57 +184,9 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                     deckTitle.setText(getTranslation(PRACTICE_TITLE_KEY, currentDeck.getTitle()));
                 },
                 () -> {
-                    Notification.show(getTranslation("deck.notFound"), 3000, Notification.Position.MIDDLE);
-                    getUI().ifPresent(ui -> ui.navigate(ERROR_ROUTE, QueryParameters.of("from", DECKS_ROUTE)));
+                    NotificationHelper.showError(getTranslation("deck.notFound"));
+                    NavigationHelper.navigateToError(RouteConstants.DECKS_ROUTE);
                 });
-    }
-
-    @SuppressWarnings("unused")
-    private void showPracticeSetupDialog() {
-        Dialog setupDialog = new Dialog();
-        setupDialog.setWidth("420px");
-
-        VerticalLayout layout = new VerticalLayout();
-        layout.add(new H3(getTranslation("practice.setup.title")));
-
-        Select<Integer> countSelect = new Select<>();
-        countSelect.setLabel(getTranslation("practice.setup.count"));
-        countSelect.setItems(5, 10, 15, 20, 25);
-        countSelect.setValue(10);
-
-        RadioButtonGroup<String> modeGroup = new RadioButtonGroup<>();
-        modeGroup.setLabel(getTranslation("practice.setup.mode"));
-        String randomText = getTranslation("practice.setup.mode.random");
-        String seqText = getTranslation("practice.setup.mode.seq");
-        modeGroup.setItems(randomText, seqText);
-        modeGroup.setValue(randomText);
-
-        RadioButtonGroup<String> directionGroup = new RadioButtonGroup<>();
-        directionGroup.setLabel(getTranslation("practice.setup.direction"));
-        String f2bText = getTranslation("practice.setup.direction.f2b");
-        String b2fText = getTranslation("practice.setup.direction.b2f");
-        directionGroup.setItems(f2bText, b2fText);
-        directionGroup.setValue(f2bText);
-
-        HorizontalLayout buttons = new HorizontalLayout();
-
-        Button startButton = new Button(getTranslation("practice.setup.start"), VaadinIcon.PLAY.create());
-        startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        startButton.addClickListener(e -> {
-            int count = countSelect.getValue();
-            boolean random = randomText.equals(modeGroup.getValue());
-            startPractice(count, random);
-            setupDialog.close();
-        });
-
-        Button cancelButton = new Button(getTranslation("practice.setup.cancel"));
-        cancelButton.addClickListener(e -> setupDialog.close());
-
-        buttons.add(startButton, cancelButton);
-        layout.add(countSelect, modeGroup, directionGroup, buttons);
-
-        setupDialog.add(layout);
-        setupDialog.open();
     }
 
     private void startPractice(int count, boolean random) {
@@ -409,8 +354,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         });
         Button backToDeckButton = new Button(getTranslation("practice.backToDeck"), e -> getUI().ifPresent(
                         ui -> ui.navigate("deck/" + currentDeck.getId().toString())));
-        Button homeButton = new Button(
-                getTranslation("practice.backToDecks"), e -> getUI().ifPresent(ui -> ui.navigate(DECKS_ROUTE)));
+        Button homeButton = new Button(getTranslation("practice.backToDecks"), e -> NavigationHelper.navigateToDecks());
         actionButtons.add(againButton, backToDeckButton, homeButton);
     }
 

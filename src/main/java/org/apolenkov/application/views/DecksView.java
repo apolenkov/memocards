@@ -2,7 +2,6 @@ package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -17,6 +16,11 @@ import org.apolenkov.application.views.components.CreateDeckDialog;
 import org.apolenkov.application.views.components.DeckCard;
 import org.apolenkov.application.views.home.DeckCardViewModel;
 import org.apolenkov.application.views.home.HomePresenter;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.FormHelper;
+import org.apolenkov.application.views.utils.IconHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
+import org.apolenkov.application.views.utils.TextHelper;
 
 @Route(value = "decks", layout = PublicLayout.class)
 @RolesAllowed({"ROLE_USER", "ROLE_ADMIN"})
@@ -42,21 +46,18 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         content.setSpacing(true);
         content.addClassName("decklist-view");
 
-        H2 title = new H2(getTranslation("home.title"));
+        H2 title = TextHelper.createPageTitle(getTranslation("home.title"));
 
-        TextField search = new TextField();
-        search.setPlaceholder(getTranslation("home.search"));
-        search.setClearButtonVisible(true);
+        TextField search = FormHelper.createOptionalTextField(
+                getTranslation("home.search"), getTranslation("home.search.placeholder"));
         search.setValueChangeMode(ValueChangeMode.EAGER);
-        search.setPrefixComponent(VaadinIcon.SEARCH.create());
+        search.setPrefixComponent(IconHelper.createSearchIcon());
         search.setMaxWidth("250px");
 
-        Button addDeckBtn = new Button(getTranslation("home.addDeck"));
-        addDeckBtn.getElement().getThemeList().add("primary");
-        addDeckBtn.addClickListener(e -> openCreateDeckDialog());
+        Button addDeckBtn = ButtonHelper.createPlusButton(e -> openCreateDeckDialog());
+        addDeckBtn.setText(getTranslation("home.addDeck"));
 
-        HorizontalLayout toolbar = new HorizontalLayout(search, addDeckBtn);
-        toolbar.setAlignItems(Alignment.END);
+        HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addDeckBtn);
         toolbar.addClassName("toolbar-with-bottom-margin");
 
         deckList = new VerticalLayout();

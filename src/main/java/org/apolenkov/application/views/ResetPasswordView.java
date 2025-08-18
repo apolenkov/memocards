@@ -1,0 +1,155 @@
+package org.apolenkov.application.views;
+
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.PasswordField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.apolenkov.application.service.PasswordResetService;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
+import org.apolenkov.application.views.utils.NotificationHelper;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+@Route(value = "reset-password", layout = PublicLayout.class)
+@AnonymousAllowed
+public class ResetPasswordView extends Div implements BeforeEnterObserver, HasDynamicTitle, HasUrlParameter<String> {
+
+    private static final String COMPONENT_WIDTH = "420px";
+
+    private static final class ResetPasswordModel {
+        private String password;
+        private String confirmPassword;
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getConfirmPassword() {
+            return confirmPassword;
+        }
+
+        public void setConfirmPassword(String confirmPassword) {
+            this.confirmPassword = confirmPassword;
+        }
+    }
+
+    private final PasswordResetService passwordResetService;
+    private String token;
+
+    public ResetPasswordView(PasswordResetService passwordResetService) {
+        this.passwordResetService = passwordResetService;
+
+        VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
+        wrapper.setSizeFull();
+        wrapper.addClassName("reset-password-form");
+
+        // Create binder and model
+        Binder<ResetPasswordModel> binder = new Binder<>(ResetPasswordModel.class);
+        ResetPasswordModel model = new ResetPasswordModel();
+        binder.setBean(model);
+
+        H2 title = new H2(getTranslation("auth.resetPassword.title"));
+        title.addClassName("reset-password-form__title");
+
+        PasswordField password = new PasswordField(getTranslation("auth.password"));
+        password.setWidth(COMPONENT_WIDTH);
+        password.setRequiredIndicatorVisible(true);
+
+        PasswordField confirmPassword = new PasswordField(getTranslation("auth.password.confirm"));
+        confirmPassword.setWidth(COMPONENT_WIDTH);
+        confirmPassword.setRequiredIndicatorVisible(true);
+
+        Button submit = ButtonHelper.createPrimaryButton(
+                getTranslation("auth.resetPassword.submit"),
+                e -> handleSubmit(model.getPassword(), model.getConfirmPassword()));
+        submit.setWidth(COMPONENT_WIDTH);
+
+        Button backToLogin = ButtonHelper.createTertiaryButton(
+                getTranslation("auth.resetPassword.backToLogin"), e -> getUI().ifPresent(ui -> ui.navigate("login")));
+        backToLogin.setWidth(COMPONENT_WIDTH);
+
+        Button backToHome = ButtonHelper.createTertiaryButton(
+                getTranslation("common.backToHome"), e -> getUI().ifPresent(ui -> ui.navigate("")));
+        backToHome.setWidth(COMPONENT_WIDTH);
+
+        // Bind fields to model
+        binder.forField(password)
+                .asRequired(getTranslation("vaadin.validation.password.required"))
+                .bind(ResetPasswordModel::getPassword, ResetPasswordModel::setPassword);
+
+        binder.forField(confirmPassword)
+                .asRequired(getTranslation("vaadin.validation.password.confirm.required"))
+                .bind(ResetPasswordModel::getConfirmPassword, ResetPasswordModel::setConfirmPassword);
+
+        wrapper.add(title, password, confirmPassword, submit, backToLogin, backToHome);
+        add(wrapper);
+    }
+
+    @Override
+    public void setParameter(BeforeEvent event, String parameter) {
+        this.token = parameter;
+
+        // Validate token
+        if (!passwordResetService.isTokenValid(token)) {
+            NotificationHelper.showError(getTranslation("auth.resetPassword.invalidToken"));
+            getUI().ifPresent(ui -> ui.navigate("login"));
+        }
+    }
+
+    private void handleSubmit(String password, String confirmPassword) {
+        if (password == null || password.trim().isEmpty()) {
+            NotificationHelper.showError(getTranslation("auth.resetPassword.passwordRequired"));
+            return;
+        }
+
+        if (!password.equals(confirmPassword)) {
+            NotificationHelper.showError(getTranslation("auth.resetPassword.passwordMismatch"));
+            return;
+        }
+
+        if (password.length() < 8) {
+            NotificationHelper.showError(getTranslation("auth.resetPassword.passwordTooShort"));
+            return;
+        }
+
+        try {
+            boolean success = passwordResetService.resetPassword(token, password);
+            if (success) {
+                NotificationHelper.showSuccess(getTranslation("auth.resetPassword.success"));
+                getUI().ifPresent(ui -> ui.navigate("login"));
+            } else {
+                NotificationHelper.showError(getTranslation("auth.resetPassword.failed"));
+            }
+        } catch (Exception ex) {
+            NotificationHelper.showError(getTranslation("auth.resetPassword.error"));
+        }
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
+            event.rerouteTo("");
+        }
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("auth.resetPassword.title");
+    }
+}

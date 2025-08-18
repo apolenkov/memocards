@@ -2,6 +2,7 @@ package org.apolenkov.application.service.user;
 
 import java.util.List;
 import java.util.Optional;
+import org.apolenkov.application.config.TransactionAnnotations;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.apolenkov.application.usecase.UserUseCase;
@@ -20,19 +21,19 @@ public class UserUseCaseService implements UserUseCase {
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @TransactionAnnotations.ReadOnlyTransaction
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @TransactionAnnotations.ReadOnlyTransaction
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @TransactionAnnotations.ReadOnlyTransaction
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
