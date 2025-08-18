@@ -22,8 +22,9 @@
 }
 
 .error-view__title {
-  @extend .title-xxxl;
-  font-weight: 600;
+  /* @extend .title-xxxl; */
+  font-size: var(--lumo-font-size-xxxl);
+  font-weight: 700;
   color: var(--lumo-primary-text-color);
   margin-bottom: var(--lumo-space-m);
 }
