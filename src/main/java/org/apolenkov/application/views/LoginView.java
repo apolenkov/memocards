@@ -50,7 +50,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
     public LoginView(AuthFacade authFacade) {
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();
-        wrapper.addClassName("login-form"); // Добавляем CSS класс для специальных стилей
+        wrapper.addClassName("login-form");
 
         // Create binder and model first
         Binder<LoginModel> binder = new Binder<>(LoginModel.class);

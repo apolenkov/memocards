@@ -199,7 +199,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         flashcardGrid
                 .addColumn(flashcard -> {
                     String example = flashcard.getExample();
-                    return example != null && !example.trim().isEmpty() ? example : "—";
+                    return example != null && !example.trim().isEmpty() ? example : "-";
                 })
                 .setHeader(getTranslation("deck.col.example"))
                 .setFlexGrow(3);

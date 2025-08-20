@@ -31,48 +31,56 @@ public class DataInitializer {
 
             if (!decks.findByUserId(user.getId()).isEmpty()) return;
 
-            Deck travel = decks.save(new Deck(null, user.getId(), "Travel — фразы", "Короткие фразы для поездок"));
-            Deck it = decks.save(new Deck(null, user.getId(), "IT — термины", "Основные термины программирования"));
-            Deck english = decks.save(new Deck(null, user.getId(), "English Basics", "Базовые английские слова"));
+            Deck travel = decks.save(new Deck(null, user.getId(), "Travel - phrases", "Short phrases for trips"));
+            Deck it = decks.save(new Deck(null, user.getId(), "IT - terms", "Core programming terms"));
+            Deck english = decks.save(new Deck(null, user.getId(), "English Basics", "Basic English words"));
 
             List<Flashcard> travelCards = List.of(
-                    new Flashcard(null, travel.getId(), "Hello", "Привет", "Hello, how are you?"),
-                    new Flashcard(null, travel.getId(), "Thank you", "Спасибо", "Thank you very much!"),
-                    new Flashcard(null, travel.getId(), "Excuse me", "Извините", "Excuse me, where is the station?"),
-                    new Flashcard(null, travel.getId(), "How much?", "Сколько это стоит?", "How much does this cost?"),
-                    new Flashcard(
-                            null, travel.getId(), "Where is...?", "Где находится...?", "Where is the nearest bank?"));
+                    new Flashcard(null, travel.getId(), "Hello", "Hello", "Hello, how are you?"),
+                    new Flashcard(null, travel.getId(), "Thank you", "Thank you", "Thank you very much!"),
+                    new Flashcard(null, travel.getId(), "Excuse me", "Excuse me", "Excuse me, where is the station?"),
+                    new Flashcard(null, travel.getId(), "How much?", "How much is this?", "How much does this cost?"),
+                    new Flashcard(null, travel.getId(), "Where is...?", "Where is it?", "Where is the nearest bank?"));
 
             List<Flashcard> itCards = List.of(
                     new Flashcard(
                             null,
                             it.getId(),
                             "Algorithm",
-                            "Алгоритм",
+                            "Algorithm",
                             "A step-by-step procedure for solving a problem"),
-                    new Flashcard(null, it.getId(), "Database", "База данных", "Organized collection of data"),
-                    new Flashcard(
-                            null, it.getId(), "API", "Программный интерфейс", "Application Programming Interface"),
+                    new Flashcard(null, it.getId(), "Database", "Database", "Organized collection of data"),
+                    new Flashcard(null, it.getId(), "API", "API", "Application Programming Interface"),
                     new Flashcard(
                             null,
                             it.getId(),
                             "Framework",
-                            "Фреймворк",
+                            "Framework",
                             "A platform for developing software applications"),
-                    new Flashcard(null, it.getId(), "Bug", "Ошибка в программе", "An error in a computer program"),
+                    new Flashcard(null, it.getId(), "Bug", "Bug", "An error in a computer program"),
                     new Flashcard(
                             null,
                             it.getId(),
                             "Version Control",
-                            "Система контроля версий",
+                            "Version Control",
                             "Managing changes to documents and code"));
 
             List<Flashcard> englishCards = List.of(
-                    new Flashcard(null, english.getId(), "Apple", "Яблоко", "I eat an apple every day"),
-                    new Flashcard(null, english.getId(), "Beautiful", "Красивый", "She has beautiful eyes"),
-                    new Flashcard(null, english.getId(), "Computer", "Компьютер", "I work on my computer"),
-                    new Flashcard(null, english.getId(), "Dog", "Собака", "My dog is very friendly"),
-                    new Flashcard(null, english.getId(), "Education", "Образование", "Education is very important"));
+                    new Flashcard(null, english.getId(), "Apple", "A fruit", "I eat an apple every day"),
+                    new Flashcard(null, english.getId(), "Beautiful", "Attractive", "She has beautiful eyes"),
+                    new Flashcard(
+                            null,
+                            english.getId(),
+                            "Computer",
+                            "A machine for processing data",
+                            "I work on my computer"),
+                    new Flashcard(null, english.getId(), "Dog", "An animal", "My dog is very friendly"),
+                    new Flashcard(
+                            null,
+                            english.getId(),
+                            "Education",
+                            "The process of learning",
+                            "Education is very important"));
 
             travelCards.forEach(cards::save);
             itCards.forEach(cards::save);
@@ -81,17 +89,17 @@ public class DataInitializer {
             if (news.findAllOrderByCreatedDesc().isEmpty()) {
                 news.save(new News(
                         null,
-                        "Добро пожаловать в Flashcards!",
-                        "Наше приложение поможет вам эффективно изучать новые слова и фразы. "
-                                + "Создавайте колоды карточек, практикуйтесь и отслеживайте свой прогресс.",
+                        "Welcome to Flashcards!",
+                        "Our app helps you efficiently learn new words and phrases. "
+                                + "Create decks, practice, and track your progress.",
                         "admin",
                         java.time.LocalDateTime.now()));
 
                 news.save(new News(
                         null,
-                        "Новые функции в приложении",
-                        "Мы добавили возможность отслеживания статистики, настройки практики и многое другое. "
-                                + "Оставайтесь в курсе обновлений!",
+                        "New features in the application",
+                        "We have added statistics tracking, practice settings, and much more. "
+                                + "Stay tuned for updates!",
                         "admin",
                         java.time.LocalDateTime.now()));
             }

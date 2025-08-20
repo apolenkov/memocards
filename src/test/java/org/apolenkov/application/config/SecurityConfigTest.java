@@ -37,6 +37,8 @@ class SecurityConfigTest {
 
     @BeforeEach
     void setUp() {
+        // Mock environment to return empty profiles array to avoid NPE in constructor
+        when(environment.getActiveProfiles()).thenReturn(new String[0]);
         securityConfig = new SecurityConfig(environment);
     }
 
@@ -69,17 +71,18 @@ class SecurityConfigTest {
     @DisplayName("Constructor Tests")
     class ConstructorTests {
         @Test
-        @DisplayName("Constructor should set environment")
-        void constructorShouldSetEnvironment() {
+        @DisplayName("Constructor should compute prodProfileActive from Environment")
+        void constructorShouldComputeProdProfileActiveFromEnvironment() {
             // Given
             Environment mockEnvironment = mock(Environment.class);
+            when(mockEnvironment.getActiveProfiles()).thenReturn(new String[] {"prod"});
 
             // When
             SecurityConfig config = new SecurityConfig(mockEnvironment);
 
             // Then
-            Environment fieldValue = (Environment) ReflectionTestUtils.getField(config, "environment");
-            assertThat(fieldValue).isEqualTo(mockEnvironment);
+            Boolean prodFlag = (Boolean) ReflectionTestUtils.getField(config, "prodProfileActive");
+            assertThat(prodFlag).isTrue();
         }
     }
 

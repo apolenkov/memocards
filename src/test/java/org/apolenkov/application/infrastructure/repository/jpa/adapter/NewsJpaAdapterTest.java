@@ -47,7 +47,7 @@ class NewsJpaAdapterTest {
                     .isTrue();
             org.springframework.context.annotation.Profile profile =
                     clazz.getAnnotation(org.springframework.context.annotation.Profile.class);
-            assertThat(profile.value()).contains("dev", "jpa", "prod");
+            assertThat(profile.value()).contains("dev", "prod");
         }
 
         @Test

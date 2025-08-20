@@ -1,17 +1,12 @@
 package org.apolenkov.application.config;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Arrays;
 import org.apolenkov.application.views.LoginView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,27 +16,24 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 public class SecurityConfig extends VaadinWebSecurity {
-
-    private final Environment environment;
+    private final boolean prodProfileActive;
 
     public SecurityConfig(Environment environment) {
-        this.environment = environment;
+        String[] profiles = environment != null ? environment.getActiveProfiles() : null;
+        this.prodProfileActive =
+                profiles != null && java.util.Arrays.asList(profiles).contains("prod");
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // Delegate matcher configuration to Vaadin's defaults to avoid conflicts
         super.configure(http);
-        setLoginView(http, LoginView.class, "/");
 
-        // On success: all users -> / (root page with news)
-        http.formLogin(form -> form.successHandler((request, response, authentication) -> {
-            response.sendRedirect("/");
-        }));
+        setLoginView(http, LoginView.class, "/");
 
         // CSRF via HttpOnly cookie; Vaadin handles token automatically. No need to expose to JS.
         CookieCsrfTokenRepository csrfRepo = new CookieCsrfTokenRepository();
-        csrfRepo.setCookieHttpOnly(true); // TODO: Replace when Spring Security provides alternative
+        csrfRepo.setCookieCustomizer(cookie -> cookie.httpOnly(true));
         http.csrf(csrf -> csrf.csrfTokenRepository(csrfRepo).ignoringRequestMatchers("/login"));
 
         // Unauthenticated → redirect to landing; AccessDenied → custom page for all profiles
@@ -54,8 +46,7 @@ public class SecurityConfig extends VaadinWebSecurity {
                 .deleteCookies("JSESSIONID", "remember-me")
                 .invalidateHttpSession(true));
 
-        boolean isProd = Arrays.asList(environment.getActiveProfiles()).contains("prod");
-        if (isProd) {
+        if (prodProfileActive) {
             http.headers(headers -> headers.contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; "
                     + "base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; "
                     + "img-src 'self' data:; style-src 'self' 'unsafe-inline'; "
@@ -72,30 +63,23 @@ public class SecurityConfig extends VaadinWebSecurity {
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
-        return new AccessDeniedHandler() {
-            @Override
-            public void handle(
-                    HttpServletRequest request,
-                    HttpServletResponse response,
-                    AccessDeniedException accessDeniedException)
-                    throws IOException, ServletException {
+        return (request, response, accessDeniedException) -> {
 
-                // Check if request is for UI (Vaadin) or API/static content
-                String acceptHeader = request.getHeader("Accept");
-                boolean isApiRequest = acceptHeader != null
-                        && (acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE)
-                                || acceptHeader.contains(MediaType.APPLICATION_XML_VALUE))
-                        && !acceptHeader.contains(MediaType.TEXT_HTML_VALUE);
+            // Check if request is for UI (Vaadin) or API/static content
+            String acceptHeader = request.getHeader("Accept");
+            boolean isApiRequest = acceptHeader != null
+                    && (acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE)
+                            || acceptHeader.contains(MediaType.APPLICATION_XML_VALUE))
+                    && !acceptHeader.contains(MediaType.TEXT_HTML_VALUE);
 
-                if (isApiRequest) {
-                    // Return JSON error for API requests
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                    response.getWriter().write("{\"error\":\"Access denied\",\"status\":403}");
-                } else {
-                    // Redirect to UI access denied page for browser requests
-                    response.sendRedirect("/access-denied");
-                }
+            if (isApiRequest) {
+                // Return JSON error for API requests
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.getWriter().write("{\"error\":\"Access denied\",\"status\":403}");
+            } else {
+                // Redirect to UI access denied page for browser requests
+                response.sendRedirect("/access-denied");
             }
         };
     }
