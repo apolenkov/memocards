@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="512" height="512">
+  <!-- Simple pixel-style cosmonaut, neutral colors suitable for dark/light themes -->
+  <defs>
+    <linearGradient id="visorGrad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#4b5563"/>
+      <stop offset="100%" stop-color="#1f2937"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shadow -->
+  <ellipse cx="64" cy="118" rx="28" ry="6" fill="#0b1220" opacity="0.25"/>
+
+  <!-- Helmet outer ring -->
+  <circle cx="64" cy="36" r="26" fill="#e5e7eb"/>
+  <!-- Helmet inner -->
+  <circle cx="64" cy="36" r="22" fill="url(#visorGrad)"/>
+
+  <!-- Neck ring -->
+  <rect x="44" y="56" width="40" height="8" rx="2" fill="#cbd5e1"/>
+
+  <!-- Torso -->
+  <rect x="40" y="64" width="48" height="32" rx="4" fill="#d1d5db"/>
+  <!-- Control panel -->
+  <rect x="52" y="72" width="24" height="14" rx="2" fill="#0ea5e9" opacity="0.9"/>
+  <rect x="54" y="74" width="6" height="10" rx="1" fill="#22c55e"/>
+  <rect x="62" y="74" width="4" height="10" rx="1" fill="#f59e0b"/>
+  <rect x="68" y="74" width="6" height="10" rx="1" fill="#ef4444"/>
+
+  <!-- Left arm -->
+  <rect x="26" y="70" width="18" height="10" rx="3" fill="#d1d5db"/>
+  <rect x="20" y="78" width="12" height="10" rx="3" fill="#d1d5db"/>
+  <rect x="18" y="86" width="10" height="8" rx="2" fill="#cbd5e1"/>
+
+  <!-- Right arm (raised, thinking pose) -->
+  <rect x="84" y="68" width="18" height="10" rx="3" fill="#d1d5db"/>
+  <rect x="96" y="58" width="10" height="12" rx="3" fill="#d1d5db"/>
+  <rect x="98" y="52" width="8" height="8" rx="2" fill="#cbd5e1"/>
+
+  <!-- Legs -->
+  <rect x="44" y="96" width="14" height="20" rx="3" fill="#d1d5db"/>
+  <rect x="70" y="96" width="14" height="20" rx="3" fill="#d1d5db"/>
+
+  <!-- Boots -->
+  <rect x="40" y="114" width="22" height="6" rx="2" fill="#9ca3af"/>
+  <rect x="66" y="114" width="22" height="6" rx="2" fill="#9ca3af"/>
+
+  <!-- Highlights removed for a more subtle, non-distracting look -->
+</svg>
+
+

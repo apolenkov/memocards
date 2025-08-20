@@ -57,6 +57,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         subtitle.getStyle().set("color", "var(--lumo-secondary-text-color)");
         subtitle.getStyle().set("font-size", "var(--lumo-font-size-l)");
         subtitle.getStyle().set("margin-bottom", "var(--lumo-space-l)");
+        subtitle.getStyle().set("text-align", "center");
 
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(true);
@@ -85,7 +86,8 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         // News section wrapper
         Div newsSection = new Div();
-        newsSection.getStyle()
+        newsSection
+                .getStyle()
                 .set("width", "100%")
                 .set("max-width", "800px")
                 .set("background", "var(--lumo-contrast-5pct)")
@@ -120,6 +122,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
             H3 cardTitle = new H3(item.getTitle());
             cardTitle.getStyle().set("margin", "0");
+            cardTitle.getStyle().set("color", "var(--lumo-primary-text-color)");
             card.add(cardTitle);
 
             Paragraph cardContent = new Paragraph(item.getContent());
@@ -145,7 +148,8 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         // Hero section container
         Div heroSection = new Div();
-        heroSection.getStyle()
+        heroSection
+                .getStyle()
                 .set("width", "100%")
                 .set("max-width", "800px")
                 .set("background", "var(--lumo-contrast-5pct)")

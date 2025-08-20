@@ -40,8 +40,7 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         if (autoLoginEnabled
@@ -49,9 +48,8 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
                 && isEligibleRequest(request)) {
             try {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(autoLoginUser);
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, userDetails.getPassword(), userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 appLogger.debug("Dev auto-login applied for user: {}", autoLoginUser);
             } catch (Exception e) {
@@ -68,5 +66,3 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
         return !(path != null && (path.startsWith("/login") || path.startsWith("/logout")));
     }
 }
-
-
