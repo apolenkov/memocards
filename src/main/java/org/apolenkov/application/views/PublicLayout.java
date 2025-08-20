@@ -18,6 +18,7 @@ public class PublicLayout extends AppLayout {
         this.languageSwitcher = languageSwitcher;
         this.topMenu = topMenu;
         setPrimarySection(Section.NAVBAR);
+        addClassNames("bg-app", "bg-variant-custom");
         addHeaderContent();
     }
 
@@ -43,6 +44,9 @@ public class PublicLayout extends AppLayout {
     @Override
     protected void afterNavigation() {
         super.afterNavigation();
+        if (getElement() != null) {
+            getElement().getClassList().add("bg-app");
+        }
         if (getContent() != null) {
             getContent().addClassName("app-content");
         }

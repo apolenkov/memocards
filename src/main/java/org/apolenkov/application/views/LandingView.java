@@ -40,8 +40,8 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
                         .getResourceAsStream("/META-INF/resources/icons/pixel-icon.svg")),
                 getTranslation("landing.heroAlt"));
 
-        hero.getStyle().set("width", "120px");
-        hero.getStyle().set("height", "120px");
+        hero.getStyle().set("width", "160px");
+        hero.getStyle().set("height", "160px");
 
         // Simple click handler - always go to login
         hero.addClickListener(e -> NavigationHelper.navigateTo("login"));
@@ -50,7 +50,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         H1 title = TextHelper.createMainTitle(getTranslation("app.title"));
         title.getStyle().set("margin", "0");
-        title.getStyle().set("color", "var(--lumo-primary-text-color)");
+        title.getStyle().set("color", "var(--lumo-primary-contrast-color)");
 
         Paragraph subtitle = new Paragraph(getTranslation("landing.subtitle"));
         subtitle.getStyle().set("color", "var(--lumo-secondary-text-color)");
@@ -81,13 +81,11 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         // News section wrapper
         Div newsSection = new Div();
+        newsSection.addClassName("surface-panel");
         newsSection
                 .getStyle()
                 .set("width", "100%")
                 .set("max-width", "800px")
-                .set("background", "var(--lumo-contrast-5pct)")
-                .set("border", "1px solid var(--lumo-contrast-10pct)")
-                .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding", "var(--lumo-space-l)")
                 .set("display", "flex")
                 .set("flex-direction", "column")
@@ -95,7 +93,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         H3 newsTitle = TextHelper.createSectionTitle(getTranslation("landing.news"));
         newsTitle.getStyle().set("margin", "0");
-        newsTitle.getStyle().set("color", "var(--lumo-primary-text-color)");
+        newsTitle.getStyle().set("color", "var(--lumo-primary-contrast-color)");
         newsSection.add(newsTitle);
 
         Div newsList = new Div();
@@ -106,10 +104,8 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         for (var item : newsService.getAllNews()) {
             Div card = new Div();
+            card.addClassName("surface-card");
             card.getStyle()
-                    .set("background", "var(--lumo-contrast-5pct)")
-                    .set("border", "1px solid var(--lumo-contrast-10pct)")
-                    .set("border-radius", "var(--lumo-border-radius-l)")
                     .set("padding", "var(--lumo-space-m)")
                     .set("display", "flex")
                     .set("flex-direction", "column")
@@ -143,13 +139,11 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         // Hero section container
         Div heroSection = new Div();
+        heroSection.addClassName("surface-panel");
         heroSection
                 .getStyle()
                 .set("width", "100%")
                 .set("max-width", "800px")
-                .set("background", "var(--lumo-contrast-5pct)")
-                .set("border", "1px solid var(--lumo-contrast-10pct)")
-                .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding", "var(--lumo-space-l)")
                 .set("display", "flex")
                 .set("flex-direction", "column")
