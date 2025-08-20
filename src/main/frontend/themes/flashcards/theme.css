@@ -1,12 +1,4 @@
-/* Focus trap indicator */
-.focus-trap {
-  outline: 2px dashed var(--color-border-focus);
-  outline-offset: 2px;
-}
-
-/* Import component styles */
-@import url('./components.css');
-
-/* Import view styles */
-@import url('./views/forgot-password-view.css');
-@import url('./views/reset-password-view.css');
+/* 
+ * Standard Lumo Dark Theme
+ * No custom styles - using Lumo defaults
+ */
