@@ -6,12 +6,6 @@ tasks.register<Delete>("cleanFrontend") {
     description = "Deletes Vaadin/Frontend generated artifacts and caches"
 
     delete(
-        // Node/pnpm artifacts
-        "node_modules",
-        ".pnpm-store",
-        "pnpm-lock.yaml",
-        "package-lock.json",
-
         // Vaadin/Vite generated files
         "vite.generated.ts",
         "vite.generated.d.ts",
@@ -26,12 +20,19 @@ tasks.register<Delete>("cleanFrontend") {
     )
 }
 
-// Make general clean also run Vaadin's clean and our additional cleanup
-tasks.named("clean") {
-    // run our extra frontend cleanup as part of clean
-    dependsOn("cleanFrontend")
-    // run vaadinClean after clean to avoid circular dependency (vaadinClean -> clean)
-    finalizedBy("vaadinClean")
+// Fast clean that preserves node_modules and Vaadin caches
+tasks.register("cleanQuick") {
+    group = BasePlugin.CLEAN_TASK_NAME
+    description = "Fast clean (Gradle build/ only). Preserves node_modules and Vaadin caches"
+    dependsOn("clean")
+}
+
+// Full clean: Vaadin deep clean + extra frontend cleanup
+// Note: vaadinClean already depends on 'clean', so this is a complete cleanup
+tasks.register("deepClean") {
+    group = BasePlugin.CLEAN_TASK_NAME
+    description = "Full clean including Vaadin artifacts and caches"
+    dependsOn("clean", "vaadinClean", "cleanFrontend")
 }
 
 

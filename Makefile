@@ -42,11 +42,18 @@ test-with-db: start ## Run tests with database
 
 full-clean-run: ## Full clean, format, check, build and run
 	@echo "Performing full clean, format, check, build and run..."
-	 kill -9 $(lsof -t -i:8080) && rm -rf logs && ./gradlew clean spotlessApply
-	 check build bootRun
-
-clean-run: ## Clean and run
-	@echo "Cleaning and running..."
 	@kill -9 $$(lsof -t -i:8080) 2>/dev/null || true; \
     rm -rf logs; \
-    ./gradlew clean bootRun
+    ./gradlew deepClean spotlessApply check build bootRun
+
+clean-run: ## Fast clean and run (Gradle clean only)
+	@echo "Cleaning (fast) and running..."
+	@kill -9 $$(lsof -t -i:8080) 2>/dev/null || true; \
+    rm -rf logs; \
+    ./gradlew cleanQuick bootRun
+
+deep-clean-run: ## Deep clean (Vaadin + frontend) and run
+	@echo "Deep cleaning and running..."
+	@kill -9 $$(lsof -t -i:8080) 2>/dev/null || true; \
+    rm -rf logs; \
+    ./gradlew deepClean bootRun
