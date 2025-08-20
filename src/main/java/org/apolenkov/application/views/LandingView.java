@@ -26,7 +26,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
     public LandingView(NewsService newsService) {
-        addClassName("landing-view");
         setSpacing(true);
         setPadding(true);
         setWidthFull();
@@ -61,16 +60,13 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(true);
-        actions.addClassName("landing-view__actions");
 
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {
             Button login = ButtonHelper.createPrimaryButton(
                     getTranslation("auth.login"), e -> NavigationHelper.navigateTo("login"));
-            login.addClassName("landing-view__login-btn");
 
             Button register = ButtonHelper.createTertiaryButton(
                     getTranslation("auth.register"), e -> NavigationHelper.navigateTo("register"));
-            register.addClassName("landing-view__register-btn");
 
             actions.add(login, register);
         } else {
@@ -79,7 +75,6 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
             if (hasUser) {
                 Button goToDecks = ButtonHelper.createPrimaryButton(
                         getTranslation("landing.goToDecks"), e -> NavigationHelper.navigateTo("decks"));
-                goToDecks.addClassName("landing-view__decks-btn");
                 actions.add(goToDecks);
             }
         }
