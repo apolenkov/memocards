@@ -101,6 +101,19 @@
         <appender-ref ref="ERROR_FILE"/>
     </logger>
     
+    <!-- Hibernate 6: parameter binding/extraction loggers -->
+    <logger name="org.hibernate.orm.jdbc.bind" level="TRACE" additivity="false">
+        <appender-ref ref="SQL_FILE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </logger>
+
+    <logger name="org.hibernate.orm.jdbc.extract" level="DEBUG" additivity="false">
+        <appender-ref ref="SQL_FILE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </logger>
+
     <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
         <appender-ref ref="SQL_FILE"/>
         <appender-ref ref="FILE"/>

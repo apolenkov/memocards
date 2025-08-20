@@ -10,11 +10,8 @@ tasks.register<Delete>("cleanFrontend") {
         "vite.generated.ts",
         "vite.generated.d.ts",
         "frontend/generated",
-
         // Historical/target locations (safe to remove if present)
-        "target/frontend",
-        "target/flow-frontend",
-
+        "target",
         // Vaadin internal state
         ".vaadin",
     )
@@ -34,5 +31,3 @@ tasks.register("deepClean") {
     description = "Full clean including Vaadin artifacts and caches"
     dependsOn("clean", "vaadinClean", "cleanFrontend")
 }
-
-

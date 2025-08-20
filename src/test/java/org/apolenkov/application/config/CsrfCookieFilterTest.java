@@ -37,6 +37,7 @@ class CsrfCookieFilterTest {
     @Test
     void shouldProcessGetRequestWithCsrfToken() throws Exception {
         // Given
+        when(request.getMethod()).thenReturn("GET");
         when(request.getAttribute(CsrfToken.class.getName())).thenReturn(csrfToken);
         when(csrfToken.getToken()).thenReturn("test-token");
 
@@ -51,8 +52,7 @@ class CsrfCookieFilterTest {
     @Test
     void shouldSkipNonGetRequests() throws Exception {
         // Given
-        when(request.getAttribute(CsrfToken.class.getName())).thenReturn(csrfToken);
-        when(csrfToken.getToken()).thenReturn("test-token");
+        when(request.getMethod()).thenReturn("POST");
 
         // When
         filter.doFilterInternal(request, response, filterChain);
@@ -65,6 +65,7 @@ class CsrfCookieFilterTest {
     @Test
     void shouldHandleMissingCsrfToken() throws Exception {
         // Given
+        when(request.getMethod()).thenReturn("GET");
         when(request.getAttribute(CsrfToken.class.getName())).thenReturn(null);
 
         // When

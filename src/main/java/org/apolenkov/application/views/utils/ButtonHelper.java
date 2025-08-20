@@ -36,30 +36,12 @@ public final class ButtonHelper {
     }
 
     /**
-     * Create a success button
-     */
-    public static Button createSuccessButton(String text, ComponentEventListener<ClickEvent<Button>> clickListener) {
-        Button button = new Button(text, clickListener);
-        button.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        return button;
-    }
-
-    /**
      * Create a success button with icon
      */
     public static Button createSuccessButton(
             String text, VaadinIcon icon, ComponentEventListener<ClickEvent<Button>> clickListener) {
         Button button = new Button(text, icon.create(), clickListener);
         button.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        return button;
-    }
-
-    /**
-     * Create an error button
-     */
-    public static Button createErrorButton(String text, ComponentEventListener<ClickEvent<Button>> clickListener) {
-        Button button = new Button(text, clickListener);
-        button.addThemeVariants(ButtonVariant.LUMO_ERROR);
         return button;
     }
 
@@ -93,15 +75,6 @@ public final class ButtonHelper {
     }
 
     /**
-     * Create a small button
-     */
-    public static Button createSmallButton(String text, ComponentEventListener<ClickEvent<Button>> clickListener) {
-        Button button = new Button(text, clickListener);
-        button.addThemeVariants(ButtonVariant.LUMO_SMALL);
-        return button;
-    }
-
-    /**
      * Create a large button
      */
     public static Button createLargeButton(String text, ComponentEventListener<ClickEvent<Button>> clickListener) {
@@ -111,34 +84,10 @@ public final class ButtonHelper {
     }
 
     /**
-     * Create a large button with icon
-     */
-    public static Button createLargeButton(
-            String text, VaadinIcon icon, ComponentEventListener<ClickEvent<Button>> clickListener) {
-        Button button = new Button(text, icon.create(), clickListener);
-        button.addThemeVariants(ButtonVariant.LUMO_LARGE);
-        return button;
-    }
-
-    /**
      * Create a back button
      */
     public static Button createBackButton(ComponentEventListener<ClickEvent<Button>> clickListener) {
         return createTertiaryButton("Back", VaadinIcon.ARROW_LEFT, clickListener);
-    }
-
-    /**
-     * Create a save button
-     */
-    public static Button createSaveButton(ComponentEventListener<ClickEvent<Button>> clickListener) {
-        return createPrimaryButton("Save", VaadinIcon.CHECK, clickListener);
-    }
-
-    /**
-     * Create a cancel button
-     */
-    public static Button createCancelButton(ComponentEventListener<ClickEvent<Button>> clickListener) {
-        return createTertiaryButton("Cancel", clickListener);
     }
 
     /**
@@ -167,19 +116,5 @@ public final class ButtonHelper {
      */
     public static Button createPlusButton(ComponentEventListener<ClickEvent<Button>> clickListener) {
         return createPrimaryButton("Add", VaadinIcon.PLUS, clickListener);
-    }
-
-    /**
-     * Create a search button
-     */
-    public static Button createSearchButton(ComponentEventListener<ClickEvent<Button>> clickListener) {
-        return createPrimaryButton("Search", VaadinIcon.SEARCH, clickListener);
-    }
-
-    /**
-     * Create a refresh button
-     */
-    public static Button createRefreshButton(ComponentEventListener<ClickEvent<Button>> clickListener) {
-        return createTertiaryButton("Refresh", VaadinIcon.ROTATE_LEFT, clickListener);
     }
 }

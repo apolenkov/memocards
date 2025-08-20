@@ -33,12 +33,14 @@ public class LanguageSwitcher extends HorizontalLayout {
         this.userSettingsService = userSettingsService;
         setSpacing(true);
         setPadding(false);
-        addClassName("language-switcher");
+        setAlignItems(Alignment.CENTER);
 
         Span label = new Span(getTranslation("language.label"));
-        label.addClassName("language-switcher__label");
+        label.getStyle().set("font-size", "var(--lumo-font-size-s)");
+        label.getStyle().set("color", "var(--lumo-secondary-text-color)");
+
         ComboBox<String> combo = new ComboBox<>();
-        combo.addClassName("language-switcher__combo");
+
         String en = getTranslation("language.en");
         String ru = getTranslation("language.ru");
         String es = getTranslation("language.es");

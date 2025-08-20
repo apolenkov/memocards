@@ -25,7 +25,7 @@ public class DeckEditDialog extends Dialog {
         this.deckFacade = deckFacade;
         this.deck = deck;
         this.onSaved = onSaved;
-        setWidth("520px");
+        setWidth("500px");
         build();
     }
 
@@ -37,14 +37,14 @@ public class DeckEditDialog extends Dialog {
         H3 header = new H3(getTranslation("deck.edit.title"));
 
         TextField titleField = new TextField(getTranslation("dialog.deckTitle"));
-        titleField.setWidth("100%");
+        titleField.setWidthFull();
         titleField.setRequiredIndicatorVisible(true);
         titleField.setMaxLength(120);
         titleField.setClearButtonVisible(true);
         titleField.setValue(deck.getTitle() != null ? deck.getTitle() : "");
 
         TextArea descriptionArea = new TextArea(getTranslation("dialog.description"));
-        descriptionArea.setWidth("100%");
+        descriptionArea.setWidthFull();
         descriptionArea.setMaxHeight("140px");
         descriptionArea.setMaxLength(500);
         descriptionArea.setPlaceholder(getTranslation("dialog.description.placeholder"));
@@ -67,9 +67,9 @@ public class DeckEditDialog extends Dialog {
                 close();
                 if (onSaved != null) onSaved.accept(saved);
             } catch (ValidationException vex) {
-                Notification.show(getTranslation("dialog.fillRequired"), 3000, Notification.Position.MIDDLE);
+                Notification.show(getTranslation("dialog.fillRequired"), 3000, Notification.Position.BOTTOM_START);
             } catch (Exception ex) {
-                Notification.show(ex.getMessage(), 4000, Notification.Position.MIDDLE);
+                Notification.show(ex.getMessage(), 4000, Notification.Position.BOTTOM_START);
             }
         });
 

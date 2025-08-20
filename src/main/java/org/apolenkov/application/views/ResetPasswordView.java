@@ -23,9 +23,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route(value = "reset-password", layout = PublicLayout.class)
 @AnonymousAllowed
-public class ResetPasswordView extends Div implements BeforeEnterObserver, HasDynamicTitle, HasUrlParameter<String> {
-
-    private static final String COMPONENT_WIDTH = "420px";
+public class ResetPasswordView extends VerticalLayout
+        implements HasDynamicTitle, HasUrlParameter<String>, BeforeEnterObserver {
 
     private static final class ResetPasswordModel {
         private String password;
@@ -56,38 +55,56 @@ public class ResetPasswordView extends Div implements BeforeEnterObserver, HasDy
 
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();
-        wrapper.addClassName("reset-password-form");
+        wrapper.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+        wrapper.setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
+
+        // Create a beautiful Lumo-styled form container
+        Div formContainer = new Div();
+        formContainer.getStyle().set("background", "var(--lumo-contrast-5pct)");
+        formContainer.getStyle().set("border-radius", "var(--lumo-border-radius-l)");
+        formContainer.getStyle().set("padding", "var(--lumo-space-xl)");
+        formContainer.getStyle().set("max-width", "450px");
+        formContainer.getStyle().set("width", "100%");
+        formContainer.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
+
+        // Create form title
+        H2 title = new H2(getTranslation("auth.resetPassword.title"));
+        title.getStyle().set("text-align", "center");
+        title.getStyle().set("margin", "0 0 var(--lumo-space-l) 0");
+        title.getStyle().set("color", "var(--lumo-primary-text-color)");
+
+        // Create form fields container
+        VerticalLayout formFields = new VerticalLayout();
+        formFields.setSpacing(true);
+        formFields.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
 
         // Create binder and model
         Binder<ResetPasswordModel> binder = new Binder<>(ResetPasswordModel.class);
         ResetPasswordModel model = new ResetPasswordModel();
         binder.setBean(model);
 
-        H2 title = new H2(getTranslation("auth.resetPassword.title"));
-        title.addClassName("reset-password-form__title");
-
         PasswordField password = new PasswordField(getTranslation("auth.password"));
         password.setPlaceholder(getTranslation("auth.password.placeholder"));
-        password.setWidth(COMPONENT_WIDTH);
+        password.setWidthFull();
         password.setRequiredIndicatorVisible(true);
 
         PasswordField confirmPassword = new PasswordField(getTranslation("auth.password.confirm"));
         confirmPassword.setPlaceholder(getTranslation("auth.password.confirm.placeholder"));
-        confirmPassword.setWidth(COMPONENT_WIDTH);
+        confirmPassword.setWidthFull();
         confirmPassword.setRequiredIndicatorVisible(true);
 
         Button submit = ButtonHelper.createPrimaryButton(
                 getTranslation("auth.resetPassword.submit"),
                 e -> handleSubmit(model.getPassword(), model.getConfirmPassword()));
-        submit.setWidth(COMPONENT_WIDTH);
+        submit.setWidthFull();
 
         Button backToLogin = ButtonHelper.createTertiaryButton(
                 getTranslation("auth.resetPassword.backToLogin"), e -> getUI().ifPresent(ui -> ui.navigate("login")));
-        backToLogin.setWidth(COMPONENT_WIDTH);
+        backToLogin.setWidthFull();
 
         Button backToHome = ButtonHelper.createTertiaryButton(
                 getTranslation("common.backToHome"), e -> getUI().ifPresent(ui -> ui.navigate("")));
-        backToHome.setWidth(COMPONENT_WIDTH);
+        backToHome.setWidthFull();
 
         // Bind fields to model
         binder.forField(password)
@@ -98,7 +115,10 @@ public class ResetPasswordView extends Div implements BeforeEnterObserver, HasDy
                 .asRequired(getTranslation("vaadin.validation.password.confirm.required"))
                 .bind(ResetPasswordModel::getConfirmPassword, ResetPasswordModel::setConfirmPassword);
 
-        wrapper.add(title, password, confirmPassword, submit, backToLogin, backToHome);
+        formFields.add(password, confirmPassword, submit, backToLogin, backToHome);
+
+        formContainer.add(title, formFields);
+        wrapper.add(formContainer);
         add(wrapper);
     }
 

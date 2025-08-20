@@ -27,7 +27,7 @@ public class CreateDeckDialog extends Dialog {
         this.deckFacade = deckFacade;
         this.userUseCase = userUseCase;
         this.onCreated = onCreated;
-        setWidth("520px");
+        setWidth("500px");
         build();
     }
 
@@ -39,13 +39,13 @@ public class CreateDeckDialog extends Dialog {
         H3 header = new H3(getTranslation("dialog.newDeck"));
 
         TextField titleField = new TextField(getTranslation("dialog.deckTitle"));
-        titleField.setWidth("100%");
+        titleField.setWidthFull();
         titleField.setRequiredIndicatorVisible(true);
         titleField.setMaxLength(120);
         titleField.setClearButtonVisible(true);
 
         TextArea descriptionArea = new TextArea(getTranslation("dialog.description"));
-        descriptionArea.setWidth("100%");
+        descriptionArea.setWidthFull();
         descriptionArea.setMaxHeight("140px");
         descriptionArea.setMaxLength(500);
         descriptionArea.setPlaceholder(getTranslation("dialog.description.placeholder"));
@@ -70,9 +70,9 @@ public class CreateDeckDialog extends Dialog {
                 if (onCreated != null) onCreated.accept(saved);
                 getUI().ifPresent(ui -> ui.navigate("deck/" + saved.getId().toString()));
             } catch (ValidationException vex) {
-                Notification.show(getTranslation("dialog.fillRequired"), 3000, Notification.Position.MIDDLE);
+                Notification.show(getTranslation("dialog.fillRequired"), 3000, Notification.Position.BOTTOM_START);
             } catch (Exception ex) {
-                Notification.show(ex.getMessage(), 4000, Notification.Position.MIDDLE);
+                Notification.show(ex.getMessage(), 4000, Notification.Position.BOTTOM_START);
             }
         });
 

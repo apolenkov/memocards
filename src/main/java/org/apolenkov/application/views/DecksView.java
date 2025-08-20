@@ -36,7 +36,6 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         this.deckFacade = deckFacade;
         this.userUseCase = userUseCase;
 
-        setSizeFull();
         setPadding(false);
         setSpacing(false);
 
@@ -44,25 +43,27 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         content.setSizeFull();
         content.setPadding(true);
         content.setSpacing(true);
-        content.addClassName("decklist-view");
+        content.setAlignItems(Alignment.CENTER);
 
         H2 title = TextHelper.createPageTitle(getTranslation("home.title"));
+        title.getStyle().set("text-align", "center");
 
         TextField search = FormHelper.createOptionalTextField("", getTranslation("home.search.placeholder"));
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPrefixComponent(IconHelper.createSearchIcon());
-        search.setMaxWidth("250px");
 
         Button addDeckBtn = ButtonHelper.createPlusButton(e -> openCreateDeckDialog());
         addDeckBtn.setText(getTranslation("home.addDeck"));
 
         HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addDeckBtn);
-        toolbar.addClassName("toolbar-with-bottom-margin");
+        toolbar.setAlignItems(Alignment.CENTER);
+        toolbar.setJustifyContentMode(JustifyContentMode.CENTER);
 
         deckList = new VerticalLayout();
         deckList.setPadding(false);
         deckList.setSpacing(true);
         deckList.setWidthFull();
+        deckList.setAlignItems(Alignment.CENTER);
 
         search.addValueChangeListener(e -> refreshDecks(e.getValue()));
 
@@ -75,7 +76,17 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
     private void refreshDecks(String query) {
         deckList.removeAll();
         List<DeckCardViewModel> decks = homePresenter.listDecksForCurrentUser(query);
-        decks.stream().map(DeckCard::new).forEach(deckList::add);
+
+        // Create a container for deck cards with consistent width
+        VerticalLayout deckContainer = new VerticalLayout();
+        deckContainer.setSpacing(true);
+        deckContainer.setAlignItems(Alignment.CENTER);
+        deckContainer.setWidthFull();
+        deckContainer.setMaxWidth("800px"); // Consistent max width for all decks
+
+        decks.stream().map(DeckCard::new).forEach(deckContainer::add);
+
+        deckList.add(deckContainer);
     }
 
     private void openCreateDeckDialog() {

@@ -2,7 +2,7 @@ package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -13,6 +13,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.service.AuthFacade;
 import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 
 @Route(value = "register", layout = PublicLayout.class)
@@ -27,20 +28,51 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
     public RegisterView(AuthFacade authFacade) {
         this.authFacade = authFacade;
 
-        setSizeFull();
-        setAlignItems(Alignment.CENTER);
-        setJustifyContentMode(JustifyContentMode.CENTER);
+        VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
+        wrapper.setSizeFull();
+        wrapper.setAlignItems(Alignment.CENTER);
+        wrapper.setJustifyContentMode(JustifyContentMode.CENTER);
 
-        H2 title = new H2(getTranslation("auth.register.title"));
+        // Create a beautiful Lumo-styled form container
+        Div formContainer = new Div();
+        formContainer.getStyle().set("background", "var(--lumo-contrast-5pct)");
+        formContainer.getStyle().set("border-radius", "var(--lumo-border-radius-l)");
+        formContainer.getStyle().set("padding", "var(--lumo-space-xl)");
+        formContainer.getStyle().set("max-width", "500px");
+        formContainer.getStyle().set("width", "100%");
+        formContainer.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
+
+        // Create form title
+        Div titleDiv = new Div();
+        titleDiv.getStyle().set("text-align", "center");
+        titleDiv.getStyle().set("margin-bottom", "var(--lumo-space-l)");
+
+        Div title = new Div();
+        title.setText(getTranslation("auth.register.title"));
+        title.getStyle().set("font-size", "var(--lumo-font-size-xxl)");
+        title.getStyle().set("font-weight", "bold");
+        title.getStyle().set("color", "var(--lumo-primary-text-color)");
+        titleDiv.add(title);
+
         FormLayout form = new FormLayout();
+        form.setWidth("100%");
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("600px", 2));
+
         TextField name = new TextField(getTranslation("auth.name"));
         name.setPlaceholder(getTranslation("auth.name.placeholder"));
+        name.setWidthFull();
+
         EmailField email = new EmailField(getTranslation("auth.email"));
         email.setPlaceholder(getTranslation("auth.email.placeholder"));
+        email.setWidthFull();
+
         PasswordField password = new PasswordField(getTranslation("auth.password"));
         password.setPlaceholder(getTranslation("auth.password.placeholder"));
+        password.setWidthFull();
+
         PasswordField confirm = new PasswordField(getTranslation("auth.password.confirm"));
         confirm.setPlaceholder(getTranslation("auth.password.confirm.placeholder"));
+        confirm.setWidthFull();
 
         name.setRequiredIndicatorVisible(true);
         email.setRequiredIndicatorVisible(true);
@@ -102,25 +134,29 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
                 authFacade.registerUser(vEmail, vPwd);
                 authFacade.authenticateAndPersist(vEmail, vPwd);
                 NotificationHelper.showSuccess(getTranslation("auth.register.successLogin"));
-                getUI().ifPresent(ui -> ui.navigate(""));
+                // Navigate to decks after successful registration (existing route)
+                getUI().ifPresent(ui -> ui.navigate("decks"));
             } catch (Exception ex) {
                 NotificationHelper.showError(getTranslation("auth.register.autoLoginFailed"));
                 getUI().ifPresent(ui -> ui.navigate("login"));
             }
         });
-        submit.setWidth("420px");
+        submit.setWidthFull();
 
         Button backToHome = ButtonHelper.createTertiaryButton(
                 getTranslation("common.backToHome"), e -> getUI().ifPresent(ui -> ui.navigate("")));
-        backToHome.setWidth("420px");
-
-        name.setWidth("420px");
-        email.setWidth("420px");
-        password.setWidth("420px");
-        confirm.setWidth("420px");
+        backToHome.setWidthFull();
 
         form.add(name, email, password, confirm);
-        add(title, form, submit, backToHome);
+
+        // Add buttons to form container
+        formContainer.add(titleDiv, form, submit, backToHome);
+
+        // Add form container to wrapper
+        wrapper.add(formContainer);
+
+        // Add wrapper to main layout
+        add(wrapper);
     }
 
     @Override

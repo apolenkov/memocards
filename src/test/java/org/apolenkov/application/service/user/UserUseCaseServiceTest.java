@@ -36,9 +36,12 @@ class UserUseCaseServiceTest {
 
     private UserUseCaseService userUseCaseService;
 
+    @Mock
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
     @BeforeEach
     void setUp() {
-        userUseCaseService = new UserUseCaseService(userRepository);
+        userUseCaseService = new UserUseCaseService(userRepository, passwordEncoder);
         // Setup SecurityContext mock
         SecurityContextHolder.setContext(securityContext);
     }

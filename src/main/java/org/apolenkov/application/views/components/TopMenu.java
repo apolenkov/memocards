@@ -26,9 +26,14 @@ import org.springframework.stereotype.Component;
 @UIScope
 public class TopMenu extends HorizontalLayout {
 
+    // Roles
     private static final String ROLE_USER = "ROLE_USER";
     private static final String ROLE_ADMIN = "ROLE_ADMIN";
+
+    // Routes
     private static final String LOGOUT_ROUTE = "/logout";
+
+    // Styles
     private static final String DATA_TESTID_ATTRIBUTE = "data-testid";
 
     private final List<MenuButton> menuButtons = new ArrayList<>();
