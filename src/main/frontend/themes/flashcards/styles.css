@@ -1,5 +1,42 @@
-/* Ensure main content is always above background */
-.app-content {
-    position: relative;
-    z-index: 1;
+:root {
+    --app-bg-dark: url("./assets/bg-custom-dark.webp");
+    --app-bg-light: url("./assets/bg-light.jpg");
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: var(--app-bg-dark);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    filter: saturate(1.1) blur(1px);
+    pointer-events: none;
+}
+
+html:not([theme~="dark"]) body::before {
+    background-image: var(--app-bg-light);
+}
+
+.surface-panel {
+    background-color: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+    border-radius: var(--lumo-border-radius-l);
+    backdrop-filter: blur(12px);
+}
+
+.surface-card {
+    background-color: color-mix(in srgb, var(--lumo-base-color) 85%, transparent);
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 70%, transparent);
+    border-radius: var(--lumo-border-radius-l);
+    backdrop-filter: blur(8px);
+}
+
+.main-layout__navbar,
+.main-layout__right {
+    background-color: color-mix(in srgb, var(--lumo-base-color) 85%, transparent);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
 }
