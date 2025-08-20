@@ -1,31 +1,23 @@
-@import url('./variables.css');
-@import url('./utilities.css');
-@import url('./animations.css');
-@import url('./animated-background.css');
-@import url('./modern-components.css');
-@import url('./components/status.css');
-@import url('./views/components/deck-card.css');
-@import url('./enhanced-views.css');
-@import url('./responsive.css');
-@import url('./main-layout.css');
-@import url('./views/home-view.css');
-@import url('./views/landing-view.css');
-@import url('./views/decklist-view.css');
-@import url('./views/deckview-view.css');
-@import url('./views/deckedit-view.css');
-@import url('./views/deck-create-view.css');
-@import url('./views/practice-view.css');
-@import url('./views/stats-view.css');
-@import url('./views/settings-view.css');
-@import url('./views/admin-news-view.css');
-@import url('./views/admin-users-view.css');
-@import url('./views/error-view.css');
-@import url('./views/public-layout.css');
-@import url('./views/components/top-menu.css');
-@import url('./views/components/dialogs.css');
-@import url('./form-controls.css');
+/* Standard Lumo theme usage - no custom CSS needed */
 
-/* Global readability helpers for dark backgrounds */
-@media (prefers-reduced-motion: reduce) {
-  .hover-scale, .hover-lift, .transition-all { transition: none; }
+/* Minimal animation for PublicLayout background elements */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateY(-20px);
+        opacity: 1;
+    }
+}
+
+/* User Profile Edit Dialog Avatar Styles */
+.user-profile-avatar {
+    transition: all 0.2s ease-in-out;
+}
+
+.user-profile-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
