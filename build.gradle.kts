@@ -3,8 +3,6 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
-import java.io.File
-import java.util.Properties
 
 // import name.remal.gradle_plugins.sonarlint.SonarLintExtension
 
@@ -70,9 +68,11 @@ extensions.configure<DependencyManagementExtension> {
 
         // Explicit dependency versions for better control
         val asm: String by project
+        val guava: String by project
+        val commonsLang3: String by project
         dependency("org.ow2.asm:asm-commons:$asm")
-        dependency("com.google.guava:guava:33.0.0-jre")
-        dependency("org.apache.commons:commons-lang3:3.14.0")
+        dependency("com.google.guava:guava:$guava")
+        dependency("org.apache.commons:commons-lang3:$commonsLang3")
     }
 }
 
@@ -84,7 +84,8 @@ dependencies {
     // Vaadin
     implementation("com.vaadin:vaadin")
     implementation("com.vaadin:vaadin-spring-boot-starter")
-    implementation("org.parttio:line-awesome:2.1.0")
+    val lineAwesome: String by project
+    implementation("org.parttio:line-awesome:$lineAwesome")
 
     // Spring Boot starters
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -105,9 +106,12 @@ dependencies {
     }
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("com.vaadin:vaadin-testbench-junit5")
-    testImplementation("org.assertj:assertj-core:3.26.0")
-    testImplementation("org.mockito:mockito-core:5.12.0")
-    testImplementation("io.github.bonigarcia:webdrivermanager:5.9.2")
+    val assertj: String by project
+    val mockito: String by project
+    val webdrivermanager: String by project
+    testImplementation("org.assertj:assertj-core:$assertj")
+    testImplementation("org.mockito:mockito-core:$mockito")
+    testImplementation("io.github.bonigarcia:webdrivermanager:$webdrivermanager")
 
     // Centralized constraints instead of resolutionStrategy.force
     constraints {
@@ -171,11 +175,13 @@ extensions.configure<com.diffplug.gradle.spotless.SpotlessExtension> {
  * Enhanced Checkstyle configuration
  */
 
+// Temporarily disabled due to configuration issues
 // apply(plugin = "checkstyle")
-// checkstyle {
-//    toolVersion = "10.12.1"
-//    configFile = file("config/checkstyle/checkstyle.xml")
-//    isShowViolations = true
+// extensions.configure<org.gradle.api.plugins.quality.CheckstyleExtension> {
+//     toolVersion = "10.12.1"
+//     configFile = file("config/checkstyle/checkstyle.xml")
+//     isShowViolations = true
+//     maxWarnings = 0
 // }
 
 /*
@@ -297,9 +303,8 @@ tasks.named("check") {
 
 // Basic UI TestBench config hint: runs as regular junit5 tests
 configurations.testImplementation {
-    resolutionStrategy {
-        force("org.seleniumhq.selenium:selenium-java:4.24.0")
-    }
+    val seleniumJava: String by project
+    resolutionStrategy { force("org.seleniumhq.selenium:selenium-java:$seleniumJava") }
 }
 
 // Separate UI test task that only runs @Tag("ui") tests
@@ -391,58 +396,15 @@ tasks.register("managedVersions") {
     }
 }
 
-/*
- * I18N keys consistency check: ensure en/ru/es have the same set of keys.
- * Writes a report to build/reports/i18n/missing-keys.md and fails on missing keys.
- */
-tasks.register("checkI18nKeys") {
-    description = "Validates that all i18n locales have the same keys"
-    group = JavaBasePlugin.VERIFICATION_GROUP
+// Apply split custom tasks
+apply(from = "gradle/i18n-checks.gradle.kts")
+apply(from = "gradle/code-quality-non-english.gradle.kts")
+apply(from = "gradle/translations-missing.gradle.kts")
+apply(from = "gradle/hardcoded-ui-strings.gradle.kts")
+apply(from = "gradle/vaadin-clean.gradle.kts")
 
-    doLast {
-        val locales = listOf("en", "ru", "es")
-        val baseDir = project.file("src/main/resources/i18n")
+// moved to gradle/code-quality-non-english.gradle.kts
 
-        val propsByLocale: Map<String, Properties> =
-            locales.associateWith { loc ->
-                val p = Properties()
-                val f = File(baseDir, "messages_$loc.properties")
-                if (!f.exists()) {
-                    logger.warn("[i18n] Missing properties file for locale: $loc at ${f.absolutePath}")
-                } else {
-                    f.inputStream().use { stream -> p.load(stream) }
-                }
-                p
-            }
+// moved to gradle/translations-missing.gradle.kts
 
-        val allKeys = mutableSetOf<String>()
-        propsByLocale.values.forEach { allKeys.addAll(it.stringPropertyNames()) }
-
-        val report = StringBuilder()
-        var missingCount = 0
-        for (loc in locales) {
-            val present = propsByLocale[loc]?.stringPropertyNames() ?: emptySet()
-            val missing = allKeys.minus(present)
-            if (missing.isNotEmpty()) {
-                missingCount += missing.size
-                report.appendLine("## Missing in $loc (${missing.size})")
-                missing.sorted().forEach { report.appendLine("- $it") }
-                report.appendLine()
-            }
-        }
-
-        val outFile = layout.buildDirectory.file("reports/i18n/missing-keys.md").get().asFile
-        outFile.parentFile.mkdirs()
-        outFile.writeText(if (report.isNotBlank()) report.toString() else "All locales have identical key sets.")
-
-        if (missingCount > 0) {
-            throw GradleException("[i18n] Found $missingCount missing keys across locales. See ${outFile.relativeTo(project.projectDir)}")
-        } else {
-            println("[i18n] No missing keys across locales.")
-        }
-    }
-}
-
-tasks.named("check") {
-    dependsOn("checkI18nKeys")
-}
+// moved to gradle/hardcoded-ui-strings.gradle.kts
