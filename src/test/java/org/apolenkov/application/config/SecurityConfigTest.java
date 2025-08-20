@@ -39,7 +39,7 @@ class SecurityConfigTest {
     void setUp() {
         // Mock environment to return empty profiles array to avoid NPE in constructor
         when(environment.getActiveProfiles()).thenReturn(new String[0]);
-        securityConfig = new SecurityConfig(environment);
+        securityConfig = new SecurityConfig(environment, null);
     }
 
     @Nested
@@ -78,7 +78,7 @@ class SecurityConfigTest {
             when(mockEnvironment.getActiveProfiles()).thenReturn(new String[] {"prod"});
 
             // When
-            SecurityConfig config = new SecurityConfig(mockEnvironment);
+            SecurityConfig config = new SecurityConfig(mockEnvironment, null);
 
             // Then
             Boolean prodFlag = (Boolean) ReflectionTestUtils.getField(config, "prodProfileActive");

@@ -20,6 +20,9 @@ public class PublicLayout extends AppLayout {
     private final LanguageSwitcher languageSwitcher;
     private final TopMenu topMenu;
     private Div wordCloud; // shown only on landing
+    private Div ufoEl;
+    private Div rocketEl;
+    private Div cosmonautEl;
 
     public PublicLayout(LanguageSwitcher languageSwitcher, TopMenu topMenu) {
         this.languageSwitcher = languageSwitcher;
@@ -64,6 +67,14 @@ public class PublicLayout extends AppLayout {
         if (wordCloud != null) {
             wordCloud.setVisible(isLanding);
         }
+        // Disable animations on non-landing pages to avoid distraction during study
+        toggleBackgroundAnimation(!isLanding);
+    }
+
+    private void toggleBackgroundAnimation(boolean staticMode) {
+        if (ufoEl != null) ufoEl.getElement().getClassList().set("bg-static", staticMode);
+        if (rocketEl != null) rocketEl.getElement().getClassList().set("bg-static", staticMode);
+        if (cosmonautEl != null) cosmonautEl.getElement().getClassList().set("bg-static", staticMode);
     }
 
     private void addAnimatedBackground() {
@@ -110,20 +121,20 @@ public class PublicLayout extends AppLayout {
         background.add(illustrationLeft);
 
         // Minimal floating icons (UFO and Rocket)
-        Div ufo = new Div();
-        ufo.addClassName("floating-ufo");
-        ufo.getElement().setAttribute("aria-hidden", "true");
+        ufoEl = new Div();
+        ufoEl.addClassName("floating-ufo");
+        ufoEl.getElement().setAttribute("aria-hidden", "true");
 
-        Div rocket = new Div();
-        rocket.addClassName("floating-rocket");
-        rocket.getElement().setAttribute("aria-hidden", "true");
+        rocketEl = new Div();
+        rocketEl.addClassName("floating-rocket");
+        rocketEl.getElement().setAttribute("aria-hidden", "true");
 
         // Large right-side cosmonaut accent
-        Div cosmonaut = new Div();
-        cosmonaut.addClassName("floating-cosmonaut");
-        cosmonaut.getElement().setAttribute("aria-hidden", "true");
+        cosmonautEl = new Div();
+        cosmonautEl.addClassName("floating-cosmonaut");
+        cosmonautEl.getElement().setAttribute("aria-hidden", "true");
 
-        background.add(ufo, rocket, cosmonaut);
+        background.add(ufoEl, rocketEl, cosmonautEl);
 
         // Word cloud disabled per new design; keep placeholder for future use
 

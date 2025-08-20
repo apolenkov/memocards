@@ -3,6 +3,7 @@ package org.apolenkov.application.config;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apolenkov.application.views.LoginView;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -12,20 +13,28 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SecurityConfig extends VaadinWebSecurity {
     private final boolean prodProfileActive;
     private final DevAutoLoginFilter devAutoLoginFilter;
 
+    @Autowired
     public SecurityConfig(Environment environment, @Autowired(required = false) DevAutoLoginFilter devAutoLoginFilter) {
         String[] profiles = environment != null ? environment.getActiveProfiles() : null;
         this.prodProfileActive =
                 profiles != null && java.util.Arrays.asList(profiles).contains("prod");
         this.devAutoLoginFilter = devAutoLoginFilter;
+    }
+
+    // Backward-compatible constructor for tests/new instances that don't wire the optional filter
+    public SecurityConfig(Environment environment) {
+        String[] profiles = environment != null ? environment.getActiveProfiles() : null;
+        this.prodProfileActive =
+                profiles != null && java.util.Arrays.asList(profiles).contains("prod");
+        this.devAutoLoginFilter = null;
     }
 
     @Override
