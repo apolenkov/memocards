@@ -1,41 +1,52 @@
 .PHONY: help start stop restart logs clean build run
 
-help: ## Показать справку
-	@echo "Доступные команды:"
+help: ## Show help
+	@echo "Available commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-start: ## Запустить PostgreSQL в Docker
+start: ## Start PostgreSQL in Docker
 	docker-compose up -d postgres
-	@echo "PostgreSQL запущен. Ожидание готовности..."
+	@echo "PostgreSQL started. Waiting for readiness..."
 	@until docker-compose exec -T postgres pg_isready -U postgres; do sleep 1; done
-	@echo "PostgreSQL готов!"
+	@echo "PostgreSQL is ready!"
 
-stop: ## Остановить PostgreSQL
+stop: ## Stop PostgreSQL
 	docker-compose stop postgres
 
-restart: stop start ## Перезапустить PostgreSQL
+restart: stop start ## Restart PostgreSQL
 
-logs: ## Показать логи PostgreSQL
+logs: ## Show PostgreSQL logs
 	docker-compose logs -f postgres
 
-clean: ## Очистить все данные PostgreSQL
+clean: ## Clean all PostgreSQL data
 	docker-compose down -v
-	@echo "Все данные PostgreSQL удалены"
+	@echo "All PostgreSQL data removed"
 
-build: ## Собрать приложение
+build: ## Build application
 	./gradlew clean build
 
-run: start ## Запустить приложение (сначала PostgreSQL)
-	@echo "Запуск приложения..."
+run: start ## Run application (start PostgreSQL first)
+	@echo "Starting application..."
 	./gradlew bootRun
 
-dev: start ## Запустить в режиме разработки
-	@echo "Запуск в режиме разработки..."
+dev: start ## Run in development mode
+	@echo "Starting in development mode..."
 	./gradlew bootRun --args='--spring.profiles.active=dev'
 
-test: ## Запустить тесты
+test: ## Run tests
 	./gradlew test
 
-test-with-db: start ## Запустить тесты с базой данных
-	@echo "Запуск тестов с PostgreSQL..."
+test-with-db: start ## Run tests with database
+	@echo "Running tests with PostgreSQL..."
 	./gradlew test
+
+full-clean-run: ## Full clean, format, check, build and run
+	@echo "Performing full clean, format, check, build and run..."
+	 kill -9 $(lsof -t -i:8080) && rm -rf logs && ./gradlew clean spotlessApply
+	 check build bootRun
+
+clean-run: ## Clean and run
+	@echo "Cleaning and running..."
+	@kill -9 $$(lsof -t -i:8080) 2>/dev/null || true; \
+    rm -rf logs; \
+    ./gradlew clean bootRun
