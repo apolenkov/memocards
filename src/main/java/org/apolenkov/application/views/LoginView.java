@@ -50,7 +50,34 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
     public LoginView(AuthFacade authFacade) {
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();
-        wrapper.addClassName("login-form");
+        wrapper.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+        wrapper.setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
+
+        // Create a beautiful Lumo-styled form container
+        Div formContainer = new Div();
+        formContainer.getStyle().set("background", "var(--lumo-contrast-5pct)");
+        formContainer.getStyle().set("border-radius", "var(--lumo-border-radius-l)");
+        formContainer.getStyle().set("padding", "var(--lumo-space-xl)");
+        formContainer.getStyle().set("max-width", "450px");
+        formContainer.getStyle().set("width", "100%");
+        formContainer.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
+
+        // Create form title
+        Div titleDiv = new Div();
+        titleDiv.getStyle().set("text-align", "center");
+        titleDiv.getStyle().set("margin-bottom", "var(--lumo-space-l)");
+
+        Div title = new Div();
+        title.setText(getTranslation("auth.login"));
+        title.getStyle().set("font-size", "var(--lumo-font-size-xxl)");
+        title.getStyle().set("font-weight", "bold");
+        title.getStyle().set("color", "var(--lumo-primary-text-color)");
+        titleDiv.add(title);
+
+        // Create form fields container
+        VerticalLayout formFields = new VerticalLayout();
+        formFields.setSpacing(true);
+        formFields.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
 
         // Create binder and model first
         Binder<LoginModel> binder = new Binder<>(LoginModel.class);
@@ -59,11 +86,11 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
 
         TextField email = FormHelper.createRequiredTextField(
                 getTranslation("auth.email"), getTranslation("auth.email.placeholder"));
-        email.setWidth(COMPONENT_WIDTH);
+        email.setWidthFull();
 
         PasswordField password = new PasswordField(getTranslation("auth.login.password"));
         password.setPlaceholder(getTranslation("auth.password.placeholder"));
-        password.setWidth(COMPONENT_WIDTH);
+        password.setWidthFull();
         password.setRequiredIndicatorVisible(true);
 
         Button submit = ButtonHelper.createPrimaryButton(getTranslation("auth.login.submit"), e -> {
@@ -76,16 +103,16 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
                 }
             }
         });
-        submit.setWidth(COMPONENT_WIDTH);
+        submit.setWidthFull();
 
         Button forgot =
                 ButtonHelper.createTertiaryButton(getTranslation("auth.login.forgotPassword"), e -> getUI().ifPresent(
                                 ui -> ui.navigate("forgot-password")));
-        forgot.setWidth(COMPONENT_WIDTH);
+        forgot.setWidthFull();
 
         Button backToHome = ButtonHelper.createTertiaryButton(
                 getTranslation("common.backToHome"), e -> getUI().ifPresent(ui -> ui.navigate("")));
-        backToHome.setWidth(COMPONENT_WIDTH);
+        backToHome.setWidthFull();
 
         // Bind fields to model
         binder.forField(email)
@@ -95,7 +122,10 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
                 .asRequired(getTranslation("vaadin.validation.password.required"))
                 .bind(LoginModel::getPassword, LoginModel::setPassword);
 
-        wrapper.add(email, password, submit, forgot, backToHome);
+        formFields.add(email, password, submit, forgot, backToHome);
+
+        formContainer.add(titleDiv, formFields);
+        wrapper.add(formContainer);
         add(wrapper);
     }
 

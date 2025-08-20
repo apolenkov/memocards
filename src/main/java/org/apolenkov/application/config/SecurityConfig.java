@@ -13,15 +13,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Configuration
 public class SecurityConfig extends VaadinWebSecurity {
     private final boolean prodProfileActive;
+    private final DevAutoLoginFilter devAutoLoginFilter;
 
-    public SecurityConfig(Environment environment) {
+    public SecurityConfig(Environment environment, @Autowired(required = false) DevAutoLoginFilter devAutoLoginFilter) {
         String[] profiles = environment != null ? environment.getActiveProfiles() : null;
         this.prodProfileActive =
                 profiles != null && java.util.Arrays.asList(profiles).contains("prod");
+        this.devAutoLoginFilter = devAutoLoginFilter;
     }
 
     @Override
@@ -45,6 +49,11 @@ public class SecurityConfig extends VaadinWebSecurity {
                 .logoutSuccessUrl("/")
                 .deleteCookies("JSESSIONID", "remember-me")
                 .invalidateHttpSession(true));
+
+        // Dev-only: auto-login filter placed before UsernamePasswordAuthenticationFilter
+        if (!prodProfileActive && devAutoLoginFilter != null) {
+            http.addFilterBefore(devAutoLoginFilter, UsernamePasswordAuthenticationFilter.class);
+        }
 
         if (prodProfileActive) {
             http.headers(headers -> headers.contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; "

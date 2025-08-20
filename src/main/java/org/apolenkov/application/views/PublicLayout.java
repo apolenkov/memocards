@@ -2,7 +2,8 @@ package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.views.components.LanguageSwitcher;
@@ -31,9 +32,13 @@ public class PublicLayout extends AppLayout {
     private void addHeaderContent() {
         HorizontalLayout bar = new HorizontalLayout();
         bar.addClassName("main-layout__navbar");
+        bar.setWidthFull();
+        bar.setAlignItems(Alignment.CENTER);
+        bar.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         HorizontalLayout right = new HorizontalLayout();
         right.addClassName("main-layout__right");
+        right.setAlignItems(Alignment.CENTER);
         right.add(languageSwitcher);
 
         bar.add(topMenu, right);
@@ -104,19 +109,23 @@ public class PublicLayout extends AppLayout {
         illustrationLeft.addClassName("app-illustration-left");
         background.add(illustrationLeft);
 
-        // Right word cloud (texts via i18n)
-        wordCloud = new Div();
-        wordCloud.addClassName("app-wordcloud-right");
-        Span w1 = new Span(getTranslation("bg.word.hello"));
-        Span w2 = new Span(getTranslation("bg.word.hola"));
-        Span w3 = new Span(getTranslation("bg.word.bonjour"));
-        Span w4 = new Span(getTranslation("bg.word.privet"));
-        w1.addClassName(WC_WORD_CLASS);
-        w2.addClassName(WC_WORD_CLASS);
-        w3.addClassName(WC_WORD_CLASS);
-        w4.addClassName(WC_WORD_CLASS);
-        wordCloud.add(w1, w2, w3, w4);
-        background.add(wordCloud);
+        // Minimal floating icons (UFO and Rocket)
+        Div ufo = new Div();
+        ufo.addClassName("floating-ufo");
+        ufo.getElement().setAttribute("aria-hidden", "true");
+
+        Div rocket = new Div();
+        rocket.addClassName("floating-rocket");
+        rocket.getElement().setAttribute("aria-hidden", "true");
+
+        // Large right-side cosmonaut accent
+        Div cosmonaut = new Div();
+        cosmonaut.addClassName("floating-cosmonaut");
+        cosmonaut.getElement().setAttribute("aria-hidden", "true");
+
+        background.add(ufo, rocket, cosmonaut);
+
+        // Word cloud disabled per new design; keep placeholder for future use
 
         // Attach to AppLayout host element (no JS)
         getElement().appendChild(background.getElement());

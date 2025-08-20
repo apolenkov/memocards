@@ -10,11 +10,9 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Component;
 
@@ -24,15 +22,13 @@ public class AuthFacade {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final org.apolenkov.application.service.user.JpaRegistrationService
-            jpaRegistrationService; // nullable for dev
+    private final org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationService;
 
     public AuthFacade(
             UserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder,
             AuthenticationConfiguration authenticationConfiguration,
-            @org.springframework.beans.factory.annotation.Autowired(required = false)
-                    org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationService) {
+            org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationService) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationConfiguration = authenticationConfiguration;
@@ -56,19 +52,9 @@ public class AuthFacade {
                 || !rawPassword.matches(".*[A-Za-z].*")) {
             throw new IllegalArgumentException("Password must be at least 8 characters and contain letters and digits");
         }
-        if (userDetailsService instanceof InMemoryUserDetailsManager manager) {
-            manager.createUser(User.withUsername(username)
-                    .password(passwordEncoder.encode(rawPassword))
-                    .roles(org.apolenkov.application.config.SecurityConstants.ROLE_USER.replace("ROLE_", ""))
-                    .build());
-            return;
-        }
-        // For JPA/prod, delegate to registration service bean if present
-        if (jpaRegistrationService != null) {
-            jpaRegistrationService.register(username, username, rawPassword); // name == email fallback
-            return;
-        }
-        throw new IllegalStateException("Registration is not available");
+
+        // Register user via JPA service
+        jpaRegistrationService.register(username, username, rawPassword); // name == email fallback
     }
 
     public void authenticateAndPersist(String username, String rawPassword) {

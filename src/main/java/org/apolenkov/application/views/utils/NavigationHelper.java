@@ -65,48 +65,6 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to home
-     */
-    public static void navigateToHome() {
-        navigateTo(RouteConstants.HOME_ROUTE);
-    }
-
-    /**
-     * Navigate to login
-     */
-    public static void navigateToLogin() {
-        navigateTo(RouteConstants.LOGIN_ROUTE);
-    }
-
-    /**
-     * Navigate to register
-     */
-    public static void navigateToRegister() {
-        navigateTo(RouteConstants.REGISTER_ROUTE);
-    }
-
-    /**
-     * Navigate to access denied page
-     */
-    public static void navigateToAccessDenied() {
-        navigateTo(RouteConstants.ACCESS_DENIED_ROUTE);
-    }
-
-    /**
-     * Reload current page
-     */
-    public static void reloadPage() {
-        getCurrentUI().ifPresent(ui -> ui.getPage().reload());
-    }
-
-    /**
-     * Set page location (for logout redirects)
-     */
-    public static void setPageLocation(String location) {
-        getCurrentUI().ifPresent(ui -> ui.getPage().setLocation(location));
-    }
-
-    /**
      * Set locale for current UI
      */
     public static void setLocale(java.util.Locale locale) {

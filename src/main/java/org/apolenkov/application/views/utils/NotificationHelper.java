@@ -15,7 +15,7 @@ public final class NotificationHelper {
     private static final int LONG_DURATION = 5000;
 
     // Default positions
-    private static final Notification.Position DEFAULT_POSITION = Notification.Position.TOP_START;
+    private static final Notification.Position DEFAULT_POSITION = Notification.Position.BOTTOM_START;
     private static final Notification.Position BOTTOM_POSITION = Notification.Position.BOTTOM_START;
 
     private NotificationHelper() {
@@ -69,14 +69,6 @@ public final class NotificationHelper {
     }
 
     /**
-     * Show warning notification
-     */
-    public static void showWarning(String message) {
-        Notification notification = Notification.show(message, DEFAULT_DURATION, DEFAULT_POSITION);
-        notification.addThemeVariants(NotificationVariant.LUMO_CONTRAST);
-    }
-
-    /**
      * Show info notification
      */
     public static void showInfo(String message) {
@@ -109,20 +101,6 @@ public final class NotificationHelper {
     }
 
     /**
-     * Show save success notification
-     */
-    public static void showSaveSuccess() {
-        showSuccessBottom(getTranslation("dialog.saved"));
-    }
-
-    /**
-     * Show save failed notification
-     */
-    public static void showSaveFailed(String errorMessage) {
-        showErrorLong(getTranslation("dialog.saveFailed", errorMessage));
-    }
-
-    /**
      * Show delete success notification
      */
     public static void showDeleteSuccess() {
@@ -130,16 +108,9 @@ public final class NotificationHelper {
     }
 
     /**
-     * Show delete confirmation notification
-     */
-    public static void showDeleteConfirmation() {
-        showWarning(getTranslation("dialog.delete.confirmText"));
-    }
-
-    /**
      * Get translation for current locale
      */
-    private static String getTranslation(String key, Object... args) {
+    private static String getTranslation(String key) {
         try {
             // This would need to be implemented based on your i18n setup
             // For now, return the key as fallback

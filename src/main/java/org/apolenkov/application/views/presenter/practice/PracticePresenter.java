@@ -220,7 +220,8 @@ public class PracticePresenter {
     public void reveal(Session s) {
         if (s.getCardShowTime() != null) {
             long delay = Duration.between(s.getCardShowTime(), Instant.now()).toMillis();
-            s.setTotalAnswerDelayMs(s.getTotalAnswerDelayMs() + Math.clamp(delay, 0, Long.MAX_VALUE));
+            long clampedDelay = Math.clamp(delay, 0L, Long.MAX_VALUE);
+            s.setTotalAnswerDelayMs(s.getTotalAnswerDelayMs() + clampedDelay);
         }
         s.setShowingAnswer(true);
     }

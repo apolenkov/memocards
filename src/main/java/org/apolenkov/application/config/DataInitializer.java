@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@org.springframework.context.annotation.Profile({"dev", "memory"})
+@org.springframework.context.annotation.Profile({"dev"})
 public class DataInitializer {
 
     @Bean
@@ -22,8 +22,7 @@ public class DataInitializer {
     CommandLineRunner initDemoData(
             UserRepository users, DeckRepository decks, FlashcardRepository cards, NewsRepository news) {
         return args -> {
-            // Local seeding of users moved to DevSecurityUsers; here we only seed decks for existing 'user'
-            java.util.Optional<User> opt = users.findByEmail("user");
+            java.util.Optional<User> opt = users.findByEmail("user@example.com");
             if (opt.isEmpty()) {
                 return; // no domain user yet → skip deck seeding; created lazily on first login
             }

@@ -10,14 +10,15 @@ dev:
     enabled: false           # Disable automatic authorization: false
     user: user@example.com  # User for automatic authorization
 
-# Logging for dev profile
+# Logging for dev profile (keep minimal here; detailed routing is in logback-spring.xml)
 logging:
   level:
     org.apolenkov.application.config.DevAutoLoginFilter: INFO
     org.apolenkov.application.config.DevDomainBootstrap: INFO
     org.apolenkov.application.config.AppI18NProvider: INFO
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.orm.jdbc.extract: DEBUG
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
@@ -47,6 +48,7 @@ spring:
         format_sql: false
         use_sql_comments: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        session_factory.statement_inspector: org.apolenkov.application.config.HibernateStatementInspector
 #        connection:
 #          provider_disables_autocommit: true
 #          auto_commit: false
@@ -81,6 +83,8 @@ spring:
       org.springframework.security: INFO
       com.vaadin: WARN
       org.hibernate.SQL: DEBUG
+      org.hibernate.orm.jdbc.bind: TRACE
+      org.hibernate.orm.jdbc.extract: DEBUG
     pattern:
       file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
 
@@ -137,6 +141,8 @@ spring:
       org.apolenkov.application: INFO
       org.springframework.security: INFO
       com.vaadin: WARN
-      org.hibernate.SQL: DEBUG
+      org.hibernate.SQL: WARN
+      org.hibernate.orm.jdbc.bind: OFF
+      org.hibernate.orm.jdbc.extract: WARN
     pattern:
       file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"

@@ -15,7 +15,7 @@ import org.apolenkov.application.service.PracticeSettingsService;
 public class PracticeSettingsDialog extends Dialog {
 
     public PracticeSettingsDialog(PracticeSettingsService practiceSettingsService) {
-        setWidth("520px");
+        setWidth("500px");
 
         VerticalLayout layout = new VerticalLayout();
         layout.setPadding(true);
@@ -53,7 +53,8 @@ public class PracticeSettingsDialog extends Dialog {
                     dirGroup.getValue().equals(f2b)
                             ? org.apolenkov.application.model.PracticeDirection.FRONT_TO_BACK
                             : org.apolenkov.application.model.PracticeDirection.BACK_TO_FRONT);
-            Notification n = Notification.show(getTranslation("settings.saved"), 3000, Notification.Position.MIDDLE);
+            Notification n =
+                    Notification.show(getTranslation("settings" + ".saved"), 3000, Notification.Position.BOTTOM_START);
             n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             close();
         });

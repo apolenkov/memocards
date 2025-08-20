@@ -37,7 +37,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         this.deckUseCase = deckUseCase;
         this.userUseCase = userUseCase;
 
-        getContent().setWidth("100%");
+        getContent().setWidthFull();
         getContent().setPadding(true);
         getContent().setSpacing(true);
         getContent().setAlignItems(FlexComponent.Alignment.CENTER);
@@ -48,7 +48,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
     private void createHeader() {
         HorizontalLayout headerLayout = new HorizontalLayout();
-        headerLayout.setWidth("100%");
+        headerLayout.setWidthFull();
         headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 
@@ -59,7 +59,6 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         backButton.setText(getTranslation("deckCreate.back"));
 
         H2 title = TextHelper.createPageTitle(getTranslation("deckCreate.title"));
-        title.addClassName("deckedit-view__header-title");
 
         leftSection.add(backButton, title);
         headerLayout.add(leftSection);
@@ -69,7 +68,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
     private void createForm() {
         Div formContainer = new Div();
-        formContainer.setWidth("100%");
+        formContainer.setWidthFull();
         formContainer.setMaxWidth("600px");
         formContainer
                 .getStyle()
@@ -82,18 +81,17 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
         VerticalLayout formLayout = new VerticalLayout();
         formLayout.setSpacing(true);
-        formLayout.setWidth("100%");
+        formLayout.setWidthFull();
 
         H3 formTitle = TextHelper.createSectionTitle(getTranslation("deckCreate.section"));
-        formTitle.addClassName("deckedit-view__section-title");
 
         TextField titleField = FormHelper.createRequiredTextField(
                 getTranslation("deckCreate.name"), getTranslation("deckCreate.name.placeholder"));
-        titleField.setWidth("100%");
+        titleField.setWidthFull();
 
         TextArea descriptionArea = FormHelper.createTextArea(
                 getTranslation("deckCreate.description"), getTranslation("deckCreate.description.placeholder"));
-        descriptionArea.setWidth("100%");
+        descriptionArea.setWidthFull();
         descriptionArea.setMaxHeight("150px");
 
         binder = new BeanValidationBinder<>(Deck.class);

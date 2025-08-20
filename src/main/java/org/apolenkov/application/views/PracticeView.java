@@ -57,13 +57,24 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         this.flashcardUseCase = flashcardUseCase;
         this.presenter = presenter;
 
-        getContent().setWidth("100%");
-        getContent().addClassName("practice-view");
+        getContent().setWidthFull();
+        getContent().setPadding(true);
+        getContent().setSpacing(true);
+        getContent().setAlignItems(FlexComponent.Alignment.CENTER);
 
-        createHeader();
-        createProgressSection();
-        createCardContainer();
-        createActionButtons();
+        // Create a container with consistent width
+        VerticalLayout contentContainer = new VerticalLayout();
+        contentContainer.setSpacing(true);
+        contentContainer.setWidthFull();
+        contentContainer.setMaxWidth("800px"); // Consistent max width
+        contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        createHeader(contentContainer);
+        createProgressSection(contentContainer);
+        createCardContainer(contentContainer);
+        createActionButtons(contentContainer);
+
+        getContent().add(contentContainer);
     }
 
     @Override
@@ -109,12 +120,13 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         }
     }
 
-    private void createHeader() {
+    private void createHeader(VerticalLayout container) {
         HorizontalLayout headerLayout = new HorizontalLayout();
-        headerLayout.addClassName("practice-view__header");
+        headerLayout.setWidthFull();
+        headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         HorizontalLayout leftSection = new HorizontalLayout();
-        leftSection.addClassName("practice-view__header-left");
+        leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
         Button backButton = ButtonHelper.createBackButton(e -> {
             if (currentDeck != null) {
@@ -126,40 +138,54 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         backButton.setText(getTranslation("practice.back"));
 
         deckTitle = new H2(getTranslation(PRACTICE_TITLE_KEY));
-        deckTitle.addClassName("practice-view__title");
+        deckTitle.getStyle().set("margin", "0");
 
         leftSection.add(backButton, deckTitle);
 
         headerLayout.add(leftSection);
-        getContent().add(headerLayout);
+        container.add(headerLayout);
     }
 
-    private void createProgressSection() {
+    private void createProgressSection(VerticalLayout container) {
         Div progressSection = new Div();
-        progressSection.addClassName("practice-view__progress");
+        progressSection.getStyle().set("background", "var(--lumo-contrast-5pct)");
+        progressSection.getStyle().set("border-radius", "var(--lumo-border-radius)");
+        progressSection.getStyle().set("padding", "var(--lumo-space-m)");
+        progressSection.getStyle().set("width", "100%");
+        progressSection.getStyle().set("text-align", "center");
 
         statsSpan = new Span(getTranslation("practice.getReady"));
+        statsSpan.getStyle().set("color", "var(--lumo-secondary-text-color)");
         progressSection.add(statsSpan);
 
-        getContent().add(progressSection);
+        container.add(progressSection);
     }
 
-    private void createCardContainer() {
+    private void createCardContainer(VerticalLayout container) {
         Div cardContainer = new Div();
-        cardContainer.addClassName("practice-view__card-container");
+        cardContainer.getStyle().set("background", "var(--lumo-contrast-5pct)");
+        cardContainer.getStyle().set("border-radius", "var(--lumo-border-radius-l)");
+        cardContainer.getStyle().set("padding", "var(--lumo-space-xl)");
+        cardContainer.getStyle().set("width", "100%");
+        cardContainer.getStyle().set("min-height", "300px");
+        cardContainer.getStyle().set("display", "flex");
+        cardContainer.getStyle().set("align-items", "center");
+        cardContainer.getStyle().set("justify-content", "center");
 
         cardContent = new Div();
-        cardContent.addClassName("practice-view__card-content");
+        cardContent.getStyle().set("text-align", "center");
 
         cardContent.add(new Span(getTranslation("practice.loadingCards")));
         cardContainer.add(cardContent);
 
-        getContent().add(cardContainer);
+        container.add(cardContainer);
     }
 
-    private void createActionButtons() {
+    private void createActionButtons(VerticalLayout container) {
         actionButtons = new HorizontalLayout();
-        actionButtons.addClassName("practice-view__actions");
+        actionButtons.setSpacing(true);
+        actionButtons.setAlignItems(FlexComponent.Alignment.CENTER);
+        actionButtons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         showAnswerButton = ButtonHelper.createLargeButton(getTranslation("practice.showAnswer"), e -> showAnswer());
         showAnswerButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -173,7 +199,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         hardButton.setVisible(false);
 
         actionButtons.add(showAnswerButton, knowButton, hardButton);
-        getContent().add(actionButtons);
+        container.add(actionButtons);
     }
 
     private void loadDeck(Long deckId) {
@@ -234,9 +260,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         cardLayout.setSpacing(true);
 
         H1 question = new H1(Optional.ofNullable(getQuestionText(currentCard)).orElse(""));
-        question.addClassName("practice-view__question");
+
         Span transcription = new Span(" ");
-        transcription.addClassName("practice-view__transcription");
 
         cardLayout.add(question, transcription);
         cardContent.add(cardLayout);
@@ -257,15 +282,15 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         cardLayout.setSpacing(true);
 
         H2 question = new H2(Optional.ofNullable(getQuestionText(currentCard)).orElse(""));
-        question.addClassName("practice-view__question");
+
         Hr divider = new Hr();
-        divider.addClassName("practice-view__divider");
+
         H1 answer = new H1(Optional.ofNullable(getAnswerText(currentCard)).orElse(""));
 
         cardLayout.add(question, divider, answer);
         if (currentCard.getExample() != null && !currentCard.getExample().isBlank()) {
             Span exampleText = new Span(getTranslation("practice.example.prefix", currentCard.getExample()));
-            exampleText.addClassName("practice-view__example");
+
             cardLayout.add(exampleText);
         }
         cardContent.add(cardLayout);
@@ -317,15 +342,12 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                 : totalViewed;
         H1 completionTitle = new H1(getTranslation("practice.sessionComplete", currentDeck.getTitle()));
         H3 results = new H3(getTranslation("practice.results", correctCount, total, hardCount));
-        Span timeInfo = new Span(getTranslation(
-                "practice.time",
-                Math.clamp(
-                        java.time.Duration.between(session.getSessionStart(), java.time.Instant.now())
-                                .toMinutes(),
-                        1,
-                        Integer.MAX_VALUE),
-                Math.round(
-                        (session.getTotalAnswerDelayMs() / Math.clamp(totalViewed, 1.0, Double.MAX_VALUE)) / 1000.0)));
+        long minutes = java.time.Duration.between(session.getSessionStart(), java.time.Instant.now())
+                .toMinutes();
+        minutes = Math.clamp(minutes, 1, Integer.MAX_VALUE);
+        double denom = Math.clamp(totalViewed, 1.0, Double.MAX_VALUE);
+        long avgSec = Math.round((session.getTotalAnswerDelayMs() / denom) / 1000.0);
+        Span timeInfo = new Span(getTranslation("practice.time", minutes, avgSec));
 
         completionLayout.add(completionTitle, results, timeInfo);
         cardContent.add(completionLayout);

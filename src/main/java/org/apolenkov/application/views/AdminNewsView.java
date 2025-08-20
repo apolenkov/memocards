@@ -40,7 +40,6 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         this.newsService = newsService;
         this.newsList = new ArrayList<>();
 
-        setSizeFull();
         setPadding(true);
         setSpacing(true);
 
@@ -70,11 +69,11 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
             return new com.vaadin.flow.component.html.Span(getTranslation("common.emDash"));
         }));
 
-        newsGrid.getColumnByKey("title").setWidth("200px");
-        newsGrid.getColumnByKey("content").setWidth("300px");
-        newsGrid.getColumnByKey("author").setWidth("150px");
-        newsGrid.getColumnByKey("createdAt").setWidth("150px");
-        newsGrid.getColumnByKey("updatedAt").setWidth("150px");
+        newsGrid.getColumnByKey("title").setWidth("420px");
+        newsGrid.getColumnByKey("content").setWidth("420px");
+        newsGrid.getColumnByKey("author").setWidth("420px");
+        newsGrid.getColumnByKey("createdAt").setWidth("420px");
+        newsGrid.getColumnByKey("updatedAt").setWidth("420px");
         newsGrid.addComponentColumn(news -> {
                     HorizontalLayout actions = LayoutHelper.createButtonRow(
                             ButtonHelper.createEditButton(e -> showNewsDialog(news)),
@@ -82,7 +81,6 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
                     return actions;
                 })
                 .setHeader(getTranslation("admin.users.actions"))
-                .setWidth("140px")
                 .setFlexGrow(0);
 
         dataProvider = new ListDataProvider<>(newsList);

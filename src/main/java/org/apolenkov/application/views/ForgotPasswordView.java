@@ -45,38 +45,59 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
 
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();
-        wrapper.addClassName("forgot-password-form");
+        wrapper.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+        wrapper.setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
+
+        // Create a beautiful Lumo-styled form container
+        Div formContainer = new Div();
+        formContainer.getStyle().set("background", "var(--lumo-contrast-5pct)");
+        formContainer.getStyle().set("border-radius", "var(--lumo-border-radius-l)");
+        formContainer.getStyle().set("padding", "var(--lumo-space-xl)");
+        formContainer.getStyle().set("max-width", "450px");
+        formContainer.getStyle().set("width", "100%");
+        formContainer.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
+
+        // Create form title
+        H2 title = new H2(getTranslation("auth.forgotPassword.title"));
+        title.getStyle().set("text-align", "center");
+        title.getStyle().set("margin", "0 0 var(--lumo-space-l) 0");
+        title.getStyle().set("color", "var(--lumo-primary-text-color)");
+
+        // Create form fields container
+        VerticalLayout formFields = new VerticalLayout();
+        formFields.setSpacing(true);
+        formFields.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
 
         // Create binder and model
         Binder<ForgotPasswordModel> binder = new Binder<>(ForgotPasswordModel.class);
         ForgotPasswordModel model = new ForgotPasswordModel();
         binder.setBean(model);
 
-        H2 title = new H2(getTranslation("auth.forgotPassword.title"));
-        title.addClassName("forgot-password-form__title");
-
         TextField email = FormHelper.createRequiredTextField(
                 getTranslation("auth.email"), getTranslation("auth.email.placeholder"));
-        email.setWidth(COMPONENT_WIDTH);
+        email.setWidthFull();
 
         Button submit = ButtonHelper.createPrimaryButton(
                 getTranslation("auth.forgotPassword.submit"), e -> handleSubmit(model.getEmail()));
-        submit.setWidth(COMPONENT_WIDTH);
+        submit.setWidthFull();
 
         Button backToLogin = ButtonHelper.createTertiaryButton(
                 getTranslation("auth.forgotPassword.backToLogin"), e -> getUI().ifPresent(ui -> ui.navigate("login")));
-        backToLogin.setWidth(COMPONENT_WIDTH);
+        backToLogin.setWidthFull();
 
         Button backToHome = ButtonHelper.createTertiaryButton(
                 getTranslation("common.backToHome"), e -> getUI().ifPresent(ui -> ui.navigate("")));
-        backToHome.setWidth(COMPONENT_WIDTH);
+        backToHome.setWidthFull();
 
         // Bind fields to model
         binder.forField(email)
                 .asRequired(getTranslation("vaadin.validation.email.required"))
                 .bind(ForgotPasswordModel::getEmail, ForgotPasswordModel::setEmail);
 
-        wrapper.add(title, email, submit, backToLogin, backToHome);
+        formFields.add(email, submit, backToLogin, backToHome);
+
+        formContainer.add(title, formFields);
+        wrapper.add(formContainer);
         add(wrapper);
     }
 

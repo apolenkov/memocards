@@ -106,9 +106,6 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
     @Query("SELECT COUNT(s) > 0 FROM DeckDailyStatsEntity s " + "WHERE s.id.deckId = :deckId AND s.id.date = :date")
     boolean existsByDeckIdAndDate(@Param("deckId") long deckId, @Param("date") LocalDate date);
 
-    // Get latest stats for a deck
-    @Query("SELECT s FROM DeckDailyStatsEntity s " + "WHERE s.id.deckId = :deckId "
-            + "ORDER BY s.id.date DESC "
-            + "LIMIT 1")
-    Optional<DeckDailyStatsEntity> findLatestByDeckId(@Param("deckId") long deckId);
+    // Get latest stats for a deck using Spring Data derived query (portable, no vendor-specific LIMIT)
+    Optional<DeckDailyStatsEntity> findTopById_DeckIdOrderById_DateDesc(@Param("deckId") long deckId);
 }

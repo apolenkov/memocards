@@ -34,38 +34,29 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         Div heroIcon = new Div();
-        heroIcon.addClassName("landing-view__hero-icon");
+        heroIcon.getStyle().set("margin-bottom", "var(--lumo-space-l)");
 
         Image hero = new Image(
                 new StreamResource("pixel-icon.svg", () -> getClass()
                         .getResourceAsStream("/META-INF/resources/icons/pixel-icon.svg")),
                 getTranslation("landing.heroAlt"));
-        hero.addClassName("landing-view__hero");
 
-        // Add click handler for hero element - redirect to decks if user is authenticated with USER role
-        hero.addClickListener(e -> {
-            Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-            if (currentAuth != null && !(currentAuth instanceof AnonymousAuthenticationToken)) {
-                boolean hasUserRole = currentAuth.getAuthorities().stream()
-                        .anyMatch(a -> SecurityConstants.ROLE_USER.equals(a.getAuthority()));
-                if (hasUserRole) {
-                    NavigationHelper.navigateTo("decks");
-                }
-            } else {
-                // If anonymous or not authenticated, redirect to login
-                NavigationHelper.navigateTo("login");
-            }
-        });
+        hero.getStyle().set("width", "120px");
+        hero.getStyle().set("height", "120px");
+
+        // Simple click handler - always go to login
+        hero.addClickListener(e -> NavigationHelper.navigateTo("login"));
 
         heroIcon.add(hero);
 
         H1 title = TextHelper.createMainTitle(getTranslation("app.title"));
-        title.addClassName("landing-view__title");
+        title.getStyle().set("margin", "0");
+        title.getStyle().set("color", "var(--lumo-primary-text-color)");
 
         Paragraph subtitle = new Paragraph(getTranslation("landing.subtitle"));
-        subtitle.addClassName("landing-view__subtitle");
-
-        // Decorative astronaut removed
+        subtitle.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        subtitle.getStyle().set("font-size", "var(--lumo-font-size-l)");
+        subtitle.getStyle().set("margin-bottom", "var(--lumo-space-l)");
 
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(true);
@@ -92,29 +83,85 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
             }
         }
 
-        Div newsBlock = new Div();
-        newsBlock.addClassName("landing-view__news-block");
+        // News section wrapper
+        Div newsSection = new Div();
+        newsSection.getStyle()
+                .set("width", "100%")
+                .set("max-width", "800px")
+                .set("background", "var(--lumo-contrast-5pct)")
+                .set("border", "1px solid var(--lumo-contrast-10pct)")
+                .set("border-radius", "var(--lumo-border-radius-l)")
+                .set("padding", "var(--lumo-space-l)")
+                .set("display", "flex")
+                .set("flex-direction", "column")
+                .set("gap", "var(--lumo-space-m)");
 
         H3 newsTitle = TextHelper.createSectionTitle(getTranslation("landing.news"));
-        newsTitle.addClassName("landing-view__news-title");
-        newsBlock.add(newsTitle);
+        newsTitle.getStyle().set("margin", "0");
+        newsTitle.getStyle().set("color", "var(--lumo-primary-text-color)");
+        newsSection.add(newsTitle);
+
+        Div newsList = new Div();
+        newsList.getStyle()
+                .set("display", "flex")
+                .set("flex-direction", "column")
+                .set("gap", "var(--lumo-space-m)");
 
         for (var item : newsService.getAllNews()) {
             Div card = new Div();
-            card.addClassName("landing-view__news-card");
+            card.getStyle()
+                    .set("background", "var(--lumo-contrast-5pct)")
+                    .set("border", "1px solid var(--lumo-contrast-10pct)")
+                    .set("border-radius", "var(--lumo-border-radius-l)")
+                    .set("padding", "var(--lumo-space-m)")
+                    .set("display", "flex")
+                    .set("flex-direction", "column")
+                    .set("gap", "var(--lumo-space-s)");
 
             H3 cardTitle = new H3(item.getTitle());
-            cardTitle.addClassName("landing-view__news-card-title");
+            cardTitle.getStyle().set("margin", "0");
             card.add(cardTitle);
 
             Paragraph cardContent = new Paragraph(item.getContent());
-            cardContent.addClassName("landing-view__news-card-content");
+            cardContent.getStyle().set("color", "var(--lumo-secondary-text-color)");
             card.add(cardContent);
 
-            newsBlock.add(card);
+            // Optional astronaut accent element
+            Div astronaut = new Div();
+            astronaut
+                    .getStyle()
+                    .set("width", "36px")
+                    .set("height", "36px")
+                    .set("background-image", "url('themes/flashcards/assets/modern-icons.svg')")
+                    .set("background-size", "contain")
+                    .set("background-repeat", "no-repeat")
+                    .set("opacity", "0.9");
+            // Place accent to the right side of the card header
+            astronaut.getStyle().set("align-self", "flex-end");
+            card.add(astronaut);
+
+            newsList.add(card);
         }
 
-        add(title, subtitle, heroIcon, actions, newsBlock);
+        // Hero section container
+        Div heroSection = new Div();
+        heroSection.getStyle()
+                .set("width", "100%")
+                .set("max-width", "800px")
+                .set("background", "var(--lumo-contrast-5pct)")
+                .set("border", "1px solid var(--lumo-contrast-10pct)")
+                .set("border-radius", "var(--lumo-border-radius-l)")
+                .set("padding", "var(--lumo-space-l)")
+                .set("display", "flex")
+                .set("flex-direction", "column")
+                .set("align-items", "center")
+                .set("gap", "var(--lumo-space-m)");
+
+        heroSection.add(heroIcon, title, subtitle, actions);
+
+        newsSection.add(newsList);
+
+        add(heroSection, newsSection);
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
     }

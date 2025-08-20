@@ -35,10 +35,14 @@ import org.apolenkov.application.views.presenter.DeckPresenter;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Route(value = "deck", layout = PublicLayout.class)
 @RolesAllowed("ROLE_USER")
 public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
+
+    private static final Logger log = LoggerFactory.getLogger(DeckView.class);
 
     // Constants for duplicated literals
     private static final String FILL_REQUIRED_KEY = "dialog.fillRequired";
@@ -58,15 +62,24 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         this.presenter = presenter;
         this.deckFacade = deckFacade;
 
-        getContent().setWidth("100%");
+        getContent().setWidthFull();
         getContent().setPadding(true);
         getContent().setSpacing(true);
-        getContent().addClassName("deckview-view");
+        getContent().setAlignItems(FlexComponent.Alignment.CENTER);
 
-        createHeader();
-        createDeckInfo();
-        createActions();
-        createFlashcardsGrid();
+        // Create a container with consistent width
+        VerticalLayout contentContainer = new VerticalLayout();
+        contentContainer.setSpacing(true);
+        contentContainer.setWidthFull();
+        contentContainer.setMaxWidth("900px"); // Consistent max width
+        contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        createHeader(contentContainer);
+        createDeckInfo(contentContainer);
+        createActions(contentContainer);
+        createFlashcardsGrid(contentContainer);
+
+        getContent().add(contentContainer);
     }
 
     @Override
@@ -85,9 +98,9 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         }
     }
 
-    private void createHeader() {
+    private void createHeader(VerticalLayout container) {
         HorizontalLayout headerLayout = new HorizontalLayout();
-        headerLayout.setWidth("100%");
+        headerLayout.setWidthFull();
         headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 
@@ -98,33 +111,36 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         backButton.setText(getTranslation("main.decks"));
 
         deckTitle = new H2(getTranslation("deck.loading"));
-        deckTitle.addClassName("deckview-view__header-title");
+        deckTitle.getStyle().set("margin", "0");
 
         deckStats = new Span();
-        deckStats.addClassName("deckview-view__header-stats");
+        deckStats.getStyle().set("color", "var(--lumo-secondary-text-color)");
 
         leftSection.add(backButton, deckTitle, deckStats);
         headerLayout.add(leftSection);
 
-        getContent().add(headerLayout);
+        container.add(headerLayout);
     }
 
-    private void createDeckInfo() {
+    private void createDeckInfo(VerticalLayout container) {
         Div infoSection = new Div();
-        infoSection.addClassName("deckview-view__info");
+        infoSection.getStyle().set("background", "var(--lumo-contrast-5pct)");
+        infoSection.getStyle().set("border-radius", "var(--lumo-border-radius)");
+        infoSection.getStyle().set("padding", "var(--lumo-space-m)");
+        infoSection.getStyle().set("width", "100%");
 
         deckDescription = new Span(getTranslation("deck.description.loading"));
-        deckDescription.addClassName("deckview-view__info-description");
+        deckDescription.getStyle().set("color", "var(--lumo-secondary-text-color)");
 
         infoSection.add(deckDescription);
-        getContent().add(infoSection);
+        container.add(infoSection);
     }
 
-    private void createActions() {
+    private void createActions(VerticalLayout container) {
         HorizontalLayout actionsLayout = new HorizontalLayout();
-        actionsLayout.setWidth("100%");
+        actionsLayout.setWidthFull();
         actionsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-        actionsLayout.addClassName("deckview-view__actions");
+        actionsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         Button practiceButton = ButtonHelper.createPlayButton(e -> {
             if (currentDeck != null) {
@@ -132,7 +148,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             }
         });
         practiceButton.setText(getTranslation("deck.startSession"));
-        practiceButton.addClassName("deckview-view__practice-button");
 
         Button addFlashcardButton = ButtonHelper.createPlusButton(e -> openFlashcardDialog(null));
         addFlashcardButton.setText(getTranslation("deck.addCard"));
@@ -145,16 +160,20 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         });
         editDeckButton.getElement().setProperty("title", getTranslation("deck.edit.tooltip"));
 
-        actionsLayout.add(practiceButton, addFlashcardButton, editDeckButton);
-        getContent().add(actionsLayout);
+        Button deleteDeckButton = new Button(VaadinIcon.TRASH.create());
+        deleteDeckButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
+        deleteDeckButton.getElement().setProperty("title", getTranslation("deck.delete.tooltip"));
+        deleteDeckButton.addClickListener(e -> deleteDeck());
+
+        actionsLayout.add(practiceButton, addFlashcardButton, editDeckButton, deleteDeckButton);
+        container.add(actionsLayout);
     }
 
-    private void createFlashcardsGrid() {
+    private void createFlashcardsGrid(VerticalLayout container) {
         HorizontalLayout searchRow = new HorizontalLayout();
-        searchRow.setWidth("100%");
+        searchRow.setWidthFull();
         searchRow.setAlignItems(FlexComponent.Alignment.CENTER);
         searchRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        searchRow.addClassName("deckview-view__search-row");
 
         flashcardSearchField = new TextField();
         flashcardSearchField.setPlaceholder(getTranslation("deck.searchCards"));
@@ -179,12 +198,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         rightFilters.add(hideKnownCheckbox, resetProgress);
 
         searchRow.add(flashcardSearchField, rightFilters);
-        getContent().add(searchRow);
+        container.add(searchRow);
 
         flashcardGrid = new Grid<>(Flashcard.class, false);
         flashcardGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        flashcardGrid.setWidth("100%");
-        flashcardGrid.setHeight("420px");
+        flashcardGrid.setWidthFull();
 
         flashcardGrid
                 .addColumn(Flashcard::getFrontText)
@@ -208,9 +226,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 .addComponentColumn(flashcard -> {
                     boolean known = currentDeck != null && presenter.isKnown(currentDeck.getId(), flashcard.getId());
                     Span mark = new Span(known ? getTranslation("deck.knownMark") : "");
-                    if (known) {
-                        mark.addClassName("deckview-view__status-known");
-                    }
+                    if (known) {}
                     return mark;
                 })
                 .setHeader(getTranslation("deck.col.status"))
@@ -221,6 +237,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 .addComponentColumn(flashcard -> {
                     HorizontalLayout actions = new HorizontalLayout();
                     actions.setSpacing(true);
+                    actions.setAlignItems(FlexComponent.Alignment.CENTER);
+                    actions.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
                     Button editButton = new Button(VaadinIcon.EDIT.create());
                     editButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
@@ -244,10 +262,10 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                     return actions;
                 })
                 .setHeader(getTranslation("deck.col.actions"))
-                .setWidth("220px")
-                .setFlexGrow(0);
+                .setFlexGrow(0)
+                .setWidth("180px");
 
-        getContent().add(flashcardGrid);
+        container.add(flashcardGrid);
     }
 
     private void loadDeck(Long deckId) {
@@ -316,19 +334,19 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         FormLayout formLayout = new FormLayout();
 
         TextField frontTextField = new TextField(getTranslation("deck.col.front"));
-        frontTextField.setWidth("100%");
+        frontTextField.setWidthFull();
         frontTextField.setRequired(true);
 
         TextField backTextField = new TextField(getTranslation("deck.col.back"));
-        backTextField.setWidth("100%");
+        backTextField.setWidthFull();
         backTextField.setRequired(true);
 
         TextArea exampleArea = new TextArea(getTranslation("deck.example.optional"));
-        exampleArea.setWidth("100%");
+        exampleArea.setWidthFull();
         exampleArea.setMaxHeight("100px");
 
         TextField imageUrlField = new TextField(getTranslation("deck.imageUrl.optional"));
-        imageUrlField.setWidth("100%");
+        imageUrlField.setWidthFull();
 
         if (flashcard != null) {
             frontTextField.setValue(flashcard.getFrontText() != null ? flashcard.getFrontText() : "");
@@ -418,6 +436,200 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         buttons.add(confirmButton, cancelButton);
         layout.add(buttons);
+
+        confirmDialog.add(layout);
+        confirmDialog.open();
+    }
+
+    private void deleteDeck() {
+        if (currentDeck == null) {
+            return;
+        }
+
+        // Check if deck is empty using presenter.deckSize() for accurate count
+        int cardCount = presenter.deckSize(currentDeck.getId());
+        boolean isEmpty = cardCount == 0;
+
+        // Debug logging
+        log.debug(
+                "Deck deletion check - Title: {}, Card count: {}, isEmpty: {}",
+                currentDeck.getTitle(),
+                cardCount,
+                isEmpty);
+
+        if (isEmpty) {
+            showSimpleDeleteDialog();
+        } else {
+            showComplexDeleteDialog();
+        }
+    }
+
+    private void showSimpleDeleteDialog() {
+        Dialog confirmDialog = new Dialog();
+        confirmDialog.setModal(true);
+        confirmDialog.setCloseOnEsc(true);
+        confirmDialog.setCloseOnOutsideClick(false);
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setSpacing(true);
+        layout.setPadding(true);
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        // Simple icon and title
+        Div icon = new Div();
+        icon.add(VaadinIcon.INFO_CIRCLE.create());
+        icon.getStyle().set("color", "var(--lumo-primary-color)");
+        icon.getStyle().set("font-size", "var(--lumo-font-size-xxl)");
+        icon.getStyle().set("margin-bottom", "var(--lumo-space-s)");
+
+        H3 title = new H3(getTranslation("deck.delete.simpleTitle"));
+        title.getStyle().set("margin", "0");
+
+        // Description
+        Span description = new Span(getTranslation("deck.delete.simpleDescription", currentDeck.getTitle()));
+        description.getStyle().set("text-align", "center");
+        description.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        description.getStyle().set("margin-bottom", "var(--lumo-space-m)");
+
+        // Additional info about card count
+        int actualCardCount = presenter.deckSize(currentDeck.getId());
+        if (actualCardCount > 0) {
+            Span cardCountInfo = new Span(getTranslation("deck.delete.actualCardCount", actualCardCount));
+            cardCountInfo.getStyle().set("color", "var(--lumo-error-color)");
+            cardCountInfo.getStyle().set("font-weight", "bold");
+            cardCountInfo.getStyle().set("display", "block");
+            cardCountInfo.getStyle().set("margin-bottom", "var(--lumo-space-s)");
+            layout.add(cardCountInfo);
+        }
+
+        // Buttons
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
+        Button confirmButton = new Button(getTranslation("deck.delete.simpleConfirm"), VaadinIcon.TRASH.create());
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+
+        Button cancelButton = new Button(getTranslation("common.cancel"));
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+        confirmButton.addClickListener(e -> {
+            try {
+                deckFacade.deleteDeck(currentDeck.getId());
+                confirmDialog.close();
+                NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
+                NavigationHelper.navigateTo(RouteConstants.DECKS_ROUTE);
+            } catch (Exception ex) {
+                NotificationHelper.showErrorLong(ex.getMessage());
+            }
+        });
+
+        cancelButton.addClickListener(e -> confirmDialog.close());
+
+        buttons.add(confirmButton, cancelButton);
+        layout.add(icon, title, description, buttons);
+
+        confirmDialog.add(layout);
+        confirmDialog.open();
+    }
+
+    private void showComplexDeleteDialog() {
+        Dialog confirmDialog = new Dialog();
+        confirmDialog.setModal(true);
+        confirmDialog.setCloseOnEsc(true);
+        confirmDialog.setCloseOnOutsideClick(false);
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setSpacing(true);
+        layout.setPadding(true);
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        // Warning icon and title
+        Div warningIcon = new Div();
+        warningIcon.add(VaadinIcon.WARNING.create());
+        warningIcon.getStyle().set("color", "var(--lumo-error-color)");
+        warningIcon.getStyle().set("font-size", "var(--lumo-font-size-xxl)");
+        warningIcon.getStyle().set("margin-bottom", "var(--lumo-space-s)");
+
+        H3 title = new H3(getTranslation("deck.delete.confirmTitle"));
+        title.getStyle().set("color", "var(--lumo-error-color)");
+        title.getStyle().set("margin", "0");
+
+        // Description
+        Span description = new Span(getTranslation("deck.delete.confirmDescription"));
+        description.getStyle().set("text-align", "center");
+        description.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        description.getStyle().set("margin-bottom", "var(--lumo-space-m)");
+
+        // Deck info
+        Div deckInfo = new Div();
+        deckInfo.getStyle().set("background", "var(--lumo-contrast-5pct)");
+        deckInfo.getStyle().set("border-radius", "var(--lumo-border-radius)");
+        deckInfo.getStyle().set("padding", "var(--lumo-space-s)");
+        deckInfo.getStyle().set("margin-bottom", "var(--lumo-space-m)");
+        deckInfo.getStyle().set("text-align", "center");
+
+        Span deckName = new Span(currentDeck.getTitle());
+        deckName.getStyle().set("font-weight", "bold");
+        deckName.getStyle().set("color", "var(--lumo-primary-text-color)");
+
+        int actualCardCount = presenter.deckSize(currentDeck.getId());
+        Span cardCount = new Span(getTranslation("deck.delete.cardCount", actualCardCount));
+        cardCount.getStyle().set("display", "block");
+        cardCount.getStyle().set("margin-top", "var(--lumo-space-xs)");
+        cardCount.getStyle().set("color", "var(--lumo-secondary-text-color)");
+
+        deckInfo.add(deckName, cardCount);
+
+        // Confirmation input
+        TextField confirmInput = new TextField(getTranslation("deck.delete.confirmInput"));
+        confirmInput.setPlaceholder(currentDeck.getTitle());
+        confirmInput.setWidthFull();
+        confirmInput.setRequired(true);
+
+        // Buttons
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
+        Button confirmButton = new Button(getTranslation("deck.delete.confirm"), VaadinIcon.TRASH.create());
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+        confirmButton.setEnabled(false);
+
+        Button cancelButton = new Button(getTranslation("common.cancel"));
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+        // Enable confirm button only when deck name is typed correctly
+        // TODO: Replace with Backend validation for security in the future
+        confirmInput.addValueChangeListener(e -> {
+            confirmButton.setEnabled(currentDeck.getTitle().equals(e.getValue()));
+        });
+
+        // Check on every value change
+        confirmInput.addInputListener(e -> {
+            log.info("Confirm input value: {}", confirmInput.getValue());
+            confirmButton.setEnabled(currentDeck.getTitle().equals(confirmInput.getValue()));
+        });
+
+        // Removed duplicate KeyDownListener since InputListener already handles all changes
+
+        confirmButton.addClickListener(e -> {
+            try {
+                deckFacade.deleteDeck(currentDeck.getId());
+                confirmDialog.close();
+                NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
+                NavigationHelper.navigateTo(RouteConstants.DECKS_ROUTE);
+            } catch (Exception ex) {
+                NotificationHelper.showErrorLong(ex.getMessage());
+            }
+        });
+
+        cancelButton.addClickListener(e -> confirmDialog.close());
+
+        buttons.add(confirmButton, cancelButton);
+        layout.add(warningIcon, title, description, deckInfo, confirmInput, buttons);
 
         confirmDialog.add(layout);
         confirmDialog.open();
