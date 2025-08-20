@@ -57,15 +57,15 @@
 .floating-cosmonaut {
     position: fixed;
     z-index: 0;
-    right: 1.5%;
-    top: 8%;
-    width: 48vw;
-    height: 48vw;
+    right: -2%;
+    top: 14%;
+    width: 36vw;
+    height: 36vw;
     max-width: 800px;
     background-image: url("./assets/cosmonaut-pixel.svg");
     background-repeat: no-repeat;
     background-size: contain;
-    opacity: 0.10;
+    opacity: 0.06;
     animation: float 10s ease-in-out infinite;
     pointer-events: none;
 }
