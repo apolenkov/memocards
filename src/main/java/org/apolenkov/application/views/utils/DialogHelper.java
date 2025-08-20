@@ -42,8 +42,7 @@ public final class DialogHelper {
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
 
         Button confirmButton = new Button("Confirm", VaadinIcon.CHECK.create());
-        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-                ButtonVariant.LUMO_SUCCESS);
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
         confirmButton.addClickListener(e -> {
             onConfirm.run();
             dialog.close();

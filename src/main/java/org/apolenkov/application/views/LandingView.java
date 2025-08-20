@@ -1,7 +1,6 @@
 package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
@@ -24,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route(value = "", layout = PublicLayout.class)
 @AnonymousAllowed
-@CssImport(value = "./themes/flashcards/views/landing-view.css", themeFor = "vaadin-vertical-layout")
 public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
     public LandingView(NewsService newsService) {

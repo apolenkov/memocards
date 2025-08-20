@@ -17,8 +17,28 @@ class CsrfCookieFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         Object attr = request.getAttribute(CsrfToken.class.getName());
         if (attr instanceof CsrfToken token) {
-            token.getToken(); // force generation of the cookie via CsrfFilter
+            // Force generation of the cookie via CsrfFilter
+            token.getToken();
         }
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String uri = request.getRequestURI();
+        if (uri == null) {
+            return false;
+        }
+        // Skip Vaadin internal requests and common static resources
+        return uri.startsWith("/VAADIN/")
+                || uri.startsWith("/HEARTBEAT/")
+                || uri.startsWith("/UIDL/")
+                || uri.startsWith("/css/")
+                || uri.startsWith("/images/")
+                || uri.startsWith("/icons/")
+                || uri.startsWith("/js/")
+                || uri.startsWith("/webjars/")
+                || uri.startsWith("/frontend/")
+                || uri.equals("/favicon.ico");
     }
 }
