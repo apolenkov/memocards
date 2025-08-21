@@ -100,30 +100,4 @@ public class PasswordResetService {
         PasswordResetToken resetToken = tokenOpt.get();
         return !resetToken.isUsed() && !resetToken.isExpired();
     }
-
-    /**
-     * Get user email by token
-     */
-    public Optional<String> getUserEmailByToken(String token) {
-        Optional<PasswordResetToken> tokenOpt = tokenRepository.findByToken(token);
-        if (tokenOpt.isEmpty()) {
-            return Optional.empty();
-        }
-
-        PasswordResetToken resetToken = tokenOpt.get();
-        if (resetToken.isUsed() || resetToken.isExpired()) {
-            return Optional.empty();
-        }
-
-        Optional<User> userOpt = userRepository.findById(resetToken.getUserId());
-        return userOpt.map(User::getEmail);
-    }
-
-    /**
-     * Clean up expired tokens
-     */
-    @Transactional
-    public void cleanupExpiredTokens() {
-        tokenRepository.deleteExpiredTokens();
-    }
 }
