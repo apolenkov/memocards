@@ -30,6 +30,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
     private final transient DeckFacade deckFacade;
     private final transient UserUseCase userUseCase;
     private final VerticalLayout deckList;
+    private final TextField search;
 
     public DecksView(HomePresenter homePresenter, DeckFacade deckFacade, UserUseCase userUseCase) {
         this.homePresenter = homePresenter;
@@ -50,18 +51,9 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         H2 title = TextHelper.createPageTitle(getTranslation("home.title"));
         title.addClassName("decks-view__title");
 
-        TextField search = FormHelper.createOptionalTextField("", getTranslation("home.search.placeholder"));
+        search = FormHelper.createOptionalTextField("", getTranslation("home.search.placeholder"));
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPrefixComponent(IconHelper.createSearchIcon());
-
-        Button addDeckBtn = ButtonHelper.createPlusButton(e -> openCreateDeckDialog());
-        addDeckBtn.setText(getTranslation("home.addDeck"));
-
-        HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addDeckBtn);
-        toolbar.setAlignItems(Alignment.CENTER);
-        toolbar.setJustifyContentMode(JustifyContentMode.CENTER);
-        toolbar.addClassName("decks-toolbar");
-        toolbar.addClassName("surface-panel");
 
         deckList = new VerticalLayout();
         deckList.setPadding(false);
@@ -71,7 +63,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
         search.addValueChangeListener(e -> refreshDecks(e.getValue()));
 
-        content.add(title, toolbar, deckList);
+        content.add(deckList);
         add(content);
 
         refreshDecks("");
@@ -81,14 +73,28 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         deckList.removeAll();
         List<DeckCardViewModel> decks = homePresenter.listDecksForCurrentUser(query);
 
-        // Create a container for deck cards with consistent width
+        // Create a container for section (title + toolbar + cards) with consistent width
         VerticalLayout deckContainer = new VerticalLayout();
         deckContainer.setSpacing(true);
         deckContainer.setAlignItems(Alignment.CENTER);
         deckContainer.setWidthFull();
-        deckContainer.setMaxWidth("800px"); // Consistent max width for all decks
+        deckContainer.addClassName("container-md");
         deckContainer.addClassName("decks-section");
         deckContainer.addClassName("surface-panel");
+
+        // Recreate title and toolbar inside the section for a single shaded block
+        H2 title = TextHelper.createPageTitle(getTranslation("home.title"));
+        title.addClassName("decks-view__title");
+
+        Button addDeckBtn = ButtonHelper.createPlusButton(e -> openCreateDeckDialog());
+        addDeckBtn.setText(getTranslation("home.addDeck"));
+
+        HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addDeckBtn);
+        toolbar.setAlignItems(Alignment.CENTER);
+        toolbar.setJustifyContentMode(JustifyContentMode.CENTER);
+        toolbar.addClassName("decks-toolbar");
+
+        deckContainer.add(title, toolbar);
 
         decks.stream().map(DeckCard::new).forEach(deckContainer::add);
 

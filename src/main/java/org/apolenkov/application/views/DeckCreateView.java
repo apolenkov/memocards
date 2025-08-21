@@ -84,7 +84,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         TextArea descriptionArea = FormHelper.createTextArea(
                 getTranslation("deckCreate.description"), getTranslation("deckCreate.description.placeholder"));
         descriptionArea.setWidthFull();
-        descriptionArea.setMaxHeight("150px");
+        descriptionArea.addClassName("text-area--md");
 
         binder = new BeanValidationBinder<>(Deck.class);
         binder.forField(titleField)

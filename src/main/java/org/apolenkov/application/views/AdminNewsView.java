@@ -70,11 +70,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
             return new com.vaadin.flow.component.html.Span(getTranslation("common.emDash"));
         }));
 
-        newsGrid.getColumnByKey("title").setWidth("420px");
-        newsGrid.getColumnByKey("content").setWidth("420px");
-        newsGrid.getColumnByKey("author").setWidth("420px");
-        newsGrid.getColumnByKey("createdAt").setWidth("420px");
-        newsGrid.getColumnByKey("updatedAt").setWidth("420px");
+        // widths controlled via theme classes, allow auto sizing
         newsGrid.addComponentColumn(news -> {
                     HorizontalLayout actions = LayoutHelper.createButtonRow(
                             ButtonHelper.createEditButton(e -> showNewsDialog(news)),
@@ -95,8 +91,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
 
     private void showNewsDialog(News news) {
         Dialog dialog = new Dialog();
-        dialog.setWidth("600px");
-        dialog.setHeight("500px");
+        dialog.addClassName("dialog-md");
 
         VerticalLayout content = new VerticalLayout();
         content.setSpacing(true);
@@ -114,7 +109,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
 
         TextArea contentField = new TextArea(getTranslation("admin.news.content"));
         contentField.setWidthFull();
-        contentField.setHeight("200px");
+        contentField.addClassName("admin-news__content-area");
         if (news != null) {
             contentField.setValue(news.getContent());
         }

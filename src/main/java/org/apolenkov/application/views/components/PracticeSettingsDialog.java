@@ -15,7 +15,7 @@ import org.apolenkov.application.service.PracticeSettingsService;
 public class PracticeSettingsDialog extends Dialog {
 
     public PracticeSettingsDialog(PracticeSettingsService practiceSettingsService) {
-        setWidth("500px");
+        addClassName("dialog-md");
 
         VerticalLayout layout = new VerticalLayout();
         layout.setPadding(true);

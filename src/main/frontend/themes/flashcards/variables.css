@@ -1,4 +1,5 @@
-/* 
+/*
  * Standard Lumo Dark Theme
- * No custom variables - using Lumo defaults
+ * Import project tokens to ensure availability early in cascade
  */
+@import "./settings/tokens.css";

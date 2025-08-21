@@ -12,24 +12,34 @@
     gap: var(--lumo-space-m);
 }
 
+/* Unified section container */
+.practice-view__section { width: 100%; max-width: var(--app-container-md, 800px); margin: 0 auto; box-sizing: border-box; }
+
 /* Practice progress section */
-.practice-progress { width: 100%; text-align: center; padding: var(--lumo-space-m); }
-.practice-progress.surface-panel { /* visuals via component token */ }
+.practice-progress { width: 100%; text-align: center; padding: var(--lumo-space-m); box-sizing: border-box; }
+.practice-progress.surface-panel { /* visuals moved to parent section */ }
 
 .practice-progress__text {
     color: var(--lumo-secondary-text-color);
+    display: inline-block;
+    padding: var(--lumo-space-l) var(--lumo-space-m);
+    border-radius: var(--lumo-border-radius-m);
+    background-color: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+    box-sizing: border-box;
 }
 
 /* Practice card container */
 .practice-card-container {
     padding: var(--lumo-space-xl);
     width: 100%;
+    box-sizing: border-box;
     min-height: 300px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.practice-card-container.surface-card { /* visuals via component token */ }
+.practice-card-container.surface-card { /* visuals moved to parent section */ }
 
 .practice-card-content {
     text-align: center;

@@ -132,7 +132,7 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
 
         CheckboxGroup<String> rolesBox = new CheckboxGroup<>();
         rolesBox.setItems(labelToRole.keySet());
-        rolesBox.setWidth("420px");
+        rolesBox.addClassName("admin-users__roles-box");
         rolesBox.setLabel(getTranslation("admin.users.columns.roles"));
         rolesBox.setValue(user.getRoles().stream().map(this::roleToLabel).collect(Collectors.toSet()));
         return rolesBox;

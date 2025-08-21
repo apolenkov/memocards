@@ -27,7 +27,7 @@ public class CreateDeckDialog extends Dialog {
         this.deckFacade = deckFacade;
         this.userUseCase = userUseCase;
         this.onCreated = onCreated;
-        setWidth("500px");
+        addClassName("dialog-md");
         build();
     }
 
@@ -46,7 +46,7 @@ public class CreateDeckDialog extends Dialog {
 
         TextArea descriptionArea = new TextArea(getTranslation("dialog.description"));
         descriptionArea.setWidthFull();
-        descriptionArea.setMaxHeight("140px");
+        descriptionArea.addClassName("text-area--md");
         descriptionArea.setMaxLength(500);
         descriptionArea.setPlaceholder(getTranslation("dialog.description.placeholder"));
 

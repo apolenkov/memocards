@@ -71,24 +71,24 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         VerticalLayout contentContainer = new VerticalLayout();
         contentContainer.setSpacing(true);
         contentContainer.setWidthFull();
-        contentContainer.setMaxWidth("900px"); // Consistent max width
+        contentContainer.addClassName("container-md");
         contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        createHeader(contentContainer);
-        createDeckInfo(contentContainer);
+        // Single shaded section that contains header, info, actions and grid
+        VerticalLayout pageSection = new VerticalLayout();
+        pageSection.setSpacing(true);
+        pageSection.setPadding(true);
+        pageSection.setWidthFull();
+        pageSection.addClassName("deck-view__section");
+        pageSection.addClassName("surface-panel");
+        pageSection.addClassName("container-md");
 
-        // Wrap practice/actions and grid into a translucent section for better contrast with background
-        VerticalLayout practiceSection = new VerticalLayout();
-        practiceSection.setSpacing(true);
-        practiceSection.setPadding(true);
-        practiceSection.setWidthFull();
-        practiceSection.addClassName("deck-view__section");
-        practiceSection.addClassName("surface-panel");
+        createHeader(pageSection);
+        createDeckInfo(pageSection);
+        createActions(pageSection);
+        createFlashcardsGrid(pageSection);
 
-        createActions(practiceSection);
-        createFlashcardsGrid(practiceSection);
-
-        contentContainer.add(practiceSection);
+        contentContainer.add(pageSection);
 
         getContent().add(contentContainer);
     }
@@ -240,7 +240,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 })
                 .setHeader(getTranslation("deck.col.status"))
                 .setFlexGrow(0)
-                .setWidth("130px");
+                .setAutoWidth(true);
 
         flashcardGrid
                 .addComponentColumn(flashcard -> {
@@ -272,7 +272,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 })
                 .setHeader(getTranslation("deck.col.actions"))
                 .setFlexGrow(0)
-                .setWidth("180px");
+                .setAutoWidth(true);
 
         container.add(flashcardGrid);
     }
@@ -320,7 +320,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
     private void openFlashcardDialog(Flashcard flashcard) {
         Dialog dialog = new Dialog();
-        dialog.setWidth("500px");
+        dialog.addClassName("dialog-md");
 
         FormLayout formLayout = createFlashcardForm(flashcard);
         BeanValidationBinder<Flashcard> binder = createFlashcardBinder(formLayout);
@@ -352,7 +352,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         TextArea exampleArea = new TextArea(getTranslation("deck.example.optional"));
         exampleArea.setWidthFull();
-        exampleArea.setMaxHeight("100px");
+        exampleArea.addClassName("text-area--sm");
 
         TextField imageUrlField = new TextField(getTranslation("deck.imageUrl.optional"));
         imageUrlField.setWidthFull();

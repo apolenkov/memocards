@@ -24,6 +24,12 @@
 .w-full { width: 100%; }
 .h-full { height: 100%; }
 
+/* Container width helpers */
+.container-sm { width: 100%; max-width: var(--app-container-sm, 600px); margin-inline: auto; }
+.container-md { width: 100%; max-width: var(--app-container-md, 800px); margin-inline: auto; }
+.container-lg { width: 100%; max-width: var(--app-container-lg, 900px); margin-inline: auto; }
+.container-xl { width: 100%; max-width: var(--app-container-xl, 1000px); margin-inline: auto; }
+
 .hidden { display: none; }
 .visible { display: block; }
 

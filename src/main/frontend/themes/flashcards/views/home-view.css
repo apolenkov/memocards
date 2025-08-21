@@ -29,6 +29,7 @@
 /* Decks section (list wrapper) */
 .decks-section { padding: var(--lumo-space-m); }
 .decks-section.surface-panel { /* visuals via component token */ }
+
 /* Ensure same width and allow slightly more transparency than default surface-panel */
 .decks-section { width: 100%; max-width: 800px; margin: 0 auto; }
 .decks-section.surface-panel { background-color: color-mix(in srgb, var(--lumo-base-color) 88%, transparent); }

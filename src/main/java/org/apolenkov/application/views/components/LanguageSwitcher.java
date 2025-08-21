@@ -50,7 +50,7 @@ public class LanguageSwitcher extends HorizontalLayout {
         combo.setValue(selectedValue);
 
         combo.addThemeVariants(ComboBoxVariant.LUMO_SMALL);
-        combo.setWidth("92px");
+        combo.addClassName("language-switcher__combo");
         combo.getElement().setAttribute("aria-label", getTranslation("language.label"));
 
         combo.addValueChangeListener(e -> {
