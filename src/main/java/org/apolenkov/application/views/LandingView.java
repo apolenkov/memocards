@@ -42,8 +42,16 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         hero.addClassName("landing-hero__image");
 
-        // Simple click handler - always go to login
-        hero.addClickListener(e -> NavigationHelper.navigateTo("login"));
+        // Smart click handler - go to decks if authenticated, login if not
+        hero.addClickListener(e -> {
+            if (auth != null && !(auth instanceof AnonymousAuthenticationToken)) {
+                // User is authenticated, go to decks
+                NavigationHelper.navigateTo("decks");
+            } else {
+                // User is not authenticated, go to login
+                NavigationHelper.navigateTo("login");
+            }
+        });
 
         heroIcon.add(hero);
 
