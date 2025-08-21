@@ -19,3 +19,16 @@
 .decks-view__title {
     text-align: center;
 }
+
+/* Decks toolbar */
+.decks-toolbar { padding: var(--lumo-space-s) var(--lumo-space-m); }
+.decks-toolbar.surface-panel { /* visuals via component token */ }
+/* Align toolbar width with decks section */
+.decks-toolbar { width: 100%; max-width: 800px; margin: 0 auto var(--lumo-space-m); }
+
+/* Decks section (list wrapper) */
+.decks-section { padding: var(--lumo-space-m); }
+.decks-section.surface-panel { /* visuals via component token */ }
+/* Ensure same width and allow slightly more transparency than default surface-panel */
+.decks-section { width: 100%; max-width: 800px; margin: 0 auto; }
+.decks-section.surface-panel { background-color: color-mix(in srgb, var(--lumo-base-color) 88%, transparent); }

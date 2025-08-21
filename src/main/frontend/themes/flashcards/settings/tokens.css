@@ -1,0 +1,20 @@
+/* Project tokens (extend Lumo, no custom colors) */
+:root {
+    /* Breakpoints */
+    --app-bp-sm: 480px;
+    --app-bp-md: 768px;
+    --app-bp-lg: 1024px;
+    --app-bp-xl: 1280px;
+
+    /* Spacing scales (aliases to Lumo if needed) */
+    --app-space-xs: var(--lumo-space-xs);
+    --app-space-s: var(--lumo-space-s);
+    --app-space-m: var(--lumo-space-m);
+    --app-space-l: var(--lumo-space-l);
+    --app-space-xl: var(--lumo-space-xl);
+}
+
+@media (max-width:  var(--app-bp-md)) {
+  /* Example: reduce default max-widths in mobile if needed */
+}
+

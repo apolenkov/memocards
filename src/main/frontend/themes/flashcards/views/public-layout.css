@@ -3,16 +3,11 @@
     margin-top: 0;
 }
 
-.main-layout__navbar {
-    background-color: color-mix(in srgb, var(--lumo-base-color) 85%, transparent);
-    border-bottom: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
-    backdrop-filter: blur(16px);
-}
+.main-layout__navbar { border-bottom: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent); }
+.main-layout__navbar.surface-panel { /* visuals via component token */ }
 
-.main-layout__right {
-    background-color: color-mix(in srgb, var(--lumo-base-color) 85%, transparent);
-    backdrop-filter: blur(16px);
-}
+.main-layout__right { }
+.main-layout__right.surface-panel { border: none; }
 
 /* Floating elements */
 .floating-ufo,

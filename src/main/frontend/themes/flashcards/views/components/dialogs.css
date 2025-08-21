@@ -4,6 +4,14 @@
     box-shadow: var(--lumo-box-shadow-l);
 }
 
+/* Global Vaadin Dialog overlay styling */
+vaadin-dialog-overlay::part(overlay) {
+    border-radius: var(--lumo-border-radius-l);
+    background-color: var(--lumo-base-color);
+    border: 1px solid var(--lumo-contrast-10pct);
+    box-shadow: var(--lumo-box-shadow-l);
+}
+
 .dialog__header {
     border-bottom: 1px solid var(--lumo-contrast-10pct);
     padding: var(--lumo-space-m);

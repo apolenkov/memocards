@@ -11,3 +11,16 @@
     max-width: 800px;
     margin: 0 auto;
 }
+
+/* Extracted from inline styles in DeckCreateView */
+.deck-create__form {
+    width: 100%;
+    max-width: 600px;
+    padding: var(--lumo-space-xl);
+    margin: var(--lumo-space-l) auto;
+    box-shadow: var(--lumo-box-shadow-s);
+}
+
+.deck-create__form-layout {
+    width: 100%;
+}

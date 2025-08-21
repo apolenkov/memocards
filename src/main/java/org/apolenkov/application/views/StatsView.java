@@ -80,6 +80,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         section.setPadding(true);
         section.setWidthFull();
         section.addClassName("stats-section");
+        section.addClassName("surface-panel");
 
         // Create collapsible header
         HorizontalLayout headerLayout = new HorizontalLayout();
@@ -155,6 +156,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         section.setPadding(true);
         section.setWidthFull();
         section.addClassName("stats-section");
+        section.addClassName("surface-panel");
 
         // Create collapsible header
         HorizontalLayout headerLayout = new HorizontalLayout();
@@ -227,6 +229,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         section.setPadding(true);
         section.setWidthFull();
         section.addClassName("stats-section");
+        section.addClassName("surface-panel");
 
         // Create collapsible header
         HorizontalLayout headerLayout = new HorizontalLayout();
@@ -357,6 +360,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private Div createStatCard(String labelKey, int value, String modifier) {
         Div card = new Div();
         card.addClassName("stats-card");
+        card.addClassName("surface-card");
         if (!modifier.isEmpty()) {
             card.addClassName("stats-card--" + modifier);
         }
@@ -376,6 +380,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private Div createDeckStatCard(Deck deck, StatsRepository.DeckAggregate stats) {
         Div card = new Div();
         card.addClassName("deck-stats-card");
+        card.addClassName("surface-card");
 
         Div header = new Div();
         header.addClassName("deck-stats-card__header");

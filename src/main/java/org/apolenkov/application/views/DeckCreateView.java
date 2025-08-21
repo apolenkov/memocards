@@ -68,20 +68,12 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
     private void createForm() {
         Div formContainer = new Div();
-        formContainer.setWidthFull();
-        formContainer.setMaxWidth("600px");
-        formContainer
-                .getStyle()
-                .set("border", "2px solid var(--lumo-contrast-20pct)")
-                .set("border-radius", "var(--lumo-border-radius-l)")
-                .set("padding", "var(--lumo-space-xl)")
-                .set("margin", "var(--lumo-space-l) auto")
-                .set("background", "var(--lumo-base-color)")
-                .set("box-shadow", "var(--lumo-box-shadow-s)");
+        formContainer.addClassName("surface-panel");
+        formContainer.addClassName("deck-create__form");
 
         VerticalLayout formLayout = new VerticalLayout();
         formLayout.setSpacing(true);
-        formLayout.setWidthFull();
+        formLayout.addClassName("deck-create__form-layout");
 
         H3 formTitle = TextHelper.createSectionTitle(getTranslation("deckCreate.section"));
 

@@ -30,3 +30,31 @@
 .rounded { border-radius: var(--lumo-border-radius-s); }
 .rounded-m { border-radius: var(--lumo-border-radius-m); }
 .rounded-l { border-radius: var(--lumo-border-radius-l); }
+
+/* Glass utilities - use with Lumo tokens only */
+.glass-sm {
+    background: color-mix(in srgb, var(--lumo-base-color) 92%, transparent);
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
+    border-radius: var(--lumo-border-radius-m);
+    backdrop-filter: blur(4px);
+}
+
+.glass-md {
+    background: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+    border-radius: var(--lumo-border-radius-l);
+    backdrop-filter: blur(6px);
+}
+
+.glass-lg {
+    background: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+    border-radius: var(--lumo-border-radius-l);
+    backdrop-filter: blur(8px);
+}
+
+/* Focus ring utility for keyboard navigation */
+.focus-ring:focus-visible {
+    outline: 2px solid var(--lumo-primary-color);
+    outline-offset: 2px;
+}

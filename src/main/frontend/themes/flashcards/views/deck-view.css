@@ -20,18 +20,16 @@
     color: var(--lumo-secondary-text-color);
 }
 
-.deck-view__info-section {
-    background: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
-    border-radius: var(--lumo-border-radius-m);
-    padding: var(--lumo-space-m);
-    width: 100%;
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
-    backdrop-filter: blur(6px);
-}
+.deck-view__info-section { padding: var(--lumo-space-m); width: 100%; }
+.deck-view__info-section.surface-panel { /* visuals via component token */ }
 
 .deck-view__description {
     color: var(--lumo-secondary-text-color);
 }
+
+/* Deck practice section (actions + grid) */
+.deck-view__section { padding: var(--lumo-space-m); }
+.deck-view__section.glass-lg { /* visuals via utility */ }
 
 /* Deck delete dialog styles */
 .deck-delete-dialog__icon {
@@ -75,15 +73,8 @@
     margin-bottom: var(--lumo-space-m);
 }
 
-.deck-delete-confirm__info {
-    background: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
-    border-radius: var(--lumo-border-radius-m);
-    padding: var(--lumo-space-s);
-    margin-bottom: var(--lumo-space-m);
-    text-align: center;
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
-    backdrop-filter: blur(6px);
-}
+.deck-delete-confirm__info { padding: var(--lumo-space-s); margin-bottom: var(--lumo-space-m); text-align: center; }
+.deck-delete-confirm__info.glass-md { /* visuals via utility */ }
 
 .deck-delete-confirm__deck-name {
     font-weight: bold;

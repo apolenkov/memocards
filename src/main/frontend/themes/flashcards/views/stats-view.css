@@ -15,19 +15,12 @@
 .stats-view__title {
     text-align: center;
     margin-bottom: var(--lumo-space-l);
-    color: var(--lumo-primary-text-color);
+    color: var(--lumo-primary-contrast-color);
 }
 
 /* Stats cards */
-.stats-card {
-    background: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
-    border-radius: var(--lumo-border-radius-m);
-    padding: var(--lumo-space-m);
-    text-align: center;
-    min-width: 120px;
-    backdrop-filter: blur(6px);
-}
+.stats-card { text-align: center; min-width: 120px; padding: var(--lumo-space-m); }
+.stats-card.surface-card { /* visuals via component token */ }
 
 .stats-card__value {
     font-size: var(--lumo-font-size-xxl);
@@ -46,16 +39,8 @@
 }
 
 /* Deck stats cards */
-.deck-stats-card {
-    background: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
-    border-radius: var(--lumo-border-radius-m);
-    padding: var(--lumo-space-m);
-    margin-right: var(--lumo-space-s);
-    min-width: 280px;
-    flex-shrink: 0;
-    backdrop-filter: blur(6px);
-}
+.deck-stats-card { margin-right: var(--lumo-space-s); min-width: 280px; flex-shrink: 0; padding: var(--lumo-space); }
+.deck-stats-card.surface-card { /* visuals via component token */ }
 
 .deck-stats-card__header {
     margin-bottom: var(--lumo-space-s);
@@ -68,16 +53,12 @@
 }
 
 /* Stats sections */
-.stats-section {
-    background: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
-    border-radius: var(--lumo-border-radius-l);
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
-    backdrop-filter: blur(8px);
-}
+.stats-section { }
+.stats-section.surface-panel { /* visuals via component token */ }
 
 .stats-section__title {
     margin: 0;
-    color: var(--lumo-primary-text-color);
+    color: var(--lumo-primary-contrast-color);
 }
 
 /* Stats pagination */

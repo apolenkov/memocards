@@ -25,12 +25,14 @@ public class PublicLayout extends AppLayout {
     private void addHeaderContent() {
         HorizontalLayout bar = new HorizontalLayout();
         bar.addClassName("main-layout__navbar");
+        bar.addClassName("surface-panel");
         bar.setWidthFull();
         bar.setAlignItems(Alignment.CENTER);
         bar.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         HorizontalLayout right = new HorizontalLayout();
         right.addClassName("main-layout__right");
+        right.addClassName("surface-panel");
         right.setAlignItems(Alignment.CENTER);
         right.add(languageSwitcher);
 

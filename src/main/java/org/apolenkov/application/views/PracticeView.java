@@ -149,6 +149,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private void createProgressSection(VerticalLayout container) {
         Div progressSection = new Div();
         progressSection.addClassName("practice-progress");
+        progressSection.addClassName("surface-panel");
 
         statsSpan = new Span(getTranslation("practice.getReady"));
         statsSpan.addClassName("practice-progress__text");
@@ -160,6 +161,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private void createCardContainer(VerticalLayout container) {
         Div cardContainer = new Div();
         cardContainer.addClassName("practice-card-container");
+        cardContainer.addClassName("surface-card");
 
         cardContent = new Div();
         cardContent.addClassName("practice-card-content");
