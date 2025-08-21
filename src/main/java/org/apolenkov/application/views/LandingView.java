@@ -33,15 +33,14 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         Div heroIcon = new Div();
-        heroIcon.getStyle().set("margin-bottom", "var(--lumo-space-l)");
+        heroIcon.addClassName("landing-hero__icon");
 
         Image hero = new Image(
                 new StreamResource("pixel-icon.svg", () -> getClass()
                         .getResourceAsStream("/META-INF/resources/icons/pixel-icon.svg")),
                 getTranslation("landing.heroAlt"));
 
-        hero.getStyle().set("width", "160px");
-        hero.getStyle().set("height", "160px");
+        hero.addClassName("landing-hero__image");
 
         // Simple click handler - always go to login
         hero.addClickListener(e -> NavigationHelper.navigateTo("login"));
@@ -49,14 +48,10 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         heroIcon.add(hero);
 
         H1 title = TextHelper.createMainTitle(getTranslation("app.title"));
-        title.getStyle().set("margin", "0");
-        title.getStyle().set("color", "var(--lumo-primary-contrast-color)");
+        title.addClassName("landing-hero__title");
 
         Paragraph subtitle = new Paragraph(getTranslation("landing.subtitle"));
-        subtitle.getStyle().set("color", "var(--lumo-secondary-text-color)");
-        subtitle.getStyle().set("font-size", "var(--lumo-font-size-l)");
-        subtitle.getStyle().set("margin-bottom", "var(--lumo-space-l)");
-        subtitle.getStyle().set("text-align", "center");
+        subtitle.addClassName("landing-hero__subtitle");
 
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(true);
@@ -92,8 +87,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
                 .set("gap", "var(--lumo-space-m)");
 
         H3 newsTitle = TextHelper.createSectionTitle(getTranslation("landing.news"));
-        newsTitle.getStyle().set("margin", "0");
-        newsTitle.getStyle().set("color", "var(--lumo-primary-contrast-color)");
+        newsTitle.addClassName("landing-news__title");
         newsSection.add(newsTitle);
 
         Div newsList = new Div();
@@ -112,12 +106,11 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
                     .set("gap", "var(--lumo-space-s)");
 
             H3 cardTitle = new H3(item.getTitle());
-            cardTitle.getStyle().set("margin", "0");
-            cardTitle.getStyle().set("color", "var(--lumo-primary-text-color)");
+            cardTitle.addClassName("landing-news__card-title");
             card.add(cardTitle);
 
             Paragraph cardContent = new Paragraph(item.getContent());
-            cardContent.getStyle().set("color", "var(--lumo-secondary-text-color)");
+            cardContent.addClassName("landing-news__card-content");
             card.add(cardContent);
 
             // Optional astronaut accent element
@@ -131,7 +124,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
                     .set("background-repeat", "no-repeat")
                     .set("opacity", "0.9");
             // Place accent to the right side of the card header
-            astronaut.getStyle().set("align-self", "flex-end");
+            astronaut.addClassName("landing-news__card-accent");
             card.add(astronaut);
 
             newsList.add(card);

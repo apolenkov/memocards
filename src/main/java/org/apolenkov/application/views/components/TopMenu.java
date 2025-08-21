@@ -117,7 +117,7 @@ public class TopMenu extends HorizontalLayout {
             }
             Div greeting = new Div();
             greeting.setText(getTranslation("main.greeting", displayName));
-            greeting.getElement().getClassList().add("top-menu__greeting");
+            greeting.addClassName("top-menu__greeting");
             left.add(greeting);
         }
 

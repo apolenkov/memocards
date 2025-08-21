@@ -138,7 +138,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         backButton.setText(getTranslation("practice.back"));
 
         deckTitle = new H2(getTranslation(PRACTICE_TITLE_KEY));
-        deckTitle.getStyle().set("margin", "0");
+        deckTitle.addClassName("practice-view__deck-title");
 
         leftSection.add(backButton, deckTitle);
 
@@ -148,14 +148,10 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     private void createProgressSection(VerticalLayout container) {
         Div progressSection = new Div();
-        progressSection.getStyle().set("background", "var(--lumo-contrast-5pct)");
-        progressSection.getStyle().set("border-radius", "var(--lumo-border-radius)");
-        progressSection.getStyle().set("padding", "var(--lumo-space-m)");
-        progressSection.getStyle().set("width", "100%");
-        progressSection.getStyle().set("text-align", "center");
+        progressSection.addClassName("practice-progress");
 
         statsSpan = new Span(getTranslation("practice.getReady"));
-        statsSpan.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        statsSpan.addClassName("practice-progress__text");
         progressSection.add(statsSpan);
 
         container.add(progressSection);
@@ -163,17 +159,10 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     private void createCardContainer(VerticalLayout container) {
         Div cardContainer = new Div();
-        cardContainer.getStyle().set("background", "var(--lumo-contrast-5pct)");
-        cardContainer.getStyle().set("border-radius", "var(--lumo-border-radius-l)");
-        cardContainer.getStyle().set("padding", "var(--lumo-space-xl)");
-        cardContainer.getStyle().set("width", "100%");
-        cardContainer.getStyle().set("min-height", "300px");
-        cardContainer.getStyle().set("display", "flex");
-        cardContainer.getStyle().set("align-items", "center");
-        cardContainer.getStyle().set("justify-content", "center");
+        cardContainer.addClassName("practice-card-container");
 
         cardContent = new Div();
-        cardContent.getStyle().set("text-align", "center");
+        cardContent.addClassName("practice-card-content");
 
         cardContent.add(new Span(getTranslation("practice.loadingCards")));
         cardContainer.add(cardContent);

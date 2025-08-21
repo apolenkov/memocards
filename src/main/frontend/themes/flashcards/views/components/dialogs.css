@@ -1,0 +1,22 @@
+/* Dialog Component Styles */
+.dialog {
+    border-radius: var(--lumo-border-radius-l);
+    box-shadow: var(--lumo-box-shadow-l);
+}
+
+.dialog__header {
+    border-bottom: 1px solid var(--lumo-contrast-10pct);
+    padding: var(--lumo-space-m);
+}
+
+.dialog__content {
+    padding: var(--lumo-space-m);
+}
+
+.dialog__footer {
+    border-top: 1px solid var(--lumo-contrast-10pct);
+    padding: var(--lumo-space-m);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--lumo-space-s);
+}

@@ -46,7 +46,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         content.setAlignItems(Alignment.CENTER);
 
         H2 title = TextHelper.createPageTitle(getTranslation("home.title"));
-        title.getStyle().set("text-align", "center");
+        title.addClassName("decks-view__title");
 
         TextField search = FormHelper.createOptionalTextField("", getTranslation("home.search.placeholder"));
         search.setValueChangeMode(ValueChangeMode.EAGER);

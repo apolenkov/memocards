@@ -1,0 +1,50 @@
+/* PracticeView Component Styles */
+.practice-view {
+    padding: var(--lumo-space-m);
+}
+
+.practice-view__header {
+    margin-bottom: var(--lumo-space-l);
+}
+
+.practice-view__content {
+    display: grid;
+    gap: var(--lumo-space-m);
+}
+
+/* Practice progress section */
+.practice-progress {
+    background: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
+    border-radius: var(--lumo-border-radius-m);
+    padding: var(--lumo-space-m);
+    width: 100%;
+    text-align: center;
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+    backdrop-filter: blur(6px);
+}
+
+.practice-progress__text {
+    color: var(--lumo-secondary-text-color);
+}
+
+/* Practice card container */
+.practice-card-container {
+    background: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
+    border-radius: var(--lumo-border-radius-l);
+    padding: var(--lumo-space-xl);
+    width: 100%;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+    backdrop-filter: blur(8px);
+}
+
+.practice-card-content {
+    text-align: center;
+}
+
+.practice-view__deck-title {
+    margin: 0;
+}

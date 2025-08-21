@@ -111,10 +111,10 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         backButton.setText(getTranslation("main.decks"));
 
         deckTitle = new H2(getTranslation("deck.loading"));
-        deckTitle.getStyle().set("margin", "0");
+        deckTitle.addClassName("deck-view__title");
 
         deckStats = new Span();
-        deckStats.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        deckStats.addClassName("deck-view__stats");
 
         leftSection.add(backButton, deckTitle, deckStats);
         headerLayout.add(leftSection);
@@ -124,13 +124,10 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
     private void createDeckInfo(VerticalLayout container) {
         Div infoSection = new Div();
-        infoSection.getStyle().set("background", "var(--lumo-contrast-5pct)");
-        infoSection.getStyle().set("border-radius", "var(--lumo-border-radius)");
-        infoSection.getStyle().set("padding", "var(--lumo-space-m)");
-        infoSection.getStyle().set("width", "100%");
+        infoSection.addClassName("deck-view__info-section");
 
         deckDescription = new Span(getTranslation("deck.description.loading"));
-        deckDescription.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        deckDescription.addClassName("deck-view__description");
 
         infoSection.add(deckDescription);
         container.add(infoSection);
@@ -478,27 +475,20 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         // Simple icon and title
         Div icon = new Div();
         icon.add(VaadinIcon.INFO_CIRCLE.create());
-        icon.getStyle().set("color", "var(--lumo-primary-color)");
-        icon.getStyle().set("font-size", "var(--lumo-font-size-xxl)");
-        icon.getStyle().set("margin-bottom", "var(--lumo-space-s)");
+        icon.addClassName("deck-delete-dialog__icon");
 
         H3 title = new H3(getTranslation("deck.delete.simpleTitle"));
-        title.getStyle().set("margin", "0");
+        title.addClassName("deck-delete-dialog__title");
 
         // Description
         Span description = new Span(getTranslation("deck.delete.simpleDescription", currentDeck.getTitle()));
-        description.getStyle().set("text-align", "center");
-        description.getStyle().set("color", "var(--lumo-secondary-text-color)");
-        description.getStyle().set("margin-bottom", "var(--lumo-space-m)");
+        description.addClassName("deck-delete-dialog__description");
 
         // Additional info about card count
         int actualCardCount = presenter.deckSize(currentDeck.getId());
         if (actualCardCount > 0) {
             Span cardCountInfo = new Span(getTranslation("deck.delete.actualCardCount", actualCardCount));
-            cardCountInfo.getStyle().set("color", "var(--lumo-error-color)");
-            cardCountInfo.getStyle().set("font-weight", "bold");
-            cardCountInfo.getStyle().set("display", "block");
-            cardCountInfo.getStyle().set("margin-bottom", "var(--lumo-space-s)");
+            cardCountInfo.addClassName("deck-delete-dialog__card-count");
             layout.add(cardCountInfo);
         }
 
@@ -548,37 +538,25 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         // Warning icon and title
         Div warningIcon = new Div();
         warningIcon.add(VaadinIcon.WARNING.create());
-        warningIcon.getStyle().set("color", "var(--lumo-error-color)");
-        warningIcon.getStyle().set("font-size", "var(--lumo-font-size-xxl)");
-        warningIcon.getStyle().set("margin-bottom", "var(--lumo-space-s)");
+        warningIcon.addClassName("deck-delete-confirm__warning-icon");
 
         H3 title = new H3(getTranslation("deck.delete.confirmTitle"));
-        title.getStyle().set("color", "var(--lumo-error-color)");
-        title.getStyle().set("margin", "0");
+        title.addClassName("deck-delete-confirm__title");
 
         // Description
         Span description = new Span(getTranslation("deck.delete.confirmDescription"));
-        description.getStyle().set("text-align", "center");
-        description.getStyle().set("color", "var(--lumo-secondary-text-color)");
-        description.getStyle().set("margin-bottom", "var(--lumo-space-m)");
+        description.addClassName("deck-delete-confirm__description");
 
         // Deck info
         Div deckInfo = new Div();
-        deckInfo.getStyle().set("background", "var(--lumo-contrast-5pct)");
-        deckInfo.getStyle().set("border-radius", "var(--lumo-border-radius)");
-        deckInfo.getStyle().set("padding", "var(--lumo-space-s)");
-        deckInfo.getStyle().set("margin-bottom", "var(--lumo-space-m)");
-        deckInfo.getStyle().set("text-align", "center");
+        deckInfo.addClassName("deck-delete-confirm__info");
 
         Span deckName = new Span(currentDeck.getTitle());
-        deckName.getStyle().set("font-weight", "bold");
-        deckName.getStyle().set("color", "var(--lumo-primary-text-color)");
+        deckName.addClassName("deck-delete-confirm__deck-name");
 
         int actualCardCount = presenter.deckSize(currentDeck.getId());
         Span cardCount = new Span(getTranslation("deck.delete.cardCount", actualCardCount));
-        cardCount.getStyle().set("display", "block");
-        cardCount.getStyle().set("margin-top", "var(--lumo-space-xs)");
-        cardCount.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        cardCount.addClassName("deck-delete-confirm__card-count");
 
         deckInfo.add(deckName, cardCount);
 

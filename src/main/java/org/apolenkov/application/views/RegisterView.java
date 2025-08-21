@@ -35,23 +35,16 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
-        formContainer.getStyle().set("background", "var(--lumo-contrast-5pct)");
-        formContainer.getStyle().set("border-radius", "var(--lumo-border-radius-l)");
-        formContainer.getStyle().set("padding", "var(--lumo-space-xl)");
-        formContainer.getStyle().set("max-width", "500px");
-        formContainer.getStyle().set("width", "100%");
-        formContainer.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
+        formContainer.addClassName("register-form");
+        formContainer.setWidth("100%");
 
         // Create form title
         Div titleDiv = new Div();
-        titleDiv.getStyle().set("text-align", "center");
-        titleDiv.getStyle().set("margin-bottom", "var(--lumo-space-l)");
+        titleDiv.addClassName("register-form__title-container");
 
         Div title = new Div();
         title.setText(getTranslation("auth.register.title"));
-        title.getStyle().set("font-size", "var(--lumo-font-size-xxl)");
-        title.getStyle().set("font-weight", "bold");
-        title.getStyle().set("color", "var(--lumo-primary-text-color)");
+        title.addClassName("register-form__title");
         titleDiv.add(title);
 
         FormLayout form = new FormLayout();

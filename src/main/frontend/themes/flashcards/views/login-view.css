@@ -1,0 +1,36 @@
+/* LoginView Component Styles */
+.login-form {
+    background: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+    border-radius: var(--lumo-border-radius-l);
+    padding: var(--lumo-space-xl);
+    max-width: 450px;
+    width: 100%;
+    backdrop-filter: blur(10px);
+}
+
+.login-form__title-container {
+    text-align: center;
+    margin-bottom: var(--lumo-space-l);
+}
+
+.login-form__title {
+    font-size: var(--lumo-font-size-xxl);
+    font-weight: bold;
+    color: var(--lumo-primary-text-color);
+}
+
+/* Form fields */
+.login-form .vaadin-text-field,
+.login-form .vaadin-password-field {
+    width: 100%;
+}
+
+.login-form .vaadin-button {
+    width: 100%;
+    margin-top: var(--lumo-space-s);
+}
+
+.login-form .vaadin-button:first-of-type {
+    margin-top: var(--lumo-space-m);
+}

@@ -30,29 +30,9 @@ public class DeckCard extends Div {
         cardContent.setPadding(false);
         cardContent.setSpacing(false);
 
-        // Add Lumo styling to the card
-        getStyle().set("background", "var(--lumo-contrast-5pct)");
-        getStyle().set("border-radius", "var(--lumo-border-radius-l)");
-        getStyle().set("padding", "var(--lumo-space-m)");
-        getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
-        getStyle().set("cursor", "pointer");
-        getStyle().set("transition", "all var(--lumo-transition-duration) ease");
-        setWidthFull(); // Full width within container
-        getStyle().set("max-width", "700px"); // Consistent max width for all cards
-
-        // Hover effect
-        getElement()
-                .executeJs(
-                        """
-            this.addEventListener('mouseenter', () => {
-                this.style.transform = 'translateY(-2px)';
-                this.style.boxShadow = 'var(--lumo-box-shadow-m)';
-            });
-            this.addEventListener('mouseleave', () => {
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = 'none';
-            });
-        """);
+        // Styling via theme CSS classes
+        addClassName("deck-card");
+        setWidthFull();
 
         HorizontalLayout titleLayout = new HorizontalLayout();
 
@@ -60,28 +40,22 @@ public class DeckCard extends Div {
         titleLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         Span icon = new Span(getTranslation("home.deckIcon"));
-        icon.getStyle().set("font-size", "var(--lumo-font-size-xl)");
-        icon.getStyle().set("color", "var(--lumo-primary-color)");
+        icon.addClassName("deck-card__icon");
 
         H3 title = new H3(viewModel.title() + " (" + viewModel.deckSize() + ")");
-        title.getStyle().set("margin", "0");
-        title.getStyle().set("color", "var(--lumo-primary-text-color)");
-        title.getStyle().set("font-size", "var(--lumo-font-size-l)");
+        title.addClassName("deck-card__title");
 
         titleLayout.add(icon, title);
 
         Span description = new Span(viewModel.description());
-        description.getStyle().set("color", "var(--lumo-secondary-text-color)");
-        description.getStyle().set("font-size", "var(--lumo-font-size-s)");
-        description.getStyle().set("margin", "var(--lumo-space-s) 0");
-        description.getStyle().set("line-height", "1.4");
+        description.addClassName("deck-card__description");
 
         HorizontalLayout progressLayout = buildProgress();
 
         Button practiceButton = new Button(getTranslation("home.practice"));
         practiceButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
         practiceButton.addClickListener(e -> navigateToPractice());
-        practiceButton.getStyle().set("margin-top", "var(--lumo-space-s)");
+        practiceButton.addClassName("deck-card__practice-button");
 
         cardContent.add(titleLayout, description, progressLayout, practiceButton);
         return cardContent;
@@ -99,21 +73,18 @@ public class DeckCard extends Div {
         int percent = viewModel.progressPercent();
 
         Span progressLabel = new Span(getTranslation("home.progress"));
-        progressLabel.getStyle().set("color", "var(--lumo-secondary-text-color)");
-        progressLabel.getStyle().set("font-size", "var(--lumo-font-size-s)");
+        progressLabel.addClassName("deck-card__progress-label");
 
         ProgressBar progressBar = new ProgressBar();
         progressBar.setValue(Math.clamp(percent / 100.0, 0.0, 1.0));
-        progressBar.getStyle().set("flex-grow", "1");
+        progressBar.setWidthFull();
+        layout.setFlexGrow(1, progressBar);
 
         Span progressText = new Span(percent + getTranslation("home.percentSuffix"));
-        progressText.getStyle().set("color", "var(--lumo-primary-color)");
-        progressText.getStyle().set("font-weight", "bold");
-        progressText.getStyle().set("font-size", "var(--lumo-font-size-s)");
+        progressText.addClassName("deck-card__progress-text");
 
         Span progressDetails = new Span(getTranslation("home.progress.details", known, deckSize));
-        progressDetails.getStyle().set("color", "var(--lumo-secondary-text-color)");
-        progressDetails.getStyle().set("font-size", "var(--lumo-font-size-s)");
+        progressDetails.addClassName("deck-card__progress-details");
 
         layout.add(progressLabel, progressBar, progressText, progressDetails);
         return layout;

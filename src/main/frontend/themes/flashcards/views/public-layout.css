@@ -1,0 +1,88 @@
+/* PublicLayout Component Styles */
+.public-layout {
+    margin-top: 0;
+}
+
+.main-layout__navbar {
+    background-color: color-mix(in srgb, var(--lumo-base-color) 85%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
+    backdrop-filter: blur(16px);
+}
+
+.main-layout__right {
+    background-color: color-mix(in srgb, var(--lumo-base-color) 85%, transparent);
+    backdrop-filter: blur(16px);
+}
+
+/* Floating elements */
+.floating-ufo,
+.floating-rocket,
+.floating-cosmonaut {
+    position: fixed;
+    z-index: 0;
+    pointer-events: none;
+    transition: all var(--lumo-transition-duration) ease;
+}
+
+.floating-ufo {
+    top: 15%;
+    left: 10%;
+    width: 60px;
+    height: 60px;
+    background-image: url('../assets/ufo-pixel.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: float 6s ease-in-out infinite;
+}
+
+.floating-rocket {
+    top: 25%;
+    right: 15%;
+    width: 50px;
+    height: 50px;
+    background-image: url('../assets/rocket-pixel.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: float 8s ease-in-out infinite reverse;
+}
+
+.floating-cosmonaut {
+    top: 10%;
+    right: 5%;
+    width: 120px;
+    height: 120px;
+    background-image: url('../assets/cosmonaut-pixel.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: float 10s ease-in-out infinite;
+}
+
+.bg-static.floating-ufo,
+.bg-static.floating-rocket,
+.bg-static.floating-cosmonaut {
+    animation: none;
+}
+
+/* Grid pattern */
+.grid-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(var(--lumo-contrast-5pct) 1px, transparent 1px),
+        linear-gradient(90deg, var(--lumo-contrast-5pct) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.1;
+}
+
+/* App illustration */
+.app-illustration-left {
+    position: absolute;
+    left: 5%;
+    bottom: 10%;
+    width: 200px;
+    height: 200px;
+    background-image: url('../assets/modern-icons.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.3;
+}

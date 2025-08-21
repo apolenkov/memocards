@@ -1,0 +1,15 @@
+/* SettingsView Component Styles */
+.settings-view {
+    padding: var(--lumo-space-m);
+}
+
+.settings-view__header {
+    margin-bottom: var(--lumo-space-l);
+}
+
+.settings-view__content {
+    display: grid;
+    gap: var(--lumo-space-m);
+    max-width: 800px;
+    margin: 0 auto;
+}

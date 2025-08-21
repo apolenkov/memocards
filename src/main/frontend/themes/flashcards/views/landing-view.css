@@ -1,0 +1,57 @@
+/* LandingView Component Styles */
+.landing-view {
+    padding: var(--lumo-space-m);
+}
+
+.landing-view__header {
+    margin-bottom: var(--lumo-space-l);
+    text-align: center;
+}
+
+.landing-view__content {
+    display: grid;
+    gap: var(--lumo-space-m);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Landing hero section */
+.landing-hero__icon {
+    margin-bottom: var(--lumo-space-l);
+}
+
+.landing-hero__image {
+    width: 160px;
+    height: 160px;
+}
+
+.landing-hero__title {
+    margin: 0;
+    color: var(--lumo-primary-contrast-color);
+}
+
+.landing-hero__subtitle {
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-l);
+    margin-bottom: var(--lumo-space-l);
+    text-align: center;
+}
+
+/* Landing news section */
+.landing-news__title {
+    margin: 0;
+    color: var(--lumo-primary-contrast-color);
+}
+
+.landing-news__card-title {
+    margin: 0;
+    color: var(--lumo-primary-text-color);
+}
+
+.landing-news__card-content {
+    color: var(--lumo-secondary-text-color);
+}
+
+.landing-news__card-accent {
+    align-self: flex-end;
+}

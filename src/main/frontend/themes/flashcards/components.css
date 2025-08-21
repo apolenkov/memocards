@@ -1,0 +1,109 @@
+/* Common Component Styles */
+.surface-panel {
+	background-color: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
+	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+	border-radius: var(--lumo-border-radius-l);
+	backdrop-filter: blur(12px);
+}
+
+.surface-card {
+	background-color: color-mix(in srgb, var(--lumo-base-color) 85%, transparent);
+	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 70%, transparent);
+	border-radius: var(--lumo-border-radius-l);
+	backdrop-filter: blur(8px);
+}
+
+/* Button variants */
+.btn-primary {
+	background-color: var(--lumo-primary-color);
+	color: var(--lumo-primary-contrast-color);
+	border: none;
+	border-radius: var(--lumo-border-radius-m);
+	padding: var(--lumo-space-s) var(--lumo-space-m);
+	font-weight: 500;
+	transition: all var(--lumo-transition-duration) ease;
+}
+
+.btn-primary:hover {
+	background-color: var(--lumo-primary-color-10pct);
+	transform: translateY(-1px);
+	box-shadow: var(--lumo-box-shadow-s);
+}
+
+.btn-secondary {
+	background-color: var(--lumo-contrast-5pct);
+	color: var(--lumo-primary-text-color);
+	border: 1px solid var(--lumo-contrast-20pct);
+	border-radius: var(--lumo-border-radius-m);
+	padding: var(--lumo-space-s) var(--lumo-space-m);
+	font-weight: 500;
+	transition: all var(--lumo-transition-duration) ease;
+}
+
+.btn-secondary:hover {
+	background-color: var(--lumo-contrast-10pct);
+	border-color: var(--lumo-contrast-30pct);
+}
+
+/* Form elements */
+.form-field {
+	margin-bottom: var(--lumo-space-m);
+}
+
+.form-field__label {
+	display: block;
+	margin-bottom: var(--lumo-space-xs);
+	color: var(--lumo-primary-text-color);
+	font-weight: 500;
+}
+
+.form-field__input {
+	width: 100%;
+	padding: var(--lumo-space-s);
+	border: 1px solid var(--lumo-contrast-20pct);
+	border-radius: var(--lumo-border-radius-s);
+	background-color: var(--lumo-base-color);
+	color: var(--lumo-primary-text-color);
+	transition: border-color var(--lumo-transition-duration) ease;
+}
+
+.form-field__input:focus {
+	outline: none;
+	border-color: var(--lumo-primary-color);
+	box-shadow: 0 0 0 2px var(--lumo-primary-color-10pct);
+}
+
+/* Layout utilities */
+.flex-center {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.flex-between {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.text-primary {
+	color: var(--lumo-primary-color);
+}
+
+.text-secondary {
+	color: var(--lumo-secondary-text-color);
+}
+
+.text-muted {
+	color: var(--lumo-tertiary-text-color);
+}
+
+/* Language switcher */
+.language-switcher__label {
+	font-size: var(--lumo-font-size-s);
+	color: var(--lumo-secondary-text-color);
+}
