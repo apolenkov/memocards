@@ -90,12 +90,10 @@ public class UserUseCaseService implements UserUseCase {
 
         User currentUser = getCurrentUser();
 
-        // Check current password
         if (!passwordEncoder.matches(currentPassword, currentUser.getPasswordHash())) {
             throw new IllegalArgumentException("Current password is incorrect");
         }
 
-        // Update password
         String newPasswordHash = passwordEncoder.encode(newPassword);
         currentUser.setPasswordHash(newPasswordHash);
         userRepository.save(currentUser);

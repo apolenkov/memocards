@@ -45,7 +45,6 @@ public class AuthFacade {
     }
 
     public void registerUser(String username, String rawPassword) {
-        // Simple password policy
         if (rawPassword == null
                 || rawPassword.length() < 8
                 || !rawPassword.matches(".*\\d.*")
@@ -53,8 +52,7 @@ public class AuthFacade {
             throw new IllegalArgumentException("Password must be at least 8 characters and contain letters and digits");
         }
 
-        // Register user via JPA service
-        jpaRegistrationService.register(username, username, rawPassword); // name == email fallback
+        jpaRegistrationService.register(username, username, rawPassword);
     }
 
     public void authenticateAndPersist(String username, String rawPassword) {
@@ -80,5 +78,4 @@ public class AuthFacade {
         }
     }
 
-    // no Vaadin lookups
 }

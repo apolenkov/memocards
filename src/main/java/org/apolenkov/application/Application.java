@@ -37,7 +37,6 @@ public class Application implements VaadinServiceInitListener {
 
         ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
 
-        // Add shutdown hook for proper cleanup
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Shutdown hook triggered, cleaning up...");
             if (context.isActive()) {
@@ -104,7 +103,6 @@ public class Application implements VaadinServiceInitListener {
             }
         }
 
-        // Always log the root cause at ERROR level for diagnostics
         if (logger.isErrorEnabled()) {
             logger.error(
                     "Unhandled UI error [uiId={}, route={}]", ui.getUIId(), currentRoute, errorEvent.getThrowable());
@@ -142,7 +140,6 @@ public class Application implements VaadinServiceInitListener {
                 } catch (Exception navEx) {
                     logger.warn("Failed during error navigation [uiId={}]", ui.getUIId(), navEx);
                 } finally {
-                    // Clear the guard after scheduling navigation within the UI access context
                     session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);
                 }
             });

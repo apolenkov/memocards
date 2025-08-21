@@ -32,7 +32,6 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
         setPadding(true);
         setSpacing(true);
 
-        // Create a beautiful error container
         VerticalLayout errorContainer = new VerticalLayout();
         errorContainer.addClassName("error-container");
         errorContainer.addClassName("surface-panel");
@@ -45,7 +44,6 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
         Span description = new Span(getTranslation("error.500.description"));
         description.addClassName("error-view__description");
 
-        // Action buttons
         Button goHome = new Button(getTranslation("main.gohome"));
         goHome.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         goHome.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("decks")));
@@ -62,7 +60,6 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
         errorContainer.add(title, description, buttons);
         add(errorContainer);
 
-        // Dev info (only in dev profile)
         if (isDevProfile()) {
             addDevInfo();
         }
@@ -77,14 +74,12 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
                 .getOrDefault("from", java.util.List.of(""))
                 .getFirst();
 
-        // Add "Go Back" button if we have a from route
         if (!fromRoute.isEmpty() && !fromRoute.equals("error")) {
             addGoBackButton();
         }
     }
 
     private void addGoBackButton() {
-        // Don't go back to main page to avoid infinite loops
         if (fromRoute.isEmpty() || fromRoute.equals("error") || fromRoute.isEmpty()) {
             return;
         }
@@ -93,7 +88,6 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
         goBack.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(fromRoute)));
         goBack.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        // Insert after title and description
         if (getComponentCount() > 2) {
             addComponentAtIndex(2, goBack);
         }
@@ -103,30 +97,25 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
         H3 devTitle = new H3(getTranslation("error.dev.title"));
         devTitle.addClassName("error-dev__title");
 
-        // Create expandable dev info container
         VerticalLayout devContainer = new VerticalLayout();
         devContainer.addClassName("error-dev__container");
         devContainer.addClassName("surface-panel");
         devContainer.setSpacing(true);
 
-        // Error details section
         Div errorDetails = new Div();
         errorDetails.addClassName("error-dev__details");
 
-        // Add error type and message
         Span errorType = new Span(getTranslation("error.type") + ": " + "General Error");
         errorType.addClassName("error-dev__type");
 
         Span errorMessage = new Span(getTranslation("error.message") + ": " + "An error occurred during navigation");
         errorMessage.addClassName("error-dev__message");
 
-        // Add current route info
         Span currentRoute = new Span(getTranslation("error.current.route") + ": " + "Error View");
         currentRoute.addClassName("error-dev__route");
 
         errorDetails.add(errorType, errorMessage, currentRoute);
 
-        // Add timestamp
         Span timestamp = new Span(getTranslation("error.timestamp") + " "
                 + java.time.LocalDateTime.now()
                         .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
