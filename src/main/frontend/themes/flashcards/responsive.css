@@ -1,4 +1,5 @@
 /* Responsive Styles */
+
 @media (max-width: 1200px) {
     .deck-card {
         max-width: 600px;

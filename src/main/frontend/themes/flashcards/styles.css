@@ -4,9 +4,11 @@
  */
 
 /* Layers */
+
 @layer settings, base, components, utilities, views, overrides;
 
 /* Import component styles */
+
 @import './settings/tokens.css' layer(settings);
 @import './components.css';
 @import './views/components/deck-card.css';
@@ -33,6 +35,7 @@
 @import './views/deckview-view.css';
 
 /* Import utility styles */
+
 @import './utilities.css' layer(utilities);
 @import './responsive.css' layer(utilities);
 @import './animations.css';
@@ -58,10 +61,12 @@
 /* Standard Lumo theme usage - no custom CSS needed */
 
 /* Minimal animation for PublicLayout background elements */
+
 @keyframes float {
     0%, 100% {
-        transform: translateY(0px);
+        transform: translateY(0);
     }
+
     50% {
         transform: translateY(-20px);
     }
@@ -70,15 +75,16 @@
 /* Triangles layer replacing previous floating icons */
 .triangles-layer {
     position: fixed;
-    inset: 0;
     z-index: 0;
-    pointer-events: none;
-    overflow: hidden;
+
     /* Soft radial washes using Lumo tokens for dark theme */
     background-image:
         radial-gradient(1000px 500px at 20% 15%, var(--lumo-primary-color-10pct), transparent 60%),
         radial-gradient(800px 400px at 80% 35%, var(--lumo-error-color-10pct), transparent 65%),
         radial-gradient(900px 450px at 50% 85%, var(--lumo-success-color-10pct), transparent 70%);
+    overflow: hidden;
+    inset: 0;
+    pointer-events: none;
 }
 
 .triangle {
@@ -92,18 +98,22 @@
 }
 
 .tri-1 { top: 10%; left: 12%; transform: rotate(10deg); border-bottom-color: var(--lumo-primary-color-10pct); }
+
 .tri-2 { top: 35%; left: 28%; transform: rotate(-8deg); border-bottom-color: var(--lumo-error-color-10pct); }
+
 .tri-3 { top: 20%; right: 16%; transform: rotate(6deg); border-bottom-color: var(--lumo-success-color-10pct); }
+
 .tri-4 { bottom: 8%; left: 20%; transform: rotate(-4deg); border-bottom-color: var(--lumo-tint-10pct); }
 
 .bg-static .triangle { transition: none; }
 
 /* Responsive tuning */
+
 @media (max-width: 1200px) {
     .floating-cosmonaut {
+        top: 12%;
         width: 35vw;
         height: 35vw;
-        top: 12%;
     }
 }
 
@@ -111,6 +121,7 @@
     .floating-cosmonaut {
         display: none;
     }
+
     .floating-rocket, .floating-ufo {
         width: 80px;
         height: 80px;
@@ -119,6 +130,7 @@
 }
 
 /* Accessibility: reduce motion */
+
 @media (prefers-reduced-motion: reduce) {
     .floating-cosmonaut, .floating-rocket, .floating-ufo {
         animation: none;
@@ -137,12 +149,12 @@
 
 /* Background using Lumo tokens */
 body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
     background: url('./assets/bg-custom-dark-2.webp') no-repeat center center
     fixed;
     background-size: cover;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
 }
 
 html {
@@ -152,8 +164,8 @@ html {
 }
 
 .app {
+    min-height: 100vh;
     background: url('./assets/bg-custom-dark-2.webp') no-repeat center center
     fixed;
     background-size: cover;
-    min-height: 100vh;
 }

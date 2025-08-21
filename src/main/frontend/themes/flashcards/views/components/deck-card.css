@@ -1,13 +1,13 @@
 /* DeckCard Component Styles */
 .deck-card {
-    background: var(--lumo-base-color);
-    border-radius: var(--lumo-border-radius-l);
-    padding: var(--lumo-space-m);
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
-    cursor: pointer;
-    transition: box-shadow var(--lumo-transition-duration) ease, transform var(--lumo-transition-duration) ease;
     width: 100%;
     max-width: 700px;
+    padding: var(--lumo-space-m);
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+    border-radius: var(--lumo-border-radius-l);
+    background: var(--lumo-base-color);
+    transition: box-shadow var(--lumo-transition-duration) ease, transform var(--lumo-transition-duration) ease;
+    cursor: pointer;
 }
 
 .deck-card:hover {
@@ -22,8 +22,8 @@
 }
 
 .deck-card__icon {
-    font-size: var(--lumo-font-size-xl);
     color: var(--lumo-primary-color);
+    font-size: var(--lumo-font-size-xl);
 }
 
 .deck-card__title {
@@ -33,9 +33,9 @@
 }
 
 .deck-card__description {
+    margin: var(--lumo-space-s) 0;
     color: var(--lumo-secondary-text-color);
     font-size: var(--lumo-font-size-s);
-    margin: var(--lumo-space-s) 0;
     line-height: 1.4;
 }
 
@@ -50,8 +50,8 @@
 
 .deck-card__progress-text {
     color: var(--lumo-primary-text-color);
-    font-weight: bold;
     font-size: var(--lumo-font-size-s);
+    font-weight: bold;
 }
 
 .deck-card__progress-details {

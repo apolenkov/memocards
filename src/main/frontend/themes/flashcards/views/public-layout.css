@@ -4,9 +4,11 @@
 }
 
 .main-layout__navbar { border-bottom: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent); }
+
 .main-layout__navbar.surface-panel { /* visuals via component token */ }
 
 .main-layout__right { }
+
 .main-layout__right.surface-panel { border: none; }
 
 /* Floating elements */
@@ -72,8 +74,8 @@
 /* App illustration */
 .app-illustration-left {
     position: absolute;
-    left: 5%;
     bottom: 10%;
+    left: 5%;
     width: 200px;
     height: 200px;
     background-image: url('../assets/modern-icons.svg');

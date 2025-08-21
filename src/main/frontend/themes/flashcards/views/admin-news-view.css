@@ -2,6 +2,7 @@
 .admin-news__content-area {
     height: 200px;
 }
+
 /* AdminNewsView Component Styles */
 .admin-news-view {
     padding: var(--lumo-space-m);

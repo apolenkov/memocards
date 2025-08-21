@@ -16,8 +16,8 @@
 .deck-create__form {
     width: 100%;
     max-width: 600px;
-    padding: var(--lumo-space-xl);
     margin: var(--lumo-space-l) auto;
+    padding: var(--lumo-space-xl);
     box-shadow: var(--lumo-box-shadow-s);
 }
 

@@ -5,13 +5,13 @@
 }
 
 .top-menu__title {
-    text-decoration: none;
     color: var(--lumo-primary-text-color);
+    text-decoration: none;
 }
 
 .top-menu__logo {
-    height: var(--lumo-space-l);
     width: auto;
+    height: var(--lumo-space-l);
 }
 
 .top-menu__greeting {

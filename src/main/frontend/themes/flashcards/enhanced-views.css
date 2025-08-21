@@ -6,16 +6,16 @@
 }
 
 .view-header__title {
+    margin: 0;
+    color: var(--lumo-primary-text-color);
     font-size: var(--lumo-font-size-xxl);
     font-weight: bold;
-    color: var(--lumo-primary-text-color);
-    margin: 0;
 }
 
 .view-header__subtitle {
-    font-size: var(--lumo-font-size-m);
-    color: var(--lumo-secondary-text-color);
     margin: var(--lumo-space-xs) 0 0 0;
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-m);
 }
 
 .view-content {
