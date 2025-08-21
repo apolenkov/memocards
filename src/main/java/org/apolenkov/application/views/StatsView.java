@@ -43,9 +43,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private static final String MODIFIER_TODAY = "today";
 
     public StatsView(DeckUseCase deckUseCase, UserUseCase userUseCase, StatsService statsService) {
-
         setSpacing(true);
-        setPadding(true);
         setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
         setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
         addClassName("stats-view");
@@ -60,7 +58,6 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         // Single shaded section holds title and all groups
         VerticalLayout pageSection = new VerticalLayout();
         pageSection.setSpacing(true);
-        pageSection.setPadding(true);
         pageSection.setWidthFull();
         pageSection.addClassName("stats-page__section");
         pageSection.addClassName("surface-panel");
@@ -85,7 +82,6 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private VerticalLayout createOverallStatsSection(Map<Long, StatsRepository.DeckAggregate> agg) {
         VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
-        section.setPadding(true);
         section.setWidthFull();
         section.addClassName("stats-section");
         section.addClassName("surface-panel");
@@ -107,6 +103,8 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         section.add(headerLayout);
 
         HorizontalLayout statsGrid = LayoutHelper.createStatsGrid();
+        statsGrid.addClassName("stats-overall-grid");
+        statsGrid.setJustifyContentMode(JustifyContentMode.EVENLY);
 
         int totalSessions = agg.values().stream()
                 .mapToInt(StatsRepository.DeckAggregate::sessionsAll)
@@ -161,7 +159,6 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private VerticalLayout createTodayStatsSection(Map<Long, StatsRepository.DeckAggregate> agg) {
         VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
-        section.setPadding(true);
         section.setWidthFull();
         section.addClassName("stats-section");
         section.addClassName("surface-panel");
@@ -183,8 +180,9 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         section.add(headerLayout);
 
         HorizontalLayout statsGrid = new HorizontalLayout();
-
         statsGrid.setWidthFull();
+        statsGrid.addClassName("stats-today-grid");
+        statsGrid.setJustifyContentMode(JustifyContentMode.EVENLY);
 
         int todaySessions = agg.values().stream()
                 .mapToInt(StatsRepository.DeckAggregate::sessionsToday)
@@ -336,6 +334,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
 
         // Create content container
         VerticalLayout contentContainer = new VerticalLayout();
+        contentContainer.setPadding(false);
         contentContainer.setSpacing(true);
         contentContainer.add(paginatedContainer);
 
@@ -401,6 +400,8 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         HorizontalLayout deckStatsGrid = new HorizontalLayout();
         deckStatsGrid.setWidthFull();
         deckStatsGrid.setSpacing(true);
+        deckStatsGrid.addClassName("stats-deck-grid");
+        deckStatsGrid.setJustifyContentMode(JustifyContentMode.EVENLY);
 
         deckStatsGrid.add(
                 createDeckStatItem(STATS_SESSIONS, stats.sessionsAll(), stats.sessionsToday()),
