@@ -80,7 +80,6 @@ public class PracticePresenter {
                 deckId, totalViewed, correct, 0, hard, sessionDuration, totalAnswerDelayMs, knownCardIdsDelta);
     }
 
-    // Session logic encapsulation
     public static class Session {
         private final long deckId;
         private final List<Flashcard> cards;
@@ -109,7 +108,6 @@ public class PracticePresenter {
             this.sessionStart = Instant.now();
         }
 
-        // Getters
         public long getDeckId() {
             return deckId;
         }
@@ -162,7 +160,6 @@ public class PracticePresenter {
             return failedCardIds;
         }
 
-        // Setters
         public void setIndex(int index) {
             this.index = index;
         }

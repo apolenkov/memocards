@@ -21,7 +21,6 @@ public class PasswordResetService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // Token expiration time: 24 hours
     private static final int TOKEN_EXPIRATION_HOURS = 24;
 
     public PasswordResetService(
@@ -45,12 +44,10 @@ public class PasswordResetService {
 
         User user = userOpt.get();
 
-        // Delete existing tokens for this user
         tokenRepository
                 .findByUserIdAndNotUsed(user.getId())
                 .ifPresent(token -> tokenRepository.markAsUsed(token.getId()));
 
-        // Create new token
         String token = UUID.randomUUID().toString();
         LocalDateTime expiresAt = LocalDateTime.now().plusHours(TOKEN_EXPIRATION_HOURS);
 
@@ -72,12 +69,10 @@ public class PasswordResetService {
 
         PasswordResetToken resetToken = tokenOpt.get();
 
-        // Check if token is valid
         if (resetToken.isUsed() || resetToken.isExpired()) {
             return false;
         }
 
-        // Get user
         Optional<User> userOpt = userRepository.findById(resetToken.getUserId());
         if (userOpt.isEmpty()) {
             return false;
@@ -85,11 +80,9 @@ public class PasswordResetService {
 
         User user = userOpt.get();
 
-        // Update password
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        // Mark token as used
         tokenRepository.markAsUsed(resetToken.getId());
 
         return true;

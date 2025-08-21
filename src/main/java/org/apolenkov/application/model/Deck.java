@@ -41,7 +41,6 @@ public class Deck {
         setDescription(description);
     }
 
-    // Convenience methods
     public int getFlashcardCount() {
         return flashcards != null ? flashcards.size() : 0;
     }
@@ -65,7 +64,6 @@ public class Deck {
         }
     }
 
-    // Domain factory with invariants
     public static Deck create(Long userId, String title, String description) {
         if (userId == null) throw new IllegalArgumentException("userId is required");
         String t = title != null ? title.trim() : null;
@@ -77,7 +75,6 @@ public class Deck {
         return d;
     }
 
-    // Getters and setters
     public Long getId() {
         return id;
     }

@@ -33,12 +33,10 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
         wrapper.setAlignItems(Alignment.CENTER);
         wrapper.setJustifyContentMode(JustifyContentMode.CENTER);
 
-        // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
         formContainer.addClassName("register-form");
         formContainer.addClassName("surface-panel");
 
-        // Create form title
         Div titleDiv = new Div();
         titleDiv.addClassName("register-form__title-container");
 
@@ -48,7 +46,6 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
         titleDiv.add(title);
 
         FormLayout form = new FormLayout();
-        // width via layout/CSS
         form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("600px", 2));
 
         TextField name = new TextField(getTranslation("auth.name"));
@@ -79,7 +76,6 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
             confirm.setInvalid(false);
 
             boolean ok = true;
-            // keep allReq key for future form-level validation messages if needed
             String pwdPolicy = getTranslation("auth.validation.passwordPolicy");
 
             String vName = name.getValue() == null ? "" : name.getValue().trim();
@@ -127,7 +123,6 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
                 authFacade.registerUser(vEmail, vPwd);
                 authFacade.authenticateAndPersist(vEmail, vPwd);
                 NotificationHelper.showSuccess(getTranslation("auth.register.successLogin"));
-                // Navigate to decks after successful registration (existing route)
                 getUI().ifPresent(ui -> ui.navigate("decks"));
             } catch (Exception ex) {
                 NotificationHelper.showError(getTranslation("auth.register.autoLoginFailed"));
@@ -142,13 +137,10 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
         form.add(name, email, password, confirm);
 
-        // Add buttons to form container
         formContainer.add(titleDiv, form, submit, backToHome);
 
-        // Add form container to wrapper
         wrapper.add(formContainer);
 
-        // Add wrapper to main layout
         add(wrapper);
     }
 

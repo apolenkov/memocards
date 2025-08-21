@@ -13,7 +13,6 @@ public class NotFoundView extends Div implements HasErrorParameter<NotFoundExcep
 
     @Override
     public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<NotFoundException> parameter) {
-        // Redirect unknown routes to the landing page
         event.rerouteTo("");
         return HttpStatusCode.NOT_FOUND.getCode();
     }

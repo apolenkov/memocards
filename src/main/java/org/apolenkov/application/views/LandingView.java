@@ -42,13 +42,10 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         hero.addClassName("landing-hero__image");
 
-        // Smart click handler - go to decks if authenticated, login if not
         hero.addClickListener(e -> {
             if (auth != null && !(auth instanceof AnonymousAuthenticationToken)) {
-                // User is authenticated, go to decks
                 NavigationHelper.navigateTo("decks");
             } else {
-                // User is not authenticated, go to login
                 NavigationHelper.navigateTo("login");
             }
         });
@@ -82,7 +79,6 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
             }
         }
 
-        // News section wrapper
         Div newsSection = new Div();
         newsSection.addClassName("surface-panel");
         newsSection.addClassName("landing-news__section");
@@ -107,15 +103,13 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
             cardContent.addClassName("landing-news__card-content");
             card.add(cardContent);
 
-            // Optional astronaut accent element
-            Div astronaut = new Div();
+                    Div astronaut = new Div();
             astronaut.addClassName("landing-news__card-accent");
             card.add(astronaut);
 
             newsList.add(card);
         }
 
-        // Hero section container
         Div heroSection = new Div();
         heroSection.addClassName("surface-panel");
         heroSection.addClassName("landing-hero__section");

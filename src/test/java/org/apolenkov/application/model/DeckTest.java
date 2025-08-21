@@ -22,7 +22,7 @@ class DeckTest {
     @BeforeEach
     void setUp() {
         deck = new Deck();
-        deck.setId(1L); // Ensure deck has ID for flashcard operations
+        deck.setId(1L);
         deck.setUserId(2L);
         deck.setTitle("Test Title");
         deck.setDescription("Test Description");

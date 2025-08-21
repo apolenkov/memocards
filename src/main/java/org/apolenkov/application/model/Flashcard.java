@@ -48,7 +48,6 @@ public class Flashcard {
         this.example = example;
     }
 
-    // Getters and setters
     public Long getId() {
         return id;
     }

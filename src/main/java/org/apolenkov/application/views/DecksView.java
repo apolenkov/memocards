@@ -73,7 +73,6 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         deckList.removeAll();
         List<DeckCardViewModel> decks = homePresenter.listDecksForCurrentUser(query);
 
-        // Create a container for section (title + toolbar + cards) with consistent width
         VerticalLayout deckContainer = new VerticalLayout();
         deckContainer.setSpacing(true);
         deckContainer.setAlignItems(Alignment.CENTER);
@@ -82,7 +81,6 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         deckContainer.addClassName("decks-section");
         deckContainer.addClassName("surface-panel");
 
-        // Recreate title and toolbar inside the section for a single shaded block
         H2 title = TextHelper.createPageTitle(getTranslation("home.title"));
         title.addClassName("decks-view__title");
 

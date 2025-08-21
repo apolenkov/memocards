@@ -16,7 +16,7 @@ public class DeckFacade {
     private final DeckUseCase deckUseCase;
     private final FlashcardUseCase flashcardUseCase;
     private final StatsService statsService;
-    private final Validator validator; // reserved for future domain validation
+    private final Validator validator;
 
     public DeckFacade(
             DeckUseCase deckUseCase,
@@ -85,5 +85,4 @@ public class DeckFacade {
         deckUseCase.deleteDeck(deckId);
     }
 
-    // Filtering moved to CardQueryService
 }
