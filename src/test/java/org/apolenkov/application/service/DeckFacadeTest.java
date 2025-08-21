@@ -3,7 +3,6 @@ package org.apolenkov.application.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,14 +31,11 @@ class DeckFacadeTest {
     @Mock
     private StatsService statsService;
 
-    @Mock
-    private Validator validator;
-
     private DeckFacade deckFacade;
 
     @BeforeEach
     void setUp() {
-        deckFacade = new DeckFacade(deckUseCase, flashcardUseCase, statsService, validator);
+        deckFacade = new DeckFacade(deckUseCase, flashcardUseCase, statsService);
     }
 
     @Nested
@@ -152,7 +148,7 @@ class DeckFacadeTest {
         @DisplayName("GetKnown should return known card IDs")
         void getKnownShouldReturnKnownCardIds() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             Set<Long> expectedKnownCardIds = Set.of(1L, 2L, 3L);
 
             when(statsService.getKnownCardIds(deckId)).thenReturn(expectedKnownCardIds);

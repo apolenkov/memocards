@@ -10,38 +10,20 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AuthFacade {
 
-    private final UserDetailsService userDetailsService;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationService;
 
     public AuthFacade(
-            UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder,
             AuthenticationConfiguration authenticationConfiguration,
             org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationService) {
-        this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
         this.authenticationConfiguration = authenticationConfiguration;
         this.jpaRegistrationService = jpaRegistrationService;
-    }
-
-    public boolean userExists(String username) {
-        try {
-            UserDetails existing = userDetailsService.loadUserByUsername(username);
-            return existing != null;
-        } catch (Exception ignored) {
-            return false;
-        }
     }
 
     public void registerUser(String username, String rawPassword) {
@@ -77,5 +59,4 @@ public class AuthFacade {
             new HttpSessionSecurityContextRepository().saveContext(context, req, resp);
         }
     }
-
 }

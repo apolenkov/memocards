@@ -103,7 +103,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
             cardContent.addClassName("landing-news__card-content");
             card.add(cardContent);
 
-                    Div astronaut = new Div();
+            Div astronaut = new Div();
             astronaut.addClassName("landing-news__card-accent");
             card.add(astronaut);
 

@@ -3,7 +3,6 @@ package org.apolenkov.application.service.query;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
@@ -43,7 +42,7 @@ public class DeckQueryService {
         if (!normalized.isEmpty()) {
             decks = decks.stream()
                     .filter(d -> contains(d.getTitle(), normalized) || contains(d.getDescription(), normalized))
-                    .collect(Collectors.toList());
+                    .toList();
         }
         return decks.stream()
                 .sorted(Comparator.comparing(Deck::getTitle, Comparator.nullsLast(String::compareToIgnoreCase)))
