@@ -43,7 +43,7 @@ public final class FormHelper {
         TextArea area = new TextArea(label);
         area.setPlaceholder(placeholder);
         area.setClearButtonVisible(true);
-        area.setMaxHeight("100px");
+        area.addClassName("text-area--sm");
 
         return area;
     }

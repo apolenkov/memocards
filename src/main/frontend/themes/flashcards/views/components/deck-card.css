@@ -49,7 +49,7 @@
 }
 
 .deck-card__progress-text {
-    color: var(--lumo-primary-color);
+    color: var(--lumo-primary-text-color);
     font-weight: bold;
     font-size: var(--lumo-font-size-s);
 }

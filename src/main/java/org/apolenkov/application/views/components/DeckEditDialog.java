@@ -25,7 +25,7 @@ public class DeckEditDialog extends Dialog {
         this.deckFacade = deckFacade;
         this.deck = deck;
         this.onSaved = onSaved;
-        setWidth("500px");
+        addClassName("dialog-md");
         build();
     }
 
@@ -45,7 +45,7 @@ public class DeckEditDialog extends Dialog {
 
         TextArea descriptionArea = new TextArea(getTranslation("dialog.description"));
         descriptionArea.setWidthFull();
-        descriptionArea.setMaxHeight("140px");
+        descriptionArea.addClassName("text-area--md");
         descriptionArea.setMaxLength(500);
         descriptionArea.setPlaceholder(getTranslation("dialog.description.placeholder"));
         descriptionArea.setValue(deck.getDescription() != null ? deck.getDescription() : "");

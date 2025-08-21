@@ -54,23 +54,31 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         VerticalLayout contentContainer = new VerticalLayout();
         contentContainer.setSpacing(true);
         contentContainer.setWidthFull();
-        contentContainer.setMaxWidth("1000px"); // Wider for stats data
+        contentContainer.addClassName("container-md");
         contentContainer.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+
+        // Single shaded section holds title and all groups
+        VerticalLayout pageSection = new VerticalLayout();
+        pageSection.setSpacing(true);
+        pageSection.setPadding(true);
+        pageSection.setWidthFull();
+        pageSection.addClassName("stats-page__section");
+        pageSection.addClassName("surface-panel");
 
         H2 mainTitle = new H2(getTranslation("stats.title"));
         mainTitle.addClassName("stats-view__title");
-
-        contentContainer.add(mainTitle);
+        pageSection.add(mainTitle);
 
         List<Deck> decks =
                 deckUseCase.getDecksByUserId(userUseCase.getCurrentUser().getId());
         Map<Long, org.apolenkov.application.domain.port.StatsRepository.DeckAggregate> agg =
                 statsService.getDeckAggregates(decks.stream().map(Deck::getId).toList(), LocalDate.now());
 
-        contentContainer.add(createTodayStatsSection(agg));
-        contentContainer.add(createOverallStatsSection(agg));
-        contentContainer.add(createDeckStatsSection(decks, agg));
+        pageSection.add(createTodayStatsSection(agg));
+        pageSection.add(createOverallStatsSection(agg));
+        pageSection.add(createDeckStatsSection(decks, agg));
 
+        contentContainer.add(pageSection);
         add(contentContainer);
     }
 
@@ -259,11 +267,11 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         navigationLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
         Button prevButton = new Button(VaadinIcon.CHEVRON_LEFT.create());
-        prevButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        prevButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
         prevButton.getElement().setAttribute("title", getTranslation("stats.previousDeck"));
 
         Button nextButton = new Button(VaadinIcon.CHEVRON_RIGHT.create());
-        nextButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        nextButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
         nextButton.getElement().setAttribute("title", getTranslation("stats.nextDeck"));
 
         // Page indicator

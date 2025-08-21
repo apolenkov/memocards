@@ -12,6 +12,18 @@
     --app-space-m: var(--lumo-space-m);
     --app-space-l: var(--lumo-space-l);
     --app-space-xl: var(--lumo-space-xl);
+
+    /* Container sizes */
+    --app-container-sm: 600px;
+    --app-container-md: 800px;
+    --app-container-lg: 900px;
+    --app-container-xl: 1000px;
+
+    /* Dialog sizes */
+    --app-dialog-sm: 420px;
+    --app-dialog-md: 500px;
+    --app-dialog-lg: 600px;
+    --app-dialog-height-md: 500px;
 }
 
 @media (max-width:  var(--app-bp-md)) {

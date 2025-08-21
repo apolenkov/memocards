@@ -4,6 +4,7 @@
 	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
 	border-radius: var(--lumo-border-radius-l);
 	backdrop-filter: blur(12px);
+	box-sizing: border-box;
 }
 
 .surface-card {
@@ -11,6 +12,7 @@
 	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 70%, transparent);
 	border-radius: var(--lumo-border-radius-l);
 	backdrop-filter: blur(8px);
+	box-sizing: border-box;
 }
 
 /* Button variants */
@@ -73,6 +75,15 @@
 	box-shadow: 0 0 0 2px var(--lumo-primary-color-10pct);
 }
 
+/* Dialog sizing via tokens */
+.dialog-sm::part(overlay) { width: var(--app-dialog-sm); }
+.dialog-md::part(overlay) { width: var(--app-dialog-md); height: var(--app-dialog-height-md); }
+.dialog-lg::part(overlay) { width: var(--app-dialog-lg); }
+
+/* Text area height presets */
+.text-area--sm { max-height: 100px; }
+.text-area--md { max-height: 150px; }
+
 /* Layout utilities */
 .flex-center {
 	display: flex;
@@ -106,4 +117,8 @@
 .language-switcher__label {
 	font-size: var(--lumo-font-size-s);
 	color: var(--lumo-secondary-text-color);
+}
+
+.language-switcher__combo {
+	width: 92px; /* fixed width via class instead of inline */
 }

@@ -66,13 +66,24 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         VerticalLayout contentContainer = new VerticalLayout();
         contentContainer.setSpacing(true);
         contentContainer.setWidthFull();
-        contentContainer.setMaxWidth("800px"); // Consistent max width
+        contentContainer.addClassName("container-md");
         contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        createHeader(contentContainer);
-        createProgressSection(contentContainer);
-        createCardContainer(contentContainer);
-        createActionButtons(contentContainer);
+        // Single shaded section that contains header, progress, card and actions
+        VerticalLayout pageSection = new VerticalLayout();
+        pageSection.setSpacing(true);
+        pageSection.setPadding(true);
+        pageSection.setWidthFull();
+        pageSection.addClassName("practice-view__section");
+        pageSection.addClassName("surface-panel");
+        pageSection.addClassName("container-md");
+
+        createHeader(pageSection);
+        createProgressSection(pageSection);
+        createCardContainer(pageSection);
+        createActionButtons(pageSection);
+
+        contentContainer.add(pageSection);
 
         getContent().add(contentContainer);
     }
@@ -149,7 +160,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private void createProgressSection(VerticalLayout container) {
         Div progressSection = new Div();
         progressSection.addClassName("practice-progress");
-        progressSection.addClassName("surface-panel");
 
         statsSpan = new Span(getTranslation("practice.getReady"));
         statsSpan.addClassName("practice-progress__text");
@@ -161,7 +171,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private void createCardContainer(VerticalLayout container) {
         Div cardContainer = new Div();
         cardContainer.addClassName("practice-card-container");
-        cardContainer.addClassName("surface-card");
 
         cardContent = new Div();
         cardContent.addClassName("practice-card-content");
@@ -175,6 +184,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private void createActionButtons(VerticalLayout container) {
         actionButtons = new HorizontalLayout();
         actionButtons.setSpacing(true);
+        actionButtons.setWidthFull();
         actionButtons.setAlignItems(FlexComponent.Alignment.CENTER);
         actionButtons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 

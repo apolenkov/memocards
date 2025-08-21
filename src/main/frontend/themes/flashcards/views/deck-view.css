@@ -20,7 +20,7 @@
     color: var(--lumo-secondary-text-color);
 }
 
-.deck-view__info-section { padding: var(--lumo-space-m); width: 100%; }
+.deck-view__info-section { padding: var(--lumo-space-m); width: 100%; box-sizing: border-box; }
 .deck-view__info-section.surface-panel { /* visuals via component token */ }
 
 .deck-view__description {
@@ -28,7 +28,7 @@
 }
 
 /* Deck practice section (actions + grid) */
-.deck-view__section { padding: var(--lumo-space-m); }
+.deck-view__section { padding: var(--lumo-space-m); width: 100%; max-width: var(--app-container-md, 800px); margin: 0 auto; }
 .deck-view__section.glass-lg { /* visuals via utility */ }
 
 /* Deck delete dialog styles */

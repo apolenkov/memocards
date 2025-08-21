@@ -31,7 +31,7 @@ public final class DialogHelper {
             Runnable onConfirm,
             Runnable onCancel) {
         Dialog dialog = new Dialog();
-        dialog.setWidth("420px");
+        dialog.addClassName("dialog-sm");
 
         VerticalLayout layout = new VerticalLayout();
         layout.add(new H3(title));

@@ -1,12 +1,13 @@
 package org.apolenkov.application.config;
 
-import com.vaadin.flow.server.HandlerHelper;
-import com.vaadin.flow.shared.ApplicationConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.core.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,7 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
     private final boolean autoLoginEnabled;
     private final String autoLoginUser;
     private final UserDetailsService userDetailsService;
+    private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
     public DevAutoLoginFilter(
             @Value("${dev.auto-login.enabled:false}") boolean autoLoginEnabled,
@@ -44,23 +46,18 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        // Perform auto-login as early as possible in the chain
+        Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean notAuthenticated = currentAuthentication == null
+                || authenticationTrustResolver.isAnonymous(currentAuthentication);
 
-        // Skip Vaadin internal (framework) requests to avoid interfering with
-        // heartbeat, push, bootstrap, and uidl calls
-        if (isVaadinInternalRequest(request)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (autoLoginEnabled
-                && SecurityContextHolder.getContext().getAuthentication() == null
-                && isEligibleRequest(request)) {
+        if (autoLoginEnabled && notAuthenticated && isEligibleRequest(request)) {
             try {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(autoLoginUser);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, userDetails.getPassword(), userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                appLogger.debug("Dev auto-login applied for user: {}", autoLoginUser);
+                appLogger.info("Dev auto-login applied for user: {}", autoLoginUser);
             } catch (Exception e) {
                 appLogger.warn("Dev auto-login failed for user: {}. Reason: {}", autoLoginUser, e.getMessage());
             }
@@ -75,16 +72,5 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
         return !(path != null && (path.startsWith("/login") || path.startsWith("/logout")));
     }
 
-    private boolean isVaadinInternalRequest(HttpServletRequest request) {
-        String requestType = request.getParameter(ApplicationConstants.REQUEST_TYPE_PARAMETER);
-        if (requestType == null) {
-            return false;
-        }
-        for (HandlerHelper.RequestType type : HandlerHelper.RequestType.values()) {
-            if (type.getIdentifier().equals(requestType)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    // Reserved for future use if we need to filter out Vaadin internal requests
 }

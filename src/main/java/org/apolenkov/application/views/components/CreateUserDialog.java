@@ -41,7 +41,7 @@ public class CreateUserDialog extends Dialog {
 
     private void initializeDialog() {
         setHeaderTitle(getTranslation("user.create.title"));
-        setWidth("500px");
+        addClassName("dialog-md");
 
         labelToRole.put(getTranslation("admin.users.role.USER"), SecurityConstants.ROLE_USER);
         labelToRole.put(getTranslation("admin.users.role.ADMIN"), SecurityConstants.ROLE_ADMIN);

@@ -34,7 +34,7 @@ public class EditUserDialog extends Dialog {
         createForm();
         createButtons();
         add(createFormLayout());
-        setWidth("500px");
+        addClassName("dialog-md");
     }
 
     private FormLayout createFormLayout() {
