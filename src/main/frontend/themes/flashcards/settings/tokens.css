@@ -26,7 +26,3 @@
     --app-dialog-height-md: 500px;
 }
 
-@media (max-width:  var(--app-bp-md)) {
-  /* Example: reduce default max-widths in mobile if needed */
-}
-

@@ -76,11 +76,18 @@
 }
 
 /* Dialog sizing via tokens */
-.dialog-sm::part(overlay) { width: var(--app-dialog-sm); }
+.dialog-sm::part(overlay) { 
+    width: var(--app-dialog-sm); 
+}
 
-.dialog-md::part(overlay) { width: var(--app-dialog-md); height: var(--app-dialog-height-md); }
+.dialog-md::part(overlay) { 
+    width: var(--app-dialog-md); 
+    height: var(--app-dialog-height-md); 
+}
 
-.dialog-lg::part(overlay) { width: var(--app-dialog-lg); }
+.dialog-lg::part(overlay) { 
+    width: var(--app-dialog-lg); 
+}
 
 /* Text area height presets */
 .text-area--sm { max-height: 100px; }
