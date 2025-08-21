@@ -1,5 +1,7 @@
 package org.apolenkov.application.config;
 
+import com.vaadin.flow.server.HandlerHelper;
+import com.vaadin.flow.shared.ApplicationConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +23,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * when dev.auto-login.enabled=true (dev profile only).
  */
 @Component
-@Profile({"dev"})
+@Profile("!prod")
 public class DevAutoLoginFilter extends OncePerRequestFilter {
 
     private static final Logger appLogger = LoggerFactory.getLogger(DevAutoLoginFilter.class);
@@ -42,6 +44,13 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        // Skip Vaadin internal (framework) requests to avoid interfering with
+        // heartbeat, push, bootstrap, and uidl calls
+        if (isVaadinInternalRequest(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (autoLoginEnabled
                 && SecurityContextHolder.getContext().getAuthentication() == null
@@ -64,5 +73,18 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         // Skip explicit auth endpoints; allow all others
         return !(path != null && (path.startsWith("/login") || path.startsWith("/logout")));
+    }
+
+    private boolean isVaadinInternalRequest(HttpServletRequest request) {
+        String requestType = request.getParameter(ApplicationConstants.REQUEST_TYPE_PARAMETER);
+        if (requestType == null) {
+            return false;
+        }
+        for (HandlerHelper.RequestType type : HandlerHelper.RequestType.values()) {
+            if (type.getIdentifier().equals(requestType)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
