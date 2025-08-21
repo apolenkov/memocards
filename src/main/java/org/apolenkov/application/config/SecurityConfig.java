@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,19 +21,11 @@ public class SecurityConfig extends VaadinWebSecurity {
     private final DevAutoLoginFilter devAutoLoginFilter;
 
     @Autowired
-    public SecurityConfig(Environment environment, @Autowired(required = false) DevAutoLoginFilter devAutoLoginFilter) {
+    public SecurityConfig(Environment environment, DevAutoLoginFilter devAutoLoginFilter) {
         String[] profiles = environment != null ? environment.getActiveProfiles() : null;
         this.prodProfileActive =
                 profiles != null && java.util.Arrays.asList(profiles).contains("prod");
         this.devAutoLoginFilter = devAutoLoginFilter;
-    }
-
-    // Backward-compatible constructor for tests/new instances that don't wire the optional filter
-    public SecurityConfig(Environment environment) {
-        String[] profiles = environment != null ? environment.getActiveProfiles() : null;
-        this.prodProfileActive =
-                profiles != null && java.util.Arrays.asList(profiles).contains("prod");
-        this.devAutoLoginFilter = null;
     }
 
     @Override
@@ -60,7 +51,7 @@ public class SecurityConfig extends VaadinWebSecurity {
                 .invalidateHttpSession(true));
 
         // Dev-only: auto-login filter placed before UsernamePasswordAuthenticationFilter
-        if (!prodProfileActive && devAutoLoginFilter != null) {
+        if (!prodProfileActive) {
             http.addFilterBefore(devAutoLoginFilter, UsernamePasswordAuthenticationFilter.class);
         }
 
@@ -83,20 +74,19 @@ public class SecurityConfig extends VaadinWebSecurity {
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
 
-            // Check if request is for UI (Vaadin) or API/static content
-            String acceptHeader = request.getHeader("Accept");
-            boolean isApiRequest = acceptHeader != null
-                    && (acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE)
-                            || acceptHeader.contains(MediaType.APPLICATION_XML_VALUE))
-                    && !acceptHeader.contains(MediaType.TEXT_HTML_VALUE);
+            // Detect API by path prefix to avoid brittle Accept-header logic
+            String requestURI = request.getRequestURI();
+            boolean isApiRequest = requestURI != null && requestURI.startsWith("/api/");
 
             if (isApiRequest) {
-                // Return JSON error for API requests
+                // RFC 7807 Problem Details JSON
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.getWriter().write("{\"error\":\"Access denied\",\"status\":403}");
+                response.setContentType("application/problem+json");
+                response.getWriter()
+                        .write(String.format(
+                                "{\"type\":\"https://httpstatuses.io/403\",\"title\":\"Access Denied\",\"status\":403,\"detail\":\"Access denied for resource\",\"path\":\"%s\",\"timestamp\":\"%s\"}",
+                                requestURI, java.time.Instant.now()));
             } else {
-                // Redirect to UI access denied page for browser requests
                 response.sendRedirect("/access-denied");
             }
         };

@@ -19,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,11 +34,15 @@ class SecurityConfigTest {
 
     private SecurityConfig securityConfig;
 
+    @Mock
+    private DevAutoLoginFilter devAutoLoginFilter;
+
     @BeforeEach
     void setUp() {
         // Mock environment to return empty profiles array to avoid NPE in constructor
         when(environment.getActiveProfiles()).thenReturn(new String[0]);
-        securityConfig = new SecurityConfig(environment, null);
+        devAutoLoginFilter = mock(DevAutoLoginFilter.class);
+        securityConfig = new SecurityConfig(environment, devAutoLoginFilter);
     }
 
     @Nested
@@ -78,7 +81,7 @@ class SecurityConfigTest {
             when(mockEnvironment.getActiveProfiles()).thenReturn(new String[] {"prod"});
 
             // When
-            SecurityConfig config = new SecurityConfig(mockEnvironment, null);
+            SecurityConfig config = new SecurityConfig(mockEnvironment, devAutoLoginFilter);
 
             // Then
             Boolean prodFlag = (Boolean) ReflectionTestUtils.getField(config, "prodProfileActive");
@@ -148,8 +151,9 @@ class SecurityConfigTest {
         }
 
         @Test
-        @DisplayName("AccessDeniedHandler should handle API requests with JSON response")
-        void accessDeniedHandlerShouldHandleApiRequestsWithJsonResponse() throws IOException, ServletException {
+        @DisplayName("AccessDeniedHandler should handle API requests with ProblemDetail JSON response")
+        void accessDeniedHandlerShouldHandleApiRequestsWithProblemDetailJsonResponse()
+                throws IOException, ServletException {
             // Given
             AccessDeniedHandler handler = securityConfig.accessDeniedHandler();
             HttpServletRequest request = mock(HttpServletRequest.class);
@@ -158,7 +162,7 @@ class SecurityConfigTest {
             StringWriter stringWriter = new StringWriter();
             PrintWriter printWriter = new PrintWriter(stringWriter);
 
-            when(request.getHeader("Accept")).thenReturn(MediaType.APPLICATION_JSON_VALUE);
+            when(request.getRequestURI()).thenReturn("/api/decks/123");
             when(response.getWriter()).thenReturn(printWriter);
 
             // When
@@ -166,32 +170,12 @@ class SecurityConfigTest {
 
             // Then
             verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
-            verify(response).setContentType(MediaType.APPLICATION_JSON_VALUE);
-            assertThat(stringWriter.toString()).contains("error");
-            assertThat(stringWriter.toString()).contains("Access denied");
-            assertThat(stringWriter.toString()).contains("403");
-        }
-
-        @Test
-        @DisplayName("AccessDeniedHandler should handle XML API requests")
-        void accessDeniedHandlerShouldHandleXmlApiRequests() throws IOException, ServletException {
-            // Given
-            AccessDeniedHandler handler = securityConfig.accessDeniedHandler();
-            HttpServletRequest request = mock(HttpServletRequest.class);
-            HttpServletResponse response = mock(HttpServletResponse.class);
-            AccessDeniedException exception = new AccessDeniedException("Access denied");
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(stringWriter);
-
-            when(request.getHeader("Accept")).thenReturn(MediaType.APPLICATION_XML_VALUE);
-            when(response.getWriter()).thenReturn(printWriter);
-
-            // When
-            handler.handle(request, response, exception);
-
-            // Then
-            verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
-            verify(response).setContentType(MediaType.APPLICATION_JSON_VALUE);
+            verify(response).setContentType("application/problem+json");
+            String body = stringWriter.toString();
+            assertThat(body).contains("Access Denied");
+            assertThat(body).contains("403");
+            assertThat(body).contains("/api/decks/123");
+            assertThat(body).contains("timestamp");
         }
 
         @Test
@@ -202,26 +186,10 @@ class SecurityConfigTest {
             HttpServletRequest request = mock(HttpServletRequest.class);
             HttpServletResponse response = mock(HttpServletResponse.class);
             AccessDeniedException exception = new AccessDeniedException("Access denied");
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
 
-            when(request.getHeader("Accept")).thenReturn(MediaType.TEXT_HTML_VALUE);
-
-            // When
-            handler.handle(request, response, exception);
-
-            // Then
-            verify(response).sendRedirect("/access-denied");
-        }
-
-        @Test
-        @DisplayName("AccessDeniedHandler should handle null Accept header")
-        void accessDeniedHandlerShouldHandleNullAcceptHeader() throws IOException, ServletException {
-            // Given
-            AccessDeniedHandler handler = securityConfig.accessDeniedHandler();
-            HttpServletRequest request = mock(HttpServletRequest.class);
-            HttpServletResponse response = mock(HttpServletResponse.class);
-            AccessDeniedException exception = new AccessDeniedException("Access denied");
-
-            when(request.getHeader("Accept")).thenReturn(null);
+            when(request.getRequestURI()).thenReturn("/decks");
 
             // When
             handler.handle(request, response, exception);
@@ -231,15 +199,15 @@ class SecurityConfigTest {
         }
 
         @Test
-        @DisplayName("AccessDeniedHandler should handle empty Accept header")
-        void accessDeniedHandlerShouldHandleEmptyAcceptHeader() throws IOException, ServletException {
+        @DisplayName("AccessDeniedHandler should handle null request URI")
+        void accessDeniedHandlerShouldHandleNullRequestUri() throws IOException, ServletException {
             // Given
             AccessDeniedHandler handler = securityConfig.accessDeniedHandler();
             HttpServletRequest request = mock(HttpServletRequest.class);
             HttpServletResponse response = mock(HttpServletResponse.class);
             AccessDeniedException exception = new AccessDeniedException("Access denied");
 
-            when(request.getHeader("Accept")).thenReturn("");
+            when(request.getRequestURI()).thenReturn(null);
 
             // When
             handler.handle(request, response, exception);
@@ -249,16 +217,15 @@ class SecurityConfigTest {
         }
 
         @Test
-        @DisplayName("AccessDeniedHandler should handle mixed Accept header")
-        void accessDeniedHandlerShouldHandleMixedAcceptHeader() throws IOException, ServletException {
+        @DisplayName("AccessDeniedHandler should handle root path requests")
+        void accessDeniedHandlerShouldHandleRootPathRequests() throws IOException, ServletException {
             // Given
             AccessDeniedHandler handler = securityConfig.accessDeniedHandler();
             HttpServletRequest request = mock(HttpServletRequest.class);
             HttpServletResponse response = mock(HttpServletResponse.class);
             AccessDeniedException exception = new AccessDeniedException("Access denied");
 
-            when(request.getHeader("Accept"))
-                    .thenReturn("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+            when(request.getRequestURI()).thenReturn("/");
 
             // When
             handler.handle(request, response, exception);
