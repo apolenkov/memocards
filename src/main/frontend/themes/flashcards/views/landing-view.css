@@ -54,4 +54,43 @@
 
 .landing-news__card-accent {
     align-self: flex-end;
+    width: 36px;
+    height: 36px;
+    background-image: url('../assets/modern-icons.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.9;
+}
+
+/* New containers extracted from inline styles */
+.landing-hero__section {
+    width: 100%;
+    max-width: 800px;
+    padding: var(--lumo-space-l);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--lumo-space-m);
+}
+
+.landing-news__section {
+    width: 100%;
+    max-width: 800px;
+    padding: var(--lumo-space-l);
+    display: flex;
+    flex-direction: column;
+    gap: var(--lumo-space-m);
+}
+
+.landing-news__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--lumo-space-m);
+}
+
+.landing-news__card {
+    padding: var(--lumo-space-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--lumo-space-s);
 }

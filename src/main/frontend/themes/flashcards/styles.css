@@ -3,7 +3,11 @@
  * Uses Lumo design tokens for consistency
  */
 
+/* Layers */
+@layer settings, base, components, utilities, views, overrides;
+
 /* Import component styles */
+@import './settings/tokens.css' layer(settings);
 @import './components.css';
 @import './views/components/deck-card.css';
 @import './views/components/dialogs.css';
@@ -29,13 +33,13 @@
 @import './views/deckview-view.css';
 
 /* Import utility styles */
-@import './utilities.css';
-@import './responsive.css';
+@import './utilities.css' layer(utilities);
+@import './responsive.css' layer(utilities);
 @import './animations.css';
 @import './form-controls.css';
 @import './modern-components.css';
 @import './enhanced-views.css';
-@import './main-layout.css';
+@import './main-layout.css' layer(components);
 
 /* Background root stays behind all content */
 .animated-background {
@@ -133,7 +137,8 @@
 
 /* Background using Lumo tokens */
 body {
-    background: url('./assets/bg-custom-dark.webp') no-repeat center center fixed;
+    background: url('./assets/bg-custom-dark-2.webp') no-repeat center center
+    fixed;
     background-size: cover;
     margin: 0;
     padding: 0;
@@ -141,12 +146,14 @@ body {
 }
 
 html {
-    background: url('./assets/bg-custom-dark.webp') no-repeat center center fixed;
+    background: url('./assets/bg-custom-dark-2.webp') no-repeat center center
+    fixed;
     background-size: cover;
 }
 
 .app {
-    background: url('./assets/bg-custom-dark.webp') no-repeat center center fixed;
+    background: url('./assets/bg-custom-dark-2.webp') no-repeat center center
+    fixed;
     background-size: cover;
     min-height: 100vh;
 }

@@ -38,12 +38,14 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
         setPadding(false);
         setSpacing(false);
+        addClassName("decks-view");
 
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         content.setPadding(true);
         content.setSpacing(true);
         content.setAlignItems(Alignment.CENTER);
+        content.addClassName("decks-view__content");
 
         H2 title = TextHelper.createPageTitle(getTranslation("home.title"));
         title.addClassName("decks-view__title");
@@ -58,6 +60,8 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addDeckBtn);
         toolbar.setAlignItems(Alignment.CENTER);
         toolbar.setJustifyContentMode(JustifyContentMode.CENTER);
+        toolbar.addClassName("decks-toolbar");
+        toolbar.addClassName("surface-panel");
 
         deckList = new VerticalLayout();
         deckList.setPadding(false);
@@ -83,6 +87,8 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         deckContainer.setAlignItems(Alignment.CENTER);
         deckContainer.setWidthFull();
         deckContainer.setMaxWidth("800px"); // Consistent max width for all decks
+        deckContainer.addClassName("decks-section");
+        deckContainer.addClassName("surface-panel");
 
         decks.stream().map(DeckCard::new).forEach(deckContainer::add);
 

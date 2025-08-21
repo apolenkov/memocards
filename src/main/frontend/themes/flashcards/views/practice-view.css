@@ -13,15 +13,8 @@
 }
 
 /* Practice progress section */
-.practice-progress {
-    background: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
-    border-radius: var(--lumo-border-radius-m);
-    padding: var(--lumo-space-m);
-    width: 100%;
-    text-align: center;
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
-    backdrop-filter: blur(6px);
-}
+.practice-progress { width: 100%; text-align: center; padding: var(--lumo-space-m); }
+.practice-progress.surface-panel { /* visuals via component token */ }
 
 .practice-progress__text {
     color: var(--lumo-secondary-text-color);
@@ -29,17 +22,14 @@
 
 /* Practice card container */
 .practice-card-container {
-    background: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
-    border-radius: var(--lumo-border-radius-l);
     padding: var(--lumo-space-xl);
     width: 100%;
     min-height: 300px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
-    backdrop-filter: blur(8px);
 }
+.practice-card-container.surface-card { /* visuals via component token */ }
 
 .practice-card-content {
     text-align: center;

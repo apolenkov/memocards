@@ -1,18 +1,24 @@
 /* DeckCard Component Styles */
 .deck-card {
-    background: var(--lumo-contrast-5pct);
+    background: var(--lumo-base-color);
     border-radius: var(--lumo-border-radius-l);
     padding: var(--lumo-space-m);
-    border: 1px solid var(--lumo-contrast-10pct);
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
     cursor: pointer;
-    transition: all var(--lumo-transition-duration) ease;
+    transition: box-shadow var(--lumo-transition-duration) ease, transform var(--lumo-transition-duration) ease;
     width: 100%;
     max-width: 700px;
 }
 
 .deck-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--lumo-box-shadow-m);
+    transform: translateY(-1px);
+    box-shadow: var(--lumo-box-shadow-s);
+}
+
+/* Subtle hover focus effect (non-intrusive) */
+.deck-card:focus-visible {
+    outline: 2px solid var(--lumo-primary-color-10pct);
+    outline-offset: 2px;
 }
 
 .deck-card__icon {

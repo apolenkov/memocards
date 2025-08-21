@@ -76,8 +76,19 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         createHeader(contentContainer);
         createDeckInfo(contentContainer);
-        createActions(contentContainer);
-        createFlashcardsGrid(contentContainer);
+
+        // Wrap practice/actions and grid into a translucent section for better contrast with background
+        VerticalLayout practiceSection = new VerticalLayout();
+        practiceSection.setSpacing(true);
+        practiceSection.setPadding(true);
+        practiceSection.setWidthFull();
+        practiceSection.addClassName("deck-view__section");
+        practiceSection.addClassName("surface-panel");
+
+        createActions(practiceSection);
+        createFlashcardsGrid(practiceSection);
+
+        contentContainer.add(practiceSection);
 
         getContent().add(contentContainer);
     }
@@ -125,6 +136,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private void createDeckInfo(VerticalLayout container) {
         Div infoSection = new Div();
         infoSection.addClassName("deck-view__info-section");
+        infoSection.addClassName("surface-panel");
 
         deckDescription = new Span(getTranslation("deck.description.loading"));
         deckDescription.addClassName("deck-view__description");
@@ -550,6 +562,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         // Deck info
         Div deckInfo = new Div();
         deckInfo.addClassName("deck-delete-confirm__info");
+        deckInfo.addClassName("glass-md");
 
         Span deckName = new Span(currentDeck.getTitle());
         deckName.addClassName("deck-delete-confirm__deck-name");

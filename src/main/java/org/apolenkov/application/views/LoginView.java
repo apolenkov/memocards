@@ -56,7 +56,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
         formContainer.addClassName("login-form");
-        formContainer.setWidth("100%");
+        formContainer.addClassName("surface-panel");
 
         // Create form title
         Div titleDiv = new Div();

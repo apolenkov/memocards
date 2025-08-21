@@ -77,33 +77,19 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         // News section wrapper
         Div newsSection = new Div();
         newsSection.addClassName("surface-panel");
-        newsSection
-                .getStyle()
-                .set("width", "100%")
-                .set("max-width", "800px")
-                .set("padding", "var(--lumo-space-l)")
-                .set("display", "flex")
-                .set("flex-direction", "column")
-                .set("gap", "var(--lumo-space-m)");
+        newsSection.addClassName("landing-news__section");
 
         H3 newsTitle = TextHelper.createSectionTitle(getTranslation("landing.news"));
         newsTitle.addClassName("landing-news__title");
         newsSection.add(newsTitle);
 
         Div newsList = new Div();
-        newsList.getStyle()
-                .set("display", "flex")
-                .set("flex-direction", "column")
-                .set("gap", "var(--lumo-space-m)");
+        newsList.addClassName("landing-news__list");
 
         for (var item : newsService.getAllNews()) {
             Div card = new Div();
             card.addClassName("surface-card");
-            card.getStyle()
-                    .set("padding", "var(--lumo-space-m)")
-                    .set("display", "flex")
-                    .set("flex-direction", "column")
-                    .set("gap", "var(--lumo-space-s)");
+            card.addClassName("landing-news__card");
 
             H3 cardTitle = new H3(item.getTitle());
             cardTitle.addClassName("landing-news__card-title");
@@ -115,15 +101,6 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
             // Optional astronaut accent element
             Div astronaut = new Div();
-            astronaut
-                    .getStyle()
-                    .set("width", "36px")
-                    .set("height", "36px")
-                    .set("background-image", "url('themes/flashcards/assets/modern-icons.svg')")
-                    .set("background-size", "contain")
-                    .set("background-repeat", "no-repeat")
-                    .set("opacity", "0.9");
-            // Place accent to the right side of the card header
             astronaut.addClassName("landing-news__card-accent");
             card.add(astronaut);
 
@@ -133,15 +110,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         // Hero section container
         Div heroSection = new Div();
         heroSection.addClassName("surface-panel");
-        heroSection
-                .getStyle()
-                .set("width", "100%")
-                .set("max-width", "800px")
-                .set("padding", "var(--lumo-space-l)")
-                .set("display", "flex")
-                .set("flex-direction", "column")
-                .set("align-items", "center")
-                .set("gap", "var(--lumo-space-m)");
+        heroSection.addClassName("landing-hero__section");
 
         heroSection.add(heroIcon, title, subtitle, actions);
 

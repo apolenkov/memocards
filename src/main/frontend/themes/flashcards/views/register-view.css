@@ -1,13 +1,6 @@
 /* RegisterView Component Styles */
-.register-form {
-    background: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
-    border-radius: var(--lumo-border-radius-l);
-    padding: var(--lumo-space-xl);
-    max-width: 500px;
-    width: 100%;
-    backdrop-filter: blur(10px);
-}
+.register-form { padding: var(--lumo-space-xl); max-width: 500px; width: 100%; }
+.register-form.surface-panel { /* visuals via component token */ }
 
 .register-form__title-container {
     text-align: center;

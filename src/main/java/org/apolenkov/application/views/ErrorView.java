@@ -35,6 +35,7 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
         // Create a beautiful error container
         VerticalLayout errorContainer = new VerticalLayout();
         errorContainer.addClassName("error-container");
+        errorContainer.addClassName("surface-panel");
         errorContainer.setSpacing(true);
         errorContainer.setAlignItems(Alignment.CENTER);
 
@@ -105,6 +106,7 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
         // Create expandable dev info container
         VerticalLayout devContainer = new VerticalLayout();
         devContainer.addClassName("error-dev__container");
+        devContainer.addClassName("surface-panel");
         devContainer.setSpacing(true);
 
         // Error details section
