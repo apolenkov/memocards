@@ -5,14 +5,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.springframework.security.authentication.AuthenticationTrustResolver;
-import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
-import org.springframework.security.core.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -47,9 +47,10 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         // Perform auto-login as early as possible in the chain
-        Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean notAuthenticated = currentAuthentication == null
-                || authenticationTrustResolver.isAnonymous(currentAuthentication);
+        Authentication currentAuthentication =
+                SecurityContextHolder.getContext().getAuthentication();
+        boolean notAuthenticated =
+                currentAuthentication == null || authenticationTrustResolver.isAnonymous(currentAuthentication);
 
         if (autoLoginEnabled && notAuthenticated && isEligibleRequest(request)) {
             try {
