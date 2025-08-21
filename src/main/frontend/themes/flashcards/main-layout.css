@@ -1,8 +1,8 @@
 /* Main Layout Styles */
 .main-layout {
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 
 .main-layout__header {
@@ -19,18 +19,18 @@
 
 .main-layout__footer {
     flex-shrink: 0;
-    background-color: var(--lumo-contrast-5pct);
-    border-top: 1px solid var(--lumo-contrast-10pct);
     padding: var(--lumo-space-m);
-    text-align: center;
+    background-color: var(--lumo-contrast-5pct);
     color: var(--lumo-secondary-text-color);
+    text-align: center;
+    border-top: 1px solid var(--lumo-contrast-10pct);
 }
 
 .main-layout__sidebar {
     width: 250px;
+    padding: var(--lumo-space-m);
     background-color: var(--lumo-base-color);
     border-right: 1px solid var(--lumo-contrast-10pct);
-    padding: var(--lumo-space-m);
 }
 
 .main-layout__main {
@@ -39,6 +39,6 @@
 }
 
 .main-layout__right {
-    text-decoration: none;
     color: inherit;
+    text-decoration: none;
 }

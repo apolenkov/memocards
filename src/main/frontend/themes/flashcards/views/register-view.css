@@ -1,16 +1,17 @@
 /* RegisterView Component Styles */
-.register-form { padding: var(--lumo-space-xl); max-width: 500px; width: 100%; }
+.register-form { width: 100%; max-width: 500px; padding: var(--lumo-space-xl); }
+
 .register-form.surface-panel { /* visuals via component token */ }
 
 .register-form__title-container {
-    text-align: center;
     margin-bottom: var(--lumo-space-l);
+    text-align: center;
 }
 
 .register-form__title {
+    color: var(--lumo-primary-text-color);
     font-size: var(--lumo-font-size-xxl);
     font-weight: bold;
-    color: var(--lumo-primary-text-color);
 }
 
 /* Form fields */

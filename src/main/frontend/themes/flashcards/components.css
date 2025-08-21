@@ -1,27 +1,27 @@
 /* Common Component Styles */
 .surface-panel {
-	background-color: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
 	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
 	border-radius: var(--lumo-border-radius-l);
-	backdrop-filter: blur(12px);
+	background-color: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
 	box-sizing: border-box;
+	backdrop-filter: blur(12px);
 }
 
 .surface-card {
-	background-color: color-mix(in srgb, var(--lumo-base-color) 85%, transparent);
 	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 70%, transparent);
 	border-radius: var(--lumo-border-radius-l);
-	backdrop-filter: blur(8px);
+	background-color: color-mix(in srgb, var(--lumo-base-color) 85%, transparent);
 	box-sizing: border-box;
+	backdrop-filter: blur(8px);
 }
 
 /* Button variants */
 .btn-primary {
-	background-color: var(--lumo-primary-color);
-	color: var(--lumo-primary-contrast-color);
+	padding: var(--lumo-space-s) var(--lumo-space-m);
 	border: none;
 	border-radius: var(--lumo-border-radius-m);
-	padding: var(--lumo-space-s) var(--lumo-space-m);
+	background-color: var(--lumo-primary-color);
+	color: var(--lumo-primary-contrast-color);
 	font-weight: 500;
 	transition: all var(--lumo-transition-duration) ease;
 }
@@ -33,18 +33,18 @@
 }
 
 .btn-secondary {
-	background-color: var(--lumo-contrast-5pct);
-	color: var(--lumo-primary-text-color);
+	padding: var(--lumo-space-s) var(--lumo-space-m);
 	border: 1px solid var(--lumo-contrast-20pct);
 	border-radius: var(--lumo-border-radius-m);
-	padding: var(--lumo-space-s) var(--lumo-space-m);
+	background-color: var(--lumo-contrast-5pct);
+	color: var(--lumo-primary-text-color);
 	font-weight: 500;
 	transition: all var(--lumo-transition-duration) ease;
 }
 
 .btn-secondary:hover {
-	background-color: var(--lumo-contrast-10pct);
 	border-color: var(--lumo-contrast-30pct);
+	background-color: var(--lumo-contrast-10pct);
 }
 
 /* Form elements */
@@ -77,11 +77,14 @@
 
 /* Dialog sizing via tokens */
 .dialog-sm::part(overlay) { width: var(--app-dialog-sm); }
+
 .dialog-md::part(overlay) { width: var(--app-dialog-md); height: var(--app-dialog-height-md); }
+
 .dialog-lg::part(overlay) { width: var(--app-dialog-lg); }
 
 /* Text area height presets */
 .text-area--sm { max-height: 100px; }
+
 .text-area--md { max-height: 150px; }
 
 /* Layout utilities */
@@ -115,8 +118,8 @@
 
 /* Language switcher */
 .language-switcher__label {
-	font-size: var(--lumo-font-size-s);
 	color: var(--lumo-secondary-text-color);
+	font-size: var(--lumo-font-size-s);
 }
 
 .language-switcher__combo {

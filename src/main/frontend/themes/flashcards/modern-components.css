@@ -1,14 +1,14 @@
 /* Modern Component Styles */
 .card {
-    background: var(--lumo-base-color);
     border-radius: var(--lumo-border-radius-l);
-    box-shadow: var(--lumo-box-shadow-s);
+    background: var(--lumo-base-color);
     transition: all var(--lumo-transition-duration) ease;
+    box-shadow: var(--lumo-box-shadow-s);
 }
 
 .card:hover {
-    box-shadow: var(--lumo-box-shadow-m);
     transform: translateY(-2px);
+    box-shadow: var(--lumo-box-shadow-m);
 }
 
 .card__header {

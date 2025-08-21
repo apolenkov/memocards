@@ -14,28 +14,30 @@
 }
 
 /* Error container */
-.error-container { text-align: center; padding: var(--lumo-space-xl); max-width: 500px; width: 100%; }
+.error-container { width: 100%; max-width: 500px; padding: var(--lumo-space-xl); text-align: center; }
+
 .error-container.surface-panel { /* visuals via component token */ }
 
 .error-view__title {
-    color: var(--lumo-error-color);
     margin: 0 0 var(--lumo-space-m) 0;
+    color: var(--lumo-error-color);
 }
 
 .error-view__description {
-    text-align: center;
-    color: var(--lumo-secondary-text-color);
     margin-bottom: var(--lumo-space-l);
+    color: var(--lumo-secondary-text-color);
+    text-align: center;
 }
 
 /* Error dev info styles */
 .error-dev__title {
+    margin-bottom: var(--lumo-space-s);
     color: var(--lumo-error-color);
     font-size: var(--lumo-font-size-s);
-    margin-bottom: var(--lumo-space-s);
 }
 
-.error-dev__container { padding: var(--lumo-space-m); margin: var(--lumo-space-m) 0; width: 100%; max-width: 800px; }
+.error-dev__container { width: 100%; max-width: 800px; margin: var(--lumo-space-m) 0; padding: var(--lumo-space-m); }
+
 .error-dev__container.surface-panel { /* visuals via component token */ }
 
 .error-dev__details {
@@ -43,29 +45,29 @@
 }
 
 .error-dev__type {
-    color: var(--lumo-error-color);
-    font-weight: bold;
     display: block;
     margin-bottom: var(--lumo-space-xs);
+    color: var(--lumo-error-color);
+    font-weight: bold;
 }
 
 .error-dev__message {
-    color: var(--lumo-secondary-text-color);
-    font-size: var(--lumo-font-size-s);
     display: block;
     margin-bottom: var(--lumo-space-s);
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-s);
 }
 
 .error-dev__route {
-    color: var(--lumo-tertiary-text-color);
-    font-size: var(--lumo-font-size-xs);
     display: block;
     margin-bottom: var(--lumo-space-xs);
+    color: var(--lumo-tertiary-text-color);
+    font-size: var(--lumo-font-size-xs);
 }
 
 .error-dev__timestamp {
-    font-size: var(--lumo-font-size-xs);
-    color: var(--lumo-tertiary-text-color);
     display: block;
     margin-top: var(--lumo-space-s);
+    color: var(--lumo-tertiary-text-color);
+    font-size: var(--lumo-font-size-xs);
 }
