@@ -221,7 +221,7 @@ extensions.configure<com.diffplug.gradle.spotless.SpotlessExtension> {
  * Enhanced Checkstyle configuration
  */
 
-// Temporarily disabled due to configuration issues
+// Checkstyle temporarily disabled due to configuration issues
 // apply(plugin = "checkstyle")
 // extensions.configure<org.gradle.api.plugins.quality.CheckstyleExtension> {
 //     toolVersion = "10.12.1"
@@ -449,9 +449,3 @@ apply(from = "gradle/code-quality-non-english.gradle.kts")
 apply(from = "gradle/translations-missing.gradle.kts")
 apply(from = "gradle/hardcoded-ui-strings.gradle.kts")
 apply(from = "gradle/vaadin-clean.gradle.kts")
-
-// moved to gradle/code-quality-non-english.gradle.kts
-
-// moved to gradle/translations-missing.gradle.kts
-
-// moved to gradle/hardcoded-ui-strings.gradle.kts
