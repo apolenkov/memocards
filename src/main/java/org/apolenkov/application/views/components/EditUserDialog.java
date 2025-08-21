@@ -31,7 +31,6 @@ public class EditUserDialog extends Dialog {
         this.onSaved = onSaved;
 
         setHeaderTitle(getTranslation("user.edit.title"));
-        createForm();
         createButtons();
         add(createFormLayout());
         addClassName("dialog-md");
@@ -56,10 +55,6 @@ public class EditUserDialog extends Dialog {
 
         form.add(email, name, password);
         return form;
-    }
-
-    private void createForm() {
-        // This will be called by createFormLayout, keeping the existing structure
     }
 
     private void createButtons() {

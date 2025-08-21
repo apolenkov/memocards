@@ -1,6 +1,5 @@
 package org.apolenkov.application.service;
 
-import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Set;
 import org.apolenkov.application.model.Deck;
@@ -16,17 +15,11 @@ public class DeckFacade {
     private final DeckUseCase deckUseCase;
     private final FlashcardUseCase flashcardUseCase;
     private final StatsService statsService;
-    private final Validator validator;
 
-    public DeckFacade(
-            DeckUseCase deckUseCase,
-            FlashcardUseCase flashcardUseCase,
-            StatsService statsService,
-            Validator validator) {
+    public DeckFacade(DeckUseCase deckUseCase, FlashcardUseCase flashcardUseCase, StatsService statsService) {
         this.deckUseCase = deckUseCase;
         this.flashcardUseCase = flashcardUseCase;
         this.statsService = statsService;
-        this.validator = validator;
     }
 
     @Transactional(readOnly = true)
@@ -84,5 +77,4 @@ public class DeckFacade {
     public void deleteDeck(Long deckId) {
         deckUseCase.deleteDeck(deckId);
     }
-
 }

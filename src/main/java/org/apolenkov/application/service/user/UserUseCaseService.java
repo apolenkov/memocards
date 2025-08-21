@@ -9,18 +9,15 @@ import org.apolenkov.application.usecase.UserUseCase;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserUseCaseService implements UserUseCase {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserUseCaseService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserUseCaseService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -44,6 +41,7 @@ public class UserUseCaseService implements UserUseCase {
         }
         Object principal = authentication.getPrincipal();
         String username;
+
         if (principal instanceof UserDetails ud) {
             username = ud.getUsername();
         } else if (principal instanceof String s) {
@@ -55,47 +53,5 @@ public class UserUseCaseService implements UserUseCase {
                 .findByEmail(username)
                 .orElseThrow(
                         () -> new IllegalStateException("Authenticated principal has no domain user: " + username));
-    }
-
-    @TransactionAnnotations.WriteTransaction
-    public void updateCurrentUserName(String newName) {
-        if (newName == null || newName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be empty");
-        }
-
-        User currentUser = getCurrentUser();
-        currentUser.setName(newName.trim());
-        userRepository.save(currentUser);
-    }
-
-    @TransactionAnnotations.WriteTransaction
-    public void updateCurrentUserEmail(String newEmail) {
-        if (newEmail == null || newEmail.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be empty");
-        }
-
-        User currentUser = getCurrentUser();
-        currentUser.setEmail(newEmail.trim());
-        userRepository.save(currentUser);
-    }
-
-    @TransactionAnnotations.WriteTransaction
-    public void updateCurrentUserPassword(String currentPassword, String newPassword) {
-        if (currentPassword == null || currentPassword.trim().isEmpty()) {
-            throw new IllegalArgumentException("Current password cannot be empty");
-        }
-        if (newPassword == null || newPassword.trim().isEmpty()) {
-            throw new IllegalArgumentException("New password cannot be empty");
-        }
-
-        User currentUser = getCurrentUser();
-
-        if (!passwordEncoder.matches(currentPassword, currentUser.getPasswordHash())) {
-            throw new IllegalArgumentException("Current password is incorrect");
-        }
-
-        String newPasswordHash = passwordEncoder.encode(newPassword);
-        currentUser.setPasswordHash(newPasswordHash);
-        userRepository.save(currentUser);
     }
 }
