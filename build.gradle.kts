@@ -67,9 +67,8 @@ tasks.named("npmInstall") {
     // Ensure Vaadin prepares/updates package.json before npm install
     dependsOn("vaadinPrepareFrontend")
 
-    // Correctly declare inputs as files
+    // Correctly declare inputs as files (lock file is optional for our use)
     inputs.file("package.json")
-    inputs.file("package-lock.json")
     outputs.dir("node_modules")
 }
 

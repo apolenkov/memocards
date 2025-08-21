@@ -153,15 +153,30 @@ module.exports = {
     // 16. IMPORT NOTATION
     "import-notation": "string",
     
-    // 17. MEDIA FEATURE RANGE
+    // 17. MEDIA FEATURE RANGE + CUSTOM MEDIA
     "media-feature-range-notation": "prefix",
+    "at-rule-no-unknown": [true, {
+      ignoreAtRules: ["layer", "custom-media"]
+    }],
     
     // 18. DECLARATION BLOCK
-    "declaration-block-single-line-max-declarations": 1
+    "declaration-block-single-line-max-declarations": 1,
+    "block-no-empty": true
   },
   
   // OVERRIDE FOR VAADIN COMPONENTS
   overrides: [
+    // Temporarily disabled strict px ban until migration completes
+    {
+      files: [
+        "src/main/frontend/themes/flashcards/settings/**/*.css",
+        "src/main/frontend/themes/flashcards/settings/media.css"
+      ],
+      rules: {
+        // Allow px inside design tokens and custom media
+        "unit-allowed-list": ["px", "em", "rem", "%", "vw", "vh", "deg", "ms", "s"]
+      }
+    },
     {
       files: ["**/vaadin-*.css"],
       rules: {
