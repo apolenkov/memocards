@@ -39,6 +39,6 @@
 }
 
 .main-layout__right {
-    color: inherit;
+    color: var(--lumo-secondary-text-color);
     text-decoration: none;
 }

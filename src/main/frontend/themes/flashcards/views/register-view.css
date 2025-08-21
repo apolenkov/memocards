@@ -1,5 +1,9 @@
 /* RegisterView Component Styles */
-.register-form { width: 100%; max-width: 500px; padding: var(--lumo-space-xl); }
+.register-form { 
+    width: 100%; 
+    max-width: 500px; 
+    padding: var(--lumo-space-xl); 
+}
 
 .register-form.surface-panel { /* visuals via component token */ }
 

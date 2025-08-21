@@ -1,5 +1,9 @@
 /* LoginView Component Styles */
-.login-form { width: 100%; max-width: 450px; padding: var(--lumo-space-xl); }
+.login-form { 
+    width: 100%; 
+    max-width: 450px; 
+    padding: var(--lumo-space-xl); 
+}
 
 .login-form.surface-panel { /* visuals via component token */ }
 

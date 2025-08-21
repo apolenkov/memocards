@@ -20,7 +20,11 @@
     color: var(--lumo-secondary-text-color);
 }
 
-.deck-view__info-section { width: 100%; padding: var(--lumo-space-m); box-sizing: border-box; }
+.deck-view__info-section { 
+    width: 100%; 
+    padding: var(--lumo-space-m); 
+    box-sizing: border-box; 
+}
 
 .deck-view__info-section.surface-panel { /* visuals via component token */ }
 
@@ -29,7 +33,12 @@
 }
 
 /* Deck practice section (actions + grid) */
-.deck-view__section { width: 100%; max-width: var(--app-container-md, 800px); margin: 0 auto; padding: var(--lumo-space-m); }
+.deck-view__section { 
+    width: 100%; 
+    max-width: var(--app-container-md, 800px); 
+    margin: 0 auto; 
+    padding: var(--lumo-space-m); 
+}
 
 .deck-view__section.glass-lg { /* visuals via utility */ }
 
@@ -75,7 +84,11 @@
     text-align: center;
 }
 
-.deck-delete-confirm__info { margin-bottom: var(--lumo-space-m); padding: var(--lumo-space-s); text-align: center; }
+.deck-delete-confirm__info { 
+    margin-bottom: var(--lumo-space-m); 
+    padding: var(--lumo-space-s); 
+    text-align: center; 
+}
 
 .deck-delete-confirm__info.glass-md { /* visuals via utility */ }
 

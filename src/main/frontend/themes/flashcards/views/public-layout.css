@@ -7,7 +7,10 @@
 
 .main-layout__navbar.surface-panel { /* visuals via component token */ }
 
-.main-layout__right { }
+.main-layout__right { 
+    color: var(--lumo-secondary-text-color);
+    text-decoration: none;
+}
 
 .main-layout__right.surface-panel { border: none; }
 
@@ -29,7 +32,6 @@
     background-image: url('../assets/ufo-pixel.svg');
     background-size: contain;
     background-repeat: no-repeat;
-    animation: float 6s ease-in-out infinite;
 }
 
 .floating-rocket {
@@ -40,7 +42,6 @@
     background-image: url('../assets/rocket-pixel.svg');
     background-size: contain;
     background-repeat: no-repeat;
-    animation: float 8s ease-in-out infinite reverse;
 }
 
 .floating-cosmonaut {
@@ -51,7 +52,6 @@
     background-image: url('../assets/cosmonaut-pixel.svg');
     background-size: contain;
     background-repeat: no-repeat;
-    animation: float 10s ease-in-out infinite;
 }
 
 .bg-static.floating-ufo,

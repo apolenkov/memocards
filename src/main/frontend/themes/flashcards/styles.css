@@ -97,13 +97,33 @@
     filter: blur(1px);
 }
 
-.tri-1 { top: 10%; left: 12%; transform: rotate(10deg); border-bottom-color: var(--lumo-primary-color-10pct); }
+.tri-1 { 
+    top: 10%; 
+    left: 12%; 
+    transform: rotate(10deg); 
+    border-bottom-color: var(--lumo-primary-color-10pct); 
+}
 
-.tri-2 { top: 35%; left: 28%; transform: rotate(-8deg); border-bottom-color: var(--lumo-error-color-10pct); }
+.tri-2 { 
+    top: 35%; 
+    left: 28%; 
+    transform: rotate(-8deg); 
+    border-bottom-color: var(--lumo-error-color-10pct); 
+}
 
-.tri-3 { top: 20%; right: 16%; transform: rotate(6deg); border-bottom-color: var(--lumo-success-color-10pct); }
+.tri-3 { 
+    top: 20%; 
+    right: 16%; 
+    transform: rotate(6deg); 
+    border-bottom-color: var(--lumo-success-color-10pct); 
+}
 
-.tri-4 { bottom: 8%; left: 20%; transform: rotate(-4deg); border-bottom-color: var(--lumo-tint-10pct); }
+.tri-4 { 
+    bottom: 8%; 
+    left: 20%; 
+    transform: rotate(-4deg); 
+    border-bottom-color: var(--lumo-tint-10pct); 
+}
 
 .bg-static .triangle { transition: none; }
 

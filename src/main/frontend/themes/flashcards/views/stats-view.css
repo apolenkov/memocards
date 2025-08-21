@@ -13,7 +13,12 @@
 }
 
 /* Unified page section */
-.stats-page__section { width: 100%; max-width: var(--app-container-md, 800px); margin: 0 auto; box-sizing: border-box; }
+.stats-page__section { 
+    width: 100%; 
+    max-width: var(--app-container-md, 800px); 
+    margin: 0 auto; 
+    box-sizing: border-box; 
+}
 
 .stats-view__title {
     margin-bottom: var(--lumo-space-l);
@@ -22,7 +27,11 @@
 }
 
 /* Stats cards */
-.stats-card { min-width: 120px; padding: var(--lumo-space-m); text-align: center; }
+.stats-card { 
+    min-width: 120px; 
+    padding: var(--lumo-space-m); 
+    text-align: center; 
+}
 
 .stats-card.surface-card { /* visuals via component token */ }
 
