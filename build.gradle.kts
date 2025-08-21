@@ -1,3 +1,4 @@
+import com.github.gradle.node.npm.task.NpmTask
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
@@ -24,6 +25,7 @@ plugins {
 //    id("checkstyle")
     id("jacoco")
 //    id("com.github.spotbugs")
+    id("com.github.node-gradle.node") version "7.0.2"
 }
 
 group = "org.apolenkov.application"
@@ -52,6 +54,51 @@ repositories {
     gradlePluginPortal()
     mavenCentral()
     maven(url = "https://maven.vaadin.com/vaadin-addons")
+}
+
+// Node/Stylelint integration
+node {
+    version.set("20.18.0")
+    download.set(true)
+}
+
+// Configure npmInstall to run in the correct directory
+tasks.named("npmInstall") {
+    // Ensure Vaadin prepares/updates package.json before npm install
+    dependsOn("vaadinPrepareFrontend")
+
+    // Correctly declare inputs as files
+    inputs.file("package.json")
+    inputs.file("package-lock.json")
+    outputs.dir("node_modules")
+}
+
+tasks.register<NpmTask>("lintCss") {
+    description = "Run stylelint for CSS in themes"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn("npmInstall")
+    mustRunAfter("vaadinPrepareFrontend")
+    args.set(listOf("run", "lint:css"))
+
+    // Ensure the task runs in the correct directory
+    workingDir.set(project.projectDir)
+}
+
+tasks.register<NpmTask>("lintCssFix") {
+    description = "Run stylelint --fix for CSS in themes"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn("npmInstall")
+    mustRunAfter("vaadinPrepareFrontend")
+    args.set(listOf("run", "lint:css:fix"))
+
+    // Ensure the task runs in the correct directory
+    workingDir.set(project.projectDir)
+}
+
+// Add CSS linting to check task
+tasks.named("check") {
+    dependsOn("lintCss")
+    mustRunAfter("vaadinPrepareFrontend")
 }
 
 /*
@@ -290,6 +337,7 @@ tasks.named("check") {
 
     dependsOn(
         "spotlessCheck",
+        "lintCss",
 //        "sonarlintMain",
 //        "sonarlintTest",
 //        "checkstyleMain",
