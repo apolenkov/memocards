@@ -1,42 +1,152 @@
-:root {
-    --app-bg-dark: url("./assets/bg-custom-dark.webp");
-    --app-bg-light: url("./assets/bg-light.jpg");
-}
+/* 
+ * Main styles file for flashcards theme
+ * Uses Lumo design tokens for consistency
+ */
 
-body::before {
-    content: "";
+/* Import component styles */
+@import './components.css';
+@import './views/components/deck-card.css';
+@import './views/components/dialogs.css';
+@import './views/components/top-menu.css';
+@import './views/components/status.css';
+@import './views/login-view.css';
+@import './views/deck-view.css';
+@import './views/home-view.css';
+@import './views/admin-news-view.css';
+@import './views/admin-users-view.css';
+@import './views/stats-view.css';
+@import './views/practice-view.css';
+@import './views/landing-view.css';
+@import './views/error-view.css';
+@import './views/forgot-password-view.css';
+@import './views/reset-password-view.css';
+@import './views/settings-view.css';
+@import './views/register-view.css';
+@import './views/public-layout.css';
+@import './views/deck-create-view.css';
+@import './views/deckedit-view.css';
+@import './views/decklist-view.css';
+@import './views/deckview-view.css';
+
+/* Import utility styles */
+@import './utilities.css';
+@import './responsive.css';
+@import './animations.css';
+@import './form-controls.css';
+@import './modern-components.css';
+@import './enhanced-views.css';
+@import './main-layout.css';
+
+/* Background root stays behind all content */
+.animated-background {
     position: fixed;
     inset: 0;
-    z-index: 0;
-    background-image: var(--app-bg-dark);
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    filter: saturate(1.1) blur(1px);
+    z-index: 0; /* behind content but above page background */
     pointer-events: none;
 }
 
-html:not([theme~="dark"]) body::before {
-    background-image: var(--app-bg-light);
+/* Ensure main content is always above background */
+.app-content {
+    position: relative;
+    z-index: 1;
 }
 
-.surface-panel {
-    background-color: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
-    border-radius: var(--lumo-border-radius-l);
-    backdrop-filter: blur(12px);
+/* Standard Lumo theme usage - no custom CSS needed */
+
+/* Minimal animation for PublicLayout background elements */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
 }
 
-.surface-card {
-    background-color: color-mix(in srgb, var(--lumo-base-color) 85%, transparent);
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 70%, transparent);
-    border-radius: var(--lumo-border-radius-l);
-    backdrop-filter: blur(8px);
+/* Triangles layer replacing previous floating icons */
+.triangles-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    /* Soft radial washes using Lumo tokens for dark theme */
+    background-image:
+        radial-gradient(1000px 500px at 20% 15%, var(--lumo-primary-color-10pct), transparent 60%),
+        radial-gradient(800px 400px at 80% 35%, var(--lumo-error-color-10pct), transparent 65%),
+        radial-gradient(900px 450px at 50% 85%, var(--lumo-success-color-10pct), transparent 70%);
 }
 
-.main-layout__navbar,
-.main-layout__right {
-    background-color: color-mix(in srgb, var(--lumo-base-color) 85%, transparent);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
+.triangle {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 120px solid transparent;
+    border-right: 120px solid transparent;
+    border-bottom: 180px solid var(--lumo-contrast-5pct);
+    filter: blur(1px);
+}
+
+.tri-1 { top: 10%; left: 12%; transform: rotate(10deg); border-bottom-color: var(--lumo-primary-color-10pct); }
+.tri-2 { top: 35%; left: 28%; transform: rotate(-8deg); border-bottom-color: var(--lumo-error-color-10pct); }
+.tri-3 { top: 20%; right: 16%; transform: rotate(6deg); border-bottom-color: var(--lumo-success-color-10pct); }
+.tri-4 { bottom: 8%; left: 20%; transform: rotate(-4deg); border-bottom-color: var(--lumo-tint-10pct); }
+
+.bg-static .triangle { transition: none; }
+
+/* Responsive tuning */
+@media (max-width: 1200px) {
+    .floating-cosmonaut {
+        width: 35vw;
+        height: 35vw;
+        top: 12%;
+    }
+}
+
+@media (max-width: 900px) {
+    .floating-cosmonaut {
+        display: none;
+    }
+    .floating-rocket, .floating-ufo {
+        width: 80px;
+        height: 80px;
+        opacity: 0.7;
+    }
+}
+
+/* Accessibility: reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    .floating-cosmonaut, .floating-rocket, .floating-ufo {
+        animation: none;
+    }
+}
+
+/* User Profile Edit Dialog Avatar Styles */
+.user-profile-avatar {
+    transition: all var(--lumo-transition-duration) ease-in-out;
+}
+
+.user-profile-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: var(--lumo-box-shadow-m);
+}
+
+/* Background using Lumo tokens */
+body {
+    background: url('./assets/bg-custom-dark.webp') no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+html {
+    background: url('./assets/bg-custom-dark.webp') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.app {
+    background: url('./assets/bg-custom-dark.webp') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
 }

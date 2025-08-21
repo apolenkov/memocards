@@ -1,0 +1,27 @@
+/* Status Component Styles */
+.status {
+    padding: var(--lumo-space-xs) var(--lumo-space-s);
+    border-radius: var(--lumo-border-radius-s);
+    font-size: var(--lumo-font-size-xs);
+    font-weight: 500;
+}
+
+.status--success {
+    background-color: var(--lumo-success-color-10pct);
+    color: var(--lumo-success-color);
+}
+
+.status--error {
+    background-color: var(--lumo-error-color-10pct);
+    color: var(--lumo-error-color);
+}
+
+.status--warning {
+    background-color: var(--lumo-warning-color-10pct);
+    color: var(--lumo-warning-color);
+}
+
+.status--info {
+    background-color: var(--lumo-primary-color-10pct);
+    color: var(--lumo-primary-color);
+}

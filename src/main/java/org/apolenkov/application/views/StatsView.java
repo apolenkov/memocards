@@ -48,6 +48,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         setPadding(true);
         setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
         setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
+        addClassName("stats-view");
 
         // Create a container with consistent width
         VerticalLayout contentContainer = new VerticalLayout();
@@ -57,9 +58,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         contentContainer.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
 
         H2 mainTitle = new H2(getTranslation("stats.title"));
-        mainTitle.getStyle().set("text-align", "center");
-        mainTitle.getStyle().set("margin-bottom", "var(--lumo-space-l)");
-        mainTitle.getStyle().set("color", "var(--lumo-primary-text-color)");
+        mainTitle.addClassName("stats-view__title");
 
         contentContainer.add(mainTitle);
 
@@ -80,9 +79,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         section.setSpacing(true);
         section.setPadding(true);
         section.setWidthFull();
-        section.getStyle().set("background", "var(--lumo-contrast-5pct)");
-        section.getStyle().set("border-radius", "var(--lumo-border-radius-l)");
-        section.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
+        section.addClassName("stats-section");
 
         // Create collapsible header
         HorizontalLayout headerLayout = new HorizontalLayout();
@@ -91,8 +88,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         headerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         H3 sectionTitle = TextHelper.createSectionTitle(getTranslation("stats.overall"));
-        sectionTitle.getStyle().set("margin", "0");
-        sectionTitle.getStyle().set("color", "var(--lumo-primary-text-color)");
+        sectionTitle.addClassName("stats-section__title");
 
         Button toggleButton = new Button(VaadinIcon.CHEVRON_DOWN.create());
         toggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -158,9 +154,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         section.setSpacing(true);
         section.setPadding(true);
         section.setWidthFull();
-        section.getStyle().set("background", "var(--lumo-contrast-5pct)");
-        section.getStyle().set("border-radius", "var(--lumo-border-radius-l)");
-        section.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
+        section.addClassName("stats-section");
 
         // Create collapsible header
         HorizontalLayout headerLayout = new HorizontalLayout();
@@ -169,8 +163,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         headerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         H3 sectionTitle = new H3(getTranslation("stats.today"));
-        sectionTitle.getStyle().set("margin", "0");
-        sectionTitle.getStyle().set("color", "var(--lumo-primary-text-color)");
+        sectionTitle.addClassName("stats-section__title");
 
         Button toggleButton = new Button(VaadinIcon.CHEVRON_DOWN.create());
         toggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -233,9 +226,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         section.setSpacing(true);
         section.setPadding(true);
         section.setWidthFull();
-        section.getStyle().set("background", "var(--lumo-contrast-5pct)");
-        section.getStyle().set("border-radius", "var(--lumo-border-radius-l)");
-        section.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
+        section.addClassName("stats-section");
 
         // Create collapsible header
         HorizontalLayout headerLayout = new HorizontalLayout();
@@ -244,8 +235,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         headerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         H3 sectionTitle = new H3(getTranslation("stats.byDeck"));
-        sectionTitle.getStyle().set("margin", "0");
-        sectionTitle.getStyle().set("color", "var(--lumo-primary-text-color)");
+        sectionTitle.addClassName("stats-section__title");
 
         Button toggleButton = new Button(VaadinIcon.CHEVRON_DOWN.create());
         toggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -275,20 +265,14 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
 
         // Page indicator
         Span pageIndicator = new Span();
-        pageIndicator.getStyle().set("color", "var(--lumo-secondary-text-color)");
-        pageIndicator.getStyle().set("font-size", "var(--lumo-font-size-s)");
-        pageIndicator.getStyle().set("min-width", "80px");
-        pageIndicator.getStyle().set("text-align", "center");
+        pageIndicator.addClassName("stats-pagination__indicator");
 
         navigationLayout.add(prevButton, pageIndicator, nextButton);
 
         // Current deck display
         Div currentDeckContainer = new Div();
         currentDeckContainer.setWidthFull();
-        currentDeckContainer.getStyle().set("min-height", "200px");
-        currentDeckContainer.getStyle().set("display", "flex");
-        currentDeckContainer.getStyle().set("justify-content", "center");
-        currentDeckContainer.getStyle().set("align-items", "center");
+        currentDeckContainer.addClassName("stats-current-deck__container");
 
         // Initialize pagination state
         final int[] currentIndex = {0};
@@ -372,22 +356,17 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
 
     private Div createStatCard(String labelKey, int value, String modifier) {
         Div card = new Div();
-        card.getStyle().set("background", "var(--lumo-contrast-5pct)");
-        card.getStyle().set("border-radius", "var(--lumo-border-radius)");
-        card.getStyle().set("padding", "var(--lumo-space-m)");
-        card.getStyle().set("text-align", "center");
-        card.getStyle().set("min-width", "120px");
+        card.addClassName("stats-card");
+        if (!modifier.isEmpty()) {
+            card.addClassName("stats-card--" + modifier);
+        }
 
         Div valueDiv = new Div();
-        valueDiv.getStyle().set("font-size", "var(--lumo-font-size-xxl)");
-        valueDiv.getStyle().set("font-weight", "bold");
-        valueDiv.getStyle().set("color", "var(--lumo-primary-text-color)");
-        valueDiv.getStyle().set("margin-bottom", "var(--lumo-space-xs)");
+        valueDiv.addClassName("stats-card__value");
         valueDiv.setText(String.valueOf(value));
 
         Div labelDiv = new Div();
-        labelDiv.getStyle().set("font-size", "var(--lumo-font-size-s)");
-        labelDiv.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        labelDiv.addClassName("stats-card__label");
         labelDiv.setText(getTranslation(labelKey));
 
         card.add(valueDiv, labelDiv);
@@ -396,20 +375,13 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
 
     private Div createDeckStatCard(Deck deck, StatsRepository.DeckAggregate stats) {
         Div card = new Div();
-        card.getStyle().set("background", "var(--lumo-contrast-5pct)");
-        card.getStyle().set("border-radius", "var(--lumo-border-radius)");
-        card.getStyle().set("padding", "var(--lumo-space-m)");
-        card.getStyle().set("margin-right", "var(--lumo-space-s)");
-        card.getStyle().set("min-width", "280px");
-        card.getStyle().set("flex-shrink", "0");
+        card.addClassName("deck-stats-card");
 
         Div header = new Div();
-        header.getStyle().set("margin-bottom", "var(--lumo-space-s)");
+        header.addClassName("deck-stats-card__header");
 
         H3 deckTitle = new H3(deck.getTitle());
-        deckTitle.getStyle().set("margin", "0");
-        deckTitle.getStyle().set("color", "var(--lumo-primary-text-color)");
-        deckTitle.getStyle().set("font-size", "var(--lumo-font-size-l)");
+        deckTitle.addClassName("deck-stats-card__title");
 
         header.add(deckTitle);
 
@@ -430,25 +402,18 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
 
     private Div createDeckStatItem(String labelKey, int total, int today) {
         Div item = new Div();
-        item.getStyle().set("text-align", "center");
-        item.getStyle().set("min-width", "60px");
+        item.addClassName("stats-deck-item");
 
         Div totalDiv = new Div();
-        totalDiv.getStyle().set("font-size", "var(--lumo-font-size-l)");
-        totalDiv.getStyle().set("font-weight", "bold");
-        totalDiv.getStyle().set("color", "var(--lumo-primary-text-color)");
-        totalDiv.getStyle().set("margin-bottom", "var(--lumo-space-xs)");
+        totalDiv.addClassName("stats-deck-item__total");
         totalDiv.setText(String.valueOf(total));
 
         Div todayDiv = new Div();
-        todayDiv.getStyle().set("font-size", "var(--lumo-font-size-s)");
-        todayDiv.getStyle().set("color", "var(--lumo-success-color)");
-        todayDiv.getStyle().set("margin-bottom", "var(--lumo-space-xs)");
+        todayDiv.addClassName("stats-deck-item__today");
         todayDiv.setText("+" + today);
 
         Div labelDiv = new Div();
-        labelDiv.getStyle().set("font-size", "var(--lumo-font-size-s)");
-        labelDiv.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        labelDiv.addClassName("stats-deck-item__label");
         labelDiv.setText(getTranslation(labelKey));
 
         item.add(totalDiv, todayDiv, labelDiv);

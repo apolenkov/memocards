@@ -47,6 +47,7 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
 
         setPadding(false);
         setSpacing(false);
+        addClassName("admin-view");
 
         // Guard: explicit redirect for non-admins to avoid blank page in dev mode
         try {

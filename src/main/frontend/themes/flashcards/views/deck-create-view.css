@@ -1,0 +1,13 @@
+/* DeckCreateView Component Styles */
+.deck-create-view {
+    padding: var(--lumo-space-m);
+}
+
+.deck-create-view__header {
+    margin-bottom: var(--lumo-space-l);
+}
+
+.deck-create-view__content {
+    max-width: 800px;
+    margin: 0 auto;
+}

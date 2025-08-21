@@ -1,0 +1,30 @@
+/* Enhanced View Styles */
+.view-header {
+    margin-bottom: var(--lumo-space-l);
+    padding-bottom: var(--lumo-space-m);
+    border-bottom: 1px solid var(--lumo-contrast-10pct);
+}
+
+.view-header__title {
+    font-size: var(--lumo-font-size-xxl);
+    font-weight: bold;
+    color: var(--lumo-primary-text-color);
+    margin: 0;
+}
+
+.view-header__subtitle {
+    font-size: var(--lumo-font-size-m);
+    color: var(--lumo-secondary-text-color);
+    margin: var(--lumo-space-xs) 0 0 0;
+}
+
+.view-content {
+    padding: var(--lumo-space-m) 0;
+}
+
+.view-footer {
+    margin-top: var(--lumo-space-l);
+    padding-top: var(--lumo-space-m);
+    border-top: 1px solid var(--lumo-contrast-10pct);
+    text-align: center;
+}

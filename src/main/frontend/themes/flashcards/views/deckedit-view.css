@@ -1,0 +1,13 @@
+/* DeckEditView Component Styles */
+.deckedit-view {
+    padding: var(--lumo-space-m);
+}
+
+.deckedit-view__header {
+    margin-bottom: var(--lumo-space-l);
+}
+
+.deckedit-view__content {
+    max-width: 800px;
+    margin: 0 auto;
+}

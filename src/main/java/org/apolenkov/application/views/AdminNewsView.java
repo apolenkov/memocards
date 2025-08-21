@@ -42,13 +42,14 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
 
         setPadding(true);
         setSpacing(true);
+        addClassName("admin-view");
 
         H2 title = TextHelper.createPageTitle(getTranslation("admin.content.page.title"));
         add(title);
 
         Button addNewsBtn = ButtonHelper.createPlusButton(e -> showNewsDialog(null));
         addNewsBtn.setText(getTranslation("admin.news.add"));
-        addNewsBtn.getStyle().set("margin-bottom", "1rem");
+        addNewsBtn.addClassName("admin-view__add-button");
         add(addNewsBtn);
 
         Grid<News> newsGrid = GridHelper.createBasicGrid(News.class);

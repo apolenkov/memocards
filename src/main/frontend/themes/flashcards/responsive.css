@@ -1,0 +1,27 @@
+/* Responsive Styles */
+@media (max-width: 1200px) {
+    .deck-card {
+        max-width: 600px;
+    }
+}
+
+@media (max-width: 900px) {
+    .deck-card {
+        max-width: 100%;
+    }
+    
+    .login-form {
+        max-width: 100%;
+        margin: var(--lumo-space-m);
+    }
+}
+
+@media (max-width: 600px) {
+    .deck-card {
+        padding: var(--lumo-space-s);
+    }
+    
+    .login-form {
+        padding: var(--lumo-space-m);
+    }
+}

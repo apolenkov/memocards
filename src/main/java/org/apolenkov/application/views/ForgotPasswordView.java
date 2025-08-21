@@ -50,18 +50,12 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
 
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
-        formContainer.getStyle().set("background", "var(--lumo-contrast-5pct)");
-        formContainer.getStyle().set("border-radius", "var(--lumo-border-radius-l)");
-        formContainer.getStyle().set("padding", "var(--lumo-space-xl)");
-        formContainer.getStyle().set("max-width", "450px");
-        formContainer.getStyle().set("width", "100%");
-        formContainer.getStyle().set("border", "1px solid var(--lumo-contrast-10pct)");
+        formContainer.addClassName("forgot-password-form");
+        formContainer.setWidth("100%");
 
         // Create form title
         H2 title = new H2(getTranslation("auth.forgotPassword.title"));
-        title.getStyle().set("text-align", "center");
-        title.getStyle().set("margin", "0 0 var(--lumo-space-l) 0");
-        title.getStyle().set("color", "var(--lumo-primary-text-color)");
+        title.addClassName("forgot-password-form__title");
 
         // Create form fields container
         VerticalLayout formFields = new VerticalLayout();

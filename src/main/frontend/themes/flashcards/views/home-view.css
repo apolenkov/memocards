@@ -1,0 +1,21 @@
+/* HomeView Component Styles */
+.home-view {
+    padding: var(--lumo-space-m);
+}
+
+.home-view__header {
+    margin-bottom: var(--lumo-space-l);
+    text-align: center;
+}
+
+.home-view__content {
+    display: grid;
+    gap: var(--lumo-space-m);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* DecksView styles (same structure as HomeView) */
+.decks-view__title {
+    text-align: center;
+}

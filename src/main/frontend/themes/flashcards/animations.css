@@ -1,0 +1,39 @@
+/* Animation Styles */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn var(--lumo-transition-duration) ease-in-out;
+}
+
+.slide-in-up {
+    animation: slideInUp var(--lumo-transition-duration) ease-out;
+}
+
+.slide-in-down {
+    animation: slideInDown var(--lumo-transition-duration) ease-out;
+}

@@ -1,0 +1,59 @@
+/* DeckCard Component Styles */
+.deck-card {
+    background: var(--lumo-contrast-5pct);
+    border-radius: var(--lumo-border-radius-l);
+    padding: var(--lumo-space-m);
+    border: 1px solid var(--lumo-contrast-10pct);
+    cursor: pointer;
+    transition: all var(--lumo-transition-duration) ease;
+    width: 100%;
+    max-width: 700px;
+}
+
+.deck-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--lumo-box-shadow-m);
+}
+
+.deck-card__icon {
+    font-size: var(--lumo-font-size-xl);
+    color: var(--lumo-primary-color);
+}
+
+.deck-card__title {
+    margin: 0;
+    color: var(--lumo-primary-text-color);
+    font-size: var(--lumo-font-size-l);
+}
+
+.deck-card__description {
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-s);
+    margin: var(--lumo-space-s) 0;
+    line-height: 1.4;
+}
+
+.deck-card__practice-button {
+    margin-top: var(--lumo-space-s);
+}
+
+.deck-card__progress-label {
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-s);
+}
+
+.deck-card__progress-text {
+    color: var(--lumo-primary-color);
+    font-weight: bold;
+    font-size: var(--lumo-font-size-s);
+}
+
+.deck-card__progress-details {
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-s);
+}
+
+/* Progress bar layout */
+.deck-card .vaadin-progress-bar {
+    flex-grow: 1;
+}

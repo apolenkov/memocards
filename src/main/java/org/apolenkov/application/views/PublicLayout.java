@@ -38,15 +38,12 @@ public class PublicLayout extends AppLayout {
         addToNavbar(true, bar);
 
         // Ensure proper spacing and positioning
-        getElement().getStyle().set("margin-top", "0");
+        addClassName("public-layout");
     }
 
     @Override
     protected void afterNavigation() {
         super.afterNavigation();
-        if (getElement() != null) {
-            getElement().getClassList().add("bg-app");
-        }
         if (getContent() != null) {
             getContent().addClassName("app-content");
         }

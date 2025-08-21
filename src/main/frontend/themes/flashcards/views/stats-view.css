@@ -1,0 +1,121 @@
+/* StatsView Component Styles */
+.stats-view {
+    padding: var(--lumo-space-m);
+}
+
+.stats-view__header {
+    margin-bottom: var(--lumo-space-l);
+}
+
+.stats-view__content {
+    display: grid;
+    gap: var(--lumo-space-m);
+}
+
+.stats-view__title {
+    text-align: center;
+    margin-bottom: var(--lumo-space-l);
+    color: var(--lumo-primary-text-color);
+}
+
+/* Stats cards */
+.stats-card {
+    background: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+    border-radius: var(--lumo-border-radius-m);
+    padding: var(--lumo-space-m);
+    text-align: center;
+    min-width: 120px;
+    backdrop-filter: blur(6px);
+}
+
+.stats-card__value {
+    font-size: var(--lumo-font-size-xxl);
+    font-weight: bold;
+    color: var(--lumo-primary-text-color);
+    margin-bottom: var(--lumo-space-xs);
+}
+
+.stats-card__label {
+    font-size: var(--lumo-font-size-s);
+    color: var(--lumo-secondary-text-color);
+}
+
+.stats-card--today {
+    border: 2px solid var(--lumo-primary-color-10pct);
+}
+
+/* Deck stats cards */
+.deck-stats-card {
+    background: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+    border-radius: var(--lumo-border-radius-m);
+    padding: var(--lumo-space-m);
+    margin-right: var(--lumo-space-s);
+    min-width: 280px;
+    flex-shrink: 0;
+    backdrop-filter: blur(6px);
+}
+
+.deck-stats-card__header {
+    margin-bottom: var(--lumo-space-s);
+}
+
+.deck-stats-card__title {
+    margin: 0;
+    color: var(--lumo-primary-text-color);
+    font-size: var(--lumo-font-size-l);
+}
+
+/* Stats sections */
+.stats-section {
+    background: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
+    border-radius: var(--lumo-border-radius-l);
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
+    backdrop-filter: blur(8px);
+}
+
+.stats-section__title {
+    margin: 0;
+    color: var(--lumo-primary-text-color);
+}
+
+/* Stats pagination */
+.stats-pagination__indicator {
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-s);
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Stats current deck */
+.stats-current-deck__container {
+    min-height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Stats deck items */
+.stats-deck-item {
+    text-align: center;
+    min-width: 60px;
+}
+
+.stats-deck-item__total {
+    font-size: var(--lumo-font-size-l);
+    font-weight: bold;
+    color: var(--lumo-primary-text-color);
+    margin-bottom: var(--lumo-space-xs);
+}
+
+.stats-deck-item__today {
+    font-size: var(--lumo-font-size-s);
+    color: var(--lumo-success-color);
+    margin-bottom: var(--lumo-space-xs);
+}
+
+.stats-deck-item__label {
+    font-size: var(--lumo-font-size-s);
+    color: var(--lumo-secondary-text-color);
+}

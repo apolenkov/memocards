@@ -1,0 +1,15 @@
+/* DeckListView Component Styles */
+.decklist-view {
+    padding: var(--lumo-space-m);
+}
+
+.decklist-view__header {
+    margin-bottom: var(--lumo-space-l);
+}
+
+.decklist-view__content {
+    display: grid;
+    gap: var(--lumo-space-m);
+    max-width: 1200px;
+    margin: 0 auto;
+}

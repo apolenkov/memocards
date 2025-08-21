@@ -36,8 +36,7 @@ public class LanguageSwitcher extends HorizontalLayout {
         setAlignItems(Alignment.CENTER);
 
         Span label = new Span(getTranslation("language.label"));
-        label.getStyle().set("font-size", "var(--lumo-font-size-s)");
-        label.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        label.addClassName("language-switcher__label");
 
         ComboBox<String> combo = new ComboBox<>();
 

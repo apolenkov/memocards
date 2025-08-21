@@ -1,0 +1,34 @@
+/* TopMenu Component Styles */
+.top-menu {
+    background-color: var(--lumo-base-color);
+    border-bottom: 1px solid var(--lumo-contrast-10pct);
+}
+
+.top-menu__title {
+    text-decoration: none;
+    color: var(--lumo-primary-text-color);
+}
+
+.top-menu__logo {
+    height: var(--lumo-space-l);
+    width: auto;
+}
+
+.top-menu__greeting {
+    color: var(--lumo-primary-contrast-color);
+    font-size: var(--lumo-font-size-m);
+    font-weight: 500;
+}
+
+/* Menu buttons */
+.top-menu .vaadin-button {
+    margin: 0 var(--lumo-space-xs);
+}
+
+.top-menu .vaadin-button:first-child {
+    margin-left: 0;
+}
+
+.top-menu .vaadin-button:last-child {
+    margin-right: 0;
+}

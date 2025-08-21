@@ -1,0 +1,23 @@
+/* AdminNewsView Component Styles */
+.admin-news-view {
+    padding: var(--lumo-space-m);
+}
+
+.admin-news-view__header {
+    margin-bottom: var(--lumo-space-l);
+}
+
+.admin-news-view__content {
+    display: grid;
+    gap: var(--lumo-space-m);
+}
+
+/* Admin view common styles */
+.admin-view {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.admin-view__add-button {
+    margin-bottom: var(--lumo-space-l);
+}

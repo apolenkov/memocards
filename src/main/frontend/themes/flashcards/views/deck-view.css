@@ -1,0 +1,97 @@
+/* DeckView Component Styles */
+.deck-view {
+    padding: var(--lumo-space-m);
+}
+
+.deck-view__header {
+    margin-bottom: var(--lumo-space-l);
+}
+
+.deck-view__content {
+    display: grid;
+    gap: var(--lumo-space-m);
+}
+
+.deck-view__title {
+    margin: 0;
+}
+
+.deck-view__stats {
+    color: var(--lumo-secondary-text-color);
+}
+
+.deck-view__info-section {
+    background: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
+    border-radius: var(--lumo-border-radius-m);
+    padding: var(--lumo-space-m);
+    width: 100%;
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
+    backdrop-filter: blur(6px);
+}
+
+.deck-view__description {
+    color: var(--lumo-secondary-text-color);
+}
+
+/* Deck delete dialog styles */
+.deck-delete-dialog__icon {
+    color: var(--lumo-primary-color);
+    font-size: var(--lumo-font-size-xxl);
+    margin-bottom: var(--lumo-space-s);
+}
+
+.deck-delete-dialog__title {
+    margin: 0;
+}
+
+.deck-delete-dialog__description {
+    text-align: center;
+    color: var(--lumo-secondary-text-color);
+    margin-bottom: var(--lumo-space-m);
+}
+
+.deck-delete-dialog__card-count {
+    color: var(--lumo-error-color);
+    font-weight: bold;
+    display: block;
+    margin-bottom: var(--lumo-space-s);
+}
+
+/* Deck delete confirmation styles */
+.deck-delete-confirm__warning-icon {
+    color: var(--lumo-error-color);
+    font-size: var(--lumo-font-size-xxl);
+    margin-bottom: var(--lumo-space-s);
+}
+
+.deck-delete-confirm__title {
+    color: var(--lumo-error-color);
+    margin: 0;
+}
+
+.deck-delete-confirm__description {
+    text-align: center;
+    color: var(--lumo-secondary-text-color);
+    margin-bottom: var(--lumo-space-m);
+}
+
+.deck-delete-confirm__info {
+    background: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
+    border-radius: var(--lumo-border-radius-m);
+    padding: var(--lumo-space-s);
+    margin-bottom: var(--lumo-space-m);
+    text-align: center;
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
+    backdrop-filter: blur(6px);
+}
+
+.deck-delete-confirm__deck-name {
+    font-weight: bold;
+    color: var(--lumo-primary-text-color);
+}
+
+.deck-delete-confirm__card-count {
+    display: block;
+    margin-top: var(--lumo-space-xs);
+    color: var(--lumo-secondary-text-color);
+}
