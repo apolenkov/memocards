@@ -1,4 +1,4 @@
-.PHONY: help start stop restart logs clean build run
+.PHONY: help start stop restart logs clean build run dev test test-with-db full-clean-run clean-run deep-clean-run lint-css lint-css-fix format check ci
 
 help: ## Show help
 	@echo "Available commands:"
@@ -35,6 +35,22 @@ dev: start ## Run in development mode
 
 test: ## Run tests
 	./gradlew test
+
+# Quality & Lint targets
+lint-css: ## Run CSS linter (stylelint via Gradle)
+	./gradlew lintCss
+
+lint-css-fix: ## Run CSS linter with auto-fix
+	./gradlew lintCssFix
+
+format: ## Apply code formatters (Spotless)
+	./gradlew spotlessApply
+
+check: ## Run full verification (Spotless check, CSS lint, tests, coverage)
+	./gradlew check
+
+ci: ## Clean, check and build (CI pipeline)
+	./gradlew clean check build
 
 test-with-db: start ## Run tests with database
 	@echo "Running tests with PostgreSQL..."
