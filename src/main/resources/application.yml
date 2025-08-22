@@ -7,8 +7,8 @@ spring:
 # Dev profile settings
 dev:
   auto-login:
-    enabled: true           # Disable automatic authorization: false
-    user: user@example.com  # User for automatic authorization
+    enabled: ${DEV_AUTO_LOGIN_ENABLED:false}          # Disable automatic authorization: false
+    user: ${DEV_AUTO_LOGIN_USER:user@example.com}  # User for automatic authorization
 
 # Logging for dev profile (keep minimal here; detailed routing is in logback-spring.xml)
 logging:
