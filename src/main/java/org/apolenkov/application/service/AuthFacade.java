@@ -44,7 +44,7 @@ public class AuthFacade {
         try {
             auth = authenticationConfiguration.getAuthenticationManager().authenticate(authRequest);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new InvalidPasswordException(e);
         }
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -57,6 +57,12 @@ public class AuthFacade {
             HttpServletRequest req = vsr.getHttpServletRequest();
             HttpServletResponse resp = vsp.getHttpServletResponse();
             new HttpSessionSecurityContextRepository().saveContext(context, req, resp);
+        }
+    }
+
+    public static class InvalidPasswordException extends RuntimeException {
+        public InvalidPasswordException(Exception error) {
+            super(error);
         }
     }
 }

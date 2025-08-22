@@ -9,6 +9,14 @@ import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Facade service for deck-related operations.
+ *
+ * <p>This facade coordinates between deck and flashcard use cases,
+ * providing a simplified interface for deck management operations
+ * including creation, deletion, and flashcard manipulation.</p>
+ *
+ */
 @Component
 public class DeckFacade {
 
@@ -16,12 +24,26 @@ public class DeckFacade {
     private final FlashcardUseCase flashcardUseCase;
     private final StatsService statsService;
 
+    /**
+     * Constructs a new DeckFacade with the specified use cases and services.
+     *
+     * @param deckUseCase the deck use case for deck operations
+     * @param flashcardUseCase the flashcard use case for flashcard operations
+     * @param statsService the stats service for statistics tracking
+     */
     public DeckFacade(DeckUseCase deckUseCase, FlashcardUseCase flashcardUseCase, StatsService statsService) {
         this.deckUseCase = deckUseCase;
         this.flashcardUseCase = flashcardUseCase;
         this.statsService = statsService;
     }
 
+    /**
+     * Retrieves a deck by its ID or throws an exception if not found.
+     *
+     * @param deckId the ID of the deck to retrieve
+     * @return the deck with the specified ID
+     * @throws java.util.NoSuchElementException if no deck is found with the given ID
+     */
     @Transactional(readOnly = true)
     public Deck getDeckOrThrow(long deckId) {
         return deckUseCase.getDeckById(deckId).orElseThrow();

@@ -56,6 +56,7 @@
     "react-router": "7.5.2"
   },
   "type": "module",
+  "browserslist": [ "last 2 versions", "> 1%", "not dead" ],
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
     "@vaadin/polymer-legacy-adapter": "$@vaadin/polymer-legacy-adapter",
@@ -63,12 +64,12 @@
     "@vaadin/vaadin-usage-statistics": "$@vaadin/vaadin-usage-statistics",
     "@vaadin/react-components": "$@vaadin/react-components",
     "@vaadin/react-components-pro": "$@vaadin/react-components-pro",
-    "@polymer/polymer": "$@polymer/polymer",
     "@vaadin/common-frontend": "$@vaadin/common-frontend",
+    "react-dom": "$react-dom",
     "construct-style-sheets-polyfill": "$construct-style-sheets-polyfill",
     "lit": "$lit",
+    "@polymer/polymer": "$@polymer/polymer",
     "react": "$react",
-    "react-dom": "$react-dom",
     "react-router": "$react-router",
     "date-fns": "$date-fns",
     "proj4": "$proj4",

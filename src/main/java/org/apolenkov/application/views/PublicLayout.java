@@ -18,7 +18,6 @@ public class PublicLayout extends AppLayout {
         this.languageSwitcher = languageSwitcher;
         this.topMenu = topMenu;
         setPrimarySection(Section.NAVBAR);
-        addClassNames("bg-app", "bg-variant-custom");
         addHeaderContent();
     }
 
@@ -39,7 +38,6 @@ public class PublicLayout extends AppLayout {
         bar.add(topMenu, right);
         addToNavbar(true, bar);
 
-        // Ensure proper spacing and positioning
         addClassName("public-layout");
     }
 

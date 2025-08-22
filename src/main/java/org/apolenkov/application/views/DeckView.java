@@ -44,7 +44,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
     private static final Logger log = LoggerFactory.getLogger(DeckView.class);
 
-    // Constants for duplicated literals
     private static final String FILL_REQUIRED_KEY = "dialog.fillRequired";
 
     private final transient DeckFacade deckFacade;
@@ -67,14 +66,14 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         getContent().setSpacing(true);
         getContent().setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Create a container with consistent width
+        // Main content container with consistent width and centering
         VerticalLayout contentContainer = new VerticalLayout();
         contentContainer.setSpacing(true);
         contentContainer.setWidthFull();
         contentContainer.addClassName("container-md");
         contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Single shaded section that contains header, info, actions and grid
+        // Primary content section with surface styling
         VerticalLayout pageSection = new VerticalLayout();
         pageSection.setSpacing(true);
         pageSection.setPadding(true);
@@ -450,6 +449,10 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         confirmDialog.open();
     }
 
+    /**
+     * Initiates deck deletion process with appropriate confirmation dialog
+     * Shows simple dialog for empty decks, complex dialog for decks with cards
+     */
     private void deleteDeck() {
         if (currentDeck == null) {
             return;
@@ -459,7 +462,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         int cardCount = presenter.deckSize(currentDeck.getId());
         boolean isEmpty = cardCount == 0;
 
-        // Debug logging
         log.debug(
                 "Deck deletion check - Title: {}, Card count: {}, isEmpty: {}",
                 currentDeck.getTitle(),
@@ -473,6 +475,10 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         }
     }
 
+    /**
+     * Shows simple deletion dialog for empty decks
+     * No additional confirmation required since there are no cards to lose
+     */
     private void showSimpleDeleteDialog() {
         Dialog confirmDialog = new Dialog();
         confirmDialog.setModal(true);
@@ -496,7 +502,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         Span description = new Span(getTranslation("deck.delete.simpleDescription", currentDeck.getTitle()));
         description.addClassName("deck-delete-dialog__description");
 
-        // Additional info about card count
+        // Show actual card count if different from expected
         int actualCardCount = presenter.deckSize(currentDeck.getId());
         if (actualCardCount > 0) {
             Span cardCountInfo = new Span(getTranslation("deck.delete.actualCardCount", actualCardCount));
@@ -536,6 +542,10 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         confirmDialog.open();
     }
 
+    /**
+     * Shows complex deletion dialog for decks with cards
+     * Requires user to type deck name for confirmation to prevent accidental deletion
+     */
     private void showComplexDeleteDialog() {
         Dialog confirmDialog = new Dialog();
         confirmDialog.setModal(true);
@@ -603,8 +613,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             log.info("Confirm input value: {}", confirmInput.getValue());
             confirmButton.setEnabled(currentDeck.getTitle().equals(confirmInput.getValue()));
         });
-
-        // Removed duplicate KeyDownListener since InputListener already handles all changes
 
         confirmButton.addClickListener(e -> {
             try {

@@ -169,7 +169,6 @@ module.exports = {
     // Temporarily disabled strict px ban until migration completes
     {
       files: [
-        "src/main/frontend/themes/flashcards/settings/**/*.css",
         "src/main/frontend/themes/flashcards/settings/media.css"
       ],
       rules: {

@@ -8,12 +8,39 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Adds SameSite and Secure attributes to non-functional cookies like preferredLocale.
+ * Filter that enhances cookie security by adding SameSite and Secure attributes.
+ *
+ * <p>This filter intercepts cookie-setting operations and adds security attributes
+ * to non-functional cookies like user preferences (e.g., preferredLocale). It ensures
+ * that cookies have proper security attributes including SameSite=Lax, Secure, and
+ * HttpOnly flags.</p>
+ *
+ * <p>The filter runs early in the filter chain (order 100) to ensure it processes
+ * cookies before they are sent to the client browser.</p>
+ *
  */
 @Component
 @Order(100)
 public class SameSiteCookieFilter implements Filter {
 
+    /**
+     * Processes requests and enhances cookie security attributes.
+     *
+     * <p>This method wraps the HTTP response to intercept cookie-setting operations.
+     * When a cookie is being set for locale preferences, it automatically adds
+     * security attributes if they are not already present.</p>
+     *
+     * <p>The filter adds the following security attributes to cookies:
+     * - SameSite=Lax: Prevents CSRF attacks while maintaining functionality
+     * - Secure: Ensures cookies are only sent over HTTPS
+     * - HttpOnly: Prevents JavaScript access to cookies</p>
+     *
+     * @param request the servlet request being processed
+     * @param response the servlet response
+     * @param chain the filter chain to continue processing
+     * @throws IOException if an I/O error occurs
+     * @throws ServletException if a servlet error occurs
+     */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -21,14 +48,18 @@ public class SameSiteCookieFilter implements Filter {
         HttpServletResponseWrapper wrapped = new HttpServletResponseWrapper(httpResp) {
             @Override
             public void addHeader(String name, String value) {
+                // Intercept Set-Cookie headers for locale preferences
                 if ("Set-Cookie".equalsIgnoreCase(name) && value.startsWith(LocaleConstants.COOKIE_LOCALE_KEY + "=")) {
                     String v = value;
+                    // Add SameSite=Lax if not present (prevents CSRF while maintaining functionality)
                     if (!v.toLowerCase().contains("samesite")) {
                         v = v + "; SameSite=Lax";
                     }
+                    // Add Secure flag if not present (ensures HTTPS-only transmission)
                     if (!v.toLowerCase().contains("secure")) {
                         v = v + "; Secure";
                     }
+                    // Add HttpOnly flag if not present (prevents JavaScript access)
                     if (!v.toLowerCase().contains("httponly")) {
                         v = v + "; HttpOnly";
                     }

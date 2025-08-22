@@ -9,7 +9,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/** Deck model for flashcards application */
+/**
+ * Represents a deck of flashcards in the application.
+ *
+ * <p>A deck is a collection of flashcards that belongs to a specific user.
+ * Each deck has a title, optional description, and contains zero or more flashcards.</p>
+ *
+ */
 public class Deck {
     private Long id;
 
@@ -27,12 +33,24 @@ public class Deck {
     private LocalDateTime updatedAt;
     private List<Flashcard> flashcards;
 
+    /**
+     * Default constructor.
+     * Initializes a new deck with current timestamps and empty flashcards list.
+     */
     public Deck() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.flashcards = new ArrayList<>();
     }
 
+    /**
+     * Constructs a new Deck with the specified parameters.
+     *
+     * @param id the unique identifier for the deck
+     * @param userId the ID of the user who owns this deck
+     * @param title the title of the deck
+     * @param description the description of the deck
+     */
     public Deck(Long id, Long userId, String title, String description) {
         this();
         this.id = id;

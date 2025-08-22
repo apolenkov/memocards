@@ -19,8 +19,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
- * The entry point of the Spring Boot application. Use the @PWA annotation make the application
- * installable on phones, tablets and some desktop browsers.
+ * Main entry point for the Flashcards Spring Boot application.
+ *
+ * <p>This class serves as the main entry point for the application and also
+ * provides Vaadin service initialization configuration including UI theming,
+ * error handling, and locale management.</p>
+ *
+ * <p>The application can be made installable on mobile devices and some desktop
+ * browsers by adding the @PWA annotation if needed.</p>
+ *
  */
 @SpringBootApplication
 public class Application implements VaadinServiceInitListener {
@@ -29,6 +36,11 @@ public class Application implements VaadinServiceInitListener {
     private static final String ERROR_ROUTE = "error";
     private static final String ATTR_ERROR_NAV_GUARD = "errorNavigationInProgress";
 
+    /**
+     * Main method to start the Spring Boot application.
+     *
+     * @param args command line arguments passed to the application
+     */
     public static void main(String[] args) {
         logger.info("Starting Flashcards application...");
         if (logger.isDebugEnabled()) {
@@ -37,6 +49,7 @@ public class Application implements VaadinServiceInitListener {
 
         ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
 
+        // Register shutdown hook for graceful application termination
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Shutdown hook triggered, cleaning up...");
             if (context.isActive()) {
@@ -48,6 +61,14 @@ public class Application implements VaadinServiceInitListener {
         logger.info("Flashcards application started successfully");
     }
 
+    /**
+     * Initializes the Vaadin service with UI configuration.
+     *
+     * <p>This method is called during Vaadin service initialization
+     * and sets up UI-level configuration for all new UI instances.</p>
+     *
+     * @param event the service initialization event
+     */
     @Override
     public void serviceInit(ServiceInitEvent event) {
         logger.debug("Initializing Vaadin service...");
@@ -108,6 +129,7 @@ public class Application implements VaadinServiceInitListener {
                     "Unhandled UI error [uiId={}, route={}]", ui.getUIId(), currentRoute, errorEvent.getThrowable());
         }
 
+        // Check for navigation guards to prevent infinite error loops
         boolean navigationInProgress = Boolean.TRUE.equals(session.getAttribute(ATTR_ERROR_NAV_GUARD));
         boolean onErrorView = ERROR_ROUTE.equals(currentRoute);
 
@@ -125,6 +147,7 @@ public class Application implements VaadinServiceInitListener {
             return;
         }
 
+        // Set navigation guard to prevent concurrent error navigation
         session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.TRUE);
         final String fromRoute = currentRoute;
         try {
@@ -140,11 +163,13 @@ public class Application implements VaadinServiceInitListener {
                 } catch (Exception navEx) {
                     logger.warn("Failed during error navigation [uiId={}]", ui.getUIId(), navEx);
                 } finally {
+                    // Always clear navigation guard, even if navigation fails
                     session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);
                 }
             });
         } catch (Exception e) {
             logger.warn("Failed to schedule error navigation [uiId={}]", ui.getUIId(), e);
+            // Clear navigation guard on scheduling failure
             session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);
         }
     }
@@ -155,6 +180,7 @@ public class Application implements VaadinServiceInitListener {
     private void applyPreferredLocale(UI ui) {
         VaadinSession session = ui.getSession();
 
+        // First priority: locale from cookie (user's persistent preference)
         Locale cookieLocale = readLocaleFromCookie();
         if (cookieLocale != null) {
             session.setAttribute(LocaleConstants.SESSION_LOCALE_KEY, cookieLocale);
@@ -163,6 +189,7 @@ public class Application implements VaadinServiceInitListener {
             return;
         }
 
+        // Second priority: locale from session (temporary preference)
         Object preferred = session.getAttribute(LocaleConstants.SESSION_LOCALE_KEY);
         if (preferred instanceof Locale locale) {
             ui.setLocale(locale);
@@ -170,6 +197,7 @@ public class Application implements VaadinServiceInitListener {
                 logger.trace("Locale set from session attribute: {} [uiId={}]", locale, ui.getUIId());
             }
         } else {
+            // Fallback: default to English if no preference is set
             ui.setLocale(Locale.ENGLISH);
             if (logger.isTraceEnabled()) {
                 logger.trace("Locale fallback applied: ENGLISH [uiId={}]", ui.getUIId());
@@ -182,10 +210,13 @@ public class Application implements VaadinServiceInitListener {
      */
     private Locale readLocaleFromCookie() {
         try {
+            // Get current HTTP request to access cookies
             VaadinServletRequest req = (VaadinServletRequest) VaadinService.getCurrentRequest();
             if (req != null && req.getCookies() != null) {
+                // Search for locale preference cookie
                 for (Cookie c : req.getCookies()) {
                     if (LocaleConstants.COOKIE_LOCALE_KEY.equals(c.getName())) {
+                        // Parse locale from cookie value and validate
                         Locale locale = Locale.forLanguageTag(c.getValue());
                         if (logger.isDebugEnabled()) {
                             logger.debug("Locale cookie found: {}", locale);
@@ -195,6 +226,7 @@ public class Application implements VaadinServiceInitListener {
                 }
             }
         } catch (Exception e) {
+            // Log but don't fail if cookie reading fails
             if (logger.isTraceEnabled()) {
                 logger.trace("Failed to read locale from cookie", e);
             }

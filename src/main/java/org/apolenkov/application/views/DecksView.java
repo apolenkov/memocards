@@ -22,6 +22,14 @@ import org.apolenkov.application.views.utils.IconHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.TextHelper;
 
+/**
+ * View for displaying and managing user's flashcard decks.
+ *
+ * <p>This view provides functionality for listing all user's decks,
+ * searching through them, and creating new decks. It serves as the main
+ * dashboard for deck management operations.</p>
+ *
+ */
 @Route(value = "decks", layout = PublicLayout.class)
 @RolesAllowed({"ROLE_USER", "ROLE_ADMIN"})
 public class DecksView extends VerticalLayout implements HasDynamicTitle {

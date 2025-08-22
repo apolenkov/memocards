@@ -22,6 +22,7 @@ public class SecurityConfig extends VaadinWebSecurity {
 
     @Autowired
     public SecurityConfig(Environment environment, DevAutoLoginFilter devAutoLoginFilter) {
+        // Determine if production profile is active for security configuration
         String[] profiles = environment != null ? environment.getActiveProfiles() : null;
         this.prodProfileActive =
                 profiles != null && java.util.Arrays.asList(profiles).contains("prod");
@@ -30,39 +31,39 @@ public class SecurityConfig extends VaadinWebSecurity {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // Delegate matcher configuration to Vaadin's defaults to avoid conflicts
         super.configure(http);
 
         setLoginView(http, LoginView.class, "/");
 
-        // CSRF via HttpOnly cookie; Vaadin handles token automatically. No need to expose to JS.
+        // CSRF protection via HttpOnly cookies for security
         CookieCsrfTokenRepository csrfRepo = new CookieCsrfTokenRepository();
         csrfRepo.setCookieCustomizer(cookie -> cookie.httpOnly(true));
         http.csrf(csrf -> csrf.csrfTokenRepository(csrfRepo).ignoringRequestMatchers("/login"));
 
-        // Unauthenticated → redirect to landing; AccessDenied → custom page for all profiles
+        // Authentication and access control
         http.exceptionHandling(ex -> ex.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
                 .accessDeniedHandler(accessDeniedHandler()));
 
-        // Strict: only POST /logout with CSRF (configured above)
+        // Logout configuration with session cleanup
         http.logout(logout -> logout.logoutUrl("/logout")
                 .logoutSuccessUrl("/")
                 .deleteCookies("JSESSIONID", "remember-me")
                 .invalidateHttpSession(true));
 
-        // Dev-only: auto-login filter placed before UsernamePasswordAuthenticationFilter
+        // Dev-only auto-login for development convenience
         if (!prodProfileActive) {
             http.addFilterBefore(devAutoLoginFilter, UsernamePasswordAuthenticationFilter.class);
         }
 
+        // Content Security Policy configuration based on profile
         if (prodProfileActive) {
+            // Strict CSP for production: minimal permissions, security-focused
             http.headers(headers -> headers.contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; "
                     + "base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; "
                     + "img-src 'self' data:; style-src 'self' 'unsafe-inline'; "
                     + "script-src 'self'; connect-src 'self'; font-src 'self' data:; worker-src 'self'")));
-            // CSP tightened in prod (access denied page already configured above)
         } else {
-            // Relaxed CSP for Vaadin dev mode (Vite, HMR, WebSockets, blob URLs)
+            // Relaxed CSP for development: allows Vite HMR, WebSockets, blob URLs
             http.headers(
                     headers -> headers.contentSecurityPolicy(
                             csp -> csp.policyDirectives(
@@ -73,13 +74,12 @@ public class SecurityConfig extends VaadinWebSecurity {
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
-
-            // Detect API by path prefix to avoid brittle Accept-header logic
             String requestURI = request.getRequestURI();
+            // Determine if this is an API request or UI request
             boolean isApiRequest = requestURI != null && requestURI.startsWith("/api/");
 
             if (isApiRequest) {
-                // RFC 7807 Problem Details JSON
+                // Return RFC 7807 Problem Details JSON for API requests
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.setContentType("application/problem+json");
                 response.getWriter()
@@ -87,6 +87,7 @@ public class SecurityConfig extends VaadinWebSecurity {
                                 "{\"type\":\"https://httpstatuses.io/403\",\"title\":\"Access Denied\",\"status\":403,\"detail\":\"Access denied for resource\",\"path\":\"%s\",\"timestamp\":\"%s\"}",
                                 requestURI, java.time.Instant.now()));
             } else {
+                // Redirect to access denied page for UI requests
                 response.sendRedirect("/access-denied");
             }
         };
@@ -96,7 +97,4 @@ public class SecurityConfig extends VaadinWebSecurity {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-    // Do not expose AuthenticationManager as a bean to avoid proxy recursion; obtain it from
-    // AuthenticationConfiguration when needed
 }

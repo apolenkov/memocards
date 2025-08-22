@@ -10,6 +10,22 @@ import org.apolenkov.application.service.query.CardQueryService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.springframework.stereotype.Component;
 
+/**
+ * Presenter for managing deck-related operations and presentation logic.
+ *
+ * <p>This component coordinates between the UI layer and business services for
+ * deck management, flashcard operations, and progress tracking. It provides
+ * a clean interface for deck-related functionality and handles the coordination
+ * of multiple services.</p>
+ *
+ * <p>Key responsibilities include:</p>
+ * <ul>
+ *   <li>Loading decks and flashcards</li>
+ *   <li>Managing card filtering and search</li>
+ *   <li>Tracking card knowledge status</li>
+ *   <li>Managing deck progress and statistics</li>
+ * </ul>
+ */
 @Component
 public class DeckPresenter {
 
@@ -18,6 +34,14 @@ public class DeckPresenter {
     private final DeckFacade deckFacade;
     private final CardQueryService cardQueryService;
 
+    /**
+     * Constructs a new DeckPresenter with required dependencies.
+     *
+     * @param deckUseCase service for deck operations
+     * @param statsService service for statistics and progress tracking
+     * @param deckFacade service for deck business logic
+     * @param cardQueryService service for card filtering and search
+     */
     public DeckPresenter(
             DeckUseCase deckUseCase,
             StatsService statsService,
@@ -29,31 +53,84 @@ public class DeckPresenter {
         this.cardQueryService = cardQueryService;
     }
 
+    /**
+     * Loads a deck by its ID.
+     *
+     * @param deckId the ID of the deck to load
+     * @return an Optional containing the deck if found, empty otherwise
+     */
     public Optional<Deck> loadDeck(long deckId) {
         return deckUseCase.getDeckById(deckId);
     }
 
+    /**
+     * Loads all flashcards for a specific deck.
+     *
+     * @param deckId the ID of the deck to load flashcards for
+     * @return a list of all flashcards in the deck
+     */
     public List<Flashcard> loadFlashcards(long deckId) {
         return deckFacade.loadFlashcards(deckId);
     }
 
-    /** High-level query for UI: returns flashcards already filtered by search and known-status. */
+    /**
+     * Retrieves filtered flashcards based on search criteria and knowledge status.
+     *
+     * <p>Applies text-based filtering and optionally hides cards that are
+     * already marked as known by the user.</p>
+     *
+     * @param deckId the ID of the deck to search in
+     * @param rawQuery the search query text
+     * @param hideKnown whether to exclude cards marked as known
+     * @return a filtered list of flashcards matching the criteria
+     */
     public List<Flashcard> listFilteredFlashcards(long deckId, String rawQuery, boolean hideKnown) {
         return cardQueryService.listFilteredFlashcards(deckId, rawQuery, hideKnown);
     }
 
+    /**
+     * Checks if a specific card is marked as known in a deck.
+     *
+     * @param deckId the ID of the deck containing the card
+     * @param cardId the ID of the card to check
+     * @return true if the card is marked as known, false otherwise
+     */
     public boolean isKnown(long deckId, long cardId) {
         return statsService.isCardKnown(deckId, cardId);
     }
 
+    /**
+     * Toggles the knowledge status of a card in a deck.
+     *
+     * <p>If the card is currently marked as known, it will be marked as unknown.
+     * If it's currently unknown, it will be marked as known.</p>
+     *
+     * @param deckId the ID of the deck containing the card
+     * @param cardId the ID of the card to toggle
+     */
     public void toggleKnown(long deckId, long cardId) {
         deckFacade.toggleKnown(deckId, cardId);
     }
 
+    /**
+     * Resets all progress for a specific deck.
+     *
+     * <p>Removes all known card entries for the specified deck, effectively
+     * resetting the user's progress to zero. This is useful when a user wants
+     * to start over or when deck content has been significantly changed.</p>
+     *
+     * @param deckId the ID of the deck to reset progress for
+     */
     public void resetProgress(long deckId) {
         deckFacade.resetProgress(deckId);
     }
 
+    /**
+     * Gets the total number of cards in a deck.
+     *
+     * @param deckId the ID of the deck to get the size for
+     * @return the total number of flashcards in the deck
+     */
     public int deckSize(long deckId) {
         return deckFacade.deckSize(deckId);
     }

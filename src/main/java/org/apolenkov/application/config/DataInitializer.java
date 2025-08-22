@@ -13,23 +13,57 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration class for initializing demo data in development environment.
+ *
+ * <p>This class provides demo data initialization for the development profile,
+ * creating sample decks, flashcards, and news items to help developers and
+ * testers work with the application. The data includes realistic examples
+ * across different categories like travel, IT, and English basics.</p>
+ *
+ * <p>The initializer only runs in the "dev" profile and creates data only
+ * if the system is empty, preventing duplicate data creation on subsequent
+ * application starts.</p>
+ *
+ */
 @Configuration
 @org.springframework.context.annotation.Profile({"dev"})
 public class DataInitializer {
 
+    /**
+     * Creates a CommandLineRunner bean for initializing demo data.
+     *
+     * <p>This bean runs after the application context is fully initialized
+     * and creates sample data including decks, flashcards, and news items.
+     * The initializer checks for existing data and only creates new data
+     * if the system is empty.</p>
+     *
+     * <p>The demo data includes three themed decks (Travel, IT, and English)
+     * with relevant flashcards, plus welcome news items. This provides
+     * developers with realistic data to work with during development.</p>
+     *
+     * @param users the user repository for finding existing users
+     * @param decks the deck repository for creating and saving decks
+     * @param cards the flashcard repository for creating and saving flashcards
+     * @param news the news repository for creating and saving news items
+     * @return a CommandLineRunner that initializes the demo data
+     */
     @Bean
     @org.springframework.core.annotation.Order(20)
     CommandLineRunner initDemoData(
             UserRepository users, DeckRepository decks, FlashcardRepository cards, NewsRepository news) {
         return args -> {
+            // Find the demo user (must exist for demo data creation)
             java.util.Optional<User> opt = users.findByEmail("user@example.com");
             if (opt.isEmpty()) {
-                return; // no domain user yet → skip deck seeding; created lazily on first login
+                return; // Skip if demo user doesn't exist
             }
             User user = opt.get();
 
+            // Skip if user already has decks (avoid duplicate data)
             if (!decks.findByUserId(user.getId()).isEmpty()) return;
 
+            // Create three themed decks for demonstration
             Deck travel = decks.save(new Deck(null, user.getId(), "Travel - phrases", "Short phrases for trips"));
             Deck it = decks.save(new Deck(null, user.getId(), "IT - terms", "Core programming terms"));
             Deck english = decks.save(new Deck(null, user.getId(), "English Basics", "Basic English words"));
@@ -81,10 +115,12 @@ public class DataInitializer {
                             "The process of learning",
                             "Education is very important"));
 
+            // Save all flashcards to their respective decks
             travelCards.forEach(cards::save);
             itCards.forEach(cards::save);
             englishCards.forEach(cards::save);
 
+            // Create welcome news items only if no news exist
             if (news.findAllOrderByCreatedDesc().isEmpty()) {
                 news.save(new News(
                         null,
