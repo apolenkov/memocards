@@ -5,6 +5,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -90,6 +91,10 @@ public class CreateDeckDialog extends Dialog {
 
         // Create button layout with save and cancel actions
         HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
         Button save = new Button(getTranslation("dialog.create"));
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         save.addClickListener(e -> {
@@ -117,6 +122,10 @@ public class CreateDeckDialog extends Dialog {
         Button cancel = new Button(getTranslation("common.cancel"));
         cancel.addClickListener(e -> close());
         buttons.add(save, cancel);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttons.setSpacing(true);
+        buttons.setWidthFull();
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Assemble final layout and add to dialog
         layout.add(header, titleField, descriptionArea, buttons);

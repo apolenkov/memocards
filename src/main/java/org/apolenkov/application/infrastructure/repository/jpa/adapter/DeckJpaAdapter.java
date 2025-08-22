@@ -2,7 +2,6 @@ package org.apolenkov.application.infrastructure.repository.jpa.adapter;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.infrastructure.repository.jpa.entity.DeckEntity;
 import org.apolenkov.application.infrastructure.repository.jpa.springdata.DeckJpaRepository;
@@ -40,12 +39,12 @@ public class DeckJpaAdapter implements DeckRepository {
 
     @Override
     public List<Deck> findAll() {
-        return repo.findAll().stream().map(DeckJpaAdapter::toModel).collect(Collectors.toList());
+        return repo.findAll().stream().map(DeckJpaAdapter::toModel).toList();
     }
 
     @Override
     public List<Deck> findByUserId(Long userId) {
-        return repo.findByUserId(userId).stream().map(DeckJpaAdapter::toModel).collect(Collectors.toList());
+        return repo.findByUserId(userId).stream().map(DeckJpaAdapter::toModel).toList();
     }
 
     @Override

@@ -23,6 +23,10 @@
     /* Card widths */
     --app-card-max: 700px;
 
+    /* Hero and accent sizes */
+    --app-hero-image-size: 160px;
+    --app-accent-icon-size: 36px;
+
     /* Dialog sizes */
     --app-dialog-sm: 420px;
     --app-dialog-md: 500px;

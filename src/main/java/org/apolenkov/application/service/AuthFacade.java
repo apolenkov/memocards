@@ -13,12 +13,36 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Component;
 
+/**
+ * Facade service for user authentication and registration operations.
+ *
+ * <p>This service provides a simplified interface for user authentication and registration,
+ * coordinating between Spring Security's authentication manager and the user registration
+ * service. It handles both new user registration and existing user authentication.</p>
+ *
+ * <p>Key responsibilities include:</p>
+ * <ul>
+ *   <li>User registration with password validation</li>
+ *   <li>User authentication using Spring Security</li>
+ *   <li>Session persistence and security context management</li>
+ *   <li>Password policy enforcement</li>
+ * </ul>
+ *
+ * <p>The service integrates with Vaadin's request/response cycle to ensure proper
+ * session management and security context persistence.</p>
+ */
 @Component
 public class AuthFacade {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationService;
 
+    /**
+     * Constructs a new AuthFacade with required dependencies.
+     *
+     * @param authenticationConfiguration Spring Security authentication configuration
+     * @param jpaRegistrationService service for user registration operations
+     */
     public AuthFacade(
             AuthenticationConfiguration authenticationConfiguration,
             org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationService) {
@@ -26,6 +50,21 @@ public class AuthFacade {
         this.jpaRegistrationService = jpaRegistrationService;
     }
 
+    /**
+     * Registers a new user with the specified credentials.
+     *
+     * <p>Validates the password against security requirements and creates a new user
+     * account. The password must meet the following criteria:</p>
+     * <ul>
+     *   <li>Minimum length of 8 characters</li>
+     *   <li>Must contain at least one letter</li>
+     *   <li>Must contain at least one digit</li>
+     * </ul>
+     *
+     * @param username the email address to use as the username
+     * @param rawPassword the plain text password to validate and hash
+     * @throws IllegalArgumentException if the password does not meet security requirements
+     */
     public void registerUser(String username, String rawPassword) {
         if (rawPassword == null
                 || rawPassword.length() < 8
@@ -37,6 +76,20 @@ public class AuthFacade {
         jpaRegistrationService.register(username, username, rawPassword);
     }
 
+    /**
+     * Authenticates a user and persists the authentication session.
+     *
+     * <p>Performs user authentication using Spring Security's authentication manager
+     * and then persists the authentication context to the HTTP session. This ensures
+     * that the user remains authenticated across subsequent requests.</p>
+     *
+     * <p>The method handles both successful authentication and authentication failures,
+     * throwing appropriate exceptions for error handling by the calling code.</p>
+     *
+     * @param username the email address of the user to authenticate
+     * @param rawPassword the plain text password for authentication
+     * @throws InvalidPasswordException if authentication fails due to invalid credentials
+     */
     public void authenticateAndPersist(String username, String rawPassword) {
         UsernamePasswordAuthenticationToken authRequest =
                 new UsernamePasswordAuthenticationToken(username, rawPassword);
@@ -60,7 +113,18 @@ public class AuthFacade {
         }
     }
 
+    /**
+     * Exception thrown when user authentication fails.
+     *
+     * <p>This exception wraps the underlying authentication failure and provides
+     * a consistent error handling interface for authentication operations.</p>
+     */
     public static class InvalidPasswordException extends RuntimeException {
+        /**
+         * Constructs a new InvalidPasswordException with the specified cause.
+         *
+         * @param error the underlying authentication error that caused the failure
+         */
         public InvalidPasswordException(Exception error) {
             super(error);
         }

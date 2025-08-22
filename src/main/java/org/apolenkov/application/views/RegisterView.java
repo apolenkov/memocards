@@ -16,6 +16,26 @@ import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 
+/**
+ * User registration view for the application.
+ *
+ * <p>This view provides a comprehensive registration interface for new users
+ * to create accounts with proper validation and security measures. It includes
+ * form validation for all required fields and automatic login after successful
+ * registration.</p>
+ *
+ * <p>The registration form includes:</p>
+ * <ul>
+ *   <li>Name, email, and password input fields with validation</li>
+ *   <li>Password confirmation field with matching validation</li>
+ *   <li>Real-time form validation with user feedback</li>
+ *   <li>Password strength requirements enforcement</li>
+ *   <li>Automatic login after successful registration</li>
+ * </ul>
+ *
+ * <p>The view enforces strong password policies and provides clear
+ * error messages for validation failures.</p>
+ */
 @Route(value = "register", layout = PublicLayout.class)
 @AnonymousAllowed
 public class RegisterView extends VerticalLayout implements HasDynamicTitle {
@@ -25,6 +45,15 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     private final EmailValidator emailValidator = new EmailValidator("invalid");
 
+    /**
+     * Constructs a new RegisterView with authentication facade dependency.
+     *
+     * <p>Creates a complete registration form with proper validation,
+     * styling, and event handling. The form is centered and styled
+     * using Lumo theme components for consistent appearance.</p>
+     *
+     * @param authFacade service for handling user registration and authentication
+     */
     public RegisterView(AuthFacade authFacade) {
         this.authFacade = authFacade;
 
@@ -35,6 +64,7 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
         Div formContainer = new Div();
         formContainer.addClassName("register-form");
+        formContainer.addClassName("auth-form");
         formContainer.addClassName("surface-panel");
 
         Div titleDiv = new Div();
@@ -144,11 +174,25 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
         add(wrapper);
     }
 
+    /**
+     * Returns the page title for the registration view.
+     *
+     * <p>Provides a localized page title that appears in the browser tab
+     * and navigation history.</p>
+     *
+     * @return the localized page title for the registration page
+     */
     @Override
     public String getPageTitle() {
         return getTranslation("auth.register");
     }
 
+    /**
+     * Internal data model for the registration form.
+     *
+     * <p>Encapsulates the form data and provides getter/setter methods
+     * for form handling and validation.</p>
+     */
     public static class RegisterForm {
         private String name;
         private String email;

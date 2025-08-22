@@ -4,7 +4,6 @@ import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apolenkov.application.config.TransactionAnnotations;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.model.Flashcard;
@@ -128,7 +127,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
         if (random) {
             java.util.Collections.shuffle(allCards);
         }
-        return allCards.stream().limit(count).collect(Collectors.toList());
+        return allCards.stream().limit(count).toList();
     }
 
     /**

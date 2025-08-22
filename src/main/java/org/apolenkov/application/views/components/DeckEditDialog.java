@@ -5,6 +5,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -15,12 +16,41 @@ import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.DeckFacade;
 
+/**
+ * Dialog component for editing existing flashcard decks.
+ *
+ * <p>This dialog provides users with the ability to modify deck information
+ * including title and description. It includes form validation, error handling,
+ * and automatic updates to reflect changes immediately.</p>
+ *
+ * <p>The dialog features:</p>
+ * <ul>
+ *   <li>Pre-populated form fields with current deck data</li>
+ *   <li>Title and description editing with validation</li>
+ *   <li>Bean validation binding for data integrity</li>
+ *   <li>Real-time error feedback and validation</li>
+ *   <li>Callback notification for successful updates</li>
+ * </ul>
+ *
+ * <p>The dialog integrates with the deck facade service to ensure
+ * proper data persistence and validation.</p>
+ */
 public class DeckEditDialog extends Dialog {
 
     private final transient DeckFacade deckFacade;
     private final transient Deck deck;
     private final transient Consumer<Deck> onSaved;
 
+    /**
+     * Constructs a new DeckEditDialog for the specified deck.
+     *
+     * <p>Initializes the dialog with the deck's current information
+     * and sets up the form layout with appropriate validation rules.</p>
+     *
+     * @param deckFacade service for deck operations and persistence
+     * @param deck the deck object to edit
+     * @param onSaved callback to execute when the deck is successfully saved
+     */
     public DeckEditDialog(DeckFacade deckFacade, Deck deck, Consumer<Deck> onSaved) {
         this.deckFacade = deckFacade;
         this.deck = deck;
@@ -29,6 +59,13 @@ public class DeckEditDialog extends Dialog {
         build();
     }
 
+    /**
+     * Builds the complete dialog interface.
+     *
+     * <p>Creates and configures all form elements including input fields,
+     * validation binding, buttons, and event handlers. The method sets up
+     * the complete user interface for deck editing.</p>
+     */
     private void build() {
         VerticalLayout layout = new VerticalLayout();
         layout.setPadding(false);
@@ -57,6 +94,10 @@ public class DeckEditDialog extends Dialog {
         binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
 
         HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
         Button save = new Button(getTranslation("deck.edit.save"));
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         save.addClickListener(e -> {

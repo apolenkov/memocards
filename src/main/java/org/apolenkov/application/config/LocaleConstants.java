@@ -36,20 +36,4 @@ public final class LocaleConstants {
      * stores the user's language preference across browser sessions.</p>
      */
     public static final String COOKIE_LOCALE_KEY = "preferredLocale";
-
-    /**
-     * Session storage key for storing the user's preferred theme.
-     *
-     * <p>This constant is used as a key in the HTTP session to store
-     * the user's theme preference (e.g., light/dark mode) for the current session.</p>
-     */
-    public static final String SESSION_THEME_KEY = "preferredTheme";
-
-    /**
-     * Cookie name for storing the user's preferred theme.
-     *
-     * <p>This constant is used as the name for a persistent cookie that
-     * stores the user's theme preference across browser sessions.</p>
-     */
-    public static final String COOKIE_THEME_KEY = "preferredTheme";
 }

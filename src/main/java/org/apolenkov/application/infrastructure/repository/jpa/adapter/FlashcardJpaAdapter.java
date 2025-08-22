@@ -2,7 +2,6 @@ package org.apolenkov.application.infrastructure.repository.jpa.adapter;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.infrastructure.repository.jpa.entity.FlashcardEntity;
 import org.apolenkov.application.infrastructure.repository.jpa.springdata.FlashcardJpaRepository;
@@ -46,7 +45,7 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
     public List<Flashcard> findByDeckId(Long deckId) {
         return repo.findByDeckId(deckId).stream()
                 .map(FlashcardJpaAdapter::toModel)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

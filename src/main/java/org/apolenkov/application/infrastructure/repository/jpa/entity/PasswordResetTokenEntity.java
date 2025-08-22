@@ -26,15 +26,6 @@ public class PasswordResetTokenEntity {
     @Column(name = "used", nullable = false)
     private boolean used;
 
-    public PasswordResetTokenEntity() {}
-
-    public PasswordResetTokenEntity(String token, Long userId, LocalDateTime expiresAt) {
-        this.token = token;
-        this.userId = userId;
-        this.expiresAt = expiresAt;
-        this.used = false;
-    }
-
     // Getters and setters
     public Long getId() {
         return id;
@@ -60,10 +51,12 @@ public class PasswordResetTokenEntity {
         this.userId = userId;
     }
 
+    @SuppressWarnings("unused")
     public LocalDateTime getExpiresAt() {
         return expiresAt;
     }
 
+    @SuppressWarnings("unused")
     public void setExpiresAt(LocalDateTime expiresAt) {
         this.expiresAt = expiresAt;
     }

@@ -12,9 +12,39 @@ import org.apolenkov.application.config.SecurityConstants;
 import org.apolenkov.application.model.User;
 import org.apolenkov.application.service.user.AdminUserService;
 
+/**
+ * Dialog component for editing existing user accounts.
+ *
+ * <p>This dialog provides administrators with the ability to modify user
+ * information including email, name, roles, and password. It includes
+ * comprehensive validation and error handling for all form fields.</p>
+ *
+ * <p>The dialog features:</p>
+ * <ul>
+ *   <li>Pre-populated form fields with current user data</li>
+ *   <li>Email and name validation with real-time feedback</li>
+ *   <li>Optional password change with strength requirements</li>
+ *   <li>Role management with proper security constraints</li>
+ *   <li>Audit trail for administrative changes</li>
+ * </ul>
+ *
+ * <p>All changes are tracked with administrator identification for
+ * security and compliance purposes.</p>
+ */
 public class EditUserDialog extends Dialog {
 
+    /**
+     * Callback interface for handling successful user updates.
+     *
+     * <p>Provides a mechanism for the parent component to respond
+     * when a user is successfully updated through the dialog.</p>
+     */
     public interface OnSaved {
+        /**
+         * Called when a user is successfully saved.
+         *
+         * @param saved the updated user object with new values
+         */
         void handle(User saved);
     }
 
@@ -25,6 +55,16 @@ public class EditUserDialog extends Dialog {
     private TextField name;
     private TextField password;
 
+    /**
+     * Constructs a new EditUserDialog for the specified user.
+     *
+     * <p>Initializes the dialog with the user's current information
+     * and sets up the form layout with appropriate validation rules.</p>
+     *
+     * @param service the admin user service for performing updates
+     * @param user the user object to edit
+     * @param onSaved callback to execute when the user is successfully saved
+     */
     public EditUserDialog(AdminUserService service, User user, OnSaved onSaved) {
         this.service = service;
         this.user = user;
@@ -36,6 +76,14 @@ public class EditUserDialog extends Dialog {
         addClassName("dialog-md");
     }
 
+    /**
+     * Creates the form layout with all input fields.
+     *
+     * <p>Sets up form fields with proper validation, placeholders,
+     * and helper text to guide administrators during user editing.</p>
+     *
+     * @return a configured FormLayout containing all input fields
+     */
     private FormLayout createFormLayout() {
         FormLayout form = new FormLayout();
         email = new EmailField(getTranslation("auth.email"));
@@ -57,12 +105,25 @@ public class EditUserDialog extends Dialog {
         return form;
     }
 
+    /**
+     * Creates and configures the dialog buttons.
+     *
+     * <p>Sets up save and cancel buttons with appropriate styling
+     * and event handlers for form submission and dialog closure.</p>
+     */
     private void createButtons() {
         Button save = new Button(getTranslation("dialog.save"), e -> handleSave());
         Button cancel = new Button(getTranslation("common.cancel"), e -> close());
         getFooter().add(cancel, save);
     }
 
+    /**
+     * Handles the save button click event.
+     *
+     * <p>Performs validation on all form fields and, if successful,
+     * attempts to save the updated user information. Displays appropriate
+     * error messages for validation failures.</p>
+     */
     private void handleSave() {
         clearValidationErrors();
         populateFieldValues();
@@ -74,17 +135,37 @@ public class EditUserDialog extends Dialog {
         }
     }
 
+    /**
+     * Clears all validation error states from form fields.
+     *
+     * <p>Resets the visual error indicators on all input fields
+     * before performing new validation.</p>
+     */
     private void clearValidationErrors() {
         email.setInvalid(false);
         name.setInvalid(false);
         password.setInvalid(false);
     }
 
+    /**
+     * Populates form fields with current user data.
+     *
+     * <p>Fills the email and name fields with the user's existing
+     * information, handling null values gracefully.</p>
+     */
     private void populateFieldValues() {
         email.setValue(user.getEmail() == null ? "" : user.getEmail());
         name.setValue(user.getName() == null ? "" : user.getName());
     }
 
+    /**
+     * Validates all form fields for correctness.
+     *
+     * <p>Performs comprehensive validation on email, name, and password
+     * fields, setting appropriate error states and messages.</p>
+     *
+     * @return true if all fields are valid, false otherwise
+     */
     private boolean validateAllFields() {
         boolean emailValid = validateEmail();
         boolean nameValid = validateName();
@@ -93,6 +174,14 @@ public class EditUserDialog extends Dialog {
         return emailValid && nameValid && passwordValid;
     }
 
+    /**
+     * Validates the email field for format and presence.
+     *
+     * <p>Ensures the email field contains a valid email address
+     * and is not empty.</p>
+     *
+     * @return true if the email is valid, false otherwise
+     */
     private boolean validateEmail() {
         String vEmail = email.getValue() == null ? "" : email.getValue().trim();
 
@@ -111,6 +200,14 @@ public class EditUserDialog extends Dialog {
         return true;
     }
 
+    /**
+     * Validates the name field for presence.
+     *
+     * <p>Ensures the name field is not empty and contains
+     * meaningful content.</p>
+     *
+     * @return true if the name is valid, false otherwise
+     */
     private boolean validateName() {
         String vName = name.getValue() == null ? "" : name.getValue().trim();
 
@@ -123,6 +220,15 @@ public class EditUserDialog extends Dialog {
         return true;
     }
 
+    /**
+     * Validates the password field for strength requirements.
+     *
+     * <p>If a password is provided, ensures it meets the minimum
+     * security requirements. Empty passwords are allowed for
+     * optional password changes.</p>
+     *
+     * @return true if the password is valid or empty, false otherwise
+     */
     private boolean validatePassword() {
         String rawPassword = password.getValue() == null ? "" : password.getValue();
 
@@ -143,6 +249,13 @@ public class EditUserDialog extends Dialog {
         return true;
     }
 
+    /**
+     * Performs the actual save operation for the updated user.
+     *
+     * <p>Collects validated form data and calls the admin service
+     * to update the user with audit trail information. Handles
+     * both successful updates and error conditions.</p>
+     */
     private void performSave() {
         try {
             String vEmail = email.getValue().trim();

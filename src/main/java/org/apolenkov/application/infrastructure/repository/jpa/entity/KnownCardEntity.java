@@ -31,6 +31,7 @@ public class KnownCardEntity {
         this.deckId = deckId;
     }
 
+    @SuppressWarnings("unused")
     public Long getCardId() {
         return cardId;
     }

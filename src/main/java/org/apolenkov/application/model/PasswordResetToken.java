@@ -47,10 +47,12 @@ public class PasswordResetToken {
         this.userId = userId;
     }
 
+    @SuppressWarnings("unused")
     public LocalDateTime getExpiresAt() {
         return expiresAt;
     }
 
+    @SuppressWarnings("unused")
     public void setExpiresAt(LocalDateTime expiresAt) {
         this.expiresAt = expiresAt;
     }

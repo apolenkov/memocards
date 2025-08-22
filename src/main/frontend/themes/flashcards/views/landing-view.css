@@ -21,8 +21,8 @@
 }
 
 .landing-hero__image {
-    width: 160px;
-    height: 160px;
+    width: var(--app-hero-image-size, 160px);
+    height: var(--app-hero-image-size, 160px);
 }
 
 .landing-hero__title {
@@ -54,8 +54,8 @@
 
 .landing-news__card-accent {
     align-self: flex-end;
-    width: 36px;
-    height: 36px;
+    width: var(--app-accent-icon-size, 36px);
+    height: var(--app-accent-icon-size, 36px);
     background-image: url('../assets/modern-icons.svg');
     background-size: contain;
     background-repeat: no-repeat;

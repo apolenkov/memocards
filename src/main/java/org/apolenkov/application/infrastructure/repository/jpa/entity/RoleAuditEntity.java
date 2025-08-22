@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class RoleAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SuppressWarnings("unused")
     private Long id;
 
     @Column(nullable = false)

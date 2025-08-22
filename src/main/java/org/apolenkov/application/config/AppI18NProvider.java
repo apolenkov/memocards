@@ -41,7 +41,7 @@ public class AppI18NProvider implements I18NProvider {
      * supports English, Russian, and Spanish locales.</p>
      */
     private static final List<Locale> PROVIDED_LOCALES =
-            Arrays.asList(Locale.ENGLISH, new Locale("ru"), new Locale("es"));
+            Arrays.asList(Locale.ENGLISH, Locale.forLanguageTag("ru"), Locale.forLanguageTag("es"));
 
     /**
      * Returns the list of locales supported by this provider.
