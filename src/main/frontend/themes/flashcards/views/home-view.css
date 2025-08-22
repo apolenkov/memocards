@@ -23,7 +23,7 @@
 /* Decks toolbar */
 .decks-toolbar { 
     width: 100%; 
-    max-width: 800px; 
+    max-width: var(--app-container-md, 800px); 
     margin: 0 auto var(--lumo-space-m); 
     padding: var(--lumo-space-s) var(--lumo-space-m);
 }
@@ -33,7 +33,7 @@
 /* Decks section (list wrapper) */
 .decks-section { 
     width: 100%; 
-    max-width: 800px; 
+    max-width: var(--app-container-md, 800px); 
     margin: 0 auto; 
     padding: var(--lumo-space-m);
 }

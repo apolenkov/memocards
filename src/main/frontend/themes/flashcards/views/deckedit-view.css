@@ -8,6 +8,6 @@
 }
 
 .deckedit-view__content {
-    max-width: 800px;
+    max-width: var(--app-container-md, 800px);
     margin: 0 auto;
 }

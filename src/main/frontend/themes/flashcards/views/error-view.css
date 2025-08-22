@@ -9,7 +9,7 @@
 }
 
 .error-view__content {
-    max-width: 600px;
+    max-width: var(--app-container-sm, 600px);
     margin: 0 auto;
 }
 
@@ -43,7 +43,7 @@
 
 .error-dev__container { 
     width: 100%; 
-    max-width: 800px; 
+    max-width: var(--app-container-md, 800px); 
     margin: var(--lumo-space-m) 0; 
     padding: var(--lumo-space-m); 
 }

@@ -54,8 +54,8 @@ public class TopMenu extends HorizontalLayout {
         title = new Anchor("/", "");
 
         Image navIcon = new Image(
-                new StreamResource("flashcards-logo.svg", () -> getClass()
-                        .getResourceAsStream("/META-INF/resources/icons/flashcards-logo.svg")),
+                new StreamResource(
+                        "logo.svg", () -> getClass().getResourceAsStream("/META-INF/resources/icons/logo.svg")),
                 getTranslation("app.title"));
         title.add(navIcon);
 
