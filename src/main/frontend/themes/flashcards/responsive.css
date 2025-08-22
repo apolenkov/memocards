@@ -1,12 +1,12 @@
 /* Responsive Styles */
 
-@media (max-width: 1200px) {
+@media (--bp-xl) {
     .deck-card {
         max-width: 600px;
     }
 }
 
-@media (max-width: 900px) {
+@media (--bp-md) {
     .deck-card {
         max-width: 100%;
     }
@@ -17,7 +17,7 @@
     }
 }
 
-@media (max-width: 600px) {
+@media (--bp-sm) {
     .deck-card {
         padding: var(--lumo-space-s);
     }

@@ -11,7 +11,7 @@
 .home-view__content {
     display: grid;
     gap: var(--lumo-space-m);
-    max-width: 1200px;
+    max-width: var(--app-container-xxl, 1200px);
     margin: 0 auto;
 }
 

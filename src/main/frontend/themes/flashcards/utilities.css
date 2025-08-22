@@ -64,6 +64,13 @@
     margin-inline: auto; 
 }
 
+/* Extra wide container */
+.container-xxl { 
+    width: 100%; 
+    max-width: var(--app-container-xxl, 1200px); 
+    margin-inline: auto; 
+}
+
 .hidden { display: none; }
 
 .visible { display: block; }

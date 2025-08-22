@@ -1,10 +1,6 @@
 /* LoginView Component Styles */
-.login-form { 
-    width: 100%; 
-    max-width: var(--app-auth-form-max-width, 480px); 
-    padding: var(--lumo-space-xl); 
-}
 
+/* Layout handled by .auth-form */
 .login-form.surface-panel { /* visuals via component token */ }
 
 .login-form__title-container {
@@ -18,17 +14,4 @@
     font-weight: bold;
 }
 
-/* Form fields */
-.login-form .vaadin-text-field,
-.login-form .vaadin-password-field {
-    width: 100%;
-}
-
-.login-form .vaadin-button {
-    width: 100%;
-    margin-top: var(--lumo-space-s);
-}
-
-.login-form .vaadin-button:first-of-type {
-    margin-top: var(--lumo-space-m);
-}
+/* Form fields layout handled by .auth-form */

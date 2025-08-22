@@ -18,6 +18,10 @@
     --app-container-md: 800px;
     --app-container-lg: 900px;
     --app-container-xl: 1000px;
+    --app-container-xxl: 1200px;
+
+    /* Card widths */
+    --app-card-max: 700px;
 
     /* Dialog sizes */
     --app-dialog-sm: 420px;

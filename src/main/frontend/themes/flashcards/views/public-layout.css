@@ -14,51 +14,7 @@
 
 .main-layout__right.surface-panel { border: none; }
 
-/* Floating elements */
-.floating-ufo,
-.floating-rocket,
-.floating-cosmonaut {
-    position: fixed;
-    z-index: 0;
-    pointer-events: none;
-    transition: all var(--lumo-transition-duration) ease;
-}
-
-.floating-ufo {
-    top: 15%;
-    left: 10%;
-    width: 60px;
-    height: 60px;
-    background-image: url('../assets/ufo-pixel.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
-.floating-rocket {
-    top: 25%;
-    right: 15%;
-    width: 50px;
-    height: 50px;
-    background-image: url('../assets/rocket-pixel.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
-.floating-cosmonaut {
-    top: 10%;
-    right: 5%;
-    width: 120px;
-    height: 120px;
-    background-image: url('../assets/cosmonaut-pixel.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
-.bg-static.floating-ufo,
-.bg-static.floating-rocket,
-.bg-static.floating-cosmonaut {
-    animation: none;
-}
+/* Removed legacy floating elements */
 
 /* Grid pattern */
 .grid-pattern {
