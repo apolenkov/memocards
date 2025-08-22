@@ -47,33 +47,21 @@
 	background-color: var(--lumo-contrast-10pct);
 }
 
-/* Form elements */
+/* Form elements (deprecated aliases) */
 .form-field {
 	margin-bottom: var(--lumo-space-m);
 }
 
 .form-field__label {
-	display: block;
-	margin-bottom: var(--lumo-space-xs);
 	color: var(--lumo-primary-text-color);
 	font-weight: 500;
 }
 
 .form-field__input {
 	width: 100%;
-	padding: var(--lumo-space-s);
-	border: 1px solid var(--lumo-contrast-20pct);
-	border-radius: var(--lumo-border-radius-s);
-	background-color: var(--lumo-base-color);
-	color: var(--lumo-primary-text-color);
-	transition: border-color var(--lumo-transition-duration) ease;
 }
 
-.form-field__input:focus {
-	outline: none;
-	border-color: var(--lumo-primary-color);
-	box-shadow: 0 0 0 2px var(--lumo-primary-color-10pct);
-}
+/* Use .form-control__* from form-controls.css for new code */
 
 /* Dialog sizing via tokens */
 .dialog-sm::part(overlay) { 

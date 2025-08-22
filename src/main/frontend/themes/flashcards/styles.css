@@ -7,6 +7,7 @@
 
 @import '/themes/flashcards/settings/tokens.css';
 @import '/themes/flashcards/components.css';
+@import '/themes/flashcards/settings/media.css';
 @import '/themes/flashcards/views/components/deck-card.css';
 @import '/themes/flashcards/views/components/dialogs.css';
 @import '/themes/flashcards/views/components/top-menu.css';
@@ -39,6 +40,7 @@
 @import '/themes/flashcards/modern-components.css';
 @import '/themes/flashcards/enhanced-views.css';
 @import '/themes/flashcards/main-layout.css';
+@import '/themes/flashcards/auth-forms.css';
 
 /* Background root stays behind all content */
 .animated-background {
@@ -56,17 +58,7 @@
 
 /* Standard Lumo theme usage - no custom CSS needed */
 
-/* Minimal animation for PublicLayout background elements */
-
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-20px);
-    }
-}
+/* Removed legacy float keyframes */
 
 /* Triangles layer replacing previous floating icons */
 .triangles-layer {
@@ -123,35 +115,7 @@
 
 .bg-static .triangle { transition: none; }
 
-/* Responsive tuning */
-
-@media (max-width: 1200px) {
-    .floating-cosmonaut {
-        top: 12%;
-        width: 35vw;
-        height: 35vw;
-    }
-}
-
-@media (max-width: 900px) {
-    .floating-cosmonaut {
-        display: none;
-    }
-
-    .floating-rocket, .floating-ufo {
-        width: 80px;
-        height: 80px;
-        opacity: 0.7;
-    }
-}
-
-/* Accessibility: reduce motion */
-
-@media (prefers-reduced-motion: reduce) {
-    .floating-cosmonaut, .floating-rocket, .floating-ufo {
-        animation: none;
-    }
-}
+/* Removed legacy floating elements responsive tuning */
 
 /* User Profile Edit Dialog Avatar Styles */
 .user-profile-avatar {
