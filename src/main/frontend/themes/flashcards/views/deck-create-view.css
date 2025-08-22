@@ -8,14 +8,14 @@
 }
 
 .deck-create-view__content {
-    max-width: 800px;
+    max-width: var(--app-container-md, 800px);
     margin: 0 auto;
 }
 
 /* Extracted from inline styles in DeckCreateView */
 .deck-create__form {
     width: 100%;
-    max-width: 600px;
+    max-width: var(--app-container-sm, 600px);
     margin: var(--lumo-space-l) auto;
     padding: var(--lumo-space-xl);
     box-shadow: var(--lumo-box-shadow-s);

@@ -1,7 +1,7 @@
 /* RegisterView Component Styles */
 .register-form { 
     width: 100%; 
-    max-width: 500px; 
+    max-width: var(--app-auth-form-max-width, 480px); 
     padding: var(--lumo-space-xl); 
 }
 

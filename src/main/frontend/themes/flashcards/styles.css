@@ -3,46 +3,42 @@
  * Uses Lumo design tokens for consistency
  */
 
-/* Layers */
-
-@layer settings, base, components, utilities, views, overrides;
-
 /* Import component styles */
 
-@import './settings/tokens.css' layer(settings);
-@import './components.css';
-@import './views/components/deck-card.css';
-@import './views/components/dialogs.css';
-@import './views/components/top-menu.css';
-@import './views/components/status.css';
-@import './views/login-view.css';
-@import './views/deck-view.css';
-@import './views/home-view.css';
-@import './views/admin-news-view.css';
-@import './views/admin-users-view.css';
-@import './views/stats-view.css';
-@import './views/practice-view.css';
-@import './views/landing-view.css';
-@import './views/error-view.css';
-@import './views/forgot-password-view.css';
-@import './views/reset-password-view.css';
-@import './views/settings-view.css';
-@import './views/register-view.css';
-@import './views/public-layout.css';
-@import './views/deck-create-view.css';
-@import './views/deckedit-view.css';
-@import './views/decklist-view.css';
-@import './views/deckview-view.css';
+@import '/themes/flashcards/settings/tokens.css';
+@import '/themes/flashcards/components.css';
+@import '/themes/flashcards/views/components/deck-card.css';
+@import '/themes/flashcards/views/components/dialogs.css';
+@import '/themes/flashcards/views/components/top-menu.css';
+@import '/themes/flashcards/views/components/status.css';
+@import '/themes/flashcards/views/login-view.css';
+@import '/themes/flashcards/views/deck-view.css';
+@import '/themes/flashcards/views/home-view.css';
+@import '/themes/flashcards/views/admin-news-view.css';
+@import '/themes/flashcards/views/admin-users-view.css';
+@import '/themes/flashcards/views/stats-view.css';
+@import '/themes/flashcards/views/practice-view.css';
+@import '/themes/flashcards/views/landing-view.css';
+@import '/themes/flashcards/views/error-view.css';
+@import '/themes/flashcards/views/forgot-password-view.css';
+@import '/themes/flashcards/views/reset-password-view.css';
+@import '/themes/flashcards/views/settings-view.css';
+@import '/themes/flashcards/views/register-view.css';
+@import '/themes/flashcards/views/public-layout.css';
+@import '/themes/flashcards/views/deck-create-view.css';
+@import '/themes/flashcards/views/deckedit-view.css';
+@import '/themes/flashcards/views/decklist-view.css';
+@import '/themes/flashcards/views/deckview-view.css';
 
 /* Import utility styles */
 
-@import './utilities.css' layer(utilities);
-@import './responsive.css' layer(utilities);
-@import './animations.css';
-@import './form-controls.css';
-@import './modern-components.css';
-@import './enhanced-views.css';
-@import './main-layout.css' layer(components);
+@import '/themes/flashcards/utilities.css';
+@import '/themes/flashcards/responsive.css';
+@import '/themes/flashcards/animations.css';
+@import '/themes/flashcards/form-controls.css';
+@import '/themes/flashcards/modern-components.css';
+@import '/themes/flashcards/enhanced-views.css';
+@import '/themes/flashcards/main-layout.css';
 
 /* Background root stays behind all content */
 .animated-background {
