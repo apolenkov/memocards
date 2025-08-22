@@ -99,4 +99,26 @@ public class DeckFacade {
     public void deleteDeck(Long deckId) {
         deckUseCase.deleteDeck(deckId);
     }
+
+    /**
+     * Safely deletes a deck with confirmation text validation.
+     *
+     * @param deckId the ID of the deck to delete
+     * @param confirmationText the text that must match the deck title
+     * @throws IllegalArgumentException if confirmation text doesn't match deck title
+     * @throws java.util.NoSuchElementException if deck is not found
+     */
+    @Transactional
+    public void deleteDeckWithConfirmation(Long deckId, String confirmationText) {
+        // Get deck and validate it exists
+        Deck deck = getDeckOrThrow(deckId);
+
+        // Server-side validation for security - cannot be bypassed by frontend manipulation
+        if (confirmationText == null || !deck.getTitle().equals(confirmationText.trim())) {
+            throw new IllegalArgumentException("Confirmation text does not match deck title");
+        }
+
+        // Proceed with deletion if validation passes
+        deleteDeck(deckId);
+    }
 }

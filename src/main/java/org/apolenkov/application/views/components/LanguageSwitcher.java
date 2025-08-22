@@ -18,6 +18,25 @@ import org.apolenkov.application.service.UserSettingsService;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.springframework.stereotype.Component;
 
+/**
+ * Language selection component for the application.
+ *
+ * <p>This component provides a user interface for selecting the preferred language
+ * for the application. It supports multiple locales including English, Russian,
+ * and Spanish, with automatic persistence of user preferences.</p>
+ *
+ * <p>The language switcher features:</p>
+ * <ul>
+ *   <li>Dropdown selection of available languages</li>
+ *   <li>Automatic detection of current locale</li>
+ *   <li>Persistence of preferences in cookies and user settings</li>
+ *   <li>Immediate application of language changes</li>
+ *   <li>Fallback to English for unsupported locales</li>
+ * </ul>
+ *
+ * <p>The component automatically handles locale persistence across sessions
+ * and integrates with the user settings system for logged-in users.</p>
+ */
 @Component
 @UIScope
 public class LanguageSwitcher extends HorizontalLayout {
@@ -28,6 +47,16 @@ public class LanguageSwitcher extends HorizontalLayout {
     private final transient UserUseCase userUseCase;
     private final transient UserSettingsService userSettingsService;
 
+    /**
+     * Constructs a new LanguageSwitcher with required dependencies.
+     *
+     * <p>Initializes the language selection interface with a dropdown containing
+     * available languages. Sets up event listeners for language changes and
+     * configures the component with appropriate styling and behavior.</p>
+     *
+     * @param userUseCase service for user operations and current user information
+     * @param userSettingsService service for persisting user preferences
+     */
     public LanguageSwitcher(UserUseCase userUseCase, UserSettingsService userSettingsService) {
         this.userUseCase = userUseCase;
         this.userSettingsService = userSettingsService;
@@ -75,6 +104,18 @@ public class LanguageSwitcher extends HorizontalLayout {
         add(label, combo);
     }
 
+    /**
+     * Maps the current locale to the appropriate display value for the combo box.
+     *
+     * <p>Converts the current locale to the corresponding display text
+     * that matches the combo box items.</p>
+     *
+     * @param current the current locale to map
+     * @param en the English display text
+     * @param ru the Russian display text
+     * @param es the Spanish display text
+     * @return the appropriate display text for the current locale
+     */
     private String getSelectedValueForLocale(Locale current, String en, String ru, String es) {
         String language = current.getLanguage().toLowerCase();
         if ("ru".equals(language)) {
@@ -86,6 +127,19 @@ public class LanguageSwitcher extends HorizontalLayout {
         }
     }
 
+    /**
+     * Retrieves the current locale from session, cookie, or UI context.
+     *
+     * <p>Determines the current locale using the following priority order:</p>
+     * <ol>
+     *   <li>Session attribute (highest priority)</li>
+     *   <li>Cookie value (persistent preference)</li>
+     *   <li>UI locale (current context)</li>
+     *   <li>English (fallback default)</li>
+     * </ol>
+     *
+     * @return the current locale, never null
+     */
     private Locale getCurrentLocale() {
         Object sessionAttribute = VaadinSession.getCurrent().getAttribute(SESSION_LOCALE_KEY);
         if (sessionAttribute instanceof Locale locale) {
@@ -102,6 +156,15 @@ public class LanguageSwitcher extends HorizontalLayout {
         return getUI().map(UI::getLocale).orElse(Locale.ENGLISH);
     }
 
+    /**
+     * Persists the preferred locale to user settings if the user is logged in.
+     *
+     * <p>Attempts to save the language preference to the user's profile
+     * for future sessions. This method gracefully handles cases where
+     * the user is not authenticated or the service is unavailable.</p>
+     *
+     * @param locale the locale preference to persist
+     */
     private void persistIfLoggedIn(Locale locale) {
         if (userUseCase == null || userSettingsService == null) return;
         try {
@@ -113,6 +176,15 @@ public class LanguageSwitcher extends HorizontalLayout {
         }
     }
 
+    /**
+     * Persists the preferred locale to a secure HTTP-only cookie.
+     *
+     * <p>Creates a secure cookie with the user's language preference that
+     * will persist across browser sessions. The cookie is configured with
+     * appropriate security settings including HTTP-only and secure flags.</p>
+     *
+     * @param locale the locale preference to store in the cookie
+     */
     private void persistPreferredLocaleCookie(Locale locale) {
         VaadinServletResponse vaadinResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
         if (vaadinResponse == null) return;
@@ -125,6 +197,15 @@ public class LanguageSwitcher extends HorizontalLayout {
         response.addCookie(cookie);
     }
 
+    /**
+     * Reads the preferred locale from the HTTP cookie.
+     *
+     * <p>Retrieves the language preference from the cookie if present and
+     * valid. Handles cases where cookies are not available or contain
+     * invalid locale values gracefully.</p>
+     *
+     * @return the locale from the cookie, or null if not available or invalid
+     */
     private Locale readPreferredLocaleCookie() {
         VaadinServletRequest vaadinRequest = (VaadinServletRequest) VaadinService.getCurrentRequest();
         if (vaadinRequest == null) return null;

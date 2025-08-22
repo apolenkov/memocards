@@ -3,7 +3,6 @@ package org.apolenkov.application.service.query;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.FlashcardUseCase;
@@ -87,7 +86,7 @@ public class CardQueryService {
                         || contains(fc.getExample(), q))
                 // Optionally filter out known cards based on hideKnown flag
                 .filter(fc -> !hideKnown || !knownIds.contains(fc.getId()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

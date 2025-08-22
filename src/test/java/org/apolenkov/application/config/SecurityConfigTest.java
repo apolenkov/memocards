@@ -11,11 +11,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
@@ -172,24 +176,21 @@ class SecurityConfigTest {
             verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
             verify(response).setContentType("application/problem+json");
             String body = stringWriter.toString();
-            assertThat(body).contains("Access Denied");
-            assertThat(body).contains("403");
-            assertThat(body).contains("/api/decks/123");
-            assertThat(body).contains("timestamp");
+            assertThat(body).contains("Access Denied", "403", "/api/decks/123", "timestamp");
         }
 
-        @Test
-        @DisplayName("AccessDeniedHandler should redirect browser requests to access-denied page")
-        void accessDeniedHandlerShouldRedirectBrowserRequestsToAccessDeniedPage() throws IOException, ServletException {
+        @ParameterizedTest
+        @MethodSource("provideNonApiUris")
+        @DisplayName("AccessDeniedHandler should redirect non-API requests to access-denied page")
+        void accessDeniedHandlerShouldRedirectNonApiRequestsToAccessDeniedPage(String uri)
+                throws IOException, ServletException {
             // Given
             AccessDeniedHandler handler = securityConfig.accessDeniedHandler();
             HttpServletRequest request = mock(HttpServletRequest.class);
             HttpServletResponse response = mock(HttpServletResponse.class);
             AccessDeniedException exception = new AccessDeniedException("Access denied");
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(stringWriter);
 
-            when(request.getRequestURI()).thenReturn("/decks");
+            when(request.getRequestURI()).thenReturn(uri);
 
             // When
             handler.handle(request, response, exception);
@@ -198,40 +199,11 @@ class SecurityConfigTest {
             verify(response).sendRedirect("/access-denied");
         }
 
-        @Test
-        @DisplayName("AccessDeniedHandler should handle null request URI")
-        void accessDeniedHandlerShouldHandleNullRequestUri() throws IOException, ServletException {
-            // Given
-            AccessDeniedHandler handler = securityConfig.accessDeniedHandler();
-            HttpServletRequest request = mock(HttpServletRequest.class);
-            HttpServletResponse response = mock(HttpServletResponse.class);
-            AccessDeniedException exception = new AccessDeniedException("Access denied");
-
-            when(request.getRequestURI()).thenReturn(null);
-
-            // When
-            handler.handle(request, response, exception);
-
-            // Then
-            verify(response).sendRedirect("/access-denied");
-        }
-
-        @Test
-        @DisplayName("AccessDeniedHandler should handle root path requests")
-        void accessDeniedHandlerShouldHandleRootPathRequests() throws IOException, ServletException {
-            // Given
-            AccessDeniedHandler handler = securityConfig.accessDeniedHandler();
-            HttpServletRequest request = mock(HttpServletRequest.class);
-            HttpServletResponse response = mock(HttpServletResponse.class);
-            AccessDeniedException exception = new AccessDeniedException("Access denied");
-
-            when(request.getRequestURI()).thenReturn("/");
-
-            // When
-            handler.handle(request, response, exception);
-
-            // Then
-            verify(response).sendRedirect("/access-denied");
+        static Stream<Arguments> provideNonApiUris() {
+            return Stream.of(
+                    Arguments.of("/decks", "browser requests"),
+                    Arguments.of(null, "null request URI"),
+                    Arguments.of("/", "root path requests"));
         }
     }
 
@@ -289,20 +261,6 @@ class SecurityConfigTest {
             // When
             boolean isProd =
                     java.util.Arrays.asList(environment.getActiveProfiles()).contains("prod");
-
-            // Then
-            assertThat(isProd).isFalse();
-        }
-
-        @Test
-        @DisplayName("Should handle null profiles")
-        void shouldHandleNullProfiles() {
-            // Given
-            when(environment.getActiveProfiles()).thenReturn(null);
-
-            // When
-            boolean isProd = environment.getActiveProfiles() != null
-                    && java.util.Arrays.asList(environment.getActiveProfiles()).contains("prod");
 
             // Then
             assertThat(isProd).isFalse();

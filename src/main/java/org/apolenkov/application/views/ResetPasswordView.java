@@ -61,6 +61,7 @@ public class ResetPasswordView extends VerticalLayout
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
         formContainer.addClassName("reset-password-form");
+        formContainer.addClassName("auth-form");
         formContainer.addClassName("surface-panel");
 
         // Create form title

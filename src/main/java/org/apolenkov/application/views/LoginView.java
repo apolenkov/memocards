@@ -20,12 +20,35 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+/**
+ * User authentication view for the application.
+ *
+ * <p>This view provides a secure login interface for users to authenticate
+ * with their email and password credentials. It includes form validation,
+ * error handling, and navigation options for password recovery and registration.</p>
+ *
+ * <p>The login form features:</p>
+ * <ul>
+ *   <li>Email and password input fields with validation</li>
+ *   <li>Form validation using Vaadin's Binder framework</li>
+ *   <li>Error handling and user feedback</li>
+ *   <li>Navigation to password recovery and registration</li>
+ *   <li>Automatic redirect for already authenticated users</li>
+ * </ul>
+ *
+ * <p>The view automatically handles authentication state and provides
+ * appropriate error messages for failed login attempts.</p>
+ */
 @Route(value = "login", layout = PublicLayout.class)
 @AnonymousAllowed
 public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTitle {
 
-    private static final String COMPONENT_WIDTH = "420px";
-
+    /**
+     * Internal data model for the login form.
+     *
+     * <p>Encapsulates the form data and provides getter/setter methods
+     * for binding with Vaadin's Binder framework.</p>
+     */
     private static final class LoginModel {
         private String email;
         private String password;
@@ -47,6 +70,15 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         }
     }
 
+    /**
+     * Constructs a new LoginView with authentication facade dependency.
+     *
+     * <p>Creates a complete login form with proper validation, styling,
+     * and event handling. The form is centered and styled using Lumo
+     * theme components for consistent appearance.</p>
+     *
+     * @param authFacade service for handling user authentication
+     */
     public LoginView(AuthFacade authFacade) {
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();
@@ -56,6 +88,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
         formContainer.addClassName("login-form");
+        formContainer.addClassName("auth-form");
         formContainer.addClassName("surface-panel");
 
         // Create form title
@@ -122,6 +155,18 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         add(wrapper);
     }
 
+    /**
+     * Handles navigation events before the view is entered.
+     *
+     * <p>Performs pre-navigation checks including:</p>
+     * <ul>
+     *   <li>Redirecting already authenticated users to home page</li>
+     *   <li>Displaying error messages for failed login attempts</li>
+     *   <li>Handling query parameter-based error states</li>
+     * </ul>
+     *
+     * @param event the before enter event containing navigation context
+     */
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -134,6 +179,14 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         if (hasError) NotificationHelper.showError(getTranslation("auth.login.errorMessage"));
     }
 
+    /**
+     * Returns the page title for the login view.
+     *
+     * <p>Provides a localized page title that appears in the browser tab
+     * and navigation history.</p>
+     *
+     * @return the localized page title for the login page
+     */
     @Override
     public String getPageTitle() {
         return getTranslation("auth.login");

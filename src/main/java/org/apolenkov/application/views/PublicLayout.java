@@ -8,12 +8,39 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.views.components.LanguageSwitcher;
 import org.apolenkov.application.views.components.TopMenu;
 
+/**
+ * Public layout component for the application.
+ *
+ * <p>This layout provides the main application shell including the top navigation
+ * bar with user menu, language switcher, and content area. It serves as the
+ * primary layout for all public-facing views in the application.</p>
+ *
+ * <p>The layout features:</p>
+ * <ul>
+ *   <li>Top navigation bar with user menu and language selection</li>
+ *   <li>Responsive design with proper spacing and alignment</li>
+ *   <li>Content area for child views</li>
+ *   <li>Automatic menu refresh after navigation changes</li>
+ * </ul>
+ *
+ * <p>The layout automatically refreshes the header menu after route changes
+ * to ensure the user's authentication state is accurately reflected.</p>
+ */
 @AnonymousAllowed
 public class PublicLayout extends AppLayout {
 
     private final LanguageSwitcher languageSwitcher;
     private final TopMenu topMenu;
 
+    /**
+     * Constructs a new PublicLayout with required components.
+     *
+     * <p>Initializes the layout with language switcher and top menu components,
+     * setting up the primary navigation section and header content.</p>
+     *
+     * @param languageSwitcher component for language selection
+     * @param topMenu component for top navigation and user menu
+     */
     public PublicLayout(LanguageSwitcher languageSwitcher, TopMenu topMenu) {
         this.languageSwitcher = languageSwitcher;
         this.topMenu = topMenu;
@@ -21,6 +48,13 @@ public class PublicLayout extends AppLayout {
         addHeaderContent();
     }
 
+    /**
+     * Creates and configures the header content area.
+     *
+     * <p>Sets up the top navigation bar with proper styling, spacing, and
+     * component placement. The header includes the main menu on the left
+     * and language switcher on the right.</p>
+     */
     private void addHeaderContent() {
         HorizontalLayout bar = new HorizontalLayout();
         bar.addClassName("main-layout__navbar");
@@ -41,6 +75,19 @@ public class PublicLayout extends AppLayout {
         addClassName("public-layout");
     }
 
+    /**
+     * Handles post-navigation processing for the layout.
+     *
+     * <p>This method is called after navigation occurs and performs
+     * necessary updates to ensure the layout remains consistent with
+     * the current application state.</p>
+     *
+     * <p>Key actions include:</p>
+     * <ul>
+     *   <li>Adding CSS classes to the content area for styling</li>
+     *   <li>Refreshing the header menu to reflect authentication changes</li>
+     * </ul>
+     */
     @Override
     protected void afterNavigation() {
         super.afterNavigation();

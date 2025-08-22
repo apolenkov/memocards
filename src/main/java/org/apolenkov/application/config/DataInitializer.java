@@ -12,6 +12,8 @@ import org.apolenkov.application.model.User;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 
 /**
  * Configuration class for initializing demo data in development environment.
@@ -27,7 +29,7 @@ import org.springframework.context.annotation.Configuration;
  *
  */
 @Configuration
-@org.springframework.context.annotation.Profile({"dev"})
+@Profile({"dev"})
 public class DataInitializer {
 
     /**
@@ -49,7 +51,7 @@ public class DataInitializer {
      * @return a CommandLineRunner that initializes the demo data
      */
     @Bean
-    @org.springframework.core.annotation.Order(20)
+    @Order(20)
     CommandLineRunner initDemoData(
             UserRepository users, DeckRepository decks, FlashcardRepository cards, NewsRepository news) {
         return args -> {

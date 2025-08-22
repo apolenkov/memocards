@@ -15,11 +15,17 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
+/**
+ * Spring Security configuration for the application.
+ */
 @Configuration(proxyBeanMethods = false)
 public class SecurityConfig extends VaadinWebSecurity {
     private final boolean prodProfileActive;
     private final DevAutoLoginFilter devAutoLoginFilter;
 
+    /**
+     * Constructs a new SecurityConfig with environment and auto-login filter.
+     */
     @Autowired
     public SecurityConfig(Environment environment, DevAutoLoginFilter devAutoLoginFilter) {
         // Determine if production profile is active for security configuration
@@ -29,6 +35,9 @@ public class SecurityConfig extends VaadinWebSecurity {
         this.devAutoLoginFilter = devAutoLoginFilter;
     }
 
+    /**
+     * Configures HTTP security settings for the application.
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
@@ -71,6 +80,9 @@ public class SecurityConfig extends VaadinWebSecurity {
         }
     }
 
+    /**
+     * Creates an access denied handler for unauthorized requests.
+     */
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
@@ -93,6 +105,9 @@ public class SecurityConfig extends VaadinWebSecurity {
         };
     }
 
+    /**
+     * Creates a password encoder for secure password hashing.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

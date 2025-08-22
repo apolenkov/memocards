@@ -147,8 +147,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private void createActions(VerticalLayout container) {
         HorizontalLayout actionsLayout = new HorizontalLayout();
         actionsLayout.setWidthFull();
-        actionsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-        actionsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         Button practiceButton = ButtonHelper.createPlayButton(e -> {
             if (currentDeck != null) {
@@ -233,9 +231,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         flashcardGrid
                 .addComponentColumn(flashcard -> {
                     boolean known = currentDeck != null && presenter.isKnown(currentDeck.getId(), flashcard.getId());
-                    Span mark = new Span(known ? getTranslation("deck.knownMark") : "");
-                    if (known) {}
-                    return mark;
+                    return new Span(known ? getTranslation("deck.knownMark") : "");
                 })
                 .setHeader(getTranslation("deck.col.status"))
                 .setFlexGrow(0)
@@ -323,7 +319,12 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         FormLayout formLayout = createFlashcardForm(flashcard);
         BeanValidationBinder<Flashcard> binder = createFlashcardBinder(formLayout);
+
         HorizontalLayout buttonsLayout = createDialogButtons(dialog, binder, flashcard);
+        buttonsLayout.setWidthFull();
+        buttonsLayout.setSpacing(true);
+        buttonsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         VerticalLayout dialogLayout = new VerticalLayout();
         dialogLayout.add(
@@ -428,6 +429,9 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         layout.add(new Span(getTranslation("dialog.delete.confirmText")));
 
         HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         Button confirmButton = new Button(getTranslation("dialog.delete"), VaadinIcon.TRASH.create());
         confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
@@ -544,6 +548,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
     /**
      * Shows complex deletion dialog for decks with cards
+     * Uses dual-layer validation: frontend for UX + backend for security
      * Requires user to type deck name for confirmation to prevent accidental deletion
      */
     private void showComplexDeleteDialog() {
@@ -602,26 +607,32 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         Button cancelButton = new Button(getTranslation("common.cancel"));
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        // Enable confirm button only when deck name is typed correctly
-        // TODO: Replace with Backend validation for security in the future
-        confirmInput.addValueChangeListener(e -> {
-            confirmButton.setEnabled(currentDeck.getTitle().equals(e.getValue()));
-        });
+        // Frontend validation for better UX - enables/disables button immediately
+        confirmInput.addValueChangeListener(
+                e -> confirmButton.setEnabled(currentDeck.getTitle().equals(e.getValue())));
 
-        // Check on every value change
+        // Additional input listener for real-time feedback
         confirmInput.addInputListener(e -> {
-            log.info("Confirm input value: {}", confirmInput.getValue());
+            log.debug("Confirm input value: {}", confirmInput.getValue());
             confirmButton.setEnabled(currentDeck.getTitle().equals(confirmInput.getValue()));
         });
 
+        // Backend validation for security - actual deletion with server-side confirmation
         confirmButton.addClickListener(e -> {
             try {
-                deckFacade.deleteDeck(currentDeck.getId());
+                String confirmationText = confirmInput.getValue();
+                // Server will validate the confirmation text for security
+                deckFacade.deleteDeckWithConfirmation(currentDeck.getId(), confirmationText);
                 confirmDialog.close();
                 NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
                 NavigationHelper.navigateTo(RouteConstants.DECKS_ROUTE);
+            } catch (IllegalArgumentException ex) {
+                // Handle validation errors from backend
+                NotificationHelper.showErrorLong(getTranslation("deck.delete.confirmationMismatch"));
+                log.warn("Deck deletion failed due to confirmation mismatch for deck: {}", currentDeck.getId());
             } catch (Exception ex) {
                 NotificationHelper.showErrorLong(ex.getMessage());
+                log.error("Error deleting deck: {}", currentDeck.getId(), ex);
             }
         });
 

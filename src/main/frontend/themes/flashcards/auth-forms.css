@@ -1,0 +1,24 @@
+/* Unified auth forms */
+.auth-form {
+    width: 100%;
+    max-width: var(--app-auth-form-max-width, 480px);
+    padding: var(--lumo-space-xl);
+}
+
+.auth-form .vaadin-text-field,
+.auth-form .vaadin-password-field,
+.auth-form .vaadin-email-field {
+    width: 100%;
+}
+
+.auth-form .vaadin-button {
+    width: 100%;
+    margin-top: var(--lumo-space-s);
+}
+
+.auth-form .vaadin-button:first-of-type {
+    margin-top: var(--lumo-space-m);
+}
+
+
+

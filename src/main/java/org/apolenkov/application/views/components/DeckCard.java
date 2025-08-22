@@ -15,10 +15,23 @@ import org.apolenkov.application.views.home.DeckCardViewModel;
 /**
  * Reusable card component for displaying deck information.
  *
- * <p>This component renders a clickable card showing deck details including
- * title, description, card count, progress, and provides navigation to the
- * detailed deck view when clicked.</p>
+ * <p>This component renders a clickable card showing comprehensive deck details
+ * including title, description, card count, progress indicators, and navigation
+ * controls. It provides an intuitive interface for deck management and practice
+ * initiation.</p>
  *
+ * <p>The card features:</p>
+ * <ul>
+ *   <li>Deck title with card count information</li>
+ *   <li>Descriptive text about the deck content</li>
+ *   <li>Visual progress bar showing learning completion</li>
+ *   <li>Detailed progress statistics (known/total cards)</li>
+ *   <li>Practice button for immediate session start</li>
+ *   <li>Click navigation to detailed deck view</li>
+ * </ul>
+ *
+ * <p>The component automatically adapts its appearance based on the deck's
+ * progress and provides consistent styling across the application.</p>
  */
 public class DeckCard extends Div {
 
@@ -26,6 +39,10 @@ public class DeckCard extends Div {
 
     /**
      * Constructs a new DeckCard with the specified view model.
+     *
+     * <p>Initializes the card with deck data and sets up the complete
+     * user interface including layout, styling, and event handlers.
+     * The card is immediately ready for display and interaction.</p>
      *
      * @param viewModel the view model containing deck data to display
      */
@@ -36,6 +53,16 @@ public class DeckCard extends Div {
         addClickListener(e -> navigateToDeck());
     }
 
+    /**
+     * Builds the complete card content and layout.
+     *
+     * <p>Creates and configures all visual elements including title,
+     * description, progress indicators, and action buttons. The method
+     * ensures proper spacing, alignment, and styling for consistent
+     * appearance across all deck cards.</p>
+     *
+     * @return the main content component containing all card elements
+     */
     private Component buildContent() {
         // Create main card layout with no padding or spacing for tight design
         VerticalLayout cardContent = new VerticalLayout();
@@ -79,6 +106,16 @@ public class DeckCard extends Div {
         return cardContent;
     }
 
+    /**
+     * Builds the progress visualization section.
+     *
+     * <p>Creates a comprehensive progress display including progress bar,
+     * percentage text, and detailed statistics. The progress section
+     * provides users with clear visual feedback about their learning
+     * progress for the deck.</p>
+     *
+     * @return a horizontal layout containing all progress indicators
+     */
     private HorizontalLayout buildProgress() {
         // Create horizontal layout for progress indicators with proper spacing
         HorizontalLayout layout = new HorizontalLayout();
@@ -118,7 +155,11 @@ public class DeckCard extends Div {
      * Navigates to the detailed deck view.
      *
      * <p>Handles navigation to the deck detail page when the card is clicked.
-     * Only navigates if a valid deck ID is available.</p>
+     * Only navigates if a valid deck ID is available, ensuring robust
+     * navigation behavior.</p>
+     *
+     * <p>This method is called automatically when the card receives a click
+     * event, providing intuitive navigation for users exploring their decks.</p>
      */
     private void navigateToDeck() {
         if (viewModel.id() != null) {
@@ -130,7 +171,11 @@ public class DeckCard extends Div {
      * Navigates to the practice view for this deck.
      *
      * <p>Handles navigation to the practice page when the practice button is clicked.
-     * Only navigates if a valid deck ID is available.</p>
+     * Only navigates if a valid deck ID is available, ensuring users can
+     * immediately begin practicing with the selected deck.</p>
+     *
+     * <p>This method provides quick access to practice sessions, allowing
+     * users to start learning without additional navigation steps.</p>
      */
     private void navigateToPractice() {
         if (viewModel.id() != null) {

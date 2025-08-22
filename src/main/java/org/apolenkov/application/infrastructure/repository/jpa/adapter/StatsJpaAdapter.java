@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.infrastructure.repository.jpa.entity.DeckDailyStatsEntity;
 import org.apolenkov.application.infrastructure.repository.jpa.entity.KnownCardEntity;
@@ -138,7 +137,7 @@ public class StatsJpaAdapter implements StatsRepository {
                         e.getHard(),
                         e.getTotalDurationMs(),
                         e.getTotalAnswerDelayMs()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -224,8 +223,7 @@ public class StatsJpaAdapter implements StatsRepository {
         if (deckIds == null || deckIds.isEmpty()) return java.util.Collections.emptyMap();
 
         // Ensure unique deck IDs and convert to Long type
-        java.util.List<Long> ids =
-                deckIds.stream().distinct().map(Long::valueOf).toList();
+        java.util.List<Long> ids = deckIds.stream().distinct().toList();
 
         // Fetch raw statistics data from database
         java.util.List<Object[]> rows = statsRepo.findAllByDeckIds(ids);

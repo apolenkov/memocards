@@ -188,10 +188,12 @@ public class DeckDailyStatsEntity {
         this.totalAnswerDelayMs = totalAnswerDelayMs;
     }
 
+    @SuppressWarnings("unused")
     public Long getVersion() {
         return version;
     }
 
+    @SuppressWarnings("unused")
     public void setVersion(Long version) {
         this.version = version;
     }
