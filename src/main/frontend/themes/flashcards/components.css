@@ -82,7 +82,6 @@
 
 .dialog-md::part(overlay) { 
     width: var(--app-dialog-md); 
-    height: var(--app-dialog-height-md); 
 }
 
 .dialog-lg::part(overlay) { 

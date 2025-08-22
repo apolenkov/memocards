@@ -2,6 +2,7 @@ package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -34,6 +35,8 @@ import org.apolenkov.application.views.utils.TextHelper;
 @RolesAllowed({"ROLE_USER", "ROLE_ADMIN"})
 public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
+    private static final String HOME_TITLE_KEY = "home.title";
+
     private final transient HomePresenter homePresenter;
     private final transient DeckFacade deckFacade;
     private final transient UserUseCase userUseCase;
@@ -56,7 +59,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         content.setAlignItems(Alignment.CENTER);
         content.addClassName("decks-view__content");
 
-        H2 title = TextHelper.createPageTitle(getTranslation("home.title"));
+        H2 title = TextHelper.createPageTitle(getTranslation(HOME_TITLE_KEY));
         title.addClassName("decks-view__title");
 
         search = FormHelper.createOptionalTextField("", getTranslation("home.search.placeholder"));
@@ -71,15 +74,13 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
         search.addValueChangeListener(e -> refreshDecks(e.getValue()));
 
-        content.add(deckList);
-        add(content);
+        Button addDeckBtn = ButtonHelper.createPlusButton(e -> openCreateDeckDialog());
+        addDeckBtn.setText(getTranslation("home.addDeck"));
 
-        refreshDecks("");
-    }
-
-    private void refreshDecks(String query) {
-        deckList.removeAll();
-        List<DeckCardViewModel> decks = homePresenter.listDecksForCurrentUser(query);
+        HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addDeckBtn);
+        toolbar.setAlignItems(Alignment.CENTER);
+        toolbar.setJustifyContentMode(JustifyContentMode.CENTER);
+        toolbar.addClassName("decks-toolbar");
 
         VerticalLayout deckContainer = new VerticalLayout();
         deckContainer.setSpacing(true);
@@ -89,22 +90,24 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         deckContainer.addClassName("decks-section");
         deckContainer.addClassName("surface-panel");
 
-        H2 title = TextHelper.createPageTitle(getTranslation("home.title"));
-        title.addClassName("decks-view__title");
+        deckContainer.add(title, toolbar, deckList);
 
-        Button addDeckBtn = ButtonHelper.createPlusButton(e -> openCreateDeckDialog());
-        addDeckBtn.setText(getTranslation("home.addDeck"));
+        content.add(deckContainer);
+        add(content);
 
-        HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addDeckBtn);
-        toolbar.setAlignItems(Alignment.CENTER);
-        toolbar.setJustifyContentMode(JustifyContentMode.CENTER);
-        toolbar.addClassName("decks-toolbar");
+        refreshDecks("");
+    }
 
-        deckContainer.add(title, toolbar);
-
-        decks.stream().map(DeckCard::new).forEach(deckContainer::add);
-
-        deckList.add(deckContainer);
+    private void refreshDecks(String query) {
+        deckList.removeAll();
+        List<DeckCardViewModel> decks = homePresenter.listDecksForCurrentUser(query);
+        if (decks == null || decks.isEmpty()) {
+            Span empty = new Span(getTranslation("home.search.noResults"));
+            empty.addClassName("decks-empty-message");
+            deckList.add(empty);
+            return;
+        }
+        decks.stream().map(DeckCard::new).forEach(deckList::add);
     }
 
     private void openCreateDeckDialog() {
@@ -114,6 +117,6 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
     @Override
     public String getPageTitle() {
-        return getTranslation("home.title");
+        return getTranslation(HOME_TITLE_KEY);
     }
 }
