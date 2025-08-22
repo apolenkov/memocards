@@ -10,6 +10,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * JPA-based implementation of user registration service.
+ *
+ * <p>This service handles user registration functionality using JPA repositories
+ * for data persistence. It provides secure user account creation with password
+ * hashing and role assignment. The service also maintains an audit trail of
+ * role changes for security and compliance purposes.</p>
+ *
+ * <p>The service is only active in specific profiles (dev, jpa, prod) to allow
+ * for different registration strategies in different environments.</p>
+ *
+ */
 @Service
 @Profile({"dev", "jpa", "prod"})
 public class JpaRegistrationService {
@@ -18,6 +30,13 @@ public class JpaRegistrationService {
     private final PasswordEncoder passwordEncoder;
     private final RoleAuditRepository roleAuditRepository;
 
+    /**
+     * Constructs a new JpaRegistrationService with required dependencies.
+     *
+     * @param userRepository the repository for user persistence operations
+     * @param passwordEncoder the encoder for secure password hashing
+     * @param roleAuditRepository the repository for tracking role changes
+     */
     public JpaRegistrationService(
             UserRepository userRepository, PasswordEncoder passwordEncoder, RoleAuditRepository roleAuditRepository) {
         this.userRepository = userRepository;
@@ -25,6 +44,22 @@ public class JpaRegistrationService {
         this.roleAuditRepository = roleAuditRepository;
     }
 
+    /**
+     * Registers a new user account.
+     *
+     * <p>Creates a new user account with the specified email, name, and password.
+     * The password is securely hashed before storage, and the user is automatically
+     * assigned the default USER role. The service also records the role assignment
+     * in the audit log for security tracking.</p>
+     *
+     * <p>This method performs validation to ensure the email is not already
+     * registered in the system.</p>
+     *
+     * @param email the email address for the new user account
+     * @param name the display name for the new user
+     * @param rawPassword the plain text password to be hashed and stored
+     * @throws IllegalArgumentException if a user with the specified email already exists
+     */
     @Transactional
     public void register(String email, String name, String rawPassword) {
         userRepository.findByEmail(email).ifPresent(u -> {

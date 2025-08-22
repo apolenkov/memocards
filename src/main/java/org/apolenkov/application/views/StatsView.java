@@ -15,6 +15,8 @@ import jakarta.annotation.security.RolesAllowed;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+
 import org.apolenkov.application.config.SecurityConstants;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.model.Deck;
@@ -24,13 +26,17 @@ import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.TextHelper;
 
+/**
+ * View for displaying user statistics and analytics.
+ *
+ * <p>This view provides comprehensive statistics about user's learning progress,
+ * including today's stats, overall statistics, and detailed deck-specific metrics.
+ * The statistics are presented in collapsible sections for better organization.</p>
+ *
+ */
 @Route(value = "stats", layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class StatsView extends VerticalLayout implements HasDynamicTitle {
-
-    // CSS class constants
-    private static final String CSS_SECTION = "stats-view__section";
-    private static final String CSS_SECTION_TITLE = "stats-view__section-title";
 
     // Translation key constants
     private static final String STATS_SESSIONS = "stats.sessions";
@@ -38,9 +44,6 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private static final String STATS_CORRECT = "stats.correct";
     private static final String STATS_REPEAT = "stats.repeat";
     private static final String STATS_HARD = "stats.hard";
-
-    // Modifier constants
-    private static final String MODIFIER_TODAY = "today";
 
     public StatsView(DeckUseCase deckUseCase, UserUseCase userUseCase, StatsService statsService) {
         setSpacing(true);
@@ -288,7 +291,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         final int totalDecks = decks.size();
 
         // Update display function
-        java.util.function.Consumer<Integer> updateDisplay = index -> {
+        Consumer<Integer> updateDisplay = index -> {
             if (totalDecks == 0) {
                 currentDeckContainer.removeAll();
                 currentDeckContainer.add(new Span(getTranslation("stats.noDecks")));

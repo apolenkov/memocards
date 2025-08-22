@@ -258,6 +258,21 @@ extensions.configure<com.diffplug.gradle.spotless.SpotlessExtension> {
 // }
 
 /*
+ * Force specific versions for SonarLint dependencies to resolve conflicts
+ */
+
+//    configurations.matching { it.name.startsWith("sonarlint") }.configureEach {
+//        resolutionStrategy {
+//            force("commons-io:commons-io:2.19.0")
+//            force("org.checkerframework:checker-qual:3.45.0")
+//            force("com.google.errorprone:error_prone_annotations:2.38.0")
+//            force("org.jetbrains:annotations:17.0.0")
+//            force("org.apache.commons:commons-compress:1.27.1")
+//            force("io.github.classgraph:classgraph:4.8.179")
+//        }
+//    }
+
+/*
  * OWASP Dependency Check configuration
  */
 apply(plugin = "org.owasp.dependencycheck")

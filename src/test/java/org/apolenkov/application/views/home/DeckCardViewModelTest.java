@@ -64,7 +64,7 @@ class DeckCardViewModelTest {
         @Test
         @DisplayName("Should create DeckCardViewModel with edge case values")
         void shouldCreateDeckCardViewModelWithEdgeCaseValues() {
-            // Given
+            // Given - extreme boundary values to test robustness
             Long id = Long.MAX_VALUE;
             String title = "";
             String description = "a".repeat(1000);
@@ -76,13 +76,28 @@ class DeckCardViewModelTest {
             DeckCardViewModel viewModel =
                     new DeckCardViewModel(id, title, description, deckSize, knownCount, progressPercent);
 
-            // Then
+            // Then - verify all edge cases are handled correctly
             assertThat(viewModel.id()).isEqualTo(Long.MAX_VALUE);
             assertThat(viewModel.title()).isEmpty();
             assertThat(viewModel.description()).isEqualTo("a".repeat(1000));
             assertThat(viewModel.deckSize()).isEqualTo(Integer.MAX_VALUE);
             assertThat(viewModel.knownCount()).isEqualTo(Integer.MIN_VALUE);
             assertThat(viewModel.progressPercent()).isEqualTo(100);
+        }
+
+        @Test
+        @DisplayName("Should create DeckCardViewModel with unicode characters")
+        void shouldCreateDeckCardViewModelWithUnicodeCharacters() {
+            // Given - test internationalization support with various scripts
+            String unicodeTitle = "Тестовая колода"; // Russian Cyrillic
+            String unicodeDescription = "Descripción de prueba"; // Spanish with accents
+
+            // When
+            DeckCardViewModel viewModel = new DeckCardViewModel(1L, unicodeTitle, unicodeDescription, 10, 5, 50);
+
+            // Then - verify Unicode characters are preserved correctly
+            assertThat(viewModel.title()).isEqualTo(unicodeTitle);
+            assertThat(viewModel.description()).isEqualTo(unicodeDescription);
         }
     }
 

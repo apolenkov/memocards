@@ -4,6 +4,17 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+/**
+ * JPA entity representing a flashcard deck in the database.
+ *
+ * <p>This entity maps to the "decks" table and represents a collection of
+ * flashcards created by a user. It includes metadata such as title, description,
+ * and timestamps for creation and modification tracking.</p>
+ *
+ * <p>The entity provides automatic timestamp management through JPA lifecycle
+ * callbacks and includes proper equality and hash code implementations
+ * based on the primary key.</p>
+ */
 @Entity
 @Table(name = "decks")
 public class DeckEntity {
@@ -48,6 +59,7 @@ public class DeckEntity {
 
     public void setTitle(String title) {
         this.title = title;
+        // Automatically update modification timestamp when title changes
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -57,6 +69,7 @@ public class DeckEntity {
 
     public void setDescription(String description) {
         this.description = description;
+        // Automatically update modification timestamp when description changes
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -76,18 +89,43 @@ public class DeckEntity {
         this.updatedAt = updatedAt;
     }
 
+    /**
+     * JPA lifecycle callback executed before entity persistence.
+     *
+     * <p>Automatically sets creation and update timestamps if they haven't
+     * been explicitly set. This ensures all new entities have proper
+     * timestamp values.</p>
+     */
     @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();
+        // Initialize creation timestamp if not set
         if (createdAt == null) createdAt = now;
+        // Initialize update timestamp if not set
         if (updatedAt == null) updatedAt = now;
     }
 
+    /**
+     * JPA lifecycle callback executed before entity updates.
+     *
+     * <p>Automatically updates the modification timestamp whenever
+     * the entity is modified, ensuring accurate change tracking.</p>
+     */
     @PreUpdate
     public void preUpdate() {
         updatedAt = LocalDateTime.now();
     }
 
+    /**
+     * Compares this entity with another object for equality.
+     *
+     * <p>Two DeckEntity instances are considered equal if they have
+     * the same ID. This is the standard approach for JPA entities
+     * where identity is determined by the primary key.</p>
+     *
+     * @param o the object to compare with
+     * @return true if the objects are equal, false otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -96,6 +134,14 @@ public class DeckEntity {
         return Objects.equals(id, that.id);
     }
 
+    /**
+     * Generates a hash code for this entity.
+     *
+     * <p>The hash code is based on the entity's ID, which is consistent
+     * with the equals method implementation.</p>
+     *
+     * @return the hash code value
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id);

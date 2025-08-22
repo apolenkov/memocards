@@ -57,24 +57,27 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
         H2 title = new H2(getTranslation("auth.forgotPassword.title"));
         title.addClassName("forgot-password-form__title");
 
-        // Create form fields container
+        // Create form fields container with proper spacing and alignment
         VerticalLayout formFields = new VerticalLayout();
         formFields.setSpacing(true);
         formFields.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
 
-        // Create binder and model
+        // Create binder and model for form validation
         Binder<ForgotPasswordModel> binder = new Binder<>(ForgotPasswordModel.class);
         ForgotPasswordModel model = new ForgotPasswordModel();
         binder.setBean(model);
 
+        // Create form fields with proper validation
         TextField email = FormHelper.createRequiredTextField(
                 getTranslation("auth.email"), getTranslation("auth.email.placeholder"));
         email.setWidthFull();
 
+        // Submit button triggers password reset process
         Button submit = ButtonHelper.createPrimaryButton(
                 getTranslation("auth.forgotPassword.submit"), e -> handleSubmit(model.getEmail()));
         submit.setWidthFull();
 
+        // Navigation buttons for better UX
         Button backToLogin = ButtonHelper.createTertiaryButton(
                 getTranslation("auth.forgotPassword.backToLogin"), e -> getUI().ifPresent(ui -> ui.navigate("login")));
         backToLogin.setWidthFull();
@@ -83,7 +86,7 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
                 getTranslation("common.backToHome"), e -> getUI().ifPresent(ui -> ui.navigate("")));
         backToHome.setWidthFull();
 
-        // Bind fields to model
+        // Bind fields to model with validation messages
         binder.forField(email)
                 .asRequired(getTranslation("vaadin.validation.email.required"))
                 .bind(ForgotPasswordModel::getEmail, ForgotPasswordModel::setEmail);
@@ -95,6 +98,10 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
         add(wrapper);
     }
 
+    /**
+     * Handles password reset request submission
+     * Creates reset token and navigates to reset page or shows appropriate messages
+     */
     private void handleSubmit(String email) {
         if (email == null || email.trim().isEmpty()) {
             NotificationHelper.showError(getTranslation("auth.forgotPassword.emailRequired"));
@@ -110,12 +117,14 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
 
                 NotificationHelper.showSuccess(getTranslation("auth.forgotPassword.tokenCreated"));
 
-                // Navigate to reset password page
+                // Navigate to reset password page with the generated token
                 getUI().ifPresent(ui -> ui.navigate("reset-password/" + token));
             } else {
+                // Don't reveal if email exists for security reasons
                 NotificationHelper.showInfo(getTranslation("auth.forgotPassword.emailNotFound"));
             }
         } catch (Exception ex) {
+            // Generic error message to avoid information leakage
             NotificationHelper.showError(getTranslation("auth.forgotPassword.error"));
         }
     }

@@ -225,7 +225,7 @@ class HomePresenterTest {
         @Test
         @DisplayName("Should handle unicode characters in queries")
         void shouldHandleUnicodeCharactersInQueries() {
-            // Given
+            // Given - test internationalization support with Russian text
             String unicodeQuery = "запрос"; // Russian for "query"
             List<Deck> expectedDecks = List.of();
 
@@ -234,7 +234,7 @@ class HomePresenterTest {
             // When
             List<DeckCardViewModel> result = homePresenter.listDecksForCurrentUser(unicodeQuery);
 
-            // Then
+            // Then - verify Cyrillic text handling works correctly
             assertThat(result).isEmpty();
             verify(deckQueryService).listDecksForCurrentUser(unicodeQuery);
         }
@@ -247,7 +247,7 @@ class HomePresenterTest {
         @Test
         @DisplayName("Should maintain order of decks from service")
         void shouldMaintainOrderOfDecksFromService() {
-            // Given
+            // Given - test that deck order is preserved through the service layer
             String query = "ordered";
             List<Deck> expectedDecks = List.of(
                     new Deck(1L, 1L, "First", "First Description"),
@@ -266,7 +266,7 @@ class HomePresenterTest {
             // When
             List<DeckCardViewModel> result = homePresenter.listDecksForCurrentUser(query);
 
-            // Then
+            // Then - verify order is maintained from service to presentation layer
             assertThat(result).hasSize(3);
             assertThat(result.get(0).id()).isEqualTo(1L);
             assertThat(result.get(1).id()).isEqualTo(2L);
@@ -276,7 +276,7 @@ class HomePresenterTest {
         @Test
         @DisplayName("Should handle empty deck list gracefully")
         void shouldHandleEmptyDeckListGracefully() {
-            // Given
+            // Given - test edge case: no decks available
             String query = "empty";
             List<Deck> emptyDecks = List.of();
 
@@ -285,7 +285,7 @@ class HomePresenterTest {
             // When
             List<DeckCardViewModel> result = homePresenter.listDecksForCurrentUser(query);
 
-            // Then
+            // Then - verify graceful handling of empty results
             assertThat(result).isEmpty();
             verify(deckQueryService).listDecksForCurrentUser(query);
             verifyNoMoreInteractions(deckQueryService);
@@ -313,7 +313,7 @@ class HomePresenterTest {
         @Test
         @DisplayName("Should delegate all operations to deckQueryService")
         void shouldDelegateAllOperationsToDeckQueryService() {
-            // Given
+            // Given - test that presenter acts as a thin wrapper around the service
             String query = "delegation";
             List<Deck> expectedDecks = List.of(new Deck(1L, 1L, "Test Deck", "Test Description"));
             DeckCardViewModel expectedViewModel = new DeckCardViewModel(1L, "Test Deck", "Test Description", 5, 2, 40);
