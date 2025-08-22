@@ -270,7 +270,7 @@ class SecurityConfigTest {
         @DisplayName("Should handle multiple profiles")
         void shouldHandleMultipleProfiles() {
             // Given
-            when(environment.getActiveProfiles()).thenReturn(new String[] {"dev", "jpa", "test"});
+            when(environment.getActiveProfiles()).thenReturn(new String[] {"dev", "test"});
 
             // When
             boolean isProd =

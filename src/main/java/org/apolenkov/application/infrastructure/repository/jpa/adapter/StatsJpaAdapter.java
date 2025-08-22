@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
  * </ul>
  */
 @Repository
-@Profile({"dev", "jpa", "prod"})
+@Profile({"dev", "prod"})
 public class StatsJpaAdapter implements StatsRepository {
 
     private final StatsJpaRepository statsRepo;

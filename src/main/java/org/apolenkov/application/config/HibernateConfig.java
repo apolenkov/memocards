@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Profile;
  *
  */
 @Configuration
-@Profile({"dev", "jpa", "prod"})
+@Profile({"dev", "prod"})
 public class HibernateConfig {
     // Hibernate properties are configured in application.yml
     // Spring Boot AutoConfiguration handles entityManagerFactory and transactionManager

@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Profile;
  * provides thread-safe query statistics collection for concurrent applications.</p>
  *
  */
-@Profile({"dev", "jpa", "prod"})
+@Profile({"dev", "prod"})
 public class HibernateStatementInspector implements StatementInspector {
 
     private static final Logger logger = LoggerFactory.getLogger(HibernateStatementInspector.class);

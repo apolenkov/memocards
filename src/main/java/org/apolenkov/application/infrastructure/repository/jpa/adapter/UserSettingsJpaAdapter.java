@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile({"dev", "jpa", "prod"})
+@Profile({"dev", "prod"})
 public class UserSettingsJpaAdapter implements UserSettingsRepository {
 
     private final UserSettingsJpaRepository repo;
