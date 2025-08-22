@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile({"dev", "jpa", "prod"})
+@Profile({"dev", "prod"})
 public class RoleAuditJpaAdapter implements RoleAuditRepository {
 
     private final RoleAuditJpaRepository repo;

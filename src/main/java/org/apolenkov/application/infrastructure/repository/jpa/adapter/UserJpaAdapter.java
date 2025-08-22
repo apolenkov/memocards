@@ -10,7 +10,7 @@ import org.apolenkov.application.model.User;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
-@Profile({"dev", "jpa", "prod"})
+@Profile({"dev", "prod"})
 @Repository
 public class UserJpaAdapter implements UserRepository {
 

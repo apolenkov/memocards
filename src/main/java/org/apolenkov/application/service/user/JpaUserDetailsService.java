@@ -22,11 +22,11 @@ import org.springframework.stereotype.Service;
  *
  * <p>The service handles role mapping, password validation, and provides fallback
  * role assignment for users without explicit roles. It is only active in specific
- * profiles (dev, jpa, prod) to allow for different authentication strategies.</p>
+ * profiles (dev, prod) to allow for different authentication strategies.</p>
  *
  */
 @Service
-@Profile({"dev", "jpa", "prod"})
+@Profile({"dev", "prod"})
 public class JpaUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;

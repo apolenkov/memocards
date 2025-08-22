@@ -10,7 +10,7 @@ import org.apolenkov.application.model.Deck;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
-@Profile({"dev", "jpa", "prod"})
+@Profile({"dev", "prod"})
 @Repository
 public class DeckJpaAdapter implements DeckRepository {
 

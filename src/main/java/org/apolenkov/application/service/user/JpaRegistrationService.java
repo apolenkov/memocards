@@ -18,12 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
  * hashing and role assignment. The service also maintains an audit trail of
  * role changes for security and compliance purposes.</p>
  *
- * <p>The service is only active in specific profiles (dev, jpa, prod) to allow
+ * <p>The service is only active in specific profiles (dev, prod) to allow
  * for different registration strategies in different environments.</p>
  *
  */
 @Service
-@Profile({"dev", "jpa", "prod"})
+@Profile({"dev", "prod"})
 public class JpaRegistrationService {
 
     private final UserRepository userRepository;
