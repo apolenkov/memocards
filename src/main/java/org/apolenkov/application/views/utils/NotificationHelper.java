@@ -169,7 +169,7 @@ public final class NotificationHelper {
      * failures using the localized error message.</p>
      */
     public static void showValidationError() {
-        showError(getTranslation("dialog.fillRequired"));
+        showError(I18nHelper.tr("dialog.fillRequired"));
     }
 
     /**
@@ -179,25 +179,6 @@ public final class NotificationHelper {
      * operations with bottom positioning for quick acknowledgment.</p>
      */
     public static void showDeleteSuccess() {
-        showSuccessBottom(getTranslation("dialog.deleted"));
-    }
-
-    /**
-     * Gets translation for the current locale.
-     *
-     * <p>Retrieves localized text for the specified message key
-     * based on the current user's locale settings.</p>
-     *
-     * @param key the message key to translate
-     * @return the translated message or the key if translation fails
-     */
-    private static String getTranslation(String key) {
-        try {
-            // This would need to be implemented based on your i18n setup
-            // For now, return the key as fallback
-            return key;
-        } catch (Exception e) {
-            return key;
-        }
+        showSuccessBottom(I18nHelper.tr("dialog.deleted"));
     }
 }
