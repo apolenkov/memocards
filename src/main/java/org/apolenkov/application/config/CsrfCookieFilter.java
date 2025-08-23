@@ -11,27 +11,18 @@ import org.springframework.web.filter.OncePerRequestFilter;
 /**
  * Filter that ensures CSRF tokens are generated and available for Vaadin applications.
  *
- * <p>This filter is essential for Vaadin applications to ensure CSRF tokens are always
- * available in the browser. It works by touching the CSRF token on GET requests, which
- * triggers Spring Security to generate and set the XSRF cookie.</p>
- *
- * <p>The filter selectively processes requests, excluding Vaadin internal endpoints
- * and static resources to avoid unnecessary processing and potential conflicts.</p>
- *
+ * <p>Touches CSRF token on GET requests to trigger Spring Security token generation.
+ * Selectively processes requests, excluding Vaadin internal endpoints and static resources.</p>
  */
 public class CsrfCookieFilter extends OncePerRequestFilter {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(CsrfCookieFilter.class);
 
     /**
-     * Processes each request to ensure CSRF tokens are generated when needed.
+     * Ensures CSRF tokens are generated for GET requests.
      *
-     * <p>This method checks if the request is a GET request and if a CSRF token
-     * is present in the request attributes. By accessing the token, it ensures
-     * that Spring Security generates the token and sets the appropriate cookie.</p>
-     *
-     * <p>The method logs debug information about token generation success or failure
-     * to aid in troubleshooting CSRF-related issues.</p>
+     * <p>Accesses CSRF token attribute to trigger Spring Security token generation
+     * and sets appropriate cookie.</p>
      *
      * @param request the HTTP request being processed
      * @param response the HTTP response
@@ -64,15 +55,10 @@ public class CsrfCookieFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Determines if a request should be filtered by this CSRF cookie filter.
-     *
-     * <p>This method excludes Vaadin internal endpoints, static resources, and
-     * other requests that don't require CSRF token generation. This prevents
-     * unnecessary processing and potential conflicts with Vaadin's internal
-     * request handling.</p>
+     * Excludes Vaadin internal endpoints and static resources from CSRF processing.
      *
      * @param request the HTTP request to evaluate
-     * @return true if the request should not be filtered, false otherwise
+     * @return true if request should not be filtered
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {

@@ -21,11 +21,11 @@ public class PasswordResetToken {
     public PasswordResetToken() {}
 
     /**
-     * Constructs a password reset token.
+     * Creates password reset token.
      *
-     * @param token the secure token string
-     * @param userId the ID of the user requesting the password reset
-     * @param expiresAt the expiration date and time for this token
+     * @param token secure token string
+     * @param userId ID of the user requesting password reset
+     * @param expiresAt expiration date and time for this token
      */
     public PasswordResetToken(String token, Long userId, LocalDateTime expiresAt) {
         this.token = token;
@@ -37,63 +37,63 @@ public class PasswordResetToken {
     // Getters and setters
 
     /**
-     * Gets the unique identifier.
+     * Gets unique identifier.
      *
-     * @return the token ID
+     * @return token ID
      */
     public Long getId() {
         return id;
     }
 
     /**
-     * Sets the unique identifier.
+     * Sets unique identifier.
      *
-     * @param id the token ID to set
+     * @param id token ID to set
      */
     public void setId(Long id) {
         this.id = id;
     }
 
     /**
-     * Gets the secure token string.
+     * Gets secure token string.
      *
-     * @return the secure token string
+     * @return secure token string
      */
     public String getToken() {
         return token;
     }
 
     /**
-     * Sets the secure token string.
+     * Sets secure token string.
      *
-     * @param token the secure token string to set
+     * @param token secure token string to set
      */
     public void setToken(String token) {
         this.token = token;
     }
 
     /**
-     * Gets the ID of the user associated with this token.
+     * Gets ID of the user associated with this token.
      *
-     * @return the user ID associated with this token
+     * @return user ID associated with this token
      */
     public Long getUserId() {
         return userId;
     }
 
     /**
-     * Sets the ID of the user associated with this token.
+     * Sets ID of the user associated with this token.
      *
-     * @param userId the user ID to associate with this token
+     * @param userId user ID to associate with this token
      */
     public void setUserId(Long userId) {
         this.userId = userId;
     }
 
     /**
-     * Gets the expiration date and time.
+     * Gets expiration date and time.
      *
-     * @return the expiration date and time
+     * @return expiration date and time
      */
     @SuppressWarnings("unused")
     public LocalDateTime getExpiresAt() {
@@ -101,9 +101,9 @@ public class PasswordResetToken {
     }
 
     /**
-     * Sets the expiration date and time.
+     * Sets expiration date and time.
      *
-     * @param expiresAt the expiration date and time to set
+     * @param expiresAt expiration date and time to set
      */
     @SuppressWarnings("unused")
     public void setExpiresAt(LocalDateTime expiresAt) {
@@ -113,7 +113,7 @@ public class PasswordResetToken {
     /**
      * Checks whether this token has been used.
      *
-     * @return true if the token has been used, false otherwise
+     * @return true if token has been used
      */
     public boolean isUsed() {
         return used;
@@ -122,7 +122,7 @@ public class PasswordResetToken {
     /**
      * Sets whether this token has been used.
      *
-     * @param used true to mark the token as used, false otherwise
+     * @param used true to mark token as used
      */
     public void setUsed(boolean used) {
         this.used = used;
@@ -131,7 +131,7 @@ public class PasswordResetToken {
     /**
      * Checks whether this token has expired.
      *
-     * @return true if the token has expired, false otherwise
+     * @return true if token has expired
      */
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expiresAt);
@@ -142,7 +142,7 @@ public class PasswordResetToken {
      *
      * <p>Valid if not expired, not used, and has a user ID.</p>
      *
-     * @return true if the token is valid for use, false otherwise
+     * @return true if token is valid for use
      */
     public boolean isValid() {
         return !isExpired() && !isUsed() && userId != null;

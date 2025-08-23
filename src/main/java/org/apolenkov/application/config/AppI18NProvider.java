@@ -10,7 +10,7 @@ import java.util.ResourceBundle;
 import org.springframework.stereotype.Component;
 
 /**
- * Vaadin internationalization (i18n) provider implementation.
+ * Vaadin internationalization (i18n) provider.
  *
  * <p>Supports English, Russian, and Spanish locales with parameter substitution.</p>
  */
@@ -18,22 +18,18 @@ import org.springframework.stereotype.Component;
 public class AppI18NProvider implements I18NProvider {
 
     /**
-     * Prefix for the message bundle files.
-     *
-     * <p>Base name for properties files (messages_en.properties, etc.).</p>
+     * Message bundle files prefix.
      */
     public static final String BUNDLE_PREFIX = "i18n.messages";
 
     /**
-     * List of locales supported by this provider.
-     *
-     * <p>Supports English, Russian, and Spanish locales.</p>
+     * Supported locales: English, Russian, and Spanish.
      */
     private static final List<Locale> PROVIDED_LOCALES =
             Arrays.asList(Locale.ENGLISH, Locale.forLanguageTag("ru"), Locale.forLanguageTag("es"));
 
     /**
-     * Returns the list of locales supported by this provider.
+     * Returns supported locales.
      *
      * @return list of supported locales
      */
@@ -43,12 +39,12 @@ public class AppI18NProvider implements I18NProvider {
     }
 
     /**
-     * Retrieves a translated message for the specified key and locale.
+     * Retrieves translated message for the specified key and locale.
      *
      * @param key the message key to translate
-     * @param locale the locale for the translation (null defaults to English)
+     * @param locale the locale for translation (null defaults to English)
      * @param params optional parameters for message formatting
-     * @return the translated message, or the key if translation is not found
+     * @return translated message or key if translation not found
      */
     @Override
     public String getTranslation(String key, Locale locale, Object... params) {

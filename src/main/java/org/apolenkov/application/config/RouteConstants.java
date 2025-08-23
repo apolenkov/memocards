@@ -2,7 +2,9 @@ package org.apolenkov.application.config;
 
 /**
  * Centralized route constants for the application.
- * Prevents duplication of route strings across view classes.
+ *
+ * <p>Prevents duplication of route strings across view classes.
+ * Defines all application routes in one place for easy maintenance.</p>
  */
 public final class RouteConstants {
 

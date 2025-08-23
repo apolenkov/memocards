@@ -14,7 +14,6 @@ import java.util.Objects;
  *
  * <p>A deck is a collection of flashcards that belongs to a specific user.
  * Each deck has a title, optional description, and contains zero or more flashcards.</p>
- *
  */
 public class Deck {
     private Long id;
@@ -34,8 +33,7 @@ public class Deck {
     private List<Flashcard> flashcards;
 
     /**
-     * Default constructor.
-     * Initializes a new deck with current timestamps and empty flashcards list.
+     * Creates new deck with current timestamps and empty flashcards list.
      */
     public Deck() {
         this.createdAt = LocalDateTime.now();
@@ -44,12 +42,12 @@ public class Deck {
     }
 
     /**
-     * Constructs a new Deck with the specified parameters.
+     * Creates deck with specified parameters.
      *
-     * @param id the unique identifier for the deck
-     * @param userId the ID of the user who owns this deck
-     * @param title the title of the deck
-     * @param description the description of the deck
+     * @param id unique identifier for the deck
+     * @param userId ID of the user who owns this deck
+     * @param title title of the deck
+     * @param description description of the deck
      */
     public Deck(Long id, Long userId, String title, String description) {
         this();
@@ -60,29 +58,21 @@ public class Deck {
     }
 
     /**
-     * Gets the total number of flashcards in this deck.
+     * Gets total number of flashcards in this deck.
      *
-     * <p>This method safely handles null flashcards list and returns 0
-     * if no flashcards are present.</p>
-     *
-     * @return the number of flashcards in this deck
+     * @return number of flashcards in deck
      */
     public int getFlashcardCount() {
         return flashcards != null ? flashcards.size() : 0;
     }
 
     /**
-     * Adds a flashcard to this deck.
+     * Adds flashcard to this deck.
      *
-     * <p>This method performs the following operations:</p>
-     * <ul>
-     *   <li>Initializes the flashcards list if it's null</li>
-     *   <li>Validates that the flashcard is not null</li>
-     *   <li>Sets the deck ID on the flashcard to maintain referential integrity</li>
-     *   <li>Updates the deck's modification timestamp</li>
-     * </ul>
+     * <p>Initializes flashcards list if null, validates flashcard,
+     * sets deck ID on flashcard, and updates modification timestamp.</p>
      *
-     * @param flashcard the flashcard to add to this deck
+     * @param flashcard flashcard to add to deck
      * @throws IllegalArgumentException if flashcard is null
      */
     public void addFlashcard(Flashcard flashcard) {
@@ -98,13 +88,12 @@ public class Deck {
     }
 
     /**
-     * Removes a flashcard from this deck.
+     * Removes flashcard from this deck.
      *
-     * <p>This method safely removes the specified flashcard and updates
-     * the deck's modification timestamp. If the flashcards list is null
-     * or the flashcard is not found, no action is taken.</p>
+     * <p>Safely removes specified flashcard and updates modification timestamp.
+     * No action taken if flashcards list is null or flashcard not found.</p>
      *
-     * @param flashcard the flashcard to remove from this deck
+     * @param flashcard flashcard to remove from deck
      */
     public void removeFlashcard(Flashcard flashcard) {
         if (flashcards != null) {
@@ -114,21 +103,15 @@ public class Deck {
     }
 
     /**
-     * Creates a new deck with the specified parameters.
+     * Creates new deck with specified parameters.
      *
-     * <p>This static factory method provides a convenient way to create
-     * new decks with proper validation and initialization. It ensures that:</p>
-     * <ul>
-     *   <li>User ID is provided and not null</li>
-     *   <li>Title is provided, not null, and not empty after trimming</li>
-     *   <li>Description is optional but trimmed if provided</li>
-     *   <li>Timestamps are automatically set to current time</li>
-     * </ul>
+     * <p>Static factory method that ensures proper validation and initialization.
+     * User ID and title are required, description is optional.</p>
      *
-     * @param userId the ID of the user who will own this deck
-     * @param title the title of the deck (required, non-empty)
-     * @param description the optional description of the deck
-     * @return a new Deck instance with the specified parameters
+     * @param userId ID of the user who will own this deck
+     * @param title title of the deck (required, non-empty)
+     * @param description optional description of the deck
+     * @return new Deck instance with specified parameters
      * @throws IllegalArgumentException if userId is null or title is null/empty
      */
     public static Deck create(Long userId, String title, String description) {
@@ -143,42 +126,38 @@ public class Deck {
     }
 
     /**
-     * Gets the unique identifier of this deck.
+     * Gets unique identifier of this deck.
      *
-     * @return the deck ID, or null if not yet persisted
+     * @return deck ID, or null if not yet persisted
      */
     public Long getId() {
         return id;
     }
 
     /**
-     * Sets the unique identifier of this deck.
+     * Sets unique identifier of this deck.
      *
-     * <p>This method is typically called by the persistence layer when the entity
-     * is saved to the database.</p>
-     *
-     * @param id the deck ID to set
+     * @param id deck ID to set
      */
     public void setId(Long id) {
         this.id = id;
     }
 
     /**
-     * Gets the ID of the user who owns this deck.
+     * Gets ID of the user who owns this deck.
      *
-     * @return the user ID
+     * @return user ID
      */
     public Long getUserId() {
         return userId;
     }
 
     /**
-     * Sets the ID of the user who owns this deck.
+     * Sets ID of the user who owns this deck.
      *
-     * <p>This method validates that the user ID is not null, as every deck
-     * must belong to a specific user.</p>
+     * <p>Validates that user ID is not null, as every deck must belong to a specific user.</p>
      *
-     * @param userId the user ID to set
+     * @param userId user ID to set
      * @throws IllegalArgumentException if userId is null
      */
     public void setUserId(Long userId) {
@@ -187,21 +166,21 @@ public class Deck {
     }
 
     /**
-     * Gets the title of this deck.
+     * Gets title of this deck.
      *
-     * @return the deck title
+     * @return deck title
      */
     public String getTitle() {
         return title;
     }
 
     /**
-     * Sets the title of this deck.
+     * Sets title of this deck.
      *
-     * <p>This method validates and trims the title, ensuring it's not null
-     * or empty. It also updates the modification timestamp.</p>
+     * <p>Validates and trims title, ensuring it's not null or empty.
+     * Updates modification timestamp.</p>
      *
-     * @param title the deck title to set
+     * @param title deck title to set
      * @throws IllegalArgumentException if title is null or empty after trimming
      */
     public void setTitle(String title) {
@@ -212,21 +191,21 @@ public class Deck {
     }
 
     /**
-     * Gets the description of this deck.
+     * Gets description of this deck.
      *
-     * @return the deck description, or null if not set
+     * @return deck description, or null if not set
      */
     public String getDescription() {
         return description;
     }
 
     /**
-     * Sets the description of this deck.
+     * Sets description of this deck.
      *
-     * <p>This method trims the description if provided and updates the
-     * modification timestamp. Description is optional and can be null.</p>
+     * <p>Trims description if provided and updates modification timestamp.
+     * Description is optional and can be null.</p>
      *
-     * @param description the deck description to set
+     * @param description deck description to set
      */
     public void setDescription(String description) {
         this.description = description != null ? description.trim() : null;
@@ -234,67 +213,60 @@ public class Deck {
     }
 
     /**
-     * Gets the timestamp when this deck was created.
+     * Gets timestamp when this deck was created.
      *
-     * @return the creation timestamp
+     * @return creation timestamp
      */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
     /**
-     * Sets the creation timestamp of this deck.
+     * Sets creation timestamp of this deck.
      *
-     * <p>This method is typically called by the persistence layer or when
-     * creating new decks. It should not be modified after initial creation.</p>
-     *
-     * @param createdAt the creation timestamp to set
+     * @param createdAt creation timestamp to set
      */
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
     /**
-     * Gets the timestamp when this deck was last modified.
+     * Gets timestamp when this deck was last modified.
      *
-     * @return the last modification timestamp
+     * @return last modification timestamp
      */
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
     /**
-     * Sets the modification timestamp of this deck.
+     * Sets modification timestamp of this deck.
      *
-     * <p>This method is typically called automatically when deck properties
-     * are modified. It should not be called manually in most cases.</p>
-     *
-     * @param updatedAt the modification timestamp to set
+     * @param updatedAt modification timestamp to set
      */
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
     /**
-     * Gets an unmodifiable list of flashcards in this deck.
+     * Gets unmodifiable list of flashcards in this deck.
      *
-     * <p>This method returns an immutable view of the flashcards list to prevent
-     * external modification. To modify the deck's flashcards, use the dedicated
-     * methods {@link #addFlashcard(Flashcard)} and {@link #removeFlashcard(Flashcard)}.</p>
+     * <p>Returns immutable view to prevent external modification.
+     * Use dedicated methods to modify deck's flashcards.</p>
      *
-     * @return an unmodifiable list of flashcards, or empty list if no flashcards exist
+     * @return unmodifiable list of flashcards, or empty list if none exist
      */
     public List<Flashcard> getFlashcards() {
         return flashcards == null ? List.of() : Collections.unmodifiableList(flashcards);
     }
 
     /**
-     * Sets the list of flashcards for this deck.
+     * Sets list of flashcards for this deck.
      *
-     * <p>This method creates a defensive copy of the provided list to prevent
-     * external modification. It also updates the modification timestamp.</p>
+     * <p>Creates defensive copy to prevent external modification.
+     * Updates modification timestamp.</p>
      *
-     * @param flashcards the list of flashcards to set, or null for empty list
+     * @param flashcards list of flashcards to set, or null for empty list
      */
     public void setFlashcards(List<Flashcard> flashcards) {
         this.flashcards = new ArrayList<>(flashcards != null ? flashcards : List.of());

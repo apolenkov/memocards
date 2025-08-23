@@ -31,7 +31,7 @@ class DevDomainBootstrap {
     /**
      * Creates bootstrap with message source dependency.
      *
-     * @param messageSource the message source for internationalized user names
+     * @param messageSource message source for internationalized user names
      */
     public DevDomainBootstrap(MessageSource messageSource) {
         this.messageSource = messageSource;
@@ -40,10 +40,10 @@ class DevDomainBootstrap {
     /**
      * Creates CommandLineRunner for ensuring domain users exist.
      *
-     * @param users the user repository for user operations
-     * @param audit the role audit repository for tracking changes
-     * @param passwordEncoder the password encoder for secure password hashing
-     * @return a CommandLineRunner that ensures domain users exist
+     * @param users user repository for user operations
+     * @param audit role audit repository for tracking changes
+     * @param passwordEncoder password encoder for secure password hashing
+     * @return CommandLineRunner that ensures domain users exist
      */
     @Bean
     @Order(10)
@@ -76,15 +76,15 @@ class DevDomainBootstrap {
     }
 
     /**
-     * Synchronizes a user with the desired configuration.
+     * Synchronizes user with desired configuration.
      *
-     * @param users the user repository for user operations
-     * @param audit the role audit repository for tracking changes
-     * @param passwordEncoder the password encoder for secure password hashing
-     * @param email the email address for the user
-     * @param rawPassword the plain text password to hash and store
-     * @param fullName the display name for the user
-     * @param desiredRoles the set of roles the user should have
+     * @param users user repository for user operations
+     * @param audit role audit repository for tracking changes
+     * @param passwordEncoder password encoder for secure password hashing
+     * @param email email address for the user
+     * @param rawPassword plain text password to hash and store
+     * @param fullName display name for the user
+     * @param desiredRoles set of roles the user should have
      */
     private void syncUser(
             UserRepository users,

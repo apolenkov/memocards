@@ -24,7 +24,7 @@ public class SecurityConfig extends VaadinWebSecurity {
     private final DevAutoLoginFilter devAutoLoginFilter;
 
     /**
-     * Constructs a new SecurityConfig with environment and auto-login filter.
+     * Creates security configuration with environment and auto-login filter.
      */
     @Autowired
     public SecurityConfig(Environment environment, DevAutoLoginFilter devAutoLoginFilter) {
@@ -36,7 +36,7 @@ public class SecurityConfig extends VaadinWebSecurity {
     }
 
     /**
-     * Configures HTTP security settings for the application.
+     * Configures HTTP security including authentication, CSRF protection, and CSP.
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -81,7 +81,9 @@ public class SecurityConfig extends VaadinWebSecurity {
     }
 
     /**
-     * Creates an access denied handler for unauthorized requests.
+     * Creates access denied handler for unauthorized requests.
+     *
+     * @return handler that returns JSON for API requests or redirects for UI requests
      */
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
@@ -106,7 +108,9 @@ public class SecurityConfig extends VaadinWebSecurity {
     }
 
     /**
-     * Creates a password encoder for secure password hashing.
+     * Creates password encoder for secure password hashing.
+     *
+     * @return BCrypt password encoder
      */
     @Bean
     public PasswordEncoder passwordEncoder() {

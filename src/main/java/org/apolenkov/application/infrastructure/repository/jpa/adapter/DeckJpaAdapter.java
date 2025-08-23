@@ -24,7 +24,7 @@ public class DeckJpaAdapter implements DeckRepository {
     /**
      * Creates adapter with JPA repository dependency.
      *
-     * @param repo the Spring Data JPA repository for deck operations
+     * @param repo Spring Data JPA repository for deck operations
      * @throws IllegalArgumentException if repo is null
      */
     public DeckJpaAdapter(DeckJpaRepository repo) {
@@ -37,8 +37,8 @@ public class DeckJpaAdapter implements DeckRepository {
     /**
      * Converts JPA entity to domain model.
      *
-     * @param e the JPA entity to convert
-     * @return the corresponding domain model
+     * @param e JPA entity to convert
+     * @return corresponding domain model
      * @throws IllegalArgumentException if e is null
      */
     private static Deck toModel(DeckEntity e) {
@@ -55,8 +55,8 @@ public class DeckJpaAdapter implements DeckRepository {
     /**
      * Converts domain model to JPA entity with timestamp handling.
      *
-     * @param d the domain model to convert
-     * @return the corresponding JPA entity
+     * @param d domain model to convert
+     * @return corresponding JPA entity
      * @throws IllegalArgumentException if d is null
      */
     private static DeckEntity toEntity(Deck d) {
@@ -75,7 +75,7 @@ public class DeckJpaAdapter implements DeckRepository {
     }
 
     /**
-     * Retrieves all decks from the database.
+     * Retrieves all decks from database.
      *
      * @return list of all decks
      */
@@ -85,10 +85,10 @@ public class DeckJpaAdapter implements DeckRepository {
     }
 
     /**
-     * Retrieves all decks owned by a specific user.
+     * Retrieves all decks owned by specific user.
      *
-     * @param userId the ID of the user whose decks to retrieve
-     * @return list of decks owned by the user
+     * @param userId ID of user whose decks to retrieve
+     * @return list of decks owned by user
      * @throws IllegalArgumentException if userId is null
      */
     @Override
@@ -100,10 +100,10 @@ public class DeckJpaAdapter implements DeckRepository {
     }
 
     /**
-     * Retrieves a deck by its unique identifier.
+     * Retrieves deck by unique identifier.
      *
-     * @param id the unique identifier of the deck
-     * @return Optional containing the deck if found
+     * @param id unique identifier of deck
+     * @return Optional containing deck if found
      * @throws IllegalArgumentException if id is null
      */
     @Override
@@ -115,10 +115,10 @@ public class DeckJpaAdapter implements DeckRepository {
     }
 
     /**
-     * Saves a deck to the database.
+     * Saves deck to database.
      *
-     * @param deck the deck to save
-     * @return the saved deck with updated fields
+     * @param deck deck to save
+     * @return saved deck with updated fields
      * @throws IllegalArgumentException if deck is null
      */
     @Override
@@ -132,9 +132,9 @@ public class DeckJpaAdapter implements DeckRepository {
     }
 
     /**
-     * Deletes a deck by its unique identifier.
+     * Deletes deck by unique identifier.
      *
-     * @param id the unique identifier of the deck to delete
+     * @param id unique identifier of deck to delete
      * @throws IllegalArgumentException if id is null
      */
     @Override

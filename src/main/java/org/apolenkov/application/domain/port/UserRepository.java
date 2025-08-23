@@ -7,46 +7,46 @@ import org.apolenkov.application.model.User;
 /**
  * Domain port for user management operations.
  *
- * <p>Defines the contract for CRUD operations on users,
+ * <p>Defines contract for CRUD operations on users,
  * including authentication and profile management.</p>
  */
 public interface UserRepository {
 
     /**
-     * Retrieves all users in the system.
+     * Retrieves all users in system.
      *
      * @return list of all users
      */
     List<User> findAll();
 
     /**
-     * Finds a user by their identifier.
+     * Finds user by identifier.
      *
-     * @param id the user identifier
+     * @param id user identifier
      * @return user if found, empty otherwise
      */
     Optional<User> findById(Long id);
 
     /**
-     * Finds a user by their email address.
+     * Finds user by email address.
      *
-     * @param email the user's email address
+     * @param email user's email address
      * @return user if found, empty otherwise
      */
     Optional<User> findByEmail(String email);
 
     /**
-     * Saves a user (creates new or updates existing).
+     * Saves user (creates new or updates existing).
      *
-     * @param user the user to save
-     * @return the saved user with generated ID
+     * @param user user to save
+     * @return saved user with generated ID
      */
     User save(User user);
 
     /**
-     * Deletes a user by their identifier.
+     * Deletes user by identifier.
      *
-     * @param id the user identifier to delete
+     * @param id user identifier to delete
      */
     void deleteById(Long id);
 }

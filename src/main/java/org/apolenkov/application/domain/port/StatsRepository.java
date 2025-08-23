@@ -14,7 +14,7 @@ import java.util.Set;
 public interface StatsRepository {
 
     /**
-     * Daily statistics record for a specific date.
+     * Daily statistics record for specific date.
      */
     record DailyStatsRecord(
             LocalDate date,
@@ -27,7 +27,7 @@ public interface StatsRepository {
             long totalAnswerDelayMs) {}
 
     /**
-     * Records a practice session for a deck.
+     * Records practice session for deck.
      *
      * @param deckId deck identifier
      * @param date practice date
@@ -51,7 +51,7 @@ public interface StatsRepository {
             Collection<Long> knownCardIdsDelta);
 
     /**
-     * Gets daily statistics for a deck.
+     * Gets daily statistics for deck.
      *
      * @param deckId deck identifier
      * @return list of daily statistics records
@@ -59,7 +59,7 @@ public interface StatsRepository {
     List<DailyStatsRecord> getDailyStats(long deckId);
 
     /**
-     * Gets known card IDs for a deck.
+     * Gets known card IDs for deck.
      *
      * @param deckId deck identifier
      * @return set of known card IDs
@@ -67,7 +67,7 @@ public interface StatsRepository {
     Set<Long> getKnownCardIds(long deckId);
 
     /**
-     * Marks a card as known or unknown for a deck.
+     * Marks card as known or unknown for deck.
      *
      * @param deckId deck identifier
      * @param cardId card identifier
@@ -76,14 +76,14 @@ public interface StatsRepository {
     void setCardKnown(long deckId, long cardId, boolean known);
 
     /**
-     * Resets all progress for a deck.
+     * Resets all progress for deck.
      *
      * @param deckId deck identifier
      */
     void resetDeckProgress(long deckId);
 
     /**
-     * Aggregate statistics for a deck (all-time and today).
+     * Aggregate statistics for deck (all-time and today).
      */
     record DeckAggregate(
             int sessionsAll,

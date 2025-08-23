@@ -17,7 +17,7 @@ public class TransactionAnnotations {
     /**
      * Read-only transaction for query operations.
      *
-     * <p>Optimizes database performance for data retrieval methods.</p>
+     * <p>Optimizes database performance for data retrieval.</p>
      */
     @Target({ElementType.METHOD, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
@@ -27,7 +27,7 @@ public class TransactionAnnotations {
     /**
      * Write transaction for create/update operations.
      *
-     * <p>Provides standard transaction behavior for data modification methods.</p>
+     * <p>Provides standard transaction behavior for data modification.</p>
      */
     @Target({ElementType.METHOD, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
@@ -37,7 +37,7 @@ public class TransactionAnnotations {
     /**
      * Delete transaction for remove operations.
      *
-     * <p>Ensures data consistency during deletion operations.</p>
+     * <p>Ensures data consistency during deletion.</p>
      */
     @Target({ElementType.METHOD, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)

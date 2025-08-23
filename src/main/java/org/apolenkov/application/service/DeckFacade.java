@@ -12,10 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Facade service for deck-related operations.
  *
- * <p>This facade coordinates between deck and flashcard use cases,
- * providing a simplified interface for deck management operations
- * including creation, deletion, and flashcard manipulation.</p>
- *
+ * <p>Coordinates between deck and flashcard use cases, providing simplified interface
+ * for deck management operations including creation, deletion, and flashcard manipulation.</p>
  */
 @Component
 public class DeckFacade {
@@ -25,11 +23,11 @@ public class DeckFacade {
     private final StatsService statsService;
 
     /**
-     * Constructs a new DeckFacade with the specified use cases and services.
+     * Creates DeckFacade with specified use cases and services.
      *
-     * @param deckUseCase the deck use case for deck operations
-     * @param flashcardUseCase the flashcard use case for flashcard operations
-     * @param statsService the stats service for statistics tracking
+     * @param deckUseCase deck use case for deck operations
+     * @param flashcardUseCase flashcard use case for flashcard operations
+     * @param statsService stats service for statistics tracking
      */
     public DeckFacade(DeckUseCase deckUseCase, FlashcardUseCase flashcardUseCase, StatsService statsService) {
         this.deckUseCase = deckUseCase;
@@ -38,11 +36,11 @@ public class DeckFacade {
     }
 
     /**
-     * Retrieves a deck by its ID or throws an exception if not found.
+     * Retrieves deck by ID or throws exception if not found.
      *
-     * @param deckId the ID of the deck to retrieve
-     * @return the deck with the specified ID
-     * @throws java.util.NoSuchElementException if no deck is found with the given ID
+     * @param deckId ID of deck to retrieve
+     * @return deck with specified ID
+     * @throws java.util.NoSuchElementException if no deck found with given ID
      */
     @Transactional(readOnly = true)
     public Deck getDeckOrThrow(long deckId) {
@@ -50,13 +48,10 @@ public class DeckFacade {
     }
 
     /**
-     * Loads all flashcards for a specific deck.
+     * Loads all flashcards for specific deck.
      *
-     * <p>This method retrieves all flashcards associated with the specified deck.
-     * It uses a read-only transaction for optimal performance when loading data.</p>
-     *
-     * @param deckId the ID of the deck whose flashcards to load
-     * @return a list of flashcards in the specified deck
+     * @param deckId ID of deck whose flashcards to load
+     * @return list of flashcards in specified deck
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Transactional(readOnly = true)
@@ -65,13 +60,13 @@ public class DeckFacade {
     }
 
     /**
-     * Retrieves the set of card IDs that are marked as known in the specified deck.
+     * Retrieves set of card IDs marked as known in specified deck.
      *
-     * <p>This method provides information about the user's learning progress
-     * by returning the IDs of cards they have marked as known or learned.</p>
+     * <p>Provides information about user's learning progress by returning
+     * IDs of cards they have marked as known or learned.</p>
      *
-     * @param deckId the ID of the deck to check for known cards
-     * @return a set of card IDs that are marked as known
+     * @param deckId ID of deck to check for known cards
+     * @return set of card IDs marked as known
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Transactional(readOnly = true)
@@ -80,14 +75,13 @@ public class DeckFacade {
     }
 
     /**
-     * Toggles the known status of a specific card in a deck.
+     * Toggles known status of specific card in deck.
      *
-     * <p>This method changes the learning status of a card from known to unknown
-     * or vice versa. It's commonly used in flashcard applications to track
-     * user progress and adjust learning algorithms.</p>
+     * <p>Changes learning status of card from known to unknown or vice versa.
+     * Used to track user progress and adjust learning algorithms.</p>
      *
-     * @param deckId the ID of the deck containing the card
-     * @param cardId the ID of the card to toggle
+     * @param deckId ID of deck containing the card
+     * @param cardId ID of card to toggle
      * @throws IllegalArgumentException if deckId or cardId is invalid
      */
     @Transactional
@@ -97,16 +91,15 @@ public class DeckFacade {
     }
 
     /**
-     * Resets the learning progress for all cards in a specific deck.
+     * Resets learning progress for all cards in specific deck.
      *
-     * <p>This method clears all progress tracking data for the specified deck,
-     * effectively resetting the user's learning state back to the beginning.
-     * This is useful for users who want to start over or for testing purposes.</p>
+     * <p>Clears all progress tracking data for specified deck, resetting
+     * user's learning state back to beginning.</p>
      *
      * <p><strong>Warning:</strong> This operation is irreversible and will
      * permanently delete all progress data for the deck.</p>
      *
-     * @param deckId the ID of the deck whose progress to reset
+     * @param deckId ID of deck whose progress to reset
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Transactional
@@ -115,13 +108,10 @@ public class DeckFacade {
     }
 
     /**
-     * Gets the total number of flashcards in a specific deck.
+     * Gets total number of flashcards in specific deck.
      *
-     * <p>This method provides a convenient way to determine the size of a deck
-     * without loading all the flashcard data into memory.</p>
-     *
-     * @param deckId the ID of the deck to check
-     * @return the number of flashcards in the deck
+     * @param deckId ID of deck to check
+     * @return number of flashcards in deck
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Transactional(readOnly = true)
@@ -130,15 +120,13 @@ public class DeckFacade {
     }
 
     /**
-     * Calculates the learning progress percentage for a specific deck.
+     * Calculates learning progress percentage for specific deck.
      *
-     * <p>This method computes the percentage of cards in the deck that have
-     * been marked as known, providing a measure of the user's learning progress.</p>
+     * <p>Computes percentage of cards in deck marked as known,
+     * providing measure of user's learning progress.</p>
      *
-     * <p>The progress is calculated as: (known cards / total cards) * 100</p>
-     *
-     * @param deckId the ID of the deck to calculate progress for
-     * @return the progress percentage (0-100)
+     * @param deckId ID of deck to calculate progress for
+     * @return progress percentage (0-100)
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Transactional(readOnly = true)
@@ -147,14 +135,13 @@ public class DeckFacade {
     }
 
     /**
-     * Saves a flashcard to the system.
+     * Saves flashcard to system.
      *
-     * <p>This method persists a flashcard, either creating a new one or
-     * updating an existing one. It handles both insert and update operations
-     * based on whether the flashcard has an existing ID.</p>
+     * <p>Persists flashcard, either creating new one or updating existing one.
+     * Handles both insert and update operations based on whether flashcard has existing ID.</p>
      *
-     * @param flashcard the flashcard to save
-     * @return the saved flashcard with updated fields (e.g., generated ID, timestamps)
+     * @param flashcard flashcard to save
+     * @return saved flashcard with updated fields (e.g., generated ID, timestamps)
      * @throws IllegalArgumentException if flashcard is null or invalid
      * @throws RuntimeException if database operation fails
      */
@@ -164,13 +151,12 @@ public class DeckFacade {
     }
 
     /**
-     * Deletes a flashcard from the system.
+     * Deletes flashcard from system.
      *
-     * <p>This method permanently removes a flashcard from the system.
-     * The operation is irreversible and will also remove any associated
-     * progress tracking data.</p>
+     * <p>Permanently removes flashcard from system. Operation is irreversible
+     * and will also remove any associated progress tracking data.</p>
      *
-     * @param id the ID of the flashcard to delete
+     * @param id ID of flashcard to delete
      * @throws IllegalArgumentException if id is null
      * @throws RuntimeException if database operation fails or flashcard doesn't exist
      */
@@ -180,14 +166,13 @@ public class DeckFacade {
     }
 
     /**
-     * Saves a deck to the system.
+     * Saves deck to system.
      *
-     * <p>This method persists a deck, either creating a new one or
-     * updating an existing one. It handles both insert and update operations
-     * based on whether the deck has an existing ID.</p>
+     * <p>Persists deck, either creating new one or updating existing one.
+     * Handles both insert and update operations based on whether deck has existing ID.</p>
      *
-     * @param deck the deck to save
-     * @return the saved deck with updated fields (e.g., generated ID, timestamps)
+     * @param deck deck to save
+     * @return saved deck with updated fields (e.g., generated ID, timestamps)
      * @throws IllegalArgumentException if deck is null or invalid
      * @throws RuntimeException if database operation fails
      */
@@ -197,16 +182,12 @@ public class DeckFacade {
     }
 
     /**
-     * Deletes a deck and all its associated flashcards.
+     * Deletes deck and all its associated flashcards.
      *
-     * <p>This method permanently removes a deck and all flashcards that belong
-     * to it. The operation is irreversible and will also remove any associated
-     * progress tracking data.</p>
+     * <p>Permanently removes deck and all flashcards that belong to it.
+     * Operation is irreversible and will also remove any associated progress tracking data.</p>
      *
-     * <p><strong>Warning:</strong> This operation deletes all data associated
-     * with the deck, including flashcards and progress statistics.</p>
-     *
-     * @param deckId the ID of the deck to delete
+     * @param deckId ID of deck to delete
      * @throws IllegalArgumentException if deckId is null
      * @throws RuntimeException if database operation fails or deck doesn't exist
      */
@@ -216,10 +197,10 @@ public class DeckFacade {
     }
 
     /**
-     * Safely deletes a deck with confirmation text validation.
+     * Safely deletes deck with confirmation text validation.
      *
-     * @param deckId the ID of the deck to delete
-     * @param confirmationText the text that must match the deck title
+     * @param deckId ID of deck to delete
+     * @param confirmationText text that must match deck title
      * @throws IllegalArgumentException if confirmation text doesn't match deck title
      * @throws java.util.NoSuchElementException if deck is not found
      */

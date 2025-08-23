@@ -7,11 +7,11 @@ import org.apolenkov.application.model.User;
 /**
  * Use case interface for user management operations.
  *
- * <p>This interface defines the core business operations for managing users
- * in the system. It provides a clean abstraction layer between the application
- * services and the underlying data access layer.</p>
+ * <p>Defines core business operations for managing users in system.
+ * Provides clean abstraction layer between application services and
+ * underlying data access layer.</p>
  *
- * <p>Key operations include:</p>
+ * <p>Key operations:</p>
  * <ul>
  *   <li>Retrieving users by various criteria</li>
  *   <li>Accessing current authenticated user information</li>
@@ -20,28 +20,28 @@ import org.apolenkov.application.model.User;
  */
 public interface UserUseCase {
     /**
-     * Retrieves all users in the system.
+     * Retrieves all users in system.
      *
-     * @return a list of all registered users
+     * @return list of all registered users
      */
     List<User> getAllUsers();
 
     /**
-     * Retrieves a specific user by their ID.
+     * Retrieves specific user by ID.
      *
-     * @param id the unique identifier of the user
-     * @return an Optional containing the user if found, empty otherwise
+     * @param id unique identifier of user
+     * @return Optional containing user if found, empty otherwise
      */
     Optional<User> getUserById(Long id);
 
     /**
-     * Retrieves the currently authenticated user.
+     * Retrieves currently authenticated user.
      *
-     * <p>Returns the user associated with the current security context.
-     * This method is typically used to get user information for operations
+     * <p>Returns user associated with current security context.
+     * Typically used to get user information for operations
      * that require user-specific data.</p>
      *
-     * @return the currently authenticated user
+     * @return currently authenticated user
      */
     User getCurrentUser();
 }
