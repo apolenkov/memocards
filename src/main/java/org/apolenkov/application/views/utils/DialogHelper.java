@@ -68,6 +68,7 @@ public final class DialogHelper {
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttons.setWidthFull();
 
         Button confirmButton = new Button(confirmText, VaadinIcon.CHECK.create());
         confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
@@ -105,6 +106,7 @@ public final class DialogHelper {
      * @return a configured Dialog component ready for display
      */
     public static Dialog createConfirmationDialog(String title, String message, Runnable onConfirm, Runnable onCancel) {
-        return createConfirmationDialog(title, message, "Confirm", "Cancel", onConfirm, onCancel);
+        return createConfirmationDialog(
+                title, message, I18nHelper.tr("dialog.confirm"), I18nHelper.tr("dialog.cancel"), onConfirm, onCancel);
     }
 }
