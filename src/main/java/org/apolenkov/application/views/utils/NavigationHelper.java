@@ -7,21 +7,7 @@ import org.apolenkov.application.config.RouteConstants;
 
 /**
  * Utility class for centralized navigation operations.
- *
- * <p>This utility class provides helper methods for common navigation tasks
- * throughout the application. It simplifies navigation operations and ensures
- * consistent behavior across different components and views.</p>
- *
- * <p>The class offers:</p>
- * <ul>
- *   <li>Programmatic navigation to specific routes</li>
- *   <li>Router link creation with consistent styling</li>
- *   <li>Navigation state management and updates</li>
- *   <li>Centralized navigation logic for maintainability</li>
- * </ul>
- *
- * <p>All navigation operations use Vaadin's routing system to ensure
- * proper page transitions and state management.</p>
+ * Provides helper methods for common navigation tasks throughout the application.
  */
 public final class NavigationHelper {
 
@@ -31,10 +17,7 @@ public final class NavigationHelper {
 
     /**
      * Navigates to a route without parameters.
-     *
-     * <p>Performs programmatic navigation to the given route path
-     * using the current UI context. This method is useful for
-     * navigation triggered by user actions or application logic.</p>
+     * Performs programmatic navigation to the given route path.
      *
      * @param route the route path to navigate to (e.g., "/decks", "/settings")
      */
@@ -44,10 +27,7 @@ public final class NavigationHelper {
 
     /**
      * Navigates to a route with query parameters.
-     *
-     * <p>Performs programmatic navigation to the given route with
-     * additional query parameters. This method is useful for passing
-     * data or state information during navigation.</p>
+     * Performs programmatic navigation to the given route with additional query parameters.
      *
      * @param route the route path to navigate to
      * @param params the query parameters to include in the navigation
@@ -58,10 +38,7 @@ public final class NavigationHelper {
 
     /**
      * Navigates to a route with a single parameter.
-     *
-     * <p>Performs programmatic navigation to the given route with
-     * a single path parameter. The parameter is appended to the route
-     * as a path segment.</p>
+     * Performs programmatic navigation to the given route with a single path parameter.
      *
      * @param route the base route path to navigate to
      * @param parameter the single parameter to append to the route
@@ -72,10 +49,7 @@ public final class NavigationHelper {
 
     /**
      * Navigates to error page with "from" parameter.
-     *
-     * <p>Navigates to the error page while preserving information about
-     * the route that caused the error. This helps with error handling
-     * and user navigation recovery.</p>
+     * Navigates to the error page while preserving information about the route that caused the error.
      *
      * @param fromRoute the route that caused the error or from which the user came
      */
@@ -85,10 +59,7 @@ public final class NavigationHelper {
 
     /**
      * Navigates to deck view.
-     *
-     * <p>Navigates to the detailed view of a specific deck using
-     * the deck's unique identifier. This method provides a convenient
-     * way to access deck details from various parts of the application.</p>
+     * Navigates to the detailed view of a specific deck using the deck's unique identifier.
      *
      * @param deckId the unique identifier of the deck to view
      * @throws IllegalArgumentException if deckId is null

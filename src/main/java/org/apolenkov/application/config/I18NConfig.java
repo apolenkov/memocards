@@ -7,18 +7,16 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 
 /**
  * Configuration for internationalization (i18n) support.
- *
- * <p>Sets up Spring's MessageSource infrastructure for internationalization.
- * Supports UTF-8 encoding and provides fallback mechanisms for missing translations.</p>
+ * Sets up Spring's MessageSource infrastructure for internationalization.
+ * Supports UTF-8 encoding and provides fallback mechanisms for missing translations.
  */
 @Configuration
 public class I18NConfig {
 
     /**
      * Creates MessageSource bean for internationalization support.
-     *
-     * <p>Reads message bundles from "i18n/messages" with UTF-8 encoding.
-     * Uses message code as default when translation is not found.</p>
+     * Reads message bundles from "i18n/messages" with UTF-8 encoding.
+     * Uses message code as default when translation is not found.
      *
      * @return configured MessageSource for internationalization
      */

@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Service for managing user-specific settings and preferences.
- *
- * <p>Provides functionality for storing and retrieving user preferences.</p>
+ * Provides functionality for storing and retrieving user preferences.
  */
 @Service
 public class UserSettingsService {
@@ -29,18 +28,9 @@ public class UserSettingsService {
 
     /**
      * Sets preferred locale for specific user.
-     *
-     * <p>Allows users to customize their language preferences, which affects
+     * Allows users to customize their language preferences, which affects
      * internationalization of user interface. Locale is converted to language
-     * tag string for storage in database.</p>
-     *
-     * <p>Locale setting influences:</p>
-     * <ul>
-     *   <li><strong>UI Language:</strong> Text displayed in user's preferred language</li>
-     *   <li><strong>Date/Time Format:</strong> Regional formatting for dates and times</li>
-     *   <li><strong>Number Format:</strong> Regional formatting for numbers and currencies</li>
-     *   <li><strong>Content Localization:</strong> Region-specific content and features</li>
-     * </ul>
+     * tag string for storage in database.
      *
      * @param userId ID of user whose locale preference to set
      * @param locale preferred locale for user

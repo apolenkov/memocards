@@ -12,22 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Utility class for centralized dialog management.
- *
- * <p>This utility class provides factory methods for creating consistently
- * styled dialogs throughout the application. It eliminates duplication
- * of dialog creation patterns and ensures uniform appearance and behavior.</p>
- *
- * <p>The class offers:</p>
- * <ul>
- *   <li>Confirmation dialog creation with consistent styling</li>
- *   <li>Standardized dialog layout and button configuration</li>
- *   <li>Consistent dialog behavior and user interaction</li>
- *   <li>Centralized dialog styling for maintainability</li>
- * </ul>
- *
- * <p>All dialogs created through this utility automatically include
- * appropriate styling, button configuration, and user interaction
- * patterns for consistent user experience across the application.</p>
+ * Provides factory methods for creating consistently styled dialogs.
  */
 public final class DialogHelper {
 
@@ -37,10 +22,7 @@ public final class DialogHelper {
 
     /**
      * Creates a confirmation dialog with custom button text and actions.
-     *
-     * <p>Creates a standardized confirmation dialog with consistent styling,
-     * layout, and button configuration. The dialog includes a title, message
-     * content, and customizable action buttons for user confirmation or cancellation.</p>
+     * Creates a standardized confirmation dialog with consistent styling and layout.
      *
      * @param title the title text to display in the dialog header
      * @param message the message content to display in the dialog body
@@ -94,10 +76,7 @@ public final class DialogHelper {
 
     /**
      * Creates a confirmation dialog with default button text and actions.
-     *
-     * <p>Creates a confirmation dialog using standard "Confirm" and "Cancel"
-     * button text. This method provides a simplified interface for common
-     * confirmation scenarios while maintaining consistent styling and behavior.</p>
+     * Creates a confirmation dialog using standard "Confirm" and "Cancel" button text.
      *
      * @param title the title text to display in the dialog header
      * @param message the message content to display in the dialog body

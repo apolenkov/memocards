@@ -5,21 +5,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 
 /**
  * Utility class for centralized notification management.
- *
- * <p>This utility class provides factory methods for creating consistently
- * styled notifications throughout the application. It eliminates duplication
- * of notification creation patterns and ensures uniform appearance and behavior.</p>
- *
- * <p>The class offers:</p>
- * <ul>
- *   <li>Success, error, warning, and info notification variants</li>
- *   <li>Customizable duration and positioning options</li>
- *   <li>Specialized methods for common notification types</li>
- *   <li>Standardized styling using Lumo design system</li>
- * </ul>
- *
- * <p>All notifications created through this utility automatically include
- * appropriate theme variants and positioning for consistent user experience.</p>
+ * Provides factory methods for creating consistently styled notifications.
  */
 public final class NotificationHelper {
 
@@ -38,10 +24,7 @@ public final class NotificationHelper {
 
     /**
      * Shows a success notification with the specified message.
-     *
-     * <p>Displays a green success notification with default duration
-     * and positioning. Success notifications are used to confirm
-     * successful operations and provide positive feedback to users.</p>
+     * Displays a green success notification with default duration and positioning.
      *
      * @param message the success message to display
      */
@@ -51,9 +34,7 @@ public final class NotificationHelper {
 
     /**
      * Shows a success notification with custom duration.
-     *
-     * <p>Displays a success notification with the specified duration
-     * while maintaining the default positioning and styling.</p>
+     * Displays a success notification with the specified duration.
      *
      * @param message the success message to display
      * @param duration the duration in milliseconds to show the notification
@@ -65,9 +46,7 @@ public final class NotificationHelper {
 
     /**
      * Shows a success notification at the bottom position.
-     *
-     * <p>Displays a success notification with short duration at the
-     * bottom position for quick user feedback.</p>
+     * Displays a success notification with short duration at the bottom position.
      *
      * @param message the success message to display
      */
@@ -78,10 +57,7 @@ public final class NotificationHelper {
 
     /**
      * Shows an error notification with the specified message.
-     *
-     * <p>Displays a red error notification with default duration
-     * and positioning. Error notifications are used to inform
-     * users about failed operations or system errors.</p>
+     * Displays a red error notification with default duration and positioning.
      *
      * @param message the error message to display
      */
@@ -91,9 +67,7 @@ public final class NotificationHelper {
 
     /**
      * Shows an error notification with custom duration.
-     *
-     * <p>Displays an error notification with the specified duration
-     * while maintaining the default positioning and styling.</p>
+     * Displays an error notification with the specified duration.
      *
      * @param message the error message to display
      * @param duration the duration in milliseconds to show the notification
@@ -105,9 +79,8 @@ public final class NotificationHelper {
 
     /**
      * Shows an error notification with long duration.
-     *
-     * <p>Displays an error notification with extended duration to ensure
-     * users have sufficient time to read important error messages.</p>
+     * Displays an error notification with extended duration to ensure
+     * users have sufficient time to read important error messages.
      *
      * @param message the error message to display
      */
@@ -118,10 +91,7 @@ public final class NotificationHelper {
 
     /**
      * Shows an informational notification with the specified message.
-     *
-     * <p>Displays a blue informational notification with default duration
-     * and positioning. Info notifications are used to provide
-     * general information or status updates to users.</p>
+     * Displays a blue informational notification with default duration and positioning.
      *
      * @param message the informational message to display
      */
@@ -132,9 +102,8 @@ public final class NotificationHelper {
 
     /**
      * Shows a notification with custom parameters.
-     *
-     * <p>Creates a basic notification with custom duration and position
-     * without any specific theme variants applied.</p>
+     * Creates a basic notification with custom duration and position
+     * without any specific theme variants applied.
      *
      * @param message the message to display in the notification
      * @param duration the duration in milliseconds to show the notification
@@ -146,9 +115,8 @@ public final class NotificationHelper {
 
     /**
      * Shows a notification with custom parameters and variant.
-     *
-     * <p>Creates a notification with custom duration, position, and
-     * theme variant for specialized notification requirements.</p>
+     * Creates a notification with custom duration, position, and
+     * theme variant for specialized notification requirements.
      *
      * @param message the message to display in the notification
      * @param duration the duration in milliseconds to show the notification
@@ -164,9 +132,8 @@ public final class NotificationHelper {
 
     /**
      * Shows a validation error notification.
-     *
-     * <p>Displays a standardized error notification for form validation
-     * failures using the localized error message.</p>
+     * Displays a standardized error notification for form validation
+     * failures using the localized error message.
      */
     public static void showValidationError() {
         showError(I18nHelper.tr("dialog.fillRequired"));
@@ -174,9 +141,8 @@ public final class NotificationHelper {
 
     /**
      * Shows a delete success notification.
-     *
-     * <p>Displays a success notification confirming successful deletion
-     * operations with bottom positioning for quick acknowledgment.</p>
+     * Displays a success notification confirming successful deletion
+     * operations with bottom positioning for quick acknowledgment.
      */
     public static void showDeleteSuccess() {
         showSuccessBottom(I18nHelper.tr("dialog.deleted"));

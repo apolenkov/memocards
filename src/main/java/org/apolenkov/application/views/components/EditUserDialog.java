@@ -14,30 +14,15 @@ import org.apolenkov.application.service.user.AdminUserService;
 
 /**
  * Dialog component for editing existing user accounts.
- *
- * <p>This dialog provides administrators with the ability to modify user
- * information including email, name, roles, and password. It includes
- * comprehensive validation and error handling for all form fields.</p>
- *
- * <p>The dialog features:</p>
- * <ul>
- *   <li>Pre-populated form fields with current user data</li>
- *   <li>Email and name validation with real-time feedback</li>
- *   <li>Optional password change with strength requirements</li>
- *   <li>Role management with proper security constraints</li>
- *   <li>Audit trail for administrative changes</li>
- * </ul>
- *
- * <p>All changes are tracked with administrator identification for
- * security and compliance purposes.</p>
+ * Provides administrators with the ability to modify user information
+ * including email, name, roles, and password with comprehensive validation.
  */
 public class EditUserDialog extends Dialog {
 
     /**
      * Callback interface for handling successful user updates.
-     *
-     * <p>Provides a mechanism for the parent component to respond
-     * when a user is successfully updated through the dialog.</p>
+     * Provides a mechanism for the parent component to respond
+     * when a user is successfully updated through the dialog.
      */
     public interface OnSaved {
         /**
@@ -57,9 +42,8 @@ public class EditUserDialog extends Dialog {
 
     /**
      * Creates a new EditUserDialog for the specified user.
-     *
-     * <p>Initializes the dialog with the user's current information
-     * and sets up the form layout with appropriate validation rules.</p>
+     * Initializes the dialog with the user's current information
+     * and sets up the form layout with appropriate validation rules.
      *
      * @param service the admin user service for performing updates
      * @param user the user object to edit
@@ -78,9 +62,8 @@ public class EditUserDialog extends Dialog {
 
     /**
      * Creates the form layout with all input fields.
-     *
-     * <p>Sets up form fields with proper validation, placeholders,
-     * and helper text to guide administrators during user editing.</p>
+     * Sets up form fields with proper validation, placeholders,
+     * and helper text to guide administrators during user editing.
      *
      * @return a configured FormLayout containing all input fields
      */
@@ -107,9 +90,8 @@ public class EditUserDialog extends Dialog {
 
     /**
      * Creates and configures the dialog buttons.
-     *
-     * <p>Sets up save and cancel buttons with appropriate styling
-     * and event handlers for form submission and dialog closure.</p>
+     * Sets up save and cancel buttons with appropriate styling
+     * and event handlers for form submission and dialog closure.
      */
     private void createButtons() {
         Button save = new Button(getTranslation("dialog.save"), e -> handleSave());
@@ -119,10 +101,9 @@ public class EditUserDialog extends Dialog {
 
     /**
      * Handles the save button click event.
-     *
-     * <p>Performs validation on all form fields and, if successful,
+     * Performs validation on all form fields and, if successful,
      * attempts to save the updated user information. Displays appropriate
-     * error messages for validation failures.</p>
+     * error messages for validation failures.
      */
     private void handleSave() {
         clearValidationErrors();
@@ -137,9 +118,8 @@ public class EditUserDialog extends Dialog {
 
     /**
      * Clears all validation error states from form fields.
-     *
-     * <p>Resets the visual error indicators on all input fields
-     * before performing new validation.</p>
+     * Resets the visual error indicators on all input fields
+     * before performing new validation.
      */
     private void clearValidationErrors() {
         email.setInvalid(false);
@@ -149,9 +129,8 @@ public class EditUserDialog extends Dialog {
 
     /**
      * Populates form fields with current user data.
-     *
-     * <p>Fills the email and name fields with the user's existing
-     * information, handling null values gracefully.</p>
+     * Fills the email and name fields with the user's existing
+     * information, handling null values gracefully.
      */
     private void populateFieldValues() {
         email.setValue(user.getEmail() == null ? "" : user.getEmail());
@@ -160,9 +139,8 @@ public class EditUserDialog extends Dialog {
 
     /**
      * Validates all form fields for correctness.
-     *
-     * <p>Performs comprehensive validation on email, name, and password
-     * fields, setting appropriate error states and messages.</p>
+     * Performs comprehensive validation on email, name, and password
+     * fields, setting appropriate error states and messages.
      *
      * @return true if all fields are valid, false otherwise
      */
@@ -176,9 +154,8 @@ public class EditUserDialog extends Dialog {
 
     /**
      * Validates the email field for format and presence.
-     *
-     * <p>Ensures the email field contains a valid email address
-     * and is not empty.</p>
+     * Ensures the email field contains a valid email address
+     * and is not empty.
      *
      * @return true if the email is valid, false otherwise
      */
@@ -202,9 +179,8 @@ public class EditUserDialog extends Dialog {
 
     /**
      * Validates the name field for presence.
-     *
-     * <p>Ensures the name field is not empty and contains
-     * meaningful content.</p>
+     * Ensures the name field is not empty and contains
+     * meaningful content.
      *
      * @return true if the name is valid, false otherwise
      */
@@ -222,10 +198,9 @@ public class EditUserDialog extends Dialog {
 
     /**
      * Validates the password field for strength requirements.
-     *
-     * <p>If a password is provided, ensures it meets the minimum
+     * If a password is provided, ensures it meets the minimum
      * security requirements. Empty passwords are allowed for
-     * optional password changes.</p>
+     * optional password changes.
      *
      * @return true if the password is valid or empty, false otherwise
      */
@@ -251,10 +226,9 @@ public class EditUserDialog extends Dialog {
 
     /**
      * Performs the actual save operation for the updated user.
-     *
-     * <p>Collects validated form data and calls the admin service
+     * Collects validated form data and calls the admin service
      * to update the user with audit trail information. Handles
-     * both successful updates and error conditions.</p>
+     * both successful updates and error conditions.
      */
     private void performSave() {
         try {

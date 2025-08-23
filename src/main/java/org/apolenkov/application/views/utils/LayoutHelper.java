@@ -7,22 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 /**
  * Utility class for centralized layout creation and configuration.
- *
- * <p>This utility class provides factory methods for creating consistently
- * styled layouts throughout the application. It eliminates duplication
- * of layout setup patterns and ensures uniform appearance and behavior.</p>
- *
- * <p>The class offers:</p>
- * <ul>
- *   <li>Centered vertical and horizontal layouts</li>
- *   <li>Consistent spacing and padding configurations</li>
- *   <li>Standardized alignment and justification settings</li>
- *   <li>Pre-configured layout components for common use cases</li>
- * </ul>
- *
- * <p>All layouts created through this utility automatically include
- * appropriate styling, spacing, and alignment for consistent
- * user experience across the application.</p>
+ * Provides factory methods for creating consistently styled layouts.
  */
 public final class LayoutHelper {
 
@@ -32,10 +17,7 @@ public final class LayoutHelper {
 
     /**
      * Creates a centered vertical layout with consistent styling.
-     *
-     * <p>Creates a vertical layout that centers its content both horizontally
-     * and vertically. The layout is configured with standard spacing and
-     * padding for consistent appearance across the application.</p>
+     * Creates a vertical layout that centers its content both horizontally and vertically.
      *
      * @return a configured VerticalLayout with centered content alignment
      */
@@ -50,10 +32,7 @@ public final class LayoutHelper {
 
     /**
      * Creates a centered horizontal layout with consistent styling.
-     *
-     * <p>Creates a horizontal layout that centers its content both horizontally
-     * and vertically. The layout is configured with standard spacing and
-     * alignment for consistent appearance across the application.</p>
+     * Creates a horizontal layout that centers its content both horizontally and vertically.
      *
      * @return a configured HorizontalLayout with centered content alignment
      */

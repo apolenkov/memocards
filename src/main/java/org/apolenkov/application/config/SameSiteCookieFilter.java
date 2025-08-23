@@ -9,9 +9,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Filter that enhances cookie security by adding SameSite and Secure attributes.
- *
- * <p>Intercepts cookie-setting operations and adds security attributes to user preference cookies.
- * Runs early in filter chain to ensure cookies are processed before being sent to client.</p>
+ * Intercepts cookie-setting operations and adds security attributes to user preference cookies.
+ * Runs early in filter chain to ensure cookies are processed before being sent to client.
  */
 @Component
 @Order(100)
@@ -19,11 +18,8 @@ public class SameSiteCookieFilter implements Filter {
 
     /**
      * Enhances cookie security attributes for locale preferences.
-     *
-     * <p>Wraps HTTP response to intercept Set-Cookie headers and automatically adds:
-     * - SameSite=Lax: Prevents CSRF attacks while maintaining functionality
-     * - Secure: Ensures cookies are only sent over HTTPS
-     * - HttpOnly: Prevents JavaScript access to cookies</p>
+     * Wraps HTTP response to intercept Set-Cookie headers and automatically adds
+     * SameSite=Lax, Secure, and HttpOnly attributes for enhanced security.
      *
      * @param request the servlet request being processed
      * @param response the servlet response

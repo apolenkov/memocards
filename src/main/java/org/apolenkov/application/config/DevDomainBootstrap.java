@@ -18,9 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Bootstraps domain users in development environment.
- *
- * <p>Creates essential users (standard user and administrator) with localized names.
- * Runs only in "dev" profile.</p>
+ * Creates essential users (standard user and administrator) with localized names.
+ * Runs only in "dev" profile.
  */
 @Configuration
 @Profile({"dev"})

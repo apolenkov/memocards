@@ -20,8 +20,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Main entry point for the Flashcards Spring Boot application.
- *
- * <p>Provides Vaadin service initialization including UI theming, error handling, and locale management.</p>
+ * Provides Vaadin service initialization including UI theming, error handling, and locale management.
  */
 @SpringBootApplication
 public class Application implements VaadinServiceInitListener {

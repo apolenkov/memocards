@@ -33,8 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Administrative view for managing user accounts and roles.
- *
- * <p>Provides user management interface with role editing and security controls.</p>
+ * Provides user management interface with role editing and security controls.
  */
 @Route(value = "admin/users", layout = PublicLayout.class)
 @RolesAllowed("ROLE_ADMIN")
@@ -49,27 +48,7 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Creates a new AdminUsersView with the required service dependency.
-     *
-     * <p>This constructor initializes the administrative user management interface.
-     * It sets up the layout, creates the user grid, and configures all interactive
-     * elements including buttons, forms, and data display.</p>
-     *
-     * <p>The initialization process includes:</p>
-     * <ul>
-     *   <li><strong>Security Validation:</strong> Ensures current user has admin privileges</li>
-     *   <li><strong>Layout Setup:</strong> Configures padding, spacing, and CSS classes</li>
-     *   <li><strong>Page Title:</strong> Creates localized page heading</li>
-     *   <li><strong>Create Button:</strong> Button for creating new user accounts</li>
-     *   <li><strong>User Grid:</strong> Data grid with user information and actions</li>
-     *   <li><strong>Data Population:</strong> Loads user data from the service</li>
-     * </ul>
-     *
-     * <p><strong>Security Guards:</strong></p>
-     * <ul>
-     *   <li>Explicit role checking to prevent unauthorized access</li>
-     *   <li>Redirect to access denied page for non-administrators</li>
-     *   <li>Handles security context exceptions gracefully</li>
-     * </ul>
+     * Initializes the administrative user management interface.
      *
      * @param adminUserService the service for administrative user operations
      * @throws IllegalArgumentException if adminUserService is null
@@ -122,18 +101,7 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Builds the user management interface components.
-     *
-     * <p>This method configures the user data grid with all necessary columns
-     * and features. It sets up the grid structure, adds columns for user data,
-     * and configures the actions column for user management operations.</p>
-     *
-     * <p>The grid configuration includes:</p>
-     * <ul>
-     *   <li><strong>Common Features:</strong> Standard grid functionality and styling</li>
-     *   <li><strong>Data Columns:</strong> ID, email, name, and roles display</li>
-     *   <li><strong>Actions Column:</strong> Edit, delete, and role management buttons</li>
-     *   <li><strong>Responsive Layout:</strong> Column sizing and alignment</li>
-     * </ul>
+     * Configures the user data grid with all necessary columns and features.
      *
      * @param content the content layout to add the grid to
      * @see GridHelper

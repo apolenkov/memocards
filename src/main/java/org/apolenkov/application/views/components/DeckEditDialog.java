@@ -18,22 +18,8 @@ import org.apolenkov.application.service.DeckFacade;
 
 /**
  * Dialog component for editing existing flashcard decks.
- *
- * <p>This dialog provides users with the ability to modify deck information
- * including title and description. It includes form validation, error handling,
- * and automatic updates to reflect changes immediately.</p>
- *
- * <p>The dialog features:</p>
- * <ul>
- *   <li>Pre-populated form fields with current deck data</li>
- *   <li>Title and description editing with validation</li>
- *   <li>Bean validation binding for data integrity</li>
- *   <li>Real-time error feedback and validation</li>
- *   <li>Callback notification for successful updates</li>
- * </ul>
- *
- * <p>The dialog integrates with the deck facade service to ensure
- * proper data persistence and validation.</p>
+ * Provides users with the ability to modify deck information
+ * including title and description with form validation and error handling.
  */
 public class DeckEditDialog extends Dialog {
 
@@ -43,9 +29,8 @@ public class DeckEditDialog extends Dialog {
 
     /**
      * Creates a new DeckEditDialog for the specified deck.
-     *
-     * <p>Initializes the dialog with the deck's current information
-     * and sets up the form layout with appropriate validation rules.</p>
+     * Initializes the dialog with the deck's current information
+     * and sets up the form layout with appropriate validation rules.
      *
      * @param deckFacade service for deck operations and persistence
      * @param deck the deck object to edit
@@ -61,10 +46,8 @@ public class DeckEditDialog extends Dialog {
 
     /**
      * Builds the complete dialog interface.
-     *
-     * <p>Creates and configures all form elements including input fields,
-     * validation binding, buttons, and event handlers. The method sets up
-     * the complete user interface for deck editing.</p>
+     * Creates and configures all form elements including input fields,
+     * validation binding, buttons, and event handlers.
      */
     private void build() {
         VerticalLayout layout = new VerticalLayout();

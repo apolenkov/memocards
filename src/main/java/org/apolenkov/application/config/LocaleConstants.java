@@ -2,9 +2,8 @@ package org.apolenkov.application.config;
 
 /**
  * Constants for locale and theme preferences.
- *
- * <p>Defines constant values for managing user preferences related to locale
- * and theme settings. Used for session storage keys and cookie names.</p>
+ * Defines constant values for managing user preferences related to locale
+ * and theme settings. Used for session storage keys and cookie names.
  */
 public final class LocaleConstants {
 

@@ -82,6 +82,7 @@ public class SecurityConfig extends VaadinWebSecurity {
 
     /**
      * Creates access denied handler for unauthorized requests.
+     * Returns handler that returns JSON for API requests or redirects for UI requests.
      *
      * @return handler that returns JSON for API requests or redirects for UI requests
      */

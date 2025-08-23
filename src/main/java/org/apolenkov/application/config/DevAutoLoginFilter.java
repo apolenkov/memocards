@@ -22,9 +22,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Automatic authentication filter for development environment.
- *
- * <p>Automatically authenticates a predefined user to streamline development workflow.
- * Only operates in non-production profiles and skips authentication endpoints.</p>
+ * Automatically authenticates a predefined user to streamline development workflow.
+ * Only operates in non-production profiles and skips authentication endpoints.
  */
 @Component
 @Profile("!prod")
@@ -55,9 +54,8 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
 
     /**
      * Applies automatic authentication when conditions are met.
-     *
-     * <p>Checks if auto-login is enabled and user needs authentication.
-     * Loads predefined user and sets up authentication context early in request chain.</p>
+     * Checks if auto-login is enabled and user needs authentication.
+     * Loads predefined user and sets up authentication context early in request chain.
      *
      * @param request the HTTP request being processed
      * @param response the HTTP response
@@ -99,8 +97,7 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
 
     /**
      * Checks if request is eligible for automatic authentication.
-     *
-     * <p>Excludes authentication endpoints to avoid conflicts with normal auth flow.</p>
+     * Excludes authentication endpoints to avoid conflicts with normal auth flow.
      *
      * @param request the HTTP request to evaluate
      * @return true if request is eligible for auto-login

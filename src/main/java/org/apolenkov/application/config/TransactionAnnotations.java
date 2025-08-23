@@ -8,16 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Custom transaction annotations to eliminate @Transactional duplication.
- *
- * <p>Provides semantic transaction annotations with specific configurations
- * for different operation types.</p>
+ * Provides semantic transaction annotations with specific configurations
+ * for different operation types.
  */
 public class TransactionAnnotations {
 
     /**
      * Read-only transaction for query operations.
-     *
-     * <p>Optimizes database performance for data retrieval.</p>
+     * Optimizes database performance for data retrieval.
      */
     @Target({ElementType.METHOD, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
@@ -26,8 +24,7 @@ public class TransactionAnnotations {
 
     /**
      * Write transaction for create/update operations.
-     *
-     * <p>Provides standard transaction behavior for data modification.</p>
+     * Provides standard transaction behavior for data modification.
      */
     @Target({ElementType.METHOD, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
@@ -36,8 +33,7 @@ public class TransactionAnnotations {
 
     /**
      * Delete transaction for remove operations.
-     *
-     * <p>Ensures data consistency during deletion.</p>
+     * Ensures data consistency during deletion.
      */
     @Target({ElementType.METHOD, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
@@ -46,8 +42,7 @@ public class TransactionAnnotations {
 
     /**
      * Batch transaction for multiple operations.
-     *
-     * <p>Ensures atomic execution of multiple related database operations.</p>
+     * Ensures atomic execution of multiple related database operations.
      */
     @Target({ElementType.METHOD, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)

@@ -10,9 +10,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Filter that ensures CSRF tokens are generated and available for Vaadin applications.
- *
- * <p>Touches CSRF token on GET requests to trigger Spring Security token generation.
- * Selectively processes requests, excluding Vaadin internal endpoints and static resources.</p>
+ * Touches CSRF token on GET requests to trigger Spring Security token generation.
+ * Selectively processes requests, excluding Vaadin internal endpoints and static resources.
  */
 public class CsrfCookieFilter extends OncePerRequestFilter {
 
@@ -20,9 +19,8 @@ public class CsrfCookieFilter extends OncePerRequestFilter {
 
     /**
      * Ensures CSRF tokens are generated for GET requests.
-     *
-     * <p>Accesses CSRF token attribute to trigger Spring Security token generation
-     * and sets appropriate cookie.</p>
+     * Accesses CSRF token attribute to trigger Spring Security token generation
+     * and sets appropriate cookie.
      *
      * @param request the HTTP request being processed
      * @param response the HTTP response

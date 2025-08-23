@@ -6,9 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Configuration for time-related beans.
- *
- * <p>Provides system clock bean for time-based operations throughout the application.
- * Useful for testing and consistent time access.</p>
+ * Provides system clock bean for time-based operations throughout the application.
+ * Useful for testing and consistent time access.
  */
 @Configuration
 public class ClockConfig {
