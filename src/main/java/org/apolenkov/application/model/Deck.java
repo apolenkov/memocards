@@ -10,10 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Represents a deck of flashcards in the application.
- *
- * <p>A deck is a collection of flashcards that belongs to a specific user.
- * Each deck has a title, optional description, and contains zero or more flashcards.</p>
+ * Collection of flashcards belonging to a user.
  */
 public class Deck {
     private Long id;
@@ -33,7 +30,7 @@ public class Deck {
     private List<Flashcard> flashcards;
 
     /**
-     * Creates new deck with current timestamps and empty flashcards list.
+     * Creates empty deck with current timestamps.
      */
     public Deck() {
         this.createdAt = LocalDateTime.now();
@@ -58,21 +55,18 @@ public class Deck {
     }
 
     /**
-     * Returns total number of flashcards in this deck.
+     * Returns number of flashcards in deck.
      *
-     * @return number of flashcards in deck
+     * @return number of flashcards
      */
     public int getFlashcardCount() {
         return flashcards != null ? flashcards.size() : 0;
     }
 
     /**
-     * Adds flashcard to this deck.
+     * Adds flashcard to deck.
      *
-     * <p>Initializes flashcards list if null, validates flashcard,
-     * sets deck ID on flashcard, and updates modification timestamp.</p>
-     *
-     * @param flashcard flashcard to add to deck
+     * @param flashcard flashcard to add
      * @throws IllegalArgumentException if flashcard is null
      */
     public void addFlashcard(Flashcard flashcard) {
@@ -88,12 +82,9 @@ public class Deck {
     }
 
     /**
-     * Removes flashcard from this deck.
+     * Removes flashcard from deck.
      *
-     * <p>Safely removes specified flashcard and updates modification timestamp.
-     * No action taken if flashcards list is null or flashcard not found.</p>
-     *
-     * @param flashcard flashcard to remove from deck
+     * @param flashcard flashcard to remove
      */
     public void removeFlashcard(Flashcard flashcard) {
         if (flashcards != null) {
@@ -103,16 +94,13 @@ public class Deck {
     }
 
     /**
-     * Creates new deck with specified parameters.
-     *
-     * <p>Static factory method that ensures proper validation and initialization.
-     * User ID and title are required, description is optional.</p>
+     * Creates new deck with validation.
      *
      * @param userId ID of the user who will own this deck
-     * @param title title of the deck (required, non-empty)
+     * @param title title of the deck (required)
      * @param description optional description of the deck
-     * @return new Deck instance with specified parameters
-     * @throws IllegalArgumentException if userId is null or title is null/empty
+     * @return new Deck instance
+     * @throws IllegalArgumentException if userId is null or title is empty
      */
     public static Deck create(Long userId, String title, String description) {
         if (userId == null) throw new IllegalArgumentException("userId is required");
@@ -126,16 +114,16 @@ public class Deck {
     }
 
     /**
-     * Gets unique identifier of this deck.
+     * Returns deck identifier.
      *
-     * @return deck ID, or null if not yet persisted
+     * @return deck ID, or null if not persisted
      */
     public Long getId() {
         return id;
     }
 
     /**
-     * Sets unique identifier of this deck.
+     * Sets deck identifier.
      *
      * @param id deck ID to set
      */
@@ -144,7 +132,7 @@ public class Deck {
     }
 
     /**
-     * Gets ID of the user who owns this deck.
+     * Returns user identifier.
      *
      * @return user ID
      */
@@ -153,9 +141,7 @@ public class Deck {
     }
 
     /**
-     * Sets ID of the user who owns this deck.
-     *
-     * <p>Validates that user ID is not null, as every deck must belong to a specific user.</p>
+     * Sets user identifier.
      *
      * @param userId user ID to set
      * @throws IllegalArgumentException if userId is null
@@ -166,7 +152,7 @@ public class Deck {
     }
 
     /**
-     * Gets title of this deck.
+     * Returns deck title.
      *
      * @return deck title
      */
@@ -175,13 +161,10 @@ public class Deck {
     }
 
     /**
-     * Sets title of this deck.
-     *
-     * <p>Validates and trims title, ensuring it's not null or empty.
-     * Updates modification timestamp.</p>
+     * Sets deck title.
      *
      * @param title deck title to set
-     * @throws IllegalArgumentException if title is null or empty after trimming
+     * @throws IllegalArgumentException if title is null or empty
      */
     public void setTitle(String title) {
         String t = title != null ? title.trim() : null;
@@ -191,7 +174,7 @@ public class Deck {
     }
 
     /**
-     * Gets description of this deck.
+     * Returns deck description.
      *
      * @return deck description, or null if not set
      */
@@ -213,7 +196,7 @@ public class Deck {
     }
 
     /**
-     * Gets timestamp when this deck was created.
+     * Returns creation timestamp.
      *
      * @return creation timestamp
      */
@@ -222,7 +205,7 @@ public class Deck {
     }
 
     /**
-     * Sets creation timestamp of this deck.
+     * Sets creation timestamp.
      *
      * @param createdAt creation timestamp to set
      */
@@ -231,7 +214,7 @@ public class Deck {
     }
 
     /**
-     * Gets timestamp when this deck was last modified.
+     * Returns last modification timestamp.
      *
      * @return last modification timestamp
      */
@@ -240,7 +223,7 @@ public class Deck {
     }
 
     /**
-     * Sets modification timestamp of this deck.
+     * Sets modification timestamp.
      *
      * @param updatedAt modification timestamp to set
      */
@@ -249,10 +232,7 @@ public class Deck {
     }
 
     /**
-     * Gets unmodifiable list of flashcards in this deck.
-     *
-     * <p>Returns immutable view to prevent external modification.
-     * Use dedicated methods to modify deck's flashcards.</p>
+     * Returns unmodifiable list of flashcards.
      *
      * @return unmodifiable list of flashcards, or empty list if none exist
      */
@@ -261,10 +241,7 @@ public class Deck {
     }
 
     /**
-     * Sets list of flashcards for this deck.
-     *
-     * <p>Creates defensive copy to prevent external modification.
-     * Updates modification timestamp.</p>
+     * Sets list of flashcards.
      *
      * @param flashcards list of flashcards to set, or null for empty list
      */

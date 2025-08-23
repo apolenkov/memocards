@@ -5,30 +5,18 @@ import java.util.Optional;
 import org.apolenkov.application.model.Deck;
 
 /**
- * Use case interface for deck management operations.
- *
- * <p>Defines core business operations for managing flashcard decks.
- * Provides clean abstraction layer between application services and
- * underlying data access layer.</p>
- *
- * <p>Key operations:</p>
- * <ul>
- *   <li>Retrieving decks by various criteria</li>
- *   <li>Creating and updating deck information</li>
- *   <li>Deleting decks and their associated data</li>
- *   <li>User-specific deck management</li>
- * </ul>
+ * Core business operations for managing flashcard decks.
  */
 public interface DeckUseCase {
     /**
-     * Gets all decks in system.
+     * Returns all decks in system.
      *
      * @return list of all available decks
      */
     List<Deck> getAllDecks();
 
     /**
-     * Gets all decks belonging to specific user.
+     * Returns decks belonging to specific user.
      *
      * @param userId ID of user whose decks to retrieve
      * @return list of decks owned by specified user
@@ -36,7 +24,7 @@ public interface DeckUseCase {
     List<Deck> getDecksByUserId(Long userId);
 
     /**
-     * Gets specific deck by ID.
+     * Returns deck by ID.
      *
      * @param id unique identifier of deck
      * @return Optional containing deck if found, empty otherwise
@@ -44,10 +32,7 @@ public interface DeckUseCase {
     Optional<Deck> getDeckById(Long id);
 
     /**
-     * Saves deck to system.
-     *
-     * <p>If deck has ID, it will be updated. If no ID is present,
-     * new deck will be created.</p>
+     * Saves deck to system (creates new or updates existing).
      *
      * @param deck deck to save
      * @return saved deck with generated ID if it was new
@@ -55,7 +40,7 @@ public interface DeckUseCase {
     Deck saveDeck(Deck deck);
 
     /**
-     * Deletes deck and all its associated data.
+     * Deletes deck and all associated data.
      *
      * @param id ID of deck to delete
      */

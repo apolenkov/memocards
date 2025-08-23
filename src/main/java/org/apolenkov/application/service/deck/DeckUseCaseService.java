@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 
 /**
  * Service implementation for deck-related business operations.
- *
- * <p>Implements deck CRUD operations with validation and transaction management.</p>
  */
 @Service
 public class DeckUseCaseService implements DeckUseCase {
@@ -23,14 +21,7 @@ public class DeckUseCaseService implements DeckUseCase {
     private final Validator validator;
 
     /**
-     * Creates a new DeckUseCaseService with the required dependencies.
-     *
-     * <p>This constructor initializes the service with:</p>
-     * <ul>
-     *   <li><strong>DeckRepository:</strong> For deck data persistence operations</li>
-     *   <li><strong>FlashcardRepository:</strong> For flashcard data operations</li>
-     *   <li><strong>Validator:</strong> For input validation using Bean Validation</li>
-     * </ul>
+     * Creates service with required dependencies.
      *
      * @param deckRepository the repository for deck operations
      * @param flashcardRepository the repository for flashcard operations
@@ -55,15 +46,7 @@ public class DeckUseCaseService implements DeckUseCase {
     }
 
     /**
-     * Gets all decks in the system.
-     *
-     * <p>This method performs a read-only operation to fetch all available decks.
-     * It uses a read-only transaction for optimal performance when no data
-     * modification is needed.</p>
-     *
-     * <p><strong>Note:</strong> This method may return a large number of results
-     * and should be used with caution in production environments. Consider
-     * implementing pagination for better performance.</p>
+     * Returns all decks in the system.
      *
      * @return a list of all decks in the system, or empty list if none exist
      * @see TransactionAnnotations.ReadOnlyTransaction
@@ -75,14 +58,7 @@ public class DeckUseCaseService implements DeckUseCase {
     }
 
     /**
-     * Gets all decks owned by a specific user.
-     *
-     * <p>This method performs a read-only operation to fetch decks belonging
-     * to the specified user. It uses a read-only transaction for optimal
-     * performance.</p>
-     *
-     * <p>The method returns an empty list if the user has no decks or if
-     * the user ID doesn't exist in the system.</p>
+     * Returns decks owned by specific user.
      *
      * @param userId the ID of the user whose decks to retrieve
      * @return a list of decks owned by the specified user, or empty list if none exist
@@ -99,19 +75,12 @@ public class DeckUseCaseService implements DeckUseCase {
     }
 
     /**
-     * Retrieves a specific deck by its unique identifier.
-     *
-     * <p>This method performs a read-only operation to fetch a single deck
-     * by its ID. It uses a read-only transaction for optimal performance.</p>
-     *
-     * <p>The method returns an empty {@link Optional} if no deck exists
-     * with the specified ID.</p>
+     * Returns deck by ID.
      *
      * @param id the unique identifier of the deck to retrieve
      * @return an Optional containing the deck if found, or empty Optional if not found
      * @throws IllegalArgumentException if id is null
      * @see TransactionAnnotations.ReadOnlyTransaction
-     * @see Optional
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
@@ -123,28 +92,13 @@ public class DeckUseCaseService implements DeckUseCase {
     }
 
     /**
-     * Saves a deck to the system.
-     *
-     * <p>This method performs a write operation that may create a new deck
-     * or update an existing one. It includes comprehensive validation and
-     * uses a write transaction to ensure data consistency.</p>
-     *
-     * <p>The validation process checks:</p>
-     * <ul>
-     *   <li><strong>Bean Validation:</strong> All validation constraints defined on the Deck model</li>
-     *   <li><strong>Business Rules:</strong> Custom business logic validation</li>
-     *   <li><strong>Data Integrity:</strong> Referential integrity and data consistency</li>
-     * </ul>
-     *
-     * <p>If validation fails, the method throws an {@link IllegalArgumentException}
-     * with detailed information about the validation errors.</p>
+     * Saves deck to system with validation.
      *
      * @param deck the deck to save (create or update)
-     * @return the saved deck with updated fields (e.g., generated ID, timestamps)
+     * @return the saved deck with updated fields
      * @throws IllegalArgumentException if deck is null or validation fails
      * @throws RuntimeException if database operation fails
      * @see TransactionAnnotations.WriteTransaction
-     * @see jakarta.validation.Validator#validate(Object)
      */
     @Override
     @TransactionAnnotations.WriteTransaction
@@ -164,22 +118,7 @@ public class DeckUseCaseService implements DeckUseCase {
     }
 
     /**
-     * Deletes a deck and all its associated flashcards.
-     *
-     * <p>This method performs a delete operation that removes both the deck
-     * and all flashcards that belong to it. It uses a delete transaction
-     * to ensure data consistency and proper cleanup.</p>
-     *
-     * <p><strong>Important:</strong> This operation is irreversible and will
-     * permanently remove all data associated with the deck, including:</p>
-     * <ul>
-     *   <li>The deck itself</li>
-     *   <li>All flashcards in the deck</li>
-     *   <li>Any associated statistics or progress data</li>
-     * </ul>
-     *
-     * <p>The deletion is performed in the correct order to maintain referential
-     * integrity: first flashcards, then the deck itself.</p>
+     * Deletes deck and all associated flashcards.
      *
      * @param id the unique identifier of the deck to delete
      * @throws IllegalArgumentException if id is null
