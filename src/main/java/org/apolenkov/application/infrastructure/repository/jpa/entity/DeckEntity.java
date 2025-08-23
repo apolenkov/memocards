@@ -37,54 +37,120 @@ public class DeckEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    /**
+     * Gets the primary key identifier.
+     *
+     * @return the unique identifier for this deck
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Sets the primary key identifier.
+     *
+     * @param id the unique identifier for this deck
+     */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /**
+     * Gets the ID of the user who owns this deck.
+     *
+     * @return the user ID that owns this deck
+     */
     public Long getUserId() {
         return userId;
     }
 
+    /**
+     * Sets the ID of the user who owns this deck.
+     *
+     * @param userId the user ID that owns this deck
+     */
     public void setUserId(Long userId) {
         this.userId = userId;
     }
 
+    /**
+     * Gets the title of the deck.
+     *
+     * @return the deck title
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * Sets the title of the deck.
+     *
+     * <p>Automatically updates the modification timestamp when the title
+     * is changed to maintain accurate change tracking.</p>
+     *
+     * @param title the deck title to set
+     */
     public void setTitle(String title) {
         this.title = title;
         // Automatically update modification timestamp when title changes
         this.updatedAt = LocalDateTime.now();
     }
 
+    /**
+     * Gets the description of the deck.
+     *
+     * @return the deck description, or null if not set
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Sets the description of the deck.
+     *
+     * <p>Automatically updates the modification timestamp when the description
+     * is changed to maintain accurate change tracking.</p>
+     *
+     * @param description the deck description to set
+     */
     public void setDescription(String description) {
         this.description = description;
         // Automatically update modification timestamp when description changes
         this.updatedAt = LocalDateTime.now();
     }
 
+    /**
+     * Gets the timestamp when this deck was created.
+     *
+     * @return the creation timestamp
+     */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
+    /**
+     * Sets the timestamp when this deck was created.
+     *
+     * @param createdAt the creation timestamp to set
+     */
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
+    /**
+     * Gets the timestamp when this deck was last modified.
+     *
+     * @return the last modification timestamp
+     */
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
+    /**
+     * Sets the timestamp when this deck was last modified.
+     *
+     * @param updatedAt the last modification timestamp to set
+     */
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }

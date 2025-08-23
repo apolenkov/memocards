@@ -43,6 +43,17 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
     private final VerticalLayout deckList;
     private final TextField search;
 
+    /**
+     * Constructs a new DecksView with required dependencies.
+     *
+     * <p>Creates a complete deck management interface with search functionality,
+     * deck listing, and creation capabilities. The view is configured with
+     * proper styling and responsive layout for optimal user experience.</p>
+     *
+     * @param homePresenter service for home page operations and deck listing
+     * @param deckFacade service for deck management operations
+     * @param userUseCase service for user operations and authentication
+     */
     public DecksView(HomePresenter homePresenter, DeckFacade deckFacade, UserUseCase userUseCase) {
         this.homePresenter = homePresenter;
         this.deckFacade = deckFacade;
@@ -98,6 +109,15 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         refreshDecks("");
     }
 
+    /**
+     * Refreshes the deck list display based on the search query.
+     *
+     * <p>This method updates the deck list by filtering decks based on the
+     * provided search query. It handles empty results gracefully by displaying
+     * an appropriate message when no decks match the search criteria.</p>
+     *
+     * @param query the search query to filter decks by title or description
+     */
     private void refreshDecks(String query) {
         deckList.removeAll();
         List<DeckCardViewModel> decks = homePresenter.listDecksForCurrentUser(query);
@@ -110,11 +130,26 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         decks.stream().map(DeckCard::new).forEach(deckList::add);
     }
 
+    /**
+     * Opens the dialog for creating a new deck.
+     *
+     * <p>Creates and displays a dialog that allows users to input deck details
+     * and create new flashcard decks. After successful creation, the deck list
+     * is automatically refreshed to show the new deck.</p>
+     */
     private void openCreateDeckDialog() {
         CreateDeckDialog dialog = new CreateDeckDialog(deckFacade, userUseCase, created -> refreshDecks(""));
         dialog.open();
     }
 
+    /**
+     * Returns the page title for this view.
+     *
+     * <p>Implements the HasDynamicTitle interface to provide localized
+     * page titles for the deck management view.</p>
+     *
+     * @return the localized page title for the decks view
+     */
     @Override
     public String getPageTitle() {
         return getTranslation(HOME_TITLE_KEY);

@@ -42,6 +42,11 @@ public class KnownCardEntity {
         return id;
     }
 
+    /**
+     * Sets the primary key identifier.
+     *
+     * @param id the unique identifier for this known card record
+     */
     public void setId(Long id) {
         this.id = id;
     }
@@ -56,7 +61,14 @@ public class KnownCardEntity {
     }
 
     /**
+     * Sets the deck identifier.
+     *
+     * <p>Establishes the relationship between this known card record
+     * and a specific deck. The deck must exist in the system before
+     * this relationship can be established.</p>
+     *
      * @param deckId deck identifier, must not be null
+     * @throws IllegalArgumentException if deckId is null
      */
     public void setDeckId(Long deckId) {
         if (deckId == null) {
@@ -76,7 +88,14 @@ public class KnownCardEntity {
     }
 
     /**
+     * Sets the card identifier.
+     *
+     * <p>Establishes the relationship between this known card record
+     * and a specific flashcard. The card must exist in the system
+     * before this relationship can be established.</p>
+     *
      * @param cardId card identifier, must not be null
+     * @throws IllegalArgumentException if cardId is null
      */
     public void setCardId(Long cardId) {
         if (cardId == null) {
