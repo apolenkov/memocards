@@ -27,6 +27,47 @@ import org.apolenkov.application.views.utils.TextHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+/**
+ * Administrative view for managing news content in the application.
+ *
+ * <p>This view provides administrators with a comprehensive interface for managing
+ * news articles, including creating, editing, viewing, and deleting news items.
+ * It implements a full CRUD interface with proper validation and user feedback.</p>
+ *
+ * <p>The view includes the following features:</p>
+ * <ul>
+ *   <li><strong>News Management:</strong> Create, read, update, and delete news articles</li>
+ *   <li><strong>Data Grid:</strong> Tabular display of all news with sortable columns</li>
+ *   <li><strong>Form Validation:</strong> Client-side validation for required fields</li>
+ *   <li><strong>User Experience:</strong> Intuitive dialog-based editing interface</li>
+ *   <li><strong>Security:</strong> Restricted to users with ROLE_ADMIN permission</li>
+ *   <li><strong>Internationalization:</strong> Fully localized interface text</li>
+ * </ul>
+ *
+ * <p><strong>Security Features:</strong></p>
+ * <ul>
+ *   <li>Requires ROLE_ADMIN authentication</li>
+ *   <li>Author field automatically populated with current user</li>
+ *   <li>Proper input validation and sanitization</li>
+ *   <li>Confirmation dialogs for destructive operations</li>
+ * </ul>
+ *
+ * <p><strong>Route Configuration:</strong></p>
+ * <ul>
+ *   <li>Primary route: "/admin/news"</li>
+ *   <li>Alias route: "/admin/content"</li>
+ *   <li>Uses PublicLayout for consistent styling</li>
+ * </ul>
+ *
+ * @see News
+ * @see NewsService
+ * @see PublicLayout
+ * @see HasDynamicTitle
+ * @see Route
+ * @see RouteAlias
+ * @see RolesAllowed
+ * @see VerticalLayout
+ */
 @Route(value = "admin/news", layout = PublicLayout.class)
 @RouteAlias(value = "admin/content", layout = PublicLayout.class)
 @RolesAllowed("ROLE_ADMIN")
@@ -36,7 +77,38 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
     private final transient ListDataProvider<News> dataProvider;
     private final transient List<News> newsList;
 
+    /**
+     * Constructs a new AdminNewsView with the required service dependency.
+     *
+     * <p>This constructor initializes the administrative interface for news management.
+     * It sets up the layout, creates the news grid, and configures all interactive
+     * elements including buttons, forms, and data display.</p>
+     *
+     * <p>The initialization process includes:</p>
+     * <ul>
+     *   <li><strong>Layout Setup:</strong> Configures padding, spacing, and CSS classes</li>
+     *   <li><strong>Page Title:</strong> Creates localized page heading</li>
+     *   <li><strong>Add Button:</strong> Button for creating new news articles</li>
+     *   <li><strong>News Grid:</strong> Data grid with sortable columns and actions</li>
+     *   <li><strong>Data Provider:</strong> List-based data provider for the grid</li>
+     * </ul>
+     *
+     * <p><strong>Grid Configuration:</strong></p>
+     * <ul>
+     *   <li>Title, content, author, creation date, and update date columns</li>
+     *   <li>Custom renderers for date formatting</li>
+     *   <li>Action buttons for edit and delete operations</li>
+     *   <li>Responsive column sizing and layout</li>
+     * </ul>
+     *
+     * @param newsService the service for news operations
+     * @throws IllegalArgumentException if newsService is null
+     */
     public AdminNewsView(NewsService newsService) {
+        if (newsService == null) {
+            throw new IllegalArgumentException("NewsService cannot be null");
+        }
+
         this.newsService = newsService;
         this.newsList = new ArrayList<>();
 
@@ -89,6 +161,36 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         refreshNews();
     }
 
+    /**
+     * Displays a dialog for creating or editing news articles.
+     *
+     * <p>This method creates a modal dialog that allows administrators to input
+     * or modify news article details. The dialog adapts its behavior based on
+     * whether it's being used for creation (null news) or editing (existing news).</p>
+     *
+     * <p>The dialog includes:</p>
+     * <ul>
+     *   <li><strong>Dynamic Title:</strong> Changes based on create/edit mode</li>
+     *   <li><strong>Form Fields:</strong> Title, content, and author input fields</li>
+     *   <li><strong>Auto-population:</strong> Author field filled with current user</li>
+     *   <li><strong>Validation:</strong> Client-side validation for required fields</li>
+     *   <li><strong>Action Buttons:</strong> Save and cancel buttons with proper styling</li>
+     * </ul>
+     *
+     * <p><strong>Form Behavior:</strong></p>
+     * <ul>
+     *   <li>For new news: Empty form with current user as author</li>
+     *   <li>For existing news: Pre-populated with current values</li>
+     *   <li>Validation prevents saving with empty title or content</li>
+     *   <li>Successful save closes dialog and refreshes data</li>
+     * </ul>
+     *
+     * @param news the news item to edit, or null for creating new news
+     * @see Dialog
+     * @see TextField
+     * @see TextArea
+     * @see ButtonHelper
+     */
     private void showNewsDialog(News news) {
         Dialog dialog = new Dialog();
         dialog.addClassName("dialog-md");
@@ -161,6 +263,28 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         dialog.open();
     }
 
+    /**
+     * Creates a new news article.
+     *
+     * <p>This method delegates the creation of a new news article to the news service.
+     * It handles any exceptions that occur during the creation process and displays
+     * appropriate error messages to the user.</p>
+     *
+     * <p><strong>Error Handling:</strong></p>
+     * <ul>
+     *   <li>Catches and logs any exceptions from the service layer</li>
+     *   <li>Displays user-friendly error messages</li>
+     *   <li>Uses localized error message keys</li>
+     *   <li>Includes exception details for debugging</li>
+     * </ul>
+     *
+     * @param title the title of the news article
+     * @param content the content/body of the news article
+     * @param author the author of the news article
+     * @throws RuntimeException if the news service encounters an error
+     * @see NewsService#createNews(String, String, String)
+     * @see NotificationHelper#showError(String)
+     */
     private void createNews(String title, String content, String author) {
         try {
             newsService.createNews(title, content, author);
@@ -170,6 +294,29 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         }
     }
 
+    /**
+     * Updates an existing news article.
+     *
+     * <p>This method delegates the update of an existing news article to the news service.
+     * It handles any exceptions that occur during the update process and displays
+     * appropriate error messages to the user.</p>
+     *
+     * <p><strong>Error Handling:</strong></p>
+     * <ul>
+     *   <li>Catches and logs any exceptions from the service layer</li>
+     *   <li>Displays user-friendly error messages</li>
+     *   <li>Uses localized error message keys</li>
+     *   <li>Includes exception details for debugging</li>
+     * </ul>
+     *
+     * @param id the unique identifier of the news article to update
+     * @param title the new title for the news article
+     * @param content the new content for the news article
+     * @param author the new author for the news article
+     * @throws RuntimeException if the news service encounters an error
+     * @see NewsService#updateNews(Long, String, String, String)
+     * @see NotificationHelper#showError(String)
+     */
     private void updateNews(Long id, String title, String content, String author) {
         try {
             newsService.updateNews(id, title, content, author);
@@ -179,6 +326,34 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         }
     }
 
+    /**
+     * Deletes a news article with confirmation.
+     *
+     * <p>This method displays a confirmation dialog before deleting a news article.
+     * It includes the article title in the confirmation message to ensure the
+     * administrator is deleting the correct item.</p>
+     *
+     * <p><strong>Confirmation Process:</strong></p>
+     * <ul>
+     *   <li>Shows confirmation dialog with article title</li>
+     *   <li>Requires explicit user confirmation</li>
+     *   <li>Displays success/error notifications</li>
+     *   <li>Automatically refreshes the news list after deletion</li>
+     * </ul>
+     *
+     * <p><strong>Security Features:</strong></p>
+     * <ul>
+     *   <li>HTML escaping of article title to prevent XSS</li>
+     *   <li>Confirmation required before deletion</li>
+     *   <li>Proper error handling and user feedback</li>
+     * </ul>
+     *
+     * @param news the news article to delete
+     * @see DialogHelper#createConfirmationDialog(String, String, Runnable, Runnable)
+     * @see NotificationHelper#showSuccess(String)
+     * @see NotificationHelper#showError(String)
+     * @see org.apache.commons.text.StringEscapeUtils#escapeHtml4(String)
+     */
     private void deleteNews(News news) {
         String message = getTranslation("admin.news.confirm.delete.prefix")
                 + " <b>" + org.apache.commons.text.StringEscapeUtils.escapeHtml4(news.getTitle())
@@ -203,12 +378,42 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         confirmDialog.open();
     }
 
+    /**
+     * Refreshes the news data displayed in the grid.
+     *
+     * <p>This method updates the local news list with fresh data from the service
+     * and refreshes the data provider to ensure the grid displays the current state.
+     * It's called after create, update, and delete operations to maintain data consistency.</p>
+     *
+     * <p><strong>Data Flow:</strong></p>
+     * <ul>
+     *   <li>Clears the local news list</li>
+     *   <li>Fetches fresh data from the news service</li>
+     *   <li>Updates the data provider</li>
+     *   <li>Triggers grid refresh to display changes</li>
+     * </ul>
+     *
+     * @see NewsService#getAllNews()
+     * @see ListDataProvider#refreshAll()
+     */
     private void refreshNews() {
         newsList.clear();
         newsList.addAll(newsService.getAllNews());
         dataProvider.refreshAll();
     }
 
+    /**
+     * Gets the page title for this view.
+     *
+     * <p>This method implements the {@link HasDynamicTitle} interface to provide
+     * a dynamic page title that reflects the current view's purpose. The title
+     * is retrieved from the internationalization system to ensure proper
+     * localization.</p>
+     *
+     * @return the localized page title for the admin news view
+     * @see HasDynamicTitle#getPageTitle()
+     * @see #getTranslation(String)
+     */
     @Override
     public String getPageTitle() {
         return getTranslation("admin.content.page.title");
