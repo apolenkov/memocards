@@ -4,32 +4,46 @@ import java.util.Optional;
 import org.apolenkov.application.model.PasswordResetToken;
 
 /**
- * Port for accessing password reset tokens.
+ * Domain port for password reset token management.
+ *
+ * <p>Defines the contract for managing temporary tokens used
+ * in secure password reset functionality.</p>
  */
 public interface PasswordResetTokenRepository {
 
     /**
-     * Save password reset token
+     * Saves a password reset token.
+     *
+     * @param token the token to save
+     * @return the saved token with generated ID
      */
     PasswordResetToken save(PasswordResetToken token);
 
     /**
-     * Find token by token string
+     * Finds a token by its unique string value.
+     *
+     * @param token the token string to search for
+     * @return token if found, empty otherwise
      */
     Optional<PasswordResetToken> findByToken(String token);
 
     /**
-     * Find token by user ID and not used
+     * Finds an unused token for a specific user.
+     *
+     * @param userId the user identifier
+     * @return unused token if found, empty otherwise
      */
     Optional<PasswordResetToken> findByUserIdAndNotUsed(Long userId);
 
     /**
-     * Delete expired tokens
+     * Removes all expired tokens from the system.
      */
     void deleteExpiredTokens();
 
     /**
-     * Mark token as used
+     * Marks a specific token as used.
+     *
+     * @param id the token identifier to mark as used
      */
     void markAsUsed(Long id);
 }

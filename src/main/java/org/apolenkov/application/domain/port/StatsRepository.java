@@ -5,7 +5,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Domain port for statistics and progress tracking.
+ *
+ * <p>Provides operations for managing practice statistics,
+ * known cards tracking, and progress aggregation.</p>
+ */
 public interface StatsRepository {
+
+    /**
+     * Daily statistics record for a specific date.
+     */
     record DailyStatsRecord(
             LocalDate date,
             int sessions,
@@ -16,6 +26,19 @@ public interface StatsRepository {
             long totalDurationMs,
             long totalAnswerDelayMs) {}
 
+    /**
+     * Records a practice session for a deck.
+     *
+     * @param deckId deck identifier
+     * @param date practice date
+     * @param viewed cards viewed in session
+     * @param correct correct answers in session
+     * @param repeat repeat attempts in session
+     * @param hard hard cards in session
+     * @param sessionDurationMs session duration in milliseconds
+     * @param totalAnswerDelayMs total answer delay in milliseconds
+     * @param knownCardIdsDelta new known card IDs from this session
+     */
     void appendSession(
             long deckId,
             LocalDate date,
@@ -27,14 +50,41 @@ public interface StatsRepository {
             long totalAnswerDelayMs,
             Collection<Long> knownCardIdsDelta);
 
+    /**
+     * Gets daily statistics for a deck.
+     *
+     * @param deckId deck identifier
+     * @return list of daily statistics records
+     */
     List<DailyStatsRecord> getDailyStats(long deckId);
 
+    /**
+     * Gets known card IDs for a deck.
+     *
+     * @param deckId deck identifier
+     * @return set of known card IDs
+     */
     Set<Long> getKnownCardIds(long deckId);
 
+    /**
+     * Marks a card as known or unknown for a deck.
+     *
+     * @param deckId deck identifier
+     * @param cardId card identifier
+     * @param known true to mark as known, false to mark as unknown
+     */
     void setCardKnown(long deckId, long cardId, boolean known);
 
+    /**
+     * Resets all progress for a deck.
+     *
+     * @param deckId deck identifier
+     */
     void resetDeckProgress(long deckId);
 
+    /**
+     * Aggregate statistics for a deck (all-time and today).
+     */
     record DeckAggregate(
             int sessionsAll,
             int viewedAll,
@@ -47,6 +97,13 @@ public interface StatsRepository {
             int repeatToday,
             int hardToday) {}
 
+    /**
+     * Gets aggregate statistics for multiple decks.
+     *
+     * @param deckIds deck identifiers
+     * @param today current date for today's statistics
+     * @return map of deck ID to aggregate statistics
+     */
     java.util.Map<Long, DeckAggregate> getAggregatesForDecks(
             java.util.Collection<Long> deckIds, java.time.LocalDate today);
 }
