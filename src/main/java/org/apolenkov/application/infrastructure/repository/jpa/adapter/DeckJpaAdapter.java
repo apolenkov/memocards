@@ -9,24 +9,61 @@ import org.apolenkov.application.model.Deck;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+/**
+ * JPA adapter for deck repository operations.
+ *
+ * <p>Bridges domain layer and JPA persistence for deck CRUD operations.
+ * Active in dev/prod profiles only.</p>
+ */
 @Profile({"dev", "prod"})
 @Repository
 public class DeckJpaAdapter implements DeckRepository {
 
     private final DeckJpaRepository repo;
 
+    /**
+     * Creates adapter with JPA repository dependency.
+     *
+     * @param repo the Spring Data JPA repository for deck operations
+     * @throws IllegalArgumentException if repo is null
+     */
     public DeckJpaAdapter(DeckJpaRepository repo) {
+        if (repo == null) {
+            throw new IllegalArgumentException("DeckJpaRepository cannot be null");
+        }
         this.repo = repo;
     }
 
+    /**
+     * Converts JPA entity to domain model.
+     *
+     * @param e the JPA entity to convert
+     * @return the corresponding domain model
+     * @throws IllegalArgumentException if e is null
+     */
     private static Deck toModel(DeckEntity e) {
+        if (e == null) {
+            throw new IllegalArgumentException("DeckEntity cannot be null");
+        }
+
         Deck d = new Deck(e.getId(), e.getUserId(), e.getTitle(), e.getDescription());
         d.setCreatedAt(e.getCreatedAt());
         d.setUpdatedAt(e.getUpdatedAt());
         return d;
     }
 
+    /**
+     * Converts domain model to JPA entity with timestamp handling.
+     *
+     * @param d the domain model to convert
+     * @return the corresponding JPA entity
+     * @throws IllegalArgumentException if d is null
+     */
     private static DeckEntity toEntity(Deck d) {
+        if (d == null) {
+            throw new IllegalArgumentException("Deck cannot be null");
+        }
+
         DeckEntity e = new DeckEntity();
         e.setId(d.getId());
         e.setUserId(d.getUserId());
@@ -37,29 +74,74 @@ public class DeckJpaAdapter implements DeckRepository {
         return e;
     }
 
+    /**
+     * Retrieves all decks from the database.
+     *
+     * @return list of all decks
+     */
     @Override
     public List<Deck> findAll() {
         return repo.findAll().stream().map(DeckJpaAdapter::toModel).toList();
     }
 
+    /**
+     * Retrieves all decks owned by a specific user.
+     *
+     * @param userId the ID of the user whose decks to retrieve
+     * @return list of decks owned by the user
+     * @throws IllegalArgumentException if userId is null
+     */
     @Override
     public List<Deck> findByUserId(Long userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
         return repo.findByUserId(userId).stream().map(DeckJpaAdapter::toModel).toList();
     }
 
+    /**
+     * Retrieves a deck by its unique identifier.
+     *
+     * @param id the unique identifier of the deck
+     * @return Optional containing the deck if found
+     * @throws IllegalArgumentException if id is null
+     */
     @Override
     public Optional<Deck> findById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Deck ID cannot be null");
+        }
         return repo.findById(id).map(DeckJpaAdapter::toModel);
     }
 
+    /**
+     * Saves a deck to the database.
+     *
+     * @param deck the deck to save
+     * @return the saved deck with updated fields
+     * @throws IllegalArgumentException if deck is null
+     */
     @Override
     public Deck save(Deck deck) {
+        if (deck == null) {
+            throw new IllegalArgumentException("Deck cannot be null");
+        }
+
         DeckEntity saved = repo.save(toEntity(deck));
         return toModel(saved);
     }
 
+    /**
+     * Deletes a deck by its unique identifier.
+     *
+     * @param id the unique identifier of the deck to delete
+     * @throws IllegalArgumentException if id is null
+     */
     @Override
     public void deleteById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Deck ID cannot be null");
+        }
         repo.deleteById(id);
     }
 }
