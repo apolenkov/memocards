@@ -21,6 +21,12 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+/**
+ * Password reset form view for completing password reset process.
+ *
+ * <p>Validates reset tokens and allows users to set new passwords.
+ * Accessible only to anonymous users with valid reset tokens.</p>
+ */
 @Route(value = "reset-password", layout = PublicLayout.class)
 @AnonymousAllowed
 public class ResetPasswordView extends VerticalLayout

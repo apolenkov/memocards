@@ -17,6 +17,12 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.core.env.Environment;
 
+/**
+ * Generic error page view with user-friendly error display.
+ *
+ * <p>Shows a formatted error message with navigation options.
+ * In development profile, displays additional debugging information.</p>
+ */
 @Route(value = "error", layout = PublicLayout.class)
 @AnonymousAllowed
 public class ErrorView extends VerticalLayout implements HasDynamicTitle, BeforeEnterObserver {
@@ -24,6 +30,11 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
     private final transient Environment environment;
     private String fromRoute;
 
+    /**
+     * Creates the error view.
+     *
+     * @param environment Spring environment for profile detection
+     */
     public ErrorView(Environment environment) {
         this.environment = environment;
         setSizeFull();
