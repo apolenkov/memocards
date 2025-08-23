@@ -8,21 +8,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 
 /**
  * Utility class for centralized button creation and styling.
- *
- * <p>This utility class provides factory methods for creating consistently
- * styled buttons throughout the application. It eliminates duplication of
- * button creation patterns and ensures uniform appearance and behavior.</p>
- *
- * <p>The class offers:</p>
- * <ul>
- *   <li>Primary, secondary, and tertiary button variants</li>
- *   <li>Success, error, and large button styles</li>
- *   <li>Pre-configured buttons for common actions (back, delete, edit, etc.)</li>
- *   <li>Consistent theming using Lumo design system</li>
- * </ul>
- *
- * <p>All buttons created through this utility automatically include
- * appropriate theme variants and styling for consistent user experience.</p>
+ * Provides factory methods for creating consistently styled buttons.
  */
 public final class ButtonHelper {
 
@@ -32,9 +18,7 @@ public final class ButtonHelper {
 
     /**
      * Creates a primary button with the specified text and click listener.
-     *
-     * <p>Primary buttons are used for the main action in forms and dialogs.
-     * They automatically receive the Lumo primary theme variant for emphasis.</p>
+     * Primary buttons are used for the main action in forms and dialogs.
      *
      * @param text the display text for the button
      * @param clickListener the event handler for button clicks
@@ -48,9 +32,7 @@ public final class ButtonHelper {
 
     /**
      * Creates a primary button with icon, text, and click listener.
-     *
-     * <p>Primary buttons with icons provide visual reinforcement for the
-     * main action. The icon is positioned before the text for proper alignment.</p>
+     * Primary buttons with icons provide visual reinforcement for the main action.
      *
      * @param text the display text for the button
      * @param icon the Vaadin icon to display
@@ -66,9 +48,7 @@ public final class ButtonHelper {
 
     /**
      * Creates a success button with icon, text, and click listener.
-     *
-     * <p>Success buttons are used for positive actions like save, confirm,
-     * or other operations that complete a task successfully.</p>
+     * Success buttons are used for positive actions like save or confirm.
      *
      * @param text the display text for the button
      * @param icon the Vaadin icon to display
@@ -84,9 +64,7 @@ public final class ButtonHelper {
 
     /**
      * Creates an error button with icon, text, and click listener.
-     *
-     * <p>Error buttons are used for destructive actions like delete, remove,
-     * or other operations that require user confirmation.</p>
+     * Error buttons are used for destructive actions like delete or remove.
      *
      * @param text the display text for the button
      * @param icon the Vaadin icon to display

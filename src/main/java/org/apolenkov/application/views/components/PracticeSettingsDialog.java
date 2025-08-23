@@ -14,28 +14,15 @@ import org.apolenkov.application.service.PracticeSettingsService;
 
 /**
  * Dialog component for configuring practice session settings.
- *
- * <p>This dialog allows users to customize their practice experience by setting
- * default values for card count, practice mode (random vs. sequential), and
- * practice direction (front-to-back vs. back-to-front).</p>
- *
- * <p>The dialog features:</p>
- * <ul>
- *   <li>Card count selection from predefined options</li>
- *   <li>Practice mode selection (random or sequential)</li>
- *   <li>Practice direction selection</li>
- *   <li>Immediate persistence of settings</li>
- * </ul>
+ * Allows users to customize their practice experience by setting
+ * default values for card count, practice mode, and practice direction.
  */
 public class PracticeSettingsDialog extends Dialog {
 
     /**
      * Creates a new PracticeSettingsDialog.
-     *
-     * <p>Creates and configures all UI components for practice settings,
-     * including form fields, validation, and event handlers. The dialog
-     * automatically loads current settings and provides immediate feedback
-     * upon saving.</p>
+     * Creates and configures all UI components for practice settings,
+     * including form fields, validation, and event handlers.
      *
      * @param practiceSettingsService service for managing practice settings
      */

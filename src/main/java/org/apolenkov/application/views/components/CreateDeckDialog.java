@@ -19,18 +19,8 @@ import org.apolenkov.application.usecase.UserUseCase;
 
 /**
  * Dialog component for creating new decks.
- *
- * <p>This dialog provides a form interface for users to create new flashcard decks.
- * It includes validation, error handling, and automatic navigation to the newly
- * created deck upon successful creation.</p>
- *
- * <p>The dialog features:</p>
- * <ul>
- *   <li>Title and description input fields with validation</li>
- *   <li>Bean validation binding for data integrity</li>
- *   <li>Error handling and user feedback</li>
- *   <li>Automatic navigation after successful creation</li>
- * </ul>
+ * Provides a form interface for users to create new flashcard decks with validation
+ * and automatic navigation to the newly created deck.
  */
 public class CreateDeckDialog extends Dialog {
 
@@ -55,10 +45,8 @@ public class CreateDeckDialog extends Dialog {
 
     /**
      * Builds the dialog UI components and layout.
-     *
-     * <p>Creates and configures all form elements including input fields,
-     * validation binding, buttons, and event handlers. The method sets up
-     * the complete user interface for deck creation.</p>
+     * Creates and configures all form elements including input fields,
+     * validation binding, buttons, and event handlers.
      */
     private void build() {
         // Create main layout with proper spacing and padding

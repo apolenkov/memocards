@@ -24,21 +24,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Top navigation menu component for the application.
- *
- * <p>This component provides the main navigation interface including user authentication
- * status, role-based menu items, and navigation controls. It automatically adapts
- * its content based on the user's authentication state and role permissions.</p>
- *
- * <p>The menu includes:</p>
- * <ul>
- *   <li>Application logo and title</li>
- *   <li>User greeting with display name</li>
- *   <li>Role-based navigation buttons (decks, stats, settings, admin functions)</li>
- *   <li>Logout functionality with confirmation dialog</li>
- * </ul>
- *
- * <p>The component automatically refreshes its content when navigation occurs,
- * ensuring the user's authentication state is always accurately reflected.</p>
+ * Provides the main navigation interface including user authentication
+ * status, role-based menu items, and navigation controls.
  */
 @Component
 @UIScope
@@ -62,9 +49,7 @@ public class TopMenu extends HorizontalLayout {
 
     /**
      * Creates a new TopMenu with required dependencies.
-     *
-     * <p>Initializes the menu with application logo, title, and navigation buttons.
-     * Sets up the layout with proper spacing and alignment for consistent appearance.</p>
+     * Initializes the menu with application logo, title, and navigation buttons.
      *
      * @param userUseCase service for user operations and current user information
      * @param practiceSettingsService service for practice session configuration
@@ -92,9 +77,7 @@ public class TopMenu extends HorizontalLayout {
 
     /**
      * Initializes the menu button configuration for different user roles.
-     *
-     * <p>Creates menu buttons with appropriate role requirements and navigation targets.
-     * Each button is configured with proper text, route, test ID, and role restrictions.</p>
+     * Creates menu buttons with appropriate role requirements and navigation targets.
      */
     private void initializeMenuButtons() {
         menuButtons.add(new MenuButton(getTranslation("main.decks"), "/decks", "nav-decks", false, ROLE_USER));
@@ -111,10 +94,9 @@ public class TopMenu extends HorizontalLayout {
 
     /**
      * Creates the horizontal layout containing all visible menu buttons.
-     *
-     * <p>Filters buttons based on user authentication and role requirements,
+     * Filters buttons based on user authentication and role requirements,
      * then creates and configures each button with appropriate styling and
-     * click handlers.</p>
+     * click handlers.
      *
      * @return a horizontal layout containing the filtered menu buttons
      */
@@ -138,10 +120,9 @@ public class TopMenu extends HorizontalLayout {
 
     /**
      * Refreshes the entire menu content based on current authentication state.
-     *
-     * <p>This method is called after route changes to ensure the menu accurately
+     * This method is called after route changes to ensure the menu accurately
      * reflects the user's current authentication status. It rebuilds the greeting
-     * section and button layout to match the current user context.</p>
+     * section and button layout to match the current user context.
      */
     public void refreshMenu() {
         removeAll();
@@ -176,8 +157,7 @@ public class TopMenu extends HorizontalLayout {
 
     /**
      * Determines whether a menu button should be visible based on authentication and role requirements.
-     *
-     * <p>Evaluates button visibility using the following logic:</p>
+     * Evaluates button visibility using the following logic:
      * <ul>
      *   <li>Always visible buttons are shown regardless of authentication state</li>
      *   <li>Logout button is only shown for authenticated users</li>
@@ -218,10 +198,9 @@ public class TopMenu extends HorizontalLayout {
 
     /**
      * Creates a configured button for the specified menu button configuration.
-     *
-     * <p>Creates buttons with appropriate styling and click handlers based on the
+     * Creates buttons with appropriate styling and click handlers based on the
      * menu button type. Special handling is provided for logout and settings buttons
-     * to ensure proper functionality.</p>
+     * to ensure proper functionality.
      *
      * @param menuButton the menu button configuration to create a button for
      * @return a configured Button component ready for use
@@ -249,10 +228,9 @@ public class TopMenu extends HorizontalLayout {
 
     /**
      * Opens a confirmation dialog for user logout.
-     *
-     * <p>Creates and displays a confirmation dialog to prevent accidental logouts.
+     * Creates and displays a confirmation dialog to prevent accidental logouts.
      * Upon confirmation, performs the logout operation using Spring Security's
-     * logout handler and redirects to the home page.</p>
+     * logout handler and redirects to the home page.
      */
     private void openLogoutDialog() {
         Dialog dialog = DialogHelper.createConfirmationDialog(
@@ -277,9 +255,8 @@ public class TopMenu extends HorizontalLayout {
 
     /**
      * Internal class representing a menu button configuration.
-     *
-     * <p>Encapsulates all the properties needed to create and configure a menu button,
-     * including text, navigation route, test identifier, visibility rules, and role requirements.</p>
+     * Encapsulates all the properties needed to create and configure a menu button,
+     * including text, navigation route, test identifier, visibility rules, and role requirements.
      */
     private static class MenuButton {
         private final String text;

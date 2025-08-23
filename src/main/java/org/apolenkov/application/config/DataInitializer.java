@@ -17,9 +17,8 @@ import org.springframework.core.annotation.Order;
 
 /**
  * Initializes demo data in development environment.
- *
- * <p>Creates sample decks, flashcards, and news items for development and testing.
- * Only runs in "dev" profile and creates data only if the system is empty.</p>
+ * Creates sample decks, flashcards, and news items for development and testing.
+ * Only runs in "dev" profile and creates data only if the system is empty.
  */
 @Configuration
 @Profile({"dev"})
@@ -27,9 +26,8 @@ public class DataInitializer {
 
     /**
      * Creates demo data initializer that runs after application startup.
-     *
-     * <p>Creates three themed decks (Travel, IT, English) with relevant flashcards
-     * and welcome news items. Only initializes if no existing data is found.</p>
+     * Creates three themed decks (Travel, IT, English) with relevant flashcards
+     * and welcome news items. Only initializes if no existing data is found.
      *
      * @param users user repository for finding demo user
      * @param decks deck repository for creating decks

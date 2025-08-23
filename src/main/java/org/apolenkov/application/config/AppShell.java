@@ -9,10 +9,9 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Vaadin application shell configuration.
- *
- * <p>Configures global application shell settings including theme selection,
+ * Configures global application shell settings including theme selection,
  * page title, and push communication. Uses custom "flashcards" theme and
- * enables server push for real-time communication.</p>
+ * enables server push for real-time communication.
  */
 @Configuration
 @Theme(value = "flashcards")

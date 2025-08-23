@@ -11,8 +11,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Vaadin internationalization (i18n) provider.
- *
- * <p>Supports English, Russian, and Spanish locales with parameter substitution.</p>
+ * Supports English, Russian, and Spanish locales with parameter substitution.
  */
 @Component
 public class AppI18NProvider implements I18NProvider {

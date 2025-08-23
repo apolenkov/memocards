@@ -20,22 +20,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Language selection component for the application.
- *
- * <p>This component provides a user interface for selecting the preferred language
- * for the application. It supports multiple locales including English, Russian,
- * and Spanish, with automatic persistence of user preferences.</p>
- *
- * <p>The language switcher features:</p>
- * <ul>
- *   <li>Dropdown selection of available languages</li>
- *   <li>Automatic detection of current locale</li>
- *   <li>Persistence of preferences in cookies and user settings</li>
- *   <li>Immediate application of language changes</li>
- *   <li>Fallback to English for unsupported locales</li>
- * </ul>
- *
- * <p>The component automatically handles locale persistence across sessions
- * and integrates with the user settings system for logged-in users.</p>
+ * Provides a user interface for selecting the preferred language
+ * for the application with support for English, Russian, and Spanish.
  */
 @Component
 @UIScope
@@ -49,10 +35,8 @@ public class LanguageSwitcher extends HorizontalLayout {
 
     /**
      * Creates a new LanguageSwitcher with required dependencies.
-     *
-     * <p>Initializes the language selection interface with a dropdown containing
-     * available languages. Sets up event listeners for language changes and
-     * configures the component with appropriate styling and behavior.</p>
+     * Initializes the language selection interface with a dropdown containing
+     * available languages and sets up event listeners for language changes.
      *
      * @param userUseCase service for user operations and current user information
      * @param userSettingsService service for persisting user preferences

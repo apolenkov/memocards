@@ -91,10 +91,8 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
     /**
      * Creates the main form for deck creation.
-     *
-     * <p>Builds a comprehensive form with title and description fields,
-     * validation binding, and action buttons. The form includes proper
-     * styling and responsive layout for optimal user experience.</p>
+     * Builds a comprehensive form with title and description fields,
+     * validation binding, and action buttons.
      */
     private void createForm() {
         Div formContainer = new Div();
@@ -143,17 +141,8 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
     /**
      * Saves the new deck to the system.
-     *
-     * <p>This method handles the deck creation process by:</p>
-     * <ul>
-     *   <li>Creating a new Deck instance with current user ID</li>
-     *   <li>Writing form data to the deck object using the binder</li>
-     *   <li>Saving the deck through the business logic layer</li>
-     *   <li>Showing success notification and navigating to the new deck</li>
-     * </ul>
-     *
-     * <p>The method includes comprehensive error handling for validation
-     * errors and other exceptions that may occur during the save process.</p>
+     * Handles the deck creation process including validation,
+     * saving, and navigation to the new deck.
      */
     private void saveDeck() {
         try {
@@ -172,9 +161,8 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
     /**
      * Returns the page title for this view.
-     *
-     * <p>Implements the HasDynamicTitle interface to provide localized
-     * page titles for the deck creation view.</p>
+     * Implements the HasDynamicTitle interface to provide localized
+     * page titles for the deck creation view.
      *
      * @return the localized page title for the deck creation view
      */

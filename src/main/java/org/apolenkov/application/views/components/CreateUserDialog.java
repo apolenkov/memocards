@@ -17,31 +17,15 @@ import org.apolenkov.application.service.user.AdminUserService;
 
 /**
  * Dialog component for creating new user accounts.
- *
- * <p>This dialog provides administrators with the ability to create new
- * user accounts with comprehensive validation and role assignment.
- * It ensures all new users meet security requirements and have
- * appropriate access permissions.</p>
- *
- * <p>The dialog features:</p>
- * <ul>
- *   <li>Required fields for email, name, and password</li>
- *   <li>Real-time validation with user feedback</li>
- *   <li>Role selection with checkbox group interface</li>
- *   <li>Password strength requirements enforcement</li>
- *   <li>Comprehensive error handling and validation</li>
- * </ul>
- *
- * <p>All user creation operations are tracked with administrator
- * identification for audit and security purposes.</p>
+ * Provides administrators with the ability to create new user accounts
+ * with comprehensive validation and role assignment.
  */
 public class CreateUserDialog extends Dialog {
 
     /**
      * Callback interface for handling successful user creation.
-     *
-     * <p>Provides a mechanism for the parent component to respond
-     * when a new user is successfully created through the dialog.</p>
+     * Provides a mechanism for the parent component to respond
+     * when a new user is successfully created through the dialog.
      */
     public interface OnSaved {
         /**
@@ -63,9 +47,7 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Creates a new CreateUserDialog with required dependencies.
-     *
-     * <p>Initializes the dialog with form fields, role mapping, and
-     * event handlers for user creation workflow.</p>
+     * Initializes the dialog with form fields, role mapping, and event handlers.
      *
      * @param service the admin user service for performing user creation
      * @param onSaved callback to execute when the user is successfully created
@@ -81,9 +63,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Initializes the dialog configuration and role mapping.
-     *
-     * <p>Sets up the dialog header, styling, and creates the mapping
-     * between display labels and internal role constants.</p>
+     * Sets up the dialog header, styling, and creates the mapping
+     * between display labels and internal role constants.
      */
     private void initializeDialog() {
         setHeaderTitle(getTranslation("user.create.title"));
@@ -95,9 +76,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Creates and configures all form input fields.
-     *
-     * <p>Sets up email, name, password, and role selection fields
-     * with appropriate validation rules and helper text.</p>
+     * Sets up email, name, password, and role selection fields
+     * with appropriate validation rules and helper text.
      */
     private void createFormFields() {
         FormLayout form = new FormLayout();
@@ -113,9 +93,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Creates and configures the email input field.
-     *
-     * <p>Sets up email validation, required indicators, and helper text
-     * to guide administrators during user creation.</p>
+     * Sets up email validation, required indicators, and helper text
+     * to guide administrators during user creation.
      *
      * @return a configured EmailField for user email input
      */
@@ -130,9 +109,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Creates and configures the name input field.
-     *
-     * <p>Sets up name validation, required indicators, and helper text
-     * for the user's display name.</p>
+     * Sets up name validation, required indicators, and helper text
+     * for the user's display name.
      *
      * @return a configured TextField for user name input
      */
@@ -146,9 +124,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Creates and configures the password input field.
-     *
-     * <p>Sets up password validation, required indicators, and helper text
-     * explaining password strength requirements.</p>
+     * Sets up password validation, required indicators, and helper text
+     * explaining password strength requirements.
      *
      * @return a configured PasswordField for user password input
      */
@@ -163,9 +140,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Creates and configures the role selection checkbox group.
-     *
-     * <p>Sets up role selection with available user and admin roles,
-     * defaulting to user role for new accounts.</p>
+     * Sets up role selection with available user and admin roles,
+     * defaulting to user role for new accounts.
      *
      * @return a configured CheckboxGroup for role selection
      */
@@ -179,9 +155,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Creates and configures the dialog action buttons.
-     *
-     * <p>Sets up save and cancel buttons with appropriate event handlers
-     * for form submission and dialog closure.</p>
+     * Sets up save and cancel buttons with appropriate event handlers
+     * for form submission and dialog closure.
      */
     private void setupButtons() {
         Button save = new Button(getTranslation("dialog.save"), e -> handleSave());
@@ -191,10 +166,9 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Handles the save button click event.
-     *
-     * <p>Performs validation on all form fields and, if successful,
+     * Performs validation on all form fields and, if successful,
      * attempts to create the new user. Displays appropriate error
-     * messages for validation failures.</p>
+     * messages for validation failures.
      */
     private void handleSave() {
         clearValidationErrors();
@@ -209,9 +183,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Clears all validation error states from form fields.
-     *
-     * <p>Resets the visual error indicators on all input fields
-     * before performing new validation.</p>
+     * Resets the visual error indicators on all input fields
+     * before performing new validation.
      */
     private void clearValidationErrors() {
         email.setInvalid(false);
@@ -221,9 +194,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Validates all form fields for correctness.
-     *
-     * <p>Performs comprehensive validation on email, name, and password
-     * fields, setting appropriate error states and messages.</p>
+     * Performs comprehensive validation on email, name, and password
+     * fields, setting appropriate error states and messages.
      *
      * @return true if all fields are valid, false otherwise
      */
@@ -237,9 +209,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Validates the email field for format and presence.
-     *
-     * <p>Ensures the email field contains a valid email address
-     * and is not empty.</p>
+     * Ensures the email field contains a valid email address
+     * and is not empty.
      *
      * @return true if the email is valid, false otherwise
      */
@@ -255,9 +226,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Validates the name field for minimum length requirements.
-     *
-     * <p>Ensures the name field contains at least 2 characters
-     * for meaningful user identification.</p>
+     * Ensures the name field contains at least 2 characters
+     * for meaningful user identification.
      *
      * @return true if the name meets length requirements, false otherwise
      */
@@ -273,9 +243,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Validates the password field for strength requirements.
-     *
-     * <p>Ensures the password meets minimum security standards
-     * including length, letter, and digit requirements.</p>
+     * Ensures the password meets minimum security standards
+     * including length, letter, and digit requirements.
      *
      * @return true if the password meets strength requirements, false otherwise
      */
@@ -291,10 +260,9 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Performs the actual user creation operation.
-     *
-     * <p>Collects validated form data and calls the admin service
+     * Collects validated form data and calls the admin service
      * to create the new user with audit trail information. Handles
-     * both successful creation and error conditions.</p>
+     * both successful creation and error conditions.
      */
     private void performSaveOperation() {
         try {
@@ -326,9 +294,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Converts selected role labels to internal role constants.
-     *
-     * <p>Maps the user-selected role display labels to the corresponding
-     * internal role constants used by the security system.</p>
+     * Maps the user-selected role display labels to the corresponding
+     * internal role constants used by the security system.
      *
      * @return a set of role constants for the selected roles
      */
@@ -347,9 +314,8 @@ public class CreateUserDialog extends Dialog {
 
     /**
      * Safely trims a string value, handling null cases.
-     *
-     * <p>Provides a utility method for safely trimming string values
-     * while handling null inputs gracefully.</p>
+     * Provides a utility method for safely trimming string values
+     * while handling null inputs gracefully.
      *
      * @param value the string value to trim
      * @return the trimmed string, or empty string if input is null
