@@ -91,8 +91,12 @@ public final class NavigationHelper {
      * way to access deck details from various parts of the application.</p>
      *
      * @param deckId the unique identifier of the deck to view
+     * @throws IllegalArgumentException if deckId is null
      */
     public static void navigateToDeck(Long deckId) {
+        if (deckId == null) {
+            throw new IllegalArgumentException("Deck ID cannot be null");
+        }
         navigateTo(RouteConstants.DECK_ROUTE, deckId.toString());
     }
 
@@ -104,8 +108,12 @@ public final class NavigationHelper {
      * the selected deck's flashcards.</p>
      *
      * @param deckId the unique identifier of the deck to practice with
+     * @throws IllegalArgumentException if deckId is null
      */
     public static void navigateToPractice(Long deckId) {
+        if (deckId == null) {
+            throw new IllegalArgumentException("Deck ID cannot be null");
+        }
         navigateTo(RouteConstants.PRACTICE_ROUTE, deckId.toString());
     }
 
