@@ -14,20 +14,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * JPA implementation of the StatsRepository interface.
+ * JPA adapter for statistics and progress tracking operations.
  *
- * <p>This adapter provides JPA-based persistence for user statistics and progress tracking.
- * It handles daily statistics accumulation, known card management, and deck progress aggregation.
- * The implementation uses Spring Data JPA repositories for data access and provides
- * transactional guarantees for all operations.</p>
- *
- * <p>Key features include:</p>
- * <ul>
- *   <li>Session statistics recording with automatic daily aggregation</li>
- *   <li>Known card tracking to monitor user progress</li>
- *   <li>Comprehensive deck statistics with today vs. all-time metrics</li>
- *   <li>Efficient batch operations for multiple decks</li>
- * </ul>
+ * <p>Manages practice session statistics, known card tracking,
+ * and deck progress aggregation with transactional support.</p>
  */
 @Repository
 @Profile({"dev", "prod"})
@@ -37,7 +27,7 @@ public class StatsJpaAdapter implements StatsRepository {
     private final KnownCardJpaRepository knownRepo;
 
     /**
-     * Constructs a new StatsJpaAdapter with the required repositories.
+     * Creates adapter with JPA repository dependencies.
      *
      * @param statsRepo repository for daily statistics persistence
      * @param knownRepo repository for known card tracking
@@ -49,14 +39,6 @@ public class StatsJpaAdapter implements StatsRepository {
 
     /**
      * Records a practice session and updates deck statistics.
-     *
-     * <p>This method handles the recording of a complete practice session, including
-     * performance metrics and any changes to card knowledge status. The implementation
-     * first attempts to accumulate session data to existing daily records, and if
-     * no record exists for the date, creates a new one.</p>
-     *
-     * <p>The method also processes any cards that changed knowledge status during
-     * the session, ensuring the known cards list is kept up to date without duplicates.</p>
      *
      * @param deckId the ID of the deck being practiced
      * @param date the date of the practice session
@@ -117,12 +99,8 @@ public class StatsJpaAdapter implements StatsRepository {
     /**
      * Retrieves daily statistics for a specific deck.
      *
-     * <p>Fetches all daily statistics records for the specified deck and maps them
-     * to domain objects. The results are ordered chronologically by date to provide
-     * a timeline view of user progress.</p>
-     *
      * @param deckId the ID of the deck to retrieve statistics for
-     * @return a chronologically sorted list of daily statistics records
+     * @return chronologically sorted list of daily statistics records
      */
     @Override
     @Transactional(readOnly = true)
@@ -143,12 +121,8 @@ public class StatsJpaAdapter implements StatsRepository {
     /**
      * Retrieves all card IDs marked as known in a specific deck.
      *
-     * <p>Returns a set of card IDs that the user has successfully learned
-     * in the specified deck. This information is used to calculate progress
-     * percentages and track user advancement.</p>
-     *
      * @param deckId the ID of the deck to check for known cards
-     * @return a set of card IDs marked as known
+     * @return set of card IDs marked as known
      */
     @Override
     @Transactional(readOnly = true)
@@ -158,10 +132,6 @@ public class StatsJpaAdapter implements StatsRepository {
 
     /**
      * Sets the knowledge status of a specific card in a deck.
-     *
-     * <p>Updates the known status of a card based on user performance. When marking
-     * a card as known, the system checks for duplicates to avoid creating redundant
-     * entries. When marking as unknown, the card is removed from the known cards list.</p>
      *
      * @param deckId the ID of the deck containing the card
      * @param cardId the ID of the card to update
@@ -189,10 +159,6 @@ public class StatsJpaAdapter implements StatsRepository {
     /**
      * Resets all progress for a specific deck.
      *
-     * <p>Removes all known card entries for the specified deck, effectively
-     * resetting the user's progress to zero. This is useful when a user wants
-     * to start over or when deck content has been significantly changed.</p>
-     *
      * @param deckId the ID of the deck to reset progress for
      */
     @Override
@@ -204,17 +170,9 @@ public class StatsJpaAdapter implements StatsRepository {
     /**
      * Retrieves aggregated statistics for multiple decks.
      *
-     * <p>Fetches comprehensive statistics for the specified decks, providing both
-     * all-time totals and today's metrics. The method efficiently processes multiple
-     * decks in a single database query and ensures all requested deck IDs have
-     * entries in the result, even if no statistics exist.</p>
-     *
-     * <p>The aggregation logic separates today's statistics from historical totals,
-     * allowing for both current progress tracking and long-term performance analysis.</p>
-     *
      * @param deckIds collection of deck IDs to retrieve statistics for
      * @param today the reference date for "today's" statistics
-     * @return a map of deck ID to aggregated statistics
+     * @return map of deck ID to aggregated statistics
      */
     @Override
     @Transactional(readOnly = true)
