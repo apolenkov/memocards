@@ -5,8 +5,7 @@ import java.time.LocalDateTime;
 
 /**
  * JPA entity representing audit trail for role changes in the system.
- *
- * <p>Maintains audit log of role modifications with before/after states.</p>
+ * Maintains audit log of role modifications with before/after states.
  */
 @Entity
 @Table(name = "role_audit")
@@ -14,15 +13,8 @@ public class RoleAuditEntity {
 
     /**
      * Unique identifier for the role audit record.
-     *
-     * <p>This field serves as the primary key and is automatically generated
-     * using the database's identity strategy. It provides a unique reference
-     * for each audit entry in the system.</p>
-     *
-     * <p><strong>Generation Strategy:</strong> IDENTITY (auto-increment)</p>
-     * <p><strong>Database Type:</strong> BIGINT</p>
-     * <p><strong>Constraints:</strong> Primary key, non-nullable, unique</p>
-     * <p><strong>Purpose:</strong> Enables efficient querying and referencing of audit records</p>
+     * This field serves as the primary key and is automatically generated
+     * using the database's identity strategy.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,80 +23,40 @@ public class RoleAuditEntity {
 
     /**
      * Email address of the administrator who performed the role change.
-     *
-     * <p>This field identifies the administrator responsible for modifying
-     * user roles. It provides accountability and enables tracking of
-     * administrative actions for security and compliance purposes.</p>
-     *
-     * <p><strong>Database Type:</strong> VARCHAR</p>
-     * <p><strong>Constraints:</strong> Non-nullable</p>
-     * <p><strong>Format:</strong> Valid email address format</p>
-     * <p><strong>Business Rule:</strong> Must be a valid administrator email</p>
-     * <p><strong>Security:</strong> Used for access control and audit trail</p>
+     * This field identifies the administrator responsible for modifying
+     * user roles for accountability and tracking.
      */
     @Column(nullable = false)
     private String adminEmail;
 
     /**
      * Identifier of the user whose roles were modified.
-     *
-     * <p>This field references the target user whose role configuration
-     * was changed. It enables tracking of role modifications for specific
-     * users and supports user-specific audit reporting.</p>
-     *
-     * <p><strong>Database Type:</strong> BIGINT</p>
-     * <p><strong>Constraints:</strong> Non-nullable, foreign key reference</p>
-     * <p><strong>Relationship:</strong> Many-to-one with UserEntity</p>
-     * <p><strong>Business Rule:</strong> Must reference an existing user</p>
-     * <p><strong>Purpose:</strong> Identifies the subject of the role change</p>
+     * This field references the target user whose role configuration
+     * was changed for tracking and reporting purposes.
      */
     @Column(nullable = false)
     private Long userId;
 
     /**
      * Role configuration before the modification.
-     *
-     * <p>This field stores the complete role configuration that existed
-     * before the administrator made changes. It uses TEXT column type
-     * to accommodate complex role structures and multiple roles per user.</p>
-     *
-     * <p><strong>Database Type:</strong> TEXT</p>
-     * <p><strong>Constraints:</strong> Non-nullable</p>
-     * <p><strong>Content:</strong> JSON or comma-separated role list</p>
-     * <p><strong>Purpose:</strong> Provides baseline for change comparison</p>
-     * <p><strong>Audit Value:</strong> Essential for understanding what changed</p>
+     * This field stores the complete role configuration that existed
+     * before the administrator made changes.
      */
     @Column(nullable = false, columnDefinition = "TEXT")
     private String rolesBefore;
 
     /**
      * Role configuration after the modification.
-     *
-     * <p>This field stores the complete role configuration that resulted
-     * from the administrator's changes. It uses TEXT column type to
-     * accommodate complex role structures and multiple roles per user.</p>
-     *
-     * <p><strong>Database Type:</strong> TEXT</p>
-     * <p><strong>Constraints:</strong> Non-nullable</p>
-     * <p><strong>Content:</strong> JSON or comma-separated role list</p>
-     * <p><strong>Purpose:</strong> Shows the final state after changes</p>
-     * <p><strong>Audit Value:</strong> Essential for understanding the outcome</p>
+     * This field stores the complete role configuration that resulted
+     * from the administrator's changes.
      */
     @Column(nullable = false, columnDefinition = "TEXT")
     private String rolesAfter;
 
     /**
      * Timestamp when the role change occurred.
-     *
-     * <p>This field records the exact date and time when the role
-     * modification was performed. It provides chronological ordering
-     * of audit events and enables time-based reporting and analysis.</p>
-     *
-     * <p><strong>Database Type:</strong> TIMESTAMP</p>
-     * <p><strong>Constraints:</strong> Non-nullable</p>
-     * <p><strong>Format:</strong> ISO 8601 datetime format</p>
-     * <p><strong>Precision:</strong> Includes date, time, and timezone information</p>
-     * <p><strong>Purpose:</strong> Enables chronological audit trail and reporting</p>
+     * This field records the exact date and time when the role
+     * modification was performed for chronological ordering.
      */
     @Column(nullable = false)
     private LocalDateTime changedAt;

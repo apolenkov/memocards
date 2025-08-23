@@ -5,12 +5,10 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * JPA entity representing a password reset token.
+ * Stores temporary tokens for password reset functionality.
+ * Each token is associated with a user and has an expiration time.
  *
- * <p>Stores temporary tokens for password reset functionality.
- * Each token is associated with a user and has an expiration time.</p>
- *
- * <p>Table: "password_reset_tokens" with unique token constraint.</p>
+ * Table: "password_reset_tokens" with unique token constraint.
  */
 @Entity
 @Table(name = "password_reset_tokens")

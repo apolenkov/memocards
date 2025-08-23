@@ -6,8 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * Spring Data JPA repository for user management.
- *
- * <p>Provides CRUD operations and authentication queries for users.</p>
+ * Provides CRUD operations and authentication queries for users.
  */
 public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
 

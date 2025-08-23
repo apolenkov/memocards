@@ -168,8 +168,7 @@ public class User {
 
     /**
      * Adds role to user.
-     *
-     * <p>Automatically prefixes role with "ROLE_" if not already present.</p>
+     * Automatically prefixes role with "ROLE_" if not already present.
      *
      * @param role role to add
      */
@@ -181,8 +180,7 @@ public class User {
 
     /**
      * Checks if this user equals another object.
-     *
-     * <p>Two users are considered equal if they have the same ID.</p>
+     * Two users are considered equal if they have the same ID.
      *
      * @param o reference object to compare with
      * @return true if objects are equal

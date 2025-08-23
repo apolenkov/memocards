@@ -14,18 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Application-level query service for decks.
- *
- * <p>This service provides search functionality and view model creation for decks.
+ * This service provides search functionality and view model creation for decks.
  * It centralizes deck-related query operations including text search, sorting,
- * and the creation of view models for UI components.</p>
- *
- * <p>Key features include:</p>
- * <ul>
- *   <li>Text-based search across deck titles and descriptions</li>
- *   <li>User-specific deck filtering and sorting</li>
- *   <li>View model creation with progress statistics</li>
- *   <li>Transactional read-only operations for performance</li>
- * </ul>
+ * and the creation of view models for UI components.
  */
 @Service
 public class DeckQueryService {
@@ -56,10 +47,8 @@ public class DeckQueryService {
 
     /**
      * Gets and filters decks for the current user.
-     *
-     * <p>Loads all decks belonging to the current user and applies optional
-     * text-based filtering. Results are sorted alphabetically by title with
-     * null titles handled gracefully.</p>
+     * Loads all decks belonging to the current user and applies optional
+     * text-based filtering. Results are sorted alphabetically by title.
      *
      * @param query optional search query for filtering deck titles and descriptions
      * @return a sorted list of user's decks, optionally filtered by search query
@@ -88,10 +77,8 @@ public class DeckQueryService {
 
     /**
      * Converts a deck entity to a view model for UI display.
-     *
-     * <p>Creates a comprehensive view model containing deck information and
-     * calculated progress statistics. The method aggregates data from multiple
-     * sources to provide a complete picture for UI components.</p>
+     * Creates a comprehensive view model containing deck information and
+     * calculated progress statistics.
      *
      * @param deck the deck entity to convert
      * @return a DeckCardViewModel with deck data and progress statistics
@@ -109,10 +96,9 @@ public class DeckQueryService {
 
     /**
      * Checks if a string value contains the specified query text.
-     *
-     * <p>Performs a case-insensitive substring search with null safety.
+     * Performs a case-insensitive substring search with null safety.
      * Returns false if the value is null, otherwise checks if the query
-     * is contained within the value after converting both to lowercase.</p>
+     * is contained within the value after converting both to lowercase.
      *
      * @param value the string to search in (can be null)
      * @param query the query text to search for
