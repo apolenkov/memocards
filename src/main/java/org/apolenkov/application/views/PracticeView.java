@@ -22,6 +22,12 @@ import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 
+/**
+ * Interactive flashcard practice session view.
+ *
+ * <p>Provides a complete practice interface for studying flashcards with
+ * configurable settings, progress tracking, and session statistics.</p>
+ */
 @Route(value = "practice", layout = PublicLayout.class)
 @RolesAllowed("ROLE_USER")
 public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {

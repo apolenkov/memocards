@@ -15,10 +15,21 @@ import org.apolenkov.application.config.SecurityConstants;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.service.PracticeSettingsService;
 
+/**
+ * View for configuring practice session settings.
+ *
+ * <p>Allows users to set default preferences for practice sessions including
+ * card count, order mode (random/sequential), and direction (front-to-back/back-to-front).</p>
+ */
 @Route(value = "settings", layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class PracticeSettingsView extends VerticalLayout implements HasDynamicTitle {
 
+    /**
+     * Creates the practice settings view.
+     *
+     * @param practiceSettingsService service for managing practice settings
+     */
     public PracticeSettingsView(PracticeSettingsService practiceSettingsService) {
         setPadding(true);
         setSpacing(true);

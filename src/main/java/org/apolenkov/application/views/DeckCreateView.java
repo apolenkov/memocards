@@ -25,6 +25,12 @@ import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 import org.apolenkov.application.views.utils.TextHelper;
 
+/**
+ * View for creating new flashcard decks.
+ *
+ * <p>Provides a form interface for users to create new decks with
+ * name and description. Includes validation and navigation controls.</p>
+ */
 @Route("decks/new")
 @RolesAllowed("ROLE_USER")
 public class DeckCreateView extends Composite<VerticalLayout> implements HasDynamicTitle {
@@ -33,6 +39,12 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
     private final transient UserUseCase userUseCase;
     private BeanValidationBinder<Deck> binder;
 
+    /**
+     * Creates the deck creation view.
+     *
+     * @param deckUseCase deck business logic
+     * @param userUseCase user business logic
+     */
     public DeckCreateView(DeckUseCase deckUseCase, UserUseCase userUseCase) {
         this.deckUseCase = deckUseCase;
         this.userUseCase = userUseCase;
