@@ -12,52 +12,7 @@ import org.apolenkov.application.domain.port.RoleAuditRepository;
 /**
  * Administrative view for displaying role change audit logs.
  *
- * <p>This view provides administrators with a comprehensive audit trail of all
- * role changes made in the system. It displays detailed information about who
- * made changes, when they were made, and what the before/after states were.</p>
- *
- * <p>The view includes the following features:</p>
- * <ul>
- *   <li><strong>Audit Trail:</strong> Complete history of role modifications</li>
- *   <li><strong>Data Grid:</strong> Tabular display with sortable columns</li>
- *   <li><strong>Role Comparison:</strong> Before and after role states</li>
- *   <li><strong>Administrator Tracking:</strong> Records who made each change</li>
- *   <li><strong>Timestamp Logging:</strong> Precise timing of all changes</li>
- *   <li><strong>Security:</strong> Restricted to users with ROLE_ADMIN permission</li>
- * </ul>
- *
- * <p><strong>Security Features:</strong></p>
- * <ul>
- *   <li>Requires ROLE_ADMIN authentication</li>
- *   <li>Displays sensitive audit information</li>
- *   <li>Provides accountability for administrative actions</li>
- *   <li>Supports compliance and security investigations</li>
- * </ul>
- *
- * <p><strong>Route Configuration:</strong></p>
- * <ul>
- *   <li>Primary route: "/admin/audit"</li>
- *   <li>Alias route: "/admin/role-audit"</li>
- *   <li>Uses PublicLayout for consistent styling</li>
- * </ul>
- *
- * <p><strong>Audit Information Displayed:</strong></p>
- * <ul>
- *   <li>Administrator email who made the change</li>
- *   <li>User ID whose roles were modified</li>
- *   <li>Roles before the change (comma-separated)</li>
- *   <li>Roles after the change (comma-separated)</li>
- *   <li>Timestamp when the change occurred</li>
- * </ul>
- *
- * @see RoleAuditRepository
- * @see RoleAuditRepository.RoleAuditRecord
- * @see PublicLayout
- * @see HasDynamicTitle
- * @see Route
- * @see RouteAlias
- * @see RolesAllowed
- * @see VerticalLayout
+ * <p>Shows comprehensive audit trail of role modifications with before/after states.</p>
  */
 @Route(value = "admin/audit", layout = PublicLayout.class)
 @RouteAlias(value = "admin/role-audit", layout = PublicLayout.class)

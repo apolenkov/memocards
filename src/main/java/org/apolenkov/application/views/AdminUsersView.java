@@ -34,45 +34,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /**
  * Administrative view for managing user accounts and roles.
  *
- * <p>This view provides administrators with a comprehensive interface for managing
- * user accounts, including viewing user information, modifying user roles, editing
- * user details, and deleting user accounts. It implements a full user management
- * system with proper security controls and audit logging.</p>
- *
- * <p>The view includes the following features:</p>
- * <ul>
- *   <li><strong>User Management:</strong> View, edit, and delete user accounts</li>
- *   <li><strong>Role Management:</strong> Modify user roles with real-time updates</li>
- *   <li><strong>Data Grid:</strong> Tabular display of all users with sortable columns</li>
- *   <li><strong>Inline Editing:</strong> Direct role modification through checkboxes</li>
- *   <li><strong>Security Controls:</strong> Prevents deletion of last admin or self</li>
- *   <li><strong>Audit Logging:</strong> Tracks all role changes for compliance</li>
- *   <li><strong>Session Management:</strong> Updates current user session when modified</li>
- * </ul>
- *
- * <p><strong>Security Features:</strong></p>
- * <ul>
- *   <li>Requires ROLE_ADMIN authentication</li>
- *   <li>Prevents self-deletion of administrators</li>
- *   <li>Prevents deletion of the last administrator</li>
- *   <li>Audit logging of all role changes</li>
- *   <li>Session invalidation for security</li>
- * </ul>
- *
- * <p><strong>Route Configuration:</strong></p>
- * <ul>
- *   <li>Route: "/admin/users"</li>
- *   <li>Uses PublicLayout for consistent styling</li>
- *   <li>Restricted to administrative users only</li>
- * </ul>
- *
- * @see User
- * @see AdminUserService
- * @see PublicLayout
- * @see HasDynamicTitle
- * @see Route
- * @see RolesAllowed
- * @see VerticalLayout
+ * <p>Provides user management interface with role editing and security controls.</p>
  */
 @Route(value = "admin/users", layout = PublicLayout.class)
 @RolesAllowed("ROLE_ADMIN")

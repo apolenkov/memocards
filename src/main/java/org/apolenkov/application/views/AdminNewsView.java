@@ -30,43 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /**
  * Administrative view for managing news content in the application.
  *
- * <p>This view provides administrators with a comprehensive interface for managing
- * news articles, including creating, editing, viewing, and deleting news items.
- * It implements a full CRUD interface with proper validation and user feedback.</p>
- *
- * <p>The view includes the following features:</p>
- * <ul>
- *   <li><strong>News Management:</strong> Create, read, update, and delete news articles</li>
- *   <li><strong>Data Grid:</strong> Tabular display of all news with sortable columns</li>
- *   <li><strong>Form Validation:</strong> Client-side validation for required fields</li>
- *   <li><strong>User Experience:</strong> Intuitive dialog-based editing interface</li>
- *   <li><strong>Security:</strong> Restricted to users with ROLE_ADMIN permission</li>
- *   <li><strong>Internationalization:</strong> Fully localized interface text</li>
- * </ul>
- *
- * <p><strong>Security Features:</strong></p>
- * <ul>
- *   <li>Requires ROLE_ADMIN authentication</li>
- *   <li>Author field automatically populated with current user</li>
- *   <li>Proper input validation and sanitization</li>
- *   <li>Confirmation dialogs for destructive operations</li>
- * </ul>
- *
- * <p><strong>Route Configuration:</strong></p>
- * <ul>
- *   <li>Primary route: "/admin/news"</li>
- *   <li>Alias route: "/admin/content"</li>
- *   <li>Uses PublicLayout for consistent styling</li>
- * </ul>
- *
- * @see News
- * @see NewsService
- * @see PublicLayout
- * @see HasDynamicTitle
- * @see Route
- * @see RouteAlias
- * @see RolesAllowed
- * @see VerticalLayout
+ * <p>Provides CRUD interface for news articles with validation and security.</p>
  */
 @Route(value = "admin/news", layout = PublicLayout.class)
 @RouteAlias(value = "admin/content", layout = PublicLayout.class)

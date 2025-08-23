@@ -11,7 +11,7 @@ import org.apolenkov.application.model.User;
  * including authentication and profile management.</p>
  */
 public interface UserRepository {
-    
+
     /**
      * Retrieves all users in the system.
      *

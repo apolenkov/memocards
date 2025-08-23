@@ -7,29 +7,7 @@ import org.springframework.stereotype.Service;
 /**
  * Service for managing user-specific settings and preferences.
  *
- * <p>This service provides functionality for storing and retrieving user preferences
- * such as language settings, UI preferences, and other personalized configurations.
- * It acts as a bridge between the application logic and the user settings persistence layer.</p>
- *
- * <p>The service supports:</p>
- * <ul>
- *   <li><strong>Language Preferences:</strong> Storing user's preferred locale for internationalization</li>
- *   <li><strong>UI Settings:</strong> User interface customization preferences</li>
- *   <li><strong>Application Behavior:</strong> Personalized application behavior settings</li>
- * </ul>
- *
- * <p>Usage example:</p>
- * <pre>{@code
- * // Set user's preferred language
- * userSettingsService.setPreferredLocale(userId, Locale.ENGLISH);
- *
- * // Set user's preferred language with country
- * userSettingsService.setPreferredLocale(userId, Locale.US);
- * }</pre>
- *
- * @see UserSettingsRepository
- * @see Locale
- * @see java.util.Locale#toLanguageTag()
+ * <p>Provides functionality for storing and retrieving user preferences.</p>
  */
 @Service
 public class UserSettingsService {

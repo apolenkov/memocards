@@ -6,51 +6,7 @@ import java.time.LocalDateTime;
 /**
  * JPA entity representing news articles in the system.
  *
- * <p>This entity manages news content that can be displayed to users, including
- * announcements, updates, and informational articles. It provides a structured
- * way to store and retrieve news items with proper metadata and content management.</p>
- *
- * <p>The entity maintains the following characteristics:</p>
- * <ul>
- *   <li><strong>Content Management:</strong> Title, content, and author information</li>
- *   <li><strong>Temporal Tracking:</strong> Creation and modification timestamps</li>
- *   <li><strong>Content Storage:</strong> Large text content using LOB annotation</li>
- *   <strong>Audit Trail:</strong> Automatic timestamp management for changes</li>
- * </ul>
- *
- * <p><strong>Database Mapping:</strong></p>
- * <ul>
- *   <li>Table: "news"</li>
- *   <li>Primary Key: Auto-generated ID</li>
- *   <li>Content Field: Uses LOB for large text storage</li>
- *   <li>Timestamps: Automatic management via JPA lifecycle callbacks</li>
- * </ul>
- *
- * <p><strong>Lifecycle Management:</strong></p>
- * <ul>
- *   <li><strong>Creation:</strong> Automatic timestamp setting on persist</li>
- *   <li><strong>Updates:</strong> Automatic timestamp updating on modifications</li>
- *   <strong>Validation:</strong> Required fields enforced at database level</li>
- *   <strong>Content Handling:</strong> Large content supported via LOB</li>
- * </ul>
- *
- * <p><strong>Business Rules:</strong></p>
- * <ul>
- *   <li><strong>Content Requirements:</strong> Title and content are mandatory</li>
- *   <li><strong>Author Attribution:</strong> All news must have an author</li>
- *   <strong>Temporal Integrity:</strong> Timestamps automatically managed</li>
- *   <strong>Content Size:</strong> Large content supported for detailed articles</li>
- * </ul>
- *
- * @see jakarta.persistence.Entity
- * @see jakarta.persistence.Table
- * @see jakarta.persistence.Id
- * @see jakarta.persistence.GeneratedValue
- * @see jakarta.persistence.Column
- * @see jakarta.persistence.Lob
- * @see jakarta.persistence.PrePersist
- * @see jakarta.persistence.PreUpdate
- * @see java.time.LocalDateTime
+ * <p>Manages news content with title, content, author, and timestamps.</p>
  */
 @Entity
 @Table(name = "news")
@@ -58,15 +14,6 @@ public class NewsEntity {
 
     /**
      * Unique identifier for the news article.
-     *
-     * <p>This field serves as the primary key and is automatically generated
-     * using the database's identity strategy. It provides a unique reference
-     * for each news article in the system.</p>
-     *
-     * <p><strong>Generation Strategy:</strong> IDENTITY (auto-increment)</p>
-     * <p><strong>Database Type:</strong> BIGINT</p>
-     * <p><strong>Constraints:</strong> Primary key, non-nullable, unique</p>
-     * <p><strong>Purpose:</strong> Enables efficient querying and referencing of news articles</p>
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -74,31 +21,12 @@ public class NewsEntity {
 
     /**
      * Title of the news article.
-     *
-     * <p>This field stores the headline or title of the news article.
-     * It provides a concise summary of the content and is used for
-     * display purposes in news listings and navigation.</p>
-     *
-     * <p><strong>Database Type:</strong> VARCHAR</p>
-     * <p><strong>Constraints:</strong> Non-nullable</p>
-     * <p><strong>Purpose:</strong> Article identification and display</p>
-     * <p><strong>Business Rule:</strong> Must provide meaningful article identification</p>
      */
     @Column(nullable = false)
     private String title;
 
     /**
      * Main content of the news article.
-     *
-     * <p>This field stores the full text content of the news article.
-     * It uses the LOB annotation to support large text content,
-     * enabling detailed articles with rich formatting and extensive content.</p>
-     *
-     * <p><strong>Database Type:</strong> LOB (Large Object)</p>
-     * <p><strong>Constraints:</strong> Non-nullable</p>
-     * <p><strong>Content Support:</strong> Large text, HTML, markdown</p>
-     * <p><strong>Purpose:</strong> Stores the complete article content</p>
-     * <p><strong>Business Rule:</strong> Must contain meaningful article content</p>
      */
     @Lob
     @Column(nullable = false)
@@ -106,48 +34,18 @@ public class NewsEntity {
 
     /**
      * Author of the news article.
-     *
-     * <p>This field identifies the person or entity responsible for
-     * creating the news content. It provides attribution and accountability
-     * for published articles.</p>
-     *
-     * <p><strong>Database Type:</strong> VARCHAR</p>
-     * <p><strong>Constraints:</strong> Non-nullable</p>
-     * <p><strong>Content:</strong> Author name or identifier</p>
-     * <p><strong>Purpose:</strong> Content attribution and accountability</p>
-     * <p><strong>Business Rule:</strong> Must identify the content creator</p>
      */
     @Column(nullable = false)
     private String author;
 
     /**
      * Timestamp when the news article was created.
-     *
-     * <p>This field records the exact date and time when the news article
-     * was first created and persisted in the system. It is automatically
-     * set during the persist operation.</p>
-     *
-     * <p><strong>Database Type:</strong> TIMESTAMP</p>
-     * <p><strong>Constraints:</strong> Non-nullable</p>
-     * <p><strong>Auto-Setting:</strong> Set automatically on persist</p>
-     * <p><strong>Format:</strong> ISO 8601 datetime format</p>
-     * <p><strong>Purpose:</strong> Creation date tracking and ordering</p>
      */
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
     /**
      * Timestamp when the news article was last updated.
-     *
-     * <p>This field records the exact date and time when the news article
-     * was last modified. It is automatically updated during each update
-     * operation to maintain an accurate modification history.</p>
-     *
-     * <p><strong>Database Type:</strong> TIMESTAMP</p>
-     * <p><strong>Constraints:</strong> Non-nullable</p>
-     * <p><strong>Auto-Updating:</strong> Updated automatically on each modification</p>
-     * <p><strong>Format:</strong> ISO 8601 datetime format</p>
-     * <p><strong>Purpose:</strong> Modification tracking and audit trail</p>
      */
     @Column(nullable = false)
     private LocalDateTime updatedAt;

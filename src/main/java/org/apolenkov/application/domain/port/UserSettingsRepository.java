@@ -9,7 +9,7 @@ import java.util.Optional;
  * configuration such as locale preferences and other personal settings.</p>
  */
 public interface UserSettingsRepository {
-    
+
     /**
      * Retrieves the preferred locale code for a user.
      *
