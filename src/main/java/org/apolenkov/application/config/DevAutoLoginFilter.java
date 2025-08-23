@@ -21,16 +21,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Developer convenience filter for automatic authentication in development environment.
+ * Automatic authentication filter for development environment.
  *
- * <p>This filter automatically authenticates a predefined user when enabled through
- * configuration properties. It's designed to streamline development workflow by
- * eliminating the need for manual login during development and testing.</p>
- *
- * <p>The filter only operates in non-production profiles and can be enabled/disabled
- * through configuration. It automatically skips authentication endpoints to avoid
- * conflicts with normal authentication flows.</p>
- *
+ * <p>Automatically authenticates a predefined user to streamline development workflow.
+ * Only operates in non-production profiles and skips authentication endpoints.</p>
  */
 @Component
 @Profile("!prod")
@@ -44,11 +38,11 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
     private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
     /**
-     * Constructs a new DevAutoLoginFilter with configuration and dependencies.
+     * Creates auto-login filter with configuration and dependencies.
      *
      * @param autoLoginEnabled whether automatic login is enabled (default: false)
-     * @param autoLoginUser the email of the user to automatically authenticate (default: user@example.com)
-     * @param userDetailsService the service for loading user details
+     * @param autoLoginUser email of user to automatically authenticate (default: user@example.com)
+     * @param userDetailsService service for loading user details
      */
     public DevAutoLoginFilter(
             @Value("${dev.auto-login.enabled:false}") boolean autoLoginEnabled,
@@ -60,15 +54,10 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Processes each request to apply automatic authentication when appropriate.
+     * Applies automatic authentication when conditions are met.
      *
-     * <p>This method checks if auto-login is enabled and if the current request
-     * is eligible for automatic authentication. If conditions are met, it loads
-     * the predefined user and sets up the authentication context.</p>
-     *
-     * <p>The filter performs authentication as early as possible in the request
-     * chain to ensure subsequent components have access to the authenticated
-     * user context.</p>
+     * <p>Checks if auto-login is enabled and user needs authentication.
+     * Loads predefined user and sets up authentication context early in request chain.</p>
      *
      * @param request the HTTP request being processed
      * @param response the HTTP response
@@ -109,14 +98,12 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Determines if a request is eligible for automatic authentication.
+     * Checks if request is eligible for automatic authentication.
      *
-     * <p>This method checks if the request path should be considered for
-     * automatic authentication. It excludes authentication-related endpoints
-     * like login and logout to avoid conflicts with normal authentication flows.</p>
+     * <p>Excludes authentication endpoints to avoid conflicts with normal auth flow.</p>
      *
      * @param request the HTTP request to evaluate
-     * @return true if the request is eligible for auto-login, false otherwise
+     * @return true if request is eligible for auto-login
      */
     private boolean isEligibleRequest(HttpServletRequest request) {
         String path = request.getRequestURI();

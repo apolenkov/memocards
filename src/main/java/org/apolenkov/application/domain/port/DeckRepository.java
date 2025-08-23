@@ -7,48 +7,46 @@ import org.apolenkov.application.model.Deck;
 /**
  * Repository interface for managing deck entities.
  *
- * <p>This port defines the contract for deck data access operations
- * following Clean Architecture principles. Infrastructure adapters
- * implement this interface to provide concrete data access mechanisms.</p>
- *
+ * <p>Defines contract for deck data access operations following Clean Architecture principles.
+ * Infrastructure adapters implement this interface to provide concrete data access mechanisms.</p>
  */
 public interface DeckRepository {
 
     /**
-     * Retrieves all decks from the repository.
+     * Retrieves all decks from repository.
      *
-     * @return a list of all decks
+     * @return list of all decks
      */
     List<Deck> findAll();
 
     /**
-     * Retrieves all decks belonging to a specific user.
+     * Retrieves all decks belonging to specific user.
      *
-     * @param userId the ID of the user whose decks to retrieve
-     * @return a list of decks belonging to the specified user
+     * @param userId ID of user whose decks to retrieve
+     * @return list of decks belonging to specified user
      */
     List<Deck> findByUserId(Long userId);
 
     /**
-     * Retrieves a deck by its unique identifier.
+     * Retrieves deck by unique identifier.
      *
-     * @param id the unique identifier of the deck
-     * @return an optional containing the deck if found, empty otherwise
+     * @param id unique identifier of deck
+     * @return optional containing deck if found, empty otherwise
      */
     Optional<Deck> findById(Long id);
 
     /**
-     * Saves a deck to the repository.
+     * Saves deck to repository.
      *
-     * @param deck the deck to save
-     * @return the saved deck, potentially with updated fields
+     * @param deck deck to save
+     * @return saved deck, potentially with updated fields
      */
     Deck save(Deck deck);
 
     /**
-     * Deletes a deck from the repository by its ID.
+     * Deletes deck from repository by ID.
      *
-     * @param id the unique identifier of the deck to delete
+     * @param id unique identifier of deck to delete
      */
     void deleteById(Long id);
 }

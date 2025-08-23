@@ -10,14 +10,9 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Vaadin application shell configuration.
  *
- * <p>This class configures the global application shell settings for the Vaadin
- * application, including theme selection, page title, and push communication
- * settings. It implements AppShellConfigurator to provide these configurations
- * at the application level.</p>
- *
- * <p>The configuration includes the custom "flashcards" theme, application title
- * "Memocards", and enables server push for real-time communication capabilities.</p>
- *
+ * <p>Configures global application shell settings including theme selection,
+ * page title, and push communication. Uses custom "flashcards" theme and
+ * enables server push for real-time communication.</p>
  */
 @Configuration
 @Theme(value = "flashcards")

@@ -7,54 +7,54 @@ import org.apolenkov.application.model.Flashcard;
 /**
  * Domain port for flashcard management operations.
  *
- * <p>Defines the contract for CRUD operations on flashcards,
+ * <p>Defines contract for CRUD operations on flashcards,
  * including deck-specific queries and bulk operations.</p>
  */
 public interface FlashcardRepository {
 
     /**
-     * Finds all flashcards in a specific deck.
+     * Finds all flashcards in specific deck.
      *
-     * @param deckId the deck identifier
-     * @return list of flashcards in the deck
+     * @param deckId deck identifier
+     * @return list of flashcards in deck
      */
     List<Flashcard> findByDeckId(Long deckId);
 
     /**
-     * Finds a flashcard by its identifier.
+     * Finds flashcard by identifier.
      *
-     * @param id the flashcard identifier
+     * @param id flashcard identifier
      * @return flashcard if found, empty otherwise
      */
     Optional<Flashcard> findById(Long id);
 
     /**
-     * Saves a flashcard (creates new or updates existing).
+     * Saves flashcard (creates new or updates existing).
      *
-     * @param flashcard the flashcard to save
-     * @return the saved flashcard with generated ID
+     * @param flashcard flashcard to save
+     * @return saved flashcard with generated ID
      */
     Flashcard save(Flashcard flashcard);
 
     /**
-     * Deletes a flashcard by its identifier.
+     * Deletes flashcard by identifier.
      *
-     * @param id the flashcard identifier to delete
+     * @param id flashcard identifier to delete
      */
     void deleteById(Long id);
 
     /**
-     * Counts the number of flashcards in a deck.
+     * Counts number of flashcards in deck.
      *
-     * @param deckId the deck identifier
-     * @return total number of flashcards in the deck
+     * @param deckId deck identifier
+     * @return total number of flashcards in deck
      */
     long countByDeckId(Long deckId);
 
     /**
-     * Deletes all flashcards in a specific deck.
+     * Deletes all flashcards in specific deck.
      *
-     * @param deckId the deck identifier
+     * @param deckId deck identifier
      */
     void deleteByDeckId(Long deckId);
 }

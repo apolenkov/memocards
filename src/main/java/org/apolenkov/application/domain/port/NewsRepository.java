@@ -7,8 +7,8 @@ import org.apolenkov.application.model.News;
 /**
  * Domain port for managing news and announcements.
  *
- * <p>Defines the contract for CRUD operations on news items
- * displayed on the application landing page.</p>
+ * <p>Defines contract for CRUD operations on news items
+ * displayed on application landing page.</p>
  */
 public interface NewsRepository {
 
@@ -20,25 +20,25 @@ public interface NewsRepository {
     List<News> findAllOrderByCreatedDesc();
 
     /**
-     * Finds a news item by its identifier.
+     * Finds news item by identifier.
      *
-     * @param id the news item identifier
+     * @param id news item identifier
      * @return news item if found, empty otherwise
      */
     Optional<News> findById(Long id);
 
     /**
-     * Saves a news item (creates new or updates existing).
+     * Saves news item (creates new or updates existing).
      *
-     * @param item the news item to save
-     * @return the saved news item with generated ID
+     * @param item news item to save
+     * @return saved news item with generated ID
      */
     News save(News item);
 
     /**
-     * Deletes a news item by its identifier.
+     * Deletes news item by identifier.
      *
-     * @param id the news item identifier to delete
+     * @param id news item identifier to delete
      */
     void deleteById(Long id);
 }

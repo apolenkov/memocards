@@ -21,13 +21,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 /**
  * Main entry point for the Flashcards Spring Boot application.
  *
- * <p>This class serves as the main entry point for the application and also
- * provides Vaadin service initialization configuration including UI theming,
- * error handling, and locale management.</p>
- *
- * <p>The application can be made installable on mobile devices and some desktop
- * browsers by adding the @PWA annotation if needed.</p>
- *
+ * <p>Provides Vaadin service initialization including UI theming, error handling, and locale management.</p>
  */
 @SpringBootApplication
 public class Application implements VaadinServiceInitListener {
@@ -37,9 +31,9 @@ public class Application implements VaadinServiceInitListener {
     private static final String ATTR_ERROR_NAV_GUARD = "errorNavigationInProgress";
 
     /**
-     * Main method to start the Spring Boot application.
+     * Starts the Spring Boot application.
      *
-     * @param args command line arguments passed to the application
+     * @param args command line arguments
      */
     public static void main(String[] args) {
         logger.info("Starting Flashcards application...");
@@ -62,10 +56,7 @@ public class Application implements VaadinServiceInitListener {
     }
 
     /**
-     * Initializes the Vaadin service with UI configuration.
-     *
-     * <p>This method is called during Vaadin service initialization
-     * and sets up UI-level configuration for all new UI instances.</p>
+     * Initializes Vaadin service with UI configuration.
      *
      * @param event the service initialization event
      */
@@ -76,7 +67,7 @@ public class Application implements VaadinServiceInitListener {
     }
 
     /**
-     * Applies UI-level configuration: theme, error handling and preferred locale.
+     * Applies UI configuration: theme, error handling and locale.
      */
     private void configureUi(UI ui) {
         logger.debug("UI initialized, applying configuration [uiId={}]", ui.getUIId());
@@ -87,7 +78,7 @@ public class Application implements VaadinServiceInitListener {
     }
 
     /**
-     * Enables global Lumo dark theme for the given UI.
+     * Enables Lumo dark theme for the UI.
      */
     private void enableLumoDark(UI ui) {
         ui.getElement().getThemeList().add(Lumo.DARK);
@@ -97,7 +88,7 @@ public class Application implements VaadinServiceInitListener {
     }
 
     /**
-     * Installs an error handler that navigates to the error route while avoiding cyclic navigation.
+     * Installs error handler for safe navigation to error route.
      */
     private void installSafeErrorHandler(UI ui) {
         ui.getSession().setErrorHandler(errorEvent -> handleUiError(ui, errorEvent));
@@ -107,7 +98,7 @@ public class Application implements VaadinServiceInitListener {
     }
 
     /**
-     * Handles unhandled UI errors with safe navigation to the error route and cycle protection.
+     * Handles UI errors with safe navigation and cycle protection.
      */
     private void handleUiError(UI ui, ErrorEvent errorEvent) {
         if (logger.isTraceEnabled()) {
@@ -175,7 +166,7 @@ public class Application implements VaadinServiceInitListener {
     }
 
     /**
-     * Applies preferred locale from cookie or session; defaults to English.
+     * Applies user's preferred locale from cookie or session.
      */
     private void applyPreferredLocale(UI ui) {
         VaadinSession session = ui.getSession();
@@ -206,7 +197,9 @@ public class Application implements VaadinServiceInitListener {
     }
 
     /**
-     * Reads locale value from a cookie if present.
+     * Reads locale preference from cookie.
+     *
+     * @return user's preferred locale or null if not set
      */
     private Locale readLocaleFromCookie() {
         try {

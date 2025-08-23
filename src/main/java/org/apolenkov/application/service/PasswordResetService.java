@@ -24,28 +24,19 @@ public class PasswordResetService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * The number of hours after which a password reset token expires.
+     * Number of hours after which password reset token expires.
      *
-     * <p>This value balances security (shorter expiration) with usability
-     * (longer expiration for user convenience). 24 hours is a common
-     * industry standard that provides adequate security while allowing
-     * users time to check their email and complete the reset process.</p>
+     * <p>Balances security (shorter expiration) with usability (longer expiration
+     * for user convenience). 24 hours is common industry standard.</p>
      */
     private static final int TOKEN_EXPIRATION_HOURS = 24;
 
     /**
-     * Constructs a new PasswordResetService with the required dependencies.
+     * Creates PasswordResetService with required dependencies.
      *
-     * <p>This constructor initializes the service with:</p>
-     * <ul>
-     *   <li><strong>PasswordResetTokenRepository:</strong> For managing reset tokens</li>
-     *   <li><strong>UserRepository:</strong> For user data operations</li>
-     *   <li><strong>PasswordEncoder:</strong> For secure password hashing</li>
-     * </ul>
-     *
-     * @param tokenRepository the repository for password reset token operations
-     * @param userRepository the repository for user operations
-     * @param passwordEncoder the encoder for secure password hashing
+     * @param tokenRepository repository for password reset token operations
+     * @param userRepository repository for user operations
+     * @param passwordEncoder encoder for secure password hashing
      * @throws IllegalArgumentException if any parameter is null
      */
     public PasswordResetService(
@@ -68,15 +59,15 @@ public class PasswordResetService {
     }
 
     /**
-     * Creates a password reset token for a user with the specified email address.
+     * Creates password reset token for user with specified email address.
      *
-     * <p>This method implements the first step of the password reset process:</p>
+     * <p>Implements first step of password reset process:</p>
      * <ol>
-     *   <li>Validates that a user exists with the provided email address</li>
-     *   <li>Invalidates any existing unused tokens for the user (security measure)</li>
-     *   <li>Generates a new cryptographically secure token</li>
-     *   <li>Sets the token to expire after {@link #TOKEN_EXPIRATION_HOURS} hours</li>
-     *   <li>Persists the token to the database</li>
+     *   <li>Validates that user exists with provided email address</li>
+     *   <li>Invalidates any existing unused tokens for user (security measure)</li>
+     *   <li>Generates new cryptographically secure token</li>
+     *   <li>Sets token to expire after specified hours</li>
+     *   <li>Persists token to database</li>
      * </ol>
      *
      * <p><strong>Security Features:</strong></p>
@@ -87,12 +78,10 @@ public class PasswordResetService {
      *   <li>Email validation prevents user enumeration attacks</li>
      * </ul>
      *
-     * @param email the email address of the user requesting password reset
-     * @return an Optional containing the generated token if user exists, empty otherwise
+     * @param email email address of user requesting password reset
+     * @return Optional containing generated token if user exists, empty otherwise
      * @throws IllegalArgumentException if email is null or empty
      * @throws RuntimeException if database operation fails
-     * @see UUID#randomUUID()
-     * @see LocalDateTime#plusHours(long)
      */
     @Transactional
     public Optional<String> createPasswordResetToken(String email) {
@@ -124,32 +113,31 @@ public class PasswordResetService {
     }
 
     /**
-     * Resets a user's password using a valid reset token.
+     * Resets user's password using valid reset token.
      *
-     * <p>This method implements the second step of the password reset process:</p>
+     * <p>Implements second step of password reset process:</p>
      * <ol>
-     *   <li>Validates the provided token exists and is valid</li>
-     *   <li>Checks that the token hasn't been used or expired</li>
-     *   <li>Retrieves the associated user account</li>
-     *   <li>Securely hashes the new password</li>
-     *   <li>Updates the user's password hash</li>
-     *   <li>Marks the token as used to prevent reuse</li>
+     *   <li>Validates provided token exists and is valid</li>
+     *   <li>Checks that token hasn't been used or expired</li>
+     *   <li>Retrieves associated user account</li>
+     *   <li>Securely hashes new password</li>
+     *   <li>Updates user's password hash</li>
+     *   <li>Marks token as used to prevent reuse</li>
      * </ol>
      *
      * <p><strong>Security Validations:</strong></p>
      * <ul>
-     *   <li>Token must exist in the system</li>
+     *   <li>Token must exist in system</li>
      *   <li>Token must not have been previously used</li>
      *   <li>Token must not have expired</li>
      *   <li>Associated user must still exist</li>
      * </ul>
      *
-     * @param token the password reset token to use
-     * @param newPassword the new password to set for the user
+     * @param token password reset token to use
+     * @param newPassword new password to set for user
      * @return true if password was successfully reset, false if token is invalid
      * @throws IllegalArgumentException if token or newPassword is null or empty
      * @throws RuntimeException if database operation fails
-     * @see PasswordEncoder#encode(CharSequence)
      */
     @Transactional
     public boolean resetPassword(String token, String newPassword) {
@@ -191,30 +179,22 @@ public class PasswordResetService {
     }
 
     /**
-     * Validates whether a password reset token is still valid for use.
+     * Validates whether password reset token is still valid for use.
      *
-     * <p>This method checks if a token can be used for password reset by verifying:</p>
+     * <p>Checks if token can be used for password reset by verifying:</p>
      * <ul>
-     *   <li>The token exists in the system</li>
-     *   <li>The token has not been previously used</li>
-     *   <li>The token has not expired</li>
+     *   <li>Token exists in system</li>
+     *   <li>Token has not been previously used</li>
+     *   <li>Token has not expired</li>
      * </ul>
      *
-     * <p>This method is useful for:</p>
-     * <ul>
-     *   <li>Frontend validation before allowing password reset form submission</li>
-     *   <li>Checking token validity without performing the actual reset</li>
-     *   <li>Providing user feedback about token status</li>
-     * </ul>
+     * <p>Useful for frontend validation before allowing password reset form submission,
+     * checking token validity without performing actual reset, and providing user
+     * feedback about token status.</p>
      *
-     * <p><strong>Note:</strong> This method performs a read-only operation and
-     * does not modify any data. It's safe to call multiple times.</p>
-     *
-     * @param token the password reset token to validate
-     * @return true if the token is valid and can be used, false otherwise
+     * @param token password reset token to validate
+     * @return true if token is valid and can be used
      * @throws IllegalArgumentException if token is null or empty
-     * @see PasswordResetToken#isUsed()
-     * @see PasswordResetToken#isExpired()
      */
     public boolean isTokenValid(String token) {
         if (token == null || token.trim().isEmpty()) {

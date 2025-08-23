@@ -6,44 +6,44 @@ import org.apolenkov.application.model.PasswordResetToken;
 /**
  * Domain port for password reset token management.
  *
- * <p>Defines the contract for managing temporary tokens used
+ * <p>Defines contract for managing temporary tokens used
  * in secure password reset functionality.</p>
  */
 public interface PasswordResetTokenRepository {
 
     /**
-     * Saves a password reset token.
+     * Saves password reset token.
      *
-     * @param token the token to save
-     * @return the saved token with generated ID
+     * @param token token to save
+     * @return saved token with generated ID
      */
     PasswordResetToken save(PasswordResetToken token);
 
     /**
-     * Finds a token by its unique string value.
+     * Finds token by unique string value.
      *
-     * @param token the token string to search for
+     * @param token token string to search for
      * @return token if found, empty otherwise
      */
     Optional<PasswordResetToken> findByToken(String token);
 
     /**
-     * Finds an unused token for a specific user.
+     * Finds unused token for specific user.
      *
-     * @param userId the user identifier
+     * @param userId user identifier
      * @return unused token if found, empty otherwise
      */
     Optional<PasswordResetToken> findByUserIdAndNotUsed(Long userId);
 
     /**
-     * Removes all expired tokens from the system.
+     * Removes all expired tokens from system.
      */
     void deleteExpiredTokens();
 
     /**
-     * Marks a specific token as used.
+     * Marks specific token as used.
      *
-     * @param id the token identifier to mark as used
+     * @param id token identifier to mark as used
      */
     void markAsUsed(Long id);
 }

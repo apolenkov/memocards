@@ -16,39 +16,26 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 
 /**
- * Configuration class for initializing demo data in development environment.
+ * Initializes demo data in development environment.
  *
- * <p>This class provides demo data initialization for the development profile,
- * creating sample decks, flashcards, and news items to help developers and
- * testers work with the application. The data includes realistic examples
- * across different categories like travel, IT, and English basics.</p>
- *
- * <p>The initializer only runs in the "dev" profile and creates data only
- * if the system is empty, preventing duplicate data creation on subsequent
- * application starts.</p>
- *
+ * <p>Creates sample decks, flashcards, and news items for development and testing.
+ * Only runs in "dev" profile and creates data only if the system is empty.</p>
  */
 @Configuration
 @Profile({"dev"})
 public class DataInitializer {
 
     /**
-     * Creates a CommandLineRunner bean for initializing demo data.
+     * Creates demo data initializer that runs after application startup.
      *
-     * <p>This bean runs after the application context is fully initialized
-     * and creates sample data including decks, flashcards, and news items.
-     * The initializer checks for existing data and only creates new data
-     * if the system is empty.</p>
+     * <p>Creates three themed decks (Travel, IT, English) with relevant flashcards
+     * and welcome news items. Only initializes if no existing data is found.</p>
      *
-     * <p>The demo data includes three themed decks (Travel, IT, and English)
-     * with relevant flashcards, plus welcome news items. This provides
-     * developers with realistic data to work with during development.</p>
-     *
-     * @param users the user repository for finding existing users
-     * @param decks the deck repository for creating and saving decks
-     * @param cards the flashcard repository for creating and saving flashcards
-     * @param news the news repository for creating and saving news items
-     * @return a CommandLineRunner that initializes the demo data
+     * @param users user repository for finding demo user
+     * @param decks deck repository for creating decks
+     * @param cards flashcard repository for creating flashcards
+     * @param news news repository for creating news items
+     * @return CommandLineRunner that initializes demo data
      */
     @Bean
     @Order(20)

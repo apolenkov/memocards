@@ -15,12 +15,9 @@ public class UserSettingsService {
     private final UserSettingsRepository repository;
 
     /**
-     * Constructs a new UserSettingsService with the required repository dependency.
+     * Creates UserSettingsService with required repository dependency.
      *
-     * <p>This constructor initializes the service with a repository for
-     * persisting and retrieving user settings data.</p>
-     *
-     * @param repository the repository for user settings operations
+     * @param repository repository for user settings operations
      * @throws IllegalArgumentException if repository is null
      */
     public UserSettingsService(UserSettingsRepository repository) {
@@ -31,25 +28,22 @@ public class UserSettingsService {
     }
 
     /**
-     * Sets the preferred locale for a specific user.
+     * Sets preferred locale for specific user.
      *
-     * <p>This method allows users to customize their language preferences,
-     * which affects the internationalization of the user interface. The locale
-     * is converted to a language tag string for storage in the database.</p>
+     * <p>Allows users to customize their language preferences, which affects
+     * internationalization of user interface. Locale is converted to language
+     * tag string for storage in database.</p>
      *
-     * <p>The locale setting influences:</p>
+     * <p>Locale setting influences:</p>
      * <ul>
-     *   <li><strong>UI Language:</strong> Text displayed in the user's preferred language</li>
+     *   <li><strong>UI Language:</strong> Text displayed in user's preferred language</li>
      *   <li><strong>Date/Time Format:</strong> Regional formatting for dates and times</li>
      *   <li><strong>Number Format:</strong> Regional formatting for numbers and currencies</li>
      *   <li><strong>Content Localization:</strong> Region-specific content and features</li>
      * </ul>
      *
-     * <p><strong>Note:</strong> The locale is converted to a language tag string
-     * (e.g., "en-US", "ru-RU") for consistent storage and retrieval.</p>
-     *
-     * @param userId the ID of the user whose locale preference to set
-     * @param locale the preferred locale for the user
+     * @param userId ID of user whose locale preference to set
+     * @param locale preferred locale for user
      * @throws IllegalArgumentException if userId is invalid or locale is null
      * @throws RuntimeException if database operation fails
      * @see Locale#toLanguageTag()

@@ -12,9 +12,8 @@ import java.util.Set;
 /**
  * Represents a user in the flashcards application.
  *
- * <p>This class encapsulates user data including authentication credentials,
- * personal information, and roles for authorization purposes.</p>
- *
+ * <p>Encapsulates user data including authentication credentials,
+ * personal information, and roles for authorization.</p>
  */
 public class User {
     private Long id;
@@ -35,19 +34,18 @@ public class User {
     private Set<String> roles = new HashSet<>();
 
     /**
-     * Default constructor.
-     * Initializes a new user with current timestamp.
+     * Creates new user with current timestamp.
      */
     public User() {
         this.createdAt = LocalDateTime.now();
     }
 
     /**
-     * Constructs a new User with the specified id, email, and name.
+     * Creates user with specified id, email, and name.
      *
-     * @param id the unique identifier for the user
-     * @param email the email address of the user
-     * @param name the display name of the user
+     * @param id unique identifier for the user
+     * @param email email address of the user
+     * @param name display name of the user
      */
     public User(Long id, String email, String name) {
         this();
@@ -57,36 +55,36 @@ public class User {
     }
 
     /**
-     * Returns the unique identifier of this user.
+     * Returns user's unique identifier.
      *
-     * @return the user ID
+     * @return user ID
      */
     public Long getId() {
         return id;
     }
 
     /**
-     * Sets the unique identifier of this user.
+     * Sets user's unique identifier.
      *
-     * @param id the user ID to set
+     * @param id user ID to set
      */
     public void setId(Long id) {
         this.id = id;
     }
 
     /**
-     * Returns the email address of this user.
+     * Returns user's email address.
      *
-     * @return the email address
+     * @return email address
      */
     public String getEmail() {
         return email;
     }
 
     /**
-     * Sets the email address of this user.
+     * Sets user's email address.
      *
-     * @param email the email address to set
+     * @param email email address to set
      * @throws IllegalArgumentException if email is null or blank
      */
     public void setEmail(String email) {
@@ -95,36 +93,36 @@ public class User {
     }
 
     /**
-     * Returns the password hash of this user.
+     * Returns user's password hash.
      *
-     * @return the password hash
+     * @return password hash
      */
     public String getPasswordHash() {
         return passwordHash;
     }
 
     /**
-     * Sets the password hash of this user.
+     * Sets user's password hash.
      *
-     * @param passwordHash the password hash to set
+     * @param passwordHash password hash to set
      */
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
     }
 
     /**
-     * Returns the display name of this user.
+     * Returns user's display name.
      *
-     * @return the user name
+     * @return user name
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Sets the display name of this user.
+     * Sets user's display name.
      *
-     * @param name the name to set
+     * @param name name to set
      * @throws IllegalArgumentException if name is null or blank
      */
     public void setName(String name) {
@@ -133,46 +131,47 @@ public class User {
     }
 
     /**
-     * Returns the creation timestamp of this user.
+     * Returns user's creation timestamp.
      *
-     * @return the creation date and time
+     * @return creation date and time
      */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
     /**
-     * Sets the creation timestamp of this user.
+     * Sets user's creation timestamp.
      *
-     * @param createdAt the creation date and time to set
+     * @param createdAt creation date and time to set
      */
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
     /**
-     * Returns an unmodifiable view of the user's roles.
+     * Returns unmodifiable view of user's roles.
      *
-     * @return the set of roles assigned to this user
+     * @return set of roles assigned to user
      */
     public Set<String> getRoles() {
         return Collections.unmodifiableSet(roles);
     }
 
     /**
-     * Sets the roles for this user.
+     * Sets roles for user.
      *
-     * @param roles the set of roles to assign to this user
+     * @param roles set of roles to assign to user
      */
     public void setRoles(Set<String> roles) {
         this.roles = roles != null ? new HashSet<>(roles) : new HashSet<>();
     }
 
     /**
-     * Adds a role to this user.
-     * Automatically prefixes the role with "ROLE_" if not already present.
+     * Adds role to user.
      *
-     * @param role the role to add
+     * <p>Automatically prefixes role with "ROLE_" if not already present.</p>
+     *
+     * @param role role to add
      */
     public void addRole(String role) {
         if (role != null && !role.isBlank()) {
@@ -181,11 +180,12 @@ public class User {
     }
 
     /**
-     * Indicates whether some other object is "equal to" this one.
-     * Two users are considered equal if they have the same ID.
+     * Checks if this user equals another object.
      *
-     * @param o the reference object with which to compare
-     * @return {@code true} if this object is the same as the obj argument; {@code false} otherwise
+     * <p>Two users are considered equal if they have the same ID.</p>
+     *
+     * @param o reference object to compare with
+     * @return true if objects are equal
      */
     @Override
     public boolean equals(Object o) {
@@ -196,10 +196,9 @@ public class User {
     }
 
     /**
-     * Returns a hash code value for this user.
-     * The hash code is based on the user's ID.
+     * Returns hash code based on user's ID.
      *
-     * @return a hash code value for this object
+     * @return hash code value
      */
     @Override
     public int hashCode() {
@@ -207,9 +206,9 @@ public class User {
     }
 
     /**
-     * Returns a string representation of this user.
+     * Returns string representation of user.
      *
-     * @return a string representation of the object
+     * @return string representation
      */
     @Override
     public String toString() {

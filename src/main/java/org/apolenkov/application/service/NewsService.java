@@ -11,13 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service for managing news and announcements in the application.
  *
- * <p>This service provides CRUD operations for news items, including creation,
- * updates, deletion, and retrieval. It handles validation of news content and
- * automatically manages timestamps for creation and modification tracking.</p>
- *
- * <p>The service is designed to support administrative functions for managing
- * site-wide announcements and informational content displayed to users.</p>
- *
+ * <p>Provides CRUD operations for news items including creation, updates, deletion, and retrieval.
+ * Handles validation of news content and automatically manages timestamps for tracking.</p>
  */
 @Service
 @Transactional
@@ -26,9 +21,9 @@ public class NewsService {
     private final NewsRepository newsRepository;
 
     /**
-     * Constructs a new NewsService with the required repository dependency.
+     * Creates NewsService with required repository dependency.
      *
-     * @param newsRepository the repository for persisting and retrieving news items
+     * @param newsRepository repository for persisting and retrieving news items
      */
     public NewsService(NewsRepository newsRepository) {
         this.newsRepository = newsRepository;
@@ -37,26 +32,24 @@ public class NewsService {
     /**
      * Retrieves all news items ordered by creation date (newest first).
      *
-     * <p>Returns a list of all news items in the system, sorted with the most
-     * recently created items appearing first. This method is typically used
-     * for displaying news on the landing page or news listing pages.</p>
+     * <p>Returns list of all news items in system, sorted with most recently
+     * created items appearing first. Used for displaying news on landing page.</p>
      *
-     * @return a list of all news items, ordered by creation date descending
+     * @return list of all news items, ordered by creation date descending
      */
     public List<News> getAllNews() {
         return newsRepository.findAllOrderByCreatedDesc();
     }
 
     /**
-     * Creates a new news item.
+     * Creates new news item.
      *
-     * <p>Creates and persists a new news item with the specified title, content,
-     * and author. The creation timestamp is automatically set to the current time.
-     * The method validates that both title and content are provided and non-empty.</p>
+     * <p>Creates and persists new news item with specified title, content, and author.
+     * Creation timestamp is automatically set to current time.</p>
      *
-     * @param title the headline or title of the news item
-     * @param content the main text content of the news item
-     * @param author the name of the person who wrote the news
+     * @param title headline or title of the news item
+     * @param content main text content of the news item
+     * @param author name of the person who wrote the news
      * @throws IllegalArgumentException if title or content is null or empty
      */
     public void createNews(String title, String content, String author) {
@@ -66,17 +59,16 @@ public class NewsService {
     }
 
     /**
-     * Updates an existing news item.
+     * Updates existing news item.
      *
-     * <p>Updates the title, content, and author of an existing news item identified
-     * by its ID. The modification timestamp is automatically updated to the current time.
-     * The method validates that both title and content are provided and non-empty.</p>
+     * <p>Updates title, content, and author of existing news item identified by ID.
+     * Modification timestamp is automatically updated to current time.</p>
      *
-     * @param id the unique identifier of the news item to update
-     * @param title the new headline or title for the news item
-     * @param content the new main text content for the news item
-     * @param author the new author name for the news item
-     * @throws IllegalArgumentException if title or content is null or empty, or if news item is not found
+     * @param id unique identifier of news item to update
+     * @param title new headline or title for news item
+     * @param content new main text content for news item
+     * @param author new author name for news item
+     * @throws IllegalArgumentException if title or content is null or empty, or if news item not found
      */
     public void updateNews(Long id, String title, String content, String author) {
         Optional<News> existingOpt = newsRepository.findById(id);
@@ -95,12 +87,12 @@ public class NewsService {
     }
 
     /**
-     * Deletes a news item by its ID.
+     * Deletes news item by ID.
      *
-     * <p>Removes the specified news item from the system. If the news item
-     * does not exist, the operation completes without error.</p>
+     * <p>Removes specified news item from system. If news item does not exist,
+     * operation completes without error.</p>
      *
-     * @param id the unique identifier of the news item to delete
+     * @param id unique identifier of news item to delete
      */
     public void deleteNews(Long id) {
         newsRepository.deleteById(id);
@@ -109,12 +101,11 @@ public class NewsService {
     /**
      * Validates news content before creation or update.
      *
-     * <p>Performs validation checks on the title and content fields to ensure
-     * they meet the minimum requirements for a valid news item. Both fields
-     * must be non-null and contain non-empty text after trimming.</p>
+     * <p>Performs validation checks on title and content fields to ensure they meet
+     * minimum requirements. Both fields must be non-null and contain non-empty text after trimming.</p>
      *
-     * @param title the title to validate
-     * @param content the content to validate
+     * @param title title to validate
+     * @param content content to validate
      * @throws IllegalArgumentException if title or content is null or empty after trimming
      */
     private static void validate(String title, String content) {

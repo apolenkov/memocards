@@ -7,11 +7,11 @@ import org.apolenkov.application.model.Flashcard;
 /**
  * Use case interface for flashcard management operations.
  *
- * <p>This interface defines the core business operations for managing flashcards
- * within decks. It provides a clean abstraction layer between the application
- * services and the underlying data access layer.</p>
+ * <p>Defines core business operations for managing flashcards within decks.
+ * Provides clean abstraction layer between application services and
+ * underlying data access layer.</p>
  *
- * <p>Key operations include:</p>
+ * <p>Key operations:</p>
  * <ul>
  *   <li>Retrieving flashcards by various criteria</li>
  *   <li>Creating and updating flashcard information</li>
@@ -21,57 +21,57 @@ import org.apolenkov.application.model.Flashcard;
  */
 public interface FlashcardUseCase {
     /**
-     * Retrieves all flashcards belonging to a specific deck.
+     * Retrieves all flashcards belonging to specific deck.
      *
-     * @param deckId the ID of the deck to retrieve flashcards for
-     * @return a list of all flashcards in the specified deck
+     * @param deckId ID of deck to retrieve flashcards for
+     * @return list of all flashcards in specified deck
      */
     List<Flashcard> getFlashcardsByDeckId(Long deckId);
 
     /**
-     * Retrieves a specific flashcard by its ID.
+     * Retrieves specific flashcard by ID.
      *
-     * @param id the unique identifier of the flashcard
-     * @return an Optional containing the flashcard if found, empty otherwise
+     * @param id unique identifier of flashcard
+     * @return Optional containing flashcard if found, empty otherwise
      */
     Optional<Flashcard> getFlashcardById(Long id);
 
     /**
-     * Saves a flashcard to the system.
+     * Saves flashcard to system.
      *
-     * <p>If the flashcard has an ID, it will be updated. If no ID is present,
-     * a new flashcard will be created.</p>
+     * <p>If flashcard has ID, it will be updated. If no ID is present,
+     * new flashcard will be created.</p>
      *
-     * @param flashcard the flashcard to save
-     * @return the saved flashcard with generated ID if it was new
+     * @param flashcard flashcard to save
+     * @return saved flashcard with generated ID if it was new
      */
     Flashcard saveFlashcard(Flashcard flashcard);
 
     /**
-     * Deletes a flashcard from the system.
+     * Deletes flashcard from system.
      *
-     * @param id the ID of the flashcard to delete
+     * @param id ID of flashcard to delete
      */
     void deleteFlashcard(Long id);
 
     /**
-     * Retrieves flashcards for a practice session.
+     * Retrieves flashcards for practice session.
      *
-     * <p>Prepares a subset of flashcards for practice, optionally randomizing
-     * the order to provide varied practice experiences.</p>
+     * <p>Prepares subset of flashcards for practice, optionally randomizing
+     * order to provide varied practice experiences.</p>
      *
-     * @param deckId the ID of the deck to practice
-     * @param count the number of flashcards to retrieve
-     * @param random whether to randomize the order of flashcards
-     * @return a list of flashcards prepared for practice
+     * @param deckId ID of deck to practice
+     * @param count number of flashcards to retrieve
+     * @param random whether to randomize order of flashcards
+     * @return list of flashcards prepared for practice
      */
     List<Flashcard> getFlashcardsForPractice(Long deckId, int count, boolean random);
 
     /**
-     * Counts the total number of flashcards in a deck.
+     * Counts total number of flashcards in deck.
      *
-     * @param deckId the ID of the deck to count flashcards for
-     * @return the total number of flashcards in the specified deck
+     * @param deckId ID of deck to count flashcards for
+     * @return total number of flashcards in specified deck
      */
     long countByDeckId(Long deckId);
 }

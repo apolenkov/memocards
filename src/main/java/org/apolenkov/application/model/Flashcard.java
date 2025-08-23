@@ -12,11 +12,6 @@ import java.util.Objects;
  * <p>A flashcard is a learning tool that contains information on both sides:
  * the front (question/prompt) and back (answer/explanation). Flashcards are
  * organized into decks and can include additional metadata like examples and images.</p>
- *
- * <p>This class provides validation constraints and automatic timestamp management
- * for creation and modification tracking.</p>
- *
- *
  */
 public class Flashcard {
     private Long id;
@@ -42,9 +37,7 @@ public class Flashcard {
     private LocalDateTime updatedAt;
 
     /**
-     * Default constructor that initializes timestamps.
-     *
-     * <p>Sets both creation and update timestamps to the current time.</p>
+     * Creates flashcard with current timestamps.
      */
     public Flashcard() {
         this.createdAt = LocalDateTime.now();
@@ -52,16 +45,15 @@ public class Flashcard {
     }
 
     /**
-     * Constructs a flashcard with basic required fields.
+     * Creates flashcard with basic required fields.
      *
-     * <p>This constructor validates the input parameters and sets appropriate
-     * timestamps. The deckId, frontText, and backText are validated for
-     * non-null and non-empty values.</p>
+     * <p>Validates input parameters and sets appropriate timestamps.
+     * DeckId, frontText, and backText are required.</p>
      *
-     * @param id the unique identifier for the flashcard
-     * @param deckId the ID of the deck this flashcard belongs to
-     * @param frontText the text displayed on the front of the card
-     * @param backText the text displayed on the back of the card
+     * @param id unique identifier for the flashcard
+     * @param deckId ID of the deck this flashcard belongs to
+     * @param frontText text displayed on the front of the card
+     * @param backText text displayed on the back of the card
      * @throws IllegalArgumentException if deckId is null, or if frontText/backText are null or empty
      */
     public Flashcard(Long id, Long deckId, String frontText, String backText) {
@@ -73,15 +65,15 @@ public class Flashcard {
     }
 
     /**
-     * Constructs a flashcard with basic fields and an example.
+     * Creates flashcard with basic fields and example.
      *
-     * <p>This constructor extends the basic constructor by adding an optional
-     * example field that provides additional context for the flashcard.</p>
+     * <p>Extends basic constructor by adding optional example field
+     * that provides additional context.</p>
      *
-     * @param id the unique identifier for the flashcard
-     * @param deckId the ID of the deck this flashcard belongs to
-     * @param frontText the text displayed on the front of the card
-     * @param backText the text displayed on the back of the card
+     * @param id unique identifier for the flashcard
+     * @param deckId ID of the deck this flashcard belongs to
+     * @param frontText text displayed on the front of the card
+     * @param backText text displayed on the back of the card
      * @param example additional example or context for the flashcard
      * @throws IllegalArgumentException if deckId is null, or if frontText/backText are null or empty
      */
@@ -91,38 +83,38 @@ public class Flashcard {
     }
 
     /**
-     * Gets the unique identifier of the flashcard.
+     * Gets unique identifier of the flashcard.
      *
-     * @return the flashcard ID, or null if not yet persisted
+     * @return flashcard ID, or null if not yet persisted
      */
     public Long getId() {
         return id;
     }
 
     /**
-     * Sets the unique identifier of the flashcard.
+     * Sets unique identifier of the flashcard.
      *
-     * @param id the flashcard ID to set
+     * @param id flashcard ID to set
      */
     public void setId(Long id) {
         this.id = id;
     }
 
     /**
-     * Gets the ID of the deck this flashcard belongs to.
+     * Gets ID of the deck this flashcard belongs to.
      *
-     * @return the deck ID
+     * @return deck ID
      */
     public Long getDeckId() {
         return deckId;
     }
 
     /**
-     * Sets the deck ID for this flashcard.
+     * Sets deck ID for this flashcard.
      *
-     * <p>Validates that the deckId is not null before setting it.</p>
+     * <p>Validates that deckId is not null before setting it.</p>
      *
-     * @param deckId the deck ID to set
+     * @param deckId deck ID to set
      * @throws IllegalArgumentException if deckId is null
      */
     public void setDeckId(Long deckId) {
@@ -131,21 +123,21 @@ public class Flashcard {
     }
 
     /**
-     * Gets the text displayed on the front of the flashcard.
+     * Gets text displayed on the front of the flashcard.
      *
-     * @return the front text content
+     * @return front text content
      */
     public String getFrontText() {
         return frontText;
     }
 
     /**
-     * Sets the front text of the flashcard.
+     * Sets front text of the flashcard.
      *
-     * <p>Validates that the text is not null or empty after trimming.
-     * Automatically updates the modification timestamp.</p>
+     * <p>Validates that text is not null or empty after trimming.
+     * Automatically updates modification timestamp.</p>
      *
-     * @param frontText the text to display on the front
+     * @param frontText text to display on the front
      * @throws IllegalArgumentException if frontText is null or empty after trimming
      */
     public void setFrontText(String frontText) {
@@ -156,21 +148,21 @@ public class Flashcard {
     }
 
     /**
-     * Gets the text displayed on the back of the flashcard.
+     * Gets text displayed on the back of the flashcard.
      *
-     * @return the back text content
+     * @return back text content
      */
     public String getBackText() {
         return backText;
     }
 
     /**
-     * Sets the back text of the flashcard.
+     * Sets back text of the flashcard.
      *
-     * <p>Validates that the text is not null or empty after trimming.
-     * Automatically updates the modification timestamp.</p>
+     * <p>Validates that text is not null or empty after trimming.
+     * Automatically updates modification timestamp.</p>
      *
-     * @param backText the text to display on the back
+     * @param backText text to display on the back
      * @throws IllegalArgumentException if backText is null or empty after trimming
      */
     public void setBackText(String backText) {
@@ -181,21 +173,21 @@ public class Flashcard {
     }
 
     /**
-     * Gets the optional example or context for the flashcard.
+     * Gets optional example or context for the flashcard.
      *
-     * @return the example text, or null if not set
+     * @return example text, or null if not set
      */
     public String getExample() {
         return example;
     }
 
     /**
-     * Sets the example text for the flashcard.
+     * Sets example text for the flashcard.
      *
-     * <p>Trims the input text and automatically updates the modification timestamp.
-     * The example is optional and can be null.</p>
+     * <p>Trims input text and automatically updates modification timestamp.
+     * Example is optional and can be null.</p>
      *
-     * @param example the example text to set
+     * @param example example text to set
      */
     public void setExample(String example) {
         this.example = example != null ? example.trim() : null;
@@ -203,21 +195,21 @@ public class Flashcard {
     }
 
     /**
-     * Gets the optional image URL associated with the flashcard.
+     * Gets optional image URL associated with the flashcard.
      *
-     * @return the image URL, or null if not set
+     * @return image URL, or null if not set
      */
     public String getImageUrl() {
         return imageUrl;
     }
 
     /**
-     * Sets the image URL for the flashcard.
+     * Sets image URL for the flashcard.
      *
-     * <p>Trims the input URL and automatically updates the modification timestamp.
-     * The image URL is optional and can be null.</p>
+     * <p>Trims input URL and automatically updates modification timestamp.
+     * Image URL is optional and can be null.</p>
      *
-     * @param imageUrl the image URL to set
+     * @param imageUrl image URL to set
      */
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl != null ? imageUrl.trim() : null;
@@ -225,36 +217,36 @@ public class Flashcard {
     }
 
     /**
-     * Gets the timestamp when the flashcard was created.
+     * Gets timestamp when the flashcard was created.
      *
-     * @return the creation timestamp
+     * @return creation timestamp
      */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
     /**
-     * Sets the creation timestamp of the flashcard.
+     * Sets creation timestamp of the flashcard.
      *
-     * @param createdAt the creation timestamp to set
+     * @param createdAt creation timestamp to set
      */
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
     /**
-     * Gets the timestamp when the flashcard was last modified.
+     * Gets timestamp when the flashcard was last modified.
      *
-     * @return the last modification timestamp
+     * @return last modification timestamp
      */
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
     /**
-     * Sets the modification timestamp of the flashcard.
+     * Sets modification timestamp of the flashcard.
      *
-     * @param updatedAt the modification timestamp to set
+     * @param updatedAt modification timestamp to set
      */
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
@@ -263,11 +255,10 @@ public class Flashcard {
     /**
      * Compares this flashcard with another object for equality.
      *
-     * <p>Two flashcards are considered equal if they have the same ID.
-     * This implementation only considers the ID field for equality comparison.</p>
+     * <p>Two flashcards are considered equal if they have the same ID.</p>
      *
-     * @param o the object to compare with
-     * @return true if the objects are equal, false otherwise
+     * @param o object to compare with
+     * @return true if objects are equal
      */
     @Override
     public boolean equals(Object o) {
@@ -278,12 +269,11 @@ public class Flashcard {
     }
 
     /**
-     * Returns a hash code value for this flashcard.
+     * Returns hash code value for this flashcard.
      *
-     * <p>The hash code is based on the ID field to maintain consistency
-     * with the equals method.</p>
+     * <p>Hash code is based on ID field to maintain consistency with equals method.</p>
      *
-     * @return a hash code value for this object
+     * @return hash code value for this object
      */
     @Override
     public int hashCode() {
@@ -291,11 +281,11 @@ public class Flashcard {
     }
 
     /**
-     * Returns a string representation of the flashcard.
+     * Returns string representation of the flashcard.
      *
-     * <p>The string includes all field values for debugging purposes.</p>
+     * <p>Includes all field values for debugging purposes.</p>
      *
-     * @return a string representation of this flashcard
+     * @return string representation of this flashcard
      */
     @Override
     public String toString() {
