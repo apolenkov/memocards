@@ -9,55 +9,7 @@ import java.time.LocalDate;
 /**
  * JPA entity representing daily statistics for deck usage and performance.
  *
- * <p>This entity tracks comprehensive daily metrics for each deck, including
- * usage patterns, performance indicators, and learning progress. It uses a
- * composite primary key (deck ID + date) to enable efficient daily aggregation
- * and historical analysis of deck performance.</p>
- *
- * <p>The entity maintains the following statistical categories:</p>
- * <ul>
- *   <li><strong>Usage Metrics:</strong> Sessions, viewed cards, and repeat counts</li>
- *   <li><strong>Performance Indicators:</strong> Correct answers and difficulty ratings</li>
- *   <li><strong>Temporal Data:</strong> Duration and response time measurements</li>
- *   <li><strong>Audit Information:</strong> Creation, modification, and version tracking</li>
- * </ul>
- *
- * <p><strong>Database Mapping:</strong></p>
- * <ul>
- *   <li>Table: "deck_daily_stats"</li>
- *   <li>Primary Key: Composite key (deck_id + date)</li>
- *   <li>Indexes: Multiple performance and query optimization indexes</li>
- *   <li>Constraints: All numeric fields have minimum value constraints</li>
- * </ul>
- *
- * <p><strong>Performance Optimizations:</strong></p>
- * <ul>
- *   <li><strong>Composite Indexes:</strong> Optimized for common query patterns</li>
- *   <li><strong>Version Control:</strong> Optimistic locking for concurrent updates</li>
- *   <li><strong>Audit Fields:</strong> Automatic timestamp management</li>
- *   <strong>Validation:</strong> Bean validation constraints for data integrity</strong>
- * </ul>
- *
- * <p><strong>Business Rules:</strong></p>
- * <ul>
- *   <li><strong>Daily Granularity:</strong> Statistics aggregated per calendar day</li>
- *   <li><strong>Non-Negative Values:</strong> All metrics must be zero or positive</li>
- *   <strong>Deck Association:</strong> Each record must reference a valid deck</strong>
- *   <strong>Data Integrity:</strong> Validation ensures meaningful statistics</strong>
- * </ul>
- *
- * @see jakarta.persistence.Entity
- * @see jakarta.persistence.Table
- * @see jakarta.persistence.Index
- * @see jakarta.persistence.EmbeddedId
- * @see jakarta.persistence.Embeddable
- * @see jakarta.persistence.Version
- * @see jakarta.persistence.PrePersist
- * @see jakarta.persistence.PreUpdate
- * @see jakarta.validation.constraints.NotNull
- * @see jakarta.validation.constraints.Min
- * @see java.io.Serializable
- * @see java.time.LocalDate
+ * <p>Tracks daily metrics with composite primary key (deck ID + date).</p>
  */
 @Entity
 @Table(

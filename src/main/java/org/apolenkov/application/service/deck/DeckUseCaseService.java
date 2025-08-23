@@ -13,41 +13,7 @@ import org.springframework.stereotype.Service;
 /**
  * Service implementation for deck-related business operations.
  *
- * <p>This service implements the {@link DeckUseCase} interface and provides
- * the core business logic for managing flashcard decks. It handles:</p>
- * <ul>
- *   <li><strong>CRUD Operations:</strong> Creating, reading, updating, and deleting decks</li>
- *   <li><strong>Validation:</strong> Ensuring deck data integrity through Bean Validation</li>
- *   <li><strong>Transaction Management:</strong> Proper transaction boundaries for different operations</li>
- *   <li><strong>Data Consistency:</strong> Maintaining referential integrity between decks and flashcards</li>
- * </ul>
- *
- * <p>The service uses a layered architecture approach:</p>
- * <ul>
- *   <li><strong>Repository Layer:</strong> Data access through {@link DeckRepository} and {@link FlashcardRepository}</li>
- *   <li><strong>Validation Layer:</strong> Input validation using Jakarta Bean Validation</li>
- *   <li><strong>Transaction Layer:</strong> Transaction management through custom annotations</li>
- * </ul>
- *
- * <p>Usage example:</p>
- * <pre>{@code
- * // Get all decks for a user
- * List<Deck> userDecks = deckUseCaseService.getDecksByUserId(userId);
- *
- * // Create and save a new deck
- * Deck newDeck = Deck.create(userId, "My Deck", "Description");
- * Deck savedDeck = deckUseCaseService.saveDeck(newDeck);
- *
- * // Delete a deck (also removes associated flashcards)
- * deckUseCaseService.deleteDeck(deckId);
- * }</pre>
- *
- * @see DeckUseCase
- * @see DeckRepository
- * @see FlashcardRepository
- * @see Deck
- * @see TransactionAnnotations
- * @see jakarta.validation.Validator
+ * <p>Implements deck CRUD operations with validation and transaction management.</p>
  */
 @Service
 public class DeckUseCaseService implements DeckUseCase {

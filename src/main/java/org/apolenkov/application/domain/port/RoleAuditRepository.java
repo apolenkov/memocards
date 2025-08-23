@@ -11,7 +11,7 @@ import java.util.Set;
  * of role modifications for compliance and security monitoring.</p>
  */
 public interface RoleAuditRepository {
-    
+
     /**
      * Records a role change operation in the audit log.
      *

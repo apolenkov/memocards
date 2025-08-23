@@ -6,50 +6,7 @@ import java.time.LocalDateTime;
 /**
  * JPA entity representing audit trail for role changes in the system.
  *
- * <p>This entity maintains a comprehensive audit log of all role modifications
- * performed by administrators. It tracks who made changes, when they were made,
- * and what the roles were before and after the modification. This audit trail
- * is essential for security compliance, troubleshooting, and maintaining system
- * integrity.</p>
- *
- * <p>The entity captures the following audit information:</p>
- * <ul>
- *   <li><strong>Administrator Identity:</strong> Email of the admin who made the change</li>
- *   <li><strong>Target User:</strong> User whose roles were modified</li>
- *   <li><strong>Role Changes:</strong> Before and after role configurations</li>
- *   <li><strong>Timestamp:</strong> Exact time when the change occurred</li>
- * </ul>
- *
- * <p><strong>Database Mapping:</strong></p>
- * <ul>
- *   <li>Table: "role_audit"</li>
- *   <li>Primary Key: Auto-generated ID</li>
- *   <li>Text Fields: roles_before and roles_after use TEXT column type</li>
- *   <li>Constraints: All fields are non-nullable for complete audit trail</li>
- * </ul>
- *
- * <p><strong>Security and Compliance Features:</strong></p>
- * <ul>
- *   <li><strong>Non-Repudiation:</strong> Complete audit trail prevents denial of changes</li>
- *   <li><strong>Compliance Support:</strong> Meets regulatory requirements for access control</li>
- *   <li><strong>Forensic Analysis:</strong> Enables investigation of security incidents</li>
- *   <strong>Change Tracking:</strong> Monitors all role modifications in real-time</li>
- * </ul>
- *
- * <p><strong>Business Rules:</strong></p>
- * <ul>
- *   <li><strong>Complete Recording:</strong> All role changes must be logged</li>
- *   <li><strong>Immutable Records:</strong> Audit entries cannot be modified after creation</li>
- *   <strong>Data Retention:</strong> Audit logs maintained according to policy</li>
- *   <strong>Access Control:</strong> Audit data accessible only to authorized personnel</li>
- * </ul>
- *
- * @see jakarta.persistence.Entity
- * @see jakarta.persistence.Table
- * @see jakarta.persistence.Id
- * @see jakarta.persistence.GeneratedValue
- * @see jakarta.persistence.Column
- * @see java.time.LocalDateTime
+ * <p>Maintains audit log of role modifications with before/after states.</p>
  */
 @Entity
 @Table(name = "role_audit")

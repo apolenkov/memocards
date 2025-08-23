@@ -14,47 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service for managing password reset functionality in the application.
  *
- * <p>This service provides a secure mechanism for users to reset their passwords
- * when they forget them. It implements industry-standard security practices:</p>
- * <ul>
- *   <li><strong>Secure Token Generation:</strong> Uses cryptographically secure UUIDs</li>
- *   <li><strong>Time-Limited Tokens:</strong> Tokens expire after a configurable period</li>
- *   <li><strong>Single-Use Tokens:</strong> Each token can only be used once</li>
- *   <li><strong>Secure Password Hashing:</strong> Uses Spring Security's PasswordEncoder</li>
- *   <li><strong>Transaction Safety:</strong> Ensures data consistency during operations</li>
- * </ul>
- *
- * <p>The password reset process follows this workflow:</p>
- * <ol>
- *   <li>User requests password reset by providing their email address</li>
- *   <li>Service generates a secure token and sends it to the user</li>
- *   <li>User receives token and provides new password</li>
- *   <li>Service validates token and updates password if valid</li>
- *   <li>Token is marked as used to prevent reuse</li>
- * </ol>
- *
- * <p>Usage example:</p>
- * <pre>{@code
- * // Create a password reset token
- * Optional<String> token = passwordResetService.createPasswordResetToken("user@example.com");
- * if (token.isPresent()) {
- *     // Send token to user via email
- *     emailService.sendPasswordResetEmail("user@example.com", token.get());
- * }
- *
- * // Reset password using token
- * boolean success = passwordResetService.resetPassword(token, "newPassword123");
- * if (success) {
- *     // Password successfully reset
- * }
- * }</pre>
- *
- * @see PasswordResetToken
- * @see User
- * @see PasswordResetTokenRepository
- * @see UserRepository
- * @see PasswordEncoder
- * @see Transactional
+ * <p>Provides secure password reset with time-limited, single-use tokens.</p>
  */
 @Service
 public class PasswordResetService {

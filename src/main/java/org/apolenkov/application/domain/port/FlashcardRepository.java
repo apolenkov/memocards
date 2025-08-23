@@ -11,7 +11,7 @@ import org.apolenkov.application.model.Flashcard;
  * including deck-specific queries and bulk operations.</p>
  */
 public interface FlashcardRepository {
-    
+
     /**
      * Finds all flashcards in a specific deck.
      *

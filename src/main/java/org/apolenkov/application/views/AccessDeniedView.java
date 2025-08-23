@@ -9,37 +9,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 /**
  * View component for displaying access denied (403 Forbidden) errors.
  *
- * <p>This view is displayed when a user attempts to access a resource or page
- * that they do not have permission to view. It provides a user-friendly error
- * message and maintains the application's navigation structure.</p>
- *
- * <p>The view implements several key features:</p>
- * <ul>
- *   <li><strong>Anonymous Access:</strong> Can be viewed by unauthenticated users</li>
- *   <li><strong>Dynamic Title:</strong> Page title is automatically set from i18n messages</li>
- *   <li><strong>Public Layout:</strong> Uses the public layout for consistent styling</li>
- *   <li><strong>Internationalization:</strong> Error messages are localized</li>
- * </ul>
- *
- * <p><strong>Security Considerations:</strong></p>
- * <ul>
- *   <li>This view is accessible to all users (including anonymous)</li>
- *   <li>It does not expose sensitive information about the denied resource</li>
- *   <li>Provides clear feedback without revealing internal system details</li>
- * </ul>
- *
- * <p><strong>Usage:</strong></p>
- * <ul>
- *   <li>Automatically displayed when access is denied</li>
- *   <li>Can be manually navigated to for testing purposes</li>
- *   <li>Integrates with Vaadin's security framework</li>
- * </ul>
- *
- * @see PublicLayout
- * @see HasDynamicTitle
- * @see Route
- * @see AnonymousAllowed
- * @see VerticalLayout
+ * <p>Shows user-friendly error message for unauthorized access attempts.</p>
  */
 @Route(value = "access-denied", layout = PublicLayout.class)
 @AnonymousAllowed
