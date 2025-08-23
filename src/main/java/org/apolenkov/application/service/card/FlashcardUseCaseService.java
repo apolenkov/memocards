@@ -12,16 +12,6 @@ import org.springframework.stereotype.Service;
 
 /**
  * Service implementation for flashcard use cases and business operations.
- *
- * <p>This service implements the FlashcardUseCase interface and provides
- * comprehensive flashcard management functionality including CRUD operations,
- * validation, and practice session preparation. It handles both individual
- * flashcard operations and bulk operations for practice sessions.</p>
- *
- * <p>The service includes validation logic to ensure data integrity and
- * provides methods for retrieving flashcards in various configurations
- * suitable for different use cases.</p>
- *
  */
 @Service
 public class FlashcardUseCaseService implements FlashcardUseCase {
@@ -41,10 +31,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     }
 
     /**
-     * Gets all flashcards belonging to a specific deck.
-     *
-     * <p>Returns a list of all flashcards associated with the specified deck ID.
-     * This method is typically used for deck management and display purposes.</p>
+     * Returns flashcards belonging to specific deck.
      *
      * @param deckId the ID of the deck to retrieve flashcards for
      * @return a list of flashcards belonging to the specified deck
@@ -56,10 +43,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     }
 
     /**
-     * Gets a specific flashcard by its unique identifier.
-     *
-     * <p>Returns an Optional containing the flashcard if found, or an empty
-     * Optional if no flashcard exists with the specified ID.</p>
+     * Returns flashcard by ID.
      *
      * @param id the unique identifier of the flashcard to retrieve
      * @return an Optional containing the flashcard if found, empty otherwise
@@ -71,14 +55,10 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     }
 
     /**
-     * Saves a flashcard to the repository.
-     *
-     * <p>Validates the flashcard data before saving to ensure data integrity.
-     * If validation fails, an IllegalArgumentException is thrown with details
-     * about the validation errors.</p>
+     * Saves flashcard with validation.
      *
      * @param flashcard the flashcard to save
-     * @return the saved flashcard (may have generated ID if new)
+     * @return the saved flashcard
      * @throws IllegalArgumentException if flashcard validation fails
      */
     @Override
@@ -95,10 +75,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     }
 
     /**
-     * Deletes a flashcard by its unique identifier.
-     *
-     * <p>Removes the specified flashcard from the repository. If no flashcard
-     * exists with the specified ID, the operation completes without error.</p>
+     * Deletes flashcard by ID.
      *
      * @param id the unique identifier of the flashcard to delete
      */
@@ -109,11 +86,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     }
 
     /**
-     * Retrieves flashcards for practice sessions.
-     *
-     * <p>Returns a subset of flashcards from the specified deck, optionally
-     * randomized and limited to the specified count. This method is designed
-     * for preparing practice sessions with configurable parameters.</p>
+     * Returns flashcards for practice sessions.
      *
      * @param deckId the ID of the deck to retrieve flashcards from
      * @param count the maximum number of flashcards to return
@@ -131,10 +104,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     }
 
     /**
-     * Counts the total number of flashcards in a specific deck.
-     *
-     * <p>Returns the total count of flashcards associated with the specified
-     * deck ID. This method is useful for deck statistics and validation.</p>
+     * Returns total number of flashcards in deck.
      *
      * @param deckId the ID of the deck to count flashcards for
      * @return the total number of flashcards in the specified deck
