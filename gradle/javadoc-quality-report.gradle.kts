@@ -4,12 +4,12 @@ import java.nio.file.Paths
 import java.util.regex.Pattern
 
 /**
- * Task to generate beautiful JavaDoc quality report
- * Analyzes JavaDoc comments and generates formatted report
+ * Task to generate comprehensive JavaDoc quality report
+ * Analyzes JavaDoc comments, coverage, and generates detailed formatted report
  */
 tasks.register("generateJavadocReport") {
     group = "verification"
-    description = "Generate beautiful JavaDoc quality report"
+    description = "Generate comprehensive JavaDoc quality report with coverage analysis"
 
     doLast {
         val report = StringBuilder()
@@ -23,17 +23,24 @@ tasks.register("generateJavadocReport") {
         val sourceDir = project.file("src/main/java")
         val issues = mutableListOf<String>()
         val totalComments = mutableListOf<CommentInfo>()
+        val missingJavaDoc = mutableListOf<String>()
+        val coverageStats = mutableMapOf<String, Int>()
         
         if (sourceDir.exists()) {
-            scanJavaFiles(sourceDir, issues, totalComments)
+            scanJavaFiles(sourceDir, issues, totalComments, missingJavaDoc, coverageStats)
         }
 
         // Generate summary
         val criticalCount = issues.count { it.startsWith("CRITICAL") }
         val warningCount = issues.count { it.startsWith("WARNING") }
         val infoCount = issues.count { it.startsWith("INFO") }
+        val totalMethods = coverageStats.values.sum()
+        val documentedMethods = totalComments.size
+        val coveragePercentage = if (totalMethods > 0) (documentedMethods * 100 / totalMethods) else 100
 
         report.appendLine("- **Total comments analyzed**: ${totalComments.size}")
+        report.appendLine("- **Total methods**: $totalMethods")
+        report.appendLine("- **Documentation coverage**: $coveragePercentage%")
         report.appendLine("- **Critical issues**: ${criticalCount}")
         report.appendLine("- **Warnings**: ${warningCount}")
         report.appendLine("- **Info**: ${infoCount}")
@@ -94,6 +101,33 @@ tasks.register("generateJavadocReport") {
             report.appendLine()
         }
 
+        // Missing JavaDoc coverage
+        if (missingJavaDoc.isNotEmpty()) {
+            report.appendLine("## 📝 Missing JavaDoc Coverage")
+            report.appendLine()
+            report.appendLine("*The following methods lack JavaDoc documentation:*")
+            report.appendLine()
+            missingJavaDoc.sorted().forEach { method ->
+                report.appendLine("- `$method`")
+            }
+            report.appendLine()
+        }
+
+        // Coverage by package
+        report.appendLine("## 📊 Coverage by Package")
+        report.appendLine()
+        coverageStats.entries.sortedBy { it.key }.forEach { (packageName, methodCount) ->
+            val packageComments = totalComments.count { it.file.startsWith(packageName) }
+            val packageCoverage = if (methodCount > 0) (packageComments * 100 / methodCount) else 100
+            val emoji = when {
+                packageCoverage >= 90 -> "✅"
+                packageCoverage >= 70 -> "⚠️"
+                else -> "🔴"
+            }
+            report.appendLine("$emoji **$packageName**: $packageComments/$methodCount methods ($packageCoverage%)")
+        }
+        report.appendLine()
+
         // Recommendations
         report.appendLine("## 💡 Recommendations")
         report.appendLine()
@@ -113,7 +147,7 @@ tasks.register("generateJavadocReport") {
         report.appendLine()
 
         // Quality score
-        val qualityScore = calculateQualityScore(totalComments, issues)
+        val qualityScore = calculateQualityScore(totalComments, issues, coveragePercentage)
         report.appendLine("## 🎯 Quality Score")
         report.appendLine()
         report.appendLine("**Overall Quality**: $qualityScore%")
@@ -128,6 +162,18 @@ tasks.register("generateJavadocReport") {
             else -> "🔴 F (Critical)"
         }
         report.appendLine("**Grade**: $grade")
+        report.appendLine()
+        
+        // Coverage grade
+        val coverageGrade = when {
+            coveragePercentage >= 95 -> "🟢 A+ (Excellent)"
+            coveragePercentage >= 85 -> "🟢 A (Very Good)"
+            coveragePercentage >= 75 -> "🟡 B (Good)"
+            coveragePercentage >= 65 -> "🟡 C (Fair)"
+            coveragePercentage >= 55 -> "🟠 D (Poor)"
+            else -> "🔴 F (Critical)"
+        }
+        report.appendLine("**Coverage Grade**: $coverageGrade")
         report.appendLine()
 
         // Footer
@@ -147,10 +193,15 @@ tasks.register("generateJavadocReport") {
         println("📊 JavaDoc Quality Report Generated!")
         println("📁 Location: ${outFile.relativeTo(project.projectDir)}")
         println("📈 Quality Score: $qualityScore% ($grade)")
+        println("📊 Coverage: $coveragePercentage% ($coverageGrade)")
         println("🚨 Issues: $criticalCount critical, $warningCount warnings, $infoCount info")
         
         if (criticalCount > 0) {
             println("💀 CRITICAL ISSUES FOUND! Please fix them before proceeding.")
+        }
+        
+        if (coveragePercentage < 85) {
+            println("⚠️ LOW COVERAGE DETECTED! Consider adding JavaDoc to undocumented methods.")
         }
     }
 }
@@ -163,25 +214,45 @@ data class CommentInfo(
     val content: String
 )
 
-private fun scanJavaFiles(dir: File, issues: MutableList<String>, totalComments: MutableList<CommentInfo>) {
+private fun scanJavaFiles(
+    dir: File, 
+    issues: MutableList<String>, 
+    totalComments: MutableList<CommentInfo>,
+    missingJavaDoc: MutableList<String>,
+    coverageStats: MutableMap<String, Int>
+) {
     dir.walkTopDown()
         .filter { it.extension == "java" }
         .forEach { file ->
-            scanJavaFile(file, issues, totalComments)
+            scanJavaFile(file, issues, totalComments, missingJavaDoc, coverageStats)
         }
 }
 
-private fun scanJavaFile(file: File, issues: MutableList<String>, totalComments: MutableList<CommentInfo>) {
+private fun scanJavaFile(
+    file: File, 
+    issues: MutableList<String>, 
+    totalComments: MutableList<CommentInfo>,
+    missingJavaDoc: MutableList<String>,
+    coverageStats: MutableMap<String, Int>
+) {
     val lines = Files.readAllLines(Paths.get(file.absolutePath))
     val relativePath = file.relativeTo(project.projectDir).path
+    val packageName = relativePath.substringBefore("/").substringBeforeLast("/")
     
     var inComment = false
     var commentStartLine = 0
     var commentLines = mutableListOf<String>()
     var commentType = ""
+    var methodCount = 0
     
     lines.forEachIndexed { index, line ->
         val lineNumber = index + 1
+        
+        // Count public methods for coverage
+        if (line.trim().startsWith("public") && line.contains("(") && line.contains(")") && 
+            !line.trim().startsWith("public class") && !line.trim().startsWith("public interface")) {
+            methodCount++
+        }
         
         when {
             // Start of JavaDoc comment
@@ -214,6 +285,14 @@ private fun scanJavaFile(file: File, issues: MutableList<String>, totalComments:
             }
         }
     }
+    
+    // Update coverage stats
+    if (methodCount > 0) {
+        coverageStats[packageName] = (coverageStats[packageName] ?: 0) + methodCount
+    }
+    
+    // Check for missing JavaDoc on public methods
+    checkMissingJavaDoc(lines, relativePath, missingJavaDoc)
 }
 
 private fun analyzeComment(
@@ -299,7 +378,39 @@ private fun checkAntiPatterns(filePath: String, startLine: Int, content: String,
     }
 }
 
-private fun calculateQualityScore(totalComments: List<CommentInfo>, issues: List<String>): Int {
+private fun checkMissingJavaDoc(lines: List<String>, filePath: String, missingJavaDoc: MutableList<String>) {
+    var hasJavaDoc = false
+    
+    lines.forEachIndexed { index, line ->
+        val trimmed = line.trim()
+        
+        // Check if this is a public method
+        if (trimmed.startsWith("public") && trimmed.contains("(") && trimmed.contains(")") && 
+            !trimmed.startsWith("public class") && !trimmed.startsWith("public interface")) {
+            
+            // Check if previous line has JavaDoc
+            if (index > 0) {
+                val prevLine = lines[index - 1].trim()
+                hasJavaDoc = prevLine.startsWith("/**")
+            }
+            
+            if (!hasJavaDoc) {
+                val methodName = trimmed.substringAfter("(").substringBefore("(")
+                val className = filePath.substringAfterLast("/").substringBefore(".")
+                missingJavaDoc.add("$filePath:$className.$methodName")
+            }
+            
+            hasJavaDoc = false
+        }
+        
+        // Reset JavaDoc flag if we're not in a comment
+        if (!trimmed.startsWith("*/") && !trimmed.startsWith("*")) {
+            hasJavaDoc = false
+        }
+    }
+}
+
+private fun calculateQualityScore(totalComments: List<CommentInfo>, issues: List<String>, coveragePercentage: Int): Int {
     if (totalComments.isEmpty()) return 100
     
     val criticalPenalty = issues.count { it.startsWith("CRITICAL") } * 20
@@ -310,7 +421,18 @@ private fun calculateQualityScore(totalComments: List<CommentInfo>, issues: List
     val maxScore = totalComments.size * 5 // Assume perfect score is 5 points per comment
     
     val score = maxOf(0, maxScore - totalPenalty)
-    return ((score.toDouble() / maxScore) * 100).toInt()
+    val baseScore = ((score.toDouble() / maxScore) * 100).toInt()
+    
+    // Adjust score based on coverage
+    val coverageAdjustment = when {
+        coveragePercentage >= 95 -> 10
+        coveragePercentage >= 85 -> 5
+        coveragePercentage >= 75 -> 0
+        coveragePercentage >= 65 -> -5
+        else -> -10
+    }
+    
+    return maxOf(0, minOf(100, baseScore + coverageAdjustment))
 }
 
 // Make build depend on JavaDoc report generation
