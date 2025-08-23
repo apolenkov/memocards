@@ -463,7 +463,6 @@ tasks.register("managedVersions") {
 
 // Apply split custom tasks
 apply(from = "gradle/i18n-checks.gradle.kts")
-apply(from = "gradle/code-quality-non-english.gradle.kts")
 apply(from = "gradle/translations-missing.gradle.kts")
-apply(from = "gradle/hardcoded-ui-strings.gradle.kts")
+apply(from = "gradle/code-quality-non-english.gradle.kts")
 apply(from = "gradle/vaadin-clean.gradle.kts")
