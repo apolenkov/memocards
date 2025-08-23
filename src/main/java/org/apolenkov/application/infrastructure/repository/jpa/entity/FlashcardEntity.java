@@ -44,22 +44,47 @@ public class FlashcardEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    /**
+     * Gets the primary key identifier.
+     *
+     * @return the unique identifier for this flashcard
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Sets the primary key identifier.
+     *
+     * @param id the unique identifier for this flashcard
+     */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /**
+     * Gets the deck identifier.
+     *
+     * @return the deck ID this flashcard belongs to
+     */
     public Long getDeckId() {
         return deckId;
     }
 
+    /**
+     * Sets the deck identifier.
+     *
+     * @param deckId the deck ID this flashcard belongs to
+     */
     public void setDeckId(Long deckId) {
         this.deckId = deckId;
     }
 
+    /**
+     * Gets the front side text.
+     *
+     * @return the question or prompt text
+     */
     public String getFrontText() {
         return frontText;
     }
@@ -70,6 +95,11 @@ public class FlashcardEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
+    /**
+     * Gets the back side text.
+     *
+     * @return the answer or explanation text
+     */
     public String getBackText() {
         return backText;
     }
@@ -80,6 +110,11 @@ public class FlashcardEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
+    /**
+     * Gets the optional example text.
+     *
+     * @return the example sentence or usage context
+     */
     public String getExample() {
         return example;
     }
@@ -90,6 +125,11 @@ public class FlashcardEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
+    /**
+     * Gets the optional image URL.
+     *
+     * @return the URL to an associated image
+     */
     public String getImageUrl() {
         return imageUrl;
     }
@@ -100,18 +140,38 @@ public class FlashcardEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
+    /**
+     * Gets the creation timestamp.
+     *
+     * @return when this flashcard was created
+     */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
+    /**
+     * Sets the creation timestamp.
+     *
+     * @param createdAt when this flashcard was created
+     */
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
+    /**
+     * Gets the last update timestamp.
+     *
+     * @return when this flashcard was last modified
+     */
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
+    /**
+     * Sets the last update timestamp.
+     *
+     * @param updatedAt when this flashcard was last modified
+     */
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
