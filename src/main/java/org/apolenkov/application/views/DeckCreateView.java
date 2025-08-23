@@ -42,8 +42,12 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
     /**
      * Creates the deck creation view.
      *
-     * @param deckUseCase deck business logic
-     * @param userUseCase user business logic
+     * <p>Initializes the view with proper layout and styling, creating
+     * the header with navigation controls and the main form for deck creation.
+     * The view is configured with responsive design and proper spacing.</p>
+     *
+     * @param deckUseCase deck business logic for saving new decks
+     * @param userUseCase user business logic for current user operations
      */
     public DeckCreateView(DeckUseCase deckUseCase, UserUseCase userUseCase) {
         this.deckUseCase = deckUseCase;
@@ -58,6 +62,13 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         createForm();
     }
 
+    /**
+     * Creates the header section with navigation controls.
+     *
+     * <p>Builds a header layout containing a back button for navigation
+     * to the decks list and the main page title. The header is styled
+     * with proper alignment and spacing.</p>
+     */
     private void createHeader() {
         HorizontalLayout headerLayout = new HorizontalLayout();
         headerLayout.setWidthFull();
@@ -78,6 +89,13 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         getContent().add(headerLayout);
     }
 
+    /**
+     * Creates the main form for deck creation.
+     *
+     * <p>Builds a comprehensive form with title and description fields,
+     * validation binding, and action buttons. The form includes proper
+     * styling and responsive layout for optimal user experience.</p>
+     */
     private void createForm() {
         Div formContainer = new Div();
         formContainer.addClassName("surface-panel");
@@ -123,6 +141,20 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         getContent().add(formContainer);
     }
 
+    /**
+     * Saves the new deck to the system.
+     *
+     * <p>This method handles the deck creation process by:</p>
+     * <ul>
+     *   <li>Creating a new Deck instance with current user ID</li>
+     *   <li>Writing form data to the deck object using the binder</li>
+     *   <li>Saving the deck through the business logic layer</li>
+     *   <li>Showing success notification and navigating to the new deck</li>
+     * </ul>
+     *
+     * <p>The method includes comprehensive error handling for validation
+     * errors and other exceptions that may occur during the save process.</p>
+     */
     private void saveDeck() {
         try {
             Deck newDeck = new Deck();
@@ -138,6 +170,14 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         }
     }
 
+    /**
+     * Returns the page title for this view.
+     *
+     * <p>Implements the HasDynamicTitle interface to provide localized
+     * page titles for the deck creation view.</p>
+     *
+     * @return the localized page title for the deck creation view
+     */
     @Override
     public String getPageTitle() {
         return getTranslation("deckCreate.title");

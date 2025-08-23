@@ -89,6 +89,14 @@ public class FlashcardEntity {
         return frontText;
     }
 
+    /**
+     * Sets the front side text.
+     *
+     * <p>Automatically updates the modification timestamp when the front text
+     * is changed to maintain accurate change tracking.</p>
+     *
+     * @param frontText the question or prompt text to set
+     */
     public void setFrontText(String frontText) {
         this.frontText = frontText;
         // Automatically update modification timestamp when content changes
@@ -104,6 +112,14 @@ public class FlashcardEntity {
         return backText;
     }
 
+    /**
+     * Sets the back side text.
+     *
+     * <p>Automatically updates the modification timestamp when the back text
+     * is changed to maintain accurate change tracking.</p>
+     *
+     * @param backText the answer or explanation text to set
+     */
     public void setBackText(String backText) {
         this.backText = backText;
         // Automatically update modification timestamp when content changes
@@ -119,6 +135,14 @@ public class FlashcardEntity {
         return example;
     }
 
+    /**
+     * Sets the optional example text.
+     *
+     * <p>Automatically updates the modification timestamp when the example
+     * is changed to maintain accurate change tracking.</p>
+     *
+     * @param example the example sentence or usage context to set
+     */
     public void setExample(String example) {
         this.example = example;
         // Automatically update modification timestamp when content changes
@@ -134,6 +158,14 @@ public class FlashcardEntity {
         return imageUrl;
     }
 
+    /**
+     * Sets the optional image URL.
+     *
+     * <p>Automatically updates the modification timestamp when the image URL
+     * is changed to maintain accurate change tracking.</p>
+     *
+     * @param imageUrl the URL to an associated image to set
+     */
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
         // Automatically update modification timestamp when content changes
