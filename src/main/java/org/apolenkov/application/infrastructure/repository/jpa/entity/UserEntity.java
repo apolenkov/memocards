@@ -42,42 +42,92 @@ public class UserEntity {
     @Column(name = "role", nullable = false, length = 50)
     private Set<String> roles = new HashSet<>();
 
+    /**
+     * Gets the primary key identifier.
+     *
+     * @return the unique identifier for this user
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Sets the primary key identifier.
+     *
+     * @param id the unique identifier for this user
+     */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /**
+     * Gets the user's email address.
+     *
+     * @return the email address, unique across all users
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Sets the user's email address.
+     *
+     * @param email the email address, must be unique
+     */
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /**
+     * Gets the hashed password.
+     *
+     * @return the password hash for authentication
+     */
     public String getPasswordHash() {
         return passwordHash;
     }
 
+    /**
+     * Sets the hashed password.
+     *
+     * @param passwordHash the password hash for authentication
+     */
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
     }
 
+    /**
+     * Gets the user's display name.
+     *
+     * @return the user's full name or display name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the user's display name.
+     *
+     * @param name the user's full name or display name
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Gets the account creation timestamp.
+     *
+     * @return when this user account was created
+     */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
+    /**
+     * Sets the account creation timestamp.
+     *
+     * @param createdAt when this user account was created
+     */
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
@@ -93,6 +143,11 @@ public class UserEntity {
         if (createdAt == null) createdAt = LocalDateTime.now();
     }
 
+    /**
+     * Gets the user's assigned roles.
+     *
+     * @return the set of role strings defining user permissions
+     */
     public Set<String> getRoles() {
         return roles;
     }
