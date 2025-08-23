@@ -7,11 +7,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * Presenter for the home view, handling deck listing operations.
- *
- * <p>This presenter serves as an intermediary between the home view
+ * This presenter serves as an intermediary between the home view
  * and the deck query service, converting domain objects to view models
- * suitable for presentation in the UI.</p>
- *
+ * suitable for presentation in the UI.
  */
 @Component
 public class HomePresenter {

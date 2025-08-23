@@ -10,9 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for managing news and announcements in the application.
- *
- * <p>Provides CRUD operations for news items including creation, updates, deletion, and retrieval.
- * Handles validation of news content and automatically manages timestamps for tracking.</p>
+ * Provides CRUD operations for news items including creation, updates, deletion, and retrieval.
+ * Handles validation of news content and automatically manages timestamps for tracking.
  */
 @Service
 @Transactional
@@ -31,9 +30,8 @@ public class NewsService {
 
     /**
      * Gets all news items ordered by creation date (newest first).
-     *
-     * <p>Returns list of all news items in system, sorted with most recently
-     * created items appearing first. Used for displaying news on landing page.</p>
+     * Returns list of all news items in system, sorted with most recently
+     * created items appearing first.
      *
      * @return list of all news items, ordered by creation date descending
      */
@@ -43,9 +41,8 @@ public class NewsService {
 
     /**
      * Creates new news item.
-     *
-     * <p>Creates and persists new news item with specified title, content, and author.
-     * Creation timestamp is automatically set to current time.</p>
+     * Creates and persists new news item with specified title, content, and author.
+     * Creation timestamp is automatically set to current time.
      *
      * @param title headline or title of the news item
      * @param content main text content of the news item
@@ -60,9 +57,8 @@ public class NewsService {
 
     /**
      * Updates existing news item.
-     *
-     * <p>Updates title, content, and author of existing news item identified by ID.
-     * Modification timestamp is automatically updated to current time.</p>
+     * Updates title, content, and author of existing news item identified by ID.
+     * Modification timestamp is automatically updated to current time.
      *
      * @param id unique identifier of news item to update
      * @param title new headline or title for news item
@@ -88,9 +84,8 @@ public class NewsService {
 
     /**
      * Deletes news item by ID.
-     *
-     * <p>Removes specified news item from system. If news item does not exist,
-     * operation completes without error.</p>
+     * Removes specified news item from system. If news item does not exist,
+     * operation completes without error.
      *
      * @param id unique identifier of news item to delete
      */
