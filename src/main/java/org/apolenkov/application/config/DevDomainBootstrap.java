@@ -17,17 +17,10 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * Configuration class for bootstrapping domain users in development environment.
+ * Bootstraps domain users in development environment.
  *
- * <p>This class ensures that essential domain users exist in the development
- * environment, including a standard user and an administrator. It creates
- * these users if they don't exist and synchronizes their properties with
- * the current configuration.</p>
- *
- * <p>The bootstrap process runs only in the "dev" profile and creates users
- * with localized names using the application's internationalization system.
- * It also maintains audit trails for role changes.</p>
- *
+ * <p>Creates essential users (standard user and administrator) with localized names.
+ * Runs only in "dev" profile.</p>
  */
 @Configuration
 @Profile({"dev"})
@@ -36,7 +29,7 @@ class DevDomainBootstrap {
     private final MessageSource messageSource;
 
     /**
-     * Constructs a new DevDomainBootstrap with the required message source.
+     * Creates bootstrap with message source dependency.
      *
      * @param messageSource the message source for internationalized user names
      */
@@ -45,15 +38,7 @@ class DevDomainBootstrap {
     }
 
     /**
-     * Creates a CommandLineRunner bean for ensuring domain users exist.
-     *
-     * <p>This bean runs early in the application startup process (order 10)
-     * and ensures that essential users exist in the system. It creates
-     * both a standard user and an administrator with appropriate roles
-     * and localized names.</p>
-     *
-     * <p>The method uses internationalized names from message bundles
-     * and falls back to default names if translations are not available.</p>
+     * Creates CommandLineRunner for ensuring domain users exist.
      *
      * @param users the user repository for user operations
      * @param audit the role audit repository for tracking changes
@@ -92,13 +77,6 @@ class DevDomainBootstrap {
 
     /**
      * Synchronizes a user with the desired configuration.
-     *
-     * <p>This method ensures that a user exists with the specified properties.
-     * If the user doesn't exist, it creates a new one. If the user exists,
-     * it updates the user's properties to match the desired configuration.</p>
-     *
-     * <p>The method maintains audit trails for role changes and ensures
-     * that passwords are properly hashed before storage.</p>
      *
      * @param users the user repository for user operations
      * @param audit the role audit repository for tracking changes
