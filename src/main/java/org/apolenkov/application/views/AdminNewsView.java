@@ -42,7 +42,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
     private final transient List<News> newsList;
 
     /**
-     * Constructs a new AdminNewsView with the required service dependency.
+     * Creates a new AdminNewsView with the required service dependency.
      *
      * <p>This constructor initializes the administrative interface for news management.
      * It sets up the layout, creates the news grid, and configures all interactive

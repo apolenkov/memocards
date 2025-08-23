@@ -26,7 +26,7 @@ public class RoleAuditEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // IDE Community problem
     private Long id;
 
     /**

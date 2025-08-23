@@ -44,7 +44,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
     /**
-     * Constructs a new LandingView with news service dependency.
+     * Creates a new LandingView with news service dependency.
      *
      * <p>Creates the complete landing page layout including hero section,
      * news updates, and dynamic action buttons. The layout automatically

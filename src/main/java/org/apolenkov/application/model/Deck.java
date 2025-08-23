@@ -58,7 +58,7 @@ public class Deck {
     }
 
     /**
-     * Gets total number of flashcards in this deck.
+     * Returns total number of flashcards in this deck.
      *
      * @return number of flashcards in deck
      */

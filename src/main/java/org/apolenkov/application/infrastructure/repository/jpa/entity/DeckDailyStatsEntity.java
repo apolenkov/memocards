@@ -627,7 +627,7 @@ public class DeckDailyStatsEntity {
      *
      * @return the version number, may be null for new entities
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // IDE Community problem
     public Long getVersion() {
         return version;
     }
@@ -641,7 +641,7 @@ public class DeckDailyStatsEntity {
      *
      * @param version the version number to set
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // IDE Community problem
     public void setVersion(Long version) {
         this.version = version;
     }

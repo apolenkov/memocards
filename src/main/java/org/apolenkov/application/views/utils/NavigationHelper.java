@@ -30,7 +30,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to a route without parameters
+     * Navigates to a route without parameters.
      *
      * <p>Performs programmatic navigation to the given route path
      * using the current UI context. This method is useful for
@@ -43,7 +43,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to a route with query parameters
+     * Navigates to a route with query parameters.
      *
      * <p>Performs programmatic navigation to the given route with
      * additional query parameters. This method is useful for passing
@@ -57,7 +57,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to a route with a single parameter
+     * Navigates to a route with a single parameter.
      *
      * <p>Performs programmatic navigation to the given route with
      * a single path parameter. The parameter is appended to the route
@@ -71,7 +71,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to error page with "from" parameter
+     * Navigates to error page with "from" parameter.
      *
      * <p>Navigates to the error page while preserving information about
      * the route that caused the error. This helps with error handling
@@ -84,7 +84,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to deck view
+     * Navigates to deck view.
      *
      * <p>Navigates to the detailed view of a specific deck using
      * the deck's unique identifier. This method provides a convenient

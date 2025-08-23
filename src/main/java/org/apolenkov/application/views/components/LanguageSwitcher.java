@@ -48,7 +48,7 @@ public class LanguageSwitcher extends HorizontalLayout {
     private final transient UserSettingsService userSettingsService;
 
     /**
-     * Constructs a new LanguageSwitcher with required dependencies.
+     * Creates a new LanguageSwitcher with required dependencies.
      *
      * <p>Initializes the language selection interface with a dropdown containing
      * available languages. Sets up event listeners for language changes and

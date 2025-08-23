@@ -20,7 +20,7 @@ import org.apolenkov.application.domain.port.RoleAuditRepository;
 public class AdminRoleAuditView extends VerticalLayout implements HasDynamicTitle {
 
     /**
-     * Constructs a new AdminRoleAuditView with the required repository dependency.
+     * Creates a new AdminRoleAuditView with the required repository dependency.
      *
      * <p>This constructor initializes the administrative audit interface for role changes.
      * It sets up the layout, creates the audit grid, and configures all columns with

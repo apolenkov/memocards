@@ -13,14 +13,14 @@ import org.apolenkov.application.model.Deck;
 public interface DeckRepository {
 
     /**
-     * Retrieves all decks from repository.
+     * Gets all decks from repository.
      *
      * @return list of all decks
      */
     List<Deck> findAll();
 
     /**
-     * Retrieves all decks belonging to specific user.
+     * Gets all decks belonging to specific user.
      *
      * @param userId ID of user whose decks to retrieve
      * @return list of decks belonging to specified user
@@ -28,7 +28,7 @@ public interface DeckRepository {
     List<Deck> findByUserId(Long userId);
 
     /**
-     * Retrieves deck by unique identifier.
+     * Gets deck by unique identifier.
      *
      * @param id unique identifier of deck
      * @return optional containing deck if found, empty otherwise

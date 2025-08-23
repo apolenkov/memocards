@@ -38,6 +38,7 @@ public interface PasswordResetTokenRepository {
     /**
      * Removes all expired tokens from system.
      */
+    @SuppressWarnings("unused") // IDE Community problem
     void deleteExpiredTokens();
 
     /**

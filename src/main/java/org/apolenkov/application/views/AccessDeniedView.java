@@ -16,7 +16,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 public class AccessDeniedView extends VerticalLayout implements HasDynamicTitle {
 
     /**
-     * Constructs a new AccessDeniedView.
+     * Creates a new AccessDeniedView.
      *
      * <p>This constructor initializes the view with a heading that displays
      * the localized access denied message. The view is designed to be simple

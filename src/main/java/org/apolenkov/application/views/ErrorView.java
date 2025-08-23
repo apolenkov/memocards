@@ -31,7 +31,7 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
     private String fromRoute;
 
     /**
-     * Creates the error view.
+     * Creates a new error view.
      *
      * @param environment Spring environment for profile detection
      */

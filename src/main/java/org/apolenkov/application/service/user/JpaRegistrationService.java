@@ -31,7 +31,7 @@ public class JpaRegistrationService {
     private final RoleAuditRepository roleAuditRepository;
 
     /**
-     * Constructs a new JpaRegistrationService with required dependencies.
+     * Creates a new JpaRegistrationService with required dependencies.
      *
      * @param userRepository the repository for user persistence operations
      * @param passwordEncoder the encoder for secure password hashing

@@ -30,7 +30,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     private final Validator validator;
 
     /**
-     * Constructs a new FlashcardUseCaseService with required dependencies.
+     * Creates a new FlashcardUseCaseService with required dependencies.
      *
      * @param flashcardRepository the repository for flashcard persistence operations
      * @param validator the validator for flashcard data validation
@@ -41,7 +41,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     }
 
     /**
-     * Retrieves all flashcards belonging to a specific deck.
+     * Gets all flashcards belonging to a specific deck.
      *
      * <p>Returns a list of all flashcards associated with the specified deck ID.
      * This method is typically used for deck management and display purposes.</p>
@@ -56,7 +56,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     }
 
     /**
-     * Retrieves a specific flashcard by its unique identifier.
+     * Gets a specific flashcard by its unique identifier.
      *
      * <p>Returns an Optional containing the flashcard if found, or an empty
      * Optional if no flashcard exists with the specified ID.</p>

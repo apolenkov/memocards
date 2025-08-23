@@ -39,7 +39,7 @@ public class CreateDeckDialog extends Dialog {
     private final transient Consumer<Deck> onCreated;
 
     /**
-     * Constructs a new CreateDeckDialog.
+     * Creates a new CreateDeckDialog.
      *
      * @param deckFacade service for deck operations
      * @param userUseCase service for user operations

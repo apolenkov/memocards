@@ -70,7 +70,12 @@ public final class GridHelper {
     }
 
     /**
-     * Add an actions column with buttons
+     * Adds an actions column with buttons to the grid.
+     *
+     * @param <T> the type of data items in the grid
+     * @param grid the grid to add the column to
+     * @param header the header text to display for the column
+     * @param buttonProvider function that provides buttons for each row
      */
     public static <T> void addActionsColumn(
             Grid<T> grid, String header, SerializableFunction<T, Button[]> buttonProvider) {
@@ -85,7 +90,10 @@ public final class GridHelper {
     }
 
     /**
-     * Add common grid features
+     * Adds common grid features for consistent behavior.
+     *
+     * @param <T> the type of data items in the grid
+     * @param grid the grid to configure
      */
     public static <T> void addCommonFeatures(Grid<T> grid) {
         grid.setSelectionMode(Grid.SelectionMode.NONE);

@@ -67,7 +67,7 @@ public class Application implements VaadinServiceInitListener {
     }
 
     /**
-     * Applies UI configuration: theme, error handling and locale.
+     * Configures UI with theme, error handling and locale settings.
      */
     private void configureUi(UI ui) {
         logger.debug("UI initialized, applying configuration [uiId={}]", ui.getUIId());
@@ -78,7 +78,7 @@ public class Application implements VaadinServiceInitListener {
     }
 
     /**
-     * Enables Lumo dark theme for the UI.
+     * Applies Lumo dark theme to the UI.
      */
     private void enableLumoDark(UI ui) {
         ui.getElement().getThemeList().add(Lumo.DARK);
@@ -88,7 +88,7 @@ public class Application implements VaadinServiceInitListener {
     }
 
     /**
-     * Installs error handler for safe navigation to error route.
+     * Sets up error handler for safe navigation to error route.
      */
     private void installSafeErrorHandler(UI ui) {
         ui.getSession().setErrorHandler(errorEvent -> handleUiError(ui, errorEvent));
@@ -98,7 +98,7 @@ public class Application implements VaadinServiceInitListener {
     }
 
     /**
-     * Handles UI errors with safe navigation and cycle protection.
+     * Processes UI errors with safe navigation and cycle protection.
      */
     private void handleUiError(UI ui, ErrorEvent errorEvent) {
         if (logger.isTraceEnabled()) {

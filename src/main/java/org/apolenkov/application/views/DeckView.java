@@ -57,6 +57,12 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private ListDataProvider<Flashcard> flashcardsDataProvider;
     private Checkbox hideKnownCheckbox;
 
+    /**
+     * Creates a new DeckView with required dependencies.
+     *
+     * @param presenter presenter for managing deck operations and presentation logic
+     * @param deckFacade service for deck-related operations
+     */
     public DeckView(DeckPresenter presenter, DeckFacade deckFacade) {
         this.presenter = presenter;
         this.deckFacade = deckFacade;
@@ -92,11 +98,22 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         getContent().add(contentContainer);
     }
 
+    /**
+     * Gets the page title for the deck view.
+     *
+     * @return the localized deck cards title
+     */
     @Override
     public String getPageTitle() {
         return getTranslation("deck.cards");
     }
 
+    /**
+     * Sets the deck ID parameter from the URL and loads the deck.
+     *
+     * @param event the navigation event containing URL parameters
+     * @param parameter the deck ID as a string from the URL
+     */
     @Override
     public void setParameter(BeforeEvent event, String parameter) {
         try {
@@ -108,6 +125,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         }
     }
 
+    /**
+     * Creates the header section with navigation and deck title.
+     *
+     * @param container the container to add the header to
+     */
     private void createHeader(VerticalLayout container) {
         HorizontalLayout headerLayout = new HorizontalLayout();
         headerLayout.setWidthFull();
@@ -132,6 +154,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         container.add(headerLayout);
     }
 
+    /**
+     * Creates the deck information section with description.
+     *
+     * @param container the container to add the deck info to
+     */
     private void createDeckInfo(VerticalLayout container) {
         Div infoSection = new Div();
         infoSection.addClassName("deck-view__info-section");
@@ -144,6 +171,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         container.add(infoSection);
     }
 
+    /**
+     * Creates the actions section with practice, add, edit and delete buttons.
+     *
+     * @param container the container to add the actions to
+     */
     private void createActions(VerticalLayout container) {
         HorizontalLayout actionsLayout = new HorizontalLayout();
         actionsLayout.setWidthFull();
@@ -175,6 +207,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         container.add(actionsLayout);
     }
 
+    /**
+     * Creates the flashcards grid section with search and filtering.
+     *
+     * @param container the container to add the grid to
+     */
     private void createFlashcardsGrid(VerticalLayout container) {
         HorizontalLayout searchRow = new HorizontalLayout();
         searchRow.setWidthFull();
@@ -272,6 +309,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         container.add(flashcardGrid);
     }
 
+    /**
+     * Loads a deck by ID and initializes the view.
+     *
+     * @param deckId the ID of the deck to load
+     */
     private void loadDeck(Long deckId) {
         Optional<Deck> deckOpt = presenter.loadDeck(deckId);
         if (deckOpt.isPresent()) {
@@ -284,6 +326,9 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         }
     }
 
+    /**
+     * Updates the display of deck information (title, stats, description).
+     */
     private void updateDeckInfo() {
         if (currentDeck != null) {
             deckTitle.setText(currentDeck.getTitle());
@@ -293,6 +338,9 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         }
     }
 
+    /**
+     * Loads flashcards for the current deck and updates the grid.
+     */
     private void loadFlashcards() {
         if (currentDeck != null) {
             List<Flashcard> flashcards = presenter.loadFlashcards(currentDeck.getId());
@@ -302,6 +350,9 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         }
     }
 
+    /**
+     * Applies search and filter criteria to the flashcards grid.
+     */
     private void applyFlashcardsFilter() {
         if (flashcardsDataProvider == null || currentDeck == null) return;
         String q = flashcardSearchField != null && flashcardSearchField.getValue() != null
@@ -313,6 +364,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         flashcardGrid.setDataProvider(flashcardsDataProvider);
     }
 
+    /**
+     * Opens a dialog for creating or editing a flashcard.
+     *
+     * @param flashcard the flashcard to edit, or null for creating new
+     */
     private void openFlashcardDialog(Flashcard flashcard) {
         Dialog dialog = new Dialog();
         dialog.addClassName("dialog-md");
@@ -339,6 +395,12 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         dialog.open();
     }
 
+    /**
+     * Creates a form layout for flashcard input fields.
+     *
+     * @param flashcard the flashcard to populate form with, or null for new card
+     * @return configured form layout with input fields
+     */
     private FormLayout createFlashcardForm(Flashcard flashcard) {
         FormLayout formLayout = new FormLayout();
 
@@ -368,6 +430,12 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         return formLayout;
     }
 
+    /**
+     * Creates a validation binder for the flashcard form.
+     *
+     * @param formLayout the form layout containing input fields
+     * @return configured validation binder
+     */
     private BeanValidationBinder<Flashcard> createFlashcardBinder(FormLayout formLayout) {
         BeanValidationBinder<Flashcard> binder = new BeanValidationBinder<>(Flashcard.class);
 
@@ -388,6 +456,14 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         return binder;
     }
 
+    /**
+     * Creates dialog buttons for save and cancel actions.
+     *
+     * @param dialog the dialog to control
+     * @param binder the validation binder for form data
+     * @param flashcard the flashcard being edited, or null for new card
+     * @return configured horizontal layout with buttons
+     */
     private HorizontalLayout createDialogButtons(
             Dialog dialog, BeanValidationBinder<Flashcard> binder, Flashcard flashcard) {
         HorizontalLayout buttonsLayout = new HorizontalLayout();
@@ -403,6 +479,13 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         return buttonsLayout;
     }
 
+    /**
+     * Handles saving a flashcard after form validation.
+     *
+     * @param dialog the dialog to close after successful save
+     * @param binder the validation binder containing form data
+     * @param flashcard the flashcard to update, or null for new card
+     */
     private void handleFlashcardSave(Dialog dialog, BeanValidationBinder<Flashcard> binder, Flashcard flashcard) {
         try {
             Flashcard bean = flashcard != null ? flashcard : new Flashcard();
@@ -421,6 +504,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         }
     }
 
+    /**
+     * Deletes a flashcard with confirmation dialog.
+     *
+     * @param flashcard the flashcard to delete
+     */
     private void deleteFlashcard(Flashcard flashcard) {
         Dialog confirmDialog = new Dialog();
 
@@ -454,8 +542,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     }
 
     /**
-     * Initiates deck deletion process with appropriate confirmation dialog
-     * Shows simple dialog for empty decks, complex dialog for decks with cards
+     * Initiates deck deletion process with appropriate confirmation dialog.
+     * Shows simple dialog for empty decks, complex dialog for decks with cards.
      */
     private void deleteDeck() {
         if (currentDeck == null) {
@@ -547,9 +635,9 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     }
 
     /**
-     * Shows complex deletion dialog for decks with cards
-     * Uses dual-layer validation: frontend for UX + backend for security
-     * Requires user to type deck name for confirmation to prevent accidental deletion
+     * Shows complex deletion dialog for decks with cards.
+     * Uses dual-layer validation: frontend for UX + backend for security.
+     * Requires user to type deck name for confirmation to prevent accidental deletion.
      */
     private void showComplexDeleteDialog() {
         Dialog confirmDialog = new Dialog();

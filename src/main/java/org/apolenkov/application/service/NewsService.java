@@ -30,7 +30,7 @@ public class NewsService {
     }
 
     /**
-     * Retrieves all news items ordered by creation date (newest first).
+     * Gets all news items ordered by creation date (newest first).
      *
      * <p>Returns list of all news items in system, sorted with most recently
      * created items appearing first. Used for displaying news on landing page.</p>

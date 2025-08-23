@@ -31,7 +31,7 @@ public class CardQueryService {
     private final StatsService statsService;
 
     /**
-     * Constructs a new CardQueryService with required dependencies.
+     * Creates a new CardQueryService with required dependencies.
      *
      * @param flashcardUseCase service for flashcard operations
      * @param statsService service for statistics and progress tracking
@@ -42,7 +42,7 @@ public class CardQueryService {
     }
 
     /**
-     * Retrieves filtered flashcards for a specific deck.
+     * Gets filtered flashcards for a specific deck.
      *
      * <p>Loads all flashcards for the specified deck and applies filtering based
      * on the provided query and knowledge status preferences. The method efficiently

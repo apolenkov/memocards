@@ -59,6 +59,12 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private Button hardButton;
     private Span statsSpan;
 
+    /**
+     * Creates a new PracticeView with required dependencies.
+     *
+     * @param flashcardUseCase service for flashcard operations
+     * @param presenter presenter for managing practice session logic
+     */
     public PracticeView(FlashcardUseCase flashcardUseCase, PracticePresenter presenter) {
         this.flashcardUseCase = flashcardUseCase;
         this.presenter = presenter;
@@ -94,6 +100,12 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         getContent().add(contentContainer);
     }
 
+    /**
+     * Sets the deck ID parameter from the URL and initializes practice session.
+     *
+     * @param event the navigation event containing URL parameters
+     * @param parameter the deck ID as a string from the URL
+     */
     @Override
     public void setParameter(BeforeEvent event, String parameter) {
         try {
@@ -109,6 +121,11 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         }
     }
 
+    /**
+     * Handles component attachment and auto-starts practice if deck is loaded.
+     *
+     * @param attachEvent the attachment event
+     */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
@@ -387,6 +404,11 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         actionButtons.add(againButton, backToDeckButton, homeButton);
     }
 
+    /**
+     * Gets the page title for the practice view.
+     *
+     * @return the localized practice title
+     */
     @Override
     public String getPageTitle() {
         return getTranslation(PRACTICE_TITLE_KEY);

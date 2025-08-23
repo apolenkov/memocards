@@ -40,7 +40,7 @@ public class PracticePresenter {
     private final PracticeSettingsService practiceSettingsService;
 
     /**
-     * Constructs a new PracticePresenter with required dependencies.
+     * Creates a new PracticePresenter with required dependencies.
      *
      * @param deckUseCase service for deck operations
      * @param flashcardUseCase service for flashcard operations
@@ -69,7 +69,7 @@ public class PracticePresenter {
     }
 
     /**
-     * Retrieves cards that are not yet marked as known in a deck.
+     * Gets cards that are not yet marked as known in a deck.
      *
      * <p>Filters the deck's flashcards to return only those that the user
      * hasn't successfully learned yet. This is used to prepare practice

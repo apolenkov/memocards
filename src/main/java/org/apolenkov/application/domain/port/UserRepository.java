@@ -13,7 +13,7 @@ import org.apolenkov.application.model.User;
 public interface UserRepository {
 
     /**
-     * Retrieves all users in system.
+     * Gets all users in system.
      *
      * @return list of all users
      */

@@ -52,6 +52,6 @@ public class TransactionAnnotations {
     @Target({ElementType.METHOD, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
     @Transactional
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // IDE Community problem
     public @interface BatchTransaction {}
 }

@@ -19,7 +19,7 @@ public class HomePresenter {
     private final DeckQueryService deckQueryService;
 
     /**
-     * Constructs a new HomePresenter with the specified deck query service.
+     * Creates a new HomePresenter with the specified deck query service.
      *
      * @param deckQueryService the service for querying deck data
      */

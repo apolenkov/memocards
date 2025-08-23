@@ -61,7 +61,7 @@ public class TopMenu extends HorizontalLayout {
     private final transient PracticeSettingsService practiceSettingsService;
 
     /**
-     * Constructs a new TopMenu with required dependencies.
+     * Creates a new TopMenu with required dependencies.
      *
      * <p>Initializes the menu with application logo, title, and navigation buttons.
      * Sets up the layout with proper spacing and alignment for consistent appearance.</p>

@@ -44,7 +44,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
     private final TextField search;
 
     /**
-     * Constructs a new DecksView with required dependencies.
+     * Creates a new DecksView with required dependencies.
      *
      * <p>Creates a complete deck management interface with search functionality,
      * deck listing, and creation capabilities. The view is configured with

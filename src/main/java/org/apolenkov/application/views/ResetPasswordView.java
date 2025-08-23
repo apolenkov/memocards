@@ -56,6 +56,11 @@ public class ResetPasswordView extends VerticalLayout
     private final PasswordResetService passwordResetService;
     private String token;
 
+    /**
+     * Creates a new ResetPasswordView with password reset service dependency.
+     *
+     * @param passwordResetService service for handling password reset operations
+     */
     public ResetPasswordView(PasswordResetService passwordResetService) {
         this.passwordResetService = passwordResetService;
 
@@ -171,6 +176,11 @@ public class ResetPasswordView extends VerticalLayout
         }
     }
 
+    /**
+     * Gets the page title for the reset password view.
+     *
+     * @return the localized reset password title
+     */
     @Override
     public String getPageTitle() {
         return getTranslation("auth.resetPassword.title");

@@ -30,7 +30,7 @@ import org.apolenkov.application.service.PracticeSettingsService;
 public class PracticeSettingsDialog extends Dialog {
 
     /**
-     * Constructs a new PracticeSettingsDialog.
+     * Creates a new PracticeSettingsDialog.
      *
      * <p>Creates and configures all UI components for practice settings,
      * including form fields, validation, and event handlers. The dialog

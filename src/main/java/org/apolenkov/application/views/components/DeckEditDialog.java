@@ -42,7 +42,7 @@ public class DeckEditDialog extends Dialog {
     private final transient Consumer<Deck> onSaved;
 
     /**
-     * Constructs a new DeckEditDialog for the specified deck.
+     * Creates a new DeckEditDialog for the specified deck.
      *
      * <p>Initializes the dialog with the deck's current information
      * and sets up the form layout with appropriate validation rules.</p>

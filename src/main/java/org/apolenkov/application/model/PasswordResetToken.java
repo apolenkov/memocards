@@ -95,7 +95,7 @@ public class PasswordResetToken {
      *
      * @return expiration date and time
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // IDE Community problem
     public LocalDateTime getExpiresAt() {
         return expiresAt;
     }
@@ -105,7 +105,7 @@ public class PasswordResetToken {
      *
      * @param expiresAt expiration date and time to set
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // IDE Community problem
     public void setExpiresAt(LocalDateTime expiresAt) {
         this.expiresAt = expiresAt;
     }

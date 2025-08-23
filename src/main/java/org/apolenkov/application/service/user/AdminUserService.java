@@ -29,7 +29,7 @@ public class AdminUserService {
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     /**
-     * Constructs a new AdminUserService with required dependencies.
+     * Creates a new AdminUserService with required dependencies.
      *
      * @param userRepository the repository for user persistence operations
      * @param roleAuditRepository the repository for tracking role changes
@@ -45,7 +45,7 @@ public class AdminUserService {
     }
 
     /**
-     * Retrieves all users in the system.
+     * Gets all users in the system.
      *
      * <p>Returns a complete list of all registered users. This method is typically
      * used for administrative user management interfaces.</p>
@@ -58,7 +58,7 @@ public class AdminUserService {
     }
 
     /**
-     * Retrieves a specific user by their unique identifier.
+     * Gets a specific user by their unique identifier.
      *
      * <p>Returns an Optional containing the user if found, or an empty Optional
      * if no user exists with the specified ID.</p>
