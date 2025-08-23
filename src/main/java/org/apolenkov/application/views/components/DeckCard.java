@@ -38,7 +38,7 @@ public class DeckCard extends Div {
     private final transient DeckCardViewModel viewModel;
 
     /**
-     * Constructs a new DeckCard with the specified view model.
+     * Creates a new DeckCard with the specified view model.
      *
      * <p>Initializes the card with deck data and sets up the complete
      * user interface including layout, styling, and event handlers.

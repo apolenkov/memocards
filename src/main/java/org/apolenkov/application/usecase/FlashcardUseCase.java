@@ -21,7 +21,7 @@ import org.apolenkov.application.model.Flashcard;
  */
 public interface FlashcardUseCase {
     /**
-     * Retrieves all flashcards belonging to specific deck.
+     * Gets all flashcards belonging to specific deck.
      *
      * @param deckId ID of deck to retrieve flashcards for
      * @return list of all flashcards in specified deck
@@ -29,7 +29,7 @@ public interface FlashcardUseCase {
     List<Flashcard> getFlashcardsByDeckId(Long deckId);
 
     /**
-     * Retrieves specific flashcard by ID.
+     * Gets specific flashcard by ID.
      *
      * @param id unique identifier of flashcard
      * @return Optional containing flashcard if found, empty otherwise
@@ -55,7 +55,7 @@ public interface FlashcardUseCase {
     void deleteFlashcard(Long id);
 
     /**
-     * Retrieves flashcards for practice session.
+     * Gets flashcards for practice session.
      *
      * <p>Prepares subset of flashcards for practice, optionally randomizing
      * order to provide varied practice experiences.</p>

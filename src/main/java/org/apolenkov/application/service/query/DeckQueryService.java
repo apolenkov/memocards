@@ -36,7 +36,7 @@ public class DeckQueryService {
     private final UserUseCase userUseCase;
 
     /**
-     * Constructs a new DeckQueryService with required dependencies.
+     * Creates a new DeckQueryService with required dependencies.
      *
      * @param deckUseCase service for deck operations
      * @param flashcardUseCase service for flashcard operations
@@ -55,7 +55,7 @@ public class DeckQueryService {
     }
 
     /**
-     * Retrieves and filters decks for the current user.
+     * Gets and filters decks for the current user.
      *
      * <p>Loads all decks belonging to the current user and applies optional
      * text-based filtering. Results are sorted alphabetically by title with

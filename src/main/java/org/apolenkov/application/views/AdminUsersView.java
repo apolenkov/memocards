@@ -48,7 +48,7 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     private final Grid<User> grid = new Grid<>(User.class, false);
 
     /**
-     * Constructs a new AdminUsersView with the required service dependency.
+     * Creates a new AdminUsersView with the required service dependency.
      *
      * <p>This constructor initializes the administrative user management interface.
      * It sets up the layout, creates the user grid, and configures all interactive

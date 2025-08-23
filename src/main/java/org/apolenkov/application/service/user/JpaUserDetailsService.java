@@ -32,7 +32,7 @@ public class JpaUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     /**
-     * Constructs a new JpaUserDetailsService with the required repository dependency.
+     * Creates a new JpaUserDetailsService with the required repository dependency.
      *
      * @param userRepository the repository for user persistence operations
      */

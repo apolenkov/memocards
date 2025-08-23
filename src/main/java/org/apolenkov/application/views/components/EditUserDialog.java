@@ -56,7 +56,7 @@ public class EditUserDialog extends Dialog {
     private TextField password;
 
     /**
-     * Constructs a new EditUserDialog for the specified user.
+     * Creates a new EditUserDialog for the specified user.
      *
      * <p>Initializes the dialog with the user's current information
      * and sets up the form layout with appropriate validation rules.</p>

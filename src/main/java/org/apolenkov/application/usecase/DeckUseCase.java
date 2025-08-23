@@ -21,14 +21,14 @@ import org.apolenkov.application.model.Deck;
  */
 public interface DeckUseCase {
     /**
-     * Retrieves all decks in system.
+     * Gets all decks in system.
      *
      * @return list of all available decks
      */
     List<Deck> getAllDecks();
 
     /**
-     * Retrieves all decks belonging to specific user.
+     * Gets all decks belonging to specific user.
      *
      * @param userId ID of user whose decks to retrieve
      * @return list of decks owned by specified user
@@ -36,7 +36,7 @@ public interface DeckUseCase {
     List<Deck> getDecksByUserId(Long userId);
 
     /**
-     * Retrieves specific deck by ID.
+     * Gets specific deck by ID.
      *
      * @param id unique identifier of deck
      * @return Optional containing deck if found, empty otherwise

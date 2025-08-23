@@ -71,7 +71,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
     }
 
     /**
-     * Constructs a new LoginView with authentication facade dependency.
+     * Creates a new LoginView with authentication facade dependency.
      *
      * <p>Creates a complete login form with proper validation, styling,
      * and event handling. The form is centered and styled using Lumo

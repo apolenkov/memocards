@@ -62,7 +62,7 @@ public class UserJpaAdapter implements UserRepository {
     }
 
     /**
-     * Retrieves all users from the repository.
+     * Gets all users from the repository.
      *
      * @return list of all users
      */
@@ -72,7 +72,7 @@ public class UserJpaAdapter implements UserRepository {
     }
 
     /**
-     * Retrieves a user by their unique identifier.
+     * Gets a user by their unique identifier.
      *
      * @param id the unique identifier of the user
      * @return Optional containing the user if found
@@ -83,7 +83,7 @@ public class UserJpaAdapter implements UserRepository {
     }
 
     /**
-     * Retrieves a user by their email address.
+     * Gets a user by their email address.
      *
      * @param email the email address of the user
      * @return Optional containing the user if found

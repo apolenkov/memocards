@@ -36,7 +36,7 @@ public class DeckFacade {
     }
 
     /**
-     * Retrieves deck by ID or throws exception if not found.
+     * Gets deck by ID or throws exception if not found.
      *
      * @param deckId ID of deck to retrieve
      * @return deck with specified ID
@@ -60,7 +60,7 @@ public class DeckFacade {
     }
 
     /**
-     * Retrieves set of card IDs marked as known in specified deck.
+     * Gets set of card IDs marked as known in specified deck.
      *
      * <p>Provides information about user's learning progress by returning
      * IDs of cards they have marked as known or learned.</p>

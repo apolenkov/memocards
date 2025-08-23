@@ -39,10 +39,10 @@ public class AppI18NProvider implements I18NProvider {
     }
 
     /**
-     * Retrieves translated message for the specified key and locale.
+     * Gets translated message for the specified key and locale.
      *
-     * @param key the message key to translate
-     * @param locale the locale for translation (null defaults to English)
+     * @param key message key to translate
+     * @param locale locale for translation (null defaults to English)
      * @param params optional parameters for message formatting
      * @return translated message or key if translation not found
      */

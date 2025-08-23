@@ -20,14 +20,14 @@ import org.apolenkov.application.model.User;
  */
 public interface UserUseCase {
     /**
-     * Retrieves all users in system.
+     * Gets all users in system.
      *
      * @return list of all registered users
      */
     List<User> getAllUsers();
 
     /**
-     * Retrieves specific user by ID.
+     * Gets specific user by ID.
      *
      * @param id unique identifier of user
      * @return Optional containing user if found, empty otherwise
@@ -35,7 +35,7 @@ public interface UserUseCase {
     Optional<User> getUserById(Long id);
 
     /**
-     * Retrieves currently authenticated user.
+     * Gets currently authenticated user.
      *
      * <p>Returns user associated with current security context.
      * Typically used to get user information for operations

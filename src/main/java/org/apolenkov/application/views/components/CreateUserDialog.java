@@ -62,7 +62,7 @@ public class CreateUserDialog extends Dialog {
     private CheckboxGroup<String> rolesBox;
 
     /**
-     * Constructs a new CreateUserDialog with required dependencies.
+     * Creates a new CreateUserDialog with required dependencies.
      *
      * <p>Initializes the dialog with form fields, role mapping, and
      * event handlers for user creation workflow.</p>

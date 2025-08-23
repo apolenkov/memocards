@@ -33,7 +33,7 @@ public class PublicLayout extends AppLayout {
     private final TopMenu topMenu;
 
     /**
-     * Constructs a new PublicLayout with required components.
+     * Creates a new PublicLayout with required components.
      *
      * <p>Initializes the layout with language switcher and top menu components,
      * setting up the primary navigation section and header content.</p>

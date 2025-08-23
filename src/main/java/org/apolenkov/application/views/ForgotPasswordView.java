@@ -40,6 +40,11 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
 
     private final PasswordResetService passwordResetService;
 
+    /**
+     * Creates a new ForgotPasswordView with password reset service dependency.
+     *
+     * @param passwordResetService service for handling password reset operations
+     */
     public ForgotPasswordView(PasswordResetService passwordResetService) {
         this.passwordResetService = passwordResetService;
 
@@ -138,6 +143,11 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
         }
     }
 
+    /**
+     * Gets the page title for the forgot password view.
+     *
+     * @return the localized forgot password title
+     */
     @Override
     public String getPageTitle() {
         return getTranslation("auth.forgotPassword.title");

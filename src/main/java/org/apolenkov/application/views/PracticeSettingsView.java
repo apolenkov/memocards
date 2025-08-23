@@ -26,7 +26,7 @@ import org.apolenkov.application.service.PracticeSettingsService;
 public class PracticeSettingsView extends VerticalLayout implements HasDynamicTitle {
 
     /**
-     * Creates the practice settings view.
+     * Creates a new practice settings view.
      *
      * @param practiceSettingsService service for managing practice settings
      */
@@ -72,6 +72,11 @@ public class PracticeSettingsView extends VerticalLayout implements HasDynamicTi
         add(countSelect, modeGroup, dirGroup, actions);
     }
 
+    /**
+     * Gets the page title for the practice settings view.
+     *
+     * @return the localized settings title
+     */
     @Override
     public String getPageTitle() {
         return getTranslation("settings.title");

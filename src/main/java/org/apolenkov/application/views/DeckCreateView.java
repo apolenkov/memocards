@@ -40,7 +40,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
     private BeanValidationBinder<Deck> binder;
 
     /**
-     * Creates the deck creation view.
+     * Creates a new deck creation view.
      *
      * <p>Initializes the view with proper layout and styling, creating
      * the header with navigation controls and the main form for deck creation.

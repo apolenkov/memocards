@@ -35,7 +35,7 @@ public class DeckPresenter {
     private final CardQueryService cardQueryService;
 
     /**
-     * Constructs a new DeckPresenter with required dependencies.
+     * Creates a new DeckPresenter with required dependencies.
      *
      * @param deckUseCase service for deck operations
      * @param statsService service for statistics and progress tracking
@@ -74,7 +74,7 @@ public class DeckPresenter {
     }
 
     /**
-     * Retrieves filtered flashcards based on search criteria and knowledge status.
+     * Gets filtered flashcards based on search criteria and knowledge status.
      *
      * <p>Applies text-based filtering and optionally hides cards that are
      * already marked as known by the user.</p>

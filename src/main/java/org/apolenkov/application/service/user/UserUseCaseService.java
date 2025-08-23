@@ -29,7 +29,7 @@ public class UserUseCaseService implements UserUseCase {
     private final UserRepository userRepository;
 
     /**
-     * Constructs a new UserUseCaseService with the required repository dependency.
+     * Creates a new UserUseCaseService with the required repository dependency.
      *
      * @param userRepository the repository for user persistence operations
      */
@@ -38,7 +38,7 @@ public class UserUseCaseService implements UserUseCase {
     }
 
     /**
-     * Retrieves all users in the system.
+     * Gets all users in the system.
      *
      * <p>Returns a complete list of all registered users. This method is typically
      * used for administrative purposes and user listing functionality.</p>
@@ -52,7 +52,7 @@ public class UserUseCaseService implements UserUseCase {
     }
 
     /**
-     * Retrieves a specific user by their unique identifier.
+     * Gets a specific user by their unique identifier.
      *
      * <p>Returns an Optional containing the user if found, or an empty Optional
      * if no user exists with the specified ID.</p>
@@ -67,7 +67,7 @@ public class UserUseCaseService implements UserUseCase {
     }
 
     /**
-     * Retrieves the currently authenticated user.
+     * Gets the currently authenticated user.
      *
      * <p>This method extracts the current user from the Spring Security context
      * and retrieves the corresponding domain user object. It handles different

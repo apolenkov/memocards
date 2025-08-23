@@ -36,7 +36,7 @@ public class SecurityConfig extends VaadinWebSecurity {
     }
 
     /**
-     * Configures HTTP security including authentication, CSRF protection, and CSP.
+     * Sets up HTTP security with authentication, CSRF protection, and CSP.
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {

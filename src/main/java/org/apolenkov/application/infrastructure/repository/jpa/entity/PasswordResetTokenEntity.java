@@ -91,7 +91,6 @@ public class PasswordResetTokenEntity {
      *
      * @return when this token expires
      */
-    @SuppressWarnings("unused")
     public LocalDateTime getExpiresAt() {
         return expiresAt;
     }
@@ -101,7 +100,6 @@ public class PasswordResetTokenEntity {
      *
      * @param expiresAt when this token expires
      */
-    @SuppressWarnings("unused")
     public void setExpiresAt(LocalDateTime expiresAt) {
         this.expiresAt = expiresAt;
     }

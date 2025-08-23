@@ -67,7 +67,10 @@ public final class LayoutHelper {
     }
 
     /**
-     * Create a button row layout
+     * Creates a button row layout with consistent spacing and alignment.
+     *
+     * @param buttons buttons to arrange in a row
+     * @return configured horizontal layout for buttons
      */
     public static HorizontalLayout createButtonRow(Component... buttons) {
         HorizontalLayout buttonRow = new HorizontalLayout();
@@ -79,7 +82,11 @@ public final class LayoutHelper {
     }
 
     /**
-     * Create a search row layout
+     * Creates a search row layout with search field and optional filters.
+     *
+     * @param searchField the search input component
+     * @param filters optional filter components
+     * @return configured horizontal layout for search functionality
      */
     public static HorizontalLayout createSearchRow(Component searchField, Component... filters) {
         HorizontalLayout searchRow = new HorizontalLayout();

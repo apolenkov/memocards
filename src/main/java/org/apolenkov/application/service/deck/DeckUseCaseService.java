@@ -23,7 +23,7 @@ public class DeckUseCaseService implements DeckUseCase {
     private final Validator validator;
 
     /**
-     * Constructs a new DeckUseCaseService with the required dependencies.
+     * Creates a new DeckUseCaseService with the required dependencies.
      *
      * <p>This constructor initializes the service with:</p>
      * <ul>
@@ -55,7 +55,7 @@ public class DeckUseCaseService implements DeckUseCase {
     }
 
     /**
-     * Retrieves all decks in the system.
+     * Gets all decks in the system.
      *
      * <p>This method performs a read-only operation to fetch all available decks.
      * It uses a read-only transaction for optimal performance when no data
@@ -75,7 +75,7 @@ public class DeckUseCaseService implements DeckUseCase {
     }
 
     /**
-     * Retrieves all decks owned by a specific user.
+     * Gets all decks owned by a specific user.
      *
      * <p>This method performs a read-only operation to fetch decks belonging
      * to the specified user. It uses a read-only transaction for optimal

@@ -44,6 +44,13 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private static final String STATS_REPEAT = "stats.repeat";
     private static final String STATS_HARD = "stats.hard";
 
+    /**
+     * Creates a new StatsView with required dependencies.
+     *
+     * @param deckUseCase service for deck operations
+     * @param userUseCase service for user operations
+     * @param statsService service for statistics and progress tracking
+     */
     public StatsView(DeckUseCase deckUseCase, UserUseCase userUseCase, StatsService statsService) {
         setSpacing(true);
         setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
@@ -81,6 +88,12 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         add(contentContainer);
     }
 
+    /**
+     * Creates the overall statistics section with collapsible content.
+     *
+     * @param agg aggregated statistics data for all decks
+     * @return configured vertical layout for overall stats
+     */
     private VerticalLayout createOverallStatsSection(Map<Long, StatsRepository.DeckAggregate> agg) {
         VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
@@ -158,6 +171,12 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         return section;
     }
 
+    /**
+     * Creates the today's statistics section with collapsible content.
+     *
+     * @param agg aggregated statistics data for all decks
+     * @return configured vertical layout for today's stats
+     */
     private VerticalLayout createTodayStatsSection(Map<Long, StatsRepository.DeckAggregate> agg) {
         VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
@@ -231,6 +250,13 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         return section;
     }
 
+    /**
+     * Creates the deck-specific statistics section with collapsible content.
+     *
+     * @param decks list of user's decks
+     * @param agg aggregated statistics data for all decks
+     * @return configured vertical layout for deck stats
+     */
     private VerticalLayout createDeckStatsSection(List<Deck> decks, Map<Long, StatsRepository.DeckAggregate> agg) {
         VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
@@ -362,10 +388,25 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         return section;
     }
 
+    /**
+     * Creates a statistics card with label and value.
+     *
+     * @param labelKey translation key for the label
+     * @param value numeric value to display
+     * @return configured statistics card component
+     */
     private Div createStatCard(String labelKey, int value) {
         return createStatCard(labelKey, value, "");
     }
 
+    /**
+     * Creates a statistics card with label, value and CSS modifier.
+     *
+     * @param labelKey translation key for the label
+     * @param value numeric value to display
+     * @param modifier CSS modifier class suffix
+     * @return configured statistics card component
+     */
     private Div createStatCard(String labelKey, int value, String modifier) {
         Div card = new Div();
         card.addClassName("stats-card");
@@ -386,6 +427,13 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         return card;
     }
 
+    /**
+     * Creates a deck statistics card with comprehensive stats display.
+     *
+     * @param deck the deck to display statistics for
+     * @param stats aggregated statistics for the deck
+     * @return configured deck statistics card component
+     */
     private Div createDeckStatCard(Deck deck, StatsRepository.DeckAggregate stats) {
         Div card = new Div();
         card.addClassName("deck-stats-card");
@@ -416,6 +464,14 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         return card;
     }
 
+    /**
+     * Creates a deck statistics item showing total and today's values.
+     *
+     * @param labelKey translation key for the label
+     * @param total total value for all time
+     * @param today today's value
+     * @return configured deck statistics item component
+     */
     private Div createDeckStatItem(String labelKey, int total, int today) {
         Div item = new Div();
         item.addClassName("stats-deck-item");
@@ -436,6 +492,11 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         return item;
     }
 
+    /**
+     * Gets the page title for the stats view.
+     *
+     * @return the localized stats title
+     */
     @Override
     public String getPageTitle() {
         return getTranslation("stats.title");
