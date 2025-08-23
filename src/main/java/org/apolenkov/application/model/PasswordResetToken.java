@@ -5,8 +5,7 @@ import java.util.Objects;
 
 /**
  * Model representing a password reset token for secure password recovery.
- *
- * <p>Secure, temporary, single-use token linked to a specific user account.</p>
+ * Secure, temporary, single-use token linked to a specific user account.
  */
 public class PasswordResetToken {
     private Long id;

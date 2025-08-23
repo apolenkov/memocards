@@ -15,17 +15,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Facade service for user authentication and registration operations.
- *
- * <p>Provides simplified interface for user authentication and registration,
- * coordinating between Spring Security's authentication manager and user registration service.</p>
- *
- * <p>Key responsibilities:</p>
- * <ul>
- *   <li>User registration with password validation</li>
- *   <li>User authentication using Spring Security</li>
- *   <li>Session persistence and security context management</li>
- *   <li>Password policy enforcement</li>
- * </ul>
+ * Provides simplified interface for user authentication and registration,
+ * coordinating between Spring Security's authentication manager and user registration service.
  */
 @Component
 public class AuthFacade {
@@ -48,9 +39,8 @@ public class AuthFacade {
 
     /**
      * Registers new user with specified credentials.
-     *
-     * <p>Validates password against security requirements and creates new user account.
-     * Password must be at least 8 characters and contain letters and digits.</p>
+     * Validates password against security requirements and creates new user account.
+     * Password must be at least 8 characters and contain letters and digits.
      *
      * @param username email address to use as username
      * @param rawPassword plain text password to validate and hash
@@ -69,9 +59,8 @@ public class AuthFacade {
 
     /**
      * Authenticates user and persists authentication session.
-     *
-     * <p>Performs user authentication using Spring Security's authentication manager
-     * and persists authentication context to HTTP session for subsequent requests.</p>
+     * Performs user authentication using Spring Security's authentication manager
+     * and persists authentication context to HTTP session for subsequent requests.
      *
      * @param username email address of user to authenticate
      * @param rawPassword plain text password for authentication
@@ -102,9 +91,8 @@ public class AuthFacade {
 
     /**
      * Exception thrown when user authentication fails.
-     *
-     * <p>Wraps underlying authentication failure and provides consistent
-     * error handling interface for authentication operations.</p>
+     * Wraps underlying authentication failure and provides consistent
+     * error handling interface for authentication operations.
      */
     public static class InvalidPasswordException extends RuntimeException {
         /**

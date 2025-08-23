@@ -11,18 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Application-level query service for flashcards.
- *
- * <p>This service centralizes search, filtering, and known-cards logic for the UI layer.
+ * This service centralizes search, filtering, and known-cards logic for the UI layer.
  * It provides efficient methods for querying flashcards with various filtering options
- * including text search and knowledge status filtering.</p>
- *
- * <p>Key features include:</p>
- * <ul>
- *   <li>Text-based search across front text, back text, and examples</li>
- *   <li>Knowledge status filtering (hide/show known cards)</li>
- *   <li>Case-insensitive search with proper locale handling</li>
- *   <li>Transactional read-only operations for performance</li>
- * </ul>
+ * including text search and knowledge status filtering.
  */
 @Service
 public class CardQueryService {
@@ -43,10 +34,8 @@ public class CardQueryService {
 
     /**
      * Gets filtered flashcards for a specific deck.
-     *
-     * <p>Loads all flashcards for the specified deck and applies filtering based
-     * on the provided query and knowledge status preferences. The method efficiently
-     * combines data from multiple sources to provide filtered results.</p>
+     * Loads all flashcards for the specified deck and applies filtering based
+     * on the provided query and knowledge status preferences.
      *
      * @param deckId the ID of the deck to search in
      * @param query the search query text (can be null for no filtering)
@@ -62,10 +51,9 @@ public class CardQueryService {
 
     /**
      * Filters a list of flashcards based on search criteria and knowledge status.
-     *
-     * <p>Applies text-based filtering across multiple card fields and optionally
+     * Applies text-based filtering across multiple card fields and optionally
      * excludes known cards. The search is case-insensitive and handles null values
-     * gracefully for robust operation.</p>
+     * gracefully for robust operation.
      *
      * @param base the base list of flashcards to filter
      * @param query the search query text (can be null for no filtering)
@@ -91,10 +79,9 @@ public class CardQueryService {
 
     /**
      * Checks if a string value contains the specified query text.
-     *
-     * <p>Performs a case-insensitive substring search with null safety.
+     * Performs a case-insensitive substring search with null safety.
      * Returns false if the value is null, otherwise checks if the query
-     * is contained within the value after converting both to lowercase.</p>
+     * is contained within the value after converting both to lowercase.
      *
      * @param value the string to search in (can be null)
      * @param query the query text to search for
