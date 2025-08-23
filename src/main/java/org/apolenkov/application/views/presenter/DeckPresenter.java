@@ -13,18 +13,10 @@ import org.springframework.stereotype.Component;
 /**
  * Presenter for managing deck-related operations and presentation logic.
  *
- * <p>This component coordinates between the UI layer and business services for
+ * This component coordinates between the UI layer and business services for
  * deck management, flashcard operations, and progress tracking. It provides
  * a clean interface for deck-related functionality and handles the coordination
- * of multiple services.</p>
- *
- * <p>Key responsibilities include:</p>
- * <ul>
- *   <li>Loading decks and flashcards</li>
- *   <li>Managing card filtering and search</li>
- *   <li>Tracking card knowledge status</li>
- *   <li>Managing deck progress and statistics</li>
- * </ul>
+ * of multiple services.
  */
 @Component
 public class DeckPresenter {
@@ -75,9 +67,8 @@ public class DeckPresenter {
 
     /**
      * Gets filtered flashcards based on search criteria and knowledge status.
-     *
-     * <p>Applies text-based filtering and optionally hides cards that are
-     * already marked as known by the user.</p>
+     * Applies text-based filtering and optionally hides cards that are
+     * already marked as known by the user.
      *
      * @param deckId the ID of the deck to search in
      * @param rawQuery the search query text
@@ -101,9 +92,8 @@ public class DeckPresenter {
 
     /**
      * Toggles the knowledge status of a card in a deck.
-     *
-     * <p>If the card is currently marked as known, it will be marked as unknown.
-     * If it's currently unknown, it will be marked as known.</p>
+     * If the card is currently marked as known, it will be marked as unknown.
+     * If it's currently unknown, it will be marked as known.
      *
      * @param deckId the ID of the deck containing the card
      * @param cardId the ID of the card to toggle

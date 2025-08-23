@@ -6,8 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * Spring Data JPA repository for managing decks.
- *
- * <p>Provides CRUD operations and user-specific queries for flashcard decks.</p>
+ * Provides CRUD operations and user-specific queries for flashcard decks.
  */
 public interface DeckJpaRepository extends JpaRepository<DeckEntity, Long> {
 

@@ -19,17 +19,9 @@ import org.springframework.stereotype.Component;
 /**
  * Presenter for managing flashcard practice sessions.
  *
- * <p>This component orchestrates the practice workflow, including session preparation,
+ * This component orchestrates the practice workflow, including session preparation,
  * progress tracking, and statistics recording. It provides a clean interface for
- * managing practice state and coordinates between the UI layer and business services.</p>
- *
- * <p>Key responsibilities include:</p>
- * <ul>
- *   <li>Loading and filtering cards for practice sessions</li>
- *   <li>Managing session state and progress</li>
- *   <li>Recording user performance and session statistics</li>
- *   <li>Coordinating with practice settings and statistics services</li>
- * </ul>
+ * managing practice state and coordinates between the UI layer and business services.
  */
 @Component
 public class PracticePresenter {
@@ -70,10 +62,8 @@ public class PracticePresenter {
 
     /**
      * Gets cards that are not yet marked as known in a deck.
-     *
-     * <p>Filters the deck's flashcards to return only those that the user
-     * hasn't successfully learned yet. This is used to prepare practice
-     * sessions with appropriate content.</p>
+     * Filters the deck's flashcards to return only those that the user
+     * hasn't successfully learned yet for practice sessions.
      *
      * @param deckId the ID of the deck to check
      * @return a list of flashcards not yet known by the user
@@ -86,10 +76,8 @@ public class PracticePresenter {
 
     /**
      * Determines the default number of cards for a practice session.
-     *
-     * <p>Calculates the appropriate card count based on user configuration
-     * and available unknown cards. The result is clamped between 1 and
-     * the configured default count to ensure a meaningful practice session.</p>
+     * Calculates the appropriate card count based on user configuration
+     * and available unknown cards, clamped between 1 and configured default.
      *
      * @param deckId the ID of the deck to calculate count for
      * @return the number of cards to include in the practice session
@@ -111,10 +99,8 @@ public class PracticePresenter {
 
     /**
      * Prepares a practice session with the specified number of cards.
-     *
-     * <p>Creates a practice session by filtering unknown cards and optionally
-     * randomizing their order. The session size is limited to the available
-     * unknown cards or the requested count, whichever is smaller.</p>
+     * Creates a practice session by filtering unknown cards and optionally
+     * randomizing their order, limited to available unknown cards or requested count.
      *
      * @param deckId the ID of the deck to practice
      * @param count the desired number of cards in the session
