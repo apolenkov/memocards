@@ -71,7 +71,7 @@ public class UserUseCaseService implements UserUseCase {
         if (authentication == null) {
             throw new IllegalStateException("Unauthenticated");
         }
-        
+
         Object principal = authentication.getPrincipal();
         if (principal == null) {
             throw new IllegalStateException("Authenticated principal is null");
