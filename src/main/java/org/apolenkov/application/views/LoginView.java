@@ -29,7 +29,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
 
     /**
      * Internal data model for the login form.
-     * 
+     *
      * Encapsulates the form data and provides getter/setter methods
      * for binding with Vaadin's Binder framework.
      */
@@ -56,7 +56,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
 
     /**
      * Creates a new LoginView with authentication facade dependency.
-     * 
+     *
      * Creates a complete login form with proper validation, styling,
      * and event handling. The form is centered and styled using Lumo
      * theme components for consistent appearance.

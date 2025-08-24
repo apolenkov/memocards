@@ -55,7 +55,7 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Creates a new RegisterView with authentication facade dependency.
-     * 
+     *
      * Creates a complete registration form with proper validation,
      * styling, and event handling. The form is centered and styled
      * using Lumo theme components for consistent appearance.
@@ -94,7 +94,7 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Creates and configures the registration form with all input fields.
-     * 
+     *
      * Sets up a responsive form layout with name, email, password, and
      * password confirmation fields. All fields are configured with proper
      * placeholders, validation indicators, and full width styling.
