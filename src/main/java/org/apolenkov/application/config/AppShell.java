@@ -19,6 +19,11 @@ import org.springframework.context.annotation.Configuration;
 @Push
 public class AppShell implements AppShellConfigurator {
 
+    /**
+     * Configures page settings including favicon and meta tags.
+     *
+     * @param settings the page settings to configure (non-null)
+     */
     @Override
     public void configurePage(AppShellSettings settings) {
         // Use provided static favicon.ico from META-INF/resources
