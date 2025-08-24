@@ -17,10 +17,7 @@ public class News {
     private LocalDateTime updatedAt;
 
     /**
-     * Creates news item with all required fields.
-     *
-     * <p>Initializes both creation and update timestamps to same value
-     * when news item is first created.</p>
+     * Creates news item with all required fields and initializes timestamps.
      *
      * @param id unique identifier for the news item
      * @param title headline or title of the news

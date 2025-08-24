@@ -17,9 +17,8 @@ import org.apolenkov.application.service.PracticeSettingsService;
 
 /**
  * View for configuring practice session settings.
- *
- * <p>Allows users to set default preferences for practice sessions including
- * card count, order mode (random/sequential), and direction (front-to-back/back-to-front).</p>
+ * Allows users to set default preferences for practice sessions including
+ * card count, order mode (random/sequential), and direction (front-to-back/back-to-front).
  */
 @Route(value = "settings", layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})

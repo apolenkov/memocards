@@ -9,8 +9,7 @@ import com.vaadin.flow.server.HttpStatusCode;
 
 /**
  * Error handler for internal server errors (HTTP 500).
- *
- * <p>Redirects users to a user-friendly error page when server exceptions occur.</p>
+ * Redirects users to a user-friendly error page when server exceptions occur.
  */
 @ParentLayout(PublicLayout.class)
 public class InternalServerErrorHandler extends Div implements HasErrorParameter<Exception> {

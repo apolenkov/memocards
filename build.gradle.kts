@@ -100,9 +100,6 @@ tasks.named("check") {
     mustRunAfter("vaadinPrepareFrontend")
 }
 
-// Apply JavaDoc quality report generation
-apply(from = "gradle/javadoc-quality-report.gradle.kts")
-
 /*
  * Enhanced dependency management with BOMs and explicit versions
  */

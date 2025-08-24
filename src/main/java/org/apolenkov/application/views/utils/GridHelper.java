@@ -19,8 +19,7 @@ public final class GridHelper {
 
     /**
      * Creates a basic grid with common configuration.
-     * Creates a grid component with standard styling including row stripes
-     * and full width layout.
+     * Creates a grid component with standard styling including row stripes and full width layout.
      *
      * @param <T> the type of data items in the grid
      * @param beanType the class type of the data items

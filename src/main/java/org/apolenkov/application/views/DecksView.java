@@ -25,11 +25,9 @@ import org.apolenkov.application.views.utils.TextHelper;
 
 /**
  * View for displaying and managing user's flashcard decks.
- *
- * <p>This view provides functionality for listing all user's decks,
+ * This view provides functionality for listing all user's decks,
  * searching through them, and creating new decks. It serves as the main
- * dashboard for deck management operations.</p>
- *
+ * dashboard for deck management operations.
  */
 @Route(value = "decks", layout = PublicLayout.class)
 @RolesAllowed({"ROLE_USER", "ROLE_ADMIN"})
@@ -45,10 +43,9 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Creates a new DecksView with required dependencies.
-     *
-     * <p>Creates a complete deck management interface with search functionality,
+     * Creates a complete deck management interface with search functionality,
      * deck listing, and creation capabilities. The view is configured with
-     * proper styling and responsive layout for optimal user experience.</p>
+     * proper styling and responsive layout for optimal user experience.
      *
      * @param homePresenter service for home page operations and deck listing
      * @param deckFacade service for deck management operations
@@ -111,10 +108,9 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Refreshes the deck list display based on the search query.
-     *
-     * <p>This method updates the deck list by filtering decks based on the
+     * This method updates the deck list by filtering decks based on the
      * provided search query. It handles empty results gracefully by displaying
-     * an appropriate message when no decks match the search criteria.</p>
+     * an appropriate message when no decks match the search criteria.
      *
      * @param query the search query to filter decks by title or description
      */
@@ -132,10 +128,9 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Opens the dialog for creating a new deck.
-     *
-     * <p>Creates and displays a dialog that allows users to input deck details
+     * Creates and displays a dialog that allows users to input deck details
      * and create new flashcard decks. After successful creation, the deck list
-     * is automatically refreshed to show the new deck.</p>
+     * is automatically refreshed to show the new deck.
      */
     private void openCreateDeckDialog() {
         CreateDeckDialog dialog = new CreateDeckDialog(deckFacade, userUseCase, created -> refreshDecks(""));
@@ -144,9 +139,8 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Returns the page title for this view.
-     *
-     * <p>Implements the HasDynamicTitle interface to provide localized
-     * page titles for the deck management view.</p>
+     * Implements the HasDynamicTitle interface to provide localized
+     * page titles for the deck management view.
      *
      * @return the localized page title for the decks view
      */

@@ -5,15 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * JPA entity representing a flashcard deck in the database.
- *
- * <p>This entity maps to the "decks" table and represents a collection of
- * flashcards created by a user. It includes metadata such as title, description,
- * and timestamps for creation and modification tracking.</p>
- *
- * <p>The entity provides automatic timestamp management through JPA lifecycle
- * callbacks and includes proper equality and hash code implementations
- * based on the primary key.</p>
+ * JPA entity representing a flashcard deck with metadata and timestamp management.
  */
 @Entity
 @Table(name = "decks")

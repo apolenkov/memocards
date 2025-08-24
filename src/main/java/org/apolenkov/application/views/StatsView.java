@@ -27,11 +27,9 @@ import org.apolenkov.application.views.utils.TextHelper;
 
 /**
  * View for displaying user statistics and analytics.
- *
- * <p>This view provides comprehensive statistics about user's learning progress,
+ * This view provides comprehensive statistics about user's learning progress,
  * including today's stats, overall statistics, and detailed deck-specific metrics.
- * The statistics are presented in collapsible sections for better organization.</p>
- *
+ * The statistics are presented in collapsible sections for better organization.
  */
 @Route(value = "stats", layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})

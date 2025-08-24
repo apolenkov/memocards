@@ -21,23 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * User authentication view for the application.
- *
- * <p>This view provides a secure login interface for users to authenticate
- * with their email and password credentials. It includes form validation,
- * error handling, and navigation options for password recovery and registration.</p>
- *
- * <p>The login form features:</p>
- * <ul>
- *   <li>Email and password input fields with validation</li>
- *   <li>Form validation using Vaadin's Binder framework</li>
- *   <li>Error handling and user feedback</li>
- *   <li>Navigation to password recovery and registration</li>
- *   <li>Automatic redirect for already authenticated users</li>
- * </ul>
- *
- * <p>The view automatically handles authentication state and provides
- * appropriate error messages for failed login attempts.</p>
+ * User authentication view with secure login interface, form validation, and navigation options.
  */
 @Route(value = "login", layout = PublicLayout.class)
 @AnonymousAllowed
@@ -45,9 +29,9 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
 
     /**
      * Internal data model for the login form.
-     *
-     * <p>Encapsulates the form data and provides getter/setter methods
-     * for binding with Vaadin's Binder framework.</p>
+     * 
+     * Encapsulates the form data and provides getter/setter methods
+     * for binding with Vaadin's Binder framework.
      */
     private static final class LoginModel {
         private String email;
@@ -72,10 +56,10 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
 
     /**
      * Creates a new LoginView with authentication facade dependency.
-     *
-     * <p>Creates a complete login form with proper validation, styling,
+     * 
+     * Creates a complete login form with proper validation, styling,
      * and event handling. The form is centered and styled using Lumo
-     * theme components for consistent appearance.</p>
+     * theme components for consistent appearance.
      *
      * @param authFacade service for handling user authentication
      */
@@ -157,13 +141,10 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
 
     /**
      * Handles navigation events before the view is entered.
-     *
-     * <p>Performs pre-navigation checks including:</p>
-     * <ul>
-     *   <li>Redirecting already authenticated users to home page</li>
-     *   <li>Displaying error messages for failed login attempts</li>
-     *   <li>Handling query parameter-based error states</li>
-     * </ul>
+     * Performs pre-navigation checks including:
+     * - Redirecting already authenticated users to home page
+     * - Displaying error messages for failed login attempts
+     * - Handling query parameter-based error states
      *
      * @param event the before enter event containing navigation context
      */
@@ -181,9 +162,8 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
 
     /**
      * Returns the page title for the login view.
-     *
-     * <p>Provides a localized page title that appears in the browser tab
-     * and navigation history.</p>
+     * Provides a localized page title that appears in the browser tab
+     * and navigation history.
      *
      * @return the localized page title for the login page
      */

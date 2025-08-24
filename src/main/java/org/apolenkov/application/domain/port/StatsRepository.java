@@ -27,7 +27,7 @@ public interface StatsRepository {
             long totalAnswerDelayMs) {}
 
     /**
-     * Records practice session for deck.
+     * Records practice session for deck with performance metrics and known card tracking.
      *
      * @param deckId deck identifier
      * @param date practice date

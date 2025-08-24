@@ -157,12 +157,8 @@ public class TopMenu extends HorizontalLayout {
 
     /**
      * Determines whether a menu button should be visible based on authentication and role requirements.
-     * Evaluates button visibility using the following logic:
-     * <ul>
-     *   <li>Always visible buttons are shown regardless of authentication state</li>
-     *   <li>Logout button is only shown for authenticated users</li>
-     *   <li>Role-restricted buttons require both authentication and appropriate role assignment</li>
-     * </ul>
+     * Always visible buttons shown regardless of authentication state. Logout button only for authenticated users.
+     * Role-restricted buttons require both authentication and appropriate role assignment.
      *
      * @param menuButton the menu button to evaluate for visibility
      * @param auth the current authentication context

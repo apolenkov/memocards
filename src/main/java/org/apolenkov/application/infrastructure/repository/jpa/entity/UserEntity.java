@@ -7,16 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * JPA entity representing a user in the database.
- *
- * <p>This entity maps to the "users" table and represents a registered user
- * in the system. It includes authentication information (email, password hash),
- * personal details (name), and role-based access control through a collection
- * of role strings.</p>
- *
- * <p>The entity provides automatic timestamp management for creation time
- * and includes proper equality and hash code implementations based on
- * the primary key.</p>
+ * JPA entity representing a user with authentication, personal details, and role-based access control.
  */
 @Entity
 @Table(name = "users")

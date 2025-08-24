@@ -121,11 +121,7 @@ public class PracticePresenter {
     }
 
     /**
-     * Records a completed practice session.
-     *
-     * <p>Persists session statistics including performance metrics and any
-     * changes to card knowledge status. This method delegates to the
-     * statistics service for data persistence.</p>
+     * Records completed practice session with performance metrics and knowledge status changes.
      *
      * @param deckId the ID of the deck that was practiced
      * @param totalViewed the total number of cards viewed in the session
@@ -148,15 +144,7 @@ public class PracticePresenter {
     }
 
     /**
-     * Represents an active practice session with state tracking.
-     *
-     * <p>This class maintains the complete state of a practice session including
-     * current position, performance metrics, timing information, and progress
-     * tracking. It provides methods for navigating through cards and recording
-     * user responses.</p>
-     *
-     * <p>The session tracks both individual card performance and overall session
-     * statistics, enabling comprehensive progress monitoring and analytics.</p>
+     * Represents active practice session with state tracking, performance metrics, and progress monitoring.
      */
     public static class Session {
         private final long deckId;
@@ -174,11 +162,7 @@ public class PracticePresenter {
         private final List<Long> failedCardIds = new ArrayList<>();
 
         /**
-         * Constructs a new practice session.
-         *
-         * <p>Initializes a practice session with the specified deck and direction.
-         * All counters and timers are reset to initial values, and the session
-         * is ready to begin with the first card.</p>
+         * Constructs new practice session with deck, direction, and reset counters.
          *
          * @param deckId the ID of the deck being practiced
          * @param cards the list of flashcards for this session
@@ -284,10 +268,7 @@ public class PracticePresenter {
 
     /**
      * Starts a new practice session.
-     *
-     * <p>Creates and initializes a new practice session with the specified
-     * parameters. The session is prepared with appropriate cards and ready
-     * to begin practice immediately.</p>
+     * Creates and initializes a new practice session with the specified parameters.
      *
      * @param deckId the ID of the deck to practice
      * @param count the number of cards to include in the session
@@ -397,10 +378,7 @@ public class PracticePresenter {
 
     /**
      * Progress information for a practice session.
-     *
-     * <p>This record contains comprehensive progress metrics including current
-     * position, total cards, performance statistics, and completion percentage.
-     * It provides a snapshot of session progress for UI updates and analytics.</p>
+     * Contains comprehensive progress metrics for UI updates and analytics.
      *
      * @param current the current card position (1-based index)
      * @param total the total number of cards in the session
@@ -413,10 +391,7 @@ public class PracticePresenter {
 
     /**
      * Calculates current progress information for a practice session.
-     *
-     * <p>Computes comprehensive progress metrics including current position,
-     * completion percentage, and performance statistics. The method handles
-     * edge cases where cards might be null or empty.</p>
+     * Computes comprehensive progress metrics including current position, completion percentage, and performance statistics.
      *
      * @param s the session to calculate progress for
      * @return a Progress record with current session metrics

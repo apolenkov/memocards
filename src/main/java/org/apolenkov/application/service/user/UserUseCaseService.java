@@ -12,16 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 /**
- * Service implementation for user use cases and business operations.
- *
- * <p>This service implements the UserUseCase interface and provides user management
- * functionality including user retrieval and current user context management. It
- * integrates with Spring Security to provide authenticated user information and
- * maintains transaction boundaries for data consistency.</p>
- *
- * <p>The service handles both general user operations and security context-aware
- * operations for the currently authenticated user.</p>
- *
+ * Service implementation for user use cases with Spring Security integration and transaction management.
  */
 @Service
 public class UserUseCaseService implements UserUseCase {
@@ -40,8 +31,8 @@ public class UserUseCaseService implements UserUseCase {
     /**
      * Gets all users in the system.
      *
-     * <p>Returns a complete list of all registered users. This method is typically
-     * used for administrative purposes and user listing functionality.</p>
+     * Returns a complete list of all registered users. This method is typically
+     * used for administrative purposes and user listing functionality.
      *
      * @return a list of all users in the system
      */
@@ -54,8 +45,8 @@ public class UserUseCaseService implements UserUseCase {
     /**
      * Gets a specific user by their unique identifier.
      *
-     * <p>Returns an Optional containing the user if found, or an empty Optional
-     * if no user exists with the specified ID.</p>
+     * Returns an Optional containing the user if found, or an empty Optional
+     * if no user exists with the specified ID.
      *
      * @param id the unique identifier of the user to retrieve
      * @return an Optional containing the user if found, empty otherwise
@@ -67,16 +58,8 @@ public class UserUseCaseService implements UserUseCase {
     }
 
     /**
-     * Gets the currently authenticated user.
-     *
-     * <p>This method extracts the current user from the Spring Security context
-     * and retrieves the corresponding domain user object. It handles different
-     * types of authentication principals and provides meaningful error messages
-     * for various failure scenarios.</p>
-     *
-     * <p>The method requires an active authentication context and will throw
-     * exceptions if the user is not authenticated or if the authenticated
-     * principal cannot be resolved to a domain user.</p>
+     * Gets the currently authenticated user from Spring Security context.
+     * Resolves authentication principal to domain user object.
      *
      * @return the currently authenticated user
      * @throws IllegalStateException if the user is not authenticated, if the principal

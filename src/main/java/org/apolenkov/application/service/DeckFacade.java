@@ -11,9 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Facade service for deck-related operations.
- *
- * <p>Coordinates between deck and flashcard use cases, providing simplified interface
- * for deck management operations including creation, deletion, and flashcard manipulation.</p>
+ * Coordinates between deck and flashcard use cases, providing simplified interface
+ * for deck management operations including creation, deletion, and flashcard manipulation.
  */
 @Component
 public class DeckFacade {
@@ -61,9 +60,8 @@ public class DeckFacade {
 
     /**
      * Gets set of card IDs marked as known in specified deck.
-     *
-     * <p>Provides information about user's learning progress by returning
-     * IDs of cards they have marked as known or learned.</p>
+     * Provides information about user's learning progress by returning
+     * IDs of cards they have marked as known or learned.
      *
      * @param deckId ID of deck to check for known cards
      * @return set of card IDs marked as known
@@ -76,9 +74,8 @@ public class DeckFacade {
 
     /**
      * Toggles known status of specific card in deck.
-     *
-     * <p>Changes learning status of card from known to unknown or vice versa.
-     * Used to track user progress and adjust learning algorithms.</p>
+     * Changes learning status of card from known to unknown or vice versa.
+     * Used to track user progress and adjust learning algorithms.
      *
      * @param deckId ID of deck containing the card
      * @param cardId ID of card to toggle
@@ -91,13 +88,7 @@ public class DeckFacade {
     }
 
     /**
-     * Resets learning progress for all cards in specific deck.
-     *
-     * <p>Clears all progress tracking data for specified deck, resetting
-     * user's learning state back to beginning.</p>
-     *
-     * <p><strong>Warning:</strong> This operation is irreversible and will
-     * permanently delete all progress data for the deck.</p>
+     * Resets learning progress for all cards in specific deck (irreversible operation).
      *
      * @param deckId ID of deck whose progress to reset
      * @throws IllegalArgumentException if deckId is invalid
@@ -120,10 +111,7 @@ public class DeckFacade {
     }
 
     /**
-     * Calculates learning progress percentage for specific deck.
-     *
-     * <p>Computes percentage of cards in deck marked as known,
-     * providing measure of user's learning progress.</p>
+     * Calculates learning progress percentage for specific deck (0-100%).
      *
      * @param deckId ID of deck to calculate progress for
      * @return progress percentage (0-100)
@@ -135,10 +123,7 @@ public class DeckFacade {
     }
 
     /**
-     * Saves flashcard to system.
-     *
-     * <p>Persists flashcard, either creating new one or updating existing one.
-     * Handles both insert and update operations based on whether flashcard has existing ID.</p>
+     * Saves flashcard to system (creates new or updates existing).
      *
      * @param flashcard flashcard to save
      * @return saved flashcard with updated fields (e.g., generated ID, timestamps)
@@ -151,10 +136,7 @@ public class DeckFacade {
     }
 
     /**
-     * Deletes flashcard from system.
-     *
-     * <p>Permanently removes flashcard from system. Operation is irreversible
-     * and will also remove any associated progress tracking data.</p>
+     * Deletes flashcard from system (irreversible operation).
      *
      * @param id ID of flashcard to delete
      * @throws IllegalArgumentException if id is null
@@ -166,10 +148,7 @@ public class DeckFacade {
     }
 
     /**
-     * Saves deck to system.
-     *
-     * <p>Persists deck, either creating new one or updating existing one.
-     * Handles both insert and update operations based on whether deck has existing ID.</p>
+     * Saves deck to system (creates new or updates existing).
      *
      * @param deck deck to save
      * @return saved deck with updated fields (e.g., generated ID, timestamps)
@@ -182,10 +161,7 @@ public class DeckFacade {
     }
 
     /**
-     * Deletes deck and all its associated flashcards.
-     *
-     * <p>Permanently removes deck and all flashcards that belong to it.
-     * Operation is irreversible and will also remove any associated progress tracking data.</p>
+     * Deletes deck and all its associated flashcards (irreversible operation).
      *
      * @param deckId ID of deck to delete
      * @throws IllegalArgumentException if deckId is null

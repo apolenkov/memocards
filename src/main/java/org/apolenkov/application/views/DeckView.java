@@ -568,8 +568,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     }
 
     /**
-     * Shows simple deletion dialog for empty decks
-     * No additional confirmation required since there are no cards to lose
+     * Shows simple deletion dialog for empty decks.
+     * No additional confirmation required since there are no cards to lose.
      */
     private void showSimpleDeleteDialog() {
         Dialog confirmDialog = new Dialog();

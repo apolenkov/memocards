@@ -27,17 +27,12 @@ public class UserSettingsService {
     }
 
     /**
-     * Sets preferred locale for specific user.
-     * Allows users to customize their language preferences, which affects
-     * internationalization of user interface. Locale is converted to language
-     * tag string for storage in database.
+     * Sets preferred locale for specific user with validation and database persistence.
      *
      * @param userId ID of user whose locale preference to set
      * @param locale preferred locale for user
      * @throws IllegalArgumentException if userId is invalid or locale is null
      * @throws RuntimeException if database operation fails
-     * @see Locale#toLanguageTag()
-     * @see UserSettingsRepository#savePreferredLocaleCode(long, String)
      */
     public void setPreferredLocale(long userId, Locale locale) {
         if (userId <= 0) {

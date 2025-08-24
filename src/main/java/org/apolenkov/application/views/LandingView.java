@@ -22,22 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Landing page view for the application.
- *
- * <p>This view serves as the main entry point for users, providing an attractive
- * introduction to the application with hero section, news updates, and appropriate
- * navigation options based on authentication status.</p>
- *
- * <p>The landing page features:</p>
- * <ul>
- *   <li>Hero section with application logo, title, and subtitle</li>
- *   <li>Dynamic action buttons based on user authentication state</li>
- *   <li>News section displaying recent application updates</li>
- *   <li>Responsive design with proper spacing and styling</li>
- * </ul>
- *
- * <p>The view automatically adapts its content based on whether the user is
- * authenticated, showing appropriate navigation options and greetings.</p>
+ * Landing page view with hero section, news updates, and dynamic navigation based on authentication status.
  */
 @Route(value = "", layout = PublicLayout.class)
 @AnonymousAllowed
@@ -45,10 +30,9 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Creates a new LandingView with news service dependency.
-     *
-     * <p>Creates the complete landing page layout including hero section,
+     * Creates the complete landing page layout including hero section,
      * news updates, and dynamic action buttons. The layout automatically
-     * adjusts based on the user's authentication status.</p>
+     * adjusts based on the user's authentication status.
      *
      * @param newsService service for retrieving and displaying news content
      */
@@ -152,9 +136,8 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Returns the page title for the landing view.
-     *
-     * <p>Provides a localized page title that appears in the browser tab
-     * and navigation history.</p>
+     * Provides a localized page title that appears in the browser tab
+     * and navigation history.
      *
      * @return the localized page title
      */

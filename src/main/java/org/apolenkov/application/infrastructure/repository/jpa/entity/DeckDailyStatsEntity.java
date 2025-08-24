@@ -23,32 +23,8 @@ import java.time.LocalDate;
 public class DeckDailyStatsEntity {
 
     /**
-     * Composite primary key for daily statistics records.
-     *
-     * <p>This embeddable class represents the composite primary key consisting
-     * of deck identifier and date. It enables efficient daily aggregation of
-     * statistics while maintaining referential integrity with deck entities.</p>
-     *
-     * <p>The composite key design provides:</p>
-     * <ul>
-     *   <li><strong>Daily Granularity:</strong> One record per deck per day</li>
-     *   <li><strong>Efficient Queries:</strong> Optimized for date-range operations</li>
-     *   <li><strong>Data Integrity:</strong> Prevents duplicate daily records</li>
-     *   <strong>Performance:</strong> Enables effective indexing strategies</strong>
-     * </ul>
-     *
-     * <p><strong>Implementation Details:</strong></p>
-     * <ul>
-     *   <li><strong>Serializable:</strong> Supports JPA entity serialization</strong>
-     *   <li><strong>Equals/HashCode:</strong> Proper implementation for composite keys</strong>
-     *   <li><strong>Validation:</strong> Bean validation constraints on key fields</strong>
-     *   <strong>Immutability:</strong> Key fields cannot be modified after creation</strong>
-     * </ul>
-     *
-     * @see jakarta.persistence.Embeddable
-     * @see jakarta.validation.constraints.NotNull
-     * @see java.io.Serializable
-     * @see java.time.LocalDate
+     * Composite primary key for daily statistics records with deck identifier and date.
+     * Enables efficient daily aggregation and time-series analysis.
      */
     @Embeddable
     public static class Id implements Serializable {
@@ -56,14 +32,14 @@ public class DeckDailyStatsEntity {
         /**
          * Identifier of the deck these statistics belong to.
          *
-         * <p>This field establishes the relationship between daily statistics
+         * <p>
+         * This field establishes the relationship between daily statistics
          * and a specific deck. It enables aggregation and analysis of
-         * performance data for individual learning collections.</p>
+         * performance data for individual learning collections.
+         * </p>
          *
-         * <p><strong>Database Type:</strong> BIGINT</p>
-         * <p><strong>Constraints:</strong> Non-nullable, foreign key reference</p>
-         * <p><strong>Relationship:</strong> Many-to-one with DeckEntity</p>
-         * <p><strong>Business Rule:</strong> Must reference an existing deck</p>
+         *  Database Type: BIGINT, Constraints: Non-nullable, foreign key reference,
+         * Relationship: Many-to-one with DeckEntity, Business Rule: Must reference an existing deck
          */
         @NotNull
         private Long deckId;
@@ -71,14 +47,14 @@ public class DeckDailyStatsEntity {
         /**
          * Calendar date for these daily statistics.
          *
-         * <p>This field represents the specific calendar day for which
+         * <p>
+         * This field represents the specific calendar day for which
          * the statistics were collected. It enables daily aggregation
-         * and time-series analysis of deck performance.</p>
+         * and time-series analysis of deck performance.
+         * </p>
          *
-         * <p><strong>Database Type:</strong> DATE</p>
-         * <p><strong>Constraints:</strong> Non-nullable</p>
-         * <p><strong>Format:</strong> ISO 8601 date format (YYYY-MM-DD)</p>
-         * <p><strong>Purpose:</strong> Daily granularity for statistics</p>
+         * Database Type: DATE, Constraints: Non-nullable,
+         * Format: ISO 8601 date format (YYYY-MM-DD), Purpose: Daily granularity for statistics
          */
         @NotNull
         private LocalDate date;
@@ -86,18 +62,16 @@ public class DeckDailyStatsEntity {
         /**
          * Default constructor required by JPA.
          *
-         * <p>This constructor is required by the JPA specification for
+         * <p>
+         * This constructor is required by the JPA specification for
          * embeddable classes. It should not be used directly in application
-         * code.</p>
+         * code.
+         * </p>
          */
         public Id() {}
 
         /**
          * Constructs a composite key with deck identifier and date.
-         *
-         * <p>This constructor creates a composite key for daily statistics
-         * records. It validates that both parameters are non-null to ensure
-         * data integrity.</p>
          *
          * @param deckId the deck identifier, must not be null
          * @param date the calendar date, must not be null
@@ -124,11 +98,7 @@ public class DeckDailyStatsEntity {
         }
 
         /**
-         * Sets the deck identifier for this composite key.
-         *
-         * <p>This method allows modification of the deck identifier,
-         * though it should typically be set only during construction
-         * to maintain data integrity.</p>
+         * Sets the deck identifier for this composite key (use with caution).
          *
          * @param deckId the deck identifier to set, must not be null
          * @throws IllegalArgumentException if deckId is null
@@ -150,11 +120,7 @@ public class DeckDailyStatsEntity {
         }
 
         /**
-         * Sets the calendar date for this composite key.
-         *
-         * <p>This method allows modification of the calendar date,
-         * though it should typically be set only during construction
-         * to maintain data integrity.</p>
+         * Sets the calendar date for this composite key (use with caution).
          *
          * @param date the calendar date to set, must not be null
          * @throws IllegalArgumentException if date is null
@@ -169,10 +135,6 @@ public class DeckDailyStatsEntity {
         /**
          * Generates a hash code for this composite key.
          *
-         * <p>This method generates a hash code based on both the deck ID
-         * and date fields. It ensures proper behavior when using this
-         * class as a key in hash-based collections.</p>
-         *
          * @return a hash code value for this composite key
          */
         @Override
@@ -182,10 +144,6 @@ public class DeckDailyStatsEntity {
 
         /**
          * Compares this composite key with another object for equality.
-         *
-         * <p>This method implements equality comparison based on both
-         * the deck ID and date fields. Two composite keys are considered
-         * equal if they have the same deck ID and date values.</p>
          *
          * @param o the object to compare with
          * @return true if the objects are equal, false otherwise
@@ -200,29 +158,14 @@ public class DeckDailyStatsEntity {
 
     /**
      * Composite primary key for this daily statistics record.
-     *
-     * <p>This field uses the embedded composite key to uniquely identify
-     * daily statistics records. The combination of deck ID and date ensures
-     * that only one statistics record exists per deck per day.</p>
-     *
-     * <p><strong>Key Composition:</strong> deck_id + date</p>
-     * <p><strong>Uniqueness:</strong> One record per deck per calendar day</p>
-     * <p><strong>Purpose:</strong> Primary key and entity identification</p>
+     * Ensures one record per deck per calendar day.
      */
     @EmbeddedId
     private Id id;
 
     /**
      * Number of practice sessions for this deck on the specified date.
-     *
-     * <p>This field tracks how many times a user practiced with this deck
-     * during the calendar day. It provides insights into user engagement
-     * and learning frequency patterns.</p>
-     *
-     * <p><strong>Database Type:</strong> INTEGER</p>
-     * <p><strong>Constraints:</strong> Non-nullable, minimum value 0</p>
-     * <p><strong>Business Rule:</strong> Must be non-negative</p>
-     * <p><strong>Purpose:</strong> Engagement and usage tracking</p>
+     * Tracks user engagement and learning frequency patterns.
      */
     @NotNull
     @Min(0)
@@ -231,15 +174,7 @@ public class DeckDailyStatsEntity {
 
     /**
      * Number of cards viewed during practice sessions on the specified date.
-     *
-     * <p>This field counts the total number of cards that were presented
-     * to the user during practice sessions. It helps measure the scope
-     * of learning activity and content coverage.</p>
-     *
-     * <p><strong>Database Type:</strong> INTEGER</p>
-     * <p><strong>Constraints:</strong> Non-nullable, minimum value 0</p>
-     * <p><strong>Business Rule:</strong> Must be non-negative</p>
-     * <p><strong>Purpose:</strong> Content coverage measurement</p>
+     * Counts total cards presented to user for learning activity and content coverage measurement.
      */
     @NotNull
     @Min(0)
@@ -248,15 +183,7 @@ public class DeckDailyStatsEntity {
 
     /**
      * Number of correct answers given during practice sessions on the specified date.
-     *
-     * <p>This field tracks the number of correct responses from the user,
-     * providing a key performance indicator for learning effectiveness
-     * and knowledge retention.</p>
-     *
-     * <p><strong>Database Type:</strong> INTEGER</p>
-     * <p><strong>Constraints:</strong> Non-nullable, minimum value 0</p>
-     * <p><strong>Business Rule:</strong> Must be non-negative, cannot exceed viewed</p>
-     * <p><strong>Purpose:</strong> Performance and accuracy measurement</p>
+     * Key performance indicator for learning effectiveness and knowledge retention.
      */
     @NotNull
     @Min(0)
@@ -265,15 +192,7 @@ public class DeckDailyStatsEntity {
 
     /**
      * Number of times cards were repeated during practice sessions on the specified date.
-     *
-     * <p>This field tracks repetition frequency, which is important for
-     * spaced repetition algorithms and understanding user learning patterns.
-     * Higher repeat counts may indicate challenging content or learning difficulties.</p>
-     *
-     * <p><strong>Database Type:</strong> INTEGER</p>
-     * <p><strong>Constraints:</strong> Non-nullable, minimum value 0</p>
-     * <p><strong>Business Rule:</strong> Must be non-negative</p>
-     * <p><strong>Purpose:</strong> Learning difficulty and repetition tracking</p>
+     * Tracks repetition frequency for spaced repetition algorithms and learning patterns.
      */
     @NotNull
     @Min(0)
@@ -282,15 +201,7 @@ public class DeckDailyStatsEntity {
 
     /**
      * Number of cards marked as "hard" during practice sessions on the specified date.
-     *
-     * <p>This field tracks user difficulty ratings, providing insights into
-     * which content areas may need additional attention or different
-     * presentation strategies.</p>
-     *
-     * <p><strong>Database Type:</strong> INTEGER</p>
-     * <p><strong>Constraints:</strong> Non-nullable, minimum value 0</p>
-     * <p><strong>Business Rule:</strong> Must be non-negative, cannot exceed viewed</p>
-     * <p><strong>Purpose:</strong> Difficulty assessment and content optimization</p>
+     * Tracks user difficulty ratings for content optimization and attention areas.
      */
     @NotNull
     @Min(0)
@@ -299,16 +210,7 @@ public class DeckDailyStatsEntity {
 
     /**
      * Total duration of all practice sessions in milliseconds for the specified date.
-     *
-     * <p>This field measures the total time spent practicing with the deck,
-     * providing insights into user engagement levels and learning intensity.
-     * It helps optimize session lengths and content presentation.</p>
-     *
-     * <p><strong>Database Type:</strong> BIGINT</p>
-     * <p><strong>Constraints:</strong> Non-nullable, minimum value 0</p>
-     * <p><strong>Unit:</strong> Milliseconds</p>
-     * <p><strong>Business Rule:</strong> Must be non-negative</p>
-     * <p><strong>Purpose:</strong> Engagement and time investment measurement</p>
+     * Measures time spent practicing for engagement and learning intensity insights.
      */
     @NotNull
     @Min(0)
@@ -317,16 +219,7 @@ public class DeckDailyStatsEntity {
 
     /**
      * Total delay in milliseconds before answering cards during practice sessions.
-     *
-     * <p>This field measures response time patterns, which can indicate
-     * user confidence, content difficulty, and learning progress. It helps
-     * optimize the spaced repetition algorithm and content presentation.</p>
-     *
-     * <p><strong>Database Type:</strong> BIGINT</p>
-     * <p><strong>Constraints:</strong> Non-nullable, minimum value 0</p>
-     * <p><strong>Unit:</strong> Milliseconds</p>
-     * <p><strong>Business Rule:</strong> Must be non-negative</p>
-     * <p><strong>Purpose:</strong> Response time and confidence measurement</p>
+     * Measures response time patterns for user confidence and content difficulty insights.
      */
     @NotNull
     @Min(0)
@@ -335,15 +228,7 @@ public class DeckDailyStatsEntity {
 
     /**
      * Version number for optimistic locking.
-     *
-     * <p>This field implements optimistic locking to prevent concurrent
-     * modification conflicts. It is automatically managed by Hibernate
-     * and should not be manually modified by application code.</p>
-     *
-     * <p><strong>Database Type:</strong> BIGINT</p>
-     * <p><strong>Management:</strong> Automatic by Hibernate</p>
-     * <p><strong>Purpose:</strong> Concurrent access control</p>
-     * <p><strong>Behavior:</strong> Incremented on each update</p>
+     * Implements optimistic locking to prevent concurrent modification conflicts.
      */
     @Version
     @Column(name = "version")
@@ -351,47 +236,21 @@ public class DeckDailyStatsEntity {
 
     /**
      * Timestamp when this statistics record was created.
-     *
-     * <p>This field records when the daily statistics record was first
-     * created in the system. It provides an audit trail for data
-     * creation and supports data lineage tracking.</p>
-     *
-     * <p><strong>Database Type:</strong> TIMESTAMP</p>
-     * <p><strong>Constraints:</strong> Non-nullable, not updatable</p>
-     * <p><strong>Auto-Setting:</strong> Set automatically on persist</p>
-     * <p><strong>Format:</strong> ISO 8601 datetime format</p>
-     * <p><strong>Purpose:</strong> Creation audit trail</p>
+     * Records when daily statistics record was first created for audit trail and data lineage.
      */
     @Column(name = "created_at", nullable = false, updatable = false)
     private java.time.LocalDateTime createdAt;
 
     /**
      * Timestamp when this statistics record was last updated.
-     *
-     * <p>This field records when the daily statistics record was last
-     * modified in the system. It provides an audit trail for data
-     * modifications and supports change tracking.</p>
-     *
-     * <p><strong>Database Type:</strong> TIMESTAMP</p>
-     * <p><strong>Constraints:</strong> Non-nullable</p>
-     * <p><strong>Auto-Updating:</strong> Updated automatically on each modification</p>
-     * <p><strong>Format:</strong> ISO 8601 datetime format</p>
-     * <p><strong>Purpose:</strong> Modification audit trail</p>
+     * Records when daily statistics record was last modified for audit trail and change tracking.
      */
     @Column(name = "updated_at", nullable = false)
     private java.time.LocalDateTime updatedAt;
 
     /**
      * JPA lifecycle callback method executed before persisting a new entity.
-     *
-     * <p>This method is automatically called by the JPA framework before
-     * a new daily statistics record is persisted to the database. It ensures
-     * that both creation and update timestamps are properly initialized.</p>
-     *
-     * <p><strong>Execution:</strong> Automatic, before persist operation</p>
-     * <p><strong>Purpose:</strong> Initialize audit timestamps for new entities</p>
-     * <p><strong>Behavior:</strong> Sets both createdAt and updatedAt to current time</p>
-     * <p><strong>Framework:</strong> Called by JPA lifecycle management</p>
+     * Automatically called by JPA framework to ensure both creation and update timestamps are initialized.
      */
     @PrePersist
     protected void onCreate() {
@@ -401,15 +260,7 @@ public class DeckDailyStatsEntity {
 
     /**
      * JPA lifecycle callback method executed before updating an existing entity.
-     *
-     * <p>This method is automatically called by the JPA framework before
-     * an existing daily statistics record is updated in the database. It ensures
-     * that the update timestamp reflects the most recent modification time.</p>
-     *
-     * <p><strong>Execution:</strong> Automatic, before update operation</p>
-     * <p><strong>Purpose:</strong> Update modification timestamp</p>
-     * <p><strong>Behavior:</strong> Sets updatedAt to current time</p>
-     * <p><strong>Framework:</strong> Called by JPA lifecycle management</p>
+     * Automatically called by JPA framework to ensure update timestamp reflects modification time.
      */
     @PreUpdate
     protected void onUpdate() {
@@ -428,10 +279,6 @@ public class DeckDailyStatsEntity {
 
     /**
      * Sets the composite primary key for this daily statistics record.
-     *
-     * <p>This method establishes the identity of the daily statistics record.
-     * The composite key should typically be set only during construction
-     * to maintain data integrity.</p>
      *
      * @param id the composite primary key to set, must not be null
      * @throws IllegalArgumentException if id is null
@@ -455,9 +302,6 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the number of practice sessions for this deck on the specified date.
      *
-     * <p>This method allows setting or updating the session count for daily
-     * statistics. The value must be non-negative to maintain data integrity.</p>
-     *
      * @param sessions the number of practice sessions to set, must be non-negative
      * @throws IllegalArgumentException if sessions is negative
      */
@@ -479,9 +323,6 @@ public class DeckDailyStatsEntity {
 
     /**
      * Sets the number of cards viewed during practice sessions on the specified date.
-     *
-     * <p>This method allows setting or updating the viewed card count for daily
-     * statistics. The value must be non-negative to maintain data integrity.</p>
      *
      * @param viewed the number of viewed cards to set, must be non-negative
      * @throws IllegalArgumentException if viewed is negative
@@ -505,9 +346,6 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the number of correct answers given during practice sessions on the specified date.
      *
-     * <p>This method allows setting or updating the correct answer count for daily
-     * statistics. The value must be non-negative and cannot exceed the viewed count.</p>
-     *
      * @param correct the number of correct answers to set, must be non-negative
      * @throws IllegalArgumentException if correct is negative
      */
@@ -529,9 +367,6 @@ public class DeckDailyStatsEntity {
 
     /**
      * Sets the number of times cards were repeated during practice sessions on the specified date.
-     *
-     * <p>This method allows setting or updating the repeat count for daily
-     * statistics. The value must be non-negative to maintain data integrity.</p>
      *
      * @param repeatCount the number of repeated cards to set, must be non-negative
      * @throws IllegalArgumentException if repeatCount is negative
@@ -555,9 +390,6 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the number of cards marked as "hard" during practice sessions on the specified date.
      *
-     * <p>This method allows setting or updating the hard card count for daily
-     * statistics. The value must be non-negative to maintain data integrity.</p>
-     *
      * @param hard the number of hard cards to set, must be non-negative
      * @throws IllegalArgumentException if hard is negative
      */
@@ -579,9 +411,6 @@ public class DeckDailyStatsEntity {
 
     /**
      * Sets the total duration of all practice sessions in milliseconds for the specified date.
-     *
-     * <p>This method allows setting or updating the total duration for daily
-     * statistics. The value must be non-negative to maintain data integrity.</p>
      *
      * @param totalDurationMs the total duration in milliseconds to set, must be non-negative
      * @throws IllegalArgumentException if totalDurationMs is negative
@@ -605,9 +434,6 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the total delay in milliseconds before answering cards during practice sessions.
      *
-     * <p>This method allows setting or updating the total answer delay for daily
-     * statistics. The value must be non-negative to maintain data integrity.</p>
-     *
      * @param totalAnswerDelayMs the total answer delay in milliseconds to set, must be non-negative
      * @throws IllegalArgumentException if totalAnswerDelayMs is negative
      */
@@ -621,10 +447,6 @@ public class DeckDailyStatsEntity {
     /**
      * Gets the version number for optimistic locking.
      *
-     * <p>This method returns the current version number used for optimistic
-     * locking. The version is automatically managed by Hibernate and should
-     * not be manually modified.</p>
-     *
      * @return the version number, may be null for new entities
      */
     @SuppressWarnings("unused") // IDE Community problem
@@ -634,10 +456,6 @@ public class DeckDailyStatsEntity {
 
     /**
      * Sets the version number for optimistic locking.
-     *
-     * <p>This method allows setting the version number, though it is typically
-     * managed automatically by Hibernate. Manual modification should be avoided
-     * to prevent conflicts with the optimistic locking mechanism.</p>
      *
      * @param version the version number to set
      */

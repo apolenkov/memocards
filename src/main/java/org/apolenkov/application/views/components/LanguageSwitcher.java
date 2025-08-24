@@ -90,9 +90,7 @@ public class LanguageSwitcher extends HorizontalLayout {
 
     /**
      * Maps the current locale to the appropriate display value for the combo box.
-     *
-     * <p>Converts the current locale to the corresponding display text
-     * that matches the combo box items.</p>
+     * Converts the current locale to the corresponding display text that matches the combo box items.
      *
      * @param current the current locale to map
      * @param en the English display text
@@ -113,14 +111,7 @@ public class LanguageSwitcher extends HorizontalLayout {
 
     /**
      * Retrieves the current locale from session, cookie, or UI context.
-     *
-     * <p>Determines the current locale using the following priority order:</p>
-     * <ol>
-     *   <li>Session attribute (highest priority)</li>
-     *   <li>Cookie value (persistent preference)</li>
-     *   <li>UI locale (current context)</li>
-     *   <li>English (fallback default)</li>
-     * </ol>
+     * Priority order: Session attribute (highest), Cookie value, UI locale, English (fallback).
      *
      * @return the current locale, never null
      */
