@@ -12,7 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 /**
- * Service implementation for user use cases with Spring Security integration and transaction management.
+ * Service implementation for user use cases with Spring Security integration
+ * and transaction management.
  */
 @Service
 public class UserUseCaseService implements UserUseCase {
@@ -22,19 +23,20 @@ public class UserUseCaseService implements UserUseCase {
     /**
      * Creates a new UserUseCaseService with the required repository dependency.
      *
-     * @param userRepository the repository for user persistence operations
+     * @param userRepository the repository for user persistence operations (non-null)
+     * @throws IllegalArgumentException if userRepository is null
      */
     public UserUseCaseService(UserRepository userRepository) {
+        if (userRepository == null) {
+            throw new IllegalArgumentException("UserRepository cannot be null");
+        }
         this.userRepository = userRepository;
     }
 
     /**
      * Gets all users in the system.
      *
-     * Returns a complete list of all registered users. This method is typically
-     * used for administrative purposes and user listing functionality.
-     *
-     * @return a list of all users in the system
+     * @return a list of all users in the system, never null (may be empty)
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
@@ -44,9 +46,6 @@ public class UserUseCaseService implements UserUseCase {
 
     /**
      * Gets a specific user by their unique identifier.
-     *
-     * Returns an Optional containing the user if found, or an empty Optional
-     * if no user exists with the specified ID.
      *
      * @param id the unique identifier of the user to retrieve
      * @return an Optional containing the user if found, empty otherwise
@@ -63,7 +62,7 @@ public class UserUseCaseService implements UserUseCase {
      *
      * @return the currently authenticated user
      * @throws IllegalStateException if the user is not authenticated, if the principal
-     *         type is unsupported, or if the authenticated principal has no corresponding domain user
+     *                               type is unsupported, or if the authenticated principal has no corresponding domain user
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
@@ -72,19 +71,29 @@ public class UserUseCaseService implements UserUseCase {
         if (authentication == null) {
             throw new IllegalStateException("Unauthenticated");
         }
+        
         Object principal = authentication.getPrincipal();
-        String username;
-
-        if (principal instanceof UserDetails ud) {
-            username = ud.getUsername();
-        } else if (principal instanceof String s) {
-            username = s;
-        } else {
-            throw new IllegalStateException("Unsupported principal type: " + principal.getClass());
+        if (principal == null) {
+            throw new IllegalStateException("Authenticated principal is null");
         }
+
+        String username = getUsername(principal);
+
         return userRepository
                 .findByEmail(username)
                 .orElseThrow(
                         () -> new IllegalStateException("Authenticated principal has no domain user: " + username));
+    }
+
+    private String getUsername(Object principal) {
+        if (principal instanceof UserDetails p) {
+            return p.getUsername();
+        }
+
+        if (principal instanceof String s) {
+            return s;
+        }
+
+        throw new IllegalStateException("Unsupported principal type: " + principal.getClass());
     }
 }

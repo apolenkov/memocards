@@ -182,8 +182,8 @@ class UserUseCaseServiceTest {
 
             // When & Then
             assertThatThrownBy(() -> userUseCaseService.getCurrentUser())
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessageContaining("Cannot invoke \"Object.getClass()\" because \"principal\" is null");
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("Authenticated principal is null");
         }
 
         @Test
