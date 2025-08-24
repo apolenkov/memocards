@@ -52,15 +52,7 @@ public class NewsEntity {
 
     /**
      * JPA lifecycle callback method executed before persisting a new entity.
-     *
-     * <p>This method is automatically called by the JPA framework before
-     * a new news article is persisted to the database. It ensures that
-     * both creation and update timestamps are properly initialized.</p>
-     *
-     * <p><strong>Execution:</strong> Automatic, before persist operation</p>
-     * <p><strong>Purpose:</strong> Initialize timestamps for new entities</p>
-     * <p><strong>Behavior:</strong> Sets both createdAt and updatedAt to current time</p>
-     * <p><strong>Framework:</strong> Called by JPA lifecycle management</p>
+     * Initializes both creation and update timestamps.
      */
     @PrePersist
     void onCreate() {
@@ -71,15 +63,7 @@ public class NewsEntity {
 
     /**
      * JPA lifecycle callback method executed before updating an existing entity.
-     *
-     * <p>This method is automatically called by the JPA framework before
-     * an existing news article is updated in the database. It ensures that
-     * the update timestamp reflects the most recent modification time.</p>
-     *
-     * <p><strong>Execution:</strong> Automatic, before update operation</p>
-     * <p><strong>Purpose:</strong> Update modification timestamp</p>
-     * <p><strong>Behavior:</strong> Sets updatedAt to current time</p>
-     * <p><strong>Framework:</strong> Called by JPA lifecycle management</p>
+     * Updates modification timestamp to current time.
      */
     @PreUpdate
     void onUpdate() {
@@ -98,10 +82,6 @@ public class NewsEntity {
     /**
      * Sets the unique identifier for this news article.
      *
-     * <p>This method is typically called by the JPA framework during
-     * entity lifecycle management. Manual setting should be avoided
-     * to prevent conflicts with the auto-generation strategy.</p>
-     *
      * @param id the unique identifier to set
      */
     public void setId(Long id) {
@@ -118,11 +98,7 @@ public class NewsEntity {
     }
 
     /**
-     * Sets the title of the news article.
-     *
-     * <p>This method allows setting or updating the headline or title
-     * of the news article. The title should be descriptive and provide
-     * a clear indication of the article's content.</p>
+     * Sets the title of the news article with validation.
      *
      * @param title the article title to set, must not be null or empty
      * @throws IllegalArgumentException if title is null or empty
@@ -144,13 +120,7 @@ public class NewsEntity {
     }
 
     /**
-     * Sets the main content of the news article.
-     *
-     * <p>This method allows setting or updating the full text content
-     * of the news article. The content can include rich formatting,
-     * HTML markup, or plain text as needed.</p>
-     *
-     * <p>If content is null, it will be treated as empty content.</p>
+     * Sets the main content of the news article with null handling.
      *
      * @param content the article content to set, null will be converted to empty string
      */
@@ -168,11 +138,7 @@ public class NewsEntity {
     }
 
     /**
-     * Sets the author of the news article.
-     *
-     * <p>This method allows setting or updating the author attribution
-     * for the news article. The author should be clearly identified
-     * to provide proper content attribution.</p>
+     * Sets the author of the news article with validation.
      *
      * @param author the article author to set, must not be null or empty
      * @throws IllegalArgumentException if author is null or empty
@@ -194,11 +160,7 @@ public class NewsEntity {
     }
 
     /**
-     * Sets the timestamp when the news article was created.
-     *
-     * <p>This method allows manual setting of the creation timestamp,
-     * though it is typically managed automatically by the JPA lifecycle
-     * callbacks. Use with caution to avoid disrupting the audit trail.</p>
+     * Sets the timestamp when the news article was created (use with caution).
      *
      * @param createdAt the creation timestamp to set, must not be null
      * @throws IllegalArgumentException if createdAt is null
@@ -220,13 +182,7 @@ public class NewsEntity {
     }
 
     /**
-     * Sets the timestamp when the news article was last updated.
-     *
-     * <p>This method allows manual setting of the update timestamp,
-     * though it is typically managed automatically by the JPA lifecycle
-     * callbacks. Use with caution to avoid disrupting the audit trail.</p>
-     *
-     * <p>If updatedAt is null, it will be set to current time.</p>
+     * Sets the timestamp when the news article was last updated (use with caution).
      *
      * @param updatedAt the update timestamp to set, null will be converted to current time
      */

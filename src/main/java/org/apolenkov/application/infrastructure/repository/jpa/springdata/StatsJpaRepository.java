@@ -56,9 +56,7 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
 
     /**
      * Finds daily statistics for a deck ordered by date.
-     *
-     * <p>Uses optimized query with index hints for performance.
-     * Returns statistics in chronological order for trend analysis.</p>
+     * Uses optimized query with index hints for performance.
      *
      * @param deckId the deck identifier
      * @return list of daily statistics ordered by date ascending
@@ -73,9 +71,7 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
 
     /**
      * Retrieves aggregated statistics for multiple decks.
-     *
-     * <p>Uses optimized query with index hints for bulk operations.
-     * Returns summary data for analytics and reporting.</p>
+     * Uses optimized query with index hints for bulk operations.
      *
      * @param deckIds list of deck identifiers
      * @return list of aggregated statistics as object arrays
@@ -93,9 +89,7 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
 
     /**
      * Calculates aggregated statistics for decks within a date range.
-     *
-     * <p>Uses optimized query for analytics with performance hints.
-     * Groups data by deck for trend analysis.</p>
+     * Uses optimized query for analytics with performance hints.
      *
      * @param deckIds list of deck identifiers
      * @param fromDate start date for aggregation
@@ -117,9 +111,7 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
 
     /**
      * Finds today's statistics for specified decks.
-     *
-     * <p>Uses optimized query for current day data retrieval.
-     * Efficient for real-time dashboard updates.</p>
+     * Uses optimized query for current day data retrieval, efficient for real-time dashboard updates.
      *
      * @param deckIds list of deck identifiers
      * @param today the date to search for
@@ -144,7 +136,8 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
      */
     // Query for performance leaderboards
     @QueryHints({@QueryHint(name = "org.hibernate.comment", value = "Uses idx_deck_daily_stats_performance")})
-    @Query("SELECT s.id.deckId, " + "       AVG(CAST(s.correct AS double) / NULLIF(s.viewed, 0)) as accuracy, "
+    @Query("SELECT s.id.deckId, "
+            + "       AVG(CAST(s.correct AS double) / NULLIF(s.viewed, 0)) as accuracy, "
             + "       SUM(s.sessions) as totalSessions "
             + "FROM DeckDailyStatsEntity s "
             + "WHERE s.id.deckId IN :deckIds "

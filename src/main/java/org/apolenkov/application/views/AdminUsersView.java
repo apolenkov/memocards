@@ -52,9 +52,6 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
      *
      * @param adminUserService the service for administrative user operations
      * @throws IllegalArgumentException if adminUserService is null
-     * @see AdminUserService
-     * @see CreateUserDialog
-     * @see SecurityContextHolder
      */
     public AdminUsersView(AdminUserService adminUserService) {
         if (adminUserService == null) {
@@ -104,9 +101,6 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
      * Configures the user data grid with all necessary columns and features.
      *
      * @param content the content layout to add the grid to
-     * @see GridHelper
-     * @see Grid
-     * @see User
      */
     private void build(VerticalLayout content) {
         GridHelper.addCommonFeatures(grid);
@@ -123,27 +117,10 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Creates an array of action buttons for a user row.
-     *
-     * <p>This method creates the action buttons that appear in each user row
-     * of the grid. It includes buttons for saving role changes, editing user
-     * details, and deleting user accounts.</p>
-     *
-     * <p>The action buttons include:</p>
-     * <ul>
-     *   <li><strong>Save Button:</strong> Saves role changes with confirmation</li>
-     *   <li><strong>Edit Button:</strong> Opens user editing dialog</li>
-     *   <li><strong>Delete Button:</strong> Deletes user account with confirmation</li>
-     * </ul>
+     * Creates action buttons for user row: save roles, edit details, delete account.
      *
      * @param user the user for whom to create action buttons
      * @return an array of action buttons
-     * @see Button
-     * @see CheckboxGroup
-     * @see createRolesCheckbox(User)
-     * @see createSaveButton(User, CheckboxGroup)
-     * @see createEditButton(User)
-     * @see createDeleteButton(User)
      */
     private Button[] buildActionsArray(User user) {
         CheckboxGroup<String> rolesBox = createRolesCheckbox(user);
@@ -155,25 +132,10 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Creates a horizontal layout with action buttons and role selection.
-     *
-     * <p>This method creates a more complex layout that includes both role
-     * selection checkboxes and action buttons in a horizontal arrangement.
-     * It provides better visual organization for the user management interface.</p>
-     *
-     * <p>The layout structure:</p>
-     * <ul>
-     *   <li><strong>Roles Section:</strong> Checkbox group for role selection</li>
-     *   <li><strong>Actions Section:</strong> Horizontal button layout</li>
-     *   <li><strong>Responsive Design:</strong> Flexible sizing and alignment</li>
-     * </ul>
+     * Creates horizontal layout with role selection checkboxes and action buttons.
      *
      * @param user the user for whom to create the action layout
      * @return a horizontal layout containing roles and actions
-     * @see HorizontalLayout
-     * @see CheckboxGroup
-     * @see Button
-     * @see FlexComponent.JustifyContentMode
      */
     private HorizontalLayout buildActions(User user) {
         CheckboxGroup<String> rolesBox = createRolesCheckbox(user);
@@ -197,26 +159,10 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Creates a checkbox group for role selection.
-     *
-     * <p>This method creates a checkbox group that allows administrators to
-     * modify user roles directly from the grid. It maps role constants to
-     * localized labels and maintains the current user's role selection.</p>
-     *
-     * <p>The checkbox configuration includes:</p>
-     * <ul>
-     *   <li><strong>Role Mapping:</strong> Maps role constants to localized labels</li>
-     *   <li><strong>Current Selection:</strong> Pre-selects user's current roles</li>
-     *   <li><strong>Styling:</strong> Applies CSS classes for consistent appearance</li>
-     *   <li><strong>Localization:</strong> Uses i18n keys for role labels</li>
-     * </ul>
+     * Creates checkbox group for role selection with localized labels and current role pre-selection.
      *
      * @param user the user whose roles to display in the checkbox group
      * @return a configured checkbox group for role selection
-     * @see CheckboxGroup
-     * @see SecurityConstants
-     * @see roleToLabel(String)
-     * @see getTranslation(String)
      */
     private CheckboxGroup<String> createRolesCheckbox(User user) {
         Map<String, String> labelToRole = new LinkedHashMap<>();
@@ -232,27 +178,11 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Creates a save button for role changes.
-     *
-     * <p>This method creates a save button that allows administrators to
-     * save role changes for a user. The button includes proper styling,
-     * tooltips, and click handlers for the save operation.</p>
-     *
-     * <p>The button features include:</p>
-     * <ul>
-     *   <li><strong>Icon:</strong> Check mark icon for save action</li>
-     *   <li><strong>Styling:</strong> Primary and tertiary theme variants</li>
-     *   <li><strong>Tooltip:</strong> Localized save button text</li>
-     *   <li><strong>Click Handler:</strong> Opens save confirmation dialog</li>
-     * </ul>
+     * Creates save button for role changes with icon, styling, and confirmation dialog handler.
      *
      * @param user the user whose roles are being modified
      * @param rolesBox the checkbox group containing role selections
      * @return a configured save button
-     * @see Button
-     * @see VaadinIcon#CHECK
-     * @see ButtonVariant
-     * @see showSaveConfirmationDialog(User, CheckboxGroup)
      */
     private Button createSaveButton(User user, CheckboxGroup<String> rolesBox) {
         Button save = new Button(VaadinIcon.CHECK.create(), e -> showSaveConfirmationDialog(user, rolesBox));
@@ -262,27 +192,10 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Creates an edit button for user modification.
-     *
-     * <p>This method creates an edit button that opens a dialog for editing
-     * user details. The button includes proper styling, tooltips, and
-     * click handlers for the edit operation.</p>
-     *
-     * <p>The button features include:</p>
-     * <ul>
-     *   <li><strong>Icon:</strong> Edit icon for edit action</li>
-     *   <li><strong>Styling:</strong> Tertiary theme variant for subtle appearance</li>
-     *   <li><strong>Tooltip:</strong> Localized edit button text</li>
-     *   <li><strong>Click Handler:</strong> Opens user editing dialog</li>
-     * </ul>
+     * Creates edit button that opens user modification dialog with proper styling and handlers.
      *
      * @param user the user to edit
      * @return a configured edit button
-     * @see Button
-     * @see VaadinIcon#EDIT
-     * @see ButtonVariant
-     * @see EditUserDialog
-     * @see updateCurrentSessionIfSelf(User)
      */
     private Button createEditButton(User user) {
         Button edit =
@@ -298,26 +211,10 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Creates a delete button for user removal.
-     *
-     * <p>This method creates a delete button that allows administrators to
-     * delete user accounts. The button includes proper styling, tooltips,
-     * and click handlers for the delete operation.</p>
-     *
-     * <p>The button features include:</p>
-     * <ul>
-     *   <li><strong>Icon:</strong> Trash icon for delete action</li>
-     *   <li><strong>Styling:</strong> Error theme variant to indicate destructive action</li>
-     *   <li><strong>Tooltip:</strong> Localized delete button text</li>
-     *   <li><strong>Click Handler:</strong> Opens delete confirmation dialog</li>
-     * </ul>
+     * Creates delete button for user removal with error styling and confirmation dialog handler.
      *
      * @param user the user to delete
      * @return a configured delete button
-     * @see Button
-     * @see VaadinIcon#TRASH
-     * @see ButtonVariant
-     * @see showDeleteConfirmationDialog(User)
      */
     private Button createDeleteButton(User user) {
         Button delete = new Button(VaadinIcon.TRASH.create(), e -> showDeleteConfirmationDialog(user));
@@ -327,26 +224,10 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Shows a confirmation dialog for saving role changes.
-     *
-     * <p>This method displays a confirmation dialog before applying role
-     * changes to a user. It validates that at least one role is selected
-     * and shows appropriate error messages if validation fails.</p>
-     *
-     * <p>The confirmation process includes:</p>
-     * <ul>
-     *   <li><strong>Validation:</strong> Ensures at least one role is selected</li>
-     *   <li><strong>Role Mapping:</strong> Converts display labels to role constants</li>
-     *   <li><strong>Confirmation Dialog:</strong> Shows confirmation before applying changes</li>
-     *   <li><strong>Error Handling:</strong> Displays validation error messages</li>
-     * </ul>
+     * Shows confirmation dialog for saving role changes with validation and role mapping.
      *
      * @param user the user whose roles are being modified
      * @param rolesBox the checkbox group containing role selections
-     * @see Dialog
-     * @see Notification
-     * @see saveUserRoles(User, Set, Dialog)
-     * @see getTranslation(String)
      */
     private void showSaveConfirmationDialog(User user, CheckboxGroup<String> rolesBox) {
         Set<String> selected = rolesBox.getValue();
@@ -369,27 +250,11 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Saves user role changes with audit logging.
-     *
-     * <p>This method applies the selected role changes to a user account
-     * and logs the changes in the audit system. It also updates the current
-     * user's session if they are modifying their own account.</p>
-     *
-     * <p>The save process includes:</p>
-     * <ul>
-     *   <li><strong>Audit Logging:</strong> Records role changes with admin details</li>
-     *   <li><strong>Session Update:</strong> Updates current user session if modified</li>
-     *   <li><strong>User Feedback:</strong> Shows success/error notifications</li>
-     *   <li><strong>Data Refresh:</strong> Updates the grid with new data</li>
-     * </ul>
+     * Saves user role changes with audit logging and session update.
      *
      * @param user the user whose roles are being modified
      * @param roles the new set of roles to assign
      * @param confirm the confirmation dialog to close after saving
-     * @see AdminUserService#updateRolesWithAudit(String, Long, Set)
-     * @see updateCurrentSessionIfSelf(User)
-     * @see Notification
-     * @see refresh()
      */
     private void saveUserRoles(User user, Set<String> roles, Dialog confirm) {
         try {
@@ -406,24 +271,9 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Shows a confirmation dialog for deleting a user.
-     *
-     * <p>This method displays a confirmation dialog before deleting a user
-     * account. It provides a clear warning about the destructive action
-     * and requires explicit user confirmation.</p>
-     *
-     * <p>The confirmation dialog includes:</p>
-     * <ul>
-     *   <li><strong>Warning Message:</strong> Clear indication of destructive action</li>
-     *   <li><strong>Confirmation Buttons:</strong> OK and cancel options</li>
-     *   <li><strong>Icon Usage:</strong> Appropriate icons for each action</li>
-     *   <li><strong>User Safety:</strong> Prevents accidental deletions</li>
-     * </ul>
+     * Shows confirmation dialog for user deletion with safety warning and action buttons.
      *
      * @param user the user to delete
-     * @see Dialog
-     * @see deleteUser(User, Dialog)
-     * @see getTranslation(String)
      */
     private void showDeleteConfirmationDialog(User user) {
         Dialog confirm = new Dialog();
@@ -435,27 +285,10 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Deletes a user account with safety checks.
-     *
-     * <p>This method deletes a user account after performing several safety
-     * checks to prevent system compromise. It includes checks for self-deletion
-     * and last administrator deletion.</p>
-     *
-     * <p>The safety checks include:</p>
-     * <ul>
-     *   <li><strong>Self-Deletion Prevention:</strong> Prevents administrators from deleting themselves</li>
-     *   <li><strong>Last Admin Protection:</strong> Prevents deletion of the last administrator</li>
-     *   <li><strong>Error Handling:</strong> Shows appropriate error messages for blocked operations</li>
-     *   <li><strong>Data Refresh:</strong> Updates the grid after successful deletion</li>
-     * </ul>
+     * Deletes user account with safety checks for self-deletion and last admin protection.
      *
      * @param user the user to delete
      * @param confirm the confirmation dialog to close after deletion
-     * @see AdminUserService#delete(Long)
-     * @see isCurrentAdminUser(String, User)
-     * @see isLastAdmin(User)
-     * @see Notification
-     * @see refresh()
      */
     private void deleteUser(User user, Dialog confirm) {
         try {
@@ -483,47 +316,21 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Checks if the current user is trying to delete themselves.
-     *
-     * <p>This method determines whether the current authenticated user
-     * is attempting to delete their own account. This is a safety check
-     * to prevent administrators from accidentally removing themselves
-     * from the system.</p>
-     *
-     * <p>The check includes:</p>
-     * <ul>
-     *   <li><strong>Email Comparison:</strong> Compares current user email with target user</li>
-     *   <li><strong>Role Verification:</strong> Ensures the target user is an administrator</li>
-     *   <strong>Case Insensitive:</strong> Uses case-insensitive email comparison</li>
-     * </ul>
+     * Checks if current user is trying to delete themselves (safety check for admin accounts).
      *
      * @param currentEmail the email of the currently authenticated user
      * @param user the user being considered for deletion
      * @return true if the current user is trying to delete themselves, false otherwise
-     * @see SecurityConstants#ROLE_ADMIN
      */
     private boolean isCurrentAdminUser(String currentEmail, User user) {
         return currentEmail.equalsIgnoreCase(user.getEmail()) && user.getRoles().contains(SecurityConstants.ROLE_ADMIN);
     }
 
     /**
-     * Checks if a user is the last administrator in the system.
-     *
-     * <p>This method determines whether deleting a user would result in
-     * the system having no administrators. This is a critical safety check
-     * to prevent the system from becoming unmanageable.</p>
-     *
-     * <p>The check includes:</p>
-     * <ul>
-     *   <li><strong>Admin Count:</strong> Counts total administrators in the system</li>
-     *   <li><strong>User Role Check:</strong> Verifies the target user is an administrator</li>
-     *   <strong>Threshold Protection:</strong> Prevents deletion if count would drop below 1</li>
-     * </ul>
+     * Checks if user is the last administrator to prevent system from becoming unmanageable.
      *
      * @param user the user being considered for deletion
      * @return true if this user is the last administrator, false otherwise
-     * @see AdminUserService#listAll()
-     * @see SecurityConstants#ROLE_ADMIN
      */
     private boolean isLastAdmin(User user) {
         return adminUserService.listAll().stream()
@@ -534,26 +341,10 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Converts a role constant to a localized display label.
-     *
-     * <p>This method converts internal role constants (e.g., "ROLE_ADMIN")
-     * to user-friendly, localized display labels. It handles the "ROLE_"
-     * prefix removal and maps the normalized role names to appropriate
-     * translation keys.</p>
-     *
-     * <p>The conversion process includes:</p>
-     * <ul>
-     *   <li><strong>Prefix Removal:</strong> Strips "ROLE_" prefix from role constants</li>
-     *   <li><strong>Role Mapping:</strong> Maps normalized roles to translation keys</li>
-     *   <strong>Localization:</strong> Returns localized display text</li>
-     *   <strong>Fallback Handling:</strong> Provides default behavior for unknown roles</li>
-     * </ul>
+     * Converts role constant to localized display label with prefix removal and role mapping.
      *
      * @param role the role constant to convert (e.g., "ROLE_ADMIN")
      * @return the localized display label for the role
-     * @see getTranslation(String)
-     * @see ROLE_USER_TRANSLATION_KEY
-     * @see ROLE_ADMIN_TRANSLATION_KEY
      */
     private String roleToLabel(String role) {
         String normalized = role;
@@ -565,45 +356,18 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Refreshes the user data displayed in the grid.
-     *
-     * <p>This method updates the grid with fresh user data from the service.
+     * This method updates the grid with fresh user data from the service.
      * It's called after create, update, and delete operations to maintain
-     * data consistency and ensure the display reflects the current state.</p>
-     *
-     * @see AdminUserService#listAll()
-     * @see Grid#setItems(Collection)
+     * data consistency and ensure the display reflects the current state.
      */
     private void refresh() {
         grid.setItems(adminUserService.listAll());
     }
 
     /**
-     * Updates the current user's session if they modified their own account.
-     *
-     * <p>This method checks if the current authenticated user modified their
-     * own account and updates their session accordingly. This ensures that
-     * role changes take effect immediately without requiring re-authentication.</p>
-     *
-     * <p>The session update process includes:</p>
-     * <ul>
-     *   <li><strong>Identity Check:</strong> Verifies the modified user is the current user</li>
-     *   <li><strong>Authority Update:</strong> Updates authentication authorities with new roles</li>
-     *   <strong>Session Refresh:</strong> Updates the security context with new authentication</li>
-     *   <strong>Page Reload:</strong> Reloads the page to apply all changes</li>
-     * </ul>
-     *
-     * <p><strong>Security Considerations:</strong></p>
-     * <ul>
-     *   <li>Only updates session for the current user</li>
-     *   <li>Maintains authentication integrity</li>
-     *   <li>Handles security context exceptions gracefully</li>
-     * </ul>
+     * Updates current user's session if they modified their own account for immediate role changes.
      *
      * @param updated the updated user object
-     * @see SecurityContextHolder
-     * @see UsernamePasswordAuthenticationToken
-     * @see SimpleGrantedAuthority
-     * @see UI#getCurrent()
      */
     private void updateCurrentSessionIfSelf(User updated) {
         try {
@@ -623,16 +387,9 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Gets the page title for this view.
-     *
-     * <p>This method implements the {@link HasDynamicTitle} interface to provide
-     * a dynamic page title that reflects the current view's purpose. The title
-     * is retrieved from the internationalization system to ensure proper
-     * localization.</p>
+     * Gets localized page title for admin users view.
      *
      * @return the localized page title for the admin users view
-     * @see HasDynamicTitle#getPageTitle()
-     * @see #getTranslation(String)
      */
     @Override
     public String getPageTitle() {

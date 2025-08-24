@@ -1,10 +1,7 @@
 package org.apolenkov.application.views.home;
 
 /**
- * View model for displaying deck information in card components.
- * This record encapsulates all the data needed to render a deck card,
- * including basic deck information, progress statistics, and calculated
- * metrics for the user interface.
+ * View model for displaying deck information in card components with progress statistics and metrics.
  *
  * @param id the unique identifier of the deck
  * @param title the display name of the deck

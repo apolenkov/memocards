@@ -30,8 +30,6 @@ public class NewsService {
 
     /**
      * Gets all news items ordered by creation date (newest first).
-     * Returns list of all news items in system, sorted with most recently
-     * created items appearing first.
      *
      * @return list of all news items, ordered by creation date descending
      */
@@ -40,9 +38,7 @@ public class NewsService {
     }
 
     /**
-     * Creates new news item.
-     * Creates and persists new news item with specified title, content, and author.
-     * Creation timestamp is automatically set to current time.
+     * Creates new news item with automatic timestamp and validation.
      *
      * @param title headline or title of the news item
      * @param content main text content of the news item
@@ -56,9 +52,7 @@ public class NewsService {
     }
 
     /**
-     * Updates existing news item.
-     * Updates title, content, and author of existing news item identified by ID.
-     * Modification timestamp is automatically updated to current time.
+     * Updates existing news item with automatic timestamp update and validation.
      *
      * @param id unique identifier of news item to update
      * @param title new headline or title for news item
@@ -83,9 +77,7 @@ public class NewsService {
     }
 
     /**
-     * Deletes news item by ID.
-     * Removes specified news item from system. If news item does not exist,
-     * operation completes without error.
+     * Deletes news item by ID (no error if item doesn't exist).
      *
      * @param id unique identifier of news item to delete
      */
@@ -95,9 +87,6 @@ public class NewsService {
 
     /**
      * Validates news content before creation or update.
-     *
-     * <p>Performs validation checks on title and content fields to ensure they meet
-     * minimum requirements. Both fields must be non-null and contain non-empty text after trimming.</p>
      *
      * @param title title to validate
      * @param content content to validate

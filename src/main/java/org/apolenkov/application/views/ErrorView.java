@@ -19,9 +19,8 @@ import org.springframework.core.env.Environment;
 
 /**
  * Generic error page view with user-friendly error display.
- *
- * <p>Shows a formatted error message with navigation options.
- * In development profile, displays additional debugging information.</p>
+ * Shows a formatted error message with navigation options.
+ * In development profile, displays additional debugging information.
  */
 @Route(value = "error", layout = PublicLayout.class)
 @AnonymousAllowed

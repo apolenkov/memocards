@@ -108,10 +108,6 @@ public class RoleAuditEntity {
     /**
      * Sets the identifier of the user whose roles were modified.
      *
-     * <p>This method establishes the relationship between the audit record
-     * and the target user. The user must exist in the system before
-     * this relationship can be established.</p>
-     *
      * @param userId the user identifier to set, must not be null
      * @throws IllegalArgumentException if userId is null
      */
@@ -133,10 +129,6 @@ public class RoleAuditEntity {
 
     /**
      * Sets the role configuration before the modification.
-     *
-     * <p>This method records the baseline role configuration that existed
-     * before the administrator made changes. It provides the starting point
-     * for understanding what was modified.</p>
      *
      * @param rolesBefore the roles before the change, must not be null
      * @throws IllegalArgumentException if rolesBefore is null
@@ -160,10 +152,6 @@ public class RoleAuditEntity {
     /**
      * Sets the role configuration after the modification.
      *
-     * <p>This method records the final role configuration that resulted
-     * from the administrator's changes. It provides the end point for
-     * understanding what the modification achieved.</p>
-     *
      * @param rolesAfter the roles after the change, must not be null
      * @throws IllegalArgumentException if rolesAfter is null
      */
@@ -184,13 +172,7 @@ public class RoleAuditEntity {
     }
 
     /**
-     * Sets the timestamp when the role change occurred.
-     *
-     * <p>This method records the exact time when the role modification
-     * was performed. It enables chronological ordering of audit events
-     * and supports time-based reporting and analysis.</p>
-     *
-     * <p>If changedAt is null, it will be set to current time.</p>
+     * Sets the timestamp when the role change occurred (null converts to current time).
      *
      * @param changedAt the timestamp of the change, null will be converted to current time
      */

@@ -10,16 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service for administrative user management operations.
- *
- * <p>This service provides comprehensive user management functionality for administrators,
- * including user creation, updates, deletion, and role management. It enforces security
- * policies such as preventing deletion of the last administrator and maintaining audit
- * trails for all role changes.</p>
- *
- * <p>The service includes password policy validation, role sanitization, and comprehensive
- * audit logging for compliance and security purposes.</p>
- *
+ * Service for administrative user management operations with security policies and audit logging.
  */
 @Service
 public class AdminUserService {
@@ -47,8 +38,8 @@ public class AdminUserService {
     /**
      * Gets all users in the system.
      *
-     * <p>Returns a complete list of all registered users. This method is typically
-     * used for administrative user management interfaces.</p>
+     * Returns a complete list of all registered users. This method is typically
+     * used for administrative user management interfaces.
      *
      * @return a list of all users in the system
      */
@@ -60,8 +51,8 @@ public class AdminUserService {
     /**
      * Gets a specific user by their unique identifier.
      *
-     * <p>Returns an Optional containing the user if found, or an empty Optional
-     * if no user exists with the specified ID.</p>
+     * Returns an Optional containing the user if found, or an empty Optional
+     * if no user exists with the specified ID.
      *
      * @param id the unique identifier of the user to retrieve
      * @return an Optional containing the user if found, empty otherwise
@@ -74,8 +65,8 @@ public class AdminUserService {
     /**
      * Saves a user to the repository.
      *
-     * <p>Persists the specified user object to the repository. If the user
-     * is new, it will be created; if it exists, it will be updated.</p>
+     * Persists the specified user object to the repository. If the user
+     * is new, it will be created; if it exists, it will be updated.
      *
      * @param user the user object to save
      * @return the saved user object
@@ -88,8 +79,8 @@ public class AdminUserService {
     /**
      * Deletes a user by their unique identifier.
      *
-     * <p>Removes the specified user from the system. The method includes safety
-     * checks to prevent deletion of the last administrator in the system.</p>
+     * Removes the specified user from the system. The method includes safety
+     * checks to prevent deletion of the last administrator in the system.
      *
      * @param id the unique identifier of the user to delete
      * @throws IllegalStateException if attempting to delete the last administrator
@@ -116,11 +107,7 @@ public class AdminUserService {
     }
 
     /**
-     * Updates the roles for a specific user.
-     *
-     * <p>Modifies the user's role assignments, sanitizing the input to ensure
-     * only valid roles are assigned. The method automatically adds the ROLE_
-     * prefix if missing and validates against allowed role values.</p>
+     * Updates the roles for a specific user with sanitization and validation.
      *
      * @param userId the ID of the user to update roles for
      * @param roles the new set of roles to assign to the user
@@ -151,10 +138,6 @@ public class AdminUserService {
     /**
      * Updates user roles with comprehensive audit logging.
      *
-     * <p>Updates the roles for a specific user and records the change in the
-     * audit log, including the administrator who made the change and the
-     * before/after role sets.</p>
-     *
      * @param adminEmail the email of the administrator making the change
      * @param userId the ID of the user whose roles are being updated
      * @param roles the new set of roles to assign
@@ -169,11 +152,7 @@ public class AdminUserService {
     }
 
     /**
-     * Updates user information with comprehensive audit logging.
-     *
-     * <p>Updates multiple user attributes including email, name, roles, and password.
-     * The method includes password policy validation and records role changes in
-     * the audit log if any occurred.</p>
+     * Updates user information with audit logging and validation.
      *
      * @param adminEmail the email of the administrator making the change
      * @param userId the ID of the user to update
@@ -232,11 +211,7 @@ public class AdminUserService {
     }
 
     /**
-     * Creates a new user with comprehensive audit logging.
-     *
-     * <p>Creates a new user account with the specified attributes, including
-     * password policy validation and role assignment. The method records the
-     * initial role assignment in the audit log.</p>
+     * Creates new user with validation, role assignment, and audit logging.
      *
      * @param adminEmail the email of the administrator creating the user
      * @param email the email address for the new user account

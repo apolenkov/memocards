@@ -10,8 +10,7 @@ import com.vaadin.flow.server.HttpStatusCode;
 
 /**
  * Error handler for page not found errors (HTTP 404).
- *
- * <p>Redirects users to the home page when they access non-existent routes.</p>
+ * Redirects users to the home page when they access non-existent routes.
  */
 @ParentLayout(PublicLayout.class)
 public class NotFoundView extends Div implements HasErrorParameter<NotFoundException> {

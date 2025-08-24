@@ -13,26 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service for managing flashcard practice statistics and progress tracking.
  *
- * <p>Provides comprehensive statistics tracking for flashcard practice sessions,
- * including daily performance metrics, card knowledge status, and deck progress calculations.</p>
+ * Provides comprehensive statistics tracking for flashcard practice sessions,
+ * including daily performance metrics, card knowledge status, and deck progress calculations.
  */
 @Service
 public class StatsService {
 
     /**
-     * Record representing daily statistics for a deck.
-     *
-     * <p>Encapsulates all statistics collected for specific deck on specific date,
-     * including session counts, card performance metrics, and timing information.</p>
-     *
-     * @param date date for which statistics are recorded
-     * @param sessions number of practice sessions on this date
-     * @param viewed total number of cards viewed across all sessions
-     * @param correct number of cards answered correctly
-     * @param repeat number of cards marked for repetition
-     * @param hard number of cards marked as difficult
-     * @param totalDurationMs total practice time in milliseconds
-     * @param totalAnswerDelayMs total time spent thinking before answering
+     * Record representing daily statistics for a deck with session counts, performance metrics, and timing.
      */
     public record DailyStats(
             LocalDate date,
@@ -47,8 +35,8 @@ public class StatsService {
         /**
          * Calculates average answer delay per card.
          *
-         * <p>Returns average time in milliseconds that users spent thinking
-         * before answering each card. Returns 0.0 if no cards were viewed.</p>
+         * Returns average time in milliseconds that users spent thinking
+         * before answering each card. Returns 0.0 if no cards were viewed.
          *
          * @return average answer delay in milliseconds, or 0.0 if no cards viewed
          */
@@ -70,9 +58,6 @@ public class StatsService {
 
     /**
      * Records practice session and updates daily statistics.
-     *
-     * <p>Records results of single practice session including performance metrics
-     * and timing information. Automatically updates daily statistics for specified deck.</p>
      *
      * @param deckId ID of deck being practiced
      * @param viewed number of cards viewed in this session
@@ -108,10 +93,7 @@ public class StatsService {
     }
 
     /**
-     * Retrieves daily statistics for specific deck.
-     *
-     * <p>Returns list of daily statistics records for specified deck, sorted chronologically.
-     * Each record contains aggregated metrics for all practice sessions on that date.</p>
+     * Retrieves daily statistics for specific deck, sorted chronologically.
      *
      * @param deckId ID of deck to retrieve statistics for
      * @return chronologically sorted list of daily statistics
@@ -133,10 +115,7 @@ public class StatsService {
     }
 
     /**
-     * Calculates progress percentage for deck based on known cards.
-     *
-     * <p>Computes percentage of cards in deck that user has marked as known.
-     * Result is clamped between 0 and 100 percent to ensure valid percentage values.</p>
+     * Calculates progress percentage for deck based on known cards (0-100%).
      *
      * @param deckId ID of deck to calculate progress for
      * @param deckSize total number of cards in deck
@@ -183,8 +162,8 @@ public class StatsService {
     /**
      * Sets knowledge status of specific card in deck.
      *
-     * <p>Updates knowledge status of card, marking it as either known or unknown
-     * based on user's performance and feedback.</p>
+     * Updates knowledge status of card, marking it as either known or unknown
+     * based on user's performance and feedback.
      *
      * @param deckId ID of deck containing the card
      * @param cardId ID of card to update
@@ -198,9 +177,9 @@ public class StatsService {
     /**
      * Resets all progress for specific deck.
      *
-     * <p>Removes all knowledge status tracking for cards in specified deck,
+     * Removes all knowledge status tracking for cards in specified deck,
      * effectively resetting user's progress to zero. Useful when users want
-     * to start fresh with a deck.</p>
+     * to start fresh with a deck.
      *
      * @param deckId ID of deck to reset progress for
      */
@@ -210,11 +189,7 @@ public class StatsService {
     }
 
     /**
-     * Retrieves aggregate statistics for multiple decks.
-     *
-     * <p>Returns aggregated statistics for specified decks including overall
-     * performance metrics and progress information. Useful for displaying
-     * summary information across multiple decks.</p>
+     * Retrieves aggregate statistics for multiple decks with performance metrics and progress information.
      *
      * @param deckIds list of deck IDs to retrieve aggregates for
      * @param today reference date for calculating aggregates

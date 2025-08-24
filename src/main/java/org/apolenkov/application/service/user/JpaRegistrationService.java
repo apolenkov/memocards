@@ -11,16 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * JPA-based implementation of user registration service.
- *
- * <p>This service handles user registration functionality using JPA repositories
- * for data persistence. It provides secure user account creation with password
- * hashing and role assignment. The service also maintains an audit trail of
- * role changes for security and compliance purposes.</p>
- *
- * <p>The service is only active in specific profiles (dev, prod) to allow
- * for different registration strategies in different environments.</p>
- *
+ * JPA-based implementation of user registration service with secure password hashing and role audit.
  */
 @Service
 @Profile({"dev", "prod"})
@@ -45,15 +36,8 @@ public class JpaRegistrationService {
     }
 
     /**
-     * Registers a new user account.
-     *
-     * <p>Creates a new user account with the specified email, name, and password.
-     * The password is securely hashed before storage, and the user is automatically
-     * assigned the default USER role. The service also records the role assignment
-     * in the audit log for security tracking.</p>
-     *
-     * <p>This method performs validation to ensure the email is not already
-     * registered in the system.</p>
+     * Registers a new user account with secure password hashing and default USER role.
+     * Records role assignment in audit log and validates email uniqueness.
      *
      * @param email the email address for the new user account
      * @param name the display name for the new user

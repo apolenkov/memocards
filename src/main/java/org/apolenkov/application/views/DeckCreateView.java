@@ -27,9 +27,8 @@ import org.apolenkov.application.views.utils.TextHelper;
 
 /**
  * View for creating new flashcard decks.
- *
- * <p>Provides a form interface for users to create new decks with
- * name and description. Includes validation and navigation controls.</p>
+ * Provides a form interface for users to create new decks with
+ * name and description. Includes validation and navigation controls.
  */
 @Route("decks/new")
 @RolesAllowed("ROLE_USER")
@@ -41,10 +40,9 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
     /**
      * Creates a new deck creation view.
-     *
-     * <p>Initializes the view with proper layout and styling, creating
+     * Initializes the view with proper layout and styling, creating
      * the header with navigation controls and the main form for deck creation.
-     * The view is configured with responsive design and proper spacing.</p>
+     * The view is configured with responsive design and proper spacing.
      *
      * @param deckUseCase deck business logic for saving new decks
      * @param userUseCase user business logic for current user operations
@@ -64,10 +62,9 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
     /**
      * Creates the header section with navigation controls.
-     *
-     * <p>Builds a header layout containing a back button for navigation
+     * Builds a header layout containing a back button for navigation
      * to the decks list and the main page title. The header is styled
-     * with proper alignment and spacing.</p>
+     * with proper alignment and spacing.
      */
     private void createHeader() {
         HorizontalLayout headerLayout = new HorizontalLayout();

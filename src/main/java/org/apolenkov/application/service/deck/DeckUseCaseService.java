@@ -49,7 +49,6 @@ public class DeckUseCaseService implements DeckUseCase {
      * Returns all decks in the system.
      *
      * @return a list of all decks in the system, or empty list if none exist
-     * @see TransactionAnnotations.ReadOnlyTransaction
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
@@ -63,7 +62,6 @@ public class DeckUseCaseService implements DeckUseCase {
      * @param userId the ID of the user whose decks to retrieve
      * @return a list of decks owned by the specified user, or empty list if none exist
      * @throws IllegalArgumentException if userId is null
-     * @see TransactionAnnotations.ReadOnlyTransaction
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
@@ -80,7 +78,6 @@ public class DeckUseCaseService implements DeckUseCase {
      * @param id the unique identifier of the deck to retrieve
      * @return an Optional containing the deck if found, or empty Optional if not found
      * @throws IllegalArgumentException if id is null
-     * @see TransactionAnnotations.ReadOnlyTransaction
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
@@ -98,7 +95,6 @@ public class DeckUseCaseService implements DeckUseCase {
      * @return the saved deck with updated fields
      * @throws IllegalArgumentException if deck is null or validation fails
      * @throws RuntimeException if database operation fails
-     * @see TransactionAnnotations.WriteTransaction
      */
     @Override
     @TransactionAnnotations.WriteTransaction
@@ -123,7 +119,6 @@ public class DeckUseCaseService implements DeckUseCase {
      * @param id the unique identifier of the deck to delete
      * @throws IllegalArgumentException if id is null
      * @throws RuntimeException if database operation fails or deck doesn't exist
-     * @see TransactionAnnotations.DeleteTransaction
      */
     @Override
     @TransactionAnnotations.DeleteTransaction

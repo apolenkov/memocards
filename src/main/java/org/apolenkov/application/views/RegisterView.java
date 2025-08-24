@@ -17,24 +17,7 @@ import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 
 /**
- * User registration view for the application.
- *
- * <p>This view provides a comprehensive registration interface for new users
- * to create accounts with proper validation and security measures. It includes
- * form validation for all required fields and automatic login after successful
- * registration.</p>
- *
- * <p>The registration form includes:</p>
- * <ul>
- *   <li>Name, email, and password input fields with validation</li>
- *   <li>Password confirmation field with matching validation</li>
- *   <li>Real-time form validation with user feedback</li>
- *   <li>Password strength requirements enforcement</li>
- *   <li>Automatic login after successful registration</li>
- * </ul>
- *
- * <p>The view enforces strong password policies and provides clear
- * error messages for validation failures.</p>
+ * User registration view with comprehensive form validation, security measures, and automatic login.
  */
 @Route(value = "register", layout = PublicLayout.class)
 @AnonymousAllowed
@@ -72,10 +55,10 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Creates a new RegisterView with authentication facade dependency.
-     *
-     * <p>Creates a complete registration form with proper validation,
+     * 
+     * Creates a complete registration form with proper validation,
      * styling, and event handling. The form is centered and styled
-     * using Lumo theme components for consistent appearance.</p>
+     * using Lumo theme components for consistent appearance.
      *
      * @param authFacade service for handling user registration and authentication
      */
@@ -111,10 +94,10 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Creates and configures the registration form with all input fields.
-     *
-     * <p>Sets up a responsive form layout with name, email, password, and
+     * 
+     * Sets up a responsive form layout with name, email, password, and
      * password confirmation fields. All fields are configured with proper
-     * placeholders, validation indicators, and full width styling.</p>
+     * placeholders, validation indicators, and full width styling.
      *
      * @return configured FormLayout with all registration input fields
      */
@@ -148,10 +131,9 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Creates the primary submit button for the registration form.
-     *
-     * <p>Configures a full-width primary button that triggers the registration
+     * Configures a full-width primary button that triggers the registration
      * process when clicked. The button text is localized and styled using
-     * the application's button helper utilities.</p>
+     * the application's button helper utilities.
      *
      * @return configured submit Button with registration event handler
      */
@@ -163,10 +145,9 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Creates the "Back to Home" navigation button.
-     *
-     * <p>Provides users with a way to return to the home page without
+     * Provides users with a way to return to the home page without
      * completing the registration. The button is styled as tertiary to
-     * indicate it's a secondary action.</p>
+     * indicate it's a secondary action.
      *
      * @return configured tertiary Button that navigates to home page
      */
@@ -179,10 +160,9 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Handles the registration form submission process.
-     *
-     * <p>Orchestrates the complete registration workflow including form
+     * Orchestrates the complete registration workflow including form
      * validation, error handling, and successful registration processing.
-     * Shows appropriate error messages if validation fails.</p>
+     * Shows appropriate error messages if validation fails.
      */
     private void handleRegistration() {
         clearValidationErrors();
@@ -197,10 +177,9 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Clears all validation error states from form fields.
-     *
-     * <p>Resets the invalid state of all form fields to provide a clean
+     * Resets the invalid state of all form fields to provide a clean
      * slate before performing new validation. This ensures that previous
-     * validation errors don't persist inappropriately.</p>
+     * validation errors don't persist inappropriately.
      */
     private void clearValidationErrors() {
         name.setInvalid(false);
@@ -211,10 +190,9 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Validates all form fields and returns overall validation status.
-     *
-     * <p>Performs comprehensive validation of all registration form fields
+     * Performs comprehensive validation of all registration form fields
      * including name, email, password, and password confirmation. Each
-     * field is validated independently to show specific error messages.</p>
+     * field is validated independently to show specific error messages.
      *
      * @return true if all form fields are valid, false otherwise
      */
@@ -229,10 +207,9 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Validates the name field according to business rules.
-     *
-     * <p>Ensures the name field is not empty and meets minimum length
+     * Ensures the name field is not empty and meets minimum length
      * requirements. Sets appropriate error messages and invalid state
-     * if validation fails.</p>
+     * if validation fails.
      *
      * @return true if name is valid, false otherwise
      */
@@ -256,10 +233,9 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Validates the email field for required value and format.
-     *
-     * <p>Checks that the email field is not empty and contains a valid
+     * Checks that the email field is not empty and contains a valid
      * email format using the configured email validator. Sets appropriate
-     * error messages for different validation failures.</p>
+     * error messages for different validation failures.
      *
      * @return true if email is valid, false otherwise
      */
@@ -283,10 +259,9 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Validates the password field according to security policy.
-     *
-     * <p>Ensures the password meets the application's security requirements
+     * Ensures the password meets the application's security requirements
      * including minimum length, character type requirements, etc. Uses the
-     * {@link #isPasswordValid(String)} helper method for validation logic.</p>
+     * {@link #isPasswordValid(String)} helper method for validation logic.
      *
      * @return true if password is valid, false otherwise
      */
@@ -305,10 +280,9 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Checks if a password meets the application's security requirements.
-     *
-     * <p>Validates that the password has at least 8 characters, contains
+     * Validates that the password has at least 8 characters, contains
      * both letters and digits. This method encapsulates the password
-     * policy rules in one place for consistency.</p>
+     * policy rules in one place for consistency.
      *
      * @param pwd the password string to validate
      * @return true if password meets all security requirements, false otherwise
@@ -319,10 +293,9 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Validates that password confirmation matches the original password.
-     *
-     * <p>Ensures that the user has correctly re-entered their password
+     * Ensures that the user has correctly re-entered their password
      * by comparing the password and confirmation fields. Sets an error
-     * message on the confirmation field if they don't match.</p>
+     * message on the confirmation field if they don't match.
      *
      * @return true if passwords match, false otherwise
      */
@@ -341,11 +314,10 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Performs the actual user registration and automatic login.
-     *
-     * <p>Handles the complete registration workflow including user creation,
+     * Handles the complete registration workflow including user creation,
      * automatic authentication, and navigation to the appropriate page.
      * Shows success or error notifications based on the outcome and
-     * navigates to either the decks page (success) or login page (failure).</p>
+     * navigates to either the decks page (success) or login page (failure).
      */
     private void performRegistration() {
         String vEmail = email.getValue().trim();
@@ -364,9 +336,8 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
      * Returns the page title for the registration view.
-     *
-     * <p>Provides a localized page title that appears in the browser tab
-     * and navigation history.</p>
+     * Provides a localized page title that appears in the browser tab
+     * and navigation history.
      *
      * @return the localized page title for the registration page
      */

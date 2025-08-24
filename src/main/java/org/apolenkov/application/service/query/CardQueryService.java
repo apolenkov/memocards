@@ -33,9 +33,7 @@ public class CardQueryService {
     }
 
     /**
-     * Gets filtered flashcards for a specific deck.
-     * Loads all flashcards for the specified deck and applies filtering based
-     * on the provided query and knowledge status preferences.
+     * Gets filtered flashcards for a specific deck with search and knowledge status filtering.
      *
      * @param deckId the ID of the deck to search in
      * @param query the search query text (can be null for no filtering)
@@ -51,9 +49,6 @@ public class CardQueryService {
 
     /**
      * Filters a list of flashcards based on search criteria and knowledge status.
-     * Applies text-based filtering across multiple card fields and optionally
-     * excludes known cards. The search is case-insensitive and handles null values
-     * gracefully for robust operation.
      *
      * @param base the base list of flashcards to filter
      * @param query the search query text (can be null for no filtering)
@@ -78,10 +73,7 @@ public class CardQueryService {
     }
 
     /**
-     * Checks if a string value contains the specified query text.
-     * Performs a case-insensitive substring search with null safety.
-     * Returns false if the value is null, otherwise checks if the query
-     * is contained within the value after converting both to lowercase.
+     * Checks if a string value contains the specified query text (case-insensitive, null-safe).
      *
      * @param value the string to search in (can be null)
      * @param query the query text to search for

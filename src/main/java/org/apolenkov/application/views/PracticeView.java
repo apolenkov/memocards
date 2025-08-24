@@ -24,9 +24,8 @@ import org.apolenkov.application.views.utils.NotificationHelper;
 
 /**
  * Interactive flashcard practice session view.
- *
- * <p>Provides a complete practice interface for studying flashcards with
- * configurable settings, progress tracking, and session statistics.</p>
+ * Provides a complete practice interface for studying flashcards with
+ * configurable settings, progress tracking, and session statistics.
  */
 @Route(value = "practice", layout = PublicLayout.class)
 @RolesAllowed("ROLE_USER")

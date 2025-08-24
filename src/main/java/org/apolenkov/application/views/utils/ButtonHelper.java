@@ -96,9 +96,7 @@ public final class ButtonHelper {
 
     /**
      * Creates a tertiary button with icon, text, and click listener.
-     *
-     * <p>Tertiary buttons with icons provide visual context while maintaining
-     * their subtle appearance for secondary actions.</p>
+     * Tertiary buttons with icons provide visual context while maintaining their subtle appearance.
      *
      * @param text the display text for the button
      * @param icon the Vaadin icon to display
