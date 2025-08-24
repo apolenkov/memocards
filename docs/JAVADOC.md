@@ -10,6 +10,8 @@ JavaDoc comments must follow these quality standards:
 - Prefer meaningful descriptions over generic ones
 - Try to avoid HTML tags in comments, but if description is large and necessary, 
 - then it's acceptable
+- All classes, methods, and fields must have JavaDoc comments (for check 
+  style rule)
 
 Required tags to use:
 - @param - for parameter descriptions
