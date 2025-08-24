@@ -1,5 +1,6 @@
 package org.apolenkov.application.views;
 
+import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -24,6 +25,7 @@ import org.apolenkov.application.views.utils.DialogHelper;
 import org.apolenkov.application.views.utils.GridHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.TextHelper;
+import org.apolenkov.application.views.utils.Translator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -35,7 +37,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @RolesAllowed("ROLE_ADMIN")
 public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
 
+    private static final String COL_CREATED_AT = "createdAt";
+    private static final String COL_UPDATED_AT = "updatedAt";
+
     private final transient NewsService newsService;
+    private final transient Translator translator;
     private final transient ListDataProvider<News> dataProvider;
     private final transient List<News> newsList;
 
@@ -45,12 +51,16 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
      * @param newsService the service for news operations
      * @throws IllegalArgumentException if newsService is null
      */
-    public AdminNewsView(NewsService newsService) {
+    public AdminNewsView(NewsService newsService, Translator translator) {
         if (newsService == null) {
             throw new IllegalArgumentException("NewsService cannot be null");
         }
+        if (translator == null) {
+            throw new IllegalArgumentException("Translator cannot be null");
+        }
 
         this.newsService = newsService;
+        this.translator = translator;
         this.newsList = new ArrayList<>();
 
         setPadding(true);
@@ -66,22 +76,23 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         add(addNewsBtn);
 
         Grid<News> newsGrid = GridHelper.createBasicGrid(News.class);
-        newsGrid.setColumns("title", "content", "author", "createdAt", "updatedAt");
+        newsGrid.setColumns("title", "content", "author", COL_CREATED_AT, COL_UPDATED_AT);
         GridHelper.addTextColumn(newsGrid, getTranslation("admin.news.title"), News::getTitle, 2);
         GridHelper.addTextColumn(newsGrid, getTranslation("admin.news.content"), News::getContent, 3);
         GridHelper.addTextColumn(newsGrid, getTranslation("admin.news.author"), News::getAuthor, 2);
-        newsGrid.getColumnByKey("createdAt").setHeader(getTranslation("admin.news.createdAt"));
-        newsGrid.getColumnByKey("updatedAt").setHeader(getTranslation("admin.news.updatedAt"));
-        newsGrid.getColumnByKey("createdAt")
+        newsGrid.getColumnByKey(COL_CREATED_AT).setHeader(getTranslation("admin.news.createdAt"));
+        newsGrid.getColumnByKey(COL_UPDATED_AT).setHeader(getTranslation("admin.news.updatedAt"));
+        newsGrid.getColumnByKey(COL_CREATED_AT)
                 .setRenderer(new com.vaadin.flow.data.renderer.LocalDateTimeRenderer<>(
                         News::getCreatedAt, "dd.MM.yyyy HH:mm"));
-        newsGrid.getColumnByKey("updatedAt").setRenderer(new com.vaadin.flow.data.renderer.ComponentRenderer<>(news -> {
-            if (news.getUpdatedAt() != null) {
-                return new com.vaadin.flow.component.html.Span(
-                        news.getUpdatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
-            }
-            return new com.vaadin.flow.component.html.Span(getTranslation("common.emDash"));
-        }));
+        newsGrid.getColumnByKey(COL_UPDATED_AT)
+                .setRenderer(new com.vaadin.flow.data.renderer.ComponentRenderer<>(news -> {
+                    if (news.getUpdatedAt() != null) {
+                        return new com.vaadin.flow.component.html.Span(
+                                news.getUpdatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
+                    }
+                    return new com.vaadin.flow.component.html.Span(getTranslation("common.emDash"));
+                }));
 
         // widths controlled via theme classes, allow auto sizing
         newsGrid.addComponentColumn(news -> LayoutHelper.createButtonRow(
@@ -143,21 +154,15 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         content.add(titleField, contentField, authorField);
 
         Button saveBtn = ButtonHelper.createPrimaryButton(getTranslation("dialog.save"), e -> {
-            String t =
-                    titleField.getValue() == null ? "" : titleField.getValue().trim();
-            String c = contentField.getValue() == null
-                    ? ""
-                    : contentField.getValue().trim();
-            if (t.isEmpty()) {
-                titleField.setErrorMessage(getTranslation("admin.news.validation.titleRequired"));
-                titleField.setInvalid(true);
+            String t = safeTrim(titleField.getValue());
+            String c = safeTrim(contentField.getValue());
+            if (validateRequired(titleField, t, "admin.news.validation.titleRequired")) {
                 return;
             }
-            if (c.isEmpty()) {
-                contentField.setErrorMessage(getTranslation("admin.news.validation.contentRequired"));
-                contentField.setInvalid(true);
+            if (validateRequired(contentField, c, "admin.news.validation.contentRequired")) {
                 return;
             }
+
             if (news == null) {
                 createNews(t, c, authorField.getValue());
             } else {
@@ -222,6 +227,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         Dialog confirmDialog = DialogHelper.createConfirmationDialog(
                 getTranslation("admin.news.confirm.delete.title"),
                 message,
+                translator,
                 () -> {
                     try {
                         newsService.deleteNews(news.getId());
@@ -235,6 +241,19 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
                 },
                 null);
         confirmDialog.open();
+    }
+
+    private static String safeTrim(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private boolean validateRequired(HasValidation field, String value, String i18nKey) {
+        if (value == null || value.isBlank()) {
+            field.setErrorMessage(getTranslation(i18nKey));
+            field.setInvalid(true);
+            return true;
+        }
+        return false;
     }
 
     /**

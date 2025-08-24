@@ -16,6 +16,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
  */
 public final class DialogHelper {
 
+    private static final String I18N_DIALOG_CONFIRM = "dialog.confirm";
+    private static final String I18N_DIALOG_CANCEL = "dialog.cancel";
+
     private DialogHelper() {
         // Utility class - prevent instantiation
     }
@@ -75,17 +78,19 @@ public final class DialogHelper {
     }
 
     /**
-     * Creates a confirmation dialog with default button text and actions.
-     * Creates a confirmation dialog using standard "Confirm" and "Cancel" button text.
+     * Creates a confirmation dialog using provided Translator for default button texts.
      *
-     * @param title the title text to display in the dialog header
-     * @param message the message content to display in the dialog body
-     * @param onConfirm the action to execute when the confirm button is clicked
-     * @param onCancel the action to execute when the cancel button is clicked
-     * @return a configured Dialog component ready for display
+     * @param title dialog title
+     * @param message dialog message
+     * @param translator translator bean to resolve i18n keys
+     * @param onConfirm confirm action
+     * @param onCancel cancel action (nullable)
+     * @return configured dialog
      */
-    public static Dialog createConfirmationDialog(String title, String message, Runnable onConfirm, Runnable onCancel) {
-        return createConfirmationDialog(
-                title, message, I18nHelper.tr("dialog.confirm"), I18nHelper.tr("dialog.cancel"), onConfirm, onCancel);
+    public static Dialog createConfirmationDialog(
+            String title, String message, Translator translator, Runnable onConfirm, Runnable onCancel) {
+        String confirm = translator != null ? translator.tr(I18N_DIALOG_CONFIRM) : I18nHelper.tr(I18N_DIALOG_CONFIRM);
+        String cancel = translator != null ? translator.tr(I18N_DIALOG_CANCEL) : I18nHelper.tr(I18N_DIALOG_CANCEL);
+        return createConfirmationDialog(title, message, confirm, cancel, onConfirm, onCancel);
     }
 }
