@@ -7,9 +7,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * Presenter for the home view, handling deck listing operations.
- * This presenter serves as an intermediary between the home view
- * and the deck query service, converting domain objects to view models
- * suitable for presentation in the UI.
  */
 @Component
 public class HomePresenter {
@@ -19,9 +16,13 @@ public class HomePresenter {
     /**
      * Creates a new HomePresenter with the specified deck query service.
      *
-     * @param deckQueryService the service for querying deck data
+     * @param deckQueryService the service for querying deck data (non-null)
+     * @throws IllegalArgumentException if deckQueryService is null
      */
     public HomePresenter(DeckQueryService deckQueryService) {
+        if (deckQueryService == null) {
+            throw new IllegalArgumentException("DeckQueryService cannot be null");
+        }
         this.deckQueryService = deckQueryService;
     }
 
@@ -29,7 +30,7 @@ public class HomePresenter {
      * Lists decks for the current user based on an optional search query.
      *
      * @param query the search query to filter decks, may be null or empty
-     * @return a list of deck view models for the current user
+     * @return a list of deck view models for the current user, never null (may be empty)
      */
     public List<DeckCardViewModel> listDecksForCurrentUser(String query) {
         List<Deck> decks = deckQueryService.listDecksForCurrentUser(query);

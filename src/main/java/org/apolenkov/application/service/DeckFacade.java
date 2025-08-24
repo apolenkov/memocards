@@ -23,12 +23,17 @@ public class DeckFacade {
 
     /**
      * Creates DeckFacade with specified use cases and services.
+     * Initializes the facade with required dependencies for deck operations.
      *
-     * @param deckUseCase deck use case for deck operations
-     * @param flashcardUseCase flashcard use case for flashcard operations
-     * @param statsService stats service for statistics tracking
+     * @param deckUseCase deck use case for deck operations (non-null)
+     * @param flashcardUseCase flashcard use case for flashcard operations (non-null)
+     * @param statsService stats service for statistics tracking (non-null)
+     * @throws IllegalArgumentException if any parameter is null
      */
     public DeckFacade(DeckUseCase deckUseCase, FlashcardUseCase flashcardUseCase, StatsService statsService) {
+        if (deckUseCase == null || flashcardUseCase == null || statsService == null) {
+            throw new IllegalArgumentException("All parameters must be non-null");
+        }
         this.deckUseCase = deckUseCase;
         this.flashcardUseCase = flashcardUseCase;
         this.statsService = statsService;
@@ -40,21 +45,29 @@ public class DeckFacade {
      * @param deckId ID of deck to retrieve
      * @return deck with specified ID
      * @throws java.util.NoSuchElementException if no deck found with given ID
+     * @throws IllegalArgumentException if deckId is not positive
      */
     @Transactional(readOnly = true)
     public Deck getDeckOrThrow(long deckId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
         return deckUseCase.getDeckById(deckId).orElseThrow();
     }
 
     /**
      * Loads all flashcards for specific deck.
+     * Returns an empty list if the deck has no flashcards.
      *
-     * @param deckId ID of deck whose flashcards to load
-     * @return list of flashcards in specified deck
-     * @throws IllegalArgumentException if deckId is invalid
+     * @param deckId ID of deck whose flashcards to load (must be positive)
+     * @return list of flashcards in specified deck, never null (may be empty)
+     * @throws IllegalArgumentException if deckId is not positive
      */
     @Transactional(readOnly = true)
     public List<Flashcard> loadFlashcards(long deckId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
         return flashcardUseCase.getFlashcardsByDeckId(deckId);
     }
 
@@ -63,12 +76,15 @@ public class DeckFacade {
      * Provides information about user's learning progress by returning
      * IDs of cards they have marked as known or learned.
      *
-     * @param deckId ID of deck to check for known cards
-     * @return set of card IDs marked as known
-     * @throws IllegalArgumentException if deckId is invalid
+     * @param deckId ID of deck to check for known cards (must be positive)
+     * @return set of card IDs marked as known, never null (may be empty)
+     * @throws IllegalArgumentException if deckId is not positive
      */
     @Transactional(readOnly = true)
     public Set<Long> getKnown(long deckId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
         return statsService.getKnownCardIds(deckId);
     }
 
@@ -77,12 +93,18 @@ public class DeckFacade {
      * Changes learning status of card from known to unknown or vice versa.
      * Used to track user progress and adjust learning algorithms.
      *
-     * @param deckId ID of deck containing the card
-     * @param cardId ID of card to toggle
-     * @throws IllegalArgumentException if deckId or cardId is invalid
+     * @param deckId ID of deck containing the card (must be positive)
+     * @param cardId ID of card to toggle (must be positive)
+     * @throws IllegalArgumentException if deckId or cardId is not positive
      */
     @Transactional
     public void toggleKnown(long deckId, long cardId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
+        if (cardId <= 0) {
+            throw new IllegalArgumentException("Card ID must be positive, got: " + cardId);
+        }
         boolean known = statsService.isCardKnown(deckId, cardId);
         statsService.setCardKnown(deckId, cardId, !known);
     }
@@ -90,11 +112,14 @@ public class DeckFacade {
     /**
      * Resets learning progress for all cards in specific deck (irreversible operation).
      *
-     * @param deckId ID of deck whose progress to reset
-     * @throws IllegalArgumentException if deckId is invalid
+     * @param deckId ID of deck whose progress to reset (must be positive)
+     * @throws IllegalArgumentException if deckId is not positive
      */
     @Transactional
     public void resetProgress(long deckId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
         statsService.resetDeckProgress(deckId);
     }
 
