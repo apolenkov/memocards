@@ -20,7 +20,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Main entry point for the Flashcards Spring Boot application.
- * Provides Vaadin service initialization including UI theming, error handling, and locale management.
  */
 @SpringBootApplication
 public class Application implements VaadinServiceInitListener {
@@ -31,8 +30,6 @@ public class Application implements VaadinServiceInitListener {
 
     /**
      * Starts the Spring Boot application.
-     *
-     * @param args command line arguments
      */
     public static void main(String[] args) {
         logger.info("Starting Flashcards application...");
@@ -57,18 +54,28 @@ public class Application implements VaadinServiceInitListener {
     /**
      * Initializes Vaadin service with UI configuration.
      *
-     * @param event the service initialization event
+     * @param event the service initialization event (non-null)
+     * @throws IllegalArgumentException if event is null
      */
     @Override
     public void serviceInit(ServiceInitEvent event) {
+        if (event == null) {
+            throw new IllegalArgumentException("ServiceInitEvent cannot be null");
+        }
         logger.debug("Initializing Vaadin service...");
         event.getSource().addUIInitListener(uiEvent -> configureUi(uiEvent.getUI()));
     }
 
     /**
      * Configures UI with theme, error handling and locale settings.
+     *
+     * @param ui the UI instance to configure (non-null)
+     * @throws IllegalArgumentException if ui is null
      */
     private void configureUi(UI ui) {
+        if (ui == null) {
+            throw new IllegalArgumentException("UI cannot be null");
+        }
         logger.debug("UI initialized, applying configuration [uiId={}]", ui.getUIId());
         enableLumoDark(ui);
         installSafeErrorHandler(ui);
@@ -78,8 +85,14 @@ public class Application implements VaadinServiceInitListener {
 
     /**
      * Applies Lumo dark theme to the UI.
+     *
+     * @param ui the UI instance to apply the theme to (non-null)
+     * @throws IllegalArgumentException if ui is null
      */
     private void enableLumoDark(UI ui) {
+        if (ui == null) {
+            throw new IllegalArgumentException("UI cannot be null");
+        }
         ui.getElement().getThemeList().add(Lumo.DARK);
         if (logger.isTraceEnabled()) {
             logger.trace("Lumo dark theme enabled [uiId={}]", ui.getUIId());
@@ -88,8 +101,14 @@ public class Application implements VaadinServiceInitListener {
 
     /**
      * Sets up error handler for safe navigation to error route.
+     *
+     * @param ui the UI instance to configure error handling for (non-null)
+     * @throws IllegalArgumentException if ui is null
      */
     private void installSafeErrorHandler(UI ui) {
+        if (ui == null) {
+            throw new IllegalArgumentException("UI cannot be null");
+        }
         ui.getSession().setErrorHandler(errorEvent -> handleUiError(ui, errorEvent));
         if (logger.isTraceEnabled()) {
             logger.trace("UI error handler installed [uiId={}]", ui.getUIId());

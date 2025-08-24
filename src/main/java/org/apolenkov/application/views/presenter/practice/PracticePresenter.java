@@ -18,10 +18,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * Presenter for managing flashcard practice sessions.
- *
- * This component orchestrates the practice workflow, including session preparation,
- * progress tracking, and statistics recording. It provides a clean interface for
- * managing practice state and coordinates between the UI layer and business services.
  */
 @Component
 public class PracticePresenter {
@@ -34,16 +30,31 @@ public class PracticePresenter {
     /**
      * Creates a new PracticePresenter with required dependencies.
      *
-     * @param deckUseCase service for deck operations
-     * @param flashcardUseCase service for flashcard operations
-     * @param statsService service for statistics recording
-     * @param practiceSettingsService service for practice configuration
+     * @param deckUseCase service for deck operations (non-null)
+     * @param flashcardUseCase service for flashcard operations (non-null)
+     * @param statsService service for statistics recording (non-null)
+     * @param practiceSettingsService service for practice configuration (non-null)
+     * @throws IllegalArgumentException if any parameter is null
      */
     public PracticePresenter(
             DeckUseCase deckUseCase,
             FlashcardUseCase flashcardUseCase,
             StatsService statsService,
             PracticeSettingsService practiceSettingsService) {
+
+        if (deckUseCase == null) {
+            throw new IllegalArgumentException("DeckUseCase cannot be null");
+        }
+        if (flashcardUseCase == null) {
+            throw new IllegalArgumentException("FlashcardUseCase cannot be null");
+        }
+        if (statsService == null) {
+            throw new IllegalArgumentException("StatsService cannot be null");
+        }
+        if (practiceSettingsService == null) {
+            throw new IllegalArgumentException("PracticeSettingsService cannot be null");
+        }
+
         this.deckUseCase = deckUseCase;
         this.flashcardUseCase = flashcardUseCase;
         this.statsService = statsService;
@@ -53,22 +64,28 @@ public class PracticePresenter {
     /**
      * Loads a deck by its ID.
      *
-     * @param deckId the ID of the deck to load
-     * @return an Optional containing the deck if found, empty otherwise
+     * @param deckId the ID of the deck to load (must be positive)
+     * @return an Optional containing the deck if found, empty otherwise, never null
+     * @throws IllegalArgumentException if deckId is not positive
      */
     public Optional<Deck> loadDeck(long deckId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
         return deckUseCase.getDeckById(deckId);
     }
 
     /**
      * Gets cards that are not yet marked as known in a deck.
-     * Filters the deck's flashcards to return only those that the user
-     * hasn't successfully learned yet for practice sessions.
      *
-     * @param deckId the ID of the deck to check
-     * @return a list of flashcards not yet known by the user
+     * @param deckId the ID of the deck to check (must be positive)
+     * @return a list of flashcards not yet known by the user, never null (may be empty)
+     * @throws IllegalArgumentException if deckId is not positive
      */
     public List<Flashcard> getNotKnownCards(long deckId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
         List<Flashcard> all = flashcardUseCase.getFlashcardsByDeckId(deckId);
         Set<Long> known = statsService.getKnownCardIds(deckId);
         return all.stream().filter(fc -> !known.contains(fc.getId())).toList();
@@ -76,22 +93,34 @@ public class PracticePresenter {
 
     /**
      * Determines the default number of cards for a practice session.
-     * Calculates the appropriate card count based on user configuration
-     * and available unknown cards, clamped between 1 and configured default.
      *
-     * @param deckId the ID of the deck to calculate count for
-     * @return the number of cards to include in the practice session
+     * @param deckId the ID of the deck to calculate count for (must be positive)
+     * @return the number of cards to include in the practice session (1 to configured default)
+     * @throws IllegalArgumentException if deckId is not positive
      */
     public int resolveDefaultCount(long deckId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
         int configured = practiceSettingsService.getDefaultCount();
         int notKnown = getNotKnownCards(deckId).size();
         return Math.clamp(notKnown, 1, configured);
     }
 
+    /**
+     * Determines if practice sessions should use random card order.
+     *
+     * @return true if random ordering is enabled, false for sequential ordering
+     */
     public boolean isRandom() {
         return practiceSettingsService.isDefaultRandomOrder();
     }
 
+    /**
+     * Gets the default practice direction for sessions.
+     *
+     * @return the default practice direction, never null
+     */
     public PracticeDirection defaultDirection() {
         return Optional.ofNullable(practiceSettingsService.getDefaultDirection())
                 .orElse(PracticeDirection.FRONT_TO_BACK);
@@ -284,10 +313,6 @@ public class PracticePresenter {
     /**
      * Checks if a practice session is complete.
      *
-     * <p>A session is considered complete when there are no cards available
-     * or when all cards have been processed. This method handles edge cases
-     * where cards might be null or empty.</p>
-     *
      * @param s the session to check
      * @return true if the session is complete, false otherwise
      */
@@ -299,9 +324,6 @@ public class PracticePresenter {
 
     /**
      * Retrieves the current card in the practice session.
-     *
-     * <p>Returns the flashcard at the current index position. If the session
-     * is complete, returns null to indicate no more cards are available.</p>
      *
      * @param s the session to get the current card from
      * @return the current flashcard, or null if session is complete
@@ -318,10 +340,9 @@ public class PracticePresenter {
 
     /**
      * Reveals the answer for the current card.
-     *
-     * <p>Calculates and records the time spent thinking about the current card
+     * Calculates and records the time spent thinking about the current card
      * before revealing the answer. This timing information is used for
-     * performance analytics and difficulty assessment.</p>
+     * performance analytics and difficulty assessment.
      *
      * @param s the session containing the current card
      */
@@ -331,6 +352,7 @@ public class PracticePresenter {
             long delay = Duration.between(s.getCardShowTime(), Instant.now()).toMillis();
             // Ensure delay is non-negative (handle edge cases with system clock)
             long clampedDelay = Math.clamp(delay, 0L, Long.MAX_VALUE);
+
             s.setTotalAnswerDelayMs(s.getTotalAnswerDelayMs() + clampedDelay);
         }
         s.setShowingAnswer(true);
@@ -338,19 +360,21 @@ public class PracticePresenter {
 
     /**
      * Marks the current card as known and advances to the next card.
-     *
-     * <p>Records that the user successfully answered the current card correctly.
-     * Updates session statistics and moves to the next card in the sequence.</p>
+     * Records that the user successfully answered the current card correctly.
+     * Updates session statistics and moves to the next card in the sequence.
      *
      * @param s the session to update
      */
     public void markKnow(Session s) {
         if (isComplete(s)) return;
+
         // Increment viewed count and correct answers
         s.setTotalViewed(s.getTotalViewed() + 1);
         s.setCorrectCount(s.getCorrectCount() + 1);
+
         // Track this card as newly learned
         s.getKnownCardIdsDelta().add(currentCard(s).getId());
+
         // Move to next card and reset answer display
         s.setIndex(s.getIndex() + 1);
         s.setShowingAnswer(false);
@@ -358,19 +382,21 @@ public class PracticePresenter {
 
     /**
      * Marks the current card as difficult and advances to the next card.
-     *
-     * <p>Records that the user found the current card challenging. Updates
-     * session statistics and moves to the next card in the sequence.</p>
+     * Records that the user found the current card challenging. Updates
+     * session statistics and moves to the next card in the sequence.
      *
      * @param s the session to update
      */
     public void markHard(Session s) {
         if (isComplete(s)) return;
+
         // Increment viewed count and difficult cards
         s.setTotalViewed(s.getTotalViewed() + 1);
         s.setHardCount(s.getHardCount() + 1);
+
         // Track this card as failed for review purposes
         s.getFailedCardIds().add(currentCard(s).getId());
+
         // Move to next card and reset answer display
         s.setIndex(s.getIndex() + 1);
         s.setShowingAnswer(false);
@@ -399,18 +425,20 @@ public class PracticePresenter {
     public Progress progress(Session s) {
         // Get total cards count, handling null/empty cases
         int total = s.getCards() != null ? s.getCards().size() : 0;
+
         // Calculate current position (1-based) with bounds checking
         long current = Math.clamp(s.getIndex() + 1L, 1L, total);
+
         // Calculate completion percentage, avoiding division by zero
         long percent = total > 0 ? Math.round((current * 100.0) / total) : 0;
+
         return new Progress(current, total, s.getTotalViewed(), s.getCorrectCount(), s.getHardCount(), percent);
     }
 
     /**
      * Records and persists a completed practice session.
-     *
-     * <p>Calculates the total session duration and delegates to the recordSession
-     * method to persist all session statistics and performance metrics.</p>
+     * Calculates the total session duration and delegates to the recordSession
+     * method to persist all session statistics and performance metrics.
      *
      * @param s the completed session to record
      */

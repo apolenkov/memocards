@@ -20,11 +20,18 @@ public final class ButtonHelper {
      * Creates a primary button with the specified text and click listener.
      * Primary buttons are used for the main action in forms and dialogs.
      *
-     * @param text the display text for the button
-     * @param clickListener the event handler for button clicks
-     * @return a configured primary button
+     * @param text the display text for the button (non-null, non-empty)
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured primary button with LUMO_PRIMARY variant
+     * @throws IllegalArgumentException if text is null or empty, or clickListener is null
      */
     public static Button createPrimaryButton(String text, ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Button text cannot be null or empty");
+        }
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
         Button button = new Button(text, clickListener);
         button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         return button;
@@ -34,13 +41,23 @@ public final class ButtonHelper {
      * Creates a primary button with icon, text, and click listener.
      * Primary buttons with icons provide visual reinforcement for the main action.
      *
-     * @param text the display text for the button
-     * @param icon the Vaadin icon to display
-     * @param clickListener the event handler for button clicks
-     * @return a configured primary button with icon
+     * @param text the display text for the button (non-null, non-empty)
+     * @param icon the Vaadin icon to display (non-null)
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured primary button with icon and LUMO_PRIMARY variant
+     * @throws IllegalArgumentException if any parameter is null or text is empty
      */
     public static Button createPrimaryButton(
             String text, VaadinIcon icon, ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Button text cannot be null or empty");
+        }
+        if (icon == null) {
+            throw new IllegalArgumentException("Icon cannot be null");
+        }
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
         Button button = new Button(text, icon.create(), clickListener);
         button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         return button;
@@ -50,13 +67,23 @@ public final class ButtonHelper {
      * Creates a success button with icon, text, and click listener.
      * Success buttons are used for positive actions like save or confirm.
      *
-     * @param text the display text for the button
-     * @param icon the Vaadin icon to display
-     * @param clickListener the event handler for button clicks
-     * @return a configured success button with icon
+     * @param text the display text for the button (non-null, non-empty)
+     * @param icon the Vaadin icon to display (non-null)
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured success button with icon and LUMO_SUCCESS variant
+     * @throws IllegalArgumentException if any parameter is null or text is empty
      */
     public static Button createSuccessButton(
             String text, VaadinIcon icon, ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Button text cannot be null or empty");
+        }
+        if (icon == null) {
+            throw new IllegalArgumentException("Icon cannot be null");
+        }
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
         Button button = new Button(text, icon.create(), clickListener);
         button.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         return button;
@@ -66,13 +93,23 @@ public final class ButtonHelper {
      * Creates an error button with icon, text, and click listener.
      * Error buttons are used for destructive actions like delete or remove.
      *
-     * @param text the display text for the button
-     * @param icon the Vaadin icon to display
-     * @param clickListener the event handler for button clicks
-     * @return a configured error button with icon
+     * @param text the display text for the button (non-null, non-empty)
+     * @param icon the Vaadin icon to display (non-null)
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured error button with icon and LUMO_ERROR variant
+     * @throws IllegalArgumentException if any parameter is null or text is empty
      */
     public static Button createErrorButton(
             String text, VaadinIcon icon, ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Button text cannot be null or empty");
+        }
+        if (icon == null) {
+            throw new IllegalArgumentException("Icon cannot be null");
+        }
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
         Button button = new Button(text, icon.create(), clickListener);
         button.addThemeVariants(ButtonVariant.LUMO_ERROR);
         return button;
@@ -81,14 +118,18 @@ public final class ButtonHelper {
     /**
      * Creates a tertiary button with the specified text and click listener.
      *
-     * <p>Tertiary buttons are used for secondary actions that are less
-     * prominent than primary actions. They have a subtle appearance.</p>
-     *
-     * @param text the display text for the button
-     * @param clickListener the event handler for button clicks
-     * @return a configured tertiary button
+     * @param text the display text for the button (non-null, non-empty)
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured tertiary button with LUMO_TERTIARY variant
+     * @throws IllegalArgumentException if text is null or empty, or clickListener is null
      */
     public static Button createTertiaryButton(String text, ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Button text cannot be null or empty");
+        }
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
         Button button = new Button(text, clickListener);
         button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return button;
@@ -98,13 +139,23 @@ public final class ButtonHelper {
      * Creates a tertiary button with icon, text, and click listener.
      * Tertiary buttons with icons provide visual context while maintaining their subtle appearance.
      *
-     * @param text the display text for the button
-     * @param icon the Vaadin icon to display
-     * @param clickListener the event handler for button clicks
-     * @return a configured tertiary button with icon
+     * @param text the display text for the button (non-null, non-empty)
+     * @param icon the Vaadin icon to display (non-null)
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured tertiary button with icon and LUMO_TERTIARY variant
+     * @throws IllegalArgumentException if any parameter is null or text is empty
      */
     public static Button createTertiaryButton(
             String text, VaadinIcon icon, ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Button text cannot be null or empty");
+        }
+        if (icon == null) {
+            throw new IllegalArgumentException("Icon cannot be null");
+        }
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
         Button button = new Button(text, icon.create(), clickListener);
         button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return button;
@@ -113,14 +164,18 @@ public final class ButtonHelper {
     /**
      * Creates a large button with the specified text and click listener.
      *
-     * <p>Large buttons are used for prominent actions that should be easily
-     * accessible, such as main navigation or primary form submissions.</p>
-     *
-     * @param text the display text for the button
-     * @param clickListener the event handler for button clicks
-     * @return a configured large button
+     * @param text the display text for the button (non-null, non-empty)
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured large button with LUMO_LARGE variant
+     * @throws IllegalArgumentException if text is null or empty, or clickListener is null
      */
     public static Button createLargeButton(String text, ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Button text cannot be null or empty");
+        }
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
         Button button = new Button(text, clickListener);
         button.addThemeVariants(ButtonVariant.LUMO_LARGE);
         return button;
@@ -129,65 +184,70 @@ public final class ButtonHelper {
     /**
      * Creates a back navigation button with left arrow icon.
      *
-     * <p>Back buttons are consistently styled tertiary buttons with a left
-     * arrow icon, used for navigation to previous pages or sections.</p>
-     *
-     * @param clickListener the event handler for button clicks
-     * @return a configured back button
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured back button with left arrow icon
+     * @throws IllegalArgumentException if clickListener is null
      */
     public static Button createBackButton(ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
         return createTertiaryButton("Back", VaadinIcon.ARROW_LEFT, clickListener);
     }
 
     /**
      * Creates a delete button with trash icon.
      *
-     * <p>Delete buttons are consistently styled error buttons with a trash
-     * icon, used for destructive operations that require user confirmation.</p>
-     *
-     * @param clickListener the event handler for button clicks
-     * @return a configured delete button
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured delete button with trash icon
+     * @throws IllegalArgumentException if clickListener is null
      */
     public static Button createDeleteButton(ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
         return createErrorButton("Delete", VaadinIcon.TRASH, clickListener);
     }
 
     /**
      * Creates an edit button with edit icon.
      *
-     * <p>Edit buttons are consistently styled tertiary buttons with an edit
-     * icon, used for modifying existing content or settings.</p>
-     *
-     * @param clickListener the event handler for button clicks
-     * @return a configured edit button
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured edit button with edit icon
+     * @throws IllegalArgumentException if clickListener is null
      */
     public static Button createEditButton(ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
         return createTertiaryButton("Edit", VaadinIcon.EDIT, clickListener);
     }
 
     /**
      * Creates a play button with play icon.
      *
-     * <p>Play buttons are consistently styled success buttons with a play
-     * icon, used for starting processes, games, or other positive actions.</p>
-     *
-     * @param clickListener the event handler for button clicks
-     * @return a configured play button
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured play button with play icon
+     * @throws IllegalArgumentException if clickListener is null
      */
     public static Button createPlayButton(ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
         return createSuccessButton("Start", VaadinIcon.PLAY, clickListener);
     }
 
     /**
      * Creates a plus button with plus icon.
      *
-     * <p>Plus buttons are consistently styled primary buttons with a plus
-     * icon, used for adding new items, creating content, or other additive actions.</p>
-     *
-     * @param clickListener the event handler for button clicks
-     * @return a configured plus button
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured plus button with plus icon
+     * @throws IllegalArgumentException if clickListener is null
      */
     public static Button createPlusButton(ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
         return createPrimaryButton("Add", VaadinIcon.PLUS, clickListener);
     }
 }

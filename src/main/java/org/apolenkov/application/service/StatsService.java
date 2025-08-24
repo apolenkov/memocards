@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for managing flashcard practice statistics and progress tracking.
- *
  * Provides comprehensive statistics tracking for flashcard practice sessions,
  * including daily performance metrics, card knowledge status, and deck progress calculations.
  */
@@ -35,9 +34,6 @@ public class StatsService {
         /**
          * Calculates average answer delay per card.
          *
-         * Returns average time in milliseconds that users spent thinking
-         * before answering each card. Returns 0.0 if no cards were viewed.
-         *
          * @return average answer delay in milliseconds, or 0.0 if no cards viewed
          */
         public double getAvgDelayMs() {
@@ -50,23 +46,28 @@ public class StatsService {
     /**
      * Creates StatsService with required repository dependency.
      *
-     * @param statsRepository repository for persisting and retrieving statistics
+     * @param statsRepository repository for persisting and retrieving statistics (non-null)
+     * @throws IllegalArgumentException if statsRepository is null
      */
     public StatsService(StatsRepository statsRepository) {
+        if (statsRepository == null) {
+            throw new IllegalArgumentException("StatsRepository cannot be null");
+        }
         this.statsRepository = statsRepository;
     }
 
     /**
      * Records practice session and updates daily statistics.
      *
-     * @param deckId ID of deck being practiced
-     * @param viewed number of cards viewed in this session
-     * @param correct number of cards answered correctly
-     * @param repeat number of cards marked for repetition
-     * @param hard number of cards marked as difficult
-     * @param sessionDuration total duration of practice session
-     * @param totalAnswerDelayMs total time spent thinking before answering
-     * @param knownCardIdsDelta collection of card IDs whose knowledge status changed
+     * @param deckId ID of deck being practiced (must be positive)
+     * @param viewed number of cards viewed in this session (must be non-negative)
+     * @param correct number of cards answered correctly (must be non-negative)
+     * @param repeat number of cards marked for repetition (must be non-negative)
+     * @param hard number of cards marked as difficult (must be non-negative)
+     * @param sessionDuration total duration of practice session (non-null, must be positive)
+     * @param totalAnswerDelayMs total time spent thinking before answering (must be non-negative)
+     * @param knownCardIdsDelta collection of card IDs whose knowledge status changed (may be null or empty)
+     * @throws IllegalArgumentException if any parameter violates constraints
      */
     @Transactional
     public void recordSession(
@@ -78,7 +79,32 @@ public class StatsService {
             Duration sessionDuration,
             long totalAnswerDelayMs,
             Collection<Long> knownCardIdsDelta) {
-        if (viewed <= 0) return;
+
+        // Validate parameters
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
+        if (correct < 0) {
+            throw new IllegalArgumentException("Correct count cannot be negative, got: " + correct);
+        }
+        if (repeat < 0) {
+            throw new IllegalArgumentException("Repeat count cannot be negative, got: " + repeat);
+        }
+        if (hard < 0) {
+            throw new IllegalArgumentException("Hard count cannot be negative, got: " + hard);
+        }
+        if (sessionDuration == null) {
+            throw new IllegalArgumentException("Session duration cannot be null");
+        }
+        if (totalAnswerDelayMs < 0) {
+            throw new IllegalArgumentException("Total answer delay cannot be negative, got: " + totalAnswerDelayMs);
+        }
+
+        // Early return if no cards were viewed (including negative values)
+        if (viewed <= 0) {
+            return;
+        }
+
         LocalDate today = LocalDate.now();
         statsRepository.appendSession(
                 deckId,
@@ -95,8 +121,9 @@ public class StatsService {
     /**
      * Retrieves daily statistics for specific deck, sorted chronologically.
      *
-     * @param deckId ID of deck to retrieve statistics for
-     * @return chronologically sorted list of daily statistics
+     * @param deckId ID of deck to retrieve statistics for (must be positive)
+     * @return chronologically sorted list of daily statistics, never null (may be empty)
+     * @throws IllegalArgumentException if deckId is not positive
      */
     @Transactional(readOnly = true)
     public List<DailyStats> getDailyStatsForDeck(long deckId) {
@@ -161,7 +188,6 @@ public class StatsService {
 
     /**
      * Sets knowledge status of specific card in deck.
-     *
      * Updates knowledge status of card, marking it as either known or unknown
      * based on user's performance and feedback.
      *
@@ -176,10 +202,6 @@ public class StatsService {
 
     /**
      * Resets all progress for specific deck.
-     *
-     * Removes all knowledge status tracking for cards in specified deck,
-     * effectively resetting user's progress to zero. Useful when users want
-     * to start fresh with a deck.
      *
      * @param deckId ID of deck to reset progress for
      */

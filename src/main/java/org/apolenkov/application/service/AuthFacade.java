@@ -67,6 +67,13 @@ public class AuthFacade {
      * @throws InvalidPasswordException if authentication fails due to invalid credentials
      */
     public void authenticateAndPersist(String username, String rawPassword) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty");
+        }
+        if (rawPassword == null) {
+            throw new IllegalArgumentException("Password cannot be null");
+        }
+
         UsernamePasswordAuthenticationToken authRequest =
                 new UsernamePasswordAuthenticationToken(username, rawPassword);
         Authentication auth;
@@ -98,10 +105,10 @@ public class AuthFacade {
         /**
          * Creates InvalidPasswordException with specified cause.
          *
-         * @param error underlying authentication error that caused failure
+         * @param cause the underlying cause of authentication failure (may be null)
          */
-        public InvalidPasswordException(Exception error) {
-            super(error);
+        public InvalidPasswordException(Throwable cause) {
+            super(cause);
         }
     }
 }
