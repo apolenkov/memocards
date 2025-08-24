@@ -11,7 +11,7 @@ public final class RouteConstants {
      * Route for decks list view.
      */
     public static final String DECKS_ROUTE = "decks";
-    
+
     /**
      * Route for error view.
      */
@@ -21,7 +21,7 @@ public final class RouteConstants {
      * Route for individual deck view.
      */
     public static final String DECK_ROUTE = "deck";
-    
+
     /**
      * Route for practice view.
      */

@@ -16,6 +16,7 @@ import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.DialogHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
+import org.apolenkov.application.views.utils.Translator;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,6 +47,7 @@ public class TopMenu extends HorizontalLayout {
 
     private final transient UserUseCase userUseCase;
     private final transient PracticeSettingsService practiceSettingsService;
+    private final transient Translator translator;
 
     /**
      * Creates a new TopMenu with required dependencies.
@@ -54,9 +56,10 @@ public class TopMenu extends HorizontalLayout {
      * @param userUseCase service for user operations and current user information
      * @param practiceSettingsService service for practice session configuration
      */
-    public TopMenu(UserUseCase userUseCase, PracticeSettingsService practiceSettingsService) {
+    public TopMenu(UserUseCase userUseCase, PracticeSettingsService practiceSettingsService, Translator translator) {
         this.userUseCase = userUseCase;
         this.practiceSettingsService = practiceSettingsService;
+        this.translator = translator;
         setWidthFull();
         setPadding(true);
         setSpacing(true);
@@ -133,8 +136,7 @@ public class TopMenu extends HorizontalLayout {
         left.add(title);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAuthenticated = auth != null && !(auth instanceof AnonymousAuthenticationToken);
-        if (isAuthenticated) {
+        if (auth != null && !(auth instanceof AnonymousAuthenticationToken)) {
             String displayName;
             String authName = auth.getName();
             try {
@@ -232,6 +234,7 @@ public class TopMenu extends HorizontalLayout {
         Dialog dialog = DialogHelper.createConfirmationDialog(
                 getTranslation("auth.logout.confirm"),
                 getTranslation("auth.logout.confirm"),
+                translator,
                 () -> {
                     try {
                         var req = VaadinServletRequest.getCurrent().getHttpServletRequest();
