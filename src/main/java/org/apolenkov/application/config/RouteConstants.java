@@ -7,12 +7,29 @@ package org.apolenkov.application.config;
  */
 public final class RouteConstants {
 
+    /**
+     * Route for decks list view.
+     */
     public static final String DECKS_ROUTE = "decks";
+    
+    /**
+     * Route for error view.
+     */
     public static final String ERROR_ROUTE = "error";
 
+    /**
+     * Route for individual deck view.
+     */
     public static final String DECK_ROUTE = "deck";
+    
+    /**
+     * Route for practice view.
+     */
     public static final String PRACTICE_ROUTE = "practice";
 
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private RouteConstants() {
         // Utility class - prevent instantiation
     }
