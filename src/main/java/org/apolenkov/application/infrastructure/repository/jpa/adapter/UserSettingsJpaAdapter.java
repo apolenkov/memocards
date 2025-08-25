@@ -1,11 +1,12 @@
 package org.apolenkov.application.infrastructure.repository.jpa.adapter;
 
-import java.util.Optional;
 import org.apolenkov.application.domain.port.UserSettingsRepository;
 import org.apolenkov.application.infrastructure.repository.jpa.entity.UserSettingsEntity;
 import org.apolenkov.application.infrastructure.repository.jpa.springdata.UserSettingsJpaRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 /**
  * JPA adapter for user settings operations.
@@ -46,7 +47,7 @@ public class UserSettingsJpaAdapter implements UserSettingsRepository {
         }
         return repo.findByUserId(userId)
                 .map(UserSettingsEntity::getPreferredLocaleCode)
-                .filter(code -> code != null && !code.trim().isEmpty());
+                .filter(code -> !code.trim().isEmpty());
     }
 
     /**
