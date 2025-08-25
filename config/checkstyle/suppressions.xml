@@ -13,6 +13,7 @@
     <suppress checks="InvalidJavadocPosition" files=".*"/>
     <suppress checks="JavadocStyle" files=".*"/>
     <suppress checks="MissingJavadocMethod" files=".*"/>
+    <suppress checks="MagicNumber" files=".*"/>
 
     <!-- Conflict with spotless  -->
     <suppress checks="LineLength" files=".*"/>
