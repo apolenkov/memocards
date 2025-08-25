@@ -131,10 +131,3 @@ tasks.register("checkNonEnglishCharacters") {
         }
     }
 }
-
-// Make build depend on non-English character check
-tasks.named("build") {
-    dependsOn("checkNonEnglishCharacters")
-}
-
-

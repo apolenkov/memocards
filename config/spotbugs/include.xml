@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Include only Java source files -->
+    <Match>
+        <Source name="src/main/java/**/*.java"/>
+    </Match>
+    
+    <!-- Include test Java files -->
+    <Match>
+        <Source name="src/test/java/**/*.java"/>
+    </Match>
+</FindBugsFilter>
