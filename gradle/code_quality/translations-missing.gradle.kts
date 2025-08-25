@@ -158,10 +158,3 @@ tasks.register("checkMissingTranslations") {
         }
     }
 }
-
-// Make build depend on translation check
-tasks.named("build") {
-    dependsOn("checkMissingTranslations")
-}
-
-

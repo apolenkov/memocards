@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- Skip for my examples  -->
+    <suppress checks="JavadocPackage" files=".*"/>
+    <suppress checks="JavadocMethod" files=".*"/>
+    <suppress checks="JavadocType" files=".*"/>
+    <suppress checks="JavadocVariable" files=".*"/>
+    <suppress checks="InvalidJavadocPosition" files=".*"/>
+    <suppress checks="JavadocStyle" files=".*"/>
+    <suppress checks="MissingJavadocMethod" files=".*"/>
+
+    <!-- Conflict with spotless  -->
+    <suppress checks="LineLength" files=".*"/>
+    <suppress checks="WhitespaceAround" files=".*"/>
+
+    <!-- Exclude i18n files from nonEnglish character check -->
+    <suppress checks="RegexpSingleline" files=".*i18n.*"/>
+    <suppress checks="RegexpSingleline" files=".*messages_.*\.properties"/>
+
+        <!-- Exclude build and generated files -->
+    <suppress checks="RegexpSingleline" files=".*build.*"/>
+    <suppress checks="RegexpSingleline" files=".*generated.*"/>
+</suppressions>

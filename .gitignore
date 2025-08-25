@@ -48,3 +48,7 @@ src/main/frontend/generated
 # Project
 logs/
 changelogs/
+
+# Vaadin
+package-lock.json
+

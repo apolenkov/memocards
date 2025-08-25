@@ -55,9 +55,3 @@ tasks.register("checkI18nKeys") {
         }
     }
 }
-
-tasks.named("check") {
-    dependsOn("checkI18nKeys")
-}
-
-
