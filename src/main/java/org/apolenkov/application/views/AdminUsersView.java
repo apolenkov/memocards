@@ -10,7 +10,6 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -129,33 +128,6 @@ public class AdminUsersView extends VerticalLayout implements HasDynamicTitle {
         Button deleteButton = createDeleteButton(user);
 
         return new Button[] {saveButton, editButton, deleteButton};
-    }
-
-    /**
-     * Creates horizontal layout with role selection checkboxes and action buttons.
-     *
-     * @param user the user for whom to create the action layout
-     * @return a horizontal layout containing roles and actions
-     */
-    private HorizontalLayout buildActions(User user) {
-        CheckboxGroup<String> rolesBox = createRolesCheckbox(user);
-        Button saveButton = createSaveButton(user, rolesBox);
-        Button editButton = createEditButton(user);
-        Button deleteButton = createDeleteButton(user);
-
-        HorizontalLayout buttons = new HorizontalLayout(saveButton, editButton, deleteButton);
-        buttons.setWidthFull();
-        buttons.setSpacing(true);
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        buttons.setAlignItems(Alignment.CENTER);
-
-        HorizontalLayout row = new HorizontalLayout(rolesBox, buttons);
-        row.setWidthFull();
-        row.setSpacing(true);
-        row.setAlignItems(Alignment.CENTER);
-        row.setFlexGrow(0, rolesBox);
-        row.setFlexGrow(1, buttons);
-        return row;
     }
 
     /**

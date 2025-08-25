@@ -1,12 +1,11 @@
 package org.apolenkov.application.infrastructure.repository.jpa.adapter;
 
+import java.util.Optional;
 import org.apolenkov.application.domain.port.UserSettingsRepository;
 import org.apolenkov.application.infrastructure.repository.jpa.entity.UserSettingsEntity;
 import org.apolenkov.application.infrastructure.repository.jpa.springdata.UserSettingsJpaRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 /**
  * JPA adapter for user settings operations.

@@ -16,7 +16,6 @@ import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.DialogHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
-import org.apolenkov.application.views.utils.Translator;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,7 +46,6 @@ public class TopMenu extends HorizontalLayout {
 
     private final transient UserUseCase userUseCase;
     private final transient PracticeSettingsService practiceSettingsService;
-    private final transient Translator translator;
 
     /**
      * Creates a new TopMenu with required dependencies.
@@ -56,10 +54,9 @@ public class TopMenu extends HorizontalLayout {
      * @param userUseCase service for user operations and current user information
      * @param practiceSettingsService service for practice session configuration
      */
-    public TopMenu(UserUseCase userUseCase, PracticeSettingsService practiceSettingsService, Translator translator) {
+    public TopMenu(UserUseCase userUseCase, PracticeSettingsService practiceSettingsService) {
         this.userUseCase = userUseCase;
         this.practiceSettingsService = practiceSettingsService;
-        this.translator = translator;
         setWidthFull();
         setPadding(true);
         setSpacing(true);
@@ -234,7 +231,6 @@ public class TopMenu extends HorizontalLayout {
         Dialog dialog = DialogHelper.createConfirmationDialog(
                 getTranslation("auth.logout.confirm"),
                 getTranslation("auth.logout.confirm"),
-                translator,
                 () -> {
                     try {
                         var req = VaadinServletRequest.getCurrent().getHttpServletRequest();

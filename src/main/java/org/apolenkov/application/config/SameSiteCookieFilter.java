@@ -39,15 +39,15 @@ public class SameSiteCookieFilter implements Filter {
                     String v = value;
                     // Add SameSite=Lax if not present (prevents CSRF while maintaining functionality)
                     if (!v.toLowerCase().contains("samesite")) {
-                        v = v + "; SameSite=Lax";
+                        v += "; SameSite=Lax";
                     }
                     // Add Secure flag if not present (ensures HTTPS-only transmission)
                     if (!v.toLowerCase().contains("secure")) {
-                        v = v + "; Secure";
+                        v += "; Secure";
                     }
                     // Add HttpOnly flag if not present (prevents JavaScript access)
                     if (!v.toLowerCase().contains("httponly")) {
-                        v = v + "; HttpOnly";
+                        v += "; HttpOnly";
                     }
                     super.addHeader(name, v);
                     return;

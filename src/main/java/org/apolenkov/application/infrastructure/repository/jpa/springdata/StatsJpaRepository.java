@@ -3,7 +3,6 @@ package org.apolenkov.application.infrastructure.repository.jpa.springdata;
 import jakarta.persistence.QueryHint;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import org.apolenkov.application.infrastructure.repository.jpa.entity.DeckDailyStatsEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -35,6 +34,7 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
      */
     @Modifying
     @Transactional
+    @SuppressWarnings("java:S107")
     @Query("UPDATE DeckDailyStatsEntity s " + "SET s.sessions = s.sessions + 1, "
             + "    s.viewed = s.viewed + :viewed, "
             + "    s.correct = s.correct + :correct, "
@@ -88,28 +88,6 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
     List<Object[]> findAllByDeckIds(@Param("deckIds") List<Long> deckIds);
 
     /**
-     * Calculates aggregated statistics for decks within a date range.
-     * Uses optimized query for analytics with performance hints.
-     *
-     * @param deckIds list of deck identifiers
-     * @param fromDate start date for aggregation
-     * @return list of aggregated statistics grouped by deck
-     */
-    // New optimized queries for analytics
-    @QueryHints({@QueryHint(name = "org.hibernate.comment", value = "Uses idx_deck_daily_stats_performance")})
-    @Query("SELECT s.id.deckId, " + "       SUM(s.sessions) as totalSessions, "
-            + "       SUM(s.viewed) as totalViewed, "
-            + "       SUM(s.correct) as totalCorrect, "
-            + "       SUM(s.repeatCount) as totalRepeat, "
-            + "       SUM(s.hard) as totalHard "
-            + "FROM DeckDailyStatsEntity s "
-            + "WHERE s.id.deckId IN :deckIds "
-            + "  AND s.id.date >= :fromDate "
-            + "GROUP BY s.id.deckId")
-    List<Object[]> getAggregatesByDateRange(
-            @Param("deckIds") List<Long> deckIds, @Param("fromDate") LocalDate fromDate);
-
-    /**
      * Finds today's statistics for specified decks.
      * Uses optimized query for current day data retrieval, efficient for real-time dashboard updates.
      *
@@ -122,77 +100,4 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
     @Query("SELECT s FROM DeckDailyStatsEntity s " + "WHERE s.id.deckId IN :deckIds " + "  AND s.id.date = :today")
     List<DeckDailyStatsEntity> findTodayStatsByDeckIds(
             @Param("deckIds") List<Long> deckIds, @Param("today") LocalDate today);
-
-    /**
-     * Generates performance leaderboard for decks.
-     *
-     * <p>Calculates accuracy and session counts for ranking.
-     * Uses optimized query with performance hints for analytics.</p>
-     *
-     * @param deckIds list of deck identifiers
-     * @param fromDate start date for leaderboard calculation
-     * @param minViewed minimum viewed cards threshold
-     * @return list of performance rankings ordered by accuracy
-     */
-    // Query for performance leaderboards
-    @QueryHints({@QueryHint(name = "org.hibernate.comment", value = "Uses idx_deck_daily_stats_performance")})
-    @Query("SELECT s.id.deckId, "
-            + "       AVG(CAST(s.correct AS double) / NULLIF(s.viewed, 0)) as accuracy, "
-            + "       SUM(s.sessions) as totalSessions "
-            + "FROM DeckDailyStatsEntity s "
-            + "WHERE s.id.deckId IN :deckIds "
-            + "  AND s.id.date >= :fromDate "
-            + "  AND s.viewed > 0 "
-            + "GROUP BY s.id.deckId "
-            + "HAVING SUM(s.viewed) >= :minViewed "
-            + "ORDER BY accuracy DESC, totalSessions DESC")
-    List<Object[]> getPerformanceLeaderboard(
-            @Param("deckIds") List<Long> deckIds,
-            @Param("fromDate") LocalDate fromDate,
-            @Param("minViewed") int minViewed);
-
-    /**
-     * Tracks user progress over time for a specific deck.
-     *
-     * <p>Uses optimized query for progress visualization.
-     * Groups daily statistics for trend analysis.</p>
-     *
-     * @param deckId the deck identifier
-     * @param fromDate start date for progress tracking
-     * @return list of daily progress data ordered by date
-     */
-    // Query for user progress over time
-    @QueryHints({@QueryHint(name = "org.hibernate.comment", value = "Uses idx_deck_daily_stats_user_progress")})
-    @Query("SELECT s.id.date, " + "       SUM(s.sessions) as dailySessions, "
-            + "       SUM(s.viewed) as dailyViewed, "
-            + "       SUM(s.correct) as dailyCorrect "
-            + "FROM DeckDailyStatsEntity s "
-            + "WHERE s.id.deckId = :deckId "
-            + "  AND s.id.date >= :fromDate "
-            + "GROUP BY s.id.date "
-            + "ORDER BY s.id.date ASC")
-    List<Object[]> getUserProgressOverTime(@Param("deckId") long deckId, @Param("fromDate") LocalDate fromDate);
-
-    /**
-     * Checks if statistics exist for a deck on a specific date.
-     *
-     * @param deckId the deck identifier
-     * @param date the date to check
-     * @return true if statistics exist, false otherwise
-     */
-    // Check if stats exist for a deck on a specific date
-    @Query("SELECT COUNT(s) > 0 FROM DeckDailyStatsEntity s " + "WHERE s.id.deckId = :deckId AND s.id.date = :date")
-    boolean existsByDeckIdAndDate(@Param("deckId") long deckId, @Param("date") LocalDate date);
-
-    /**
-     * Gets the latest statistics for a deck.
-     *
-     * <p>Uses Spring Data derived query for portability.
-     * Returns the most recent statistics entry.</p>
-     *
-     * @param deckId the deck identifier
-     * @return latest statistics if available, empty otherwise
-     */
-    // Get latest stats for a deck using Spring Data derived query (portable, no vendor-specific LIMIT)
-    Optional<DeckDailyStatsEntity> findTopById_DeckIdOrderById_DateDesc(@Param("deckId") long deckId);
 }
