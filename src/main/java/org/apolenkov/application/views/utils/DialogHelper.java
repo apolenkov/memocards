@@ -82,15 +82,13 @@ public final class DialogHelper {
      *
      * @param title dialog title
      * @param message dialog message
-     * @param translator translator bean to resolve i18n keys
      * @param onConfirm confirm action
      * @param onCancel cancel action (nullable)
      * @return configured dialog
      */
-    public static Dialog createConfirmationDialog(
-            String title, String message, Translator translator, Runnable onConfirm, Runnable onCancel) {
-        String confirm = translator != null ? translator.tr(I18N_DIALOG_CONFIRM) : I18nHelper.tr(I18N_DIALOG_CONFIRM);
-        String cancel = translator != null ? translator.tr(I18N_DIALOG_CANCEL) : I18nHelper.tr(I18N_DIALOG_CANCEL);
+    public static Dialog createConfirmationDialog(String title, String message, Runnable onConfirm, Runnable onCancel) {
+        String confirm = I18nHelper.tr(I18N_DIALOG_CONFIRM);
+        String cancel = I18nHelper.tr(I18N_DIALOG_CANCEL);
         return createConfirmationDialog(title, message, confirm, cancel, onConfirm, onCancel);
     }
 }

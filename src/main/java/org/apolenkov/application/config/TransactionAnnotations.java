@@ -39,14 +39,4 @@ public class TransactionAnnotations {
     @Retention(RetentionPolicy.RUNTIME)
     @Transactional
     public @interface DeleteTransaction {}
-
-    /**
-     * Batch transaction for multiple operations.
-     * Ensures atomic execution of multiple related database operations.
-     */
-    @Target({ElementType.METHOD, ElementType.TYPE})
-    @Retention(RetentionPolicy.RUNTIME)
-    @Transactional
-    @SuppressWarnings("unused") // IDE Community problem
-    public @interface BatchTransaction {}
 }

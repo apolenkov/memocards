@@ -86,8 +86,7 @@ public class SecurityConfig extends VaadinWebSecurity {
      *
      * @return handler that returns JSON for API requests or redirects for UI requests
      */
-    @Bean
-    public AccessDeniedHandler accessDeniedHandler() {
+    private AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
             String requestURI = request.getRequestURI();
             // Determine if this is an API request or UI request

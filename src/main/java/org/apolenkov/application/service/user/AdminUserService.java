@@ -1,8 +1,10 @@
 package org.apolenkov.application.service.user;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apolenkov.application.config.SecurityConstants;
 import org.apolenkov.application.domain.port.RoleAuditRepository;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
@@ -37,7 +39,6 @@ public class AdminUserService {
 
     /**
      * Gets all users in the system.
-     *
      * Returns a complete list of all registered users. This method is typically
      * used for administrative user management interfaces.
      *
@@ -50,7 +51,6 @@ public class AdminUserService {
 
     /**
      * Gets a specific user by their unique identifier.
-     *
      * Returns an Optional containing the user if found, or an empty Optional
      * if no user exists with the specified ID.
      *
@@ -64,7 +64,6 @@ public class AdminUserService {
 
     /**
      * Saves a user to the repository.
-     *
      * Persists the specified user object to the repository. If the user
      * is new, it will be created; if it exists, it will be updated.
      *
@@ -78,7 +77,6 @@ public class AdminUserService {
 
     /**
      * Deletes a user by their unique identifier.
-     *
      * Removes the specified user from the system. The method includes safety
      * checks to prevent deletion of the last administrator in the system.
      *
@@ -93,11 +91,11 @@ public class AdminUserService {
         }
         User user = userOpt.get();
         // Check if user being deleted is an administrator
-        boolean isAdmin = user.getRoles().contains(org.apolenkov.application.config.SecurityConstants.ROLE_ADMIN);
+        boolean isAdmin = user.getRoles().contains(SecurityConstants.ROLE_ADMIN);
         if (isAdmin) {
             // Safety check: prevent deletion of the last administrator in the system
             long adminCount = userRepository.findAll().stream()
-                    .filter(u -> u.getRoles().contains(org.apolenkov.application.config.SecurityConstants.ROLE_ADMIN))
+                    .filter(u -> u.getRoles().contains(SecurityConstants.ROLE_ADMIN))
                     .count();
             if (adminCount <= 1) {
                 throw new IllegalStateException("Cannot delete the last administrator");
@@ -113,14 +111,12 @@ public class AdminUserService {
      * @param roles the new set of roles to assign to the user
      * @return the updated user object
      */
-    @Transactional
-    public User updateRoles(Long userId, Set<String> roles) {
+    private User updateRoles(Long userId, Set<String> roles) {
         User user = userRepository.findById(userId).orElseThrow();
         // Define allowed roles and sanitize input
-        java.util.Set<String> allowed = java.util.Set.of(
-                org.apolenkov.application.config.SecurityConstants.ROLE_USER,
-                org.apolenkov.application.config.SecurityConstants.ROLE_ADMIN);
-        java.util.Set<String> sanitized = new java.util.HashSet<>();
+        Set<String> allowed = Set.of(SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN);
+
+        Set<String> sanitized = new HashSet<>();
         for (String r : roles) {
             if (r == null || r.isBlank()) continue;
             // Auto-prepend ROLE_ prefix if missing (Spring Security convention)
@@ -129,7 +125,7 @@ public class AdminUserService {
         }
         // Ensure user always has at least ROLE_USER
         if (sanitized.isEmpty()) {
-            sanitized.add(org.apolenkov.application.config.SecurityConstants.ROLE_USER);
+            sanitized.add(SecurityConstants.ROLE_USER);
         }
         user.setRoles(sanitized);
         return userRepository.save(user);
@@ -144,8 +140,8 @@ public class AdminUserService {
      */
     @Transactional
     public void updateRolesWithAudit(String adminEmail, Long userId, Set<String> roles) {
-        java.util.Set<String> beforeRoles = new java.util.HashSet<>(
-                userRepository.findById(userId).orElseThrow().getRoles());
+        Set<String> beforeRoles =
+                new HashSet<>(userRepository.findById(userId).orElseThrow().getRoles());
         User after = updateRoles(userId, roles);
         roleAuditRepository.recordChange(
                 adminEmail, userId, beforeRoles, after.getRoles(), java.time.LocalDateTime.now());
@@ -167,17 +163,15 @@ public class AdminUserService {
     public User updateUserWithAudit(
             String adminEmail, Long userId, String email, String name, Set<String> roles, String rawPasswordOrNull) {
         User user = userRepository.findById(userId).orElseThrow();
-        java.util.Set<String> beforeRoles = new java.util.HashSet<>(user.getRoles());
+        Set<String> beforeRoles = new HashSet<>(user.getRoles());
 
         // Update email and name if provided (null values are ignored)
         if (email != null && !email.isBlank()) user.setEmail(email);
         if (name != null && !name.isBlank()) user.setName(name);
 
         // Sanitize and validate roles - ensure only allowed roles are assigned
-        java.util.Set<String> allowed = java.util.Set.of(
-                org.apolenkov.application.config.SecurityConstants.ROLE_USER,
-                org.apolenkov.application.config.SecurityConstants.ROLE_ADMIN);
-        java.util.Set<String> sanitized = new java.util.HashSet<>();
+        Set<String> allowed = Set.of(SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN);
+        Set<String> sanitized = new HashSet<>();
         if (roles != null) {
             for (String r : roles) {
                 if (r == null || r.isBlank()) continue;
@@ -187,7 +181,7 @@ public class AdminUserService {
             }
         }
         // Ensure user always has at least ROLE_USER
-        if (sanitized.isEmpty()) sanitized.add(org.apolenkov.application.config.SecurityConstants.ROLE_USER);
+        if (sanitized.isEmpty()) sanitized.add(SecurityConstants.ROLE_USER);
         user.setRoles(sanitized);
 
         // Validate and update password if provided
@@ -237,10 +231,8 @@ public class AdminUserService {
         }
 
         // Sanitize and validate roles - ensure only allowed roles are assigned
-        java.util.Set<String> allowed = java.util.Set.of(
-                org.apolenkov.application.config.SecurityConstants.ROLE_USER,
-                org.apolenkov.application.config.SecurityConstants.ROLE_ADMIN);
-        java.util.Set<String> sanitized = new java.util.HashSet<>();
+        Set<String> allowed = Set.of(SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN);
+        Set<String> sanitized = new HashSet<>();
         if (roles != null) {
             for (String r : roles) {
                 if (r == null || r.isBlank()) continue;
@@ -250,7 +242,7 @@ public class AdminUserService {
             }
         }
         // Ensure user always has at least ROLE_USER
-        if (sanitized.isEmpty()) sanitized.add(org.apolenkov.application.config.SecurityConstants.ROLE_USER);
+        if (sanitized.isEmpty()) sanitized.add(SecurityConstants.ROLE_USER);
 
         org.apolenkov.application.model.User user = new org.apolenkov.application.model.User();
         user.setEmail(email);
@@ -260,7 +252,7 @@ public class AdminUserService {
         User created = userRepository.save(user);
         // Record initial role assignment in audit log (empty set for "before" roles)
         roleAuditRepository.recordChange(
-                adminEmail, created.getId(), java.util.Set.of(), created.getRoles(), java.time.LocalDateTime.now());
+                adminEmail, created.getId(), Set.of(), created.getRoles(), java.time.LocalDateTime.now());
         return created;
     }
 }

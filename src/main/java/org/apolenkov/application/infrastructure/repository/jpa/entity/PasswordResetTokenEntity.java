@@ -7,7 +7,6 @@ import java.util.Objects;
 /**
  * Stores temporary tokens for password reset functionality.
  * Each token is associated with a user and has an expiration time.
- *
  * Table: "password_reset_tokens" with unique token constraint.
  */
 @Entity

@@ -25,7 +25,6 @@ import org.apolenkov.application.views.utils.DialogHelper;
 import org.apolenkov.application.views.utils.GridHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.TextHelper;
-import org.apolenkov.application.views.utils.Translator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -41,7 +40,6 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
     private static final String COL_UPDATED_AT = "updatedAt";
 
     private final transient NewsService newsService;
-    private final transient Translator translator;
     private final transient ListDataProvider<News> dataProvider;
     private final transient List<News> newsList;
 
@@ -51,16 +49,12 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
      * @param newsService the service for news operations
      * @throws IllegalArgumentException if newsService is null
      */
-    public AdminNewsView(NewsService newsService, Translator translator) {
+    public AdminNewsView(NewsService newsService) {
         if (newsService == null) {
             throw new IllegalArgumentException("NewsService cannot be null");
         }
-        if (translator == null) {
-            throw new IllegalArgumentException("Translator cannot be null");
-        }
 
         this.newsService = newsService;
-        this.translator = translator;
         this.newsList = new ArrayList<>();
 
         setPadding(true);
@@ -227,7 +221,6 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         Dialog confirmDialog = DialogHelper.createConfirmationDialog(
                 getTranslation("admin.news.confirm.delete.title"),
                 message,
-                translator,
                 () -> {
                     try {
                         newsService.deleteNews(news.getId());

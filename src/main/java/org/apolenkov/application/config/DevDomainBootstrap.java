@@ -8,11 +8,9 @@ import org.apolenkov.application.domain.port.RoleAuditRepository;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -24,18 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @Profile({"dev"})
 class DevDomainBootstrap {
-
-    private final MessageSource messageSource;
-
-    /**
-     * Creates bootstrap with message source dependency.
-     *
-     * @param messageSource message source for internationalized user names
-     */
-    public DevDomainBootstrap(MessageSource messageSource) {
-        this.messageSource = messageSource;
-    }
-
     /**
      * Creates CommandLineRunner for ensuring domain users exist.
      *
@@ -49,11 +35,9 @@ class DevDomainBootstrap {
     CommandLineRunner ensureDomainUsers(
             UserRepository users, RoleAuditRepository audit, PasswordEncoder passwordEncoder) {
         return args -> {
-            // Get localized user names from message bundles with fallback defaults
-            String userName = messageSource.getMessage(
-                    "dev.user.user.name", null, "Ivan Petrov", LocaleContextHolder.getLocale());
-            String adminName = messageSource.getMessage(
-                    "dev.user.admin.name", null, "Administrator", LocaleContextHolder.getLocale());
+            // Get localized user names from i18n provider with fallback defaults
+            final String userName = "Ivan Petrov";
+            final String adminName = "Administrator";
 
             syncUser(
                     users,
