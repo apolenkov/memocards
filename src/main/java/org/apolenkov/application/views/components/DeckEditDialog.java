@@ -80,6 +80,7 @@ public class DeckEditDialog extends Dialog {
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttons.setWidthFull();
 
         Button save = new Button(getTranslation("deck.edit.save"));
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
