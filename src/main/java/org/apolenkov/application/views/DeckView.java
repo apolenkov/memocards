@@ -45,6 +45,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private static final Logger log = LoggerFactory.getLogger(DeckView.class);
 
     private static final String FILL_REQUIRED_KEY = "dialog.fillRequired";
+    private static final String TITLE_PROPERTY = "title";
+    private static final String CANCEL_TRANSLATION_KEY = "common.cancel";
 
     private final transient DeckFacade deckFacade;
     private final transient DeckPresenter presenter;
@@ -196,11 +198,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 new DeckEditDialog(deckFacade, currentDeck, updated -> updateDeckInfo()).open();
             }
         });
-        editDeckButton.getElement().setProperty("title", getTranslation("deck.edit.tooltip"));
+        editDeckButton.getElement().setProperty(TITLE_PROPERTY, getTranslation("deck.edit.tooltip"));
 
         Button deleteDeckButton = new Button(VaadinIcon.TRASH.create());
         deleteDeckButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
-        deleteDeckButton.getElement().setProperty("title", getTranslation("deck.delete.tooltip"));
+        deleteDeckButton.getElement().setProperty(TITLE_PROPERTY, getTranslation("deck.delete.tooltip"));
         deleteDeckButton.addClickListener(e -> deleteDeck());
 
         actionsLayout.add(practiceButton, addFlashcardButton, editDeckButton, deleteDeckButton);
@@ -287,7 +289,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
                     Button toggleKnown = new Button(VaadinIcon.CHECK.create());
                     toggleKnown.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_SUCCESS);
-                    toggleKnown.getElement().setProperty("title", getTranslation("deck.toggleKnown.tooltip"));
+                    toggleKnown.getElement().setProperty(TITLE_PROPERTY, getTranslation("deck.toggleKnown.tooltip"));
                     toggleKnown.addClickListener(e -> {
                         presenter.toggleKnown(currentDeck.getId(), flashcard.getId());
                         flashcardGrid.getDataProvider().refreshAll();
@@ -472,7 +474,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         saveButton.addClickListener(e -> handleFlashcardSave(dialog, binder, flashcard));
 
-        Button cancelButton = new Button(getTranslation("common.cancel"));
+        Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
         cancelButton.addClickListener(e -> dialog.close());
 
         buttonsLayout.add(saveButton, cancelButton);
@@ -531,8 +533,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             NotificationHelper.showDeleteSuccess();
         });
 
-        Button cancelButton = new Button(getTranslation("common.cancel"));
-        cancelButton.addClickListener(e -> confirmDialog.close());
+        Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         buttons.add(confirmButton, cancelButton);
         layout.add(buttons);
@@ -611,7 +613,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         Button confirmButton = new Button(getTranslation("deck.delete.simpleConfirm"), VaadinIcon.TRASH.create());
         confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
 
-        Button cancelButton = new Button(getTranslation("common.cancel"));
+        Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         confirmButton.addClickListener(e -> {
@@ -692,7 +694,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
         confirmButton.setEnabled(false);
 
-        Button cancelButton = new Button(getTranslation("common.cancel"));
+        Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         // Frontend validation for better UX - enables/disables button immediately
