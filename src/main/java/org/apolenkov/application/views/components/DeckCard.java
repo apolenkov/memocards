@@ -129,8 +129,6 @@ public class DeckCard extends Div {
     /**
      * Navigates to the detailed deck view.
      * Handles navigation to the deck detail page when the card is clicked.
-     *
-     * @param viewModel the view model containing deck data to display
      */
     private void navigateToDeck() {
         if (viewModel.id() != null) {
@@ -141,8 +139,6 @@ public class DeckCard extends Div {
     /**
      * Navigates to the practice view for this deck.
      * Handles navigation to the practice page when the practice button is clicked.
-     *
-     * @param viewModel the view model containing deck data to display
      */
     private void navigateToPractice() {
         if (viewModel.id() != null) {

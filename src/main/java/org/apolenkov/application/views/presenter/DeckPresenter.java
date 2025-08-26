@@ -1,7 +1,5 @@
 package org.apolenkov.application.views.presenter;
 
-import java.util.List;
-import java.util.Optional;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.DeckFacade;
@@ -10,9 +8,11 @@ import org.apolenkov.application.service.query.CardQueryService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Optional;
+
 /**
  * Presenter for managing deck-related operations and presentation logic.
- *
  * This component coordinates between the UI layer and business services for
  * deck management, flashcard operations, and progress tracking. It provides
  * a clean interface for deck-related functionality and handles the coordination
