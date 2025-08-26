@@ -132,7 +132,7 @@ public class DeckFacade {
      */
     @Transactional(readOnly = true)
     public int deckSize(long deckId) {
-        return loadFlashcards(deckId).size();
+        return flashcardUseCase.getFlashcardsByDeckId(deckId).size();
     }
 
     /**
@@ -144,7 +144,8 @@ public class DeckFacade {
      */
     @Transactional(readOnly = true)
     public int progressPercent(long deckId) {
-        return statsService.getDeckProgressPercent(deckId, deckSize(deckId));
+        return statsService.getDeckProgressPercent(
+                deckId, flashcardUseCase.getFlashcardsByDeckId(deckId).size());
     }
 
     /**
@@ -208,7 +209,7 @@ public class DeckFacade {
     @Transactional
     public void deleteDeckWithConfirmation(Long deckId, String confirmationText) {
         // Get deck and validate it exists
-        Deck deck = getDeckOrThrow(deckId);
+        Deck deck = deckUseCase.getDeckById(deckId).orElseThrow();
 
         // Server-side validation for security - cannot be bypassed by frontend manipulation
         if (confirmationText == null || !deck.getTitle().equals(confirmationText.trim())) {
@@ -216,6 +217,6 @@ public class DeckFacade {
         }
 
         // Proceed with deletion if validation passes
-        deleteDeck(deckId);
+        deckUseCase.deleteDeck(deckId);
     }
 }
