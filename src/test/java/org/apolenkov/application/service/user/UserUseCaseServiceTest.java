@@ -97,8 +97,7 @@ class UserUseCaseServiceTest {
             java.util.Optional<User> result = userUseCaseService.getUserById(userId);
 
             // Then
-            assertThat(result).isPresent();
-            assertThat(result.get()).isEqualTo(expectedUser);
+            assertThat(result).isPresent().contains(expectedUser);
             verify(userRepository).findById(userId);
         }
 
@@ -183,7 +182,7 @@ class UserUseCaseServiceTest {
             // When & Then
             assertThatThrownBy(() -> userUseCaseService.getCurrentUser())
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("Authenticated principal is null");
+                    .hasMessage("Authenticated principal is null");
         }
 
         @Test

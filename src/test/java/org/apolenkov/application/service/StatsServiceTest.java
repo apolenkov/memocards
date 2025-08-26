@@ -56,15 +56,15 @@ class StatsServiceTest {
             // Then
             verify(statsRepository)
                     .appendSession(
-                            eq(deckId),
-                            eq(LocalDate.now()),
-                            eq(viewed),
-                            eq(correct),
-                            eq(repeat),
-                            eq(hard),
-                            eq(sessionDuration.toMillis()),
-                            eq(totalAnswerDelayMs),
-                            eq(knownCardIdsDelta));
+                            deckId,
+                            LocalDate.now(),
+                            viewed,
+                            correct,
+                            repeat,
+                            hard,
+                            sessionDuration.toMillis(),
+                            totalAnswerDelayMs,
+                            knownCardIdsDelta);
         }
 
         @Test
@@ -230,7 +230,7 @@ class StatsServiceTest {
             int result = statsService.getDeckProgressPercent(deckId, deckSize);
 
             // Then
-            assertThat(result).isEqualTo(0);
+            assertThat(result).isZero();
             verifyNoInteractions(statsRepository);
         }
 
@@ -245,7 +245,7 @@ class StatsServiceTest {
             int result = statsService.getDeckProgressPercent(deckId, deckSize);
 
             // Then
-            assertThat(result).isEqualTo(0);
+            assertThat(result).isZero();
             verifyNoInteractions(statsRepository);
         }
 
@@ -464,15 +464,15 @@ class StatsServiceTest {
             // Then
             verify(statsRepository)
                     .appendSession(
-                            eq(deckId),
-                            eq(LocalDate.now()),
-                            eq(viewed),
-                            eq(correct),
-                            eq(repeat),
-                            eq(hard),
-                            eq(0L), // Duration.ZERO.toMillis() = 0
-                            eq(totalAnswerDelayMs),
-                            eq(knownCardIdsDelta));
+                            deckId,
+                            LocalDate.now(),
+                            viewed,
+                            correct,
+                            repeat,
+                            hard,
+                            0L, // Duration.ZERO.toMillis() = 0
+                            totalAnswerDelayMs,
+                            knownCardIdsDelta);
         }
     }
 }

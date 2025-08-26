@@ -208,9 +208,9 @@ class RoleAuditJpaAdapterTest {
 
             // Then
             assertThat(result).hasSize(1);
-            RoleAuditRepository.RoleAuditRecord record = result.get(0);
-            assertThat(record.rolesBefore()).isEmpty();
-            assertThat(record.rolesAfter()).isEmpty();
+            RoleAuditRepository.RoleAuditRecord roleRecord = result.get(0);
+            assertThat(roleRecord.rolesBefore()).isEmpty();
+            assertThat(roleRecord.rolesAfter()).isEmpty();
             verify(repo).findAll();
         }
 
@@ -228,9 +228,9 @@ class RoleAuditJpaAdapterTest {
 
             // Then
             assertThat(result).hasSize(1);
-            RoleAuditRepository.RoleAuditRecord record = result.get(0);
-            assertThat(record.rolesBefore()).containsExactlyInAnyOrder("USER");
-            assertThat(record.rolesAfter()).containsExactlyInAnyOrder("ADMIN");
+            RoleAuditRepository.RoleAuditRecord roleRecord = result.get(0);
+            assertThat(roleRecord.rolesBefore()).containsExactlyInAnyOrder("USER");
+            assertThat(roleRecord.rolesAfter()).containsExactlyInAnyOrder("ADMIN");
             verify(repo).findAll();
         }
     }

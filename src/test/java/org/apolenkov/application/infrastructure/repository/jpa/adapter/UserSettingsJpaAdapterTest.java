@@ -78,8 +78,7 @@ class UserSettingsJpaAdapterTest {
             Optional<String> result = adapter.findPreferredLocaleCode(userId);
 
             // Then
-            assertThat(result).isPresent();
-            assertThat(result.get()).isEqualTo(expectedLocale);
+            assertThat(result).isPresent().contains(expectedLocale);
             verify(repo).findByUserId(userId);
         }
 

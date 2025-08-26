@@ -1,7 +1,9 @@
 package org.apolenkov.application.service.query;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
@@ -16,6 +18,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -63,8 +67,7 @@ class DeckQueryServiceTest {
             List<Deck> result = deckQueryService.listDecksForCurrentUser(query);
 
             // Then
-            assertThat(result).hasSize(2);
-            assertThat(result).containsExactlyInAnyOrder(deck1, deck2);
+            assertThat(result).hasSize(2).containsExactlyInAnyOrder(deck1, deck2);
             verify(userUseCase).getCurrentUser();
             verify(deckUseCase).getDecksByUserId(userId);
         }
@@ -73,7 +76,6 @@ class DeckQueryServiceTest {
         @DisplayName("ListDecksForCurrentUser should return user's decks when query is null")
         void listDecksForCurrentUserShouldReturnUsersDecksWhenQueryIsNull() {
             // Given
-            String query = null;
             Long userId = 1L;
             Deck deck1 = new Deck(1L, userId, "Deck 1", "Description 1");
             Deck deck2 = new Deck(2L, userId, "Deck 2", "Description 2");
@@ -83,24 +85,28 @@ class DeckQueryServiceTest {
             when(deckUseCase.getDecksByUserId(userId)).thenReturn(userDecks);
 
             // When
-            List<Deck> result = deckQueryService.listDecksForCurrentUser(query);
+            List<Deck> result = deckQueryService.listDecksForCurrentUser(null);
 
             // Then
-            assertThat(result).hasSize(2);
-            assertThat(result).containsExactlyInAnyOrder(deck1, deck2);
+            assertThat(result).hasSize(2).containsExactlyInAnyOrder(deck1, deck2);
             verify(userUseCase).getCurrentUser();
             verify(deckUseCase).getDecksByUserId(userId);
         }
 
-        @Test
-        @DisplayName("ListDecksForCurrentUser should filter decks by title")
-        void listDecksForCurrentUserShouldFilterDecksByTitle() {
+        @ParameterizedTest
+        @CsvSource({
+            "math, Math Deck, Mathematics flashcards",
+            "science, Science Deck, Science and physics",
+            "MATH, Math Deck, Mathematics flashcards"
+        })
+        @DisplayName("ListDecksForCurrentUser should filter decks by query")
+        void listDecksForCurrentUserShouldFilterDecksByQuery(
+                String query, String expectedDeckTitle, String expectedDeckDescription) {
             // Given
-            String query = "math";
             Long userId = 1L;
-            Deck mathDeck = new Deck(1L, userId, "Math Deck", "Mathematics flashcards");
-            Deck historyDeck = new Deck(2L, userId, "History Deck", "History flashcards");
-            List<Deck> userDecks = List.of(mathDeck, historyDeck);
+            Deck expectedDeck = new Deck(1L, userId, expectedDeckTitle, expectedDeckDescription);
+            Deck otherDeck = new Deck(2L, userId, "Other Deck", "Other Description");
+            List<Deck> userDecks = List.of(expectedDeck, otherDeck);
 
             when(userUseCase.getCurrentUser()).thenReturn(createMockUser(userId));
             when(deckUseCase.getDecksByUserId(userId)).thenReturn(userDecks);
@@ -109,54 +115,7 @@ class DeckQueryServiceTest {
             List<Deck> result = deckQueryService.listDecksForCurrentUser(query);
 
             // Then
-            assertThat(result).hasSize(1);
-            assertThat(result).contains(mathDeck);
-            verify(userUseCase).getCurrentUser();
-            verify(deckUseCase).getDecksByUserId(userId);
-        }
-
-        @Test
-        @DisplayName("ListDecksForCurrentUser should filter decks by description")
-        void listDecksForCurrentUserShouldFilterDecksByDescription() {
-            // Given
-            String query = "science";
-            Long userId = 1L;
-            Deck mathDeck = new Deck(1L, userId, "Math Deck", "Mathematics flashcards");
-            Deck scienceDeck = new Deck(2L, userId, "Science Deck", "Science and physics");
-            List<Deck> userDecks = List.of(mathDeck, scienceDeck);
-
-            when(userUseCase.getCurrentUser()).thenReturn(createMockUser(userId));
-            when(deckUseCase.getDecksByUserId(userId)).thenReturn(userDecks);
-
-            // When
-            List<Deck> result = deckQueryService.listDecksForCurrentUser(query);
-
-            // Then
-            assertThat(result).hasSize(1);
-            assertThat(result).contains(scienceDeck);
-            verify(userUseCase).getCurrentUser();
-            verify(deckUseCase).getDecksByUserId(userId);
-        }
-
-        @Test
-        @DisplayName("ListDecksForCurrentUser should filter decks case-insensitively")
-        void listDecksForCurrentUserShouldFilterDecksCaseInsensitively() {
-            // Given
-            String query = "MATH";
-            Long userId = 1L;
-            Deck mathDeck = new Deck(1L, userId, "Math Deck", "Mathematics flashcards");
-            Deck historyDeck = new Deck(2L, userId, "History Deck", "History flashcards");
-            List<Deck> userDecks = List.of(mathDeck, historyDeck);
-
-            when(userUseCase.getCurrentUser()).thenReturn(createMockUser(userId));
-            when(deckUseCase.getDecksByUserId(userId)).thenReturn(userDecks);
-
-            // When
-            List<Deck> result = deckQueryService.listDecksForCurrentUser(query);
-
-            // Then
-            assertThat(result).hasSize(1);
-            assertThat(result).contains(mathDeck);
+            assertThat(result).hasSize(1).contains(expectedDeck);
             verify(userUseCase).getCurrentUser();
             verify(deckUseCase).getDecksByUserId(userId);
         }
@@ -178,8 +137,7 @@ class DeckQueryServiceTest {
             List<Deck> result = deckQueryService.listDecksForCurrentUser(query);
 
             // Then
-            assertThat(result).hasSize(1);
-            assertThat(result).contains(mathDeck);
+            assertThat(result).hasSize(1).contains(mathDeck);
             verify(userUseCase).getCurrentUser();
             verify(deckUseCase).getDecksByUserId(userId);
         }
@@ -202,10 +160,11 @@ class DeckQueryServiceTest {
             List<Deck> result = deckQueryService.listDecksForCurrentUser(query);
 
             // Then
-            assertThat(result).hasSize(3);
-            assertThat(result.get(0).getTitle()).isEqualTo("A Deck");
-            assertThat(result.get(1).getTitle()).isEqualTo("B Deck");
-            assertThat(result.get(2).getTitle()).isEqualTo("C Deck");
+            assertThat(result).hasSize(3).satisfies(decks -> {
+                assertThat(decks.get(0).getTitle()).isEqualTo("A Deck");
+                assertThat(decks.get(1).getTitle()).isEqualTo("B Deck");
+                assertThat(decks.get(2).getTitle()).isEqualTo("C Deck");
+            });
             verify(userUseCase).getCurrentUser();
             verify(deckUseCase).getDecksByUserId(userId);
         }
@@ -277,12 +236,14 @@ class DeckQueryServiceTest {
             DeckCardViewModel result = deckQueryService.toViewModel(deck);
 
             // Then
-            assertThat(result.id()).isEqualTo(deck.getId());
-            assertThat(result.title()).isEqualTo(deck.getTitle());
-            assertThat(result.description()).isEqualTo(deck.getDescription());
-            assertThat(result.deckSize()).isEqualTo(deckSize);
-            assertThat(result.knownCount()).isEqualTo(knownCount);
-            assertThat(result.progressPercent()).isEqualTo(progressPercent);
+            assertThat(result).satisfies(viewModel -> {
+                assertThat(viewModel.id()).isEqualTo(deck.getId());
+                assertThat(viewModel.title()).isEqualTo(deck.getTitle());
+                assertThat(viewModel.description()).isEqualTo(deck.getDescription());
+                assertThat(viewModel.deckSize()).isEqualTo(deckSize);
+                assertThat(viewModel.knownCount()).isEqualTo(knownCount);
+                assertThat(viewModel.progressPercent()).isEqualTo(progressPercent);
+            });
 
             verify(flashcardUseCase).countByDeckId(deck.getId());
             verify(statsService).getKnownCardIds(deck.getId());
@@ -295,7 +256,6 @@ class DeckQueryServiceTest {
             // Given
             Deck deck = new Deck(1L, 1L, "Empty Deck", "Empty Description");
             int deckSize = 0;
-            int knownCount = 0;
             int progressPercent = 0;
 
             when(flashcardUseCase.countByDeckId(deck.getId())).thenReturn(0L);
@@ -306,9 +266,11 @@ class DeckQueryServiceTest {
             DeckCardViewModel result = deckQueryService.toViewModel(deck);
 
             // Then
-            assertThat(result.deckSize()).isEqualTo(0);
-            assertThat(result.knownCount()).isEqualTo(0);
-            assertThat(result.progressPercent()).isEqualTo(0);
+            assertThat(result).satisfies(viewModel -> {
+                assertThat(viewModel.deckSize()).isZero();
+                assertThat(viewModel.knownCount()).isZero();
+                assertThat(viewModel.progressPercent()).isZero();
+            });
 
             verify(flashcardUseCase).countByDeckId(deck.getId());
             verify(statsService).getKnownCardIds(deck.getId());
@@ -332,9 +294,11 @@ class DeckQueryServiceTest {
             DeckCardViewModel result = deckQueryService.toViewModel(deck);
 
             // Then
-            assertThat(result.deckSize()).isEqualTo(deckSize);
-            assertThat(result.knownCount()).isEqualTo(knownCount);
-            assertThat(result.progressPercent()).isEqualTo(progressPercent);
+            assertThat(result).satisfies(viewModel -> {
+                assertThat(viewModel.deckSize()).isEqualTo(deckSize);
+                assertThat(viewModel.knownCount()).isEqualTo(knownCount);
+                assertThat(viewModel.progressPercent()).isEqualTo(progressPercent);
+            });
 
             verify(flashcardUseCase).countByDeckId(deck.getId());
             verify(statsService).getKnownCardIds(deck.getId());

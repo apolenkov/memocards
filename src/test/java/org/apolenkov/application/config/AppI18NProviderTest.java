@@ -1,6 +1,7 @@
 package org.apolenkov.application.config;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 import java.util.Locale;
@@ -9,6 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,10 +36,11 @@ class AppI18NProviderTest {
             List<Locale> result = i18nProvider.getProvidedLocales();
 
             // Then
-            assertThat(result).hasSize(3);
-            assertThat(result).contains(Locale.ENGLISH);
-            assertThat(result).contains(Locale.forLanguageTag("ru"));
-            assertThat(result).contains(Locale.forLanguageTag("es"));
+            assertThat(result)
+                    .hasSize(3)
+                    .contains(Locale.ENGLISH)
+                    .contains(Locale.forLanguageTag("ru"))
+                    .contains(Locale.forLanguageTag("es"));
         }
 
         @Test
@@ -54,46 +58,19 @@ class AppI18NProviderTest {
     @DisplayName("Get Translation Tests")
     class GetTranslationTests {
 
-        @Test
-        @DisplayName("GetTranslation should return translation for English locale")
-        void getTranslationShouldReturnTranslationForEnglishLocale() {
+        @ParameterizedTest
+        @CsvSource({"app.title, en, Cards", "app.title, ru, Мемокарты", "app.title, es, Tarjetas"})
+        @DisplayName("GetTranslation should return correct translation for supported locales")
+        void getTranslationShouldReturnCorrectTranslationForSupportedLocales(
+                String key, String languageTag, String expectedTranslation) {
             // Given
-            String key = "app.title";
-            Locale locale = Locale.ENGLISH;
+            Locale locale = Locale.forLanguageTag(languageTag);
 
             // When
             String result = i18nProvider.getTranslation(key, locale);
 
             // Then
-            assertThat(result).isEqualTo("Cards");
-        }
-
-        @Test
-        @DisplayName("GetTranslation should return translation for Russian locale")
-        void getTranslationShouldReturnTranslationForRussianLocale() {
-            // Given
-            String key = "app.title";
-            Locale locale = Locale.forLanguageTag("ru");
-
-            // When
-            String result = i18nProvider.getTranslation(key, locale);
-
-            // Then
-            assertThat(result).isEqualTo("Мемокарты");
-        }
-
-        @Test
-        @DisplayName("GetTranslation should return translation for Spanish locale")
-        void getTranslationShouldReturnTranslationForSpanishLocale() {
-            // Given
-            String key = "app.title";
-            Locale locale = Locale.forLanguageTag("es");
-
-            // When
-            String result = i18nProvider.getTranslation(key, locale);
-
-            // Then
-            assertThat(result).isEqualTo("Tarjetas");
+            assertThat(result).isEqualTo(expectedTranslation);
         }
 
         @Test
@@ -129,10 +106,9 @@ class AppI18NProviderTest {
         void getTranslationShouldUseEnglishAsFallbackWhenLocaleIsNull() {
             // Given
             String key = "app.title";
-            Locale locale = null;
 
             // When
-            String result = i18nProvider.getTranslation(key, locale);
+            String result = i18nProvider.getTranslation(key, null);
 
             // Then
             assertThat(result).isEqualTo("Cards");
@@ -142,14 +118,13 @@ class AppI18NProviderTest {
         @DisplayName("GetTranslation should return empty string when key is null")
         void getTranslationShouldReturnEmptyStringWhenKeyIsNull() {
             // Given
-            String key = null;
             Locale locale = Locale.ENGLISH;
 
             // When
-            String result = i18nProvider.getTranslation(key, locale);
+            String result = i18nProvider.getTranslation(null, locale);
 
             // Then
-            assertThat(result).isEqualTo("");
+            assertThat(result).isEmpty();
         }
 
         @Test
@@ -163,7 +138,7 @@ class AppI18NProviderTest {
             String result = i18nProvider.getTranslation(key, locale);
 
             // Then
-            assertThat(result).isEqualTo("");
+            assertThat(result).isEmpty();
         }
     }
 
@@ -222,10 +197,9 @@ class AppI18NProviderTest {
             // Given
             String key = "app.title";
             Locale locale = Locale.ENGLISH;
-            Object[] params = null;
 
             // When
-            String result = i18nProvider.getTranslation(key, locale, params);
+            String result = i18nProvider.getTranslation(key, locale);
 
             // Then
             assertThat(result).isEqualTo("Cards");

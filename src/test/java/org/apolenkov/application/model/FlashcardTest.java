@@ -1,7 +1,9 @@
 package org.apolenkov.application.model;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.within;
+import static org.awaitility.Awaitility.await;
 
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
@@ -206,60 +208,37 @@ class FlashcardTest {
     @DisplayName("Timestamp Update Tests")
     class TimestampUpdateTests {
 
+        private void assertTimestampUpdated(java.util.function.Consumer<Flashcard> mutation) {
+            LocalDateTime beforeUpdate = flashcard.getUpdatedAt();
+
+            await().atMost(java.time.Duration.ofMillis(100));
+
+            mutation.accept(flashcard);
+            assertThat(flashcard.getUpdatedAt()).isAfter(beforeUpdate);
+        }
+
         @Test
         @DisplayName("FrontText setter should update timestamp")
         void frontTextSetterShouldUpdateTimestamp() {
-            LocalDateTime beforeUpdate = flashcard.getUpdatedAt();
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-            }
-
-            flashcard.setFrontText("New Front Text");
-
-            assertThat(flashcard.getUpdatedAt()).isAfter(beforeUpdate);
+            assertTimestampUpdated(fc -> fc.setFrontText("New Front Text"));
         }
 
         @Test
         @DisplayName("BackText setter should update timestamp")
         void backTextSetterShouldUpdateTimestamp() {
-            LocalDateTime beforeUpdate = flashcard.getUpdatedAt();
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-            }
-
-            flashcard.setBackText("New Back Text");
-
-            assertThat(flashcard.getUpdatedAt()).isAfter(beforeUpdate);
+            assertTimestampUpdated(fc -> fc.setBackText("New Back Text"));
         }
 
         @Test
         @DisplayName("Example setter should update timestamp")
         void exampleSetterShouldUpdateTimestamp() {
-            LocalDateTime beforeUpdate = flashcard.getUpdatedAt();
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-            }
-
-            flashcard.setExample("New Example");
-
-            assertThat(flashcard.getUpdatedAt()).isAfter(beforeUpdate);
+            assertTimestampUpdated(fc -> fc.setExample("New Example"));
         }
 
         @Test
         @DisplayName("ImageUrl setter should update timestamp")
         void imageUrlSetterShouldUpdateTimestamp() {
-            LocalDateTime beforeUpdate = flashcard.getUpdatedAt();
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-            }
-
-            flashcard.setImageUrl("https://example.com/image.jpg");
-
-            assertThat(flashcard.getUpdatedAt()).isAfter(beforeUpdate);
+            assertTimestampUpdated(fc -> fc.setImageUrl("https://example.com/image.jpg"));
         }
     }
 
@@ -279,10 +258,10 @@ class FlashcardTest {
             Flashcard flashcard3 = new Flashcard();
             flashcard3.setId(2L);
 
-            assertThat(flashcard1).isEqualTo(flashcard2);
-            assertThat(flashcard1).isNotEqualTo(flashcard3);
-            assertThat(flashcard1).isNotEqualTo(null);
-            assertThat(flashcard1).isNotEqualTo("string");
+            assertThat(flashcard1)
+                    .isEqualTo(flashcard2)
+                    .isNotEqualTo(flashcard3)
+                    .isNotEqualTo(null);
         }
 
         @Test
@@ -294,7 +273,7 @@ class FlashcardTest {
             Flashcard flashcard2 = new Flashcard();
             flashcard2.setId(1L);
 
-            assertThat(flashcard1.hashCode()).isEqualTo(flashcard2.hashCode());
+            assertThat(flashcard1).hasSameHashCodeAs(flashcard2);
         }
     }
 

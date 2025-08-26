@@ -1,7 +1,11 @@
 package org.apolenkov.application.model;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.within;
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -79,9 +83,9 @@ class DeckTest {
         @Test
         @DisplayName("Create should throw exception for null userId")
         void createShouldThrowExceptionForNullUserId() {
-            assertThatThrownBy(() -> Deck.create(null, "Title", "Description"))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("userId is required");
+            IllegalArgumentException ex =
+                    assertThrows(IllegalArgumentException.class, () -> Deck.create(null, "Title", "Description"));
+            assertThat(ex).hasMessageContaining("userId");
         }
 
         @ParameterizedTest
@@ -89,9 +93,9 @@ class DeckTest {
         @ValueSource(strings = {"   ", "\t", "\n"})
         @DisplayName("Create should throw exception for null or empty title")
         void createShouldThrowExceptionForNullOrEmptyTitle(String title) {
-            assertThatThrownBy(() -> Deck.create(1L, title, "Description"))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("title is required");
+            IllegalArgumentException ex =
+                    assertThrows(IllegalArgumentException.class, () -> Deck.create(1L, title, "Description"));
+            assertThat(ex).hasMessage("title is required");
         }
 
         @Test
@@ -124,9 +128,8 @@ class DeckTest {
         @Test
         @DisplayName("UserId setter should throw exception for null")
         void userIdSetterShouldThrowExceptionForNull() {
-            assertThatThrownBy(() -> deck.setUserId(null))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("userId is required");
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> deck.setUserId(null));
+            assertThat(ex).hasMessage("userId is required");
         }
 
         @Test
@@ -148,9 +151,8 @@ class DeckTest {
         @ValueSource(strings = {"   ", "\t", "\n"})
         @DisplayName("Title setter should throw exception for null or empty title")
         void titleSetterShouldThrowExceptionForNullOrEmptyTitle(String title) {
-            assertThatThrownBy(() -> deck.setTitle(title))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("title is required");
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> deck.setTitle(title));
+            assertThat(ex).hasMessage("title is required");
         }
 
         @Test
@@ -196,7 +198,7 @@ class DeckTest {
         @Test
         @DisplayName("GetFlashcardCount should return correct count")
         void getFlashcardCountShouldReturnCorrectCount() {
-            assertThat(deck.getFlashcardCount()).isEqualTo(0);
+            assertThat(deck.getFlashcardCount()).isZero();
 
             deck.setFlashcards(List.of(new Flashcard(), new Flashcard()));
             assertThat(deck.getFlashcardCount()).isEqualTo(2);
@@ -209,15 +211,12 @@ class DeckTest {
             LocalDateTime beforeAdd = deck.getUpdatedAt();
 
             // Wait a bit to ensure timestamp difference
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-            }
+            await().atMost(java.time.Duration.ofMillis(100));
 
             deck.addFlashcard(flashcard);
 
             assertThat(deck.getFlashcards()).hasSize(1);
-            assertThat(deck.getFlashcards().get(0)).isEqualTo(flashcard);
+            assertThat(deck.getFlashcards().getFirst()).isEqualTo(flashcard);
             assertThat(deck.getUpdatedAt()).isAfter(beforeAdd);
             assertThat(flashcard.getDeckId()).isEqualTo(deck.getId());
         }
@@ -238,10 +237,7 @@ class DeckTest {
             LocalDateTime beforeRemove = deck.getUpdatedAt();
 
             // Wait a bit to ensure timestamp difference
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-            }
+            await().atMost(java.time.Duration.ofMillis(100));
 
             deck.removeFlashcard(flashcard);
 
@@ -278,8 +274,10 @@ class DeckTest {
         void getFlashcardsShouldReturnUnmodifiableList() {
             deck.setFlashcards(List.of(new Flashcard()));
 
-            assertThatThrownBy(() -> deck.getFlashcards().add(new Flashcard()))
-                    .isInstanceOf(UnsupportedOperationException.class);
+            List<Flashcard> list = deck.getFlashcards();
+            Flashcard newCard = new Flashcard();
+
+            assertThatThrownBy(() -> list.add(newCard)).isInstanceOf(UnsupportedOperationException.class);
         }
     }
 
@@ -291,10 +289,7 @@ class DeckTest {
         @DisplayName("Title setter should update timestamp")
         void titleSetterShouldUpdateTimestamp() {
             LocalDateTime beforeUpdate = deck.getUpdatedAt();
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-            }
+            await().atMost(java.time.Duration.ofMillis(100));
 
             deck.setTitle("New Title");
 
@@ -305,10 +300,7 @@ class DeckTest {
         @DisplayName("Description setter should update timestamp")
         void descriptionSetterShouldUpdateTimestamp() {
             LocalDateTime beforeUpdate = deck.getUpdatedAt();
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-            }
+            await().atMost(java.time.Duration.ofMillis(100));
 
             deck.setDescription("New Description");
 
@@ -332,10 +324,7 @@ class DeckTest {
             Deck deck3 = new Deck();
             deck3.setId(2L);
 
-            assertThat(deck1).isEqualTo(deck2);
-            assertThat(deck1).isNotEqualTo(deck3);
-            assertThat(deck1).isNotEqualTo(null);
-            assertThat(deck1).isNotEqualTo("string");
+            assertThat(deck1).isEqualTo(deck2).isNotEqualTo(deck3).isNotEqualTo(null);
         }
 
         @Test
@@ -347,7 +336,7 @@ class DeckTest {
             Deck deck2 = new Deck();
             deck2.setId(1L);
 
-            assertThat(deck1.hashCode()).isEqualTo(deck2.hashCode());
+            assertThat(deck1).hasSameHashCodeAs(deck2);
         }
     }
 

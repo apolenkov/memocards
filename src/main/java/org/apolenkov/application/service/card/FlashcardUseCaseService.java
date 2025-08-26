@@ -2,8 +2,10 @@ package org.apolenkov.application.service.card;
 
 import jakarta.validation.Validator;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apolenkov.application.config.TransactionAnnotations;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.model.Flashcard;
@@ -68,7 +70,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
         if (!violations.isEmpty()) {
             String message = violations.stream()
                     .map(v -> v.getPropertyPath() + " " + v.getMessage())
-                    .collect(java.util.stream.Collectors.joining(", "));
+                    .collect(Collectors.joining(", "));
             throw new IllegalArgumentException("Validation failed: " + message);
         }
         return flashcardRepository.save(flashcard);
@@ -98,7 +100,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     public List<Flashcard> getFlashcardsForPractice(Long deckId, int count, boolean random) {
         List<Flashcard> allCards = new ArrayList<>(getFlashcardsByDeckId(deckId));
         if (random) {
-            java.util.Collections.shuffle(allCards);
+            Collections.shuffle(allCards);
         }
         return allCards.stream().limit(count).toList();
     }

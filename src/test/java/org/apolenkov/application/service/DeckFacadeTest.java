@@ -277,7 +277,7 @@ class DeckFacadeTest {
             int result = deckFacade.deckSize(deckId);
 
             // Then
-            assertThat(result).isEqualTo(0);
+            assertThat(result).isZero();
             verify(flashcardUseCase).getFlashcardsByDeckId(deckId);
         }
 
@@ -324,7 +324,7 @@ class DeckFacadeTest {
             int result = deckFacade.progressPercent(deckId);
 
             // Then
-            assertThat(result).isEqualTo(0);
+            assertThat(result).isZero();
             verify(flashcardUseCase).getFlashcardsByDeckId(deckId);
             verify(statsService).getDeckProgressPercent(deckId, 0);
         }
