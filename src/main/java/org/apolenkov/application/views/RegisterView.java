@@ -280,7 +280,26 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
      * @return true if password meets all security requirements, false otherwise
      */
     private boolean isPasswordValid(String pwd) {
-        return pwd.length() >= 8 && pwd.matches(".*[A-Za-z].*") && pwd.matches(".*\\d.*");
+        if (pwd.length() < 8) {
+            return false;
+        }
+
+        boolean hasLetter = false;
+        boolean hasDigit = false;
+
+        for (char c : pwd.toCharArray()) {
+            if (Character.isLetter(c)) {
+                hasLetter = true;
+            } else if (Character.isDigit(c)) {
+                hasDigit = true;
+            }
+
+            if (hasLetter && hasDigit) {
+                break;
+            }
+        }
+
+        return hasLetter && hasDigit;
     }
 
     /**

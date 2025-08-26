@@ -15,7 +15,7 @@ import jakarta.annotation.security.RolesAllowed;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import org.apolenkov.application.config.SecurityConstants;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.model.Deck;
@@ -34,6 +34,13 @@ import org.apolenkov.application.views.utils.TextHelper;
 @Route(value = "stats", layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class StatsView extends VerticalLayout implements HasDynamicTitle {
+
+    private static final String SURFACE_PANEL_CLASS = "surface-panel";
+    private static final String STATS_SECTION_CLASS = "stats-section";
+    private static final String STATS_SECTION_TITLE_CLASS = "stats-section__title";
+    private static final String TITLE_ATTRIBUTE = "title";
+    private static final String STATS_COLLAPSE_KEY = "stats.collapse";
+    private static final String STATS_EXPAND_KEY = "stats.expand";
 
     // Translation key constants
     private static final String STATS_SESSIONS = "stats.sessions";
@@ -67,7 +74,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         pageSection.setSpacing(true);
         pageSection.setWidthFull();
         pageSection.addClassName("stats-page__section");
-        pageSection.addClassName("surface-panel");
+        pageSection.addClassName(SURFACE_PANEL_CLASS);
 
         H2 mainTitle = new H2(getTranslation("stats.title"));
         mainTitle.addClassName("stats-view__title");
@@ -96,8 +103,8 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
         section.setWidthFull();
-        section.addClassName("stats-section");
-        section.addClassName("surface-panel");
+        section.addClassName(STATS_SECTION_CLASS);
+        section.addClassName(SURFACE_PANEL_CLASS);
 
         // Create collapsible header
         HorizontalLayout headerLayout = new HorizontalLayout();
@@ -106,11 +113,11 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         headerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         H3 sectionTitle = TextHelper.createSectionTitle(getTranslation("stats.overall"));
-        sectionTitle.addClassName("stats-section__title");
+        sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
 
         Button toggleButton = new Button(VaadinIcon.CHEVRON_DOWN.create());
         toggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        toggleButton.getElement().setAttribute("title", getTranslation("stats.collapse"));
+        toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
 
         headerLayout.add(sectionTitle, toggleButton);
         section.add(headerLayout);
@@ -150,18 +157,18 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         // Hide section by default
         contentContainer.setVisible(false);
         toggleButton.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-        toggleButton.getElement().setAttribute("title", getTranslation("stats.expand"));
+        toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_EXPAND_KEY));
 
         // Add toggle functionality
         toggleButton.addClickListener(e -> {
             if (contentContainer.isVisible()) {
                 contentContainer.setVisible(false);
                 toggleButton.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-                toggleButton.getElement().setAttribute("title", getTranslation("stats.expand"));
+                toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_EXPAND_KEY));
             } else {
                 contentContainer.setVisible(true);
                 toggleButton.setIcon(VaadinIcon.CHEVRON_DOWN.create());
-                toggleButton.getElement().setAttribute("title", getTranslation("stats.collapse"));
+                toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
             }
         });
 
@@ -179,8 +186,8 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
         section.setWidthFull();
-        section.addClassName("stats-section");
-        section.addClassName("surface-panel");
+        section.addClassName(STATS_SECTION_CLASS);
+        section.addClassName(SURFACE_PANEL_CLASS);
 
         // Create collapsible header
         HorizontalLayout headerLayout = new HorizontalLayout();
@@ -189,11 +196,11 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         headerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         H3 sectionTitle = new H3(getTranslation("stats.today"));
-        sectionTitle.addClassName("stats-section__title");
+        sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
 
         Button toggleButton = new Button(VaadinIcon.CHEVRON_DOWN.create());
         toggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        toggleButton.getElement().setAttribute("title", getTranslation("stats.collapse"));
+        toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
 
         headerLayout.add(sectionTitle, toggleButton);
         section.add(headerLayout);
@@ -236,11 +243,11 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
             if (contentContainer.isVisible()) {
                 contentContainer.setVisible(false);
                 toggleButton.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-                toggleButton.getElement().setAttribute("title", getTranslation("stats.expand"));
+                toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_EXPAND_KEY));
             } else {
                 contentContainer.setVisible(true);
                 toggleButton.setIcon(VaadinIcon.CHEVRON_DOWN.create());
-                toggleButton.getElement().setAttribute("title", getTranslation("stats.collapse"));
+                toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
             }
         });
 
@@ -260,8 +267,8 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         section.setSpacing(true);
         section.setPadding(true);
         section.setWidthFull();
-        section.addClassName("stats-section");
-        section.addClassName("surface-panel");
+        section.addClassName(STATS_SECTION_CLASS);
+        section.addClassName(SURFACE_PANEL_CLASS);
 
         // Create collapsible header
         HorizontalLayout headerLayout = new HorizontalLayout();
@@ -270,11 +277,11 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         headerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         H3 sectionTitle = new H3(getTranslation("stats.byDeck"));
-        sectionTitle.addClassName("stats-section__title");
+        sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
 
         Button toggleButton = new Button(VaadinIcon.CHEVRON_DOWN.create());
         toggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        toggleButton.getElement().setAttribute("title", getTranslation("stats.collapse"));
+        toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
 
         headerLayout.add(sectionTitle, toggleButton);
         section.add(headerLayout);
@@ -292,11 +299,11 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
 
         Button prevButton = new Button(VaadinIcon.CHEVRON_LEFT.create());
         prevButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
-        prevButton.getElement().setAttribute("title", getTranslation("stats.previousDeck"));
+        prevButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation("stats.previousDeck"));
 
         Button nextButton = new Button(VaadinIcon.CHEVRON_RIGHT.create());
         nextButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
-        nextButton.getElement().setAttribute("title", getTranslation("stats.nextDeck"));
+        nextButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation("stats.nextDeck"));
 
         // Page indicator
         Span pageIndicator = new Span();
@@ -314,7 +321,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         final int totalDecks = decks.size();
 
         // Update display function
-        Consumer<Integer> updateDisplay = index -> {
+        IntConsumer updateDisplay = index -> {
             if (totalDecks == 0) {
                 currentDeckContainer.removeAll();
                 currentDeckContainer.add(new Span(getTranslation("stats.noDecks")));
@@ -367,18 +374,18 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         // Hide section by default
         contentContainer.setVisible(false);
         toggleButton.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-        toggleButton.getElement().setAttribute("title", getTranslation("stats.expand"));
+        toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_EXPAND_KEY));
 
         // Add toggle functionality
         toggleButton.addClickListener(e -> {
             if (contentContainer.isVisible()) {
                 contentContainer.setVisible(false);
                 toggleButton.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-                toggleButton.getElement().setAttribute("title", getTranslation("stats.expand"));
+                toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_EXPAND_KEY));
             } else {
                 contentContainer.setVisible(true);
                 toggleButton.setIcon(VaadinIcon.CHEVRON_DOWN.create());
-                toggleButton.getElement().setAttribute("title", getTranslation("stats.collapse"));
+                toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
             }
         });
 
@@ -387,31 +394,16 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Creates a statistics card with label and value.
+     * Creates a statistics card with label, value and CSS modifier.
      *
      * @param labelKey translation key for the label
      * @param value numeric value to display
      * @return configured statistics card component
      */
     private Div createStatCard(String labelKey, int value) {
-        return createStatCard(labelKey, value, "");
-    }
-
-    /**
-     * Creates a statistics card with label, value and CSS modifier.
-     *
-     * @param labelKey translation key for the label
-     * @param value numeric value to display
-     * @param modifier CSS modifier class suffix
-     * @return configured statistics card component
-     */
-    private Div createStatCard(String labelKey, int value, String modifier) {
         Div card = new Div();
         card.addClassName("stats-card");
         card.addClassName("surface-card");
-        if (!modifier.isEmpty()) {
-            card.addClassName("stats-card--" + modifier);
-        }
 
         Div valueDiv = new Div();
         valueDiv.addClassName("stats-card__value");
