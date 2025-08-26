@@ -47,10 +47,26 @@ public class AuthFacade {
      * @throws IllegalArgumentException if password does not meet security requirements
      */
     public void registerUser(String username, String rawPassword) {
-        if (rawPassword == null
-                || rawPassword.length() < 8
-                || !rawPassword.matches(".*\\d.*")
-                || !rawPassword.matches(".*[A-Za-z].*")) {
+        if (rawPassword == null || rawPassword.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters and contain letters and digits");
+        }
+
+        boolean hasLetter = false;
+        boolean hasDigit = false;
+
+        for (char c : rawPassword.toCharArray()) {
+            if (Character.isLetter(c)) {
+                hasLetter = true;
+            } else if (Character.isDigit(c)) {
+                hasDigit = true;
+            }
+
+            if (hasLetter && hasDigit) {
+                break;
+            }
+        }
+
+        if (!hasLetter || !hasDigit) {
             throw new IllegalArgumentException("Password must be at least 8 characters and contain letters and digits");
         }
 
