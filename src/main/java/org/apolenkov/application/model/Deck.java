@@ -3,6 +3,7 @@ package org.apolenkov.application.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +40,7 @@ public class Deck {
     }
 
     /**
-     * Creates deck with specified parameters.
+     * Creates new deck with specified fields.
      *
      * @param id unique identifier for the deck
      * @param userId ID of the user who owns this deck
@@ -52,6 +53,26 @@ public class Deck {
         setUserId(userId);
         setTitle(title);
         setDescription(description);
+    }
+
+    /**
+     * Creates new deck with validation.
+     *
+     * @param userId ID of the user who will own this deck
+     * @param title title of the deck (required)
+     * @param description optional description of the deck
+     * @return new Deck instance
+     * @throws IllegalArgumentException if userId is null or title is empty
+     */
+    public static Deck create(Long userId, String title, String description) {
+        if (userId == null) throw new IllegalArgumentException("userId is required");
+        String t = title != null ? title.trim() : null;
+        if (t == null || t.isEmpty()) throw new IllegalArgumentException("title is required");
+        Deck d = new Deck();
+        d.setUserId(userId);
+        d.setTitle(t);
+        d.setDescription(description != null ? description.trim() : null);
+        return d;
     }
 
     /**
@@ -91,26 +112,6 @@ public class Deck {
             flashcards.remove(flashcard);
             this.updatedAt = LocalDateTime.now();
         }
-    }
-
-    /**
-     * Creates new deck with validation.
-     *
-     * @param userId ID of the user who will own this deck
-     * @param title title of the deck (required)
-     * @param description optional description of the deck
-     * @return new Deck instance
-     * @throws IllegalArgumentException if userId is null or title is empty
-     */
-    public static Deck create(Long userId, String title, String description) {
-        if (userId == null) throw new IllegalArgumentException("userId is required");
-        String t = title != null ? title.trim() : null;
-        if (t == null || t.isEmpty()) throw new IllegalArgumentException("title is required");
-        Deck d = new Deck();
-        d.setUserId(userId);
-        d.setTitle(t);
-        d.setDescription(description != null ? description.trim() : null);
-        return d;
     }
 
     /**

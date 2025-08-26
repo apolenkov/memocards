@@ -3,6 +3,7 @@ package org.apolenkov.application.model;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
@@ -41,7 +42,7 @@ public class User {
     }
 
     /**
-     * Creates user with specified id, email, and name.
+     * Creates a new user with specified ID, email, and name.
      *
      * @param id unique identifier for the user
      * @param email email address of the user
