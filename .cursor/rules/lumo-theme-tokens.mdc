@@ -1,0 +1,13 @@
+---
+description: Use Lumo theme tokens for all styling across the project
+alwaysApply: true
+---
+
+Use Lumo theme tokens (standard Lumo CSS styling tokens) for all styling:
+- Prefer Lumo CSS custom properties over custom non-standard styles
+- Avoid RGBA backgrounds and custom color values
+- Use Lumo's built-in spacing, typography, and color tokens
+- Leverage Lumo's adaptive theming capabilities
+- Centralize styling through Lumo's design system
+
+This ensures consistent theming and better maintainability across the application.

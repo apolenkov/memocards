@@ -1,0 +1,14 @@
+---
+description: Write clear, simple, maintainable CSS/UX/UI code without duplication
+alwaysApply: true
+---
+
+CSS/UX/UI code must follow best practices:
+- Write clear, simple, and easily maintainable code
+- Avoid code duplication - extract repeated elements into variables
+- Use CSS custom properties for consistent theming
+- Follow BEM methodology or similar naming conventions
+- Keep CSS specificity low and avoid !important
+- Use semantic HTML and accessible design patterns
+- Optimize for performance and maintainability
+- Document complex CSS logic and design decisions

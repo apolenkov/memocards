@@ -31,7 +31,6 @@ out/
 
 ### VS Code ###
 .vscode/
-.cursor
 
 # The following files are generated/updated by vaadin-gradle-plugin
 node_modules/

@@ -1,0 +1,15 @@
+---
+description: All code in project use english language
+alwaysApply: true
+---
+
+All code in the project must use English language for:
+- Variable names
+- Function names
+- Class names
+- Comments
+- Documentation
+- Error messages
+- Log messages
+- Database field names
+- API endpoints
