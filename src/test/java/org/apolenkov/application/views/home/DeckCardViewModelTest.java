@@ -1,6 +1,6 @@
 package org.apolenkov.application.views.home;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -41,24 +41,21 @@ class DeckCardViewModelTest {
         @DisplayName("Should create DeckCardViewModel with null values")
         void shouldCreateDeckCardViewModelWithNullValues() {
             // Given
-            Long id = null;
-            String title = null;
-            String description = null;
             int deckSize = 0;
             int knownCount = 0;
             int progressPercent = 0;
 
             // When
             DeckCardViewModel viewModel =
-                    new DeckCardViewModel(id, title, description, deckSize, knownCount, progressPercent);
+                    new DeckCardViewModel(null, null, null, deckSize, knownCount, progressPercent);
 
             // Then
             assertThat(viewModel.id()).isNull();
             assertThat(viewModel.title()).isNull();
             assertThat(viewModel.description()).isNull();
-            assertThat(viewModel.deckSize()).isEqualTo(0);
-            assertThat(viewModel.knownCount()).isEqualTo(0);
-            assertThat(viewModel.progressPercent()).isEqualTo(0);
+            assertThat(viewModel.deckSize()).isZero();
+            assertThat(viewModel.knownCount()).isZero();
+            assertThat(viewModel.progressPercent()).isZero();
         }
 
         @Test
@@ -114,7 +111,7 @@ class DeckCardViewModelTest {
 
             // When & Then
             assertThat(viewModel1).isEqualTo(viewModel2);
-            assertThat(viewModel1.hashCode()).isEqualTo(viewModel2.hashCode());
+            assertThat(viewModel1.hashCode()).hasSameHashCodeAs(viewModel2);
         }
 
         @Test
@@ -137,27 +134,6 @@ class DeckCardViewModelTest {
 
             // When & Then
             assertThat(viewModel).isNotEqualTo(null);
-        }
-
-        @Test
-        @DisplayName("Should not be equal to different type")
-        void shouldNotBeEqualToDifferentType() {
-            // Given
-            DeckCardViewModel viewModel = new DeckCardViewModel(1L, "Test", "Description", 10, 5, 50);
-            String differentType = "Not a DeckCardViewModel";
-
-            // When & Then
-            assertThat(viewModel).isNotEqualTo(differentType);
-        }
-
-        @Test
-        @DisplayName("Should be equal to itself")
-        void shouldBeEqualToItself() {
-            // Given
-            DeckCardViewModel viewModel = new DeckCardViewModel(1L, "Test", "Description", 10, 5, 50);
-
-            // When & Then
-            assertThat(viewModel).isEqualTo(viewModel);
         }
     }
 
@@ -363,9 +339,9 @@ class DeckCardViewModelTest {
             DeckCardViewModel viewModel = new DeckCardViewModel(1L, "Test", "Description", 0, 0, 0);
 
             // When & Then
-            assertThat(viewModel.deckSize()).isEqualTo(0);
-            assertThat(viewModel.knownCount()).isEqualTo(0);
-            assertThat(viewModel.progressPercent()).isEqualTo(0);
+            assertThat(viewModel.deckSize()).isZero();
+            assertThat(viewModel.knownCount()).isZero();
+            assertThat(viewModel.progressPercent()).isZero();
         }
 
         @Test

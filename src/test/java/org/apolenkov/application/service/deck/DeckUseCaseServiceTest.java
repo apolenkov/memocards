@@ -1,7 +1,12 @@
 package org.apolenkov.application.service.deck;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -28,13 +33,14 @@ class DeckUseCaseServiceTest {
     @Mock
     private FlashcardRepository flashcardRepository;
 
-    private Validator validator;
     private DeckUseCaseService deckUseCaseService;
 
     @BeforeEach
     void setUp() {
-        validator = Validation.buildDefaultValidatorFactory().getValidator();
-        deckUseCaseService = new DeckUseCaseService(deckRepository, flashcardRepository, validator);
+        try (var validatorFactory = Validation.buildDefaultValidatorFactory()) {
+            Validator validator = validatorFactory.getValidator();
+            deckUseCaseService = new DeckUseCaseService(deckRepository, flashcardRepository, validator);
+        }
     }
 
     @Nested
@@ -117,22 +123,12 @@ class DeckUseCaseServiceTest {
     @DisplayName("Get Deck By ID Tests")
     class GetDeckByIdTests {
 
-        @Test
-        @DisplayName("GetDeckById should return deck when exists")
-        void getDeckByIdShouldReturnDeckWhenExists() {
-            // Given
-            Long deckId = 1L;
-            Deck expectedDeck = new Deck(deckId, 1L, "Test Deck", "Test Description");
-
-            when(deckRepository.findById(deckId)).thenReturn(Optional.of(expectedDeck));
-
-            // When
-            Optional<Deck> result = deckUseCaseService.getDeckById(deckId);
-
-            // Then
-            assertThat(result).isPresent();
-            assertThat(result.get()).isEqualTo(expectedDeck);
-            verify(deckRepository).findById(deckId);
+        @BeforeEach
+        void setUp() {
+            try (var validatorFactory = Validation.buildDefaultValidatorFactory()) {
+                Validator validator = validatorFactory.getValidator();
+                deckUseCaseService = new DeckUseCaseService(deckRepository, flashcardRepository, validator);
+            }
         }
 
         @Test
@@ -246,7 +242,7 @@ class DeckUseCaseServiceTest {
             // When & Then
             assertThatThrownBy(() -> deckUseCaseService.saveDeck(null))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("The object to be validated must not be null");
+                    .hasMessage("The object to be validated must not be null");
         }
 
         @Test

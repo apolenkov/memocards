@@ -1,7 +1,13 @@
 package org.apolenkov.application.views.home;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.apolenkov.application.model.Deck;
@@ -11,6 +17,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -75,63 +83,42 @@ class HomePresenterTest {
             verify(deckQueryService, never()).toViewModel(any(Deck.class));
         }
 
+        @ParameterizedTest
+        @ValueSource(strings = {"", "   ", "\t", "\n"})
+        @DisplayName("ListDecksForCurrentUser should handle empty, blank, and whitespace queries")
+        void listDecksForCurrentUserShouldHandleEmptyAndWhitespaceQueries(String query) {
+            // Given
+            List<Deck> expectedDecks = List.of(new Deck(1L, 1L, "Test Deck", "Test Description"));
+            DeckCardViewModel expectedViewModel = new DeckCardViewModel(1L, "Test Deck", "Test Description", 5, 2, 40);
+
+            when(deckQueryService.listDecksForCurrentUser(query)).thenReturn(expectedDecks);
+            when(deckQueryService.toViewModel(any(Deck.class))).thenReturn(expectedViewModel);
+
+            // When
+            List<DeckCardViewModel> result = homePresenter.listDecksForCurrentUser(query);
+
+            // Then
+            assertThat(result).hasSize(1);
+            verify(deckQueryService).listDecksForCurrentUser(query);
+            verify(deckQueryService).toViewModel(any(Deck.class));
+        }
+
         @Test
         @DisplayName("ListDecksForCurrentUser should handle null query")
         void listDecksForCurrentUserShouldHandleNullQuery() {
             // Given
-            String query = null;
             List<Deck> expectedDecks = List.of(new Deck(1L, 1L, "Test Deck", "Test Description"));
             DeckCardViewModel expectedViewModel = new DeckCardViewModel(1L, "Test Deck", "Test Description", 5, 2, 40);
 
-            when(deckQueryService.listDecksForCurrentUser(query)).thenReturn(expectedDecks);
+            when(deckQueryService.listDecksForCurrentUser(null)).thenReturn(expectedDecks);
             when(deckQueryService.toViewModel(any(Deck.class))).thenReturn(expectedViewModel);
 
             // When
-            List<DeckCardViewModel> result = homePresenter.listDecksForCurrentUser(query);
+            List<DeckCardViewModel> result = homePresenter.listDecksForCurrentUser(null);
 
             // Then
             assertThat(result).hasSize(1);
-            verify(deckQueryService).listDecksForCurrentUser(query);
-            verify(deckQueryService).toViewModel(any(Deck.class));
-        }
-
-        @Test
-        @DisplayName("ListDecksForCurrentUser should handle empty query")
-        void listDecksForCurrentUserShouldHandleEmptyQuery() {
-            // Given
-            String query = "";
-            List<Deck> expectedDecks = List.of(new Deck(1L, 1L, "Test Deck", "Test Description"));
-            DeckCardViewModel expectedViewModel = new DeckCardViewModel(1L, "Test Deck", "Test Description", 5, 2, 40);
-
-            when(deckQueryService.listDecksForCurrentUser(query)).thenReturn(expectedDecks);
-            when(deckQueryService.toViewModel(any(Deck.class))).thenReturn(expectedViewModel);
-
-            // When
-            List<DeckCardViewModel> result = homePresenter.listDecksForCurrentUser(query);
-
-            // Then
-            assertThat(result).hasSize(1);
-            verify(deckQueryService).listDecksForCurrentUser(query);
-            verify(deckQueryService).toViewModel(any(Deck.class));
-        }
-
-        @Test
-        @DisplayName("ListDecksForCurrentUser should handle whitespace query")
-        void listDecksForCurrentUserShouldHandleWhitespaceQuery() {
-            // Given
-            String query = "   ";
-            List<Deck> expectedDecks = List.of(new Deck(1L, 1L, "Test Deck", "Test Description"));
-            DeckCardViewModel expectedViewModel = new DeckCardViewModel(1L, "Test Deck", "Test Description", 5, 2, 40);
-
-            when(deckQueryService.listDecksForCurrentUser(query)).thenReturn(expectedDecks);
-            when(deckQueryService.toViewModel(any(Deck.class))).thenReturn(expectedViewModel);
-
-            // When
-            List<DeckCardViewModel> result = homePresenter.listDecksForCurrentUser(query);
-
-            // Then
-            assertThat(result).hasSize(1);
-            verify(deckQueryService).listDecksForCurrentUser(query);
+            verify(deckQueryService).listDecksForCurrentUser(null);
             verify(deckQueryService).toViewModel(any(Deck.class));
         }
 
@@ -152,7 +139,7 @@ class HomePresenterTest {
 
             // Then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0)).isEqualTo(expectedViewModel);
+            assertThat(result.getFirst()).isEqualTo(expectedViewModel);
             verify(deckQueryService).listDecksForCurrentUser(query);
             verify(deckQueryService).toViewModel(any(Deck.class));
         }
@@ -180,8 +167,7 @@ class HomePresenterTest {
             List<DeckCardViewModel> result = homePresenter.listDecksForCurrentUser(query);
 
             // Then
-            assertThat(result).hasSize(3);
-            assertThat(result).containsExactlyElementsOf(expectedViewModels);
+            assertThat(result).hasSize(3).containsExactlyElementsOf(expectedViewModels);
             verify(deckQueryService).listDecksForCurrentUser(query);
             verify(deckQueryService, times(3)).toViewModel(any(Deck.class));
         }
@@ -267,10 +253,11 @@ class HomePresenterTest {
             List<DeckCardViewModel> result = homePresenter.listDecksForCurrentUser(query);
 
             // Then - verify order is maintained from service to presentation layer
-            assertThat(result).hasSize(3);
-            assertThat(result.get(0).id()).isEqualTo(1L);
-            assertThat(result.get(1).id()).isEqualTo(2L);
-            assertThat(result.get(2).id()).isEqualTo(3L);
+            assertThat(result).hasSize(3).satisfies(list -> {
+                assertThat(list.get(0).id()).isEqualTo(1L);
+                assertThat(list.get(1).id()).isEqualTo(2L);
+                assertThat(list.get(2).id()).isEqualTo(3L);
+            });
         }
 
         @Test
@@ -306,8 +293,7 @@ class HomePresenterTest {
             HomePresenter presenter = new HomePresenter(deckQueryService);
 
             // When & Then
-            assertThat(presenter).isNotNull();
-            assertThat(presenter).isInstanceOf(HomePresenter.class);
+            assertThat(presenter).isNotNull().isInstanceOf(HomePresenter.class);
         }
 
         @Test

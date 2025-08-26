@@ -347,8 +347,9 @@ class DeckJpaAdapterTest {
             Optional<Deck> result = deckJpaAdapter.findById(largeId);
 
             // Then
-            assertThat(result).isPresent();
-            assertThat(result.get().getId()).isEqualTo(largeId);
+            assertThat(result)
+                    .isPresent()
+                    .satisfies(deck -> assertThat(deck.get().getId()).isEqualTo(largeId));
         }
 
         @Test
@@ -367,9 +368,10 @@ class DeckJpaAdapterTest {
             Deck result = deckJpaAdapter.save(deckToSave);
 
             // Then
-            assertThat(result).isNotNull();
-            assertThat(result.getTitle()).isEqualTo(longTitle);
-            assertThat(result.getDescription()).isEqualTo(longDescription);
+            assertThat(result).isNotNull().satisfies(deck -> {
+                assertThat(deck.getTitle()).isEqualTo(longTitle);
+                assertThat(deck.getDescription()).isEqualTo(longDescription);
+            });
         }
 
         @Test
@@ -385,8 +387,8 @@ class DeckJpaAdapterTest {
             Deck result = deckJpaAdapter.save(deckToSave);
 
             // Then
-            assertThat(result).isNotNull();
-            assertThat(result.getDescription()).isNull();
+            assertThat(result).isNotNull().satisfies(deck -> assertThat(deck.getDescription())
+                    .isNull());
         }
     }
 
@@ -404,8 +406,7 @@ class DeckJpaAdapterTest {
             DeckJpaAdapter adapter = new DeckJpaAdapter(deckJpaRepository);
 
             // When & Then
-            assertThat(adapter).isNotNull();
-            assertThat(adapter).isInstanceOf(DeckJpaAdapter.class);
+            assertThat(adapter).isNotNull().isInstanceOf(DeckJpaAdapter.class);
         }
     }
 

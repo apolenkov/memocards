@@ -1,7 +1,6 @@
 package org.apolenkov.application.model;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -146,8 +145,8 @@ class UserTest {
         void getRolesShouldReturnUnmodifiableSet() {
             user.setRoles(Set.of("ROLE_USER"));
 
-            assertThatThrownBy(() -> user.getRoles().add("ROLE_ADMIN"))
-                    .isInstanceOf(UnsupportedOperationException.class);
+            Set<String> roles = user.getRoles();
+            assertThatThrownBy(() -> roles.add("ROLE_ADMIN")).isInstanceOf(UnsupportedOperationException.class);
         }
 
         @Test
@@ -183,24 +182,18 @@ class UserTest {
             assertThat(user.getRoles()).hasSize(1);
         }
 
+        @ParameterizedTest
+        @ValueSource(strings = {"", "   ", "\t", "\n"})
+        @DisplayName("AddRole should handle null, blank, and empty roles")
+        void addRoleShouldHandleNullOrBlankRoles(String role) {
+            user.addRole(role);
+            assertThat(user.getRoles()).isEmpty();
+        }
+
         @Test
         @DisplayName("AddRole should handle null role")
         void addRoleShouldHandleNullRole() {
             user.addRole(null);
-            assertThat(user.getRoles()).isEmpty();
-        }
-
-        @Test
-        @DisplayName("AddRole should handle blank role")
-        void addRoleShouldHandleBlankRole() {
-            user.addRole("   ");
-            assertThat(user.getRoles()).isEmpty();
-        }
-
-        @Test
-        @DisplayName("AddRole should handle empty role")
-        void addRoleShouldHandleEmptyRole() {
-            user.addRole("");
             assertThat(user.getRoles()).isEmpty();
         }
 
@@ -231,10 +224,11 @@ class UserTest {
             User user3 = new User();
             user3.setId(2L);
 
-            assertThat(user1).isEqualTo(user2);
-            assertThat(user1).isNotEqualTo(user3);
-            assertThat(user1).isNotEqualTo(null);
-            assertThat(user1).isNotEqualTo("string");
+            assertThat(user1)
+                    .isEqualTo(user2)
+                    .isNotEqualTo(user3)
+                    .isNotEqualTo(null)
+                    .isNotEqualTo("string");
         }
 
         @Test
@@ -246,7 +240,7 @@ class UserTest {
             User user2 = new User();
             user2.setId(1L);
 
-            assertThat(user1.hashCode()).isEqualTo(user2.hashCode());
+            assertThat(user1).hasSameHashCodeAs(user2);
         }
     }
 

@@ -52,7 +52,7 @@ class PracticeDirectionTest {
         @DisplayName("FRONT_TO_BACK should have ordinal 0")
         void frontToBackShouldHaveOrdinalZero() {
             // When & Then
-            assertThat(PracticeDirection.FRONT_TO_BACK.ordinal()).isEqualTo(0);
+            assertThat(PracticeDirection.FRONT_TO_BACK.ordinal()).isZero();
         }
 
         @Test
@@ -147,7 +147,7 @@ class PracticeDirectionTest {
         void sameEnumValuesShouldBeEqual() {
             // When & Then
             assertThat(PracticeDirection.FRONT_TO_BACK.compareTo(PracticeDirection.FRONT_TO_BACK))
-                    .isEqualTo(0);
+                    .isEqualByComparingTo(0);
         }
     }
 
@@ -185,8 +185,8 @@ class PracticeDirectionTest {
         @DisplayName("ToString should return the enum name")
         void toStringShouldReturnTheEnumName() {
             // When & Then
-            assertThat(PracticeDirection.FRONT_TO_BACK.toString()).isEqualTo("FRONT_TO_BACK");
-            assertThat(PracticeDirection.BACK_TO_FRONT.toString()).isEqualTo("BACK_TO_FRONT");
+            assertThat(PracticeDirection.FRONT_TO_BACK).hasToString("FRONT_TO_BACK");
+            assertThat(PracticeDirection.BACK_TO_FRONT).hasToString("BACK_TO_FRONT");
         }
     }
 
@@ -225,9 +225,10 @@ class PracticeDirectionTest {
         @DisplayName("Equals should work correctly")
         void equalsShouldWorkCorrectly() {
             // When & Then
-            assertThat(PracticeDirection.FRONT_TO_BACK).isEqualTo(PracticeDirection.FRONT_TO_BACK);
+            assertThat(PracticeDirection.FRONT_TO_BACK)
+                    .isEqualTo(PracticeDirection.FRONT_TO_BACK)
+                    .isNotEqualTo(PracticeDirection.BACK_TO_FRONT);
             assertThat(PracticeDirection.BACK_TO_FRONT).isEqualTo(PracticeDirection.BACK_TO_FRONT);
-            assertThat(PracticeDirection.FRONT_TO_BACK).isNotEqualTo(PracticeDirection.BACK_TO_FRONT);
         }
 
         @Test
@@ -287,9 +288,10 @@ class PracticeDirectionTest {
             PracticeDirection[] values = PracticeDirection.values();
 
             // When & Then
-            assertThat(values).hasSize(2);
-            assertThat(values[0]).isEqualTo(PracticeDirection.FRONT_TO_BACK);
-            assertThat(values[1]).isEqualTo(PracticeDirection.BACK_TO_FRONT);
+            assertThat(values).hasSize(2).satisfies(array -> {
+                assertThat(array[0]).isEqualTo(PracticeDirection.FRONT_TO_BACK);
+                assertThat(array[1]).isEqualTo(PracticeDirection.BACK_TO_FRONT);
+            });
         }
 
         @Test
@@ -300,9 +302,10 @@ class PracticeDirectionTest {
                     java.util.List.of(PracticeDirection.FRONT_TO_BACK, PracticeDirection.BACK_TO_FRONT);
 
             // When & Then
-            assertThat(directions).hasSize(2);
-            assertThat(directions).contains(PracticeDirection.FRONT_TO_BACK);
-            assertThat(directions).contains(PracticeDirection.BACK_TO_FRONT);
+            assertThat(directions)
+                    .hasSize(2)
+                    .contains(PracticeDirection.FRONT_TO_BACK)
+                    .contains(PracticeDirection.BACK_TO_FRONT);
         }
 
         @Test
@@ -313,9 +316,10 @@ class PracticeDirectionTest {
                     java.util.Set.of(PracticeDirection.FRONT_TO_BACK, PracticeDirection.BACK_TO_FRONT);
 
             // When & Then
-            assertThat(directions).hasSize(2);
-            assertThat(directions).contains(PracticeDirection.FRONT_TO_BACK);
-            assertThat(directions).contains(PracticeDirection.BACK_TO_FRONT);
+            assertThat(directions)
+                    .hasSize(2)
+                    .contains(PracticeDirection.FRONT_TO_BACK)
+                    .contains(PracticeDirection.BACK_TO_FRONT);
         }
     }
 }
