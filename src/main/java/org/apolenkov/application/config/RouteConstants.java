@@ -28,6 +28,11 @@ public final class RouteConstants {
     public static final String PRACTICE_ROUTE = "practice";
 
     /**
+     * Route for practice view.
+     */
+    public static final String LOGIN_ROUTE = "login";
+
+    /**
      * Private constructor to prevent instantiation.
      */
     private RouteConstants() {

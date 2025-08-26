@@ -24,8 +24,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @AnonymousAllowed
 public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasDynamicTitle {
 
-    private static final String COMPONENT_WIDTH = "420px";
-
     private static final class ForgotPasswordModel {
         private String email;
 
@@ -38,7 +36,7 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
         }
     }
 
-    private final PasswordResetService passwordResetService;
+    private final transient PasswordResetService passwordResetService;
 
     /**
      * Creates a new ForgotPasswordView with password reset service dependency.

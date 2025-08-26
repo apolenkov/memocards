@@ -1,17 +1,14 @@
 package org.apolenkov.application.views;
 
+import static org.apolenkov.application.config.RouteConstants.LOGIN_ROUTE;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.service.PasswordResetService;
 import org.apolenkov.application.views.utils.ButtonHelper;
@@ -31,30 +28,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class ResetPasswordView extends VerticalLayout
         implements HasDynamicTitle, HasUrlParameter<String>, BeforeEnterObserver {
 
-    private static final class ResetPasswordModel {
-        private String password;
-        private String confirmPassword;
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-
-        public String getConfirmPassword() {
-            return confirmPassword;
-        }
-
-        public void setConfirmPassword(String confirmPassword) {
-            this.confirmPassword = confirmPassword;
-        }
-    }
-
-    private final PasswordResetService passwordResetService;
+    private final transient PasswordResetService passwordResetService;
     private String token;
-
     /**
      * Creates a new ResetPasswordView with password reset service dependency.
      *
@@ -104,7 +79,8 @@ public class ResetPasswordView extends VerticalLayout
         submit.setWidthFull();
 
         Button backToLogin = ButtonHelper.createTertiaryButton(
-                getTranslation("auth.resetPassword.backToLogin"), e -> getUI().ifPresent(ui -> ui.navigate("login")));
+                getTranslation("auth.resetPassword.backToLogin"),
+                e -> getUI().ifPresent(ui -> ui.navigate(LOGIN_ROUTE)));
         backToLogin.setWidthFull();
 
         Button backToHome = ButtonHelper.createTertiaryButton(
@@ -134,7 +110,7 @@ public class ResetPasswordView extends VerticalLayout
         // Validate token
         if (!passwordResetService.isTokenValid(token)) {
             NotificationHelper.showError(getTranslation("auth.resetPassword.invalidToken"));
-            getUI().ifPresent(ui -> ui.navigate("login"));
+            getUI().ifPresent(ui -> ui.navigate(LOGIN_ROUTE));
         }
     }
 
@@ -158,7 +134,7 @@ public class ResetPasswordView extends VerticalLayout
             boolean success = passwordResetService.resetPassword(token, password);
             if (success) {
                 NotificationHelper.showSuccess(getTranslation("auth.resetPassword.success"));
-                getUI().ifPresent(ui -> ui.navigate("login"));
+                getUI().ifPresent(ui -> ui.navigate(LOGIN_ROUTE));
             } else {
                 NotificationHelper.showError(getTranslation("auth.resetPassword.failed"));
             }
@@ -183,5 +159,26 @@ public class ResetPasswordView extends VerticalLayout
     @Override
     public String getPageTitle() {
         return getTranslation("auth.resetPassword.title");
+    }
+
+    private static final class ResetPasswordModel {
+        private String password;
+        private String confirmPassword;
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getConfirmPassword() {
+            return confirmPassword;
+        }
+
+        public void setConfirmPassword(String confirmPassword) {
+            this.confirmPassword = confirmPassword;
+        }
     }
 }
