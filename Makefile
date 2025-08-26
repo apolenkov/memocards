@@ -80,7 +80,7 @@ deep-clean-dev: clean start ## Deep clean (Vaadin + frontend) and run
 	$(call cleanup_and_run,Deep cleaning and running...,$(GRADLE) deepClean bootRun)
 
 full-clean-dev: clean start ## Full clean, format, check, build and run
-	$(call cleanup_and_run,Performing full clean, format, check, build and run...,$(GRADLE) deepClean spotlessApply check build bootRun)
+	$(call cleanup_and_run,Performing full clean and run...,$(GRADLE) deepClean spotlessApply check build bootRun)
 
 # =============================================================================
 # DEVELOPMENT SETUP - Environment Preparation
