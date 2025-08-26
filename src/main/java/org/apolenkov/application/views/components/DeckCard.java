@@ -10,6 +10,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
+import org.apolenkov.application.config.RouteConstants;
 import org.apolenkov.application.views.home.DeckCardViewModel;
 
 /**
@@ -132,7 +133,7 @@ public class DeckCard extends Div {
      */
     private void navigateToDeck() {
         if (viewModel.id() != null) {
-            getUI().ifPresent(ui -> ui.navigate("deck/" + viewModel.id()));
+            getUI().ifPresent(ui -> ui.navigate(RouteConstants.DECK_ROUTE + "/" + viewModel.id()));
         }
     }
 

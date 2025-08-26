@@ -11,6 +11,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.apolenkov.application.config.RouteConstants;
 import org.apolenkov.application.service.AuthFacade;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.FormHelper;
@@ -100,7 +101,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
             if (binder.validate().isOk()) {
                 try {
                     authFacade.authenticateAndPersist(model.getEmail(), model.getPassword());
-                    getUI().ifPresent(ui -> ui.navigate(""));
+                    getUI().ifPresent(ui -> ui.navigate(RouteConstants.HOME_ROUTE));
                 } catch (Exception ex) {
                     NotificationHelper.showError(getTranslation("auth.login.errorMessage"));
                 }
@@ -110,11 +111,12 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
 
         Button forgot =
                 ButtonHelper.createTertiaryButton(getTranslation("auth.login.forgotPassword"), e -> getUI().ifPresent(
-                                ui -> ui.navigate("forgot-password")));
+                                ui -> ui.navigate(RouteConstants.FORGOT_PASSWORD_ROUTE)));
         forgot.setWidthFull();
 
-        Button backToHome = ButtonHelper.createTertiaryButton(
-                getTranslation("common.backToHome"), e -> getUI().ifPresent(ui -> ui.navigate("")));
+        Button backToHome =
+                ButtonHelper.createTertiaryButton(getTranslation("common.backToHome"), e -> getUI().ifPresent(
+                                ui -> ui.navigate(RouteConstants.HOME_ROUTE)));
         backToHome.setWidthFull();
 
         // Bind fields to model

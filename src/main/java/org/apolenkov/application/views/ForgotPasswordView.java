@@ -11,6 +11,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.apolenkov.application.config.RouteConstants;
 import org.apolenkov.application.service.PasswordResetService;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.FormHelper;
@@ -83,11 +84,13 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
 
         // Navigation buttons for better UX
         Button backToLogin = ButtonHelper.createTertiaryButton(
-                getTranslation("auth.forgotPassword.backToLogin"), e -> getUI().ifPresent(ui -> ui.navigate("login")));
+                getTranslation("auth.forgotPassword.backToLogin"),
+                e -> getUI().ifPresent(ui -> ui.navigate(RouteConstants.LOGIN_ROUTE)));
         backToLogin.setWidthFull();
 
-        Button backToHome = ButtonHelper.createTertiaryButton(
-                getTranslation("common.backToHome"), e -> getUI().ifPresent(ui -> ui.navigate("")));
+        Button backToHome =
+                ButtonHelper.createTertiaryButton(getTranslation("common.backToHome"), e -> getUI().ifPresent(
+                                ui -> ui.navigate(RouteConstants.HOME_ROUTE)));
         backToHome.setWidthFull();
 
         // Bind fields to model with validation messages
@@ -122,7 +125,7 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
                 NotificationHelper.showSuccess(getTranslation("auth.forgotPassword.tokenCreated"));
 
                 // Navigate to reset password page with the generated token
-                getUI().ifPresent(ui -> ui.navigate("reset-password/" + token));
+                getUI().ifPresent(ui -> ui.navigate(RouteConstants.RESET_PASSWORD_ROUTE + "/" + token));
             } else {
                 // Don't reveal if email exists for security reasons
                 NotificationHelper.showInfo(getTranslation("auth.forgotPassword.emailNotFound"));

@@ -10,6 +10,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.apolenkov.application.config.RouteConstants;
 import org.apolenkov.application.service.PasswordResetService;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
@@ -83,8 +84,9 @@ public class ResetPasswordView extends VerticalLayout
                 e -> getUI().ifPresent(ui -> ui.navigate(LOGIN_ROUTE)));
         backToLogin.setWidthFull();
 
-        Button backToHome = ButtonHelper.createTertiaryButton(
-                getTranslation("common.backToHome"), e -> getUI().ifPresent(ui -> ui.navigate("")));
+        Button backToHome =
+                ButtonHelper.createTertiaryButton(getTranslation("common.backToHome"), e -> getUI().ifPresent(
+                                ui -> ui.navigate(RouteConstants.HOME_ROUTE)));
         backToHome.setWidthFull();
 
         // Bind fields to model
