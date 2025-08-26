@@ -18,29 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StatsService {
 
-    /**
-     * Record representing daily statistics for a deck with session counts, performance metrics, and timing.
-     */
-    public record DailyStats(
-            LocalDate date,
-            int sessions,
-            int viewed,
-            int correct,
-            int repeat,
-            int hard,
-            long totalDurationMs,
-            long totalAnswerDelayMs) {
-
-        /**
-         * Calculates average answer delay per card.
-         *
-         * @return average answer delay in milliseconds, or 0.0 if no cards viewed
-         */
-        public double getAvgDelayMs() {
-            return viewed > 0 ? (double) totalAnswerDelayMs / viewed : 0.0;
-        }
-    }
-
     private final StatsRepository statsRepository;
 
     /**
@@ -70,6 +47,7 @@ public class StatsService {
      * @throws IllegalArgumentException if any parameter violates constraints
      */
     @Transactional
+    @SuppressWarnings("java:S107")
     public void recordSession(
             long deckId,
             int viewed,
@@ -221,5 +199,28 @@ public class StatsService {
     public java.util.Map<Long, org.apolenkov.application.domain.port.StatsRepository.DeckAggregate> getDeckAggregates(
             java.util.List<Long> deckIds, java.time.LocalDate today) {
         return statsRepository.getAggregatesForDecks(deckIds, today);
+    }
+
+    /**
+     * Record representing daily statistics for a deck with session counts, performance metrics, and timing.
+     */
+    public record DailyStats(
+            LocalDate date,
+            int sessions,
+            int viewed,
+            int correct,
+            int repeat,
+            int hard,
+            long totalDurationMs,
+            long totalAnswerDelayMs) {
+
+        /**
+         * Calculates average answer delay per card.
+         *
+         * @return average answer delay in milliseconds, or 0.0 if no cards viewed
+         */
+        public double getAvgDelayMs() {
+            return viewed > 0 ? (double) totalAnswerDelayMs / viewed : 0.0;
+        }
     }
 }

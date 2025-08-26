@@ -81,7 +81,3 @@ CHECK ((repeat_count + hard) <= viewed);
 -- Add index on version for optimistic locking performance
 CREATE INDEX IF NOT EXISTS idx_deck_daily_stats_version 
 ON deck_daily_stats(version);
-
--- Add index on audit fields for time-based queries
-CREATE INDEX IF NOT EXISTS idx_deck_daily_stats_audit 
-ON deck_daily_stats(created_at DESC, updated_at DESC);

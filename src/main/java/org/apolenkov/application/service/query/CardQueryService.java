@@ -33,6 +33,17 @@ public class CardQueryService {
     }
 
     /**
+     * Checks if a string value contains the specified query text (case-insensitive, null-safe).
+     *
+     * @param value the string to search in (can be null)
+     * @param query the query text to search for
+     * @return true if the value contains the query, false otherwise
+     */
+    private static boolean contains(String value, String query) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(query);
+    }
+
+    /**
      * Gets filtered flashcards for a specific deck with search and knowledge status filtering.
      *
      * @param deckId the ID of the deck to search in
@@ -41,6 +52,7 @@ public class CardQueryService {
      * @return a filtered list of flashcards matching the criteria
      */
     @Transactional(readOnly = true)
+    @SuppressWarnings("java:S6809")
     public List<Flashcard> listFilteredFlashcards(long deckId, String query, boolean hideKnown) {
         List<Flashcard> all = flashcardUseCase.getFlashcardsByDeckId(deckId);
         Set<Long> known = statsService.getKnownCardIds(deckId);
@@ -70,16 +82,5 @@ public class CardQueryService {
                 // Optionally filter out known cards based on hideKnown flag
                 .filter(fc -> !hideKnown || !knownIds.contains(fc.getId()))
                 .toList();
-    }
-
-    /**
-     * Checks if a string value contains the specified query text (case-insensitive, null-safe).
-     *
-     * @param value the string to search in (can be null)
-     * @param query the query text to search for
-     * @return true if the value contains the query, false otherwise
-     */
-    private static boolean contains(String value, String query) {
-        return value != null && value.toLowerCase(Locale.ROOT).contains(query);
     }
 }

@@ -174,8 +174,6 @@ apply(plugin = "checkstyle")
 extensions.configure<CheckstyleExtension> {
     toolVersion = "10.12.1"
     configFile = rootProject.file("config/checkstyle/checkstyle.xml")
-    isShowViolations = false
-    isIgnoreFailures = true
 }
 
 /*
@@ -184,7 +182,6 @@ extensions.configure<CheckstyleExtension> {
 apply(plugin = "com.github.spotbugs")
 tasks.withType<com.github.spotbugs.snom.SpotBugsTask>().configureEach {
     showProgress = true
-    ignoreFailures = true
 
     includeFilter = file("config/spotbugs/include.xml")
 
@@ -200,7 +197,6 @@ tasks.withType<com.github.spotbugs.snom.SpotBugsTask>().configureEach {
  */
 apply<name.remal.gradle_plugins.sonarlint.SonarLintPlugin>()
 extensions.configure<SonarLintExtension> {
-    ignoreFailures = true
     languages { include("java") }
 }
 

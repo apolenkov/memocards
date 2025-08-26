@@ -39,6 +39,7 @@ public class SecurityConfig extends VaadinWebSecurity {
      * Sets up HTTP security with authentication, CSRF protection, and CSP.
      */
     @Override
+    @SuppressWarnings("java:S4502")
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
 

@@ -84,11 +84,7 @@ public class TopMenu extends HorizontalLayout {
         menuButtons.add(new MenuButton(getTranslation("main.stats"), "/stats", "nav-stats", false, ROLE_USER));
         menuButtons.add(new MenuButton(getTranslation("main.settings"), "/settings", "nav-settings", false, ROLE_USER));
         menuButtons.add(new MenuButton(
-                getTranslation("admin.users.page.title"), "/admin/users", "nav-admin-users", false, ROLE_ADMIN));
-        menuButtons.add(new MenuButton(
                 getTranslation("admin.content.page.title"), "/admin/content", "nav-admin-content", false, ROLE_ADMIN));
-        menuButtons.add(new MenuButton(
-                getTranslation("admin.audit.page.title"), "/admin/audit", "nav-admin-audit", false, ROLE_ADMIN));
         menuButtons.add(new MenuButton(getTranslation("main.logout"), LOGOUT_ROUTE, "nav-logout", false));
     }
 
