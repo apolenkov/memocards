@@ -17,11 +17,7 @@ import org.apolenkov.application.views.components.CreateDeckDialog;
 import org.apolenkov.application.views.components.DeckCard;
 import org.apolenkov.application.views.home.DeckCardViewModel;
 import org.apolenkov.application.views.home.HomePresenter;
-import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.FormHelper;
-import org.apolenkov.application.views.utils.IconHelper;
-import org.apolenkov.application.views.utils.LayoutHelper;
-import org.apolenkov.application.views.utils.TextHelper;
+import org.apolenkov.application.views.utils.*;
 
 /**
  * View for displaying and managing user's flashcard decks.
@@ -39,7 +35,6 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
     private final transient DeckFacade deckFacade;
     private final transient UserUseCase userUseCase;
     private final VerticalLayout deckList;
-    private final TextField search;
 
     /**
      * Creates a new DecksView with required dependencies.
@@ -70,7 +65,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         H2 title = TextHelper.createPageTitle(getTranslation(HOME_TITLE_KEY));
         title.addClassName("decks-view__title");
 
-        search = FormHelper.createOptionalTextField("", getTranslation("home.search.placeholder"));
+        TextField search = FormHelper.createOptionalTextField("", getTranslation("home.search.placeholder"));
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPrefixComponent(IconHelper.createSearchIcon());
 

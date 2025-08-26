@@ -15,9 +15,8 @@ public interface PasswordResetTokenRepository {
      * Saves password reset token.
      *
      * @param token token to save
-     * @return saved token with generated ID
      */
-    PasswordResetToken save(PasswordResetToken token);
+    void save(PasswordResetToken token);
 
     /**
      * Finds token by unique string value.

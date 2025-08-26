@@ -36,17 +36,16 @@ public class PasswordResetTokenJpaAdapter implements PasswordResetTokenRepositor
      * Saves a password reset token to the database.
      *
      * @param token the password reset token to save
-     * @return the saved token with updated fields
      * @throws IllegalArgumentException if token is null
      */
     @Override
-    public PasswordResetToken save(PasswordResetToken token) {
+    public void save(PasswordResetToken token) {
         if (token == null) {
             throw new IllegalArgumentException("PasswordResetToken cannot be null");
         }
         PasswordResetTokenEntity entity = toEntity(token);
         PasswordResetTokenEntity savedEntity = repository.save(entity);
-        return toModel(savedEntity);
+        toModel(savedEntity);
     }
 
     /**
