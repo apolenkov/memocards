@@ -13,6 +13,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import java.util.function.Consumer;
+import org.apolenkov.application.config.RouteConstants;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.DeckFacade;
 import org.apolenkov.application.usecase.UserUseCase;
@@ -97,7 +98,8 @@ public class CreateDeckDialog extends Dialog {
                 close();
                 // Execute callback and navigate to new deck
                 if (onCreated != null) onCreated.accept(saved);
-                getUI().ifPresent(ui -> ui.navigate("deck/" + saved.getId().toString()));
+                getUI().ifPresent(ui -> ui.navigate(
+                        RouteConstants.DECK_ROUTE + "/" + saved.getId().toString()));
             } catch (ValidationException vex) {
                 // Show validation error message
                 Notification.show(getTranslation("dialog.fillRequired"), 3000, Notification.Position.BOTTOM_START);

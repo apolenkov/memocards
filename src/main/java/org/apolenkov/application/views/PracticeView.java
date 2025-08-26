@@ -397,8 +397,9 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             totalViewed = 0;
             showCurrentCard();
         });
-        Button backToDeckButton = new Button(getTranslation("practice.backToDeck"), e -> getUI().ifPresent(
-                        ui -> ui.navigate("deck/" + currentDeck.getId().toString())));
+        Button backToDeckButton =
+                new Button(getTranslation("practice.backToDeck"), e -> getUI().ifPresent(ui -> ui.navigate(
+                        RouteConstants.DECK_ROUTE + "/" + currentDeck.getId().toString())));
         Button homeButton = new Button(getTranslation("practice.backToDecks"), e -> NavigationHelper.navigateToDecks());
         actionButtons.add(againButton, backToDeckButton, homeButton);
     }

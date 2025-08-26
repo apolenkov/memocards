@@ -8,13 +8,9 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.apolenkov.application.config.RouteConstants;
 import org.springframework.core.env.Environment;
 
 /**
@@ -56,7 +52,7 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
 
         Button goHome = new Button(getTranslation("main.gohome"));
         goHome.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        goHome.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("decks")));
+        goHome.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(RouteConstants.DECKS_ROUTE)));
 
         Button reload = new Button(getTranslation("error.reload"));
         reload.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -90,7 +86,7 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
     }
 
     private void addGoBackButton() {
-        if (fromRoute.isEmpty() || fromRoute.equals("error") || fromRoute.isEmpty()) {
+        if (fromRoute.isEmpty() || fromRoute.equals("error")) {
             return;
         }
 

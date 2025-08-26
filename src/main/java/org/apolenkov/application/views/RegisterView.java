@@ -11,6 +11,7 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.apolenkov.application.config.RouteConstants;
 import org.apolenkov.application.service.AuthFacade;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
@@ -144,8 +145,9 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
      * @return configured tertiary Button that navigates to home page
      */
     private Button createBackToHomeButton() {
-        Button backToHome = ButtonHelper.createTertiaryButton(
-                getTranslation("common.backToHome"), e -> getUI().ifPresent(ui -> ui.navigate("")));
+        Button backToHome =
+                ButtonHelper.createTertiaryButton(getTranslation("common.backToHome"), e -> getUI().ifPresent(
+                                ui -> ui.navigate(RouteConstants.HOME_ROUTE)));
         backToHome.setWidthFull();
         return backToHome;
     }
@@ -338,10 +340,10 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
             authFacade.registerUser(vEmail, vPwd);
             authFacade.authenticateAndPersist(vEmail, vPwd);
             NotificationHelper.showSuccess(getTranslation("auth.register.successLogin"));
-            getUI().ifPresent(ui -> ui.navigate("decks"));
+            getUI().ifPresent(ui -> ui.navigate(RouteConstants.DECKS_ROUTE));
         } catch (Exception ex) {
             NotificationHelper.showError(getTranslation("auth.register.autoLoginFailed"));
-            getUI().ifPresent(ui -> ui.navigate("login"));
+            getUI().ifPresent(ui -> ui.navigate(RouteConstants.LOGIN_ROUTE));
         }
     }
 

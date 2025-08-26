@@ -11,6 +11,7 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.ArrayList;
 import java.util.List;
+import org.apolenkov.application.config.RouteConstants;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
@@ -234,8 +235,9 @@ public class TopMenu extends HorizontalLayout {
                         getUI().ifPresent(ui ->
                                 ui.getPage().setLocation("/")); // Keep setLocation for logout (server redirect)
                     } catch (Exception ignored) {
-                        getUI().ifPresent(ui ->
-                                ui.navigate("error", com.vaadin.flow.router.QueryParameters.of("from", "home")));
+                        getUI().ifPresent(ui -> ui.navigate(
+                                RouteConstants.ERROR_ROUTE,
+                                com.vaadin.flow.router.QueryParameters.of("from", RouteConstants.HOME_ROUTE)));
                     }
                 },
                 null);
