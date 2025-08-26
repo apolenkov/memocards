@@ -63,7 +63,6 @@ public class PublicLayout extends AppLayout {
      * This method is called after navigation occurs and performs
      * necessary updates to ensure the layout remains consistent with
      * the current application state.
-     *
      * Key actions include:
      * - Adding CSS classes to the content area for styling
      * - Refreshing the header menu to reflect authentication changes
