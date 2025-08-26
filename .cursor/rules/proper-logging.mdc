@@ -1,0 +1,13 @@
+---
+description: Use proper logging framework instead of System.out.println
+alwaysApply: true
+---
+
+Use proper logging framework for all debug and informational messages:
+- Never use System.out.println for logging
+- Use SLF4J/Logback or similar enterprise logging framework
+- Configure appropriate log levels (DEBUG, INFO, WARN, ERROR)
+- Use structured logging with proper context information
+- Include relevant parameters and stack traces when appropriate
+- Configure log output format and destinations properly
+- Use MDC for request-scoped logging information

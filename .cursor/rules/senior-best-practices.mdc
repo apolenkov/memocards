@@ -1,0 +1,15 @@
+---
+description: Follow senior-level best practices and avoid hacks/workarounds
+alwaysApply: true
+---
+
+Code solutions must adhere to senior-level best practices:
+- Write clean, maintainable, and readable code
+- Follow SOLID principles and design patterns
+- Avoid hacks, workarounds, or temporary solutions
+- Use proper error handling and validation
+- Implement proper logging and monitoring
+- Follow security best practices
+- Write comprehensive tests
+- Use proper dependency injection and inversion of control
+- Document complex business logic and architectural decisions
