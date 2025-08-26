@@ -1,38 +1,3 @@
-
-/*
- * Code Quality Tasks Configuration
- */
-
-// Configure conditional execution for Checkstyle
-afterEvaluate {
-    tasks.named("checkstyleMain") {
-        onlyIf { gradle.taskGraph.hasTask(":codeQuality") }
-    }
-    tasks.named("checkstyleTest") {
-        onlyIf { gradle.taskGraph.hasTask(":codeQuality") }
-    }
-}
-
-// Configure conditional execution for SpotBugs
-afterEvaluate {
-    tasks.named("spotbugsMain") {
-        onlyIf { gradle.taskGraph.hasTask(":codeQuality") }
-    }
-    tasks.named("spotbugsTest") {
-        onlyIf { gradle.taskGraph.hasTask(":codeQuality") }
-    }
-}
-
-// Configure conditional execution for SonarLint
-afterEvaluate {
-    tasks.named("sonarlintMain") {
-        onlyIf { gradle.taskGraph.hasTask(":codeQuality") }
-    }
-    tasks.named("sonarlintTest") {
-        onlyIf { gradle.taskGraph.hasTask(":codeQuality") }
-    }
-}
-
 // Create unified code quality task
 tasks.register("codeQuality") {
     description = "Runs all code quality checks (SonarLint, SpotBugs, Checkstyle)"
@@ -63,13 +28,11 @@ tasks.register("codeQualityChars") {
     )
 }
 
-// CSS linting tasks
 tasks.register("lintCss") {
     description = "Run stylelint for CSS in themes"
     group = JavaBasePlugin.VERIFICATION_GROUP
     dependsOn("npmInstall")
     mustRunAfter("vaadinPrepareFrontend")
-    
     doLast {
         exec {
             workingDir = project.projectDir
@@ -83,7 +46,6 @@ tasks.register("lintCssFix") {
     group = JavaBasePlugin.VERIFICATION_GROUP
     dependsOn("npmInstall")
     mustRunAfter("vaadinPrepareFrontend")
-    
     doLast {
         exec {
             workingDir = project.projectDir
@@ -92,7 +54,6 @@ tasks.register("lintCssFix") {
     }
 }
 
-// Enhanced code quality task with CSS linting
 tasks.register("codeQualityFull") {
     description = "Runs all code quality checks including CSS linting"
     group = JavaBasePlugin.VERIFICATION_GROUP
@@ -100,6 +61,6 @@ tasks.register("codeQualityFull") {
     dependsOn(
         "codeQuality",
         "codeQualityChars",
-        "lintCss"
+        "lintCss",
     )
 }

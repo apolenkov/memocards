@@ -14,19 +14,6 @@ import java.util.Set;
 public interface StatsRepository {
 
     /**
-     * Daily statistics record for specific date.
-     */
-    record DailyStatsRecord(
-            LocalDate date,
-            int sessions,
-            int viewed,
-            int correct,
-            int repeat,
-            int hard,
-            long totalDurationMs,
-            long totalAnswerDelayMs) {}
-
-    /**
      * Records practice session for deck with performance metrics and known card tracking.
      *
      * @param deckId deck identifier
@@ -39,6 +26,7 @@ public interface StatsRepository {
      * @param totalAnswerDelayMs total answer delay in milliseconds
      * @param knownCardIdsDelta new known card IDs from this session
      */
+    @SuppressWarnings("java:S107")
     void appendSession(
             long deckId,
             LocalDate date,
@@ -83,6 +71,29 @@ public interface StatsRepository {
     void resetDeckProgress(long deckId);
 
     /**
+     * Gets aggregate statistics for multiple decks.
+     *
+     * @param deckIds deck identifiers
+     * @param today current date for today's statistics
+     * @return map of deck ID to aggregate statistics
+     */
+    java.util.Map<Long, DeckAggregate> getAggregatesForDecks(
+            java.util.Collection<Long> deckIds, java.time.LocalDate today);
+
+    /**
+     * Daily statistics record for specific date.
+     */
+    record DailyStatsRecord(
+            LocalDate date,
+            int sessions,
+            int viewed,
+            int correct,
+            int repeat,
+            int hard,
+            long totalDurationMs,
+            long totalAnswerDelayMs) {}
+
+    /**
      * Aggregate statistics for deck (all-time and today).
      */
     record DeckAggregate(
@@ -96,14 +107,4 @@ public interface StatsRepository {
             int correctToday,
             int repeatToday,
             int hardToday) {}
-
-    /**
-     * Gets aggregate statistics for multiple decks.
-     *
-     * @param deckIds deck identifiers
-     * @param today current date for today's statistics
-     * @return map of deck ID to aggregate statistics
-     */
-    java.util.Map<Long, DeckAggregate> getAggregatesForDecks(
-            java.util.Collection<Long> deckIds, java.time.LocalDate today);
 }

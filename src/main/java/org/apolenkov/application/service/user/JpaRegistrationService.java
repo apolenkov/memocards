@@ -1,8 +1,5 @@
 package org.apolenkov.application.service.user;
 
-import java.time.LocalDateTime;
-import java.util.Set;
-import org.apolenkov.application.domain.port.RoleAuditRepository;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.springframework.context.annotation.Profile;
@@ -11,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * JPA-based implementation of user registration service with secure password hashing and role audit.
+ * JPA-based implementation of user registration service with secure password hashing.
  */
 @Service
 @Profile({"dev", "prod"})
@@ -19,25 +16,21 @@ public class JpaRegistrationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RoleAuditRepository roleAuditRepository;
 
     /**
      * Creates a new JpaRegistrationService with required dependencies.
      *
      * @param userRepository the repository for user persistence operations
      * @param passwordEncoder the encoder for secure password hashing
-     * @param roleAuditRepository the repository for tracking role changes
      */
-    public JpaRegistrationService(
-            UserRepository userRepository, PasswordEncoder passwordEncoder, RoleAuditRepository roleAuditRepository) {
+    public JpaRegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.roleAuditRepository = roleAuditRepository;
     }
 
     /**
      * Registers a new user account with secure password hashing and default USER role.
-     * Records role assignment in audit log and validates email uniqueness.
+     * Validates email uniqueness.
      *
      * @param email the email address for the new user account
      * @param name the display name for the new user
@@ -54,8 +47,7 @@ public class JpaRegistrationService {
         user.setName(name);
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
         user.addRole(org.apolenkov.application.config.SecurityConstants.ROLE_USER);
-        User created = userRepository.save(user);
-        roleAuditRepository.recordChange(
-                "self-register", created.getId(), Set.of(), created.getRoles(), LocalDateTime.now());
+
+        userRepository.save(user);
     }
 }
