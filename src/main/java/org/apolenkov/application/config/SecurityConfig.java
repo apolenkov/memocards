@@ -25,14 +25,17 @@ public class SecurityConfig extends VaadinWebSecurity {
 
     /**
      * Creates security configuration with environment and auto-login filter.
+     *
+     * @param environment Spring environment for profile detection
+     * @param autoLoginFilter filter for automatic login in development mode
      */
     @Autowired
-    public SecurityConfig(final Environment environment, final DevAutoLoginFilter devAutoLoginFilter) {
+    public SecurityConfig(final Environment environment, final DevAutoLoginFilter autoLoginFilter) {
         // Determine if production profile is active for security configuration
         String[] profiles = environment != null ? environment.getActiveProfiles() : null;
         this.prodProfileActive =
                 profiles != null && java.util.Arrays.asList(profiles).contains("prod");
-        this.devAutoLoginFilter = devAutoLoginFilter;
+        this.devAutoLoginFilter = autoLoginFilter;
     }
 
     /**

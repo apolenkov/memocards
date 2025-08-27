@@ -39,17 +39,17 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
     /**
      * Creates auto-login filter with configuration and dependencies.
      *
-     * @param autoLoginEnabled whether automatic login is enabled (default: false)
-     * @param autoLoginUser email of user to automatically authenticate (default: user@example.com)
-     * @param userDetailsService service for loading user details
+     * @param enabled whether automatic login is enabled (default: false)
+     * @param user email of user to automatically authenticate (default: user@example.com)
+     * @param service service for loading user details
      */
     public DevAutoLoginFilter(
-            @Value("${dev.auto-login.enabled:false}") final boolean autoLoginEnabled,
-            @Value("${dev.auto-login.user:user@example.com}") final String autoLoginUser,
-            final UserDetailsService userDetailsService) {
-        this.autoLoginEnabled = autoLoginEnabled;
-        this.autoLoginUser = autoLoginUser;
-        this.userDetailsService = userDetailsService;
+            @Value("${dev.auto-login.enabled:false}") final boolean enabled,
+            @Value("${dev.auto-login.user:user@example.com}") final String user,
+            final UserDetailsService service) {
+        this.autoLoginEnabled = enabled;
+        this.autoLoginUser = user;
+        this.userDetailsService = service;
     }
 
     /**

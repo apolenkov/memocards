@@ -26,10 +26,10 @@ public class DeckCard extends Div {
      * Creates a new DeckCard with the specified view model.
      * Initializes the card with deck data and sets up the complete user interface.
      *
-     * @param viewModel the view model containing deck data to display
+     * @param model the view model containing deck data to display
      */
-    public DeckCard(final DeckCardViewModel viewModel) {
-        this.viewModel = viewModel;
+    public DeckCard(final DeckCardViewModel model) {
+        this.viewModel = model;
 
         add(buildContent());
         addClickListener(e -> navigateToDeck());

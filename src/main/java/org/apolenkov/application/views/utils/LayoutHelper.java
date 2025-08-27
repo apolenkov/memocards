@@ -51,7 +51,7 @@ public final class LayoutHelper {
      * @param buttons buttons to arrange in a row
      * @return configured horizontal layout for buttons
      */
-    public static HorizontalLayout createButtonRow(Component... buttons) {
+    public static HorizontalLayout createButtonRow(final Component... buttons) {
         HorizontalLayout buttonRow = new HorizontalLayout();
         buttonRow.setSpacing(true);
         buttonRow.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -67,7 +67,7 @@ public final class LayoutHelper {
      * @param filters optional filter components
      * @return configured horizontal layout for search functionality
      */
-    public static HorizontalLayout createSearchRow(Component searchField, Component... filters) {
+    public static HorizontalLayout createSearchRow(final Component searchField, final Component... filters) {
         HorizontalLayout searchRow = new HorizontalLayout();
         searchRow.setWidthFull();
         searchRow.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -89,7 +89,7 @@ public final class LayoutHelper {
     /**
      * Create a stats grid layout
      */
-    public static HorizontalLayout createStatsGrid(Component... statCards) {
+    public static HorizontalLayout createStatsGrid(final Component... statCards) {
         HorizontalLayout statsGrid = new HorizontalLayout();
         statsGrid.setWidthFull();
         statsGrid.setSpacing(true);

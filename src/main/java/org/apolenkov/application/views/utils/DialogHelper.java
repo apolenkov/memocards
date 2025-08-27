@@ -36,12 +36,12 @@ public final class DialogHelper {
      * @return a configured Dialog component ready for display
      */
     public static Dialog createConfirmationDialog(
-            String title,
-            String message,
-            String confirmText,
-            String cancelText,
-            Runnable onConfirm,
-            Runnable onCancel) {
+            final String title,
+            final String message,
+            final String confirmText,
+            final String cancelText,
+            final Runnable onConfirm,
+            final Runnable onCancel) {
         Dialog dialog = new Dialog();
         dialog.addClassName("dialog-sm");
 
@@ -86,7 +86,8 @@ public final class DialogHelper {
      * @param onCancel cancel action (nullable)
      * @return configured dialog
      */
-    public static Dialog createConfirmationDialog(String title, String message, Runnable onConfirm, Runnable onCancel) {
+    public static Dialog createConfirmationDialog(
+            final String title, final String message, final Runnable onConfirm, final Runnable onCancel) {
         String confirm = I18nHelper.tr(I18N_DIALOG_CONFIRM);
         String cancel = I18nHelper.tr(I18N_DIALOG_CANCEL);
         return createConfirmationDialog(title, message, confirm, cancel, onConfirm, onCancel);

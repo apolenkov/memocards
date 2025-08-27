@@ -38,12 +38,12 @@ public class LanguageSwitcher extends HorizontalLayout {
      * Initializes the language selection interface with a dropdown containing
      * available languages and sets up event listeners for language changes.
      *
-     * @param userUseCase service for user operations and current user information
-     * @param userSettingsService service for persisting user preferences
+     * @param useCase service for user operations and current user information
+     * @param settingsService service for persisting user preferences
      */
-    public LanguageSwitcher(final UserUseCase userUseCase, final UserSettingsService userSettingsService) {
-        this.userUseCase = userUseCase;
-        this.userSettingsService = userSettingsService;
+    public LanguageSwitcher(final UserUseCase useCase, final UserSettingsService settingsService) {
+        this.userUseCase = useCase;
+        this.userSettingsService = settingsService;
         setSpacing(true);
         setPadding(false);
         setAlignItems(Alignment.CENTER);

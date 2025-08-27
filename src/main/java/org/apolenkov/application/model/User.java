@@ -43,15 +43,15 @@ public final class User {
     /**
      * Creates a new user with specified ID, email, and name.
      *
-     * @param id unique identifier for the user
-     * @param email email address of the user
-     * @param name display name of the user
+     * @param idValue unique identifier for the user
+     * @param emailValue email address of the user
+     * @param nameValue display name of the user
      */
-    public User(final Long id, final String email, final String name) {
+    public User(final Long idValue, final String emailValue, final String nameValue) {
         this();
-        this.id = id;
-        setEmail(email);
-        setName(name);
+        this.id = idValue;
+        setEmail(emailValue);
+        setName(nameValue);
     }
 
     /**
@@ -66,7 +66,7 @@ public final class User {
     /**
      * Sets user's unique identifier.
      *
-     * @param id user ID to set
+     * @param idValue user ID to set
      */
     public void setId(final Long idValue) {
         this.id = idValue;
@@ -84,7 +84,7 @@ public final class User {
     /**
      * Sets user's email address.
      *
-     * @param email email address to set
+     * @param emailValue email address to set
      * @throws IllegalArgumentException if email is null or blank
      */
     public void setEmail(final String emailValue) {
@@ -106,7 +106,7 @@ public final class User {
     /**
      * Sets user's password hash.
      *
-     * @param passwordHash password hash to set
+     * @param passwordHashValue password hash to set
      */
     public void setPasswordHash(final String passwordHashValue) {
         this.passwordHash = passwordHashValue;
@@ -124,7 +124,7 @@ public final class User {
     /**
      * Sets user's display name.
      *
-     * @param name name to set
+     * @param nameValue name to set
      * @throws IllegalArgumentException if name is null or blank
      */
     public void setName(final String nameValue) {
@@ -146,7 +146,7 @@ public final class User {
     /**
      * Sets user's creation timestamp.
      *
-     * @param createdAt creation date and time to set
+     * @param createdAtValue creation date and time to set
      */
     public void setCreatedAt(final LocalDateTime createdAtValue) {
         this.createdAt = createdAtValue;
@@ -164,7 +164,7 @@ public final class User {
     /**
      * Sets roles for user.
      *
-     * @param roles set of roles to assign to user
+     * @param rolesValue set of roles to assign to user
      */
     public void setRoles(final Set<String> rolesValue) {
         this.roles = rolesValue != null ? new HashSet<>(rolesValue) : new HashSet<>();

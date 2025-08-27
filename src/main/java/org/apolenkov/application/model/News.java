@@ -19,24 +19,24 @@ public final class News {
     /**
      * Creates news item with all required fields and initializes timestamps.
      *
-     * @param id unique identifier for the news item
-     * @param title headline or title of the news
-     * @param content main text content of the news
-     * @param author name of the person who wrote the news
-     * @param createdAt timestamp when the news was created
+     * @param idValue unique identifier for the news item
+     * @param titleValue headline or title of the news
+     * @param contentValue main text content of the news
+     * @param authorValue name of the person who wrote the news
+     * @param createdAtValue timestamp when the news was created
      */
     public News(
-            final Long id,
-            final String title,
-            final String content,
-            final String author,
-            final LocalDateTime createdAt) {
-        this.id = id;
-        this.title = title;
-        this.content = content;
-        this.author = author;
-        this.createdAt = createdAt;
-        this.updatedAt = createdAt;
+            final Long idValue,
+            final String titleValue,
+            final String contentValue,
+            final String authorValue,
+            final LocalDateTime createdAtValue) {
+        this.id = idValue;
+        this.title = titleValue;
+        this.content = contentValue;
+        this.author = authorValue;
+        this.createdAt = createdAtValue;
+        this.updatedAt = createdAtValue;
     }
 
     /**

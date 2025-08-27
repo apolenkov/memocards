@@ -29,12 +29,12 @@ public class StatsJpaAdapter implements StatsRepository {
     /**
      * Creates adapter with JPA repository dependencies.
      *
-     * @param statsRepo repository for daily statistics persistence
-     * @param knownRepo repository for known card tracking
+     * @param statsRepository repository for daily statistics persistence
+     * @param knownRepository repository for known card tracking
      */
-    public StatsJpaAdapter(StatsJpaRepository statsRepo, KnownCardJpaRepository knownRepo) {
-        this.statsRepo = statsRepo;
-        this.knownRepo = knownRepo;
+    public StatsJpaAdapter(final StatsJpaRepository statsRepository, final KnownCardJpaRepository knownRepository) {
+        this.statsRepo = statsRepository;
+        this.knownRepo = knownRepository;
     }
 
     /**
@@ -54,15 +54,15 @@ public class StatsJpaAdapter implements StatsRepository {
     @Transactional
     @SuppressWarnings("ParameterNumber")
     public void appendSession(
-            long deckId,
-            LocalDate date,
-            int viewed,
-            int correct,
-            int repeat,
-            int hard,
-            long sessionDurationMs,
-            long totalAnswerDelayMs,
-            Collection<Long> knownCardIdsDelta) {
+            final long deckId,
+            final LocalDate date,
+            final int viewed,
+            final int correct,
+            final int repeat,
+            final int hard,
+            final long sessionDurationMs,
+            final long totalAnswerDelayMs,
+            final Collection<Long> knownCardIdsDelta) {
         // Try to accumulate session data to existing daily record
         int updated = statsRepo.accumulate(
                 deckId, date, viewed, correct, repeat, hard, sessionDurationMs, totalAnswerDelayMs);
@@ -105,8 +105,8 @@ public class StatsJpaAdapter implements StatsRepository {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<DailyStatsRecord> getDailyStats(long deckId) {
-        return statsRepo.findById_DeckIdOrderById_DateAsc(deckId).stream()
+    public List<DailyStatsRecord> getDailyStats(final long deckId) {
+        return statsRepo.findByDeckIdOrderByDateAsc(deckId).stream()
                 .map(e -> new DailyStatsRecord(
                         e.getId().getDate(),
                         e.getSessions(),
@@ -127,7 +127,7 @@ public class StatsJpaAdapter implements StatsRepository {
      */
     @Override
     @Transactional(readOnly = true)
-    public Set<Long> getKnownCardIds(long deckId) {
+    public Set<Long> getKnownCardIds(final long deckId) {
         return knownRepo.findKnownCardIds(deckId);
     }
 
@@ -140,7 +140,7 @@ public class StatsJpaAdapter implements StatsRepository {
      */
     @Override
     @Transactional
-    public void setCardKnown(long deckId, long cardId, boolean known) {
+    public void setCardKnown(final long deckId, final long cardId, final boolean known) {
         if (known) {
             // Check if card is already marked as known to avoid duplicates
             Set<Long> existing = knownRepo.findKnownCardIds(deckId);
@@ -164,7 +164,7 @@ public class StatsJpaAdapter implements StatsRepository {
      */
     @Override
     @Transactional
-    public void resetDeckProgress(long deckId) {
+    public void resetDeckProgress(final long deckId) {
         knownRepo.deleteByDeckId(deckId);
     }
 
@@ -178,8 +178,10 @@ public class StatsJpaAdapter implements StatsRepository {
     @Override
     @Transactional(readOnly = true)
     public java.util.Map<Long, DeckAggregate> getAggregatesForDecks(
-            java.util.Collection<Long> deckIds, java.time.LocalDate today) {
-        if (deckIds == null || deckIds.isEmpty()) return java.util.Collections.emptyMap();
+            final java.util.Collection<Long> deckIds, final java.time.LocalDate today) {
+        if (deckIds == null || deckIds.isEmpty()) {
+            return java.util.Collections.emptyMap();
+        }
 
         // Ensure unique deck IDs and convert to Long type
         java.util.List<Long> ids = deckIds.stream().distinct().toList();

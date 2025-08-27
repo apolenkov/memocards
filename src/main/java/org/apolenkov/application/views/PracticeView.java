@@ -72,12 +72,12 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     /**
      * Creates a new PracticeView with required dependencies.
      *
-     * @param flashcardUseCase service for flashcard operations
-     * @param presenter presenter for managing practice session logic
+     * @param useCase service for flashcard operations
+     * @param practicePresenter presenter for managing practice session logic
      */
-    public PracticeView(final FlashcardUseCase flashcardUseCase, final PracticePresenter presenter) {
-        this.flashcardUseCase = flashcardUseCase;
-        this.presenter = presenter;
+    public PracticeView(final FlashcardUseCase useCase, final PracticePresenter practicePresenter) {
+        this.flashcardUseCase = useCase;
+        this.presenter = practicePresenter;
 
         getContent().setWidthFull();
         getContent().setPadding(true);

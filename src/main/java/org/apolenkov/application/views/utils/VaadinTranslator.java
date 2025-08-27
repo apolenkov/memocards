@@ -22,7 +22,7 @@ public class VaadinTranslator implements Translator {
      * @return localized string
      */
     @Override
-    public String tr(String key, Object... params) {
+    public String tr(final String key, final Object... params) {
         if (key == null || key.isBlank()) {
             return "";
         }

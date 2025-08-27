@@ -32,14 +32,14 @@ public class DeckEditDialog extends Dialog {
      * Initializes the dialog with the deck's current information
      * and sets up the form layout with appropriate validation rules.
      *
-     * @param deckFacade service for deck operations and persistence
-     * @param deck the deck object to edit
-     * @param onSaved callback to execute when the deck is successfully saved
+     * @param facade service for deck operations and persistence
+     * @param deckValue the deck object to edit
+     * @param savedCallback callback to execute when the deck is successfully saved
      */
-    public DeckEditDialog(final DeckFacade deckFacade, final Deck deck, final Consumer<Deck> onSaved) {
-        this.deckFacade = deckFacade;
-        this.deck = deck;
-        this.onSaved = onSaved;
+    public DeckEditDialog(final DeckFacade facade, final Deck deckValue, final Consumer<Deck> savedCallback) {
+        this.deckFacade = facade;
+        this.deck = deckValue;
+        this.onSaved = savedCallback;
         addClassName("dialog-md");
         build();
     }

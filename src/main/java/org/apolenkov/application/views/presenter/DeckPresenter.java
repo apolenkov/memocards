@@ -28,20 +28,20 @@ public class DeckPresenter {
     /**
      * Creates a new DeckPresenter with required dependencies.
      *
-     * @param deckUseCase service for deck operations
-     * @param statsService service for statistics and progress tracking
-     * @param deckFacade service for deck business logic
-     * @param cardQueryService service for card filtering and search
+     * @param useCase service for deck operations
+     * @param stats service for statistics and progress tracking
+     * @param facade service for deck business logic
+     * @param cardQuery service for card filtering and search
      */
     public DeckPresenter(
-            DeckUseCase deckUseCase,
-            StatsService statsService,
-            DeckFacade deckFacade,
-            CardQueryService cardQueryService) {
-        this.deckUseCase = deckUseCase;
-        this.statsService = statsService;
-        this.deckFacade = deckFacade;
-        this.cardQueryService = cardQueryService;
+            final DeckUseCase useCase,
+            final StatsService stats,
+            final DeckFacade facade,
+            final CardQueryService cardQuery) {
+        this.deckUseCase = useCase;
+        this.statsService = stats;
+        this.deckFacade = facade;
+        this.cardQueryService = cardQuery;
     }
 
     /**
@@ -50,7 +50,7 @@ public class DeckPresenter {
      * @param deckId the ID of the deck to load
      * @return an Optional containing the deck if found, empty otherwise
      */
-    public Optional<Deck> loadDeck(long deckId) {
+    public Optional<Deck> loadDeck(final long deckId) {
         return deckUseCase.getDeckById(deckId);
     }
 
@@ -60,7 +60,7 @@ public class DeckPresenter {
      * @param deckId the ID of the deck to load flashcards for
      * @return a list of all flashcards in the deck
      */
-    public List<Flashcard> loadFlashcards(long deckId) {
+    public List<Flashcard> loadFlashcards(final long deckId) {
         return deckFacade.loadFlashcards(deckId);
     }
 
@@ -74,7 +74,7 @@ public class DeckPresenter {
      * @param hideKnown whether to exclude cards marked as known
      * @return a filtered list of flashcards matching the criteria
      */
-    public List<Flashcard> listFilteredFlashcards(long deckId, String rawQuery, boolean hideKnown) {
+    public List<Flashcard> listFilteredFlashcards(final long deckId, final String rawQuery, final boolean hideKnown) {
         return cardQueryService.listFilteredFlashcards(deckId, rawQuery, hideKnown);
     }
 
@@ -85,7 +85,7 @@ public class DeckPresenter {
      * @param cardId the ID of the card to check
      * @return true if the card is marked as known, false otherwise
      */
-    public boolean isKnown(long deckId, long cardId) {
+    public boolean isKnown(final long deckId, final long cardId) {
         return statsService.isCardKnown(deckId, cardId);
     }
 
@@ -97,7 +97,7 @@ public class DeckPresenter {
      * @param deckId the ID of the deck containing the card
      * @param cardId the ID of the card to toggle
      */
-    public void toggleKnown(long deckId, long cardId) {
+    public void toggleKnown(final long deckId, final long cardId) {
         deckFacade.toggleKnown(deckId, cardId);
     }
 
@@ -110,7 +110,7 @@ public class DeckPresenter {
      *
      * @param deckId the ID of the deck to reset progress for
      */
-    public void resetProgress(long deckId) {
+    public void resetProgress(final long deckId) {
         deckFacade.resetProgress(deckId);
     }
 
@@ -120,7 +120,7 @@ public class DeckPresenter {
      * @param deckId the ID of the deck to get the size for
      * @return the total number of flashcards in the deck
      */
-    public int deckSize(long deckId) {
+    public int deckSize(final long deckId) {
         return deckFacade.deckSize(deckId);
     }
 }

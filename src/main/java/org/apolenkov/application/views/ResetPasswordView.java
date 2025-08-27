@@ -39,10 +39,10 @@ public class ResetPasswordView extends VerticalLayout
     /**
      * Creates a new ResetPasswordView with password reset service dependency.
      *
-     * @param passwordResetService service for handling password reset operations
+     * @param service service for handling password reset operations
      */
-    public ResetPasswordView(PasswordResetService passwordResetService) {
-        this.passwordResetService = passwordResetService;
+    public ResetPasswordView(final PasswordResetService service) {
+        this.passwordResetService = service;
 
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();
@@ -110,8 +110,17 @@ public class ResetPasswordView extends VerticalLayout
         add(wrapper);
     }
 
+    /**
+     * Sets the route parameter for this view.
+     * This method is called by the router when navigating to this view.
+     * It extracts the reset token from the URL parameter and validates it.
+     * If the token is invalid, the user is redirected to the login page.
+     *
+     * @param event the before event containing routing information
+     * @param parameter the route parameter (reset token)
+     */
     @Override
-    public void setParameter(BeforeEvent event, String parameter) {
+    public void setParameter(final BeforeEvent event, final String parameter) {
         this.token = parameter;
 
         // Validate token
@@ -121,7 +130,7 @@ public class ResetPasswordView extends VerticalLayout
         }
     }
 
-    private void handleSubmit(String password, String confirmPassword) {
+    private void handleSubmit(final String password, final String confirmPassword) {
         if (password == null || password.trim().isEmpty()) {
             NotificationHelper.showError(getTranslation("auth.resetPassword.passwordRequired"));
             return;
@@ -150,8 +159,16 @@ public class ResetPasswordView extends VerticalLayout
         }
     }
 
+    /**
+     * Handles the before enter event for this view.
+     * This method is called before the view is entered and can be used to perform
+     * pre-navigation checks or redirects. In this case, it checks if the user
+     * is already authenticated and redirects them to the home page if so.
+     *
+     * @param event the before enter event containing navigation context
+     */
     @Override
-    public void beforeEnter(BeforeEnterEvent event) {
+    public void beforeEnter(final BeforeEnterEvent event) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
             event.rerouteTo("");
@@ -176,16 +193,16 @@ public class ResetPasswordView extends VerticalLayout
             return password;
         }
 
-        public void setPassword(String password) {
-            this.password = password;
+        public void setPassword(final String passwordValue) {
+            this.password = passwordValue;
         }
 
         public String getConfirmPassword() {
             return confirmPassword;
         }
 
-        public void setConfirmPassword(String confirmPassword) {
-            this.confirmPassword = confirmPassword;
+        public void setConfirmPassword(final String confirmPasswordValue) {
+            this.confirmPassword = confirmPasswordValue;
         }
     }
 }

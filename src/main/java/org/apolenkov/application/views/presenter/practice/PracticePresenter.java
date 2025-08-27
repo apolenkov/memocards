@@ -31,35 +31,35 @@ public final class PracticePresenter {
     /**
      * Creates a new PracticePresenter with required dependencies.
      *
-     * @param deckUseCase service for deck operations (non-null)
-     * @param flashcardUseCase service for flashcard operations (non-null)
-     * @param statsService service for statistics recording (non-null)
-     * @param practiceSettingsService service for practice configuration (non-null)
+     * @param useCase service for deck operations (non-null)
+     * @param flashcardUseCaseValue service for flashcard operations (non-null)
+     * @param stats service for statistics recording (non-null)
+     * @param practiceSettings service for practice configuration (non-null)
      * @throws IllegalArgumentException if any parameter is null
      */
     public PracticePresenter(
-            final DeckUseCase deckUseCase,
-            final FlashcardUseCase flashcardUseCase,
-            final StatsService statsService,
-            final PracticeSettingsService practiceSettingsService) {
+            final DeckUseCase useCase,
+            final FlashcardUseCase flashcardUseCaseValue,
+            final StatsService stats,
+            final PracticeSettingsService practiceSettings) {
 
-        if (deckUseCase == null) {
+        if (useCase == null) {
             throw new IllegalArgumentException("DeckUseCase cannot be null");
         }
-        if (flashcardUseCase == null) {
+        if (flashcardUseCaseValue == null) {
             throw new IllegalArgumentException("FlashcardUseCase cannot be null");
         }
-        if (statsService == null) {
+        if (stats == null) {
             throw new IllegalArgumentException("StatsService cannot be null");
         }
-        if (practiceSettingsService == null) {
+        if (practiceSettings == null) {
             throw new IllegalArgumentException("PracticeSettingsService cannot be null");
         }
 
-        this.deckUseCase = deckUseCase;
-        this.flashcardUseCase = flashcardUseCase;
-        this.statsService = statsService;
-        this.practiceSettingsService = practiceSettingsService;
+        this.deckUseCase = useCase;
+        this.flashcardUseCase = flashcardUseCaseValue;
+        this.statsService = stats;
+        this.practiceSettingsService = practiceSettings;
     }
 
     /**
@@ -168,13 +168,13 @@ public final class PracticePresenter {
      * @param knownCardIdsDelta the collection of card IDs that changed knowledge status
      */
     public void recordSession(
-            long deckId,
-            int totalViewed,
-            int correct,
-            int hard,
-            Duration sessionDuration,
-            long totalAnswerDelayMs,
-            List<Long> knownCardIdsDelta) {
+            final long deckId,
+            final int totalViewed,
+            final int correct,
+            final int hard,
+            final Duration sessionDuration,
+            final long totalAnswerDelayMs,
+            final List<Long> knownCardIdsDelta) {
         statsService.recordSession(
                 deckId, totalViewed, correct, 0, hard, sessionDuration, totalAnswerDelayMs, knownCardIdsDelta);
     }
@@ -200,14 +200,15 @@ public final class PracticePresenter {
         /**
          * Constructs new practice session with deck, direction, and reset counters.
          *
-         * @param deckId the ID of the deck being practiced
-         * @param cards the list of flashcards for this session
-         * @param direction the practice direction (front-to-back or back-to-front)
+         * @param deckIdValue the ID of the deck being practiced
+         * @param cardsValue the list of flashcards for this session
+         * @param directionValue the practice direction (front-to-back or back-to-front)
          */
-        public Session(final long deckId, final List<Flashcard> cards, final PracticeDirection direction) {
-            this.deckId = deckId;
-            this.cards = cards;
-            this.direction = direction;
+        public Session(
+                final long deckIdValue, final List<Flashcard> cardsValue, final PracticeDirection directionValue) {
+            this.deckId = deckIdValue;
+            this.cards = cardsValue;
+            this.direction = directionValue;
             this.index = 0;
             this.showingAnswer = false;
             this.correctCount = 0;
@@ -269,36 +270,36 @@ public final class PracticePresenter {
             return failedCardIds;
         }
 
-        public void setIndex(final int index) {
-            this.index = index;
+        public void setIndex(final int indexValue) {
+            this.index = indexValue;
         }
 
-        public void setShowingAnswer(final boolean showingAnswer) {
-            this.showingAnswer = showingAnswer;
+        public void setShowingAnswer(final boolean showingAnswerValue) {
+            this.showingAnswer = showingAnswerValue;
         }
 
-        public void setDirection(final PracticeDirection direction) {
-            this.direction = direction;
+        public void setDirection(final PracticeDirection directionValue) {
+            this.direction = directionValue;
         }
 
-        public void setCorrectCount(final int correctCount) {
-            this.correctCount = correctCount;
+        public void setCorrectCount(final int correctCountValue) {
+            this.correctCount = correctCountValue;
         }
 
-        public void setHardCount(final int hardCount) {
-            this.hardCount = hardCount;
+        public void setHardCount(final int hardCountValue) {
+            this.hardCount = hardCountValue;
         }
 
-        public void setTotalViewed(final int totalViewed) {
-            this.totalViewed = totalViewed;
+        public void setTotalViewed(final int totalViewedValue) {
+            this.totalViewed = totalViewedValue;
         }
 
-        public void setCardShowTime(final Instant cardShowTime) {
-            this.cardShowTime = cardShowTime;
+        public void setCardShowTime(final Instant cardShowTimeValue) {
+            this.cardShowTime = cardShowTimeValue;
         }
 
-        public void setTotalAnswerDelayMs(final long totalAnswerDelayMs) {
-            this.totalAnswerDelayMs = totalAnswerDelayMs;
+        public void setTotalAnswerDelayMs(final long totalAnswerDelayMsValue) {
+            this.totalAnswerDelayMs = totalAnswerDelayMsValue;
         }
     }
 

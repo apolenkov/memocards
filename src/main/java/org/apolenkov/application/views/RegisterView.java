@@ -57,10 +57,10 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
     /**
      * Creates a new RegisterView with authentication facade dependency.
      *
-     * @param authFacade service for handling user registration and authentication
+     * @param facade service for handling user registration and authentication
      */
-    public RegisterView(AuthFacade authFacade) {
-        this.authFacade = authFacade;
+    public RegisterView(final AuthFacade facade) {
+        this.authFacade = facade;
 
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();
@@ -281,7 +281,7 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
      * @param pwd the password string to validate
      * @return true if password meets all security requirements, false otherwise
      */
-    private boolean isPasswordValid(String pwd) {
+    private boolean isPasswordValid(final String pwd) {
         if (pwd.length() < 8) {
             return false;
         }
