@@ -82,6 +82,15 @@ public interface StatsRepository {
 
     /**
      * Daily statistics record for specific date.
+     *
+     * @param date the date for these statistics
+     * @param sessions number of study sessions
+     * @param viewed number of cards viewed
+     * @param correct number of correct answers
+     * @param repeat number of cards marked for repetition
+     * @param hard number of cards marked as hard
+     * @param totalDurationMs total study duration in milliseconds
+     * @param totalAnswerDelayMs total delay before answering in milliseconds
      */
     record DailyStatsRecord(
             LocalDate date,
@@ -95,6 +104,17 @@ public interface StatsRepository {
 
     /**
      * Aggregate statistics for deck (all-time and today).
+     *
+     * @param sessionsAll total sessions across all time
+     * @param viewedAll total cards viewed across all time
+     * @param correctAll total correct answers across all time
+     * @param repeatAll total repeat attempts across all time
+     * @param hardAll total hard cards across all time
+     * @param sessionsToday sessions for today only
+     * @param viewedToday cards viewed today only
+     * @param correctToday correct answers today only
+     * @param repeatToday repeat attempts today only
+     * @param hardToday hard cards today only
      */
     record DeckAggregate(
             int sessionsAll,

@@ -7,12 +7,7 @@
 <suppressions>
     <!-- Skip for my examples  -->
     <suppress checks="JavadocPackage" files=".*"/>
-    <suppress checks="JavadocMethod" files=".*"/>
-    <suppress checks="JavadocType" files=".*"/>
     <suppress checks="JavadocVariable" files=".*"/>
-    <suppress checks="InvalidJavadocPosition" files=".*"/>
-    <suppress checks="JavadocStyle" files=".*"/>
-    <suppress checks="MissingJavadocMethod" files=".*"/>
     <suppress checks="MagicNumber" files=".*"/>
 
     <!-- Conflict with spotless  -->

@@ -209,6 +209,15 @@ public class StatsService {
 
     /**
      * Record representing daily statistics for a deck with session counts, performance metrics, and timing.
+     *
+     * @param date the date for these statistics
+     * @param sessions number of study sessions
+     * @param viewed number of cards viewed
+     * @param correct number of correct answers
+     * @param repeat number of cards marked for repetition
+     * @param hard number of cards marked as hard
+     * @param totalDurationMs total study duration in milliseconds
+     * @param totalAnswerDelayMs total delay before answering in milliseconds
      */
     public record DailyStats(
             LocalDate date,

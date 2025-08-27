@@ -72,7 +72,10 @@ public final class LayoutHelper {
     }
 
     /**
-     * Create a stats grid layout
+     * Creates a stats grid layout.
+     *
+     * @param statCards the stat card components to arrange in a grid
+     * @return configured horizontal layout for stats display
      */
     public static HorizontalLayout createStatsGrid(final Component... statCards) {
         HorizontalLayout statsGrid = new HorizontalLayout();
