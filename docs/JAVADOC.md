@@ -7,7 +7,7 @@ JavaDoc comments must follow these quality standards:
 - Use clear, professional English language
 - Follow standard JavaDoc format and tags
 - Keep comments up-to-date with code changes
-- Prefer meaningful descriptions over generic ones
+- Prefer meaningful descriptions to generic ones
 - Try to avoid HTML tags in comments, but if description is large and necessary, 
 - then it's acceptable
 - All classes, methods, and fields must have JavaDoc comments (for check 

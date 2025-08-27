@@ -93,6 +93,7 @@ class FlashcardTest {
 
         @Test
         @DisplayName("DeckId setter should throw exception for null")
+        @SuppressWarnings("DataFlowIssue") // To make error for test
         void deckIdSetterShouldThrowExceptionForNull() {
             assertThatThrownBy(() -> flashcard.setDeckId(null))
                     .isInstanceOf(IllegalArgumentException.class)

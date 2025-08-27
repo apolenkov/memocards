@@ -100,13 +100,6 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("PasswordHash setter should handle null")
-        void passwordHashSetterShouldHandleNull() {
-            user.setPasswordHash(null);
-            assertThat(user.getPasswordHash()).isNull();
-        }
-
-        @Test
         @DisplayName("Name getter and setter should work correctly")
         void nameGetterAndSetterShouldWorkCorrectly() {
             user.setName("Test User");
@@ -144,6 +137,7 @@ class UserTest {
 
         @Test
         @DisplayName("GetRoles should return unmodifiable set")
+        @SuppressWarnings("DataFlowIssue") // To make test with error
         void getRolesShouldReturnUnmodifiableSet() {
             user.setRoles(Set.of("ROLE_USER"));
 

@@ -83,7 +83,7 @@ class DeckFacadeTest {
         @DisplayName("LoadFlashcards should return flashcards for deck")
         void loadFlashcardsShouldReturnFlashcardsForDeck() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             List<Flashcard> expectedFlashcards = List.of(
                     new Flashcard(1L, deckId, "Front 1", "Back 1"), new Flashcard(2L, deckId, "Front 2", "Back 2"));
 
@@ -101,7 +101,7 @@ class DeckFacadeTest {
         @DisplayName("LoadFlashcards should return empty list when no flashcards exist")
         void loadFlashcardsShouldReturnEmptyListWhenNoFlashcardsExist() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             when(flashcardUseCase.getFlashcardsByDeckId(deckId)).thenReturn(List.of());
 
             // When
@@ -253,7 +253,7 @@ class DeckFacadeTest {
         @DisplayName("DeckSize should return correct size")
         void deckSizeShouldReturnCorrectSize() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             List<Flashcard> flashcards = List.of(
                     new Flashcard(1L, deckId, "Front 1", "Back 1"),
                     new Flashcard(2L, deckId, "Front 2", "Back 2"),
@@ -273,7 +273,7 @@ class DeckFacadeTest {
         @DisplayName("DeckSize should return 0 for empty deck")
         void deckSizeShouldReturnZeroForEmptyDeck() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             when(flashcardUseCase.getFlashcardsByDeckId(deckId)).thenReturn(List.of());
 
             // When

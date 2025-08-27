@@ -328,6 +328,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         H1 answer = new H1(Optional.ofNullable(getAnswerText(currentCard)).orElse(""));
 
         cardLayout.add(question, divider, answer);
+
+        assert currentCard != null;
         if (currentCard.getExample() != null && !currentCard.getExample().isBlank()) {
             Span exampleText = new Span(getTranslation("practice.example.prefix", currentCard.getExample()));
 

@@ -31,21 +31,6 @@ public final class LayoutHelper {
     }
 
     /**
-     * Creates a centered horizontal layout with consistent styling.
-     * Creates a horizontal layout that centers its content both horizontally and vertically.
-     *
-     * @return a configured HorizontalLayout with centered content alignment
-     */
-    public static HorizontalLayout createCenteredHorizontalLayout() {
-        HorizontalLayout layout = new HorizontalLayout();
-        layout.setAlignItems(FlexComponent.Alignment.CENTER);
-        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        layout.setSpacing(true);
-        layout.setPadding(true);
-        return layout;
-    }
-
-    /**
      * Creates a button row layout with consistent spacing and alignment.
      *
      * @param buttons buttons to arrange in a row
