@@ -52,6 +52,7 @@ public class StatsJpaAdapter implements StatsRepository {
      */
     @Override
     @Transactional
+    @SuppressWarnings("ParameterNumber")
     public void appendSession(
             long deckId,
             LocalDate date,

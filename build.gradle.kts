@@ -294,5 +294,5 @@ tasks.named("npmInstall") {
     outputs.dir("node_modules")
 }
 
-apply(from = "gradle/code_quality/main.gradle.kts")
-apply(from = "gradle/vaadin-clean.gradle.kts")
+apply(from = "gradle/code_quality/check_code.gradle.kts")
+apply(from = "gradle/clean.gradle.kts")
