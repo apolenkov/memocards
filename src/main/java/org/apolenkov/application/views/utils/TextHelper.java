@@ -21,7 +21,7 @@ public final class TextHelper {
      * @param text the text content for the main title
      * @return a configured H1 component with consistent styling
      */
-    public static H1 createMainTitle(String text) {
+    public static H1 createMainTitle(final String text) {
         return new H1(text);
     }
 
@@ -32,7 +32,7 @@ public final class TextHelper {
      * @param text the text content for the page title
      * @return a configured H2 component with consistent styling
      */
-    public static H2 createPageTitle(String text) {
+    public static H2 createPageTitle(final String text) {
         return new H2(text);
     }
 
@@ -43,7 +43,7 @@ public final class TextHelper {
      * @param text the text content for the section title
      * @return a configured H3 component with consistent styling
      */
-    public static H3 createSectionTitle(String text) {
+    public static H3 createSectionTitle(final String text) {
         return new H3(text);
     }
 }

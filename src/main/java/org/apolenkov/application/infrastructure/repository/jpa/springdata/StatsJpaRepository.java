@@ -67,7 +67,7 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
         @QueryHint(name = "org.hibernate.fetchSize", value = "50")
     })
     @Query("SELECT s FROM DeckDailyStatsEntity s " + "WHERE s.id.deckId = :deckId " + "ORDER BY s.id.date ASC")
-    List<DeckDailyStatsEntity> findById_DeckIdOrderById_DateAsc(@Param("deckId") long deckId);
+    List<DeckDailyStatsEntity> findByDeckIdOrderByDateAsc(@Param("deckId") long deckId);
 
     /**
      * Retrieves aggregated statistics for multiple decks.

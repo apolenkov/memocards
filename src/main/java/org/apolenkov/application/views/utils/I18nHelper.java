@@ -24,7 +24,7 @@ public final class I18nHelper {
      * @param params optional parameters for message formatting
      * @return translated message or the key as a fallback
      */
-    public static String tr(String key, Object... params) {
+    public static String tr(final String key, final Object... params) {
         if (key == null || key.isBlank()) {
             return "";
         }
@@ -53,7 +53,7 @@ public final class I18nHelper {
      * @param params optional parameters
      * @return translated string or null if UI is not available
      */
-    private static String tryUiTranslation(String key, Object... params) {
+    private static String tryUiTranslation(final String key, final Object... params) {
         UI ui = UI.getCurrent();
         return ui != null ? ui.getTranslation(key, params) : null;
     }
@@ -65,7 +65,7 @@ public final class I18nHelper {
      * @param params optional parameters
      * @return translated string or the original key
      */
-    private static String tryProviderTranslation(String key, Object... params) {
+    private static String tryProviderTranslation(final String key, final Object... params) {
         I18NProvider provider = getI18NProvider();
         if (provider == null) {
             return key;

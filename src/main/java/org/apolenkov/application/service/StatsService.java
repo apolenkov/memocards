@@ -49,14 +49,14 @@ public class StatsService {
     @Transactional
     @SuppressWarnings({"java:S107", "ParameterNumber"})
     public void recordSession(
-            long deckId,
-            int viewed,
-            int correct,
-            int repeat,
-            int hard,
-            Duration sessionDuration,
-            long totalAnswerDelayMs,
-            Collection<Long> knownCardIdsDelta) {
+            final long deckId,
+            final int viewed,
+            final int correct,
+            final int repeat,
+            final int hard,
+            final Duration sessionDuration,
+            final long totalAnswerDelayMs,
+            final Collection<Long> knownCardIdsDelta) {
 
         // Validate parameters
         if (deckId <= 0) {

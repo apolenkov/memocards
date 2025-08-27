@@ -241,7 +241,7 @@ class StatsJpaAdapterTest {
             DeckDailyStatsEntity entity1 = createDeckDailyStatsEntity(deckId, date1, 2, 20, 16, 2, 1, 120000L, 10000L);
             DeckDailyStatsEntity entity2 = createDeckDailyStatsEntity(deckId, date2, 1, 10, 8, 1, 2, 60000L, 5000L);
 
-            when(statsRepo.findById_DeckIdOrderById_DateAsc(deckId)).thenReturn(List.of(entity1, entity2));
+            when(statsRepo.findByDeckIdOrderByDateAsc(deckId)).thenReturn(List.of(entity1, entity2));
 
             // When
             List<StatsRepository.DailyStatsRecord> result = adapter.getDailyStats(deckId);
@@ -253,7 +253,7 @@ class StatsJpaAdapterTest {
             assertThat(result.getFirst().viewed()).isEqualTo(20);
             assertThat(result.get(1).date()).isEqualTo(date2);
             assertThat(result.get(1).sessions()).isEqualTo(1);
-            verify(statsRepo).findById_DeckIdOrderById_DateAsc(deckId);
+            verify(statsRepo).findByDeckIdOrderByDateAsc(deckId);
         }
 
         @Test
@@ -261,14 +261,14 @@ class StatsJpaAdapterTest {
         void getDailyStatsShouldReturnEmptyListWhenNoStatsExist() {
             // Given
             long deckId = 1L;
-            when(statsRepo.findById_DeckIdOrderById_DateAsc(deckId)).thenReturn(List.of());
+            when(statsRepo.findByDeckIdOrderByDateAsc(deckId)).thenReturn(List.of());
 
             // When
             List<StatsRepository.DailyStatsRecord> result = adapter.getDailyStats(deckId);
 
             // Then
             assertThat(result).isEmpty();
-            verify(statsRepo).findById_DeckIdOrderById_DateAsc(deckId);
+            verify(statsRepo).findByDeckIdOrderByDateAsc(deckId);
         }
     }
 
@@ -532,15 +532,15 @@ class StatsJpaAdapterTest {
 
     @SuppressWarnings("ParameterNumber")
     private DeckDailyStatsEntity createDeckDailyStatsEntity(
-            long deckId,
-            LocalDate date,
-            int sessions,
-            int viewed,
-            int correct,
-            int repeat,
-            int hard,
-            long totalDurationMs,
-            long totalAnswerDelayMs) {
+            final long deckId,
+            final LocalDate date,
+            final int sessions,
+            final int viewed,
+            final int correct,
+            final int repeat,
+            final int hard,
+            final long totalDurationMs,
+            final long totalAnswerDelayMs) {
         DeckDailyStatsEntity entity = new DeckDailyStatsEntity();
         DeckDailyStatsEntity.Id id = new DeckDailyStatsEntity.Id(deckId, date);
         entity.setId(id);

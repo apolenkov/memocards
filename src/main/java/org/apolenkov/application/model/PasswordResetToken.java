@@ -22,14 +22,14 @@ public final class PasswordResetToken {
     /**
      * Creates password reset token.
      *
-     * @param token secure token string
-     * @param userId ID of the user requesting password reset
-     * @param expiresAt expiration date and time for this token
+     * @param tokenValue secure token string
+     * @param userIdValue ID of the user requesting password reset
+     * @param expiresAtValue expiration date and time for this token
      */
-    public PasswordResetToken(final String token, final Long userId, final LocalDateTime expiresAt) {
-        this.token = token;
-        this.userId = userId;
-        this.expiresAt = expiresAt;
+    public PasswordResetToken(final String tokenValue, final Long userIdValue, final LocalDateTime expiresAtValue) {
+        this.token = tokenValue;
+        this.userId = userIdValue;
+        this.expiresAt = expiresAtValue;
         this.used = false;
     }
 

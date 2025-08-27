@@ -43,34 +43,39 @@ public final class Flashcard {
     /**
      * Creates flashcard with basic fields.
      *
-     * @param id unique identifier for the flashcard
-     * @param deckId ID of the deck this flashcard belongs to
-     * @param frontText text displayed on the front of the card
-     * @param backText text displayed on the back of the card
+     * @param idValue unique identifier for the flashcard
+     * @param deckIdValue ID of the deck this flashcard belongs to
+     * @param frontTextValue text displayed on the front of the card
+     * @param backTextValue text displayed on the back of the card
      * @throws IllegalArgumentException if deckId is null, or if frontText/backText are null or empty
      */
-    public Flashcard(final Long id, final Long deckId, final String frontText, final String backText) {
+    public Flashcard(
+            final Long idValue, final Long deckIdValue, final String frontTextValue, final String backTextValue) {
         this();
-        this.id = id;
-        setDeckId(deckId);
-        setFrontText(frontText);
-        setBackText(backText);
+        this.id = idValue;
+        setDeckId(deckIdValue);
+        setFrontText(frontTextValue);
+        setBackText(backTextValue);
     }
 
     /**
      * Creates flashcard with basic fields and example.
      *
-     * @param id unique identifier for the flashcard
-     * @param deckId ID of the deck this flashcard belongs to
-     * @param frontText text displayed on the front of the card
-     * @param backText text displayed on the back of the card
-     * @param example additional example or context for the flashcard
+     * @param idValue unique identifier for the flashcard
+     * @param deckIdValue ID of the deck this flashcard belongs to
+     * @param frontTextValue text displayed on the front of the card
+     * @param backTextValue text displayed on the back of the card
+     * @param exampleValue additional example or context for the flashcard
      * @throws IllegalArgumentException if deckId is null, or if frontText/backText are null or empty
      */
     public Flashcard(
-            final Long id, final Long deckId, final String frontText, final String backText, final String example) {
-        this(id, deckId, frontText, backText);
-        this.example = example;
+            final Long idValue,
+            final Long deckIdValue,
+            final String frontTextValue,
+            final String backTextValue,
+            final String exampleValue) {
+        this(idValue, deckIdValue, frontTextValue, backTextValue);
+        this.example = exampleValue;
     }
 
     /**

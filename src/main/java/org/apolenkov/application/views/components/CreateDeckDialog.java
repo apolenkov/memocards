@@ -32,15 +32,14 @@ public class CreateDeckDialog extends Dialog {
     /**
      * Creates a new CreateDeckDialog.
      *
-     * @param deckFacade service for deck operations
-     * @param userUseCase service for user operations
-     * @param onCreated callback function called when deck is successfully created
+     * @param facade service for deck operations
+     * @param useCase service for user operations
+     * @param createdCallback callback function called when deck is successfully created
      */
-    public CreateDeckDialog(
-            final DeckFacade deckFacade, final UserUseCase userUseCase, final Consumer<Deck> onCreated) {
-        this.deckFacade = deckFacade;
-        this.userUseCase = userUseCase;
-        this.onCreated = onCreated;
+    public CreateDeckDialog(final DeckFacade facade, final UserUseCase useCase, final Consumer<Deck> createdCallback) {
+        this.deckFacade = facade;
+        this.userUseCase = useCase;
+        this.onCreated = createdCallback;
         addClassName("dialog-md");
         build();
     }

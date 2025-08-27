@@ -46,15 +46,15 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
     /**
      * Creates news management interface.
      *
-     * @param newsService the service for news operations
-     * @throws IllegalArgumentException if newsService is null
+     * @param service the service for news operations
+     * @throws IllegalArgumentException if service is null
      */
-    public AdminNewsView(final NewsService newsService) {
-        if (newsService == null) {
+    public AdminNewsView(final NewsService service) {
+        if (service == null) {
             throw new IllegalArgumentException("NewsService cannot be null");
         }
 
-        this.newsService = newsService;
+        this.newsService = service;
         this.newsList = new ArrayList<>();
 
         setPadding(true);

@@ -21,7 +21,7 @@ public final class NavigationHelper {
      *
      * @param route the route path to navigate to (e.g., "/decks", "/settings")
      */
-    public static void navigateTo(String route) {
+    public static void navigateTo(final String route) {
         getCurrentUI().ifPresent(ui -> ui.navigate(route));
     }
 
@@ -32,7 +32,7 @@ public final class NavigationHelper {
      * @param route the route path to navigate to
      * @param params the query parameters to include in the navigation
      */
-    public static void navigateTo(String route, QueryParameters params) {
+    public static void navigateTo(final String route, final QueryParameters params) {
         getCurrentUI().ifPresent(ui -> ui.navigate(route, params));
     }
 
@@ -43,7 +43,7 @@ public final class NavigationHelper {
      * @param route the base route path to navigate to
      * @param parameter the single parameter to append to the route
      */
-    public static void navigateTo(String route, String parameter) {
+    public static void navigateTo(final String route, final String parameter) {
         getCurrentUI().ifPresent(ui -> ui.navigate(route + "/" + parameter));
     }
 
@@ -53,7 +53,7 @@ public final class NavigationHelper {
      *
      * @param fromRoute the route that caused the error or from which the user came
      */
-    public static void navigateToError(String fromRoute) {
+    public static void navigateToError(final String fromRoute) {
         navigateTo(RouteConstants.ERROR_ROUTE, QueryParameters.of("from", fromRoute));
     }
 
@@ -64,7 +64,7 @@ public final class NavigationHelper {
      * @param deckId the unique identifier of the deck to view
      * @throws IllegalArgumentException if deckId is null
      */
-    public static void navigateToDeck(Long deckId) {
+    public static void navigateToDeck(final Long deckId) {
         if (deckId == null) {
             throw new IllegalArgumentException("Deck ID cannot be null");
         }
@@ -81,7 +81,7 @@ public final class NavigationHelper {
      * @param deckId the unique identifier of the deck to practice with
      * @throws IllegalArgumentException if deckId is null
      */
-    public static void navigateToPractice(Long deckId) {
+    public static void navigateToPractice(final Long deckId) {
         if (deckId == null) {
             throw new IllegalArgumentException("Deck ID cannot be null");
         }
@@ -108,7 +108,7 @@ public final class NavigationHelper {
      *
      * @param locale the locale to set for the current UI
      */
-    public static void setLocale(java.util.Locale locale) {
+    public static void setLocale(final java.util.Locale locale) {
         getCurrentUI().ifPresent(ui -> ui.setLocale(locale));
     }
 

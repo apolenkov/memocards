@@ -33,10 +33,10 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
     /**
      * Creates a new error view.
      *
-     * @param environment Spring environment for profile detection
+     * @param env Spring environment for profile detection
      */
-    public ErrorView(final Environment environment) {
-        this.environment = environment;
+    public ErrorView(final Environment env) {
+        this.environment = env;
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);

@@ -20,7 +20,7 @@ public final class FormHelper {
      * @param placeholder the placeholder text to show when the field is empty
      * @return a configured TextField marked as required with placeholder
      */
-    public static TextField createRequiredTextField(String label, String placeholder) {
+    public static TextField createRequiredTextField(final String label, final String placeholder) {
         TextField field = new TextField(label);
         field.setPlaceholder(placeholder);
         field.setRequired(true);
@@ -36,7 +36,7 @@ public final class FormHelper {
      * @param placeholder the placeholder text to show when the field is empty
      * @return a configured TextField marked as optional with placeholder
      */
-    public static TextField createOptionalTextField(String label, String placeholder) {
+    public static TextField createOptionalTextField(final String label, final String placeholder) {
         TextField field = new TextField(label);
         field.setPlaceholder(placeholder);
         field.setClearButtonVisible(true);
@@ -51,7 +51,7 @@ public final class FormHelper {
      * @param placeholder the placeholder text to show when the area is empty
      * @return a configured TextArea with placeholder and consistent styling
      */
-    public static TextArea createTextArea(String label, String placeholder) {
+    public static TextArea createTextArea(final String label, final String placeholder) {
         TextArea area = new TextArea(label);
         area.setPlaceholder(placeholder);
         area.setClearButtonVisible(true);

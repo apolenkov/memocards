@@ -32,8 +32,8 @@ public final class ForgotPasswordView extends Div implements BeforeEnterObserver
             return email;
         }
 
-        public void setEmail(String email) {
-            this.email = email;
+        public void setEmail(final String emailValue) {
+            this.email = emailValue;
         }
     }
 
@@ -42,10 +42,10 @@ public final class ForgotPasswordView extends Div implements BeforeEnterObserver
     /**
      * Creates a new ForgotPasswordView with password reset service dependency.
      *
-     * @param passwordResetService service for handling password reset operations
+     * @param service service for handling password reset operations
      */
-    public ForgotPasswordView(final PasswordResetService passwordResetService) {
-        this.passwordResetService = passwordResetService;
+    public ForgotPasswordView(final PasswordResetService service) {
+        this.passwordResetService = service;
 
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();

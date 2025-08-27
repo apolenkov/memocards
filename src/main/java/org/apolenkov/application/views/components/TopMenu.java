@@ -52,12 +52,12 @@ public class TopMenu extends HorizontalLayout {
      * Creates a new TopMenu with required dependencies.
      * Initializes the menu with application logo, title, and navigation buttons.
      *
-     * @param userUseCase service for user operations and current user information
-     * @param practiceSettingsService service for practice session configuration
+     * @param useCase service for user operations and current user information
+     * @param settingsService service for practice session configuration
      */
-    public TopMenu(final UserUseCase userUseCase, final PracticeSettingsService practiceSettingsService) {
-        this.userUseCase = userUseCase;
-        this.practiceSettingsService = practiceSettingsService;
+    public TopMenu(final UserUseCase useCase, final PracticeSettingsService settingsService) {
+        this.userUseCase = useCase;
+        this.practiceSettingsService = settingsService;
         setWidthFull();
         setPadding(true);
         setSpacing(true);
@@ -262,35 +262,39 @@ public class TopMenu extends HorizontalLayout {
         /**
          * Constructs a new MenuButton with basic configuration.
          *
-         * @param text the display text for the button
-         * @param route the navigation route when the button is clicked
-         * @param testId the test identifier for automated testing
-         * @param alwaysVisible whether the button should always be visible
+         * @param textValue the display text for the button
+         * @param routeValue the navigation route when the button is clicked
+         * @param testIdValue the test identifier for automated testing
+         * @param alwaysVisibleValue whether the button should always be visible
          */
-        public MenuButton(final String text, final String route, final String testId, final boolean alwaysVisible) {
-            this(text, route, testId, alwaysVisible, new String[0]);
+        MenuButton(
+                final String textValue,
+                final String routeValue,
+                final String testIdValue,
+                final boolean alwaysVisibleValue) {
+            this(textValue, routeValue, testIdValue, alwaysVisibleValue, new String[0]);
         }
 
         /**
          * Constructs a new MenuButton with role-based visibility control.
          *
-         * @param text the display text for the button
-         * @param route the navigation route when the button is clicked
-         * @param testId the test identifier for automated testing
-         * @param alwaysVisible whether the button should always be visible
-         * @param requiredRoles the roles required to see this button
+         * @param textValue the display text for the button
+         * @param routeValue the navigation route when the button is clicked
+         * @param testIdValue the test identifier for automated testing
+         * @param alwaysVisibleValue whether the button should always be visible
+         * @param requiredRolesValue the roles required to see this button
          */
-        public MenuButton(
-                final String text,
-                final String route,
-                final String testId,
-                final boolean alwaysVisible,
-                final String... requiredRoles) {
-            this.text = text;
-            this.route = route;
-            this.testId = testId;
-            this.alwaysVisible = alwaysVisible;
-            this.requiredRoles = requiredRoles != null ? List.of(requiredRoles) : new ArrayList<>();
+        MenuButton(
+                final String textValue,
+                final String routeValue,
+                final String testIdValue,
+                final boolean alwaysVisibleValue,
+                final String... requiredRolesValue) {
+            this.text = textValue;
+            this.route = routeValue;
+            this.testId = testIdValue;
+            this.alwaysVisible = alwaysVisibleValue;
+            this.requiredRoles = requiredRolesValue != null ? List.of(requiredRolesValue) : new ArrayList<>();
         }
 
         String getText() {

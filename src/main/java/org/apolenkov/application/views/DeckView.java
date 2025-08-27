@@ -65,12 +65,12 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     /**
      * Creates a new DeckView with required dependencies.
      *
-     * @param presenter presenter for managing deck operations and presentation logic
-     * @param deckFacade service for deck-related operations
+     * @param deckPresenter presenter for managing deck operations and presentation logic
+     * @param facade service for deck-related operations
      */
-    public DeckView(final DeckPresenter presenter, final DeckFacade deckFacade) {
-        this.presenter = presenter;
-        this.deckFacade = deckFacade;
+    public DeckView(final DeckPresenter deckPresenter, final DeckFacade facade) {
+        this.presenter = deckPresenter;
+        this.deckFacade = facade;
 
         getContent().setWidthFull();
         getContent().setPadding(true);
@@ -359,7 +359,9 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * Applies search and filter criteria to the flashcards grid.
      */
     private void applyFlashcardsFilter() {
-        if (flashcardsDataProvider == null || currentDeck == null) return;
+        if (flashcardsDataProvider == null || currentDeck == null) {
+            return;
+        }
         String q = flashcardSearchField != null && flashcardSearchField.getValue() != null
                 ? flashcardSearchField.getValue().toLowerCase().trim()
                 : "";
