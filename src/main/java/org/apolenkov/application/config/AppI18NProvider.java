@@ -46,7 +46,7 @@ public class AppI18NProvider implements I18NProvider {
      * @return translated message or key if translation not found
      */
     @Override
-    public String getTranslation(String key, Locale locale, Object... params) {
+    public String getTranslation(final String key, final Locale locale, final Object... params) {
         if (key == null) {
             return "";
         }

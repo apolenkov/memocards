@@ -23,7 +23,7 @@ public class NotFoundView extends Div implements HasErrorParameter<NotFoundExcep
      * @return HTTP 404 status code
      */
     @Override
-    public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<NotFoundException> parameter) {
+    public int setErrorParameter(final BeforeEnterEvent event, final ErrorParameter<NotFoundException> parameter) {
         event.rerouteTo("");
         return HttpStatusCode.NOT_FOUND.getCode();
     }

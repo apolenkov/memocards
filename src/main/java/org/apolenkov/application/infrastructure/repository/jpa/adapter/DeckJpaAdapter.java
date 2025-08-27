@@ -24,54 +24,54 @@ public class DeckJpaAdapter implements DeckRepository {
     /**
      * Creates adapter with JPA repository dependency.
      *
-     * @param repo Spring Data JPA repository for deck operations
+     * @param repoValue Spring Data JPA repository for deck operations
      * @throws IllegalArgumentException if repo is null
      */
-    public DeckJpaAdapter(DeckJpaRepository repo) {
-        if (repo == null) {
+    public DeckJpaAdapter(final DeckJpaRepository repoValue) {
+        if (repoValue == null) {
             throw new IllegalArgumentException("DeckJpaRepository cannot be null");
         }
-        this.repo = repo;
+        this.repo = repoValue;
     }
 
     /**
      * Converts JPA entity to domain model.
      *
-     * @param e JPA entity to convert
+     * @param entity JPA entity to convert
      * @return corresponding domain model
-     * @throws IllegalArgumentException if e is null
+     * @throws IllegalArgumentException if entity is null
      */
-    private static Deck toModel(DeckEntity e) {
-        if (e == null) {
+    private static Deck toModel(final DeckEntity entity) {
+        if (entity == null) {
             throw new IllegalArgumentException("DeckEntity cannot be null");
         }
 
-        Deck d = new Deck(e.getId(), e.getUserId(), e.getTitle(), e.getDescription());
-        d.setCreatedAt(e.getCreatedAt());
-        d.setUpdatedAt(e.getUpdatedAt());
-        return d;
+        final Deck deck = new Deck(entity.getId(), entity.getUserId(), entity.getTitle(), entity.getDescription());
+        deck.setCreatedAt(entity.getCreatedAt());
+        deck.setUpdatedAt(entity.getUpdatedAt());
+        return deck;
     }
 
     /**
      * Converts domain model to JPA entity with timestamp handling.
      *
-     * @param d domain model to convert
+     * @param deck domain model to convert
      * @return corresponding JPA entity
-     * @throws IllegalArgumentException if d is null
+     * @throws IllegalArgumentException if deck is null
      */
-    private static DeckEntity toEntity(Deck d) {
-        if (d == null) {
+    private static DeckEntity toEntity(final Deck deck) {
+        if (deck == null) {
             throw new IllegalArgumentException("Deck cannot be null");
         }
 
-        DeckEntity e = new DeckEntity();
-        e.setId(d.getId());
-        e.setUserId(d.getUserId());
-        e.setTitle(d.getTitle());
-        e.setDescription(d.getDescription());
-        e.setCreatedAt(d.getCreatedAt() != null ? d.getCreatedAt() : java.time.LocalDateTime.now());
-        e.setUpdatedAt(d.getUpdatedAt() != null ? d.getUpdatedAt() : java.time.LocalDateTime.now());
-        return e;
+        final DeckEntity entity = new DeckEntity();
+        entity.setId(deck.getId());
+        entity.setUserId(deck.getUserId());
+        entity.setTitle(deck.getTitle());
+        entity.setDescription(deck.getDescription());
+        entity.setCreatedAt(deck.getCreatedAt() != null ? deck.getCreatedAt() : java.time.LocalDateTime.now());
+        entity.setUpdatedAt(deck.getUpdatedAt() != null ? deck.getUpdatedAt() : java.time.LocalDateTime.now());
+        return entity;
     }
 
     /**
@@ -92,7 +92,7 @@ public class DeckJpaAdapter implements DeckRepository {
      * @throws IllegalArgumentException if userId is null
      */
     @Override
-    public List<Deck> findByUserId(Long userId) {
+    public List<Deck> findByUserId(final Long userId) {
         if (userId == null) {
             throw new IllegalArgumentException("User ID cannot be null");
         }
@@ -107,7 +107,7 @@ public class DeckJpaAdapter implements DeckRepository {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public Optional<Deck> findById(Long id) {
+    public Optional<Deck> findById(final Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Deck ID cannot be null");
         }
@@ -122,12 +122,12 @@ public class DeckJpaAdapter implements DeckRepository {
      * @throws IllegalArgumentException if deck is null
      */
     @Override
-    public Deck save(Deck deck) {
+    public Deck save(final Deck deck) {
         if (deck == null) {
             throw new IllegalArgumentException("Deck cannot be null");
         }
 
-        DeckEntity saved = repo.save(toEntity(deck));
+        final DeckEntity saved = repo.save(toEntity(deck));
         return toModel(saved);
     }
 
@@ -138,7 +138,7 @@ public class DeckJpaAdapter implements DeckRepository {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(final Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Deck ID cannot be null");
         }

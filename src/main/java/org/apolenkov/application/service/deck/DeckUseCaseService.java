@@ -23,26 +23,28 @@ public class DeckUseCaseService implements DeckUseCase {
     /**
      * Creates service with required dependencies.
      *
-     * @param deckRepository the repository for deck operations
-     * @param flashcardRepository the repository for flashcard operations
-     * @param validator the validator for input validation
+     * @param deckRepositoryValue the repository for deck operations
+     * @param flashcardRepositoryValue the repository for flashcard operations
+     * @param validatorValue the validator for input validation
      * @throws IllegalArgumentException if any parameter is null
      */
     public DeckUseCaseService(
-            DeckRepository deckRepository, FlashcardRepository flashcardRepository, Validator validator) {
-        if (deckRepository == null) {
+            final DeckRepository deckRepositoryValue,
+            final FlashcardRepository flashcardRepositoryValue,
+            final Validator validatorValue) {
+        if (deckRepositoryValue == null) {
             throw new IllegalArgumentException("DeckRepository cannot be null");
         }
-        if (flashcardRepository == null) {
+        if (flashcardRepositoryValue == null) {
             throw new IllegalArgumentException("FlashcardRepository cannot be null");
         }
-        if (validator == null) {
+        if (validatorValue == null) {
             throw new IllegalArgumentException("Validator cannot be null");
         }
 
-        this.deckRepository = deckRepository;
-        this.flashcardRepository = flashcardRepository;
-        this.validator = validator;
+        this.deckRepository = deckRepositoryValue;
+        this.flashcardRepository = flashcardRepositoryValue;
+        this.validator = validatorValue;
     }
 
     /**
@@ -65,7 +67,7 @@ public class DeckUseCaseService implements DeckUseCase {
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
-    public List<Deck> getDecksByUserId(Long userId) {
+    public List<Deck> getDecksByUserId(final Long userId) {
         if (userId == null) {
             throw new IllegalArgumentException("User ID cannot be null");
         }
@@ -81,7 +83,7 @@ public class DeckUseCaseService implements DeckUseCase {
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
-    public Optional<Deck> getDeckById(Long id) {
+    public Optional<Deck> getDeckById(final Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Deck ID cannot be null");
         }
@@ -98,7 +100,7 @@ public class DeckUseCaseService implements DeckUseCase {
      */
     @Override
     @TransactionAnnotations.WriteTransaction
-    public Deck saveDeck(Deck deck) {
+    public Deck saveDeck(final Deck deck) {
         if (deck == null) {
             throw new IllegalArgumentException("The object to be validated must not be null");
         }
@@ -122,7 +124,7 @@ public class DeckUseCaseService implements DeckUseCase {
      */
     @Override
     @TransactionAnnotations.DeleteTransaction
-    public void deleteDeck(Long id) {
+    public void deleteDeck(final Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Deck ID cannot be null");
         }

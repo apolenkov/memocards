@@ -23,14 +23,14 @@ public class StatsService {
     /**
      * Creates StatsService with required repository dependency.
      *
-     * @param statsRepository repository for persisting and retrieving statistics (non-null)
+     * @param statsRepositoryValue repository for persisting and retrieving statistics (non-null)
      * @throws IllegalArgumentException if statsRepository is null
      */
-    public StatsService(StatsRepository statsRepository) {
-        if (statsRepository == null) {
+    public StatsService(final StatsRepository statsRepositoryValue) {
+        if (statsRepositoryValue == null) {
             throw new IllegalArgumentException("StatsRepository cannot be null");
         }
-        this.statsRepository = statsRepository;
+        this.statsRepository = statsRepositoryValue;
     }
 
     /**
@@ -43,11 +43,11 @@ public class StatsService {
      * @param hard number of cards marked as difficult (must be non-negative)
      * @param sessionDuration total duration of practice session (non-null, must be positive)
      * @param totalAnswerDelayMs total time spent thinking before answering (must be non-negative)
-     * @param knownCardIdsDelta collection of card IDs whose knowledge status changed (may be null or empty)
+     * @param knownCardIdsDelta collection of card IDs whose knowledge status changed (maybe null or empty)
      * @throws IllegalArgumentException if any parameter violates constraints
      */
     @Transactional
-    @SuppressWarnings("java:S107")
+    @SuppressWarnings({"java:S107", "ParameterNumber"})
     public void recordSession(
             long deckId,
             int viewed,
@@ -100,11 +100,11 @@ public class StatsService {
      * Retrieves daily statistics for specific deck, sorted chronologically.
      *
      * @param deckId ID of deck to retrieve statistics for (must be positive)
-     * @return chronologically sorted list of daily statistics, never null (may be empty)
+     * @return chronologically sorted list of daily statistics, never null (maybe empty)
      * @throws IllegalArgumentException if deckId is not positive
      */
     @Transactional(readOnly = true)
-    public List<DailyStats> getDailyStatsForDeck(long deckId) {
+    public List<DailyStats> getDailyStatsForDeck(final long deckId) {
         return statsRepository.getDailyStats(deckId).stream()
                 .map(r -> new DailyStats(
                         r.date(),
@@ -127,17 +127,23 @@ public class StatsService {
      * @return progress percentage (0-100), or 0 if deck size is invalid
      */
     @Transactional(readOnly = true)
-    public int getDeckProgressPercent(long deckId, int deckSize) {
+    public int getDeckProgressPercent(final long deckId, final int deckSize) {
         // Handle edge case: invalid deck size
-        if (deckSize <= 0) return 0;
+        if (deckSize <= 0) {
+            return 0;
+        }
 
         // Calculate percentage of known cards
         int known = statsRepository.getKnownCardIds(deckId).size();
         int percent = (int) Math.round(100.0 * known / deckSize);
 
         // Clamp percentage to valid range [0, 100]
-        if (percent < 0) percent = 0;
-        if (percent > 100) percent = 100;
+        if (percent < 0) {
+            percent = 0;
+        }
+        if (percent > 100) {
+            percent = 100;
+        }
         return percent;
     }
 
@@ -149,7 +155,7 @@ public class StatsService {
      * @return true if card is marked as known
      */
     @Transactional(readOnly = true)
-    public boolean isCardKnown(long deckId, long cardId) {
+    public boolean isCardKnown(final long deckId, final long cardId) {
         return statsRepository.getKnownCardIds(deckId).contains(cardId);
     }
 
@@ -160,7 +166,7 @@ public class StatsService {
      * @return set of card IDs marked as known
      */
     @Transactional(readOnly = true)
-    public Set<Long> getKnownCardIds(long deckId) {
+    public Set<Long> getKnownCardIds(final long deckId) {
         return statsRepository.getKnownCardIds(deckId);
     }
 
@@ -174,7 +180,7 @@ public class StatsService {
      * @param known true to mark card as known, false to mark as unknown
      */
     @Transactional
-    public void setCardKnown(long deckId, long cardId, boolean known) {
+    public void setCardKnown(final long deckId, final long cardId, final boolean known) {
         statsRepository.setCardKnown(deckId, cardId, known);
     }
 
@@ -184,7 +190,7 @@ public class StatsService {
      * @param deckId ID of deck to reset progress for
      */
     @Transactional
-    public void resetDeckProgress(long deckId) {
+    public void resetDeckProgress(final long deckId) {
         statsRepository.resetDeckProgress(deckId);
     }
 
@@ -197,7 +203,7 @@ public class StatsService {
      */
     @Transactional(readOnly = true)
     public java.util.Map<Long, org.apolenkov.application.domain.port.StatsRepository.DeckAggregate> getDeckAggregates(
-            java.util.List<Long> deckIds, java.time.LocalDate today) {
+            final java.util.List<Long> deckIds, final java.time.LocalDate today) {
         return statsRepository.getAggregatesForDecks(deckIds, today);
     }
 

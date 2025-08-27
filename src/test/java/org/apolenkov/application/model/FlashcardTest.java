@@ -117,7 +117,7 @@ class FlashcardTest {
         @NullAndEmptySource
         @ValueSource(strings = {"   ", "\t", "\n"})
         @DisplayName("FrontText setter should throw exception for null or empty text")
-        void frontTextSetterShouldThrowExceptionForNullOrEmptyText(String text) {
+        void frontTextSetterShouldThrowExceptionForNullOrEmptyText(final String text) {
             assertThatThrownBy(() -> flashcard.setFrontText(text))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("frontText is required");
@@ -141,7 +141,7 @@ class FlashcardTest {
         @NullAndEmptySource
         @ValueSource(strings = {"   ", "\t", "\n"})
         @DisplayName("BackText setter should throw exception for null or empty text")
-        void backTextSetterShouldThrowExceptionForNullOrEmptyText(String text) {
+        void backTextSetterShouldThrowExceptionForNullOrEmptyText(final String text) {
             assertThatThrownBy(() -> flashcard.setBackText(text))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("backText is required");
@@ -208,7 +208,7 @@ class FlashcardTest {
     @DisplayName("Timestamp Update Tests")
     class TimestampUpdateTests {
 
-        private void assertTimestampUpdated(java.util.function.Consumer<Flashcard> mutation) {
+        private void assertTimestampUpdated(final java.util.function.Consumer<Flashcard> mutation) {
             LocalDateTime beforeUpdate = flashcard.getUpdatedAt();
 
             await().atMost(java.time.Duration.ofMillis(100));

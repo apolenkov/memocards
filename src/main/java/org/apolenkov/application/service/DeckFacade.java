@@ -25,18 +25,21 @@ public class DeckFacade {
      * Creates DeckFacade with specified use cases and services.
      * Initializes the facade with required dependencies for deck operations.
      *
-     * @param deckUseCase deck use case for deck operations (non-null)
-     * @param flashcardUseCase flashcard use case for flashcard operations (non-null)
-     * @param statsService stats service for statistics tracking (non-null)
+     * @param deckUseCaseValue deck use case for deck operations (non-null)
+     * @param flashcardUseCaseValue flashcard use case for flashcard operations (non-null)
+     * @param statsServiceValue stats service for statistics tracking (non-null)
      * @throws IllegalArgumentException if any parameter is null
      */
-    public DeckFacade(DeckUseCase deckUseCase, FlashcardUseCase flashcardUseCase, StatsService statsService) {
-        if (deckUseCase == null || flashcardUseCase == null || statsService == null) {
+    public DeckFacade(
+            final DeckUseCase deckUseCaseValue,
+            final FlashcardUseCase flashcardUseCaseValue,
+            final StatsService statsServiceValue) {
+        if (deckUseCaseValue == null || flashcardUseCaseValue == null || statsServiceValue == null) {
             throw new IllegalArgumentException("All parameters must be non-null");
         }
-        this.deckUseCase = deckUseCase;
-        this.flashcardUseCase = flashcardUseCase;
-        this.statsService = statsService;
+        this.deckUseCase = deckUseCaseValue;
+        this.flashcardUseCase = flashcardUseCaseValue;
+        this.statsService = statsServiceValue;
     }
 
     /**
@@ -48,7 +51,7 @@ public class DeckFacade {
      * @throws IllegalArgumentException if deckId is not positive
      */
     @Transactional(readOnly = true)
-    public Deck getDeckOrThrow(long deckId) {
+    public Deck getDeckOrThrow(final long deckId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
@@ -60,11 +63,11 @@ public class DeckFacade {
      * Returns an empty list if the deck has no flashcards.
      *
      * @param deckId ID of deck whose flashcards to load (must be positive)
-     * @return list of flashcards in specified deck, never null (may be empty)
+     * @return list of flashcards in specified deck, never null (maybe empty)
      * @throws IllegalArgumentException if deckId is not positive
      */
     @Transactional(readOnly = true)
-    public List<Flashcard> loadFlashcards(long deckId) {
+    public List<Flashcard> loadFlashcards(final long deckId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
@@ -77,11 +80,11 @@ public class DeckFacade {
      * IDs of cards they have marked as known or learned.
      *
      * @param deckId ID of deck to check for known cards (must be positive)
-     * @return set of card IDs marked as known, never null (may be empty)
+     * @return set of card IDs marked as known, never null (maybe empty)
      * @throws IllegalArgumentException if deckId is not positive
      */
     @Transactional(readOnly = true)
-    public Set<Long> getKnown(long deckId) {
+    public Set<Long> getKnown(final long deckId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
@@ -98,7 +101,7 @@ public class DeckFacade {
      * @throws IllegalArgumentException if deckId or cardId is not positive
      */
     @Transactional
-    public void toggleKnown(long deckId, long cardId) {
+    public void toggleKnown(final long deckId, final long cardId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
@@ -116,7 +119,7 @@ public class DeckFacade {
      * @throws IllegalArgumentException if deckId is not positive
      */
     @Transactional
-    public void resetProgress(long deckId) {
+    public void resetProgress(final long deckId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
@@ -131,7 +134,7 @@ public class DeckFacade {
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Transactional(readOnly = true)
-    public int deckSize(long deckId) {
+    public int deckSize(final long deckId) {
         return flashcardUseCase.getFlashcardsByDeckId(deckId).size();
     }
 
@@ -143,7 +146,7 @@ public class DeckFacade {
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Transactional(readOnly = true)
-    public int progressPercent(long deckId) {
+    public int progressPercent(final long deckId) {
         return statsService.getDeckProgressPercent(
                 deckId, flashcardUseCase.getFlashcardsByDeckId(deckId).size());
     }
@@ -157,7 +160,7 @@ public class DeckFacade {
      * @throws RuntimeException if database operation fails
      */
     @Transactional
-    public Flashcard saveFlashcard(Flashcard flashcard) {
+    public Flashcard saveFlashcard(final Flashcard flashcard) {
         return flashcardUseCase.saveFlashcard(flashcard);
     }
 
@@ -169,7 +172,7 @@ public class DeckFacade {
      * @throws RuntimeException if database operation fails or flashcard doesn't exist
      */
     @Transactional
-    public void deleteFlashcard(Long id) {
+    public void deleteFlashcard(final Long id) {
         flashcardUseCase.deleteFlashcard(id);
     }
 
@@ -182,7 +185,7 @@ public class DeckFacade {
      * @throws RuntimeException if database operation fails
      */
     @Transactional
-    public Deck saveDeck(Deck deck) {
+    public Deck saveDeck(final Deck deck) {
         return deckUseCase.saveDeck(deck);
     }
 
@@ -194,7 +197,7 @@ public class DeckFacade {
      * @throws RuntimeException if database operation fails or deck doesn't exist
      */
     @Transactional
-    public void deleteDeck(Long deckId) {
+    public void deleteDeck(final Long deckId) {
         deckUseCase.deleteDeck(deckId);
     }
 
@@ -207,7 +210,7 @@ public class DeckFacade {
      * @throws java.util.NoSuchElementException if deck is not found
      */
     @Transactional
-    public void deleteDeckWithConfirmation(Long deckId, String confirmationText) {
+    public void deleteDeckWithConfirmation(final Long deckId, final String confirmationText) {
         // Get deck and validate it exists
         Deck deck = deckUseCase.getDeckById(deckId).orElseThrow();
 

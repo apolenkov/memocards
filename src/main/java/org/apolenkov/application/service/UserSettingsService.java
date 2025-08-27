@@ -16,14 +16,14 @@ public class UserSettingsService {
     /**
      * Creates UserSettingsService with required repository dependency.
      *
-     * @param repository repository for user settings operations
+     * @param repositoryValue repository for user settings operations
      * @throws IllegalArgumentException if repository is null
      */
-    public UserSettingsService(UserSettingsRepository repository) {
-        if (repository == null) {
+    public UserSettingsService(final UserSettingsRepository repositoryValue) {
+        if (repositoryValue == null) {
             throw new IllegalArgumentException("UserSettingsRepository cannot be null");
         }
-        this.repository = repository;
+        this.repository = repositoryValue;
     }
 
     /**
@@ -34,7 +34,7 @@ public class UserSettingsService {
      * @throws IllegalArgumentException if userId is invalid or locale is null
      * @throws RuntimeException if database operation fails
      */
-    public void setPreferredLocale(long userId, Locale locale) {
+    public void setPreferredLocale(final long userId, final Locale locale) {
         if (userId <= 0) {
             throw new IllegalArgumentException("User ID must be positive");
         }

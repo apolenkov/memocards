@@ -24,12 +24,12 @@ public class CardQueryService {
     /**
      * Creates a new CardQueryService with required dependencies.
      *
-     * @param flashcardUseCase service for flashcard operations
-     * @param statsService service for statistics and progress tracking
+     * @param flashcardUseCaseValue service for flashcard operations
+     * @param statsServiceValue service for statistics and progress tracking
      */
-    public CardQueryService(FlashcardUseCase flashcardUseCase, StatsService statsService) {
-        this.flashcardUseCase = flashcardUseCase;
-        this.statsService = statsService;
+    public CardQueryService(final FlashcardUseCase flashcardUseCaseValue, final StatsService statsServiceValue) {
+        this.flashcardUseCase = flashcardUseCaseValue;
+        this.statsService = statsServiceValue;
     }
 
     /**
@@ -39,7 +39,7 @@ public class CardQueryService {
      * @param query the query text to search for
      * @return true if the value contains the query, false otherwise
      */
-    private static boolean contains(String value, String query) {
+    private static boolean contains(final String value, final String query) {
         return value != null && value.toLowerCase(Locale.ROOT).contains(query);
     }
 
@@ -53,7 +53,7 @@ public class CardQueryService {
      */
     @Transactional(readOnly = true)
     @SuppressWarnings("java:S6809")
-    public List<Flashcard> listFilteredFlashcards(long deckId, String query, boolean hideKnown) {
+    public List<Flashcard> listFilteredFlashcards(final long deckId, final String query, final boolean hideKnown) {
         List<Flashcard> all = flashcardUseCase.getFlashcardsByDeckId(deckId);
         Set<Long> known = statsService.getKnownCardIds(deckId);
         return filterFlashcards(all, query, known, hideKnown);
@@ -69,7 +69,8 @@ public class CardQueryService {
      * @return a filtered list of flashcards matching the criteria
      */
     @Transactional(readOnly = true)
-    public List<Flashcard> filterFlashcards(List<Flashcard> base, String query, Set<Long> knownIds, boolean hideKnown) {
+    public List<Flashcard> filterFlashcards(
+            final List<Flashcard> base, final String query, final Set<Long> knownIds, final boolean hideKnown) {
         // Normalize query: convert to lowercase, trim whitespace, handle null
         String q = query != null ? query.toLowerCase(Locale.ROOT).trim() : "";
 

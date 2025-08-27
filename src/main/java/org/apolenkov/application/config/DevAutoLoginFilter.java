@@ -29,7 +29,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Profile("!prod")
 public class DevAutoLoginFilter extends OncePerRequestFilter {
 
-    private static final Logger appLogger = LoggerFactory.getLogger(DevAutoLoginFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DevAutoLoginFilter.class);
 
     private final boolean autoLoginEnabled;
     private final String autoLoginUser;
@@ -44,9 +44,9 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
      * @param userDetailsService service for loading user details
      */
     public DevAutoLoginFilter(
-            @Value("${dev.auto-login.enabled:false}") boolean autoLoginEnabled,
-            @Value("${dev.auto-login.user:user@example.com}") String autoLoginUser,
-            UserDetailsService userDetailsService) {
+            @Value("${dev.auto-login.enabled:false}") final boolean autoLoginEnabled,
+            @Value("${dev.auto-login.user:user@example.com}") final String autoLoginUser,
+            final UserDetailsService userDetailsService) {
         this.autoLoginEnabled = autoLoginEnabled;
         this.autoLoginUser = autoLoginUser;
         this.userDetailsService = userDetailsService;
@@ -65,9 +65,9 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain)
+            @NonNull final HttpServletRequest request,
+            @NonNull final HttpServletResponse response,
+            @NonNull final FilterChain filterChain)
             throws ServletException, IOException {
         // Check current authentication status early in the request chain
         Authentication currentAuthentication =
@@ -85,10 +85,10 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
                         userDetails, userDetails.getPassword(), userDetails.getAuthorities());
                 // Set authentication in security context for this request
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                appLogger.info("Dev auto-login applied for user: {}", autoLoginUser);
+                LOGGER.info("Dev auto-login applied for user: {}", autoLoginUser);
             } catch (Exception e) {
                 // Log failure but don't break the request flow
-                appLogger.warn("Dev auto-login failed for user: {}. Reason: {}", autoLoginUser, e.getMessage());
+                LOGGER.warn("Dev auto-login failed for user: {}. Reason: {}", autoLoginUser, e.getMessage());
             }
         }
 
@@ -102,7 +102,7 @@ public class DevAutoLoginFilter extends OncePerRequestFilter {
      * @param request the HTTP request to evaluate
      * @return true if request is eligible for auto-login
      */
-    private boolean isEligibleRequest(HttpServletRequest request) {
+    private boolean isEligibleRequest(final HttpServletRequest request) {
         String path = request.getRequestURI();
         // Exclude authentication endpoints to avoid conflicts with normal auth flow
         return !(path != null && (path.startsWith("/login") || path.startsWith("/logout")));

@@ -22,10 +22,10 @@ public class NewsService {
     /**
      * Creates NewsService with required repository dependency.
      *
-     * @param newsRepository repository for persisting and retrieving news items
+     * @param newsRepositoryValue repository for persisting and retrieving news items
      */
-    public NewsService(NewsRepository newsRepository) {
-        this.newsRepository = newsRepository;
+    public NewsService(final NewsRepository newsRepositoryValue) {
+        this.newsRepository = newsRepositoryValue;
     }
 
     /**
@@ -45,7 +45,7 @@ public class NewsService {
      * @param author name of the person who wrote the news
      * @throws IllegalArgumentException if title or content is null or empty
      */
-    public void createNews(String title, String content, String author) {
+    public void createNews(final String title, final String content, final String author) {
         validate(title, content);
         News news = new News(null, title, content, author, LocalDateTime.now());
         newsRepository.save(news);
@@ -60,7 +60,7 @@ public class NewsService {
      * @param author new author name for news item
      * @throws IllegalArgumentException if title or content is null or empty, or if news item not found
      */
-    public void updateNews(Long id, String title, String content, String author) {
+    public void updateNews(final Long id, final String title, final String content, final String author) {
         Optional<News> existingOpt = newsRepository.findById(id);
         if (existingOpt.isEmpty()) {
             throw new IllegalArgumentException("News not found with id: " + id);
@@ -81,7 +81,7 @@ public class NewsService {
      *
      * @param id unique identifier of news item to delete
      */
-    public void deleteNews(Long id) {
+    public void deleteNews(final Long id) {
         newsRepository.deleteById(id);
     }
 
@@ -92,7 +92,7 @@ public class NewsService {
      * @param content content to validate
      * @throws IllegalArgumentException if title or content is null or empty after trimming
      */
-    private static void validate(String title, String content) {
+    private static void validate(final String title, final String content) {
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("Title is required");
         }

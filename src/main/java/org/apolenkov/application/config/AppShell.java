@@ -25,7 +25,7 @@ public class AppShell implements AppShellConfigurator {
      * @param settings the page settings to configure (non-null)
      */
     @Override
-    public void configurePage(AppShellSettings settings) {
+    public void configurePage(final AppShellSettings settings) {
         // Use provided static favicon.ico from META-INF/resources
         settings.addFavIcon("icon", "icons/favicon.ico", "any");
         settings.addMetaTag("theme-color", "var(--lumo-primary-color)");

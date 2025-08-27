@@ -1,6 +1,13 @@
 package org.apolenkov.application.infrastructure.repository.jpa.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -47,10 +54,10 @@ public class FlashcardEntity {
     /**
      * Sets the primary key identifier.
      *
-     * @param id the unique identifier for this flashcard
+     * @param idValue the unique identifier for this flashcard
      */
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(final Long idValue) {
+        this.id = idValue;
     }
 
     /**
@@ -65,10 +72,10 @@ public class FlashcardEntity {
     /**
      * Sets the deck identifier.
      *
-     * @param deckId the deck ID this flashcard belongs to
+     * @param deckIdValue the deck ID this flashcard belongs to
      */
-    public void setDeckId(Long deckId) {
-        this.deckId = deckId;
+    public void setDeckId(final Long deckIdValue) {
+        this.deckId = deckIdValue;
     }
 
     /**
@@ -86,10 +93,10 @@ public class FlashcardEntity {
      * <p>Automatically updates the modification timestamp when the front text
      * is changed to maintain accurate change tracking.</p>
      *
-     * @param frontText the question or prompt text to set
+     * @param frontTextValue the question or prompt text to set
      */
-    public void setFrontText(String frontText) {
-        this.frontText = frontText;
+    public void setFrontText(final String frontTextValue) {
+        this.frontText = frontTextValue;
         // Automatically update modification timestamp when content changes
         this.updatedAt = LocalDateTime.now();
     }
@@ -109,10 +116,10 @@ public class FlashcardEntity {
      * <p>Automatically updates the modification timestamp when the back text
      * is changed to maintain accurate change tracking.</p>
      *
-     * @param backText the answer or explanation text to set
+     * @param backTextValue the answer or explanation text to set
      */
-    public void setBackText(String backText) {
-        this.backText = backText;
+    public void setBackText(final String backTextValue) {
+        this.backText = backTextValue;
         // Automatically update modification timestamp when content changes
         this.updatedAt = LocalDateTime.now();
     }
@@ -132,10 +139,10 @@ public class FlashcardEntity {
      * <p>Automatically updates the modification timestamp when the example
      * is changed to maintain accurate change tracking.</p>
      *
-     * @param example the example sentence or usage context to set
+     * @param exampleValue the example sentence or usage context to set
      */
-    public void setExample(String example) {
-        this.example = example;
+    public void setExample(final String exampleValue) {
+        this.example = exampleValue;
         // Automatically update modification timestamp when content changes
         this.updatedAt = LocalDateTime.now();
     }
@@ -155,10 +162,10 @@ public class FlashcardEntity {
      * <p>Automatically updates the modification timestamp when the image URL
      * is changed to maintain accurate change tracking.</p>
      *
-     * @param imageUrl the URL to an associated image to set
+     * @param imageUrlValue the URL to an associated image to set
      */
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImageUrl(final String imageUrlValue) {
+        this.imageUrl = imageUrlValue;
         // Automatically update modification timestamp when content changes
         this.updatedAt = LocalDateTime.now();
     }
@@ -175,10 +182,10 @@ public class FlashcardEntity {
     /**
      * Sets the creation timestamp.
      *
-     * @param createdAt when this flashcard was created
+     * @param createdAtValue when this flashcard was created
      */
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedAt(final LocalDateTime createdAtValue) {
+        this.createdAt = createdAtValue;
     }
 
     /**
@@ -193,10 +200,10 @@ public class FlashcardEntity {
     /**
      * Sets the last update timestamp.
      *
-     * @param updatedAt when this flashcard was last modified
+     * @param updatedAtValue when this flashcard was last modified
      */
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setUpdatedAt(final LocalDateTime updatedAtValue) {
+        this.updatedAt = updatedAtValue;
     }
 
     /**
@@ -210,9 +217,13 @@ public class FlashcardEntity {
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();
         // Initialize creation timestamp if not set
-        if (createdAt == null) createdAt = now;
+        if (createdAt == null) {
+            createdAt = now;
+        }
         // Initialize update timestamp if not set
-        if (updatedAt == null) updatedAt = now;
+        if (updatedAt == null) {
+            updatedAt = now;
+        }
     }
 
     /**
@@ -237,9 +248,13 @@ public class FlashcardEntity {
      * @return true if the objects are equal, false otherwise
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         FlashcardEntity that = (FlashcardEntity) o;
         return Objects.equals(id, that.id);
     }

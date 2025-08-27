@@ -41,7 +41,7 @@ public class LanguageSwitcher extends HorizontalLayout {
      * @param userUseCase service for user operations and current user information
      * @param userSettingsService service for persisting user preferences
      */
-    public LanguageSwitcher(UserUseCase userUseCase, UserSettingsService userSettingsService) {
+    public LanguageSwitcher(final UserUseCase userUseCase, final UserSettingsService userSettingsService) {
         this.userUseCase = userUseCase;
         this.userSettingsService = userSettingsService;
         setSpacing(true);
@@ -67,7 +67,9 @@ public class LanguageSwitcher extends HorizontalLayout {
         combo.getElement().setAttribute("aria-label", getTranslation("language.label"));
 
         combo.addValueChangeListener(e -> {
-            if (e.getValue() == null) return;
+            if (e.getValue() == null) {
+                return;
+            }
             Locale newLocale;
             if (e.getValue().equalsIgnoreCase(ru)) {
                 newLocale = Locale.forLanguageTag("ru");
@@ -98,7 +100,7 @@ public class LanguageSwitcher extends HorizontalLayout {
      * @param es the Spanish display text
      * @return the appropriate display text for the current locale
      */
-    private String getSelectedValueForLocale(Locale current, String en, String ru, String es) {
+    private String getSelectedValueForLocale(final Locale current, final String en, final String ru, final String es) {
         String language = current.getLanguage().toLowerCase();
         if ("ru".equals(language)) {
             return ru;
@@ -140,8 +142,10 @@ public class LanguageSwitcher extends HorizontalLayout {
      *
      * @param locale the locale preference to persist
      */
-    private void persistIfLoggedIn(Locale locale) {
-        if (userUseCase == null || userSettingsService == null) return;
+    private void persistIfLoggedIn(final Locale locale) {
+        if (userUseCase == null || userSettingsService == null) {
+            return;
+        }
         try {
             long userId = userUseCase.getCurrentUser().getId();
             userSettingsService.setPreferredLocale(userId, locale);
@@ -160,9 +164,11 @@ public class LanguageSwitcher extends HorizontalLayout {
      *
      * @param locale the locale preference to store in the cookie
      */
-    private void persistPreferredLocaleCookie(Locale locale) {
+    private void persistPreferredLocaleCookie(final Locale locale) {
         VaadinServletResponse vaadinResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
-        if (vaadinResponse == null) return;
+        if (vaadinResponse == null) {
+            return;
+        }
         HttpServletResponse response = vaadinResponse.getHttpServletResponse();
         Cookie cookie = new Cookie(COOKIE_LOCALE_KEY, locale.toLanguageTag());
         cookie.setPath("/");
@@ -183,10 +189,14 @@ public class LanguageSwitcher extends HorizontalLayout {
      */
     private Locale readPreferredLocaleCookie() {
         VaadinServletRequest vaadinRequest = (VaadinServletRequest) VaadinService.getCurrentRequest();
-        if (vaadinRequest == null) return null;
+        if (vaadinRequest == null) {
+            return null;
+        }
         HttpServletRequest request = vaadinRequest.getHttpServletRequest();
         Cookie[] cookies = request.getCookies();
-        if (cookies == null) return null;
+        if (cookies == null) {
+            return null;
+        }
         for (Cookie cookie : cookies) {
             if (COOKIE_LOCALE_KEY.equals(cookie.getName())) {
                 try {

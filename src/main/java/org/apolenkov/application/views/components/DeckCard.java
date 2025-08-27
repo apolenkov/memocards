@@ -28,7 +28,7 @@ public class DeckCard extends Div {
      *
      * @param viewModel the view model containing deck data to display
      */
-    public DeckCard(DeckCardViewModel viewModel) {
+    public DeckCard(final DeckCardViewModel viewModel) {
         this.viewModel = viewModel;
 
         add(buildContent());

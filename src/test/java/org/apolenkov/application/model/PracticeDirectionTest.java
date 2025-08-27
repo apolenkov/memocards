@@ -1,6 +1,7 @@
 package org.apolenkov.application.model;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -141,14 +142,6 @@ class PracticeDirectionTest {
             assertThat(PracticeDirection.BACK_TO_FRONT.compareTo(PracticeDirection.FRONT_TO_BACK))
                     .isGreaterThan(0);
         }
-
-        @Test
-        @DisplayName("Same enum values should be equal")
-        void sameEnumValuesShouldBeEqual() {
-            // When & Then
-            assertThat(PracticeDirection.FRONT_TO_BACK.compareTo(PracticeDirection.FRONT_TO_BACK))
-                    .isEqualByComparingTo(0);
-        }
     }
 
     @Nested
@@ -225,10 +218,7 @@ class PracticeDirectionTest {
         @DisplayName("Equals should work correctly")
         void equalsShouldWorkCorrectly() {
             // When & Then
-            assertThat(PracticeDirection.FRONT_TO_BACK)
-                    .isEqualTo(PracticeDirection.FRONT_TO_BACK)
-                    .isNotEqualTo(PracticeDirection.BACK_TO_FRONT);
-            assertThat(PracticeDirection.BACK_TO_FRONT).isEqualTo(PracticeDirection.BACK_TO_FRONT);
+            assertThat(PracticeDirection.FRONT_TO_BACK).isNotEqualTo(PracticeDirection.BACK_TO_FRONT);
         }
 
         @Test

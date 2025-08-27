@@ -101,7 +101,7 @@ class DeckQueryServiceTest {
         })
         @DisplayName("ListDecksForCurrentUser should filter decks by query")
         void listDecksForCurrentUserShouldFilterDecksByQuery(
-                String query, String expectedDeckTitle, String expectedDeckDescription) {
+                final String query, final String expectedDeckTitle, final String expectedDeckDescription) {
             // Given
             Long userId = 1L;
             Deck expectedDeck = new Deck(1L, userId, expectedDeckTitle, expectedDeckDescription);
@@ -414,7 +414,7 @@ class DeckQueryServiceTest {
     }
 
     // Helper method to create a mock user
-    private org.apolenkov.application.model.User createMockUser(Long userId) {
+    private org.apolenkov.application.model.User createMockUser(final Long userId) {
         org.apolenkov.application.model.User user = new org.apolenkov.application.model.User();
         user.setId(userId);
         user.setEmail("test@example.com");

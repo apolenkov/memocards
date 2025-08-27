@@ -23,7 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route(value = "forgot-password", layout = PublicLayout.class)
 @AnonymousAllowed
-public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasDynamicTitle {
+public final class ForgotPasswordView extends Div implements BeforeEnterObserver, HasDynamicTitle {
 
     private static final class ForgotPasswordModel {
         private String email;
@@ -44,7 +44,7 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
      *
      * @param passwordResetService service for handling password reset operations
      */
-    public ForgotPasswordView(PasswordResetService passwordResetService) {
+    public ForgotPasswordView(final PasswordResetService passwordResetService) {
         this.passwordResetService = passwordResetService;
 
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
@@ -109,7 +109,7 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
      * Handles password reset request submission.
      * Creates reset token and navigates to reset page or shows appropriate messages.
      */
-    private void handleSubmit(String email) {
+    private void handleSubmit(final String email) {
         if (email == null || email.trim().isEmpty()) {
             NotificationHelper.showError(getTranslation("auth.forgotPassword.emailRequired"));
             return;
@@ -137,7 +137,7 @@ public class ForgotPasswordView extends Div implements BeforeEnterObserver, HasD
     }
 
     @Override
-    public void beforeEnter(BeforeEnterEvent event) {
+    public void beforeEnter(final BeforeEnterEvent event) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
             event.rerouteTo("");

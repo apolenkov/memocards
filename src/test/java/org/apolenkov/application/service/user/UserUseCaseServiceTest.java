@@ -1,7 +1,10 @@
 package org.apolenkov.application.service.user;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.apolenkov.application.domain.port.UserRepository;
@@ -358,7 +361,7 @@ class UserUseCaseServiceTest {
             String username = "test@example.com";
             User expectedUser = new User(1L, username, "Test User");
 
-            // Create new security context
+            // Create a new security context
             SecurityContext newSecurityContext = mock(SecurityContext.class);
             Authentication newAuthentication = mock(Authentication.class);
             when(newSecurityContext.getAuthentication()).thenReturn(newAuthentication);

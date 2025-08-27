@@ -16,23 +16,23 @@ public class HomePresenter {
     /**
      * Creates a new HomePresenter with the specified deck query service.
      *
-     * @param deckQueryService the service for querying deck data (non-null)
+     * @param deckQueryServiceValue the service for querying deck data (non-null)
      * @throws IllegalArgumentException if deckQueryService is null
      */
-    public HomePresenter(DeckQueryService deckQueryService) {
-        if (deckQueryService == null) {
+    public HomePresenter(final DeckQueryService deckQueryServiceValue) {
+        if (deckQueryServiceValue == null) {
             throw new IllegalArgumentException("DeckQueryService cannot be null");
         }
-        this.deckQueryService = deckQueryService;
+        this.deckQueryService = deckQueryServiceValue;
     }
 
     /**
      * Lists decks for the current user based on an optional search query.
      *
-     * @param query the search query to filter decks, may be null or empty
-     * @return a list of deck view models for the current user, never null (may be empty)
+     * @param query the search query to filter decks, maybe null or empty
+     * @return a list of deck view models for the current user, never null (maybe empty)
      */
-    public List<DeckCardViewModel> listDecksForCurrentUser(String query) {
+    public List<DeckCardViewModel> listDecksForCurrentUser(final String query) {
         List<Deck> decks = deckQueryService.listDecksForCurrentUser(query);
         return decks.stream().map(deckQueryService::toViewModel).toList();
     }

@@ -24,12 +24,12 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     /**
      * Creates a new FlashcardUseCaseService with required dependencies.
      *
-     * @param flashcardRepository the repository for flashcard persistence operations
-     * @param validator the validator for flashcard data validation
+     * @param flashcardRepositoryValue the repository for flashcard persistence operations
+     * @param validatorValue the validator for flashcard data validation
      */
-    public FlashcardUseCaseService(FlashcardRepository flashcardRepository, Validator validator) {
-        this.flashcardRepository = flashcardRepository;
-        this.validator = validator;
+    public FlashcardUseCaseService(final FlashcardRepository flashcardRepositoryValue, final Validator validatorValue) {
+        this.flashcardRepository = flashcardRepositoryValue;
+        this.validator = validatorValue;
     }
 
     /**
@@ -40,7 +40,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
-    public List<Flashcard> getFlashcardsByDeckId(Long deckId) {
+    public List<Flashcard> getFlashcardsByDeckId(final long deckId) {
         return flashcardRepository.findByDeckId(deckId);
     }
 
@@ -52,7 +52,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
-    public Optional<Flashcard> getFlashcardById(Long id) {
+    public Optional<Flashcard> getFlashcardById(final long id) {
         return flashcardRepository.findById(id);
     }
 
@@ -65,7 +65,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      */
     @Override
     @TransactionAnnotations.WriteTransaction
-    public Flashcard saveFlashcard(Flashcard flashcard) {
+    public Flashcard saveFlashcard(final Flashcard flashcard) {
         var violations = validator.validate(flashcard);
         if (!violations.isEmpty()) {
             String message = violations.stream()
@@ -83,7 +83,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      */
     @Override
     @TransactionAnnotations.DeleteTransaction
-    public void deleteFlashcard(Long id) {
+    public void deleteFlashcard(final Long id) {
         flashcardRepository.deleteById(id);
     }
 
@@ -97,7 +97,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
-    public List<Flashcard> getFlashcardsForPractice(Long deckId, int count, boolean random) {
+    public List<Flashcard> getFlashcardsForPractice(final Long deckId, final int count, final boolean random) {
         List<Flashcard> allCards = new ArrayList<>(getFlashcardsByDeckId(deckId));
         if (random) {
             Collections.shuffle(allCards);
@@ -113,7 +113,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
-    public long countByDeckId(Long deckId) {
+    public long countByDeckId(final Long deckId) {
         return flashcardRepository.countByDeckId(deckId);
     }
 }

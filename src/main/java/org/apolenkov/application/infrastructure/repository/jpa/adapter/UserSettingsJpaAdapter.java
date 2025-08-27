@@ -22,14 +22,14 @@ public class UserSettingsJpaAdapter implements UserSettingsRepository {
     /**
      * Creates adapter with JPA repository dependency.
      *
-     * @param repo the Spring Data JPA repository for user settings operations
-     * @throws IllegalArgumentException if repo is null
+     * @param repoValue the Spring Data JPA repository for user settings operations
+     * @throws IllegalArgumentException if repoValue is null
      */
-    public UserSettingsJpaAdapter(UserSettingsJpaRepository repo) {
-        if (repo == null) {
+    public UserSettingsJpaAdapter(final UserSettingsJpaRepository repoValue) {
+        if (repoValue == null) {
             throw new IllegalArgumentException("UserSettingsJpaRepository cannot be null");
         }
-        this.repo = repo;
+        this.repo = repoValue;
     }
 
     /**
@@ -40,7 +40,7 @@ public class UserSettingsJpaAdapter implements UserSettingsRepository {
      * @throws IllegalArgumentException if userId is invalid (≤ 0)
      */
     @Override
-    public Optional<String> findPreferredLocaleCode(long userId) {
+    public Optional<String> findPreferredLocaleCode(final long userId) {
         if (userId <= 0) {
             throw new IllegalArgumentException("User ID must be positive");
         }
@@ -57,16 +57,16 @@ public class UserSettingsJpaAdapter implements UserSettingsRepository {
      * @throws IllegalArgumentException if userId is invalid (≤ 0)
      */
     @Override
-    public void savePreferredLocaleCode(long userId, String localeCode) {
+    public void savePreferredLocaleCode(final long userId, final String localeCode) {
         if (userId <= 0) {
             throw new IllegalArgumentException("User ID must be positive");
         }
         // If locale code is null or empty, we'll still save it to allow clearing preferences
-        String processedLocaleCode = (localeCode != null) ? localeCode.trim() : "";
+        final String processedLocaleCode = (localeCode != null) ? localeCode.trim() : "";
 
-        UserSettingsEntity e = repo.findByUserId(userId).orElseGet(UserSettingsEntity::new);
-        e.setUserId(userId);
-        e.setPreferredLocaleCode(processedLocaleCode);
-        repo.save(e);
+        final UserSettingsEntity entity = repo.findByUserId(userId).orElseGet(UserSettingsEntity::new);
+        entity.setUserId(userId);
+        entity.setPreferredLocaleCode(processedLocaleCode);
+        repo.save(entity);
     }
 }

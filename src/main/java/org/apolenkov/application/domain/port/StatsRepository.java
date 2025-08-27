@@ -26,7 +26,7 @@ public interface StatsRepository {
      * @param totalAnswerDelayMs total answer delay in milliseconds
      * @param knownCardIdsDelta new known card IDs from this session
      */
-    @SuppressWarnings("java:S107")
+    @SuppressWarnings({"java:S107", "ParameterNumber"})
     void appendSession(
             long deckId,
             LocalDate date,

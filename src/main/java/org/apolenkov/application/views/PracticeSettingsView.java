@@ -29,7 +29,7 @@ public class PracticeSettingsView extends VerticalLayout implements HasDynamicTi
      *
      * @param practiceSettingsService service for managing practice settings
      */
-    public PracticeSettingsView(PracticeSettingsService practiceSettingsService) {
+    public PracticeSettingsView(final PracticeSettingsService practiceSettingsService) {
         setPadding(true);
         setSpacing(true);
 

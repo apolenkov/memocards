@@ -22,7 +22,10 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +45,7 @@ import org.slf4j.LoggerFactory;
 @RolesAllowed("ROLE_USER")
 public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
-    private static final Logger log = LoggerFactory.getLogger(DeckView.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeckView.class);
 
     private static final String FILL_REQUIRED_KEY = "dialog.fillRequired";
     private static final String TITLE_PROPERTY = "title";
@@ -65,7 +68,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param presenter presenter for managing deck operations and presentation logic
      * @param deckFacade service for deck-related operations
      */
-    public DeckView(DeckPresenter presenter, DeckFacade deckFacade) {
+    public DeckView(final DeckPresenter presenter, final DeckFacade deckFacade) {
         this.presenter = presenter;
         this.deckFacade = deckFacade;
 
@@ -117,7 +120,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param parameter the deck ID as a string from the URL
      */
     @Override
-    public void setParameter(BeforeEvent event, String parameter) {
+    public void setParameter(final BeforeEvent event, final String parameter) {
         try {
             Long deckId = Long.parseLong(parameter);
             loadDeck(deckId);
@@ -132,7 +135,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      *
      * @param container the container to add the header to
      */
-    private void createHeader(VerticalLayout container) {
+    private void createHeader(final VerticalLayout container) {
         HorizontalLayout headerLayout = new HorizontalLayout();
         headerLayout.setWidthFull();
         headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -161,7 +164,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      *
      * @param container the container to add the deck info to
      */
-    private void createDeckInfo(VerticalLayout container) {
+    private void createDeckInfo(final VerticalLayout container) {
         Div infoSection = new Div();
         infoSection.addClassName("deck-view__info-section");
         infoSection.addClassName("surface-panel");
@@ -178,7 +181,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      *
      * @param container the container to add the actions to
      */
-    private void createActions(VerticalLayout container) {
+    private void createActions(final VerticalLayout container) {
         HorizontalLayout actionsLayout = new HorizontalLayout();
         actionsLayout.setWidthFull();
 
@@ -214,7 +217,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      *
      * @param container the container to add the grid to
      */
-    private void createFlashcardsGrid(VerticalLayout container) {
+    private void createFlashcardsGrid(final VerticalLayout container) {
         HorizontalLayout searchRow = new HorizontalLayout();
         searchRow.setWidthFull();
         searchRow.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -316,7 +319,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      *
      * @param deckId the ID of the deck to load
      */
-    private void loadDeck(Long deckId) {
+    private void loadDeck(final Long deckId) {
         Optional<Deck> deckOpt = presenter.loadDeck(deckId);
         if (deckOpt.isPresent()) {
             currentDeck = deckOpt.get();
@@ -371,7 +374,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      *
      * @param flashcard the flashcard to edit, or null for creating new
      */
-    private void openFlashcardDialog(Flashcard flashcard) {
+    private void openFlashcardDialog(final Flashcard flashcard) {
         Dialog dialog = new Dialog();
         dialog.addClassName("dialog-md");
 
@@ -403,7 +406,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param flashcard the flashcard to populate form with, or null for new card
      * @return configured form layout with input fields
      */
-    private FormLayout createFlashcardForm(Flashcard flashcard) {
+    private FormLayout createFlashcardForm(final Flashcard flashcard) {
         FormLayout formLayout = new FormLayout();
 
         TextField frontTextField = new TextField(getTranslation("deck.col.front"));
@@ -438,7 +441,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param formLayout the form layout containing input fields
      * @return configured validation binder
      */
-    private BeanValidationBinder<Flashcard> createFlashcardBinder(FormLayout formLayout) {
+    private BeanValidationBinder<Flashcard> createFlashcardBinder(final FormLayout formLayout) {
         BeanValidationBinder<Flashcard> binder = new BeanValidationBinder<>(Flashcard.class);
 
         TextField frontTextField = (TextField) formLayout.getChildren().toArray()[0];
@@ -467,7 +470,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @return configured horizontal layout with buttons
      */
     private HorizontalLayout createDialogButtons(
-            Dialog dialog, BeanValidationBinder<Flashcard> binder, Flashcard flashcard) {
+            final Dialog dialog, final BeanValidationBinder<Flashcard> binder, final Flashcard flashcard) {
         HorizontalLayout buttonsLayout = new HorizontalLayout();
 
         Button saveButton = new Button(getTranslation("dialog.save"), VaadinIcon.CHECK.create());
@@ -488,7 +491,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param binder the validation binder containing form data
      * @param flashcard the flashcard to update, or null for new card
      */
-    private void handleFlashcardSave(Dialog dialog, BeanValidationBinder<Flashcard> binder, Flashcard flashcard) {
+    private void handleFlashcardSave(
+            final Dialog dialog, final BeanValidationBinder<Flashcard> binder, final Flashcard flashcard) {
         try {
             Flashcard bean = flashcard != null ? flashcard : new Flashcard();
             bean.setDeckId(currentDeck.getId());
@@ -511,7 +515,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      *
      * @param flashcard the flashcard to delete
      */
-    private void deleteFlashcard(Flashcard flashcard) {
+    private void deleteFlashcard(final Flashcard flashcard) {
         Dialog confirmDialog = new Dialog();
 
         VerticalLayout layout = new VerticalLayout();
@@ -556,7 +560,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         int cardCount = presenter.deckSize(currentDeck.getId());
         boolean isEmpty = cardCount == 0;
 
-        log.debug(
+        LOGGER.debug(
                 "Deck deletion check - Title: {}, Card count: {}, isEmpty: {}",
                 currentDeck.getTitle(),
                 cardCount,
@@ -703,7 +707,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         // Additional input listener for real-time feedback
         confirmInput.addInputListener(e -> {
-            log.debug("Confirm input value: {}", confirmInput.getValue());
+            LOGGER.debug("Confirm input value: {}", confirmInput.getValue());
             confirmButton.setEnabled(currentDeck.getTitle().equals(confirmInput.getValue()));
         });
 
@@ -719,10 +723,10 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             } catch (IllegalArgumentException ex) {
                 // Handle validation errors from backend
                 NotificationHelper.showErrorLong(getTranslation("deck.delete.confirmationMismatch"));
-                log.warn("Deck deletion failed due to confirmation mismatch for deck: {}", currentDeck.getId());
+                LOGGER.warn("Deck deletion failed due to confirmation mismatch for deck: {}", currentDeck.getId());
             } catch (Exception ex) {
                 NotificationHelper.showErrorLong(ex.getMessage());
-                log.error("Error deleting deck: {}", currentDeck.getId(), ex);
+                LOGGER.error("Error deleting deck: {}", currentDeck.getId(), ex);
             }
         });
 

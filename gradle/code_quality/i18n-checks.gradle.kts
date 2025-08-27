@@ -1,5 +1,6 @@
 import java.io.File
 import java.util.Properties
+
 /*
  * I18N keys consistency check: ensure en/ru/es have the same set of keys.
  * Writes a report to build/reports/i18n/missing-keys.md and fails on missing keys.

@@ -1,6 +1,11 @@
 package org.apolenkov.application.infrastructure.repository.jpa.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /**
  * JPA entity representing known cards that users have learned.
@@ -45,10 +50,10 @@ public class KnownCardEntity {
     /**
      * Sets the primary key identifier.
      *
-     * @param id the unique identifier for this known card record
+     * @param idValue the unique identifier for this known card record
      */
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(final Long idValue) {
+        this.id = idValue;
     }
 
     /**
@@ -67,14 +72,14 @@ public class KnownCardEntity {
      * and a specific deck. The deck must exist in the system before
      * this relationship can be established.</p>
      *
-     * @param deckId deck identifier, must not be null
+     * @param deckIdValue deck identifier, must not be null
      * @throws IllegalArgumentException if deckId is null
      */
-    public void setDeckId(Long deckId) {
-        if (deckId == null) {
+    public void setDeckId(final Long deckIdValue) {
+        if (deckIdValue == null) {
             throw new IllegalArgumentException("Deck ID cannot be null");
         }
-        this.deckId = deckId;
+        this.deckId = deckIdValue;
     }
 
     /**
@@ -94,13 +99,13 @@ public class KnownCardEntity {
      * and a specific flashcard. The card must exist in the system
      * before this relationship can be established.</p>
      *
-     * @param cardId card identifier, must not be null
+     * @param cardIdValue card identifier, must not be null
      * @throws IllegalArgumentException if cardId is null
      */
-    public void setCardId(Long cardId) {
-        if (cardId == null) {
+    public void setCardId(final Long cardIdValue) {
+        if (cardIdValue == null) {
             throw new IllegalArgumentException("Card ID cannot be null");
         }
-        this.cardId = cardId;
+        this.cardId = cardIdValue;
     }
 }

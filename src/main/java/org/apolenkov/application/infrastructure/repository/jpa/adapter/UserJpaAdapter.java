@@ -24,41 +24,41 @@ public class UserJpaAdapter implements UserRepository {
     /**
      * Creates adapter with JPA repository dependency.
      *
-     * @param repo the Spring Data repository for user entities
+     * @param repoValue the Spring Data repository for user entities
      */
-    public UserJpaAdapter(UserJpaRepository repo) {
-        this.repo = repo;
+    public UserJpaAdapter(final UserJpaRepository repoValue) {
+        this.repo = repoValue;
     }
 
     /**
      * Converts JPA entity to domain model.
      *
-     * @param e the JPA entity to convert
+     * @param entity the JPA entity to convert
      * @return the corresponding domain User object
      */
-    private static User toModel(UserEntity e) {
-        User u = new User(e.getId(), e.getEmail(), e.getName());
-        u.setPasswordHash(e.getPasswordHash());
-        u.setCreatedAt(e.getCreatedAt());
-        u.setRoles(new java.util.HashSet<>(e.getRoles()));
-        return u;
+    private static User toModel(final UserEntity entity) {
+        final User user = new User(entity.getId(), entity.getEmail(), entity.getName());
+        user.setPasswordHash(entity.getPasswordHash());
+        user.setCreatedAt(entity.getCreatedAt());
+        user.setRoles(new java.util.HashSet<>(entity.getRoles()));
+        return user;
     }
 
     /**
      * Converts domain model to JPA entity with timestamp handling.
      *
-     * @param u the domain User object to convert
+     * @param user the domain User object to convert
      * @return the corresponding JPA UserEntity
      */
-    private static UserEntity toEntity(User u) {
-        UserEntity e = new UserEntity();
-        e.setId(u.getId());
-        e.setEmail(u.getEmail());
-        e.setPasswordHash(u.getPasswordHash());
-        e.setName(u.getName());
-        e.setCreatedAt(u.getCreatedAt() != null ? u.getCreatedAt() : java.time.LocalDateTime.now());
-        e.setRoles(new java.util.HashSet<>(u.getRoles()));
-        return e;
+    private static UserEntity toEntity(final User user) {
+        final UserEntity entity = new UserEntity();
+        entity.setId(user.getId());
+        entity.setEmail(user.getEmail());
+        entity.setPasswordHash(user.getPasswordHash());
+        entity.setName(user.getName());
+        entity.setCreatedAt(user.getCreatedAt() != null ? user.getCreatedAt() : java.time.LocalDateTime.now());
+        entity.setRoles(new java.util.HashSet<>(user.getRoles()));
+        return entity;
     }
 
     /**
@@ -78,7 +78,7 @@ public class UserJpaAdapter implements UserRepository {
      * @return Optional containing the user if found
      */
     @Override
-    public Optional<User> findById(Long id) {
+    public Optional<User> findById(final Long id) {
         return repo.findById(id).map(UserJpaAdapter::toModel);
     }
 
@@ -89,7 +89,7 @@ public class UserJpaAdapter implements UserRepository {
      * @return Optional containing the user if found
      */
     @Override
-    public Optional<User> findByEmail(String email) {
+    public Optional<User> findByEmail(final String email) {
         return repo.findByEmail(email).map(UserJpaAdapter::toModel);
     }
 
@@ -100,7 +100,7 @@ public class UserJpaAdapter implements UserRepository {
      * @return the saved user with updated values
      */
     @Override
-    public User save(User user) {
+    public User save(final User user) {
         return toModel(repo.save(toEntity(user)));
     }
 
@@ -110,7 +110,7 @@ public class UserJpaAdapter implements UserRepository {
      * @param id the unique identifier of the user to delete
      */
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(final Long id) {
         repo.deleteById(id);
     }
 }

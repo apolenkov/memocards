@@ -305,7 +305,8 @@ class FlashcardJpaAdapterTest {
         }
     }
 
-    private FlashcardEntity createFlashcardEntity(Long id, Long deckId, String frontText, String backText) {
+    private FlashcardEntity createFlashcardEntity(
+            final Long id, final Long deckId, final String frontText, final String backText) {
         FlashcardEntity entity = new FlashcardEntity();
         entity.setId(id);
         entity.setDeckId(deckId);

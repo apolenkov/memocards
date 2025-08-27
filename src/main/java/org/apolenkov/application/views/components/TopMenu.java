@@ -55,7 +55,7 @@ public class TopMenu extends HorizontalLayout {
      * @param userUseCase service for user operations and current user information
      * @param practiceSettingsService service for practice session configuration
      */
-    public TopMenu(UserUseCase userUseCase, PracticeSettingsService practiceSettingsService) {
+    public TopMenu(final UserUseCase userUseCase, final PracticeSettingsService practiceSettingsService) {
         this.userUseCase = userUseCase;
         this.practiceSettingsService = practiceSettingsService;
         setWidthFull();
@@ -161,7 +161,8 @@ public class TopMenu extends HorizontalLayout {
      * @param isAuthenticated whether the user is currently authenticated
      * @return true if the button should be visible, false otherwise
      */
-    private boolean shouldShowButton(MenuButton menuButton, Authentication auth, boolean isAuthenticated) {
+    private boolean shouldShowButton(
+            final MenuButton menuButton, final Authentication auth, final boolean isAuthenticated) {
         if (menuButton.isAlwaysVisible()) {
             return true;
         }
@@ -197,7 +198,7 @@ public class TopMenu extends HorizontalLayout {
      * @param menuButton the menu button configuration to create a button for
      * @return a configured Button component ready for use
      */
-    private Button createButton(MenuButton menuButton) {
+    private Button createButton(final MenuButton menuButton) {
         Button button;
 
         if (menuButton.getRoute().equals(LOGOUT_ROUTE)) {
@@ -266,7 +267,7 @@ public class TopMenu extends HorizontalLayout {
          * @param testId the test identifier for automated testing
          * @param alwaysVisible whether the button should always be visible
          */
-        public MenuButton(String text, String route, String testId, boolean alwaysVisible) {
+        public MenuButton(final String text, final String route, final String testId, final boolean alwaysVisible) {
             this(text, route, testId, alwaysVisible, new String[0]);
         }
 
@@ -279,7 +280,12 @@ public class TopMenu extends HorizontalLayout {
          * @param alwaysVisible whether the button should always be visible
          * @param requiredRoles the roles required to see this button
          */
-        public MenuButton(String text, String route, String testId, boolean alwaysVisible, String... requiredRoles) {
+        public MenuButton(
+                final String text,
+                final String route,
+                final String testId,
+                final boolean alwaysVisible,
+                final String... requiredRoles) {
             this.text = text;
             this.route = route;
             this.testId = testId;
@@ -287,23 +293,23 @@ public class TopMenu extends HorizontalLayout {
             this.requiredRoles = requiredRoles != null ? List.of(requiredRoles) : new ArrayList<>();
         }
 
-        public String getText() {
+        String getText() {
             return text;
         }
 
-        public String getRoute() {
+        String getRoute() {
             return route;
         }
 
-        public String getTestId() {
+        String getTestId() {
             return testId;
         }
 
-        public boolean isAlwaysVisible() {
+        boolean isAlwaysVisible() {
             return alwaysVisible;
         }
 
-        public List<String> getRequiredRoles() {
+        List<String> getRequiredRoles() {
             return requiredRoles;
         }
     }

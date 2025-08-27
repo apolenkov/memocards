@@ -1,4 +1,5 @@
 import java.lang.StringBuilder
+
 /**
  * Task to check for missing translation keys
  * Finds translation keys used in code but missing from properties files
@@ -38,34 +39,36 @@ tasks.register("checkMissingTranslations") {
         // Find all translation usage patterns in source code
         val usedKeys = mutableSetOf<String>()
         val missingKeys = mutableSetOf<String>()
-        
+
         // Multiple patterns to catch different translation usage
-        val translationPatterns = listOf(
-            Regex("getTranslation\\(\"([^\"]+)\""),           // getTranslation("key")
-            Regex("getTranslation\\(\\s*\"([^\"]+)\""),       // getTranslation( "key")
-            Regex("I18nHelper\\.tr\\(\"([^\"]+)\""),          // I18nHelper.tr("key")
-            Regex("I18nHelper\\.tr\\(\\s*\"([^\"]+)\""),      // I18nHelper.tr( "key")
-            Regex("\\.tr\\(\"([^\"]+)\""),                     // .tr("key")
-            Regex("\\.tr\\(\\s*\"([^\"]+)\""),                // .tr( "key")
-            Regex("tr\\(\"([^\"]+)\""),                        // tr("key")
-            Regex("tr\\(\\s*\"([^\"]+)\""),                   // tr( "key")
-            Regex("getTranslation\\(\"([^\"]+)\"\\s*,\\s*[^)]+\\)"), // getTranslation("key", params)
-            Regex("I18nHelper\\.tr\\(\"([^\"]+)\"\\s*,\\s*[^)]+\\)"), // I18nHelper.tr("key", params)
-            Regex("\\.tr\\(\"([^\"]+)\"\\s*,\\s*[^)]+\\)"),   // .tr("key", params)
-            Regex("tr\\(\"([^\"]+)\"\\s*,\\s*[^)]+\\)")       // tr("key", params)
-        )
-        
+        val translationPatterns =
+            listOf(
+                Regex("getTranslation\\(\"([^\"]+)\""), // getTranslation("key")
+                Regex("getTranslation\\(\\s*\"([^\"]+)\""), // getTranslation( "key")
+                Regex("I18nHelper\\.tr\\(\"([^\"]+)\""), // I18nHelper.tr("key")
+                Regex("I18nHelper\\.tr\\(\\s*\"([^\"]+)\""), // I18nHelper.tr( "key")
+                Regex("\\.tr\\(\"([^\"]+)\""), // .tr("key")
+                Regex("\\.tr\\(\\s*\"([^\"]+)\""), // .tr( "key")
+                Regex("tr\\(\"([^\"]+)\""), // tr("key")
+                Regex("tr\\(\\s*\"([^\"]+)\""), // tr( "key")
+                Regex("getTranslation\\(\"([^\"]+)\"\\s*,\\s*[^)]+\\)"), // getTranslation("key", params)
+                Regex("I18nHelper\\.tr\\(\"([^\"]+)\"\\s*,\\s*[^)]+\\)"), // I18nHelper.tr("key", params)
+                Regex("\\.tr\\(\"([^\"]+)\"\\s*,\\s*[^)]+\\)"), // .tr("key", params)
+                Regex("tr\\(\"([^\"]+)\"\\s*,\\s*[^)]+\\)"), // tr("key", params)
+            )
+
         // Also look for constants that contain translation keys
-        val constantPatterns = listOf(
-            Regex("private static final String [A-Z_]+ = \"([^\"]+)\""),  // private static final String KEY = "key"
-            Regex("public static final String [A-Z_]+ = \"([^\"]+)\""),   // public static final String KEY = "key"
-            Regex("final String [A-Z_]+ = \"([^\"]+)\""),                // final String KEY = "key"
-            Regex("String [A-Z_]+ = \"([^\"]+)\"")                       // String KEY = "key"
-        )
+        val constantPatterns =
+            listOf(
+                Regex("private static final String [A-Z_]+ = \"([^\"]+)\""), // private static final String KEY = "key"
+                Regex("public static final String [A-Z_]+ = \"([^\"]+)\""), // public static final String KEY = "key"
+                Regex("final String [A-Z_]+ = \"([^\"]+)\""), // final String KEY = "key"
+                Regex("String [A-Z_]+ = \"([^\"]+)\""), // String KEY = "key"
+            )
 
         sourceFiles.forEach { file ->
             val content = file.readText()
-            
+
             // Check direct translation calls
             translationPatterns.forEach { pattern ->
                 val matches = pattern.findAll(content)
@@ -77,7 +80,7 @@ tasks.register("checkMissingTranslations") {
                     }
                 }
             }
-            
+
             // Check constants that might contain translation keys
             constantPatterns.forEach { pattern ->
                 val matches = pattern.findAll(content)
@@ -85,8 +88,9 @@ tasks.register("checkMissingTranslations") {
                     val key = match.groupValues[1]
                     // Only consider it if it looks like a translation key (contains dots)
                     // Exclude technical keys that are not actual translation keys
-                    if (key.contains(".") && !key.startsWith("http") && !key.startsWith("/") && 
-                        !key.equals("i18n.messages")) {
+                    if (key.contains(".") && !key.startsWith("http") && !key.startsWith("/") &&
+                        !key.equals("i18n.messages")
+                    ) {
                         usedKeys.add(key)
                         if (!availableKeys.contains(key)) {
                             missingKeys.add(key)

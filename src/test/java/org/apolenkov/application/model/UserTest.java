@@ -1,6 +1,8 @@
 package org.apolenkov.application.model;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.within;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -84,7 +86,7 @@ class UserTest {
         @NullAndEmptySource
         @ValueSource(strings = {"   ", "\t", "\n"})
         @DisplayName("Email setter should throw exception for null or blank email")
-        void emailSetterShouldThrowExceptionForNullOrBlankEmail(String email) {
+        void emailSetterShouldThrowExceptionForNullOrBlankEmail(final String email) {
             assertThatThrownBy(() -> user.setEmail(email))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("email is required");
@@ -122,7 +124,7 @@ class UserTest {
         @NullAndEmptySource
         @ValueSource(strings = {"   ", "\t", "\n"})
         @DisplayName("Name setter should throw exception for null or blank name")
-        void nameSetterShouldThrowExceptionForNullOrBlankName(String name) {
+        void nameSetterShouldThrowExceptionForNullOrBlankName(final String name) {
             assertThatThrownBy(() -> user.setName(name))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("name is required");
@@ -185,7 +187,7 @@ class UserTest {
         @ParameterizedTest
         @ValueSource(strings = {"", "   ", "\t", "\n"})
         @DisplayName("AddRole should handle null, blank, and empty roles")
-        void addRoleShouldHandleNullOrBlankRoles(String role) {
+        void addRoleShouldHandleNullOrBlankRoles(final String role) {
             user.addRole(role);
             assertThat(user.getRoles()).isEmpty();
         }
@@ -224,11 +226,7 @@ class UserTest {
             User user3 = new User();
             user3.setId(2L);
 
-            assertThat(user1)
-                    .isEqualTo(user2)
-                    .isNotEqualTo(user3)
-                    .isNotEqualTo(null)
-                    .isNotEqualTo("string");
+            assertThat(user1).isEqualTo(user2).isNotEqualTo(user3).isNotEqualTo(null);
         }
 
         @Test

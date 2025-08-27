@@ -24,31 +24,31 @@ import org.springframework.context.ConfigurableApplicationContext;
 @SpringBootApplication
 public class Application implements VaadinServiceInitListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(Application.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
     private static final String ERROR_ROUTE = "error";
     private static final String ATTR_ERROR_NAV_GUARD = "errorNavigationInProgress";
 
     /**
      * Starts the Spring Boot application.
      */
-    public static void main(String[] args) {
-        logger.info("Starting Flashcards application...");
-        if (logger.isDebugEnabled()) {
-            logger.debug("Application arguments: {}", java.util.Arrays.toString(args));
+    public static void main(final String[] args) {
+        LOGGER.info("Starting Flashcards application...");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Application arguments: {}", java.util.Arrays.toString(args));
         }
 
         ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
 
         // Register shutdown hook for graceful application termination
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.info("Shutdown hook triggered, cleaning up...");
+            LOGGER.info("Shutdown hook triggered, cleaning up...");
             if (context.isActive()) {
                 context.close();
             }
-            logger.info("Shutdown hook completed");
+            LOGGER.info("Shutdown hook completed");
         }));
 
-        logger.info("Flashcards application started successfully");
+        LOGGER.info("Flashcards application started successfully");
     }
 
     /**
@@ -58,11 +58,11 @@ public class Application implements VaadinServiceInitListener {
      * @throws IllegalArgumentException if event is null
      */
     @Override
-    public void serviceInit(ServiceInitEvent event) {
+    public void serviceInit(final ServiceInitEvent event) {
         if (event == null) {
             throw new IllegalArgumentException("ServiceInitEvent cannot be null");
         }
-        logger.debug("Initializing Vaadin service...");
+        LOGGER.debug("Initializing Vaadin service...");
         event.getSource().addUIInitListener(uiEvent -> configureUi(uiEvent.getUI()));
     }
 
@@ -72,15 +72,15 @@ public class Application implements VaadinServiceInitListener {
      * @param ui the UI instance to configure (non-null)
      * @throws IllegalArgumentException if ui is null
      */
-    private void configureUi(UI ui) {
+    private void configureUi(final UI ui) {
         if (ui == null) {
             throw new IllegalArgumentException("UI cannot be null");
         }
-        logger.debug("UI initialized, applying configuration [uiId={}]", ui.getUIId());
+        LOGGER.debug("UI initialized, applying configuration [uiId={}]", ui.getUIId());
         enableLumoDark(ui);
         installSafeErrorHandler(ui);
         applyPreferredLocale(ui);
-        logger.debug("UI setup completed [uiId={}]", ui.getUIId());
+        LOGGER.debug("UI setup completed [uiId={}]", ui.getUIId());
     }
 
     /**
@@ -89,13 +89,13 @@ public class Application implements VaadinServiceInitListener {
      * @param ui the UI instance to apply the theme to (non-null)
      * @throws IllegalArgumentException if ui is null
      */
-    private void enableLumoDark(UI ui) {
+    private void enableLumoDark(final UI ui) {
         if (ui == null) {
             throw new IllegalArgumentException("UI cannot be null");
         }
         ui.getElement().getThemeList().add(Lumo.DARK);
-        if (logger.isTraceEnabled()) {
-            logger.trace("Lumo dark theme enabled [uiId={}]", ui.getUIId());
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Lumo dark theme enabled [uiId={}]", ui.getUIId());
         }
     }
 
@@ -105,22 +105,22 @@ public class Application implements VaadinServiceInitListener {
      * @param ui the UI instance to configure error handling for (non-null)
      * @throws IllegalArgumentException if ui is null
      */
-    private void installSafeErrorHandler(UI ui) {
+    private void installSafeErrorHandler(final UI ui) {
         if (ui == null) {
             throw new IllegalArgumentException("UI cannot be null");
         }
         ui.getSession().setErrorHandler(errorEvent -> handleUiError(ui, errorEvent));
-        if (logger.isTraceEnabled()) {
-            logger.trace("UI error handler installed [uiId={}]", ui.getUIId());
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("UI error handler installed [uiId={}]", ui.getUIId());
         }
     }
 
     /**
      * Processes UI errors with safe navigation and cycle protection.
      */
-    private void handleUiError(UI ui, ErrorEvent errorEvent) {
-        if (logger.isTraceEnabled()) {
-            logger.trace("UI error handled [uiId={}]", ui.getUIId(), errorEvent.getThrowable());
+    private void handleUiError(final UI ui, final ErrorEvent errorEvent) {
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("UI error handled [uiId={}]", ui.getUIId(), errorEvent.getThrowable());
         }
 
         VaadinSession session = ui.getSession();
@@ -128,13 +128,13 @@ public class Application implements VaadinServiceInitListener {
         try {
             currentRoute = ui.getInternals().getActiveViewLocation().getPath();
         } catch (Exception e) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Failed to read current route for error handling [uiId={}]", ui.getUIId(), e);
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Failed to read current route for error handling [uiId={}]", ui.getUIId(), e);
             }
         }
 
-        if (logger.isErrorEnabled()) {
-            logger.error(
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error(
                     "Unhandled UI error [uiId={}, route={}]", ui.getUIId(), currentRoute, errorEvent.getThrowable());
         }
 
@@ -143,7 +143,7 @@ public class Application implements VaadinServiceInitListener {
         boolean onErrorView = ERROR_ROUTE.equals(currentRoute);
 
         if (navigationInProgress) {
-            logger.warn(
+            LOGGER.warn(
                     "Skipping error navigation because previous navigation is still in progress [uiId={}, route={}]",
                     ui.getUIId(),
                     currentRoute);
@@ -151,7 +151,7 @@ public class Application implements VaadinServiceInitListener {
         }
 
         if (onErrorView) {
-            logger.warn(
+            LOGGER.warn(
                     "Error occurred on '{}' route; avoiding cyclic navigation [uiId={}]", ERROR_ROUTE, ui.getUIId());
             return;
         }
@@ -163,21 +163,21 @@ public class Application implements VaadinServiceInitListener {
             ui.access(() -> {
                 try {
                     if (fromRoute != null && !fromRoute.isEmpty()) {
-                        logger.debug("Navigating to '{}' from '{}' [uiId={}]", ERROR_ROUTE, fromRoute, ui.getUIId());
+                        LOGGER.debug("Navigating to '{}' from '{}' [uiId={}]", ERROR_ROUTE, fromRoute, ui.getUIId());
                         ui.navigate(ERROR_ROUTE, QueryParameters.of("from", fromRoute));
                     } else {
-                        logger.debug("Navigating to '{}' [uiId={}]", ERROR_ROUTE, ui.getUIId());
+                        LOGGER.debug("Navigating to '{}' [uiId={}]", ERROR_ROUTE, ui.getUIId());
                         ui.navigate(ERROR_ROUTE);
                     }
                 } catch (Exception navEx) {
-                    logger.warn("Failed during error navigation [uiId={}]", ui.getUIId(), navEx);
+                    LOGGER.warn("Failed during error navigation [uiId={}]", ui.getUIId(), navEx);
                 } finally {
                     // Always clear navigation guard, even if navigation fails
                     session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);
                 }
             });
         } catch (Exception e) {
-            logger.warn("Failed to schedule error navigation [uiId={}]", ui.getUIId(), e);
+            LOGGER.warn("Failed to schedule error navigation [uiId={}]", ui.getUIId(), e);
             // Clear navigation guard on scheduling failure
             session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);
         }
@@ -186,7 +186,7 @@ public class Application implements VaadinServiceInitListener {
     /**
      * Applies user's preferred locale from cookie or session.
      */
-    private void applyPreferredLocale(UI ui) {
+    private void applyPreferredLocale(final UI ui) {
         VaadinSession session = ui.getSession();
 
         // First priority: locale from cookie (user's persistent preference)
@@ -194,7 +194,7 @@ public class Application implements VaadinServiceInitListener {
         if (cookieLocale != null) {
             session.setAttribute(LocaleConstants.SESSION_LOCALE_KEY, cookieLocale);
             ui.setLocale(cookieLocale);
-            logger.debug("Locale set from cookie: {} [uiId={}]", cookieLocale, ui.getUIId());
+            LOGGER.debug("Locale set from cookie: {} [uiId={}]", cookieLocale, ui.getUIId());
             return;
         }
 
@@ -202,14 +202,14 @@ public class Application implements VaadinServiceInitListener {
         Object preferred = session.getAttribute(LocaleConstants.SESSION_LOCALE_KEY);
         if (preferred instanceof Locale locale) {
             ui.setLocale(locale);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Locale set from session attribute: {} [uiId={}]", locale, ui.getUIId());
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Locale set from session attribute: {} [uiId={}]", locale, ui.getUIId());
             }
         } else {
             // Fallback: default to English if no preference is set
             ui.setLocale(Locale.ENGLISH);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Locale fallback applied: ENGLISH [uiId={}]", ui.getUIId());
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Locale fallback applied: ENGLISH [uiId={}]", ui.getUIId());
             }
         }
     }
@@ -229,8 +229,8 @@ public class Application implements VaadinServiceInitListener {
                     if (LocaleConstants.COOKIE_LOCALE_KEY.equals(c.getName())) {
                         // Parse locale from cookie value and validate
                         Locale locale = Locale.forLanguageTag(c.getValue());
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Locale cookie found: {}", locale);
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Locale cookie found: {}", locale);
                         }
                         return locale;
                     }
@@ -238,8 +238,8 @@ public class Application implements VaadinServiceInitListener {
             }
         } catch (Exception e) {
             // Log but don't fail if cookie reading fails
-            if (logger.isTraceEnabled()) {
-                logger.trace("Failed to read locale from cookie", e);
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Failed to read locale from cookie", e);
             }
         }
         return null;

@@ -92,7 +92,7 @@ class DeckTest {
         @NullAndEmptySource
         @ValueSource(strings = {"   ", "\t", "\n"})
         @DisplayName("Create should throw exception for null or empty title")
-        void createShouldThrowExceptionForNullOrEmptyTitle(String title) {
+        void createShouldThrowExceptionForNullOrEmptyTitle(final String title) {
             IllegalArgumentException ex =
                     assertThrows(IllegalArgumentException.class, () -> Deck.create(1L, title, "Description"));
             assertThat(ex).hasMessage("title is required");
@@ -150,7 +150,7 @@ class DeckTest {
         @NullAndEmptySource
         @ValueSource(strings = {"   ", "\t", "\n"})
         @DisplayName("Title setter should throw exception for null or empty title")
-        void titleSetterShouldThrowExceptionForNullOrEmptyTitle(String title) {
+        void titleSetterShouldThrowExceptionForNullOrEmptyTitle(final String title) {
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> deck.setTitle(title));
             assertThat(ex).hasMessage("title is required");
         }

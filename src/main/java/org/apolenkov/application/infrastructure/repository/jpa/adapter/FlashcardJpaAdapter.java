@@ -24,58 +24,61 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
     /**
      * Creates adapter with JPA repository dependency.
      *
-     * @param repo the Spring Data JPA repository for flashcard operations
+     * @param repoValue the Spring Data JPA repository for flashcard operations
      * @throws IllegalArgumentException if repo is null
      */
-    public FlashcardJpaAdapter(FlashcardJpaRepository repo) {
-        if (repo == null) {
+    public FlashcardJpaAdapter(final FlashcardJpaRepository repoValue) {
+        if (repoValue == null) {
             throw new IllegalArgumentException("FlashcardJpaRepository cannot be null");
         }
-        this.repo = repo;
+        this.repo = repoValue;
     }
 
     /**
      * Converts JPA entity to domain model.
      *
-     * @param e the JPA entity to convert
+     * @param entity the JPA entity to convert
      * @return the corresponding domain model
-     * @throws IllegalArgumentException if e is null
+     * @throws IllegalArgumentException if entity is null
      */
-    private static Flashcard toModel(FlashcardEntity e) {
-        if (e == null) {
+    private static Flashcard toModel(final FlashcardEntity entity) {
+        if (entity == null) {
             throw new IllegalArgumentException("FlashcardEntity cannot be null");
         }
 
-        Flashcard f = new Flashcard(e.getId(), e.getDeckId(), e.getFrontText(), e.getBackText());
-        f.setExample(e.getExample());
-        f.setImageUrl(e.getImageUrl());
-        f.setCreatedAt(e.getCreatedAt());
-        f.setUpdatedAt(e.getUpdatedAt());
-        return f;
+        final Flashcard flashcard =
+                new Flashcard(entity.getId(), entity.getDeckId(), entity.getFrontText(), entity.getBackText());
+        flashcard.setExample(entity.getExample());
+        flashcard.setImageUrl(entity.getImageUrl());
+        flashcard.setCreatedAt(entity.getCreatedAt());
+        flashcard.setUpdatedAt(entity.getUpdatedAt());
+        return flashcard;
     }
 
     /**
      * Converts domain model to JPA entity with timestamp handling.
      *
-     * @param f the domain model to convert
+     * @param flashcard the domain model to convert
      * @return the corresponding JPA entity
-     * @throws IllegalArgumentException if f is null
+     * @throws IllegalArgumentException if flashcard is null
      */
-    private static FlashcardEntity toEntity(Flashcard f) {
-        if (f == null) {
+    private static FlashcardEntity toEntity(final Flashcard flashcard) {
+        if (flashcard == null) {
             throw new IllegalArgumentException("Flashcard cannot be null");
         }
 
-        FlashcardEntity e = new FlashcardEntity();
-        e.setId(f.getId());
-        e.setDeckId(f.getDeckId());
-        e.setFrontText(f.getFrontText());
-        e.setBackText(f.getBackText());
-        e.setExample(f.getExample());
-        e.setImageUrl(f.getImageUrl());
-        e.setCreatedAt(f.getCreatedAt() != null ? f.getCreatedAt() : java.time.LocalDateTime.now());
-        e.setUpdatedAt(f.getUpdatedAt() != null ? f.getUpdatedAt() : java.time.LocalDateTime.now());
-        return e;
+        final FlashcardEntity entity = new FlashcardEntity();
+        entity.setId(flashcard.getId());
+        entity.setDeckId(flashcard.getDeckId());
+        entity.setFrontText(flashcard.getFrontText());
+        entity.setBackText(flashcard.getBackText());
+        entity.setExample(flashcard.getExample());
+        entity.setImageUrl(flashcard.getImageUrl());
+        entity.setCreatedAt(
+                flashcard.getCreatedAt() != null ? flashcard.getCreatedAt() : java.time.LocalDateTime.now());
+        entity.setUpdatedAt(
+                flashcard.getUpdatedAt() != null ? flashcard.getUpdatedAt() : java.time.LocalDateTime.now());
+        return entity;
     }
 
     /**
@@ -86,7 +89,7 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if deckId is null
      */
     @Override
-    public List<Flashcard> findByDeckId(Long deckId) {
+    public List<Flashcard> findByDeckId(final Long deckId) {
         if (deckId == null) {
             throw new IllegalArgumentException("Deck ID cannot be null");
         }
@@ -103,7 +106,7 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public Optional<Flashcard> findById(Long id) {
+    public Optional<Flashcard> findById(final Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Flashcard ID cannot be null");
         }
@@ -118,7 +121,7 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if flashcard is null
      */
     @Override
-    public Flashcard save(Flashcard flashcard) {
+    public Flashcard save(final Flashcard flashcard) {
         if (flashcard == null) {
             throw new IllegalArgumentException("Flashcard cannot be null");
         }
@@ -132,7 +135,7 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(final Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Flashcard ID cannot be null");
         }
@@ -147,7 +150,7 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if deckId is null
      */
     @Override
-    public long countByDeckId(Long deckId) {
+    public long countByDeckId(final Long deckId) {
         if (deckId == null) {
             throw new IllegalArgumentException("Deck ID cannot be null");
         }
@@ -161,7 +164,7 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if deckId is null
      */
     @Override
-    public void deleteByDeckId(Long deckId) {
+    public void deleteByDeckId(final Long deckId) {
         if (deckId == null) {
             throw new IllegalArgumentException("Deck ID cannot be null");
         }

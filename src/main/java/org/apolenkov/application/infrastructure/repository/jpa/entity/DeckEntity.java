@@ -1,6 +1,13 @@
 package org.apolenkov.application.infrastructure.repository.jpa.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -41,10 +48,10 @@ public class DeckEntity {
     /**
      * Sets the primary key identifier.
      *
-     * @param id the unique identifier for this deck
+     * @param idValue the unique identifier for this deck
      */
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(final Long idValue) {
+        this.id = idValue;
     }
 
     /**
@@ -59,10 +66,10 @@ public class DeckEntity {
     /**
      * Sets the ID of the user who owns this deck.
      *
-     * @param userId the user ID that owns this deck
+     * @param userIdValue the user ID that owns this deck
      */
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUserId(final Long userIdValue) {
+        this.userId = userIdValue;
     }
 
     /**
@@ -80,10 +87,10 @@ public class DeckEntity {
      * <p>Automatically updates the modification timestamp when the title
      * is changed to maintain accurate change tracking.</p>
      *
-     * @param title the deck title to set
+     * @param titleValue the deck title to set
      */
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTitle(final String titleValue) {
+        this.title = titleValue;
         // Automatically update modification timestamp when title changes
         this.updatedAt = LocalDateTime.now();
     }
@@ -103,10 +110,10 @@ public class DeckEntity {
      * <p>Automatically updates the modification timestamp when the description
      * is changed to maintain accurate change tracking.</p>
      *
-     * @param description the deck description to set
+     * @param descriptionValue the deck description to set
      */
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDescription(final String descriptionValue) {
+        this.description = descriptionValue;
         // Automatically update modification timestamp when description changes
         this.updatedAt = LocalDateTime.now();
     }
@@ -123,10 +130,10 @@ public class DeckEntity {
     /**
      * Sets the timestamp when this deck was created.
      *
-     * @param createdAt the creation timestamp to set
+     * @param createdAtValue the creation timestamp to set
      */
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedAt(final LocalDateTime createdAtValue) {
+        this.createdAt = createdAtValue;
     }
 
     /**
@@ -141,10 +148,10 @@ public class DeckEntity {
     /**
      * Sets the timestamp when this deck was last modified.
      *
-     * @param updatedAt the last modification timestamp to set
+     * @param updatedAtValue the last modification timestamp to set
      */
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setUpdatedAt(final LocalDateTime updatedAtValue) {
+        this.updatedAt = updatedAtValue;
     }
 
     /**
@@ -158,9 +165,13 @@ public class DeckEntity {
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();
         // Initialize creation timestamp if not set
-        if (createdAt == null) createdAt = now;
+        if (createdAt == null) {
+            createdAt = now;
+        }
         // Initialize update timestamp if not set
-        if (updatedAt == null) updatedAt = now;
+        if (updatedAt == null) {
+            updatedAt = now;
+        }
     }
 
     /**
@@ -185,9 +196,13 @@ public class DeckEntity {
      * @return true if the objects are equal, false otherwise
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         DeckEntity that = (DeckEntity) o;
         return Objects.equals(id, that.id);
     }

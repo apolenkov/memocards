@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * Learning tool with front and back content.
  */
-public class Flashcard {
+public final class Flashcard {
     private Long id;
 
     @NotNull
@@ -49,7 +49,7 @@ public class Flashcard {
      * @param backText text displayed on the back of the card
      * @throws IllegalArgumentException if deckId is null, or if frontText/backText are null or empty
      */
-    public Flashcard(Long id, Long deckId, String frontText, String backText) {
+    public Flashcard(final Long id, final Long deckId, final String frontText, final String backText) {
         this();
         this.id = id;
         setDeckId(deckId);
@@ -67,7 +67,8 @@ public class Flashcard {
      * @param example additional example or context for the flashcard
      * @throws IllegalArgumentException if deckId is null, or if frontText/backText are null or empty
      */
-    public Flashcard(Long id, Long deckId, String frontText, String backText, String example) {
+    public Flashcard(
+            final Long id, final Long deckId, final String frontText, final String backText, final String example) {
         this(id, deckId, frontText, backText);
         this.example = example;
     }
@@ -84,10 +85,10 @@ public class Flashcard {
     /**
      * Sets flashcard identifier.
      *
-     * @param id flashcard ID to set
+     * @param idValue flashcard ID to set
      */
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(final Long idValue) {
+        this.id = idValue;
     }
 
     /**
@@ -102,12 +103,14 @@ public class Flashcard {
     /**
      * Sets deck identifier.
      *
-     * @param deckId deck ID to set
+     * @param deckIdValue deck ID to set
      * @throws IllegalArgumentException if deckId is null
      */
-    public void setDeckId(Long deckId) {
-        if (deckId == null) throw new IllegalArgumentException("deckId is required");
-        this.deckId = deckId;
+    public void setDeckId(final Long deckIdValue) {
+        if (deckIdValue == null) {
+            throw new IllegalArgumentException("deckId is required");
+        }
+        this.deckId = deckIdValue;
     }
 
     /**
@@ -122,12 +125,14 @@ public class Flashcard {
     /**
      * Sets front text content.
      *
-     * @param frontText text to display on the front
+     * @param frontTextValue text to display on the front
      * @throws IllegalArgumentException if frontText is null or empty
      */
-    public void setFrontText(String frontText) {
-        String t = frontText != null ? frontText.trim() : null;
-        if (t == null || t.isEmpty()) throw new IllegalArgumentException("frontText is required");
+    public void setFrontText(final String frontTextValue) {
+        String t = frontTextValue != null ? frontTextValue.trim() : null;
+        if (t == null || t.isEmpty()) {
+            throw new IllegalArgumentException("frontText is required");
+        }
         this.frontText = t;
         this.updatedAt = LocalDateTime.now();
     }
@@ -144,12 +149,14 @@ public class Flashcard {
     /**
      * Sets back text content.
      *
-     * @param backText text to display on the back
+     * @param backTextValue text to display on the back
      * @throws IllegalArgumentException if backText is null or empty
      */
-    public void setBackText(String backText) {
-        String t = backText != null ? backText.trim() : null;
-        if (t == null || t.isEmpty()) throw new IllegalArgumentException("backText is required");
+    public void setBackText(final String backTextValue) {
+        String t = backTextValue != null ? backTextValue.trim() : null;
+        if (t == null || t.isEmpty()) {
+            throw new IllegalArgumentException("backText is required");
+        }
         this.backText = t;
         this.updatedAt = LocalDateTime.now();
     }
@@ -166,10 +173,10 @@ public class Flashcard {
     /**
      * Sets example text.
      *
-     * @param example example text to set
+     * @param exampleValue example text to set
      */
-    public void setExample(String example) {
-        this.example = example != null ? example.trim() : null;
+    public void setExample(final String exampleValue) {
+        this.example = exampleValue != null ? exampleValue.trim() : null;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -185,10 +192,10 @@ public class Flashcard {
     /**
      * Sets image URL.
      *
-     * @param imageUrl image URL to set
+     * @param imageUrlValue image URL to set
      */
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl != null ? imageUrl.trim() : null;
+    public void setImageUrl(final String imageUrlValue) {
+        this.imageUrl = imageUrlValue != null ? imageUrlValue.trim() : null;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -204,10 +211,10 @@ public class Flashcard {
     /**
      * Sets creation timestamp.
      *
-     * @param createdAt creation timestamp to set
+     * @param createdAtValue creation timestamp to set
      */
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedAt(final LocalDateTime createdAtValue) {
+        this.createdAt = createdAtValue;
     }
 
     /**
@@ -222,10 +229,10 @@ public class Flashcard {
     /**
      * Sets modification timestamp.
      *
-     * @param updatedAt modification timestamp to set
+     * @param updatedAtValue modification timestamp to set
      */
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setUpdatedAt(final LocalDateTime updatedAtValue) {
+        this.updatedAt = updatedAtValue;
     }
 
     /**
@@ -235,9 +242,13 @@ public class Flashcard {
      * @return true if objects are equal
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Flashcard flashcard = (Flashcard) o;
         return Objects.equals(id, flashcard.id);
     }

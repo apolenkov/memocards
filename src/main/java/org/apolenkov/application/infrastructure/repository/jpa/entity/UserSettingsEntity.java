@@ -53,10 +53,10 @@ public class UserSettingsEntity {
     /**
      * Sets the unique identifier for this user settings record (use with caution).
      *
-     * @param id the unique identifier to set
+     * @param idValue the unique identifier to set
      */
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(final Long idValue) {
+        this.id = idValue;
     }
 
     /**
@@ -71,14 +71,14 @@ public class UserSettingsEntity {
     /**
      * Sets the identifier of the user these settings belong to.
      *
-     * @param userId the user identifier to set, must not be null
+     * @param userIdValue the user identifier to set, must not be null
      * @throws IllegalArgumentException if userId is null
      */
-    public void setUserId(Long userId) {
-        if (userId == null) {
+    public void setUserId(final Long userIdValue) {
+        if (userIdValue == null) {
             throw new IllegalArgumentException("User ID cannot be null");
         }
-        this.userId = userId;
+        this.userId = userIdValue;
     }
 
     /**
@@ -93,9 +93,9 @@ public class UserSettingsEntity {
     /**
      * Sets the preferred locale code for the user's interface language.
      *
-     * @param preferredLocaleCode the preferred locale code to set, null/empty for no preference
+     * @param preferredLocaleCodeValue the preferred locale code to set, null/empty for no preference
      */
-    public void setPreferredLocaleCode(String preferredLocaleCode) {
-        this.preferredLocaleCode = (preferredLocaleCode != null) ? preferredLocaleCode.trim() : "";
+    public void setPreferredLocaleCode(final String preferredLocaleCodeValue) {
+        this.preferredLocaleCode = (preferredLocaleCodeValue != null) ? preferredLocaleCodeValue.trim() : "";
     }
 }

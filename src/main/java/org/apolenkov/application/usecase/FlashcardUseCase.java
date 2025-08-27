@@ -14,7 +14,7 @@ public interface FlashcardUseCase {
      * @param deckId ID of deck to retrieve flashcards for
      * @return list of all flashcards in specified deck
      */
-    List<Flashcard> getFlashcardsByDeckId(Long deckId);
+    List<Flashcard> getFlashcardsByDeckId(long deckId);
 
     /**
      * Returns flashcard by ID.
@@ -22,7 +22,7 @@ public interface FlashcardUseCase {
      * @param id unique identifier of flashcard
      * @return Optional containing flashcard if found, empty otherwise
      */
-    Optional<Flashcard> getFlashcardById(Long id);
+    Optional<Flashcard> getFlashcardById(long id);
 
     /**
      * Saves flashcard to system (creates new or updates existing).

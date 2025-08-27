@@ -1,6 +1,6 @@
 package org.apolenkov.application.model;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,15 +48,8 @@ class NewsTest {
         @Test
         @DisplayName("Constructor should handle null values")
         void constructorShouldHandleNullValues() {
-            // Given
-            Long id = null;
-            String title = null;
-            String content = null;
-            String author = null;
-            LocalDateTime createdAt = null;
-
             // When
-            News newNews = new News(id, title, content, author, createdAt);
+            News newNews = new News(null, null, null, null, null);
 
             // Then
             assertThat(newNews.getId()).isNull();
@@ -223,7 +216,7 @@ class NewsTest {
             news.setId(zeroId);
 
             // Then
-            assertThat(news.getId()).isEqualTo(zeroId);
+            assertThat(news.getId()).isZero();
         }
 
         @Test

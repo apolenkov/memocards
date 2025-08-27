@@ -2,7 +2,7 @@ package org.apolenkov.application.views.home;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -86,7 +86,7 @@ class HomePresenterTest {
         @ParameterizedTest
         @ValueSource(strings = {"", "   ", "\t", "\n"})
         @DisplayName("ListDecksForCurrentUser should handle empty, blank, and whitespace queries")
-        void listDecksForCurrentUserShouldHandleEmptyAndWhitespaceQueries(String query) {
+        void listDecksForCurrentUserShouldHandleEmptyAndWhitespaceQueries(final String query) {
             // Given
             List<Deck> expectedDecks = List.of(new Deck(1L, 1L, "Test Deck", "Test Description"));
             DeckCardViewModel expectedViewModel = new DeckCardViewModel(1L, "Test Deck", "Test Description", 5, 2, 40);

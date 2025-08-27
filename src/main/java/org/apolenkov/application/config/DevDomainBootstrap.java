@@ -28,7 +28,7 @@ class DevDomainBootstrap {
      */
     @Bean
     @Order(10)
-    CommandLineRunner ensureDomainUsers(UserRepository users, PasswordEncoder passwordEncoder) {
+    CommandLineRunner ensureDomainUsers(final UserRepository users, final PasswordEncoder passwordEncoder) {
         return args -> {
             // Get localized user names from i18n provider with fallback defaults
             final String userName = "Ivan Petrov";
@@ -62,12 +62,12 @@ class DevDomainBootstrap {
      * @param desiredRoles set of roles the user should have
      */
     private void syncUser(
-            UserRepository users,
-            PasswordEncoder passwordEncoder,
-            String email,
-            String rawPassword,
-            String fullName,
-            Set<String> desiredRoles) {
+            final UserRepository users,
+            final PasswordEncoder passwordEncoder,
+            final String email,
+            final String rawPassword,
+            final String fullName,
+            final Set<String> desiredRoles) {
         Optional<User> existingOpt = users.findByEmail(email);
         if (existingOpt.isEmpty()) {
             // Create new user with specified properties

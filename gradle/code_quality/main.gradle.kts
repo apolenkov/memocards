@@ -1,4 +1,5 @@
 // Create unified code quality task
+
 tasks.register("codeQuality") {
     description = "Runs all code quality checks (SonarLint, SpotBugs, Checkstyle)"
     group = JavaBasePlugin.VERIFICATION_GROUP

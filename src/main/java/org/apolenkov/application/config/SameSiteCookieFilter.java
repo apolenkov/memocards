@@ -1,6 +1,10 @@
 package org.apolenkov.application.config;
 
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
@@ -28,12 +32,12 @@ public class SameSiteCookieFilter implements Filter {
      * @throws ServletException if a servlet error occurs
      */
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
         HttpServletResponse httpResp = (HttpServletResponse) response;
         HttpServletResponseWrapper wrapped = new HttpServletResponseWrapper(httpResp) {
             @Override
-            public void addHeader(String name, String value) {
+            public void addHeader(final String name, final String value) {
                 // Intercept Set-Cookie headers for locale preferences
                 if ("Set-Cookie".equalsIgnoreCase(name) && value.startsWith(LocaleConstants.COOKIE_LOCALE_KEY + "=")) {
                     String v = value;

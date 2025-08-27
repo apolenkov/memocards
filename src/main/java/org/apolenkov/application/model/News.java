@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
  * <p>News items are announcements or informational content displayed to users.
  * Contains title, content, author information, and timestamps for tracking.</p>
  */
-public class News {
+public final class News {
     private Long id;
     private String title;
     private String content;
@@ -25,7 +25,12 @@ public class News {
      * @param author name of the person who wrote the news
      * @param createdAt timestamp when the news was created
      */
-    public News(Long id, String title, String content, String author, LocalDateTime createdAt) {
+    public News(
+            final Long id,
+            final String title,
+            final String content,
+            final String author,
+            final LocalDateTime createdAt) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -46,10 +51,10 @@ public class News {
     /**
      * Sets unique identifier of the news item.
      *
-     * @param id news ID to set
+     * @param idValue news ID to set
      */
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(final Long idValue) {
+        this.id = idValue;
     }
 
     /**
@@ -64,10 +69,10 @@ public class News {
     /**
      * Sets title or headline of the news item.
      *
-     * @param title news title to set
+     * @param titleValue news title to set
      */
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTitle(final String titleValue) {
+        this.title = titleValue;
     }
 
     /**
@@ -82,10 +87,10 @@ public class News {
     /**
      * Sets main content text of the news item.
      *
-     * @param content news content to set
+     * @param contentValue news content to set
      */
-    public void setContent(String content) {
-        this.content = content;
+    public void setContent(final String contentValue) {
+        this.content = contentValue;
     }
 
     /**
@@ -100,10 +105,10 @@ public class News {
     /**
      * Sets author of the news item.
      *
-     * @param author author name to set
+     * @param authorValue author name to set
      */
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setAuthor(final String authorValue) {
+        this.author = authorValue;
     }
 
     /**
@@ -118,10 +123,10 @@ public class News {
     /**
      * Sets creation timestamp of the news item.
      *
-     * @param createdAt creation timestamp to set
+     * @param createdAtValue creation timestamp to set
      */
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedAt(final LocalDateTime createdAtValue) {
+        this.createdAt = createdAtValue;
     }
 
     /**
@@ -136,9 +141,9 @@ public class News {
     /**
      * Sets modification timestamp of the news item.
      *
-     * @param updatedAt modification timestamp to set
+     * @param updatedAtValue modification timestamp to set
      */
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setUpdatedAt(final LocalDateTime updatedAtValue) {
+        this.updatedAt = updatedAtValue;
     }
 }

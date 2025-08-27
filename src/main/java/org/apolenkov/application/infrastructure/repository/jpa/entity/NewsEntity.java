@@ -1,6 +1,14 @@
 package org.apolenkov.application.infrastructure.repository.jpa.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
 /**
@@ -82,10 +90,10 @@ public class NewsEntity {
     /**
      * Sets the unique identifier for this news article.
      *
-     * @param id the unique identifier to set
+     * @param idValue the unique identifier to set
      */
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(final Long idValue) {
+        this.id = idValue;
     }
 
     /**
@@ -100,14 +108,14 @@ public class NewsEntity {
     /**
      * Sets the title of the news article with validation.
      *
-     * @param title the article title to set, must not be null or empty
+     * @param titleValue the article title to set, must not be null or empty
      * @throws IllegalArgumentException if title is null or empty
      */
-    public void setTitle(String title) {
-        if (title == null || title.trim().isEmpty()) {
+    public void setTitle(final String titleValue) {
+        if (titleValue == null || titleValue.trim().isEmpty()) {
             throw new IllegalArgumentException("Title cannot be null or empty");
         }
-        this.title = title.trim();
+        this.title = titleValue.trim();
     }
 
     /**
@@ -122,10 +130,10 @@ public class NewsEntity {
     /**
      * Sets the main content of the news article with null handling.
      *
-     * @param content the article content to set, null will be converted to empty string
+     * @param contentValue the article content to set, null will be converted to empty string
      */
-    public void setContent(String content) {
-        this.content = content != null ? content : "";
+    public void setContent(final String contentValue) {
+        this.content = contentValue != null ? contentValue : "";
     }
 
     /**
@@ -140,14 +148,14 @@ public class NewsEntity {
     /**
      * Sets the author of the news article with validation.
      *
-     * @param author the article author to set, must not be null or empty
+     * @param authorValue the article author to set, must not be null or empty
      * @throws IllegalArgumentException if author is null or empty
      */
-    public void setAuthor(String author) {
-        if (author == null || author.trim().isEmpty()) {
+    public void setAuthor(final String authorValue) {
+        if (authorValue == null || authorValue.trim().isEmpty()) {
             throw new IllegalArgumentException("Author cannot be null or empty");
         }
-        this.author = author.trim();
+        this.author = authorValue.trim();
     }
 
     /**
@@ -162,14 +170,14 @@ public class NewsEntity {
     /**
      * Sets the timestamp when the news article was created (use with caution).
      *
-     * @param createdAt the creation timestamp to set, must not be null
+     * @param createdAtValue the creation timestamp to set, must not be null
      * @throws IllegalArgumentException if createdAt is null
      */
-    public void setCreatedAt(LocalDateTime createdAt) {
-        if (createdAt == null) {
+    public void setCreatedAt(final LocalDateTime createdAtValue) {
+        if (createdAtValue == null) {
             throw new IllegalArgumentException("Created at timestamp cannot be null");
         }
-        this.createdAt = createdAt;
+        this.createdAt = createdAtValue;
     }
 
     /**
@@ -184,9 +192,9 @@ public class NewsEntity {
     /**
      * Sets the timestamp when the news article was last updated (use with caution).
      *
-     * @param updatedAt the update timestamp to set, null will be converted to current time
+     * @param updatedAtValue the update timestamp to set, null will be converted to current time
      */
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt != null ? updatedAt : LocalDateTime.now();
+    public void setUpdatedAt(final LocalDateTime updatedAtValue) {
+        this.updatedAt = updatedAtValue != null ? updatedAtValue : LocalDateTime.now();
     }
 }

@@ -182,9 +182,7 @@ extensions.configure<CheckstyleExtension> {
 apply(plugin = "com.github.spotbugs")
 tasks.withType<com.github.spotbugs.snom.SpotBugsTask>().configureEach {
     showProgress = true
-
     includeFilter = file("config/spotbugs/include.xml")
-
     reports {
         create("xml") {
             required.set(true)

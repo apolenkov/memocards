@@ -27,14 +27,14 @@ public class AuthFacade {
     /**
      * Creates AuthFacade with required dependencies.
      *
-     * @param authenticationConfiguration Spring Security authentication configuration
-     * @param jpaRegistrationService service for user registration operations
+     * @param authenticationConfigurationValue Spring Security authentication configuration
+     * @param jpaRegistrationServiceValue service for user registration operations
      */
     public AuthFacade(
-            AuthenticationConfiguration authenticationConfiguration,
-            org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationService) {
-        this.authenticationConfiguration = authenticationConfiguration;
-        this.jpaRegistrationService = jpaRegistrationService;
+            final AuthenticationConfiguration authenticationConfigurationValue,
+            final org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationServiceValue) {
+        this.authenticationConfiguration = authenticationConfigurationValue;
+        this.jpaRegistrationService = jpaRegistrationServiceValue;
     }
 
     /**
@@ -46,7 +46,7 @@ public class AuthFacade {
      * @param rawPassword plain text password to validate and hash
      * @throws IllegalArgumentException if password does not meet security requirements
      */
-    public void registerUser(String username, String rawPassword) {
+    public void registerUser(final String username, final String rawPassword) {
         if (rawPassword == null || rawPassword.length() < 8) {
             throw new IllegalArgumentException("Password must be at least 8 characters and contain letters and digits");
         }
@@ -82,7 +82,7 @@ public class AuthFacade {
      * @param rawPassword plain text password for authentication
      * @throws InvalidPasswordException if authentication fails due to invalid credentials
      */
-    public void authenticateAndPersist(String username, String rawPassword) {
+    public void authenticateAndPersist(final String username, final String rawPassword) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be null or empty");
         }
@@ -121,9 +121,9 @@ public class AuthFacade {
         /**
          * Creates InvalidPasswordException with specified cause.
          *
-         * @param cause the underlying cause of authentication failure (may be null)
+         * @param cause the underlying cause of authentication failure (maybe null)
          */
-        public InvalidPasswordException(Throwable cause) {
+        public InvalidPasswordException(final Throwable cause) {
             super(cause);
         }
     }

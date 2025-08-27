@@ -15,7 +15,7 @@ import java.util.Set;
  * <p>Encapsulates user data including authentication credentials,
  * personal information, and roles for authorization.</p>
  */
-public class User {
+public final class User {
     private Long id;
 
     @Email
@@ -47,7 +47,7 @@ public class User {
      * @param email email address of the user
      * @param name display name of the user
      */
-    public User(Long id, String email, String name) {
+    public User(final Long id, final String email, final String name) {
         this();
         this.id = id;
         setEmail(email);
@@ -68,8 +68,8 @@ public class User {
      *
      * @param id user ID to set
      */
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(final Long idValue) {
+        this.id = idValue;
     }
 
     /**
@@ -87,9 +87,11 @@ public class User {
      * @param email email address to set
      * @throws IllegalArgumentException if email is null or blank
      */
-    public void setEmail(String email) {
-        if (email == null || email.isBlank()) throw new IllegalArgumentException("email is required");
-        this.email = email.trim();
+    public void setEmail(final String emailValue) {
+        if (emailValue == null || emailValue.isBlank()) {
+            throw new IllegalArgumentException("email is required");
+        }
+        this.email = emailValue.trim();
     }
 
     /**
@@ -106,8 +108,8 @@ public class User {
      *
      * @param passwordHash password hash to set
      */
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPasswordHash(final String passwordHashValue) {
+        this.passwordHash = passwordHashValue;
     }
 
     /**
@@ -125,9 +127,11 @@ public class User {
      * @param name name to set
      * @throws IllegalArgumentException if name is null or blank
      */
-    public void setName(String name) {
-        if (name == null || name.isBlank()) throw new IllegalArgumentException("name is required");
-        this.name = name.trim();
+    public void setName(final String nameValue) {
+        if (nameValue == null || nameValue.isBlank()) {
+            throw new IllegalArgumentException("name is required");
+        }
+        this.name = nameValue.trim();
     }
 
     /**
@@ -144,8 +148,8 @@ public class User {
      *
      * @param createdAt creation date and time to set
      */
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedAt(final LocalDateTime createdAtValue) {
+        this.createdAt = createdAtValue;
     }
 
     /**
@@ -162,8 +166,8 @@ public class User {
      *
      * @param roles set of roles to assign to user
      */
-    public void setRoles(Set<String> roles) {
-        this.roles = roles != null ? new HashSet<>(roles) : new HashSet<>();
+    public void setRoles(final Set<String> rolesValue) {
+        this.roles = rolesValue != null ? new HashSet<>(rolesValue) : new HashSet<>();
     }
 
     /**
@@ -172,7 +176,7 @@ public class User {
      *
      * @param role role to add
      */
-    public void addRole(String role) {
+    public void addRole(final String role) {
         if (role != null && !role.isBlank()) {
             this.roles.add(role.startsWith("ROLE_") ? role : "ROLE_" + role);
         }
@@ -186,9 +190,13 @@ public class User {
      * @return true if objects are equal
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         User user = (User) o;
         return Objects.equals(id, user.id);
     }
