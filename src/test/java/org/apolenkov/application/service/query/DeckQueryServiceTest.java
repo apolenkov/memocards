@@ -161,7 +161,7 @@ class DeckQueryServiceTest {
 
             // Then
             assertThat(result).hasSize(3).satisfies(decks -> {
-                assertThat(decks.get(0).getTitle()).isEqualTo("A Deck");
+                assertThat(decks.getFirst().getTitle()).isEqualTo("A Deck");
                 assertThat(decks.get(1).getTitle()).isEqualTo("B Deck");
                 assertThat(decks.get(2).getTitle()).isEqualTo("C Deck");
             });

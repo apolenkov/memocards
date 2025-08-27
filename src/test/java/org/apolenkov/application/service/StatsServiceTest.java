@@ -138,7 +138,7 @@ class StatsServiceTest {
 
             // Then
             assertThat(result).hasSize(3);
-            assertThat(result.get(0).date()).isEqualTo(LocalDate.of(2024, 1, 1));
+            assertThat(result.getFirst().date()).isEqualTo(LocalDate.of(2024, 1, 1));
             assertThat(result.get(1).date()).isEqualTo(LocalDate.of(2024, 1, 2));
             assertThat(result.get(2).date()).isEqualTo(LocalDate.of(2024, 1, 3));
         }

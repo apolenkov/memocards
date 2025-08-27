@@ -134,7 +134,6 @@ class StatsJpaAdapterTest {
             int hard = 1;
             long sessionDurationMs = 60000L;
             long totalAnswerDelayMs = 5000L;
-            Collection<Long> knownCardIdsDelta = null;
 
             when(statsRepo.accumulate(
                             anyLong(),
@@ -158,7 +157,8 @@ class StatsJpaAdapterTest {
                     hard,
                     sessionDurationMs,
                     totalAnswerDelayMs,
-                    knownCardIdsDelta);
+                    null
+            );
 
             // Then
             verify(statsRepo)
@@ -172,7 +172,6 @@ class StatsJpaAdapterTest {
             // Given
             long deckId = 1L;
             LocalDate date = LocalDate.now();
-            Collection<Long> knownCardIdsDelta = null;
 
             when(statsRepo.accumulate(
                             anyLong(),
@@ -186,7 +185,7 @@ class StatsJpaAdapterTest {
                     .thenReturn(1);
 
             // When
-            adapter.appendSession(deckId, date, 10, 8, 2, 1, 60000L, 5000L, knownCardIdsDelta);
+            adapter.appendSession(deckId, date, 10, 8, 2, 1, 60000L, 5000L, null);
 
             // Then
             verify(statsRepo)
@@ -249,7 +248,7 @@ class StatsJpaAdapterTest {
             LocalDate date2 = LocalDate.now();
 
             DeckDailyStatsEntity entity1 = createDeckDailyStatsEntity(deckId, date1, 2, 20, 16, 2, 1, 120000L, 10000L);
-            DeckDailyStatsEntity entity2 = createDeckDailyStatsEntity(deckId, date2, 1, 10, 8, 1, 1, 60000L, 5000L);
+            DeckDailyStatsEntity entity2 = createDeckDailyStatsEntity(deckId, date2, 1, 10, 8, 1, 2, 60000L, 5000L);
 
             when(statsRepo.findById_DeckIdOrderById_DateAsc(deckId)).thenReturn(List.of(entity1, entity2));
 
@@ -258,9 +257,9 @@ class StatsJpaAdapterTest {
 
             // Then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).date()).isEqualTo(date1);
-            assertThat(result.get(0).sessions()).isEqualTo(2);
-            assertThat(result.get(0).viewed()).isEqualTo(20);
+            assertThat(result.getFirst().date()).isEqualTo(date1);
+            assertThat(result.getFirst().sessions()).isEqualTo(2);
+            assertThat(result.getFirst().viewed()).isEqualTo(20);
             assertThat(result.get(1).date()).isEqualTo(date2);
             assertThat(result.get(1).sessions()).isEqualTo(1);
             verify(statsRepo).findById_DeckIdOrderById_DateAsc(deckId);
@@ -354,7 +353,7 @@ class StatsJpaAdapterTest {
 
             // Then
             verify(knownRepo).findKnownCardIds(deckId);
-            // Should not add or delete since card already exists and we want it to be known
+            // Should not add or delete since card already exists, and we want it to be known
             verify(knownRepo, never()).save(any(KnownCardEntity.class));
             verify(knownRepo, never()).deleteKnown(anyLong(), anyLong());
         }
@@ -423,11 +422,10 @@ class StatsJpaAdapterTest {
         @DisplayName("GetAggregatesForDecks should return empty map when deckIds is null")
         void getAggregatesForDecksShouldReturnEmptyMapWhenDeckIdsIsNull() {
             // Given
-            Collection<Long> deckIds = null;
             LocalDate today = LocalDate.now();
 
             // When
-            Map<Long, StatsRepository.DeckAggregate> result = adapter.getAggregatesForDecks(deckIds, today);
+            Map<Long, StatsRepository.DeckAggregate> result = adapter.getAggregatesForDecks(null, today);
 
             // Then
             assertThat(result).isEmpty();
@@ -541,6 +539,7 @@ class StatsJpaAdapterTest {
         }
     }
 
+    @SuppressWarnings("ParameterNumber")
     private DeckDailyStatsEntity createDeckDailyStatsEntity(
             long deckId,
             LocalDate date,

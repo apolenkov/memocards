@@ -81,8 +81,8 @@ class FlashcardJpaAdapterTest {
 
             // Then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getFrontText()).isEqualTo("Front 1");
-            assertThat(result.get(0).getBackText()).isEqualTo("Back 1");
+            assertThat(result.getFirst().getFrontText()).isEqualTo("Front 1");
+            assertThat(result.getFirst().getBackText()).isEqualTo("Back 1");
             assertThat(result.get(1).getFrontText()).isEqualTo("Front 2");
             assertThat(result.get(1).getBackText()).isEqualTo("Back 2");
             verify(repo).findByDeckId(deckId);

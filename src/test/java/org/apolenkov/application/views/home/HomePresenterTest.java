@@ -54,7 +54,7 @@ class HomePresenterTest {
 
             when(deckQueryService.listDecksForCurrentUser(query)).thenReturn(expectedDecks);
             when(deckQueryService.toViewModel(any(Deck.class)))
-                    .thenReturn(expectedViewModels.get(0), expectedViewModels.get(1));
+                    .thenReturn(expectedViewModels.getFirst(), expectedViewModels.get(1));
 
             // When
             List<DeckCardViewModel> result = homePresenter.listDecksForCurrentUser(query);
@@ -159,7 +159,7 @@ class HomePresenterTest {
                     new DeckCardViewModel(3L, "Third Deck", "Third Description", 12, 6, 50));
 
             when(deckQueryService.listDecksForCurrentUser(query)).thenReturn(expectedDecks);
-            when(deckQueryService.toViewModel(expectedDecks.get(0))).thenReturn(expectedViewModels.get(0));
+            when(deckQueryService.toViewModel(expectedDecks.getFirst())).thenReturn(expectedViewModels.getFirst());
             when(deckQueryService.toViewModel(expectedDecks.get(1))).thenReturn(expectedViewModels.get(1));
             when(deckQueryService.toViewModel(expectedDecks.get(2))).thenReturn(expectedViewModels.get(2));
 
@@ -245,7 +245,7 @@ class HomePresenterTest {
                     new DeckCardViewModel(3L, "Third", "Third Description", 12, 6, 50));
 
             when(deckQueryService.listDecksForCurrentUser(query)).thenReturn(expectedDecks);
-            when(deckQueryService.toViewModel(expectedDecks.get(0))).thenReturn(expectedViewModels.get(0));
+            when(deckQueryService.toViewModel(expectedDecks.getFirst())).thenReturn(expectedViewModels.getFirst());
             when(deckQueryService.toViewModel(expectedDecks.get(1))).thenReturn(expectedViewModels.get(1));
             when(deckQueryService.toViewModel(expectedDecks.get(2))).thenReturn(expectedViewModels.get(2));
 
@@ -254,7 +254,7 @@ class HomePresenterTest {
 
             // Then - verify order is maintained from service to presentation layer
             assertThat(result).hasSize(3).satisfies(list -> {
-                assertThat(list.get(0).id()).isEqualTo(1L);
+                assertThat(list.getFirst().id()).isEqualTo(1L);
                 assertThat(list.get(1).id()).isEqualTo(2L);
                 assertThat(list.get(2).id()).isEqualTo(3L);
             });

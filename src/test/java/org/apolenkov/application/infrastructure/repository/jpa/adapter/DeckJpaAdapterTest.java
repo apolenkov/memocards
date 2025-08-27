@@ -52,8 +52,8 @@ class DeckJpaAdapterTest {
 
             // Then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getId()).isEqualTo(1L);
-            assertThat(result.get(0).getTitle()).isEqualTo("Deck 1");
+            assertThat(result.getFirst().getId()).isEqualTo(1L);
+            assertThat(result.getFirst().getTitle()).isEqualTo("Deck 1");
             assertThat(result.get(1).getId()).isEqualTo(2L);
             assertThat(result.get(1).getTitle()).isEqualTo("Deck 2");
             verify(deckJpaRepository).findAll();
@@ -94,7 +94,7 @@ class DeckJpaAdapterTest {
 
             // Then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getUserId()).isEqualTo(userId);
+            assertThat(result.getFirst().getUserId()).isEqualTo(userId);
             assertThat(result.get(1).getUserId()).isEqualTo(userId);
             verify(deckJpaRepository).findByUserId(userId);
         }
