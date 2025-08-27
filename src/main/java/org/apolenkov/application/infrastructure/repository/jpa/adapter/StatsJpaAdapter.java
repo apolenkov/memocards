@@ -1,9 +1,9 @@
 package org.apolenkov.application.infrastructure.repository.jpa.adapter;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.infrastructure.repository.jpa.entity.DeckDailyStatsEntity;
 import org.apolenkov.application.infrastructure.repository.jpa.entity.KnownCardEntity;
@@ -14,10 +14,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * JPA adapter for statistics and progress tracking operations.
- *
- * <p>Manages practice session statistics, known card tracking,
- * and deck progress aggregation with transactional support.</p>
+ * JPA implementation of StatsRepository.
+ * Handles persistence and retrieval of statistics data using JPA entities.
  */
 @Repository
 @Profile({"dev", "prod"})
@@ -27,71 +25,85 @@ public class StatsJpaAdapter implements StatsRepository {
     private final KnownCardJpaRepository knownRepo;
 
     /**
-     * Creates adapter with JPA repository dependencies.
+     * Constructs StatsJpaAdapter with required dependencies.
      *
-     * @param statsRepository repository for daily statistics persistence
-     * @param knownRepository repository for known card tracking
+     * @param statsRepository repository for daily statistics
+     * @param knownCardRepository repository for known card tracking
      */
-    public StatsJpaAdapter(final StatsJpaRepository statsRepository, final KnownCardJpaRepository knownRepository) {
+    public StatsJpaAdapter(final StatsJpaRepository statsRepository, final KnownCardJpaRepository knownCardRepository) {
         this.statsRepo = statsRepository;
-        this.knownRepo = knownRepository;
+        this.knownRepo = knownCardRepository;
     }
 
     /**
      * Records a practice session and updates deck statistics.
      *
-     * @param deckId the ID of the deck being practiced
+     * @param sessionStats session statistics data
      * @param date the date of the practice session
-     * @param viewed the number of cards viewed in this session
-     * @param correct the number of cards answered correctly
-     * @param repeat the number of cards marked for repetition
-     * @param hard the number of cards marked as difficult
-     * @param sessionDurationMs the total duration of the practice session in milliseconds
-     * @param totalAnswerDelayMs the total time spent thinking before answering in milliseconds
-     * @param knownCardIdsDelta the collection of card IDs whose knowledge status changed
      */
     @Override
     @Transactional
-    @SuppressWarnings("ParameterNumber")
-    public void appendSession(
-            final long deckId,
-            final LocalDate date,
-            final int viewed,
-            final int correct,
-            final int repeat,
-            final int hard,
-            final long sessionDurationMs,
-            final long totalAnswerDelayMs,
-            final Collection<Long> knownCardIdsDelta) {
+    public void appendSession(final SessionStatsDto sessionStats, final LocalDate date) {
         // Try to accumulate session data to existing daily record
-        int updated = statsRepo.accumulate(
-                deckId, date, viewed, correct, repeat, hard, sessionDurationMs, totalAnswerDelayMs);
+        SessionStatsDto accumulateStats = SessionStatsDto.builder()
+                .deckId(sessionStats.deckId())
+                .viewed(sessionStats.viewed())
+                .correct(sessionStats.correct())
+                .repeat(sessionStats.repeat())
+                .hard(sessionStats.hard())
+                .sessionDurationMs(sessionStats.sessionDurationMs())
+                .totalAnswerDelayMs(sessionStats.totalAnswerDelayMs())
+                .knownCardIdsDelta(null)
+                .build();
+        int updated = statsRepo.accumulate(accumulateStats, date);
 
         // If no existing record was updated, create a new daily stats entry
         if (updated == 0) {
-            DeckDailyStatsEntity e = new DeckDailyStatsEntity();
-            DeckDailyStatsEntity.Id id = new DeckDailyStatsEntity.Id(deckId, date);
-            e.setId(id);
-            e.setSessions(1);
-            e.setViewed(viewed);
-            e.setCorrect(correct);
-            e.setRepeatCount(repeat);
-            e.setHard(hard);
-            e.setTotalDurationMs(sessionDurationMs);
-            e.setTotalAnswerDelayMs(totalAnswerDelayMs);
-            statsRepo.save(e);
+            DeckDailyStatsEntity entry = createNewDailyStatsEntry(sessionStats, date);
+            statsRepo.save(entry);
         }
 
         // Process any cards that changed knowledge status during this session
-        if (knownCardIdsDelta != null && !knownCardIdsDelta.isEmpty()) {
-            Set<Long> existing = knownRepo.findKnownCardIds(deckId);
-            for (Long cardId : knownCardIdsDelta) {
+        processKnownCardChanges(sessionStats);
+    }
+
+    /**
+     * Creates a new daily statistics entry for the session.
+     *
+     * @param sessionStats session statistics data
+     * @param date date for the statistics
+     * @return new DeckDailyStatsEntity instance
+     */
+    private DeckDailyStatsEntity createNewDailyStatsEntry(final SessionStatsDto sessionStats, final LocalDate date) {
+        DeckDailyStatsEntity entry = new DeckDailyStatsEntity();
+        DeckDailyStatsEntity.Id id = new DeckDailyStatsEntity.Id(sessionStats.deckId(), date);
+        entry.setId(id);
+        entry.setSessions(1);
+        entry.setViewed(sessionStats.viewed());
+        entry.setCorrect(sessionStats.correct());
+        entry.setRepeatCount(sessionStats.repeat());
+        entry.setHard(sessionStats.hard());
+        entry.setTotalDurationMs(sessionStats.sessionDurationMs());
+        entry.setTotalAnswerDelayMs(sessionStats.totalAnswerDelayMs());
+        return entry;
+    }
+
+    /**
+     * Processes changes in card knowledge status during the session.
+     *
+     * @param sessionStats session statistics data
+     */
+    private void processKnownCardChanges(final SessionStatsDto sessionStats) {
+        if (sessionStats.knownCardIdsDelta() != null
+                && !sessionStats.knownCardIdsDelta().isEmpty()) {
+            Set<Long> existing = knownRepo.findKnownCardIds(sessionStats.deckId());
+            for (Long cardId : sessionStats.knownCardIdsDelta()) {
                 // Only add cards that aren't already marked as known
                 if (!existing.contains(cardId)) {
-                    KnownCardEntity k = new KnownCardEntity();
-                    k.setDeckId(deckId);
-                    k.setCardId(cardId);
-                    knownRepo.save(k);
+                    KnownCardEntity knownCard = new KnownCardEntity();
+                    knownCard.setDeckId(sessionStats.deckId());
+                    knownCard.setCardId(cardId);
+                    knownRepo.save(knownCard);
                 }
             }
         }
@@ -107,15 +119,7 @@ public class StatsJpaAdapter implements StatsRepository {
     @Transactional(readOnly = true)
     public List<DailyStatsRecord> getDailyStats(final long deckId) {
         return statsRepo.findByDeckIdOrderByDateAsc(deckId).stream()
-                .map(e -> new DailyStatsRecord(
-                        e.getId().getDate(),
-                        e.getSessions(),
-                        e.getViewed(),
-                        e.getCorrect(),
-                        e.getRepeatCount(),
-                        e.getHard(),
-                        e.getTotalDurationMs(),
-                        e.getTotalAnswerDelayMs()))
+                .map(this::mapToDailyStatsRecord)
                 .toList();
     }
 
@@ -142,17 +146,16 @@ public class StatsJpaAdapter implements StatsRepository {
     @Transactional
     public void setCardKnown(final long deckId, final long cardId, final boolean known) {
         if (known) {
-            // Check if card is already marked as known to avoid duplicates
+            // Check if card is already marked as known
             Set<Long> existing = knownRepo.findKnownCardIds(deckId);
             if (!existing.contains(cardId)) {
-                // Create new known card entry
-                KnownCardEntity k = new KnownCardEntity();
-                k.setDeckId(deckId);
-                k.setCardId(cardId);
-                knownRepo.save(k);
+                KnownCardEntity knownCard = new KnownCardEntity();
+                knownCard.setDeckId(deckId);
+                knownCard.setCardId(cardId);
+                knownRepo.save(knownCard);
             }
         } else {
-            // Remove card from known cards list
+            // Remove card from known list
             knownRepo.deleteKnown(deckId, cardId);
         }
     }
@@ -238,5 +241,23 @@ public class StatsJpaAdapter implements StatsRepository {
             result.putIfAbsent(id, new DeckAggregate(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
         }
         return result;
+    }
+
+    /**
+     * Maps JPA entity to domain record.
+     *
+     * @param entity JPA entity
+     * @return domain record
+     */
+    private DailyStatsRecord mapToDailyStatsRecord(final DeckDailyStatsEntity entity) {
+        return new DailyStatsRecord(
+                entity.getId().getDate(),
+                entity.getSessions(),
+                entity.getViewed(),
+                entity.getCorrect(),
+                entity.getRepeatCount(),
+                entity.getHard(),
+                entity.getTotalDurationMs(),
+                entity.getTotalAnswerDelayMs());
     }
 }

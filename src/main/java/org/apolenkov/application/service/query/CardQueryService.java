@@ -6,6 +6,7 @@ import java.util.Set;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ public class CardQueryService {
      * @param flashcardUseCaseValue service for flashcard operations
      * @param statsServiceValue service for statistics and progress tracking
      */
+    @Autowired
     public CardQueryService(final FlashcardUseCase flashcardUseCaseValue, final StatsService statsServiceValue) {
         this.flashcardUseCase = flashcardUseCaseValue;
         this.statsService = statsServiceValue;
@@ -52,7 +54,6 @@ public class CardQueryService {
      * @return a filtered list of flashcards matching the criteria
      */
     @Transactional(readOnly = true)
-    @SuppressWarnings("java:S6809")
     public List<Flashcard> listFilteredFlashcards(final long deckId, final String query, final boolean hideKnown) {
         List<Flashcard> all = flashcardUseCase.getFlashcardsByDeckId(deckId);
         Set<Long> known = statsService.getKnownCardIds(deckId);
@@ -68,8 +69,7 @@ public class CardQueryService {
      * @param hideKnown whether to exclude known cards from results
      * @return a filtered list of flashcards matching the criteria
      */
-    @Transactional(readOnly = true)
-    public List<Flashcard> filterFlashcards(
+    private List<Flashcard> filterFlashcards(
             final List<Flashcard> base, final String query, final Set<Long> knownIds, final boolean hideKnown) {
         // Normalize query: convert to lowercase, trim whitespace, handle null
         String q = query != null ? query.toLowerCase(Locale.ROOT).trim() : "";

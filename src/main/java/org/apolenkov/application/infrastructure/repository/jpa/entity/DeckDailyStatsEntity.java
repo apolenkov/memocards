@@ -31,150 +31,11 @@ import java.time.LocalDate;
 public class DeckDailyStatsEntity {
 
     /**
-     * Composite primary key for daily statistics records with deck identifier and date.
-     * Enables efficient daily aggregation and time-series analysis.
-     */
-    @Embeddable
-    public static class Id implements Serializable {
-
-        /**
-         * Identifier of the deck these statistics belong to.
-         *
-         * <p>
-         * This field establishes the relationship between daily statistics
-         * and a specific deck. It enables aggregation and analysis of
-         * performance data for individual learning collections.
-         * </p>
-         *
-         *  Database Type: BIGINT, Constraints: Non-nullable, foreign key reference,
-         * Relationship: Many-to-one with DeckEntity, Business Rule: Must reference an existing deck
-         */
-        @NotNull
-        private Long deckId;
-
-        /**
-         * Calendar date for these daily statistics.
-         *
-         * <p>
-         * This field represents the specific calendar day for which
-         * the statistics were collected. It enables daily aggregation
-         * and time-series analysis of deck performance.
-         * </p>
-         *
-         * Database Type: DATE, Constraints: Non-nullable,
-         * Format: ISO 8601 date format (YYYY-MM-DD), Purpose: Daily granularity for statistics
-         */
-        @NotNull
-        private LocalDate date;
-
-        /**
-         * Default constructor required by JPA.
-         *
-         * <p>
-         * This constructor is required by the JPA specification for
-         * embeddable classes. It should not be used directly in application
-         * code.
-         * </p>
-         */
-        public Id() {}
-
-        /**
-         * Constructs a composite key with deck identifier and date.
-         *
-         * @param deckIdValue the deck identifier, must not be null
-         * @param dateValue the calendar date, must not be null
-         * @throws IllegalArgumentException if either parameter is null
-         */
-        public Id(final Long deckIdValue, final LocalDate dateValue) {
-            if (deckIdValue == null) {
-                throw new IllegalArgumentException("Deck ID cannot be null");
-            }
-            if (dateValue == null) {
-                throw new IllegalArgumentException("Date cannot be null");
-            }
-            this.deckId = deckIdValue;
-            this.date = dateValue;
-        }
-
-        /**
-         * Gets the deck identifier for this composite key.
-         *
-         * @return the deck identifier, never null
-         */
-        public Long getDeckId() {
-            return deckId;
-        }
-
-        /**
-         * Sets the deck identifier for this composite key (use with caution).
-         *
-         * @param deckIdValue the deck identifier to set, must not be null
-         * @throws IllegalArgumentException if deckId is null
-         */
-        public void setDeckId(final Long deckIdValue) {
-            if (deckIdValue == null) {
-                throw new IllegalArgumentException("Deck ID cannot be null");
-            }
-            this.deckId = deckIdValue;
-        }
-
-        /**
-         * Gets the calendar date for this composite key.
-         *
-         * @return the calendar date, never null
-         */
-        public LocalDate getDate() {
-            return date;
-        }
-
-        /**
-         * Sets the calendar date for this composite key (use with caution).
-         *
-         * @param dateValue the calendar date to set, must not be null
-         * @throws IllegalArgumentException if date is null
-         */
-        public void setDate(final LocalDate dateValue) {
-            if (dateValue == null) {
-                throw new IllegalArgumentException("Date cannot be null");
-            }
-            this.date = dateValue;
-        }
-
-        /**
-         * Generates a hash code for this composite key.
-         *
-         * @return a hash code value for this composite key
-         */
-        @Override
-        public int hashCode() {
-            return java.util.Objects.hash(deckId, date);
-        }
-
-        /**
-         * Compares this composite key with another object for equality.
-         *
-         * @param o the object to compare with
-         * @return true if the objects are equal, false otherwise
-         */
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof Id other)) {
-                return false;
-            }
-            return java.util.Objects.equals(deckId, other.deckId) && java.util.Objects.equals(date, other.date);
-        }
-    }
-
-    /**
      * Composite primary key for this daily statistics record.
      * Ensures one record per deck per calendar day.
      */
     @EmbeddedId
     private Id id;
-
     /**
      * Number of practice sessions for this deck on the specified date.
      * Tracks user engagement and learning frequency patterns.
@@ -183,7 +44,6 @@ public class DeckDailyStatsEntity {
     @Min(0)
     @Column(nullable = false)
     private int sessions;
-
     /**
      * Number of cards viewed during practice sessions on the specified date.
      * Counts total cards presented to user for learning activity and content coverage measurement.
@@ -192,7 +52,6 @@ public class DeckDailyStatsEntity {
     @Min(0)
     @Column(nullable = false)
     private int viewed;
-
     /**
      * Number of correct answers given during practice sessions on the specified date.
      * Key performance indicator for learning effectiveness and knowledge retention.
@@ -201,7 +60,6 @@ public class DeckDailyStatsEntity {
     @Min(0)
     @Column(nullable = false)
     private int correct;
-
     /**
      * Number of times cards were repeated during practice sessions on the specified date.
      * Tracks repetition frequency for spaced repetition algorithms and learning patterns.
@@ -210,7 +68,6 @@ public class DeckDailyStatsEntity {
     @Min(0)
     @Column(nullable = false)
     private int repeatCount;
-
     /**
      * Number of cards marked as "hard" during practice sessions on the specified date.
      * Tracks user difficulty ratings for content optimization and attention areas.
@@ -219,7 +76,6 @@ public class DeckDailyStatsEntity {
     @Min(0)
     @Column(nullable = false)
     private int hard;
-
     /**
      * Total duration of all practice sessions in milliseconds for the specified date.
      * Measures time spent practicing for engagement and learning intensity insights.
@@ -228,7 +84,6 @@ public class DeckDailyStatsEntity {
     @Min(0)
     @Column(nullable = false)
     private long totalDurationMs;
-
     /**
      * Total delay in milliseconds before answering cards during practice sessions.
      * Measures response time patterns for user confidence and content difficulty insights.
@@ -237,7 +92,6 @@ public class DeckDailyStatsEntity {
     @Min(0)
     @Column(nullable = false)
     private long totalAnswerDelayMs;
-
     /**
      * Version number for optimistic locking.
      * Implements optimistic locking to prevent concurrent modification conflicts.
@@ -245,14 +99,12 @@ public class DeckDailyStatsEntity {
     @Version
     @Column(name = "version")
     private Long version;
-
     /**
      * Timestamp when this statistics record was created.
      * Records when daily statistics record was first created for audit trail and data lineage.
      */
     @Column(name = "created_at", nullable = false, updatable = false)
     private java.time.LocalDateTime createdAt;
-
     /**
      * Timestamp when this statistics record was last updated.
      * Records when daily statistics record was last modified for audit trail and change tracking.
@@ -279,7 +131,6 @@ public class DeckDailyStatsEntity {
         updatedAt = java.time.LocalDateTime.now();
     }
 
-    // Getters and setters
     /**
      * Gets the composite primary key for this daily statistics record.
      *
@@ -288,6 +139,8 @@ public class DeckDailyStatsEntity {
     public Id getId() {
         return id;
     }
+
+    // Getters and setters
 
     /**
      * Sets the composite primary key for this daily statistics record.
@@ -461,7 +314,6 @@ public class DeckDailyStatsEntity {
      *
      * @return the version number, maybe null for new entities
      */
-    @SuppressWarnings("unused") // IDE Community problem
     public Long getVersion() {
         return version;
     }
@@ -471,7 +323,6 @@ public class DeckDailyStatsEntity {
      *
      * @param versionValue the version number to set
      */
-    @SuppressWarnings("unused") // IDE Community problem
     public void setVersion(final Long versionValue) {
         this.version = versionValue;
     }
@@ -526,5 +377,143 @@ public class DeckDailyStatsEntity {
             throw new IllegalArgumentException("Updated at timestamp cannot be null");
         }
         this.updatedAt = updatedAtValue;
+    }
+
+    /**
+     * Composite primary key for daily statistics records with deck identifier and date.
+     * Enables efficient daily aggregation and time-series analysis.
+     */
+    @Embeddable
+    public static class Id implements Serializable {
+
+        /**
+         * Identifier of the deck these statistics belong to.
+         *
+         * <p>
+         * This field establishes the relationship between daily statistics
+         * and a specific deck. It enables aggregation and analysis of
+         * performance data for individual learning collections.
+         * </p>
+         *
+         *  Database Type: BIGINT, Constraints: Non-nullable, foreign key reference,
+         * Relationship: Many-to-one with DeckEntity, Business Rule: Must reference an existing deck
+         */
+        @NotNull
+        private Long deckId;
+
+        /**
+         * Calendar date for these daily statistics.
+         *
+         * <p>
+         * This field represents the specific calendar day for which
+         * the statistics were collected. It enables daily aggregation
+         * and time-series analysis of deck performance.
+         * </p>
+         *
+         * Database Type: DATE, Constraints: Non-nullable,
+         * Format: ISO 8601 date format (YYYY-MM-DD), Purpose: Daily granularity for statistics
+         */
+        @NotNull
+        private LocalDate date;
+
+        /**
+         * Default constructor required by JPA.
+         *
+         * <p>
+         * This constructor is required by the JPA specification for
+         * embeddable classes. It should not be used directly in application
+         * code.
+         * </p>
+         */
+        public Id() {}
+
+        /**
+         * Constructs a composite key with deck identifier and date.
+         *
+         * @param deckIdValue the deck identifier, must not be null
+         * @param dateValue the calendar date, must not be null
+         * @throws IllegalArgumentException if either parameter is null
+         */
+        public Id(final Long deckIdValue, final LocalDate dateValue) {
+            if (deckIdValue == null) {
+                throw new IllegalArgumentException("Deck ID cannot be null");
+            }
+            if (dateValue == null) {
+                throw new IllegalArgumentException("Date cannot be null");
+            }
+            this.deckId = deckIdValue;
+            this.date = dateValue;
+        }
+
+        /**
+         * Gets the deck identifier for this composite key.
+         *
+         * @return the deck identifier, never null
+         */
+        public Long getDeckId() {
+            return deckId;
+        }
+
+        /**
+         * Sets the deck identifier for this composite key (use with caution).
+         *
+         * @param deckIdValue the deck identifier to set, must not be null
+         * @throws IllegalArgumentException if deckId is null
+         */
+        public void setDeckId(final Long deckIdValue) {
+            if (deckIdValue == null) {
+                throw new IllegalArgumentException("Deck ID cannot be null");
+            }
+            this.deckId = deckIdValue;
+        }
+
+        /**
+         * Gets the calendar date for this composite key.
+         *
+         * @return the calendar date, never null
+         */
+        public LocalDate getDate() {
+            return date;
+        }
+
+        /**
+         * Sets the calendar date for this composite key (use with caution).
+         *
+         * @param dateValue the calendar date to set, must not be null
+         * @throws IllegalArgumentException if date is null
+         */
+        public void setDate(final LocalDate dateValue) {
+            if (dateValue == null) {
+                throw new IllegalArgumentException("Date cannot be null");
+            }
+            this.date = dateValue;
+        }
+
+        /**
+         * Generates a hash code for this composite key.
+         *
+         * @return a hash code value for this composite key
+         */
+        @Override
+        public int hashCode() {
+            return java.util.Objects.hash(deckId, date);
+        }
+
+        /**
+         * Compares this composite key with another object for equality.
+         *
+         * @param o the object to compare with
+         * @return true if the objects are equal, false otherwise
+         */
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof Id other)) {
+                return false;
+            }
+            return java.util.Objects.equals(deckId, other.deckId) && java.util.Objects.equals(date, other.date);
+        }
     }
 }

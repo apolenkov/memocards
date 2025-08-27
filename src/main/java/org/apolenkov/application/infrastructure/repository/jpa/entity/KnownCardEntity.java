@@ -87,7 +87,6 @@ public class KnownCardEntity {
      *
      * @return the flashcard ID that has been learned
      */
-    @SuppressWarnings("unused") // IDE Community problem
     public Long getCardId() {
         return cardId;
     }

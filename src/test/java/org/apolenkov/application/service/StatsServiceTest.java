@@ -2,6 +2,9 @@ package org.apolenkov.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -13,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -54,26 +58,35 @@ class StatsServiceTest {
             Collection<Long> knownCardIdsDelta = Set.of(1L, 2L);
 
             // When
-            statsService.recordSession(
-                    deckId, viewed, correct, repeat, hard, sessionDuration, totalAnswerDelayMs, knownCardIdsDelta);
+            SessionStatsDto sessionData = SessionStatsDto.builder()
+                    .deckId(deckId)
+                    .viewed(viewed)
+                    .correct(correct)
+                    .repeat(repeat)
+                    .hard(hard)
+                    .sessionDurationMs(sessionDuration.toMillis())
+                    .totalAnswerDelayMs(totalAnswerDelayMs)
+                    .knownCardIdsDelta(knownCardIdsDelta)
+                    .build();
+            statsService.recordSession(sessionData);
 
             // Then
             verify(statsRepository)
                     .appendSession(
-                            deckId,
-                            LocalDate.now(),
-                            viewed,
-                            correct,
-                            repeat,
-                            hard,
-                            sessionDuration.toMillis(),
-                            totalAnswerDelayMs,
-                            knownCardIdsDelta);
+                            argThat(sessionStats -> sessionStats.deckId() == deckId
+                                    && sessionStats.viewed() == viewed
+                                    && sessionStats.correct() == correct
+                                    && sessionStats.repeat() == repeat
+                                    && sessionStats.hard() == hard
+                                    && sessionStats.sessionDurationMs() == sessionDuration.toMillis()
+                                    && sessionStats.totalAnswerDelayMs() == totalAnswerDelayMs
+                                    && sessionStats.knownCardIdsDelta().equals(knownCardIdsDelta)),
+                            eq(LocalDate.now()));
         }
 
         @Test
-        @DisplayName("RecordSession should not call repository when viewed <= 0")
-        void recordSessionShouldNotCallRepositoryWhenViewedLessThanOrEqualToZero() {
+        @DisplayName("RecordSession should throw exception for zero viewed value")
+        void recordSessionShouldThrowExceptionForZeroViewedValue() {
             // Given
             long deckId = 1L;
             int viewed = 0;
@@ -84,17 +97,24 @@ class StatsServiceTest {
             long totalAnswerDelayMs = 0L;
             Collection<Long> knownCardIdsDelta = Set.of();
 
-            // When
-            statsService.recordSession(
-                    deckId, viewed, correct, repeat, hard, sessionDuration, totalAnswerDelayMs, knownCardIdsDelta);
-
-            // Then
-            verifyNoInteractions(statsRepository);
+            // When & Then
+            SessionStatsDto.Builder builder = SessionStatsDto.builder()
+                    .deckId(deckId)
+                    .viewed(viewed)
+                    .correct(correct)
+                    .repeat(repeat)
+                    .hard(hard)
+                    .sessionDurationMs(sessionDuration.toMillis())
+                    .totalAnswerDelayMs(totalAnswerDelayMs)
+                    .knownCardIdsDelta(knownCardIdsDelta);
+            assertThatThrownBy(builder::build)
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Viewed count must be positive");
         }
 
         @Test
-        @DisplayName("RecordSession should handle negative viewed value")
-        void recordSessionShouldHandleNegativeViewedValue() {
+        @DisplayName("RecordSession should throw exception for negative viewed value")
+        void recordSessionShouldThrowExceptionForNegativeViewedValue() {
             // Given
             long deckId = 1L;
             int viewed = -5;
@@ -105,12 +125,19 @@ class StatsServiceTest {
             long totalAnswerDelayMs = 0L;
             Collection<Long> knownCardIdsDelta = Set.of();
 
-            // When
-            statsService.recordSession(
-                    deckId, viewed, correct, repeat, hard, sessionDuration, totalAnswerDelayMs, knownCardIdsDelta);
-
-            // Then
-            verifyNoInteractions(statsRepository);
+            // When & Then
+            SessionStatsDto.Builder builder = SessionStatsDto.builder()
+                    .deckId(deckId)
+                    .viewed(viewed)
+                    .correct(correct)
+                    .repeat(repeat)
+                    .hard(hard)
+                    .sessionDurationMs(sessionDuration.toMillis())
+                    .totalAnswerDelayMs(totalAnswerDelayMs)
+                    .knownCardIdsDelta(knownCardIdsDelta);
+            assertThatThrownBy(builder::build)
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Viewed count must be positive");
         }
     }
 
@@ -123,9 +150,9 @@ class StatsServiceTest {
         void getDailyStatsForDeckShouldReturnSortedDailyStats() {
             // Given
             long deckId = 1L;
-            var mockStats1 = mock(StatsRepository.DailyStatsRecord.class);
-            var mockStats2 = mock(StatsRepository.DailyStatsRecord.class);
-            var mockStats3 = mock(StatsRepository.DailyStatsRecord.class);
+            StatsRepository.DailyStatsRecord mockStats1 = mock(StatsRepository.DailyStatsRecord.class);
+            StatsRepository.DailyStatsRecord mockStats2 = mock(StatsRepository.DailyStatsRecord.class);
+            StatsRepository.DailyStatsRecord mockStats3 = mock(StatsRepository.DailyStatsRecord.class);
 
             when(mockStats1.date()).thenReturn(LocalDate.of(2024, 1, 3));
             when(mockStats2.date()).thenReturn(LocalDate.of(2024, 1, 1));
@@ -161,7 +188,7 @@ class StatsServiceTest {
         @DisplayName("DailyStats record should calculate average delay correctly")
         void dailyStatsRecordShouldCalculateAverageDelayCorrectly() {
             // Given
-            var dailyStats = new StatsService.DailyStats(
+            StatsService.DailyStats dailyStats = new StatsService.DailyStats(
                     LocalDate.now(),
                     10, // sessions
                     5, // viewed
@@ -173,7 +200,7 @@ class StatsServiceTest {
                     );
 
             // When
-            double avgDelay = dailyStats.getAvgDelayMs();
+            double avgDelay = dailyStats.averageAnswerDelayMs();
 
             // Then
             assertThat(avgDelay).isEqualTo(5000.0); // 25000 / 5
@@ -183,7 +210,7 @@ class StatsServiceTest {
         @DisplayName("DailyStats record should return 0.0 when viewed is 0")
         void dailyStatsRecordShouldReturnZeroWhenViewedIsZero() {
             // Given
-            var dailyStats = new StatsService.DailyStats(
+            StatsService.DailyStats dailyStats = new StatsService.DailyStats(
                     LocalDate.now(),
                     10, // sessions
                     0, // viewed
@@ -195,7 +222,7 @@ class StatsServiceTest {
                     );
 
             // When
-            double avgDelay = dailyStats.getAvgDelayMs();
+            double avgDelay = dailyStats.averageAnswerDelayMs();
 
             // Then
             assertThat(avgDelay).isEqualTo(0.0);
@@ -394,7 +421,7 @@ class StatsServiceTest {
             when(statsRepository.getAggregatesForDecks(deckIds, today)).thenReturn(expectedAggregates);
 
             // When
-            Map<Long, StatsRepository.DeckAggregate> result = statsService.getDeckAggregates(deckIds, today);
+            Map<Long, StatsRepository.DeckAggregate> result = statsService.getDeckAggregates(deckIds);
 
             // Then
             assertThat(result).isEqualTo(expectedAggregates);
@@ -405,13 +432,9 @@ class StatsServiceTest {
         void getDeckAggregatesShouldHandleEmptyDeckIdsList() {
             // Given
             List<Long> deckIds = List.of();
-            LocalDate today = LocalDate.now();
-            Map<Long, StatsRepository.DeckAggregate> expectedAggregates = Map.of();
-
-            when(statsRepository.getAggregatesForDecks(deckIds, today)).thenReturn(expectedAggregates);
 
             // When
-            Map<Long, StatsRepository.DeckAggregate> result = statsService.getDeckAggregates(deckIds, today);
+            Map<Long, StatsRepository.DeckAggregate> result = statsService.getDeckAggregates(deckIds);
 
             // Then
             assertThat(result).isEmpty();
@@ -436,16 +459,17 @@ class StatsServiceTest {
             Collection<Long> knownCardIdsDelta = Set.of(Long.MAX_VALUE);
 
             // When & Then
-            assertThatNoException()
-                    .isThrownBy(() -> statsService.recordSession(
-                            deckId,
-                            viewed,
-                            correct,
-                            repeat,
-                            hard,
-                            sessionDuration,
-                            totalAnswerDelayMs,
-                            knownCardIdsDelta));
+            SessionStatsDto sessionData = SessionStatsDto.builder()
+                    .deckId(deckId)
+                    .viewed(viewed)
+                    .correct(correct)
+                    .repeat(repeat)
+                    .hard(hard)
+                    .sessionDurationMs(sessionDuration.toMillis())
+                    .totalAnswerDelayMs(totalAnswerDelayMs)
+                    .knownCardIdsDelta(knownCardIdsDelta)
+                    .build();
+            assertThatNoException().isThrownBy(() -> statsService.recordSession(sessionData));
         }
 
         @Test
@@ -462,21 +486,30 @@ class StatsServiceTest {
             Collection<Long> knownCardIdsDelta = Set.of();
 
             // When
-            statsService.recordSession(
-                    deckId, viewed, correct, repeat, hard, sessionDuration, totalAnswerDelayMs, knownCardIdsDelta);
+            SessionStatsDto sessionData = SessionStatsDto.builder()
+                    .deckId(deckId)
+                    .viewed(viewed)
+                    .correct(correct)
+                    .repeat(repeat)
+                    .hard(hard)
+                    .sessionDurationMs(sessionDuration.toMillis())
+                    .totalAnswerDelayMs(totalAnswerDelayMs)
+                    .knownCardIdsDelta(knownCardIdsDelta)
+                    .build();
+            statsService.recordSession(sessionData);
 
             // Then
             verify(statsRepository)
                     .appendSession(
-                            deckId,
-                            LocalDate.now(),
-                            viewed,
-                            correct,
-                            repeat,
-                            hard,
-                            0L, // Duration.ZERO.toMillis() = 0
-                            totalAnswerDelayMs,
-                            knownCardIdsDelta);
+                            argThat(sessionStats -> sessionStats.deckId() == deckId
+                                    && sessionStats.viewed() == viewed
+                                    && sessionStats.correct() == correct
+                                    && sessionStats.repeat() == repeat
+                                    && sessionStats.hard() == hard
+                                    && sessionStats.sessionDurationMs() == 0L
+                                    && sessionStats.totalAnswerDelayMs() == totalAnswerDelayMs
+                                    && sessionStats.knownCardIdsDelta().equals(knownCardIdsDelta)),
+                            eq(LocalDate.now()));
         }
     }
 }

@@ -12,7 +12,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntConsumer;
@@ -83,7 +82,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         List<Deck> decks =
                 deckUseCase.getDecksByUserId(userUseCase.getCurrentUser().getId());
         Map<Long, org.apolenkov.application.domain.port.StatsRepository.DeckAggregate> agg =
-                statsService.getDeckAggregates(decks.stream().map(Deck::getId).toList(), LocalDate.now());
+                statsService.getDeckAggregates(decks.stream().map(Deck::getId).toList());
 
         pageSection.add(createTodayStatsSection(agg));
         pageSection.add(createOverallStatsSection(agg));

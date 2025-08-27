@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
@@ -175,8 +176,17 @@ public final class PracticePresenter {
             final Duration sessionDuration,
             final long totalAnswerDelayMs,
             final List<Long> knownCardIdsDelta) {
-        statsService.recordSession(
-                deckId, totalViewed, correct, 0, hard, sessionDuration, totalAnswerDelayMs, knownCardIdsDelta);
+        SessionStatsDto sessionData = SessionStatsDto.builder()
+                .deckId(deckId)
+                .viewed(totalViewed)
+                .correct(correct)
+                .repeat(0)
+                .hard(hard)
+                .sessionDurationMs(sessionDuration.toMillis())
+                .totalAnswerDelayMs(totalAnswerDelayMs)
+                .knownCardIdsDelta(knownCardIdsDelta)
+                .build();
+        statsService.recordSession(sessionData);
     }
 
     /**

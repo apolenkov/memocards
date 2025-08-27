@@ -2,8 +2,8 @@ package org.apolenkov.application.infrastructure.repository.jpa.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.infrastructure.repository.jpa.entity.DeckDailyStatsEntity;
 import org.apolenkov.application.infrastructure.repository.jpa.entity.KnownCardEntity;
@@ -42,6 +43,30 @@ class StatsJpaAdapterTest {
     @BeforeEach
     void setUp() {
         adapter = new StatsJpaAdapter(statsRepo, knownRepo);
+    }
+
+    @SuppressWarnings("ParameterNumber") // To make test easier to read -> Use builder
+    private DeckDailyStatsEntity createDeckDailyStatsEntity(
+            final long deckId,
+            final LocalDate date,
+            final int sessions,
+            final int viewed,
+            final int correct,
+            final int repeat,
+            final int hard,
+            final long totalDurationMs,
+            final long totalAnswerDelayMs) {
+        DeckDailyStatsEntity entity = new DeckDailyStatsEntity();
+        DeckDailyStatsEntity.Id id = new DeckDailyStatsEntity.Id(deckId, date);
+        entity.setId(id);
+        entity.setSessions(sessions);
+        entity.setViewed(viewed);
+        entity.setCorrect(correct);
+        entity.setRepeatCount(repeat);
+        entity.setHard(hard);
+        entity.setTotalDurationMs(totalDurationMs);
+        entity.setTotalAnswerDelayMs(totalAnswerDelayMs);
+        return entity;
     }
 
     @Nested
@@ -90,33 +115,26 @@ class StatsJpaAdapterTest {
             long totalAnswerDelayMs = 5000L;
             Collection<Long> knownCardIdsDelta = List.of(1L, 2L);
 
-            when(statsRepo.accumulate(
-                            anyLong(),
-                            any(LocalDate.class),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyLong(),
-                            anyLong()))
+            SessionStatsDto sessionStats = SessionStatsDto.builder()
+                    .deckId(deckId)
+                    .viewed(viewed)
+                    .correct(correct)
+                    .repeat(repeat)
+                    .hard(hard)
+                    .sessionDurationMs(sessionDurationMs)
+                    .totalAnswerDelayMs(totalAnswerDelayMs)
+                    .knownCardIdsDelta(knownCardIdsDelta)
+                    .build();
+
+            when(statsRepo.accumulate(any(SessionStatsDto.class), any(LocalDate.class)))
                     .thenReturn(1);
             when(knownRepo.findKnownCardIds(deckId)).thenReturn(Set.of());
 
             // When
-            adapter.appendSession(
-                    deckId,
-                    date,
-                    viewed,
-                    correct,
-                    repeat,
-                    hard,
-                    sessionDurationMs,
-                    totalAnswerDelayMs,
-                    knownCardIdsDelta);
+            adapter.appendSession(sessionStats, date);
 
             // Then
-            verify(statsRepo)
-                    .accumulate(deckId, date, viewed, correct, repeat, hard, sessionDurationMs, totalAnswerDelayMs);
+            verify(statsRepo).accumulate(any(SessionStatsDto.class), eq(date));
             verify(knownRepo).findKnownCardIds(deckId);
             // Since knownCardIdsDelta contains 2 cards and none exist, both should be saved
             verify(knownRepo, times(2)).save(any(KnownCardEntity.class));
@@ -135,25 +153,26 @@ class StatsJpaAdapterTest {
             long sessionDurationMs = 60000L;
             long totalAnswerDelayMs = 5000L;
 
-            when(statsRepo.accumulate(
-                            anyLong(),
-                            any(LocalDate.class),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyLong(),
-                            anyLong()))
+            SessionStatsDto sessionStats = SessionStatsDto.builder()
+                    .deckId(deckId)
+                    .viewed(viewed)
+                    .correct(correct)
+                    .repeat(repeat)
+                    .hard(hard)
+                    .sessionDurationMs(sessionDurationMs)
+                    .totalAnswerDelayMs(totalAnswerDelayMs)
+                    .knownCardIdsDelta(null)
+                    .build();
+
+            when(statsRepo.accumulate(any(SessionStatsDto.class), any(LocalDate.class)))
                     .thenReturn(0);
             when(statsRepo.save(any(DeckDailyStatsEntity.class))).thenReturn(new DeckDailyStatsEntity());
 
             // When
-            adapter.appendSession(
-                    deckId, date, viewed, correct, repeat, hard, sessionDurationMs, totalAnswerDelayMs, null);
+            adapter.appendSession(sessionStats, date);
 
             // Then
-            verify(statsRepo)
-                    .accumulate(deckId, date, viewed, correct, repeat, hard, sessionDurationMs, totalAnswerDelayMs);
+            verify(statsRepo).accumulate(any(SessionStatsDto.class), eq(date));
             verify(statsRepo).save(any(DeckDailyStatsEntity.class));
         }
 
@@ -164,31 +183,25 @@ class StatsJpaAdapterTest {
             long deckId = 1L;
             LocalDate date = LocalDate.now();
 
-            when(statsRepo.accumulate(
-                            anyLong(),
-                            any(LocalDate.class),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyLong(),
-                            anyLong()))
+            SessionStatsDto sessionStats = SessionStatsDto.builder()
+                    .deckId(deckId)
+                    .viewed(10)
+                    .correct(8)
+                    .repeat(2)
+                    .hard(1)
+                    .sessionDurationMs(60000L)
+                    .totalAnswerDelayMs(5000L)
+                    .knownCardIdsDelta(null)
+                    .build();
+
+            when(statsRepo.accumulate(any(SessionStatsDto.class), any(LocalDate.class)))
                     .thenReturn(1);
 
             // When
-            adapter.appendSession(deckId, date, 10, 8, 2, 1, 60000L, 5000L, null);
+            adapter.appendSession(sessionStats, date);
 
             // Then
-            verify(statsRepo)
-                    .accumulate(
-                            anyLong(),
-                            any(LocalDate.class),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyLong(),
-                            anyLong());
+            verify(statsRepo).accumulate(any(SessionStatsDto.class), eq(date));
         }
 
         @Test
@@ -199,31 +212,25 @@ class StatsJpaAdapterTest {
             LocalDate date = LocalDate.now();
             Collection<Long> knownCardIdsDelta = List.of();
 
-            when(statsRepo.accumulate(
-                            anyLong(),
-                            any(LocalDate.class),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyLong(),
-                            anyLong()))
+            SessionStatsDto sessionStats = SessionStatsDto.builder()
+                    .deckId(deckId)
+                    .viewed(10)
+                    .correct(8)
+                    .repeat(2)
+                    .hard(1)
+                    .sessionDurationMs(60000L)
+                    .totalAnswerDelayMs(5000L)
+                    .knownCardIdsDelta(knownCardIdsDelta)
+                    .build();
+
+            when(statsRepo.accumulate(any(SessionStatsDto.class), any(LocalDate.class)))
                     .thenReturn(1);
 
             // When
-            adapter.appendSession(deckId, date, 10, 8, 2, 1, 60000L, 5000L, knownCardIdsDelta);
+            adapter.appendSession(sessionStats, date);
 
             // Then
-            verify(statsRepo)
-                    .accumulate(
-                            anyLong(),
-                            any(LocalDate.class),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyLong(),
-                            anyLong());
+            verify(statsRepo).accumulate(any(SessionStatsDto.class), eq(date));
         }
     }
 
@@ -472,24 +479,25 @@ class StatsJpaAdapterTest {
             long sessionDurationMs = Long.MAX_VALUE;
             long totalAnswerDelayMs = Long.MAX_VALUE;
 
-            when(statsRepo.accumulate(
-                            anyLong(),
-                            any(LocalDate.class),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyLong(),
-                            anyLong()))
+            SessionStatsDto sessionStats = SessionStatsDto.builder()
+                    .deckId(deckId)
+                    .viewed(viewed)
+                    .correct(correct)
+                    .repeat(repeat)
+                    .hard(hard)
+                    .sessionDurationMs(sessionDurationMs)
+                    .totalAnswerDelayMs(totalAnswerDelayMs)
+                    .knownCardIdsDelta(null)
+                    .build();
+
+            when(statsRepo.accumulate(any(SessionStatsDto.class), any(LocalDate.class)))
                     .thenReturn(1);
 
             // When
-            adapter.appendSession(
-                    deckId, date, viewed, correct, repeat, hard, sessionDurationMs, totalAnswerDelayMs, null);
+            adapter.appendSession(sessionStats, date);
 
             // Then
-            verify(statsRepo)
-                    .accumulate(deckId, date, viewed, correct, repeat, hard, sessionDurationMs, totalAnswerDelayMs);
+            verify(statsRepo).accumulate(any(SessionStatsDto.class), eq(date));
         }
 
         @Test
@@ -500,57 +508,27 @@ class StatsJpaAdapterTest {
             LocalDate date = LocalDate.now();
             Collection<Long> knownCardIdsDelta = List.of(1L, 2L, 3L, 4L, 5L);
 
-            when(statsRepo.accumulate(
-                            anyLong(),
-                            any(LocalDate.class),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyLong(),
-                            anyLong()))
+            SessionStatsDto sessionStats = SessionStatsDto.builder()
+                    .deckId(deckId)
+                    .viewed(10)
+                    .correct(8)
+                    .repeat(2)
+                    .hard(1)
+                    .sessionDurationMs(60000L)
+                    .totalAnswerDelayMs(5000L)
+                    .knownCardIdsDelta(knownCardIdsDelta)
+                    .build();
+
+            when(statsRepo.accumulate(any(SessionStatsDto.class), any(LocalDate.class)))
                     .thenReturn(1);
             when(knownRepo.findKnownCardIds(deckId)).thenReturn(Set.of());
 
             // When
-            adapter.appendSession(deckId, date, 10, 8, 2, 1, 60000L, 5000L, knownCardIdsDelta);
+            adapter.appendSession(sessionStats, date);
 
             // Then
-            verify(statsRepo)
-                    .accumulate(
-                            anyLong(),
-                            any(LocalDate.class),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyInt(),
-                            anyLong(),
-                            anyLong());
+            verify(statsRepo).accumulate(any(SessionStatsDto.class), any(LocalDate.class));
             verify(knownRepo).findKnownCardIds(deckId);
         }
-    }
-
-    @SuppressWarnings("ParameterNumber")
-    private DeckDailyStatsEntity createDeckDailyStatsEntity(
-            final long deckId,
-            final LocalDate date,
-            final int sessions,
-            final int viewed,
-            final int correct,
-            final int repeat,
-            final int hard,
-            final long totalDurationMs,
-            final long totalAnswerDelayMs) {
-        DeckDailyStatsEntity entity = new DeckDailyStatsEntity();
-        DeckDailyStatsEntity.Id id = new DeckDailyStatsEntity.Id(deckId, date);
-        entity.setId(id);
-        entity.setSessions(sessions);
-        entity.setViewed(viewed);
-        entity.setCorrect(correct);
-        entity.setRepeatCount(repeat);
-        entity.setHard(hard);
-        entity.setTotalDurationMs(totalDurationMs);
-        entity.setTotalAnswerDelayMs(totalAnswerDelayMs);
-        return entity;
     }
 }
