@@ -149,16 +149,7 @@ class StatsJpaAdapterTest {
 
             // When
             adapter.appendSession(
-                    deckId,
-                    date,
-                    viewed,
-                    correct,
-                    repeat,
-                    hard,
-                    sessionDurationMs,
-                    totalAnswerDelayMs,
-                    null
-            );
+                    deckId, date, viewed, correct, repeat, hard, sessionDurationMs, totalAnswerDelayMs, null);
 
             // Then
             verify(statsRepo)
