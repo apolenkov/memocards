@@ -291,6 +291,7 @@ tasks.named("npmInstall") {
     dependsOn("vaadinPrepareFrontend")
 
     inputs.file("package.json")
+    inputs.file("package-lock.json")
     outputs.dir("node_modules")
 }
 
