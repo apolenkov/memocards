@@ -8,16 +8,17 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Main entry point for the Flashcards Spring Boot application.
- *
- * <p>This class is responsible only for starting the Spring Boot application.
- * All other initialization logic is delegated to specialized components:
- * - {@link VaadinServiceInitializer} - Vaadin service configuration
- * - {@link ApplicationInitializer} - Application startup logic
- * - {@link LocaleConfiguration} - Locale management
- * - {@link ErrorHandlingConfiguration} - Error handling setup
  */
 @SpringBootApplication
 public final class Application {
+
+    /**
+     * Private constructor to prevent instantiation.
+     * This class is designed to be used as a Spring Boot application entry point.
+     */
+    private Application() {
+        // Utility class - should not be instantiated
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
