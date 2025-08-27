@@ -30,7 +30,7 @@ class DevDomainBootstrap {
     @Order(10)
     CommandLineRunner ensureDomainUsers(final UserRepository users, final PasswordEncoder passwordEncoder) {
         return args -> {
-            // Get localized user names from i18n provider with fallback defaults
+            // Get localized usernames from i18n provider with fallback defaults
             final String userName = "Ivan Petrov";
             final String adminName = "Administrator";
 

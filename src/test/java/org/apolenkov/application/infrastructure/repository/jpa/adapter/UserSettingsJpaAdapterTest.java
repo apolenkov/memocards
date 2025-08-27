@@ -165,13 +165,12 @@ class UserSettingsJpaAdapterTest {
         void savePreferredLocaleCodeShouldHandleNullLocaleCode() {
             // Given
             long userId = 1L;
-            String localeCode = null;
 
             when(repo.findByUserId(userId)).thenReturn(Optional.empty());
             when(repo.save(any(UserSettingsEntity.class))).thenReturn(new UserSettingsEntity());
 
             // When
-            adapter.savePreferredLocaleCode(userId, localeCode);
+            adapter.savePreferredLocaleCode(userId, null);
 
             // Then
             verify(repo).findByUserId(userId);

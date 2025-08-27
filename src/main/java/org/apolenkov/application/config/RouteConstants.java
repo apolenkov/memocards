@@ -48,11 +48,6 @@ public final class RouteConstants {
     public static final String RESET_PASSWORD_ROUTE = "reset-password";
 
     /**
-     * Route for register view.
-     */
-    public static final String REGISTER_ROUTE = "register";
-
-    /**
      * Private constructor to prevent instantiation.
      */
     private RouteConstants() {

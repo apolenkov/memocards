@@ -98,40 +98,61 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         newsTitle.addClassName("landing-news__title");
         newsSection.add(newsTitle);
 
-        Div newsList = new Div();
-        newsList.addClassName("landing-news__list");
-
-        for (var item : newsService.getAllNews()) {
-            Div card = new Div();
-            card.addClassName("surface-card");
-            card.addClassName("landing-news__card");
-
-            H3 cardTitle = new H3(item.getTitle());
-            cardTitle.addClassName("landing-news__card-title");
-            card.add(cardTitle);
-
-            Paragraph cardContent = new Paragraph(item.getContent());
-            cardContent.addClassName("landing-news__card-content");
-            card.add(cardContent);
-
-            Div astronaut = new Div();
-            astronaut.addClassName("landing-news__card-accent");
-            card.add(astronaut);
-
-            newsList.add(card);
-        }
+        Div newsList = createNewsList(newsService);
+        newsSection.add(newsList);
 
         Div heroSection = new Div();
         heroSection.addClassName("surface-panel");
         heroSection.addClassName("landing-hero__section");
-
         heroSection.add(heroIcon, title, subtitle, actions);
-
-        newsSection.add(newsList);
 
         add(heroSection, newsSection);
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
+    }
+
+    /**
+     * Creates a news list container with all news cards.
+     *
+     * @param newsService service for retrieving news items
+     * @return a Div containing all news cards
+     */
+    private Div createNewsList(final NewsService newsService) {
+        Div newsList = new Div();
+        newsList.addClassName("landing-news__list");
+
+        for (var item : newsService.getAllNews()) {
+            Div card = createNewsCard(item);
+            newsList.add(card);
+        }
+
+        return newsList;
+    }
+
+    /**
+     * Creates a single news card component.
+     *
+     * @param item the news item to display in the card
+     * @return a Div representing the news card
+     */
+    private Div createNewsCard(final org.apolenkov.application.model.News item) {
+        Div card = new Div();
+        card.addClassName("surface-card");
+        card.addClassName("landing-news__card");
+
+        H3 cardTitle = new H3(item.getTitle());
+        cardTitle.addClassName("landing-news__card-title");
+        card.add(cardTitle);
+
+        Paragraph cardContent = new Paragraph(item.getContent());
+        cardContent.addClassName("landing-news__card-content");
+        card.add(cardContent);
+
+        Div astronaut = new Div();
+        astronaut.addClassName("landing-news__card-accent");
+        card.add(astronaut);
+
+        return card;
     }
 
     /**

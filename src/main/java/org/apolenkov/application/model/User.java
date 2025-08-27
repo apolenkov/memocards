@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Represents a user in the flashcards application.
+ * Represents a user in the flashcards' application.
  *
  * <p>Encapsulates user data including authentication credentials,
  * personal information, and roles for authorization.</p>

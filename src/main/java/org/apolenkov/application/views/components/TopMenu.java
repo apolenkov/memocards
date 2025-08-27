@@ -40,7 +40,7 @@ public class TopMenu extends HorizontalLayout {
     private static final String LOGOUT_ROUTE = "/logout";
 
     // Styles
-    private static final String DATA_TESTID_ATTRIBUTE = "data-testid";
+    private static final String DATA_TEST_ID_ATTRIBUTE = "data-test-id";
 
     private final List<MenuButton> menuButtons = new ArrayList<>();
     private final Anchor title;
@@ -203,17 +203,17 @@ public class TopMenu extends HorizontalLayout {
 
         if (menuButton.getRoute().equals(LOGOUT_ROUTE)) {
             button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> openLogoutDialog());
-            button.getElement().setAttribute(DATA_TESTID_ATTRIBUTE, menuButton.getTestId());
+            button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
         } else if (menuButton.getRoute().equals("/settings")) {
             button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> {
                 PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService);
                 dialog.open();
             });
-            button.getElement().setAttribute(DATA_TESTID_ATTRIBUTE, menuButton.getTestId());
+            button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
         } else {
             button = ButtonHelper.createTertiaryButton(
                     menuButton.getText(), e -> NavigationHelper.navigateTo(menuButton.getRoute()));
-            button.getElement().setAttribute(DATA_TESTID_ATTRIBUTE, menuButton.getTestId());
+            button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
         }
 
         return button;
