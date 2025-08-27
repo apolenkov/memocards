@@ -93,6 +93,9 @@
             <property name="processJavadoc" value="false"/>
         </module>
 
+        <!--        https://pmd.sourceforge.io/pmd-5.4.1/pmd-java/rules/java/imports.html#UnnecessaryFullyQualifiedName-->
+        <!--        <module name="AvoidFullyQualifiedName">-->
+
         <!-- Checks for Size Violations.                    -->
         <!-- See https://checkstyle.org/checks/sizes/index.html -->
         <module name="MethodLength"/>
