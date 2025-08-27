@@ -27,7 +27,7 @@ public class SecurityConfig extends VaadinWebSecurity {
      * Creates security configuration with environment and auto-login filter.
      */
     @Autowired
-    public SecurityConfig(Environment environment, DevAutoLoginFilter devAutoLoginFilter) {
+    public SecurityConfig(final Environment environment, final DevAutoLoginFilter devAutoLoginFilter) {
         // Determine if production profile is active for security configuration
         String[] profiles = environment != null ? environment.getActiveProfiles() : null;
         this.prodProfileActive =
@@ -40,7 +40,7 @@ public class SecurityConfig extends VaadinWebSecurity {
      */
     @Override
     @SuppressWarnings("java:S4502")
-    protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(final HttpSecurity http) throws Exception {
         super.configure(http);
 
         setLoginView(http, LoginView.class, "/");

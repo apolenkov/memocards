@@ -56,7 +56,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
      * @param userUseCase service for user operations
      * @param statsService service for statistics and progress tracking
      */
-    public StatsView(DeckUseCase deckUseCase, UserUseCase userUseCase, StatsService statsService) {
+    public StatsView(final DeckUseCase deckUseCase, final UserUseCase userUseCase, final StatsService statsService) {
         setSpacing(true);
         setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
         setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
@@ -99,7 +99,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
      * @param agg aggregated statistics data for all decks
      * @return configured vertical layout for overall stats
      */
-    private VerticalLayout createOverallStatsSection(Map<Long, StatsRepository.DeckAggregate> agg) {
+    private VerticalLayout createOverallStatsSection(final Map<Long, StatsRepository.DeckAggregate> agg) {
         VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
         section.setWidthFull();
@@ -182,7 +182,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
      * @param agg aggregated statistics data for all decks
      * @return configured vertical layout for today's stats
      */
-    private VerticalLayout createTodayStatsSection(Map<Long, StatsRepository.DeckAggregate> agg) {
+    private VerticalLayout createTodayStatsSection(final Map<Long, StatsRepository.DeckAggregate> agg) {
         VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
         section.setWidthFull();
@@ -262,7 +262,8 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
      * @param agg aggregated statistics data for all decks
      * @return configured vertical layout for deck stats
      */
-    private VerticalLayout createDeckStatsSection(List<Deck> decks, Map<Long, StatsRepository.DeckAggregate> agg) {
+    private VerticalLayout createDeckStatsSection(
+            final List<Deck> decks, final Map<Long, StatsRepository.DeckAggregate> agg) {
         VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
         section.setPadding(true);
@@ -400,7 +401,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
      * @param value numeric value to display
      * @return configured statistics card component
      */
-    private Div createStatCard(String labelKey, int value) {
+    private Div createStatCard(final String labelKey, final int value) {
         Div card = new Div();
         card.addClassName("stats-card");
         card.addClassName("surface-card");
@@ -424,7 +425,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
      * @param stats aggregated statistics for the deck
      * @return configured deck statistics card component
      */
-    private Div createDeckStatCard(Deck deck, StatsRepository.DeckAggregate stats) {
+    private Div createDeckStatCard(final Deck deck, final StatsRepository.DeckAggregate stats) {
         Div card = new Div();
         card.addClassName("deck-stats-card");
         card.addClassName("surface-card");
@@ -462,7 +463,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
      * @param today today's value
      * @return configured deck statistics item component
      */
-    private Div createDeckStatItem(String labelKey, int total, int today) {
+    private Div createDeckStatItem(final String labelKey, final int total, final int today) {
         Div item = new Div();
         item.addClassName("stats-deck-item");
 

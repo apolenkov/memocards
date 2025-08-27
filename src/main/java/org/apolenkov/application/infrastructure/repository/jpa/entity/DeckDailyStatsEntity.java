@@ -1,6 +1,14 @@
 package org.apolenkov.application.infrastructure.repository.jpa.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -73,19 +81,19 @@ public class DeckDailyStatsEntity {
         /**
          * Constructs a composite key with deck identifier and date.
          *
-         * @param deckId the deck identifier, must not be null
-         * @param date the calendar date, must not be null
+         * @param deckIdValue the deck identifier, must not be null
+         * @param dateValue the calendar date, must not be null
          * @throws IllegalArgumentException if either parameter is null
          */
-        public Id(Long deckId, LocalDate date) {
-            if (deckId == null) {
+        public Id(final Long deckIdValue, final LocalDate dateValue) {
+            if (deckIdValue == null) {
                 throw new IllegalArgumentException("Deck ID cannot be null");
             }
-            if (date == null) {
+            if (dateValue == null) {
                 throw new IllegalArgumentException("Date cannot be null");
             }
-            this.deckId = deckId;
-            this.date = date;
+            this.deckId = deckIdValue;
+            this.date = dateValue;
         }
 
         /**
@@ -100,14 +108,14 @@ public class DeckDailyStatsEntity {
         /**
          * Sets the deck identifier for this composite key (use with caution).
          *
-         * @param deckId the deck identifier to set, must not be null
+         * @param deckIdValue the deck identifier to set, must not be null
          * @throws IllegalArgumentException if deckId is null
          */
-        public void setDeckId(Long deckId) {
-            if (deckId == null) {
+        public void setDeckId(final Long deckIdValue) {
+            if (deckIdValue == null) {
                 throw new IllegalArgumentException("Deck ID cannot be null");
             }
-            this.deckId = deckId;
+            this.deckId = deckIdValue;
         }
 
         /**
@@ -122,14 +130,14 @@ public class DeckDailyStatsEntity {
         /**
          * Sets the calendar date for this composite key (use with caution).
          *
-         * @param date the calendar date to set, must not be null
+         * @param dateValue the calendar date to set, must not be null
          * @throws IllegalArgumentException if date is null
          */
-        public void setDate(LocalDate date) {
-            if (date == null) {
+        public void setDate(final LocalDate dateValue) {
+            if (dateValue == null) {
                 throw new IllegalArgumentException("Date cannot be null");
             }
-            this.date = date;
+            this.date = dateValue;
         }
 
         /**
@@ -149,9 +157,13 @@ public class DeckDailyStatsEntity {
          * @return true if the objects are equal, false otherwise
          */
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Id other)) return false;
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof Id other)) {
+                return false;
+            }
             return java.util.Objects.equals(deckId, other.deckId) && java.util.Objects.equals(date, other.date);
         }
     }
@@ -280,14 +292,14 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the composite primary key for this daily statistics record.
      *
-     * @param id the composite primary key to set, must not be null
+     * @param idValue the composite primary key to set, must not be null
      * @throws IllegalArgumentException if id is null
      */
-    public void setId(Id id) {
-        if (id == null) {
+    public void setId(final Id idValue) {
+        if (idValue == null) {
             throw new IllegalArgumentException("ID cannot be null");
         }
-        this.id = id;
+        this.id = idValue;
     }
 
     /**
@@ -302,14 +314,14 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the number of practice sessions for this deck on the specified date.
      *
-     * @param sessions the number of practice sessions to set, must be non-negative
+     * @param sessionsValue the number of practice sessions to set, must be non-negative
      * @throws IllegalArgumentException if sessions is negative
      */
-    public void setSessions(int sessions) {
-        if (sessions < 0) {
+    public void setSessions(final int sessionsValue) {
+        if (sessionsValue < 0) {
             throw new IllegalArgumentException("Sessions cannot be negative");
         }
-        this.sessions = sessions;
+        this.sessions = sessionsValue;
     }
 
     /**
@@ -324,14 +336,14 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the number of cards viewed during practice sessions on the specified date.
      *
-     * @param viewed the number of viewed cards to set, must be non-negative
+     * @param viewedValue the number of viewed cards to set, must be non-negative
      * @throws IllegalArgumentException if viewed is negative
      */
-    public void setViewed(int viewed) {
-        if (viewed < 0) {
+    public void setViewed(final int viewedValue) {
+        if (viewedValue < 0) {
             throw new IllegalArgumentException("Viewed cannot be negative");
         }
-        this.viewed = viewed;
+        this.viewed = viewedValue;
     }
 
     /**
@@ -346,14 +358,14 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the number of correct answers given during practice sessions on the specified date.
      *
-     * @param correct the number of correct answers to set, must be non-negative
+     * @param correctValue the number of correct answers to set, must be non-negative
      * @throws IllegalArgumentException if correct is negative
      */
-    public void setCorrect(int correct) {
-        if (correct < 0) {
+    public void setCorrect(final int correctValue) {
+        if (correctValue < 0) {
             throw new IllegalArgumentException("Correct cannot be negative");
         }
-        this.correct = correct;
+        this.correct = correctValue;
     }
 
     /**
@@ -368,14 +380,14 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the number of times cards were repeated during practice sessions on the specified date.
      *
-     * @param repeatCount the number of repeated cards to set, must be non-negative
+     * @param repeatCountValue the number of repeated cards to set, must be non-negative
      * @throws IllegalArgumentException if repeatCount is negative
      */
-    public void setRepeatCount(int repeatCount) {
-        if (repeatCount < 0) {
+    public void setRepeatCount(final int repeatCountValue) {
+        if (repeatCountValue < 0) {
             throw new IllegalArgumentException("Repeat count cannot be negative");
         }
-        this.repeatCount = repeatCount;
+        this.repeatCount = repeatCountValue;
     }
 
     /**
@@ -390,14 +402,14 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the number of cards marked as "hard" during practice sessions on the specified date.
      *
-     * @param hard the number of hard cards to set, must be non-negative
+     * @param hardValue the number of hard cards to set, must be non-negative
      * @throws IllegalArgumentException if hard is negative
      */
-    public void setHard(int hard) {
-        if (hard < 0) {
+    public void setHard(final int hardValue) {
+        if (hardValue < 0) {
             throw new IllegalArgumentException("Hard cannot be negative");
         }
-        this.hard = hard;
+        this.hard = hardValue;
     }
 
     /**
@@ -412,14 +424,14 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the total duration of all practice sessions in milliseconds for the specified date.
      *
-     * @param totalDurationMs the total duration in milliseconds to set, must be non-negative
+     * @param totalDurationMsValue the total duration in milliseconds to set, must be non-negative
      * @throws IllegalArgumentException if totalDurationMs is negative
      */
-    public void setTotalDurationMs(long totalDurationMs) {
-        if (totalDurationMs < 0) {
+    public void setTotalDurationMs(final long totalDurationMsValue) {
+        if (totalDurationMsValue < 0) {
             throw new IllegalArgumentException("Total duration cannot be negative");
         }
-        this.totalDurationMs = totalDurationMs;
+        this.totalDurationMs = totalDurationMsValue;
     }
 
     /**
@@ -434,20 +446,20 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the total delay in milliseconds before answering cards during practice sessions.
      *
-     * @param totalAnswerDelayMs the total answer delay in milliseconds to set, must be non-negative
+     * @param totalAnswerDelayMsValue the total answer delay in milliseconds to set, must be non-negative
      * @throws IllegalArgumentException if totalAnswerDelayMs is negative
      */
-    public void setTotalAnswerDelayMs(long totalAnswerDelayMs) {
-        if (totalAnswerDelayMs < 0) {
+    public void setTotalAnswerDelayMs(final long totalAnswerDelayMsValue) {
+        if (totalAnswerDelayMsValue < 0) {
             throw new IllegalArgumentException("Total answer delay cannot be negative");
         }
-        this.totalAnswerDelayMs = totalAnswerDelayMs;
+        this.totalAnswerDelayMs = totalAnswerDelayMsValue;
     }
 
     /**
      * Gets the version number for optimistic locking.
      *
-     * @return the version number, may be null for new entities
+     * @return the version number, maybe null for new entities
      */
     @SuppressWarnings("unused") // IDE Community problem
     public Long getVersion() {
@@ -457,11 +469,11 @@ public class DeckDailyStatsEntity {
     /**
      * Sets the version number for optimistic locking.
      *
-     * @param version the version number to set
+     * @param versionValue the version number to set
      */
     @SuppressWarnings("unused") // IDE Community problem
-    public void setVersion(Long version) {
-        this.version = version;
+    public void setVersion(final Long versionValue) {
+        this.version = versionValue;
     }
 
     /**
@@ -480,14 +492,14 @@ public class DeckDailyStatsEntity {
      * though it is typically managed automatically by the JPA lifecycle
      * callbacks. Use with caution to avoid disrupting the audit trail.</p>
      *
-     * @param createdAt the creation timestamp to set, must not be null
+     * @param createdAtValue the creation timestamp to set, must not be null
      * @throws IllegalArgumentException if createdAt is null
      */
-    public void setCreatedAt(java.time.LocalDateTime createdAt) {
-        if (createdAt == null) {
+    public void setCreatedAt(final java.time.LocalDateTime createdAtValue) {
+        if (createdAtValue == null) {
             throw new IllegalArgumentException("Created at timestamp cannot be null");
         }
-        this.createdAt = createdAt;
+        this.createdAt = createdAtValue;
     }
 
     /**
@@ -506,13 +518,13 @@ public class DeckDailyStatsEntity {
      * though it is typically managed automatically by the JPA lifecycle
      * callbacks. Use with caution to avoid disrupting the audit trail.</p>
      *
-     * @param updatedAt the update timestamp to set, must not be null
+     * @param updatedAtValue the update timestamp to set, must not be null
      * @throws IllegalArgumentException if updatedAt is null
      */
-    public void setUpdatedAt(java.time.LocalDateTime updatedAt) {
-        if (updatedAt == null) {
+    public void setUpdatedAt(final java.time.LocalDateTime updatedAtValue) {
+        if (updatedAtValue == null) {
             throw new IllegalArgumentException("Updated at timestamp cannot be null");
         }
-        this.updatedAt = updatedAt;
+        this.updatedAt = updatedAtValue;
     }
 }

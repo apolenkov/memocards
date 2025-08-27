@@ -291,7 +291,12 @@ class NewsJpaAdapterTest {
         }
     }
 
-    private NewsEntity createNewsEntity(Long id, String title, String content, String author, LocalDateTime createdAt) {
+    private NewsEntity createNewsEntity(
+            final Long id,
+            final String title,
+            final String content,
+            final String author,
+            final LocalDateTime createdAt) {
         NewsEntity entity = new NewsEntity();
         entity.setId(id);
         entity.setTitle(title);

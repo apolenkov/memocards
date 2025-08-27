@@ -62,7 +62,7 @@ class AppI18NProviderTest {
         @CsvSource({"app.title, en, Cards", "app.title, ru, Мемокарты", "app.title, es, Tarjetas"})
         @DisplayName("GetTranslation should return correct translation for supported locales")
         void getTranslationShouldReturnCorrectTranslationForSupportedLocales(
-                String key, String languageTag, String expectedTranslation) {
+                final String key, final String languageTag, final String expectedTranslation) {
             // Given
             Locale locale = Locale.forLanguageTag(languageTag);
 

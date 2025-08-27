@@ -24,53 +24,54 @@ public class NewsJpaAdapter implements NewsRepository {
     /**
      * Creates adapter with JPA repository dependency.
      *
-     * @param repo the Spring Data JPA repository for news operations
-     * @throws IllegalArgumentException if repo is null
+     * @param repoValue the Spring Data JPA repository for news operations
+     * @throws IllegalArgumentException if repoValue is null
      */
-    public NewsJpaAdapter(NewsJpaRepository repo) {
-        if (repo == null) {
+    public NewsJpaAdapter(final NewsJpaRepository repoValue) {
+        if (repoValue == null) {
             throw new IllegalArgumentException("NewsJpaRepository cannot be null");
         }
-        this.repo = repo;
+        this.repo = repoValue;
     }
 
     /**
      * Converts JPA entity to domain model.
      *
-     * @param e the JPA entity to convert
+     * @param entity the JPA entity to convert
      * @return the corresponding domain model
-     * @throws IllegalArgumentException if e is null
+     * @throws IllegalArgumentException if entity is null
      */
-    private static News toModel(NewsEntity e) {
-        if (e == null) {
+    private static News toModel(final NewsEntity entity) {
+        if (entity == null) {
             throw new IllegalArgumentException("NewsEntity cannot be null");
         }
 
-        News news = new News(e.getId(), e.getTitle(), e.getContent(), e.getAuthor(), e.getCreatedAt());
-        news.setUpdatedAt(e.getUpdatedAt());
+        final News news = new News(
+                entity.getId(), entity.getTitle(), entity.getContent(), entity.getAuthor(), entity.getCreatedAt());
+        news.setUpdatedAt(entity.getUpdatedAt());
         return news;
     }
 
     /**
      * Converts domain model to JPA entity.
      *
-     * @param news the domain model to convert
+     * @param newsModel the domain model to convert
      * @return the corresponding JPA entity
-     * @throws IllegalArgumentException if news is null
+     * @throws IllegalArgumentException if newsModel is null
      */
-    private static NewsEntity toEntity(News news) {
-        if (news == null) {
+    private static NewsEntity toEntity(final News newsModel) {
+        if (newsModel == null) {
             throw new IllegalArgumentException("News cannot be null");
         }
 
-        NewsEntity e = new NewsEntity();
-        e.setId(news.getId());
-        e.setTitle(news.getTitle());
-        e.setContent(news.getContent());
-        e.setAuthor(news.getAuthor());
-        e.setCreatedAt(news.getCreatedAt());
-        e.setUpdatedAt(news.getUpdatedAt());
-        return e;
+        final NewsEntity entity = new NewsEntity();
+        entity.setId(newsModel.getId());
+        entity.setTitle(newsModel.getTitle());
+        entity.setContent(newsModel.getContent());
+        entity.setAuthor(newsModel.getAuthor());
+        entity.setCreatedAt(newsModel.getCreatedAt());
+        entity.setUpdatedAt(newsModel.getUpdatedAt());
+        return entity;
     }
 
     /**
@@ -93,7 +94,7 @@ public class NewsJpaAdapter implements NewsRepository {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public Optional<News> findById(Long id) {
+    public Optional<News> findById(final Long id) {
         if (id == null) {
             throw new IllegalArgumentException("News ID cannot be null");
         }
@@ -108,7 +109,7 @@ public class NewsJpaAdapter implements NewsRepository {
      * @throws IllegalArgumentException if news is null
      */
     @Override
-    public News save(News news) {
+    public News save(final News news) {
         if (news == null) {
             throw new IllegalArgumentException("News cannot be null");
         }
@@ -122,7 +123,7 @@ public class NewsJpaAdapter implements NewsRepository {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(final Long id) {
         if (id == null) {
             throw new IllegalArgumentException("News ID cannot be null");
         }

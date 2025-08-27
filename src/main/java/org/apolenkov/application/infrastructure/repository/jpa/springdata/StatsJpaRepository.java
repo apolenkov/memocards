@@ -34,7 +34,6 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
      */
     @Modifying
     @Transactional
-    @SuppressWarnings("java:S107")
     @Query("UPDATE DeckDailyStatsEntity s " + "SET s.sessions = s.sessions + 1, "
             + "    s.viewed = s.viewed + :viewed, "
             + "    s.correct = s.correct + :correct, "
@@ -44,6 +43,7 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
             + "    s.totalAnswerDelayMs = s.totalAnswerDelayMs + :ans, "
             + "    s.updatedAt = CURRENT_TIMESTAMP "
             + "WHERE s.id.deckId = :deckId AND s.id.date = :date")
+    @SuppressWarnings({"java:S107", "checkstyle:ParameterNumber"})
     int accumulate(
             @Param("deckId") long deckId,
             @Param("date") LocalDate date,
@@ -86,18 +86,4 @@ public interface StatsJpaRepository extends JpaRepository<DeckDailyStatsEntity, 
             + "WHERE s.id.deckId IN :deckIds "
             + "ORDER BY s.id.deckId, s.id.date DESC")
     List<Object[]> findAllByDeckIds(@Param("deckIds") List<Long> deckIds);
-
-    /**
-     * Finds today's statistics for specified decks.
-     * Uses optimized query for current day data retrieval, efficient for real-time dashboard updates.
-     *
-     * @param deckIds list of deck identifiers
-     * @param today the date to search for
-     * @return list of today's statistics for the specified decks
-     */
-    // Query for today's stats only (optimized)
-    @QueryHints({@QueryHint(name = "org.hibernate.comment", value = "Uses idx_deck_daily_stats_date")})
-    @Query("SELECT s FROM DeckDailyStatsEntity s " + "WHERE s.id.deckId IN :deckIds " + "  AND s.id.date = :today")
-    List<DeckDailyStatsEntity> findTodayStatsByDeckIds(
-            @Param("deckIds") List<Long> deckIds, @Param("today") LocalDate today);
 }

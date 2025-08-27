@@ -22,7 +22,7 @@ public class InternalServerErrorHandler extends Div implements HasErrorParameter
      * @return HTTP 500 status code
      */
     @Override
-    public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<Exception> parameter) {
+    public int setErrorParameter(final BeforeEnterEvent event, final ErrorParameter<Exception> parameter) {
         event.rerouteTo("error");
         return HttpStatusCode.INTERNAL_SERVER_ERROR.getCode();
     }

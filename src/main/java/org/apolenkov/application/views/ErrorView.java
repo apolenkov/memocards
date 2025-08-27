@@ -8,7 +8,12 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.config.RouteConstants;
 import org.springframework.core.env.Environment;
@@ -20,7 +25,7 @@ import org.springframework.core.env.Environment;
  */
 @Route(value = "error", layout = PublicLayout.class)
 @AnonymousAllowed
-public class ErrorView extends VerticalLayout implements HasDynamicTitle, BeforeEnterObserver {
+public final class ErrorView extends VerticalLayout implements HasDynamicTitle, BeforeEnterObserver {
 
     private final transient Environment environment;
     private String fromRoute;
@@ -30,7 +35,7 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
      *
      * @param environment Spring environment for profile detection
      */
-    public ErrorView(Environment environment) {
+    public ErrorView(final Environment environment) {
         this.environment = environment;
         setSizeFull();
         setAlignItems(Alignment.CENTER);
@@ -72,7 +77,7 @@ public class ErrorView extends VerticalLayout implements HasDynamicTitle, Before
     }
 
     @Override
-    public void beforeEnter(BeforeEnterEvent event) {
+    public void beforeEnter(final BeforeEnterEvent event) {
         Location location = event.getLocation();
         QueryParameters queryParams = location.getQueryParameters();
         fromRoute = queryParams

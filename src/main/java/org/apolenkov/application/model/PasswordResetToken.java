@@ -7,7 +7,7 @@ import java.util.Objects;
  * Model representing a password reset token for secure password recovery.
  * Secure, temporary, single-use token linked to a specific user account.
  */
-public class PasswordResetToken {
+public final class PasswordResetToken {
     private Long id;
     private String token;
     private Long userId;
@@ -26,7 +26,7 @@ public class PasswordResetToken {
      * @param userId ID of the user requesting password reset
      * @param expiresAt expiration date and time for this token
      */
-    public PasswordResetToken(String token, Long userId, LocalDateTime expiresAt) {
+    public PasswordResetToken(final String token, final Long userId, final LocalDateTime expiresAt) {
         this.token = token;
         this.userId = userId;
         this.expiresAt = expiresAt;
@@ -47,10 +47,10 @@ public class PasswordResetToken {
     /**
      * Sets unique identifier.
      *
-     * @param id token ID to set
+     * @param idValue token ID to set
      */
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(final Long idValue) {
+        this.id = idValue;
     }
 
     /**
@@ -65,10 +65,10 @@ public class PasswordResetToken {
     /**
      * Sets secure token string.
      *
-     * @param token secure token string to set
+     * @param tokenValue secure token string to set
      */
-    public void setToken(String token) {
-        this.token = token;
+    public void setToken(final String tokenValue) {
+        this.token = tokenValue;
     }
 
     /**
@@ -83,10 +83,10 @@ public class PasswordResetToken {
     /**
      * Sets ID of the user associated with this token.
      *
-     * @param userId user ID to associate with this token
+     * @param userIdValue user ID to associate with this token
      */
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUserId(final Long userIdValue) {
+        this.userId = userIdValue;
     }
 
     /**
@@ -102,11 +102,11 @@ public class PasswordResetToken {
     /**
      * Sets expiration date and time.
      *
-     * @param expiresAt expiration date and time to set
+     * @param expiresAtValue expiration date and time to set
      */
     @SuppressWarnings("unused") // IDE Community problem
-    public void setExpiresAt(LocalDateTime expiresAt) {
-        this.expiresAt = expiresAt;
+    public void setExpiresAt(final LocalDateTime expiresAtValue) {
+        this.expiresAt = expiresAtValue;
     }
 
     /**
@@ -121,10 +121,10 @@ public class PasswordResetToken {
     /**
      * Sets whether this token has been used.
      *
-     * @param used true to mark token as used
+     * @param usedValue true to mark token as used
      */
-    public void setUsed(boolean used) {
-        this.used = used;
+    public void setUsed(final boolean usedValue) {
+        this.used = usedValue;
     }
 
     /**
@@ -148,9 +148,13 @@ public class PasswordResetToken {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         PasswordResetToken that = (PasswordResetToken) o;
         return Objects.equals(id, that.id);
     }

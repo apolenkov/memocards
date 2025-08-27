@@ -29,20 +29,20 @@ public class DeckQueryService {
     /**
      * Creates a new DeckQueryService with required dependencies.
      *
-     * @param deckUseCase service for deck operations
-     * @param flashcardUseCase service for flashcard operations
-     * @param statsService service for statistics and progress tracking
-     * @param userUseCase service for user operations
+     * @param deckUseCaseValue service for deck operations
+     * @param flashcardUseCaseValue service for flashcard operations
+     * @param statsServiceValue service for statistics and progress tracking
+     * @param userUseCaseValue service for user operations
      */
     public DeckQueryService(
-            DeckUseCase deckUseCase,
-            FlashcardUseCase flashcardUseCase,
-            StatsService statsService,
-            UserUseCase userUseCase) {
-        this.deckUseCase = deckUseCase;
-        this.flashcardUseCase = flashcardUseCase;
-        this.statsService = statsService;
-        this.userUseCase = userUseCase;
+            final DeckUseCase deckUseCaseValue,
+            final FlashcardUseCase flashcardUseCaseValue,
+            final StatsService statsServiceValue,
+            final UserUseCase userUseCaseValue) {
+        this.deckUseCase = deckUseCaseValue;
+        this.flashcardUseCase = flashcardUseCaseValue;
+        this.statsService = statsServiceValue;
+        this.userUseCase = userUseCaseValue;
     }
 
     /**
@@ -54,7 +54,7 @@ public class DeckQueryService {
      * @return a sorted list of user's decks, optionally filtered by search query
      */
     @Transactional(readOnly = true)
-    public List<Deck> listDecksForCurrentUser(String query) {
+    public List<Deck> listDecksForCurrentUser(final String query) {
         // Get current user ID and load all their decks
         Long userId = userUseCase.getCurrentUser().getId();
         List<Deck> decks = deckUseCase.getDecksByUserId(userId);
@@ -84,7 +84,7 @@ public class DeckQueryService {
      * @return a DeckCardViewModel with deck data and progress statistics
      */
     @Transactional(readOnly = true)
-    public DeckCardViewModel toViewModel(Deck deck) {
+    public DeckCardViewModel toViewModel(final Deck deck) {
         // Calculate deck size by counting flashcards
         int deckSize = (int) flashcardUseCase.countByDeckId(deck.getId());
         // Count cards marked as known by the user
@@ -104,7 +104,7 @@ public class DeckQueryService {
      * @param query the query text to search for
      * @return true if the value contains the query, false otherwise
      */
-    private static boolean contains(String value, String query) {
+    private static boolean contains(final String value, final String query) {
         return value != null && value.toLowerCase(Locale.ROOT).contains(query);
     }
 }

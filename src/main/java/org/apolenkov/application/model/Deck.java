@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * Collection of flashcards belonging to a user.
  */
-public class Deck {
+public final class Deck {
     private Long id;
 
     @NotNull
@@ -41,17 +41,17 @@ public class Deck {
     /**
      * Creates new deck with specified fields.
      *
-     * @param id unique identifier for the deck
-     * @param userId ID of the user who owns this deck
-     * @param title title of the deck
-     * @param description description of the deck
+     * @param idValue unique identifier for the deck
+     * @param userIdValue ID of the user who owns this deck
+     * @param titleValue title of the deck
+     * @param descriptionValue description of the deck
      */
-    public Deck(Long id, Long userId, String title, String description) {
+    public Deck(final Long idValue, final Long userIdValue, final String titleValue, final String descriptionValue) {
         this();
-        this.id = id;
-        setUserId(userId);
-        setTitle(title);
-        setDescription(description);
+        this.id = idValue;
+        setUserId(userIdValue);
+        setTitle(titleValue);
+        setDescription(descriptionValue);
     }
 
     /**
@@ -63,10 +63,14 @@ public class Deck {
      * @return new Deck instance
      * @throws IllegalArgumentException if userId is null or title is empty
      */
-    public static Deck create(Long userId, String title, String description) {
-        if (userId == null) throw new IllegalArgumentException("userId is required");
+    public static Deck create(final Long userId, final String title, final String description) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId is required");
+        }
         String t = title != null ? title.trim() : null;
-        if (t == null || t.isEmpty()) throw new IllegalArgumentException("title is required");
+        if (t == null || t.isEmpty()) {
+            throw new IllegalArgumentException("title is required");
+        }
         Deck d = new Deck();
         d.setUserId(userId);
         d.setTitle(t);
@@ -89,7 +93,7 @@ public class Deck {
      * @param flashcard flashcard to add
      * @throws IllegalArgumentException if flashcard is null
      */
-    public void addFlashcard(Flashcard flashcard) {
+    public void addFlashcard(final Flashcard flashcard) {
         if (flashcards == null) {
             flashcards = new ArrayList<>();
         }
@@ -106,7 +110,7 @@ public class Deck {
      *
      * @param flashcard flashcard to remove
      */
-    public void removeFlashcard(Flashcard flashcard) {
+    public void removeFlashcard(final Flashcard flashcard) {
         if (flashcards != null) {
             flashcards.remove(flashcard);
             this.updatedAt = LocalDateTime.now();
@@ -125,10 +129,10 @@ public class Deck {
     /**
      * Sets deck identifier.
      *
-     * @param id deck ID to set
+     * @param idValue deck ID to set
      */
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(final Long idValue) {
+        this.id = idValue;
     }
 
     /**
@@ -143,12 +147,14 @@ public class Deck {
     /**
      * Sets user identifier.
      *
-     * @param userId user ID to set
+     * @param userIdValue user ID to set
      * @throws IllegalArgumentException if userId is null
      */
-    public void setUserId(Long userId) {
-        if (userId == null) throw new IllegalArgumentException("userId is required");
-        this.userId = userId;
+    public void setUserId(final Long userIdValue) {
+        if (userIdValue == null) {
+            throw new IllegalArgumentException("userId is required");
+        }
+        this.userId = userIdValue;
     }
 
     /**
@@ -163,12 +169,14 @@ public class Deck {
     /**
      * Sets deck title.
      *
-     * @param title deck title to set
+     * @param titleValue deck title to set
      * @throws IllegalArgumentException if title is null or empty
      */
-    public void setTitle(String title) {
-        String t = title != null ? title.trim() : null;
-        if (t == null || t.isEmpty()) throw new IllegalArgumentException("title is required");
+    public void setTitle(final String titleValue) {
+        String t = titleValue != null ? titleValue.trim() : null;
+        if (t == null || t.isEmpty()) {
+            throw new IllegalArgumentException("title is required");
+        }
         this.title = t;
         this.updatedAt = LocalDateTime.now();
     }
@@ -188,10 +196,10 @@ public class Deck {
      * <p>Trims description if provided and updates modification timestamp.
      * Description is optional and can be null.</p>
      *
-     * @param description deck description to set
+     * @param descriptionValue deck description to set
      */
-    public void setDescription(String description) {
-        this.description = description != null ? description.trim() : null;
+    public void setDescription(final String descriptionValue) {
+        this.description = descriptionValue != null ? descriptionValue.trim() : null;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -207,10 +215,10 @@ public class Deck {
     /**
      * Sets creation timestamp.
      *
-     * @param createdAt creation timestamp to set
+     * @param createdAtValue creation timestamp to set
      */
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedAt(final LocalDateTime createdAtValue) {
+        this.createdAt = createdAtValue;
     }
 
     /**
@@ -225,10 +233,10 @@ public class Deck {
     /**
      * Sets modification timestamp.
      *
-     * @param updatedAt modification timestamp to set
+     * @param updatedAtValue modification timestamp to set
      */
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setUpdatedAt(final LocalDateTime updatedAtValue) {
+        this.updatedAt = updatedAtValue;
     }
 
     /**
@@ -243,16 +251,20 @@ public class Deck {
     /**
      * Sets list of flashcards.
      *
-     * @param flashcards list of flashcards to set, or null for empty list
+     * @param flashcardsList list of flashcards to set, or null for empty list
      */
-    public void setFlashcards(List<Flashcard> flashcards) {
-        this.flashcards = new ArrayList<>(flashcards != null ? flashcards : List.of());
+    public void setFlashcards(final List<Flashcard> flashcardsList) {
+        this.flashcards = new ArrayList<>(flashcardsList != null ? flashcardsList : List.of());
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Deck deck = (Deck) o;
         return Objects.equals(id, deck.id);
     }

@@ -24,10 +24,10 @@ public class JpaUserDetailsService implements UserDetailsService {
     /**
      * Creates a new JpaUserDetailsService with the required repository dependency.
      *
-     * @param userRepository the repository for user persistence operations
+     * @param userRepositoryValue the repository for user persistence operations
      */
-    public JpaUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public JpaUserDetailsService(final UserRepository userRepositoryValue) {
+        this.userRepository = userRepositoryValue;
     }
 
     /**
@@ -40,7 +40,7 @@ public class JpaUserDetailsService implements UserDetailsService {
      * @throws IllegalStateException if the user exists but has no password hash
      */
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         User user = userRepository
                 .findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));

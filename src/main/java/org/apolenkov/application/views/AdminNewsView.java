@@ -49,7 +49,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
      * @param newsService the service for news operations
      * @throws IllegalArgumentException if newsService is null
      */
-    public AdminNewsView(NewsService newsService) {
+    public AdminNewsView(final NewsService newsService) {
         if (newsService == null) {
             throw new IllegalArgumentException("NewsService cannot be null");
         }
@@ -109,7 +109,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
      *
      * @param news the news item to edit, or null for creating new news
      */
-    private void showNewsDialog(News news) {
+    private void showNewsDialog(final News news) {
         Dialog dialog = new Dialog();
         dialog.addClassName("dialog-md");
 
@@ -181,7 +181,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
      * @param content the content of the news article
      * @param author the author of the news article
      */
-    private void createNews(String title, String content, String author) {
+    private void createNews(final String title, final String content, final String author) {
         try {
             newsService.createNews(title, content, author);
         } catch (Exception e) {
@@ -198,7 +198,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
      * @param content the new content for the news article
      * @param author the new author for the news article
      */
-    private void updateNews(Long id, String title, String content, String author) {
+    private void updateNews(final Long id, final String title, final String content, final String author) {
         try {
             newsService.updateNews(id, title, content, author);
         } catch (Exception e) {
@@ -212,7 +212,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
      *
      * @param news the news article to delete
      */
-    private void deleteNews(News news) {
+    private void deleteNews(final News news) {
         String message = getTranslation("admin.news.confirm.delete.prefix")
                 + " <b>" + org.apache.commons.text.StringEscapeUtils.escapeHtml4(news.getTitle())
                 + "</b>"
@@ -236,11 +236,11 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         confirmDialog.open();
     }
 
-    private static String safeTrim(String value) {
+    private static String safeTrim(final String value) {
         return value == null ? "" : value.trim();
     }
 
-    private boolean validateRequired(HasValidation field, String value, String i18nKey) {
+    private boolean validateRequired(final HasValidation field, final String value, final String i18nKey) {
         if (value == null || value.isBlank()) {
             field.setErrorMessage(getTranslation(i18nKey));
             field.setInvalid(true);

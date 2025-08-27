@@ -20,12 +20,13 @@ public class JpaRegistrationService {
     /**
      * Creates a new JpaRegistrationService with required dependencies.
      *
-     * @param userRepository the repository for user persistence operations
-     * @param passwordEncoder the encoder for secure password hashing
+     * @param userRepositoryValue the repository for user persistence operations
+     * @param passwordEncoderValue the encoder for secure password hashing
      */
-    public JpaRegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public JpaRegistrationService(
+            final UserRepository userRepositoryValue, final PasswordEncoder passwordEncoderValue) {
+        this.userRepository = userRepositoryValue;
+        this.passwordEncoder = passwordEncoderValue;
     }
 
     /**
@@ -38,7 +39,7 @@ public class JpaRegistrationService {
      * @throws IllegalArgumentException if a user with the specified email already exists
      */
     @Transactional
-    public void register(String email, String name, String rawPassword) {
+    public void register(final String email, final String name, final String rawPassword) {
         userRepository.findByEmail(email).ifPresent(u -> {
             throw new IllegalArgumentException("User already exists");
         });

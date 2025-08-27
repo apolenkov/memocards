@@ -1,4 +1,5 @@
 import java.lang.StringBuilder
+
 /*
  * Custom task for checking non-English characters in code
  * Writes a report to build/reports/non-english-chars/non-english-chars.md and fails on violations.

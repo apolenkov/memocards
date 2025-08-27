@@ -1,6 +1,11 @@
 package org.apolenkov.application.infrastructure.repository.jpa.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -41,10 +46,10 @@ public class PasswordResetTokenEntity {
     /**
      * Sets the primary key identifier.
      *
-     * @param id the unique identifier for this token record
+     * @param idValue the unique identifier for this token record
      */
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(final Long idValue) {
+        this.id = idValue;
     }
 
     /**
@@ -59,10 +64,10 @@ public class PasswordResetTokenEntity {
     /**
      * Sets the reset token string.
      *
-     * @param token the unique token for password reset
+     * @param tokenValue the unique token for password reset
      */
-    public void setToken(String token) {
-        this.token = token;
+    public void setToken(final String tokenValue) {
+        this.token = tokenValue;
     }
 
     /**
@@ -77,10 +82,10 @@ public class PasswordResetTokenEntity {
     /**
      * Sets the user identifier.
      *
-     * @param userId the ID of the user requesting password reset
+     * @param userIdValue the ID of the user requesting password reset
      */
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUserId(final Long userIdValue) {
+        this.userId = userIdValue;
     }
 
     /**
@@ -95,10 +100,10 @@ public class PasswordResetTokenEntity {
     /**
      * Sets the token expiration time.
      *
-     * @param expiresAt when this token expires
+     * @param expiresAtValue when this token expires
      */
-    public void setExpiresAt(LocalDateTime expiresAt) {
-        this.expiresAt = expiresAt;
+    public void setExpiresAt(final LocalDateTime expiresAtValue) {
+        this.expiresAt = expiresAtValue;
     }
 
     /**
@@ -113,10 +118,10 @@ public class PasswordResetTokenEntity {
     /**
      * Sets the token usage status.
      *
-     * @param used true if token was used for password reset
+     * @param usedValue true if token was used for password reset
      */
-    public void setUsed(boolean used) {
-        this.used = used;
+    public void setUsed(final boolean usedValue) {
+        this.used = usedValue;
     }
 
     /**
@@ -130,10 +135,14 @@ public class PasswordResetTokenEntity {
      * @return true if the objects are equal, false otherwise
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PasswordResetTokenEntity that = (PasswordResetTokenEntity) o;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final PasswordResetTokenEntity that = (PasswordResetTokenEntity) o;
         return Objects.equals(id, that.id);
     }
 

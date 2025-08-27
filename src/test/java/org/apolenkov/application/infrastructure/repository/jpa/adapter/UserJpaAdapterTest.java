@@ -341,7 +341,7 @@ class UserJpaAdapterTest {
         }
     }
 
-    private UserEntity createUserEntity(Long id, String email, String name) {
+    private UserEntity createUserEntity(final Long id, final String email, final String name) {
         UserEntity entity = new UserEntity();
         entity.setId(id);
         entity.setEmail(email);

@@ -4,13 +4,24 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apolenkov.application.config.RouteConstants;
 import org.apolenkov.application.model.Deck;
@@ -64,7 +75,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * @param flashcardUseCase service for flashcard operations
      * @param presenter presenter for managing practice session logic
      */
-    public PracticeView(FlashcardUseCase flashcardUseCase, PracticePresenter presenter) {
+    public PracticeView(final FlashcardUseCase flashcardUseCase, final PracticePresenter presenter) {
         this.flashcardUseCase = flashcardUseCase;
         this.presenter = presenter;
 
@@ -106,7 +117,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * @param parameter the deck ID as a string from the URL
      */
     @Override
-    public void setParameter(BeforeEvent event, String parameter) {
+    public void setParameter(final BeforeEvent event, final String parameter) {
         try {
             Long deckId = Long.parseLong(parameter);
             loadDeck(deckId);
@@ -126,7 +137,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * @param attachEvent the attachment event
      */
     @Override
-    protected void onAttach(AttachEvent attachEvent) {
+    protected void onAttach(final AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         if (currentDeck != null && !autoStartAttempted) {
             autoStartAttempted = true;
@@ -153,7 +164,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         }
     }
 
-    private void createHeader(VerticalLayout container) {
+    private void createHeader(final VerticalLayout container) {
         HorizontalLayout headerLayout = new HorizontalLayout();
         headerLayout.setWidthFull();
         headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -179,7 +190,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         container.add(headerLayout);
     }
 
-    private void createProgressSection(VerticalLayout container) {
+    private void createProgressSection(final VerticalLayout container) {
         Div progressSection = new Div();
         progressSection.addClassName("practice-progress");
 
@@ -190,7 +201,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         container.add(progressSection);
     }
 
-    private void createCardContainer(VerticalLayout container) {
+    private void createCardContainer(final VerticalLayout container) {
         Div cardContainer = new Div();
         cardContainer.addClassName("practice-card-container");
 
@@ -203,7 +214,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         container.add(cardContainer);
     }
 
-    private void createActionButtons(VerticalLayout container) {
+    private void createActionButtons(final VerticalLayout container) {
         actionButtons = new HorizontalLayout();
         actionButtons.setSpacing(true);
         actionButtons.setWidthFull();
@@ -225,7 +236,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         container.add(actionButtons);
     }
 
-    private void loadDeck(Long deckId) {
+    private void loadDeck(final Long deckId) {
         Optional<Deck> deckOpt = presenter.loadDeck(deckId);
         deckOpt.ifPresentOrElse(
                 deck -> {
@@ -238,8 +249,10 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                 });
     }
 
-    private void startPractice(int count, boolean random) {
-        if (currentDeck == null) return;
+    private void startPractice(final int count, final boolean random) {
+        if (currentDeck == null) {
+            return;
+        }
         List<Flashcard> filtered = presenter.getNotKnownCards(currentDeck.getId());
         if (filtered.isEmpty()) {
             showNoCardsOnce();
@@ -254,17 +267,19 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void updateProgress() {
-        if (session == null || session.getCards() == null || session.getCards().isEmpty()) return;
+        if (session == null || session.getCards() == null || session.getCards().isEmpty()) {
+            return;
+        }
         var p = presenter.progress(session);
         statsSpan.setText(getTranslation(
                 "practice.progressLine", p.current(), p.total(), p.totalViewed(), p.correct(), p.hard(), p.percent()));
     }
 
-    private String getQuestionText(Flashcard card) {
+    private String getQuestionText(final Flashcard card) {
         return sessionDirection == PracticeDirection.BACK_TO_FRONT ? card.getBackText() : card.getFrontText();
     }
 
-    private String getAnswerText(Flashcard card) {
+    private String getAnswerText(final Flashcard card) {
         return sessionDirection == PracticeDirection.BACK_TO_FRONT ? card.getFrontText() : card.getBackText();
     }
 
@@ -295,7 +310,9 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     private void showAnswer() {
-        if (session == null || presenter.isComplete(session)) return;
+        if (session == null || presenter.isComplete(session)) {
+            return;
+        }
         Flashcard currentCard = presenter.currentCard(session);
         presenter.reveal(session);
 
@@ -323,11 +340,18 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         hardButton.setVisible(true);
     }
 
-    private void markLabeled(String label) {
-        if (session == null) return;
-        if (!session.isShowingAnswer()) return;
-        if ("know".equals(label)) presenter.markKnow(session);
-        else presenter.markHard(session);
+    private void markLabeled(final String label) {
+        if (session == null) {
+            return;
+        }
+        if (!session.isShowingAnswer()) {
+            return;
+        }
+        if ("know".equals(label)) {
+            presenter.markKnow(session);
+        } else {
+            presenter.markHard(session);
+        }
         totalViewed = session.getTotalViewed();
         correctCount = session.getCorrectCount();
         hardCount = session.getHardCount();

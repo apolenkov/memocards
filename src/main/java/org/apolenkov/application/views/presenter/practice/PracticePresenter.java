@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Objects;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Component;
  * Presenter for managing flashcard practice sessions.
  */
 @Component
-public class PracticePresenter {
+public final class PracticePresenter {
 
     private final DeckUseCase deckUseCase;
     private final FlashcardUseCase flashcardUseCase;
@@ -37,10 +38,10 @@ public class PracticePresenter {
      * @throws IllegalArgumentException if any parameter is null
      */
     public PracticePresenter(
-            DeckUseCase deckUseCase,
-            FlashcardUseCase flashcardUseCase,
-            StatsService statsService,
-            PracticeSettingsService practiceSettingsService) {
+            final DeckUseCase deckUseCase,
+            final FlashcardUseCase flashcardUseCase,
+            final StatsService statsService,
+            final PracticeSettingsService practiceSettingsService) {
 
         if (deckUseCase == null) {
             throw new IllegalArgumentException("DeckUseCase cannot be null");
@@ -68,7 +69,7 @@ public class PracticePresenter {
      * @return an Optional containing the deck if found, empty otherwise, never null
      * @throws IllegalArgumentException if deckId is not positive
      */
-    public Optional<Deck> loadDeck(long deckId) {
+    public Optional<Deck> loadDeck(final long deckId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
@@ -79,10 +80,10 @@ public class PracticePresenter {
      * Gets cards that are not yet marked as known in a deck.
      *
      * @param deckId the ID of the deck to check (must be positive)
-     * @return a list of flashcards not yet known by the user, never null (may be empty)
+     * @return a list of flashcards not yet known by the user, never null (maybe empty)
      * @throws IllegalArgumentException if deckId is not positive
      */
-    public List<Flashcard> getNotKnownCards(long deckId) {
+    public List<Flashcard> getNotKnownCards(final long deckId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
@@ -98,7 +99,7 @@ public class PracticePresenter {
      * @return the number of cards to include in the practice session (1 to configured default)
      * @throws IllegalArgumentException if deckId is not positive
      */
-    public int resolveDefaultCount(long deckId) {
+    public int resolveDefaultCount(final long deckId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
@@ -136,16 +137,22 @@ public class PracticePresenter {
      * @param random whether to randomize the card order
      * @return a list of flashcards prepared for the practice session
      */
-    public List<Flashcard> prepareSession(long deckId, int count, boolean random) {
+    public List<Flashcard> prepareSession(final long deckId, final int count, final boolean random) {
         // Filter to only unknown cards for focused practice
         List<Flashcard> filtered = new ArrayList<>(getNotKnownCards(deckId));
-        if (filtered.isEmpty()) return filtered;
+        if (filtered.isEmpty()) {
+            return filtered;
+        }
 
         // Randomize card order if requested for varied practice experience
-        if (random) Collections.shuffle(filtered);
+        if (random) {
+            Collections.shuffle(filtered);
+        }
 
         // Limit session size to requested count or available cards
-        if (count < filtered.size()) return new ArrayList<>(filtered.subList(0, count));
+        if (count < filtered.size()) {
+            return new ArrayList<>(filtered.subList(0, count));
+        }
         return filtered;
     }
 
@@ -175,7 +182,7 @@ public class PracticePresenter {
     /**
      * Represents active practice session with state tracking, performance metrics, and progress monitoring.
      */
-    public static class Session {
+    public static final class Session {
         private final long deckId;
         private final List<Flashcard> cards;
         private int index;
@@ -197,7 +204,7 @@ public class PracticePresenter {
          * @param cards the list of flashcards for this session
          * @param direction the practice direction (front-to-back or back-to-front)
          */
-        public Session(long deckId, List<Flashcard> cards, PracticeDirection direction) {
+        public Session(final long deckId, final List<Flashcard> cards, final PracticeDirection direction) {
             this.deckId = deckId;
             this.cards = cards;
             this.direction = direction;
@@ -262,35 +269,35 @@ public class PracticePresenter {
             return failedCardIds;
         }
 
-        public void setIndex(int index) {
+        public void setIndex(final int index) {
             this.index = index;
         }
 
-        public void setShowingAnswer(boolean showingAnswer) {
+        public void setShowingAnswer(final boolean showingAnswer) {
             this.showingAnswer = showingAnswer;
         }
 
-        public void setDirection(PracticeDirection direction) {
+        public void setDirection(final PracticeDirection direction) {
             this.direction = direction;
         }
 
-        public void setCorrectCount(int correctCount) {
+        public void setCorrectCount(final int correctCount) {
             this.correctCount = correctCount;
         }
 
-        public void setHardCount(int hardCount) {
+        public void setHardCount(final int hardCount) {
             this.hardCount = hardCount;
         }
 
-        public void setTotalViewed(int totalViewed) {
+        public void setTotalViewed(final int totalViewed) {
             this.totalViewed = totalViewed;
         }
 
-        public void setCardShowTime(Instant cardShowTime) {
+        public void setCardShowTime(final Instant cardShowTime) {
             this.cardShowTime = cardShowTime;
         }
 
-        public void setTotalAnswerDelayMs(long totalAnswerDelayMs) {
+        public void setTotalAnswerDelayMs(final long totalAnswerDelayMs) {
             this.totalAnswerDelayMs = totalAnswerDelayMs;
         }
     }
@@ -305,7 +312,8 @@ public class PracticePresenter {
      * @param direction the practice direction for the session
      * @return a new Session instance ready for practice
      */
-    public Session startSession(long deckId, int count, boolean random, PracticeDirection direction) {
+    public Session startSession(
+            final long deckId, final int count, final boolean random, final PracticeDirection direction) {
         List<Flashcard> cards = prepareSession(deckId, count, random);
         return new Session(deckId, cards, direction);
     }
@@ -316,7 +324,7 @@ public class PracticePresenter {
      * @param s the session to check
      * @return true if the session is complete, false otherwise
      */
-    public boolean isComplete(Session s) {
+    public boolean isComplete(final Session s) {
         return s.getCards() == null
                 || s.getCards().isEmpty()
                 || s.getIndex() >= s.getCards().size();
@@ -328,12 +336,14 @@ public class PracticePresenter {
      * @param s the session to get the current card from
      * @return the current flashcard, or null if session is complete
      */
-    public Flashcard currentCard(Session s) {
-        if (isComplete(s)) return null;
+    public Flashcard currentCard(final Session s) {
+        if (isComplete(s)) {
+            return null;
+        }
         return s.getCards().get(s.getIndex());
     }
 
-    public void startQuestion(Session s) {
+    public void startQuestion(final Session s) {
         s.setShowingAnswer(false);
         s.setCardShowTime(Instant.now());
     }
@@ -346,7 +356,7 @@ public class PracticePresenter {
      *
      * @param s the session containing the current card
      */
-    public void reveal(Session s) {
+    public void reveal(final Session s) {
         if (s.getCardShowTime() != null) {
             // Calculate time spent thinking about this card
             long delay = Duration.between(s.getCardShowTime(), Instant.now()).toMillis();
@@ -365,15 +375,17 @@ public class PracticePresenter {
      *
      * @param s the session to update
      */
-    public void markKnow(Session s) {
-        if (isComplete(s)) return;
+    public void markKnow(final Session s) {
+        if (isComplete(s)) {
+            return;
+        }
 
         // Increment viewed count and correct answers
         s.setTotalViewed(s.getTotalViewed() + 1);
         s.setCorrectCount(s.getCorrectCount() + 1);
 
         // Track this card as newly learned
-        s.getKnownCardIdsDelta().add(currentCard(s).getId());
+        s.getKnownCardIdsDelta().add(Objects.requireNonNull(currentCard(s)).getId());
 
         // Move to next card and reset answer display
         s.setIndex(s.getIndex() + 1);
@@ -387,15 +399,17 @@ public class PracticePresenter {
      *
      * @param s the session to update
      */
-    public void markHard(Session s) {
-        if (isComplete(s)) return;
+    public void markHard(final Session s) {
+        if (isComplete(s)) {
+            return;
+        }
 
         // Increment viewed count and difficult cards
         s.setTotalViewed(s.getTotalViewed() + 1);
         s.setHardCount(s.getHardCount() + 1);
 
         // Track this card as failed for review purposes
-        s.getFailedCardIds().add(currentCard(s).getId());
+        s.getFailedCardIds().add(Objects.requireNonNull(currentCard(s)).getId());
 
         // Move to next card and reset answer display
         s.setIndex(s.getIndex() + 1);
@@ -422,7 +436,7 @@ public class PracticePresenter {
      * @param s the session to calculate progress for
      * @return a Progress record with current session metrics
      */
-    public Progress progress(Session s) {
+    public Progress progress(final Session s) {
         // Get total cards count, handling null/empty cases
         int total = s.getCards() != null ? s.getCards().size() : 0;
 
@@ -442,7 +456,7 @@ public class PracticePresenter {
      *
      * @param s the completed session to record
      */
-    public void recordAndPersist(Session s) {
+    public void recordAndPersist(final Session s) {
         // Calculate total session duration from start to completion
         Duration duration = Duration.between(s.getSessionStart(), Instant.now());
         recordSession(

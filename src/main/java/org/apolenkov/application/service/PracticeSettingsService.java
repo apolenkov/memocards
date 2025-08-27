@@ -52,10 +52,10 @@ public class PracticeSettingsService {
      * <p>Value is automatically clamped to ensure it remains at least 1.
      * Prevents invalid practice session configurations.</p>
      *
-     * @param defaultCount new default card count (minimum 1)
+     * @param defaultCountValue new default card count (minimum 1)
      */
-    public void setDefaultCount(int defaultCount) {
-        this.defaultCount = Math.clamp(defaultCount, 1, Integer.MAX_VALUE);
+    public void setDefaultCount(final int defaultCountValue) {
+        this.defaultCount = Math.clamp(defaultCountValue, 1, Integer.MAX_VALUE);
     }
 
     /**
@@ -70,10 +70,10 @@ public class PracticeSettingsService {
     /**
      * Sets default setting for randomizing card order.
      *
-     * @param defaultRandomOrder true to randomize cards by default, false to maintain order
+     * @param defaultRandomOrderValue true to randomize cards by default, false to maintain order
      */
-    public void setDefaultRandomOrder(boolean defaultRandomOrder) {
-        this.defaultRandomOrder = defaultRandomOrder;
+    public void setDefaultRandomOrder(final boolean defaultRandomOrderValue) {
+        this.defaultRandomOrder = defaultRandomOrderValue;
     }
 
     /**
@@ -88,9 +88,9 @@ public class PracticeSettingsService {
     /**
      * Sets default practice direction for flashcard sessions.
      *
-     * @param defaultDirection new default practice direction
+     * @param defaultDirectionValue new default practice direction
      */
-    public void setDefaultDirection(PracticeDirection defaultDirection) {
-        this.defaultDirection = defaultDirection;
+    public void setDefaultDirection(final PracticeDirection defaultDirectionValue) {
+        this.defaultDirection = defaultDirectionValue;
     }
 }

@@ -1,7 +1,9 @@
 package org.apolenkov.application.infrastructure.repository.jpa.adapter;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -347,9 +349,10 @@ class DeckJpaAdapterTest {
             Optional<Deck> result = deckJpaAdapter.findById(largeId);
 
             // Then
-            assertThat(result)
-                    .isPresent()
-                    .satisfies(deck -> assertThat(deck.get().getId()).isEqualTo(largeId));
+            assertThat(result).isPresent();
+
+            Deck deck = result.get();
+            assertThat(deck).satisfies(current -> assertThat(current.getId()).isEqualTo(largeId));
         }
 
         @Test
@@ -411,7 +414,8 @@ class DeckJpaAdapterTest {
     }
 
     // Helper method to create mock DeckEntity
-    private DeckEntity createMockDeckEntity(Long id, Long userId, String title, String description) {
+    private DeckEntity createMockDeckEntity(
+            final Long id, final Long userId, final String title, final String description) {
         DeckEntity entity = new DeckEntity();
         entity.setId(id);
         entity.setUserId(userId);

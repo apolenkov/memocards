@@ -23,20 +23,20 @@ public class UserUseCaseService implements UserUseCase {
     /**
      * Creates a new UserUseCaseService with the required repository dependency.
      *
-     * @param userRepository the repository for user persistence operations (non-null)
+     * @param userRepositoryValue the repository for user persistence operations (non-null)
      * @throws IllegalArgumentException if userRepository is null
      */
-    public UserUseCaseService(UserRepository userRepository) {
-        if (userRepository == null) {
+    public UserUseCaseService(final UserRepository userRepositoryValue) {
+        if (userRepositoryValue == null) {
             throw new IllegalArgumentException("UserRepository cannot be null");
         }
-        this.userRepository = userRepository;
+        this.userRepository = userRepositoryValue;
     }
 
     /**
      * Gets all users in the system.
      *
-     * @return a list of all users in the system, never null (may be empty)
+     * @return a list of all users in the system, never null (maybe empty)
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
@@ -52,7 +52,7 @@ public class UserUseCaseService implements UserUseCase {
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
-    public Optional<User> getUserById(Long id) {
+    public Optional<User> getUserById(final Long id) {
         return userRepository.findById(id);
     }
 
@@ -85,7 +85,7 @@ public class UserUseCaseService implements UserUseCase {
                         () -> new IllegalStateException("Authenticated principal has no domain user: " + username));
     }
 
-    private String getUsername(Object principal) {
+    private String getUsername(final Object principal) {
         if (principal instanceof UserDetails p) {
             return p.getUsername();
         }

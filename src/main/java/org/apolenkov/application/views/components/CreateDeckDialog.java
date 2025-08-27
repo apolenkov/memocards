@@ -36,7 +36,8 @@ public class CreateDeckDialog extends Dialog {
      * @param userUseCase service for user operations
      * @param onCreated callback function called when deck is successfully created
      */
-    public CreateDeckDialog(DeckFacade deckFacade, UserUseCase userUseCase, Consumer<Deck> onCreated) {
+    public CreateDeckDialog(
+            final DeckFacade deckFacade, final UserUseCase userUseCase, final Consumer<Deck> onCreated) {
         this.deckFacade = deckFacade;
         this.userUseCase = userUseCase;
         this.onCreated = onCreated;
@@ -97,7 +98,9 @@ public class CreateDeckDialog extends Dialog {
                 Notification.show(getTranslation("home.deckCreated"), 2000, Notification.Position.BOTTOM_START);
                 close();
                 // Execute callback and navigate to new deck
-                if (onCreated != null) onCreated.accept(saved);
+                if (onCreated != null) {
+                    onCreated.accept(saved);
+                }
                 getUI().ifPresent(ui -> ui.navigate(
                         RouteConstants.DECK_ROUTE + "/" + saved.getId().toString()));
             } catch (ValidationException vex) {

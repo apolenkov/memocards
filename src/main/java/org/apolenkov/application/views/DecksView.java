@@ -17,7 +17,11 @@ import org.apolenkov.application.views.components.CreateDeckDialog;
 import org.apolenkov.application.views.components.DeckCard;
 import org.apolenkov.application.views.home.DeckCardViewModel;
 import org.apolenkov.application.views.home.HomePresenter;
-import org.apolenkov.application.views.utils.*;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.FormHelper;
+import org.apolenkov.application.views.utils.IconHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
+import org.apolenkov.application.views.utils.TextHelper;
 
 /**
  * View for displaying and managing user's flashcard decks.
@@ -42,14 +46,17 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
      * deck listing, and creation capabilities. The view is configured with
      * proper styling and responsive layout for optimal user experience.
      *
-     * @param homePresenter service for home page operations and deck listing
-     * @param deckFacade service for deck management operations
-     * @param userUseCase service for user operations and authentication
+     * @param homePresenterValue service for home page operations and deck listing
+     * @param deckFacadeValue service for deck management operations
+     * @param userUseCaseValue service for user operations and authentication
      */
-    public DecksView(HomePresenter homePresenter, DeckFacade deckFacade, UserUseCase userUseCase) {
-        this.homePresenter = homePresenter;
-        this.deckFacade = deckFacade;
-        this.userUseCase = userUseCase;
+    public DecksView(
+            final HomePresenter homePresenterValue,
+            final DeckFacade deckFacadeValue,
+            final UserUseCase userUseCaseValue) {
+        this.homePresenter = homePresenterValue;
+        this.deckFacade = deckFacadeValue;
+        this.userUseCase = userUseCaseValue;
 
         setPadding(false);
         setSpacing(false);
@@ -109,7 +116,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
      *
      * @param query the search query to filter decks by title or description
      */
-    private void refreshDecks(String query) {
+    private void refreshDecks(final String query) {
         deckList.removeAll();
         List<DeckCardViewModel> decks = homePresenter.listDecksForCurrentUser(query);
         if (decks == null || decks.isEmpty()) {

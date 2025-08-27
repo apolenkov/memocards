@@ -38,7 +38,10 @@ public class DataInitializer {
     @Bean
     @Order(20)
     CommandLineRunner initDemoData(
-            UserRepository users, DeckRepository decks, FlashcardRepository cards, NewsRepository news) {
+            final UserRepository users,
+            final DeckRepository decks,
+            final FlashcardRepository cards,
+            final NewsRepository news) {
         return args -> {
             // Find the demo user (must exist for demo data creation)
             java.util.Optional<User> opt = users.findByEmail("user@example.com");
@@ -48,7 +51,9 @@ public class DataInitializer {
             User user = opt.get();
 
             // Skip if user already has decks (avoid duplicate data)
-            if (!decks.findByUserId(user.getId()).isEmpty()) return;
+            if (!decks.findByUserId(user.getId()).isEmpty()) {
+                return;
+            }
 
             // Create three themed decks for demonstration
             Deck travel = decks.save(new Deck(null, user.getId(), "Travel - phrases", "Short phrases for trips"));

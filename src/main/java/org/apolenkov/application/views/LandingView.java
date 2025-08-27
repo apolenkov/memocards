@@ -36,7 +36,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
      *
      * @param newsService service for retrieving and displaying news content
      */
-    public LandingView(NewsService newsService) {
+    public LandingView(final NewsService newsService) {
         setSpacing(true);
         setPadding(true);
         setWidthFull();

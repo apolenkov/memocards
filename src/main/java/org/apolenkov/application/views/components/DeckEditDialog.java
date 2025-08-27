@@ -36,7 +36,7 @@ public class DeckEditDialog extends Dialog {
      * @param deck the deck object to edit
      * @param onSaved callback to execute when the deck is successfully saved
      */
-    public DeckEditDialog(DeckFacade deckFacade, Deck deck, Consumer<Deck> onSaved) {
+    public DeckEditDialog(final DeckFacade deckFacade, final Deck deck, final Consumer<Deck> onSaved) {
         this.deckFacade = deckFacade;
         this.deck = deck;
         this.onSaved = onSaved;
@@ -90,7 +90,9 @@ public class DeckEditDialog extends Dialog {
                 Deck saved = deckFacade.saveDeck(deck);
                 Notification.show(getTranslation("deck.edit.success"), 2000, Notification.Position.BOTTOM_START);
                 close();
-                if (onSaved != null) onSaved.accept(saved);
+                if (onSaved != null) {
+                    onSaved.accept(saved);
+                }
             } catch (ValidationException vex) {
                 Notification.show(getTranslation("dialog.fillRequired"), 3000, Notification.Position.BOTTOM_START);
             } catch (Exception ex) {

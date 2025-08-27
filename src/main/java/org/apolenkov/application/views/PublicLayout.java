@@ -22,12 +22,12 @@ public class PublicLayout extends AppLayout {
      * Initializes the layout with language switcher and top menu components,
      * setting up the primary navigation section and header content.
      *
-     * @param languageSwitcher component for language selection
-     * @param topMenu component for top navigation and user menu
+     * @param languageSwitcherValue component for language selection
+     * @param topMenuValue component for top navigation and user menu
      */
-    public PublicLayout(LanguageSwitcher languageSwitcher, TopMenu topMenu) {
-        this.languageSwitcher = languageSwitcher;
-        this.topMenu = topMenu;
+    public PublicLayout(final LanguageSwitcher languageSwitcherValue, final TopMenu topMenuValue) {
+        this.languageSwitcher = languageSwitcherValue;
+        this.topMenu = topMenuValue;
         setPrimarySection(Section.NAVBAR);
         addHeaderContent();
     }

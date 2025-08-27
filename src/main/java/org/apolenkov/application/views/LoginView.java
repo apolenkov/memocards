@@ -39,16 +39,16 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
             return email;
         }
 
-        public void setEmail(String email) {
-            this.email = email;
+        public void setEmail(final String emailValue) {
+            this.email = emailValue;
         }
 
         public String getPassword() {
             return password;
         }
 
-        public void setPassword(String password) {
-            this.password = password;
+        public void setPassword(final String passwordValue) {
+            this.password = passwordValue;
         }
     }
 
@@ -57,7 +57,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
      *
      * @param authFacade service for handling user authentication
      */
-    public LoginView(AuthFacade authFacade) {
+    public LoginView(final AuthFacade authFacade) {
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();
         wrapper.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
@@ -144,7 +144,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
      * @param event the before enter event containing navigation context
      */
     @Override
-    public void beforeEnter(BeforeEnterEvent event) {
+    public void beforeEnter(final BeforeEnterEvent event) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
             event.rerouteTo("");
@@ -152,7 +152,9 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         }
         boolean hasError =
                 event.getLocation().getQueryParameters().getParameters().containsKey("error");
-        if (hasError) NotificationHelper.showError(getTranslation("auth.login.errorMessage"));
+        if (hasError) {
+            NotificationHelper.showError(getTranslation("auth.login.errorMessage"));
+        }
     }
 
     /**

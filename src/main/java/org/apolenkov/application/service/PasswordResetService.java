@@ -31,28 +31,28 @@ public class PasswordResetService {
     /**
      * Creates PasswordResetService with required dependencies.
      *
-     * @param tokenRepository repository for password reset token operations
-     * @param userRepository repository for user operations
-     * @param passwordEncoder encoder for secure password hashing
+     * @param tokenRepositoryValue repository for password reset token operations
+     * @param userRepositoryValue repository for user operations
+     * @param passwordEncoderValue encoder for secure password hashing
      * @throws IllegalArgumentException if any parameter is null
      */
     public PasswordResetService(
-            PasswordResetTokenRepository tokenRepository,
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
-        if (tokenRepository == null) {
+            final PasswordResetTokenRepository tokenRepositoryValue,
+            final UserRepository userRepositoryValue,
+            final PasswordEncoder passwordEncoderValue) {
+        if (tokenRepositoryValue == null) {
             throw new IllegalArgumentException("PasswordResetTokenRepository cannot be null");
         }
-        if (userRepository == null) {
+        if (userRepositoryValue == null) {
             throw new IllegalArgumentException("UserRepository cannot be null");
         }
-        if (passwordEncoder == null) {
+        if (passwordEncoderValue == null) {
             throw new IllegalArgumentException("PasswordEncoder cannot be null");
         }
 
-        this.tokenRepository = tokenRepository;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.tokenRepository = tokenRepositoryValue;
+        this.userRepository = userRepositoryValue;
+        this.passwordEncoder = passwordEncoderValue;
     }
 
     /**
@@ -65,7 +65,7 @@ public class PasswordResetService {
      * @throws RuntimeException if database operation fails
      */
     @Transactional
-    public Optional<String> createPasswordResetToken(String email) {
+    public Optional<String> createPasswordResetToken(final String email) {
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email cannot be null or empty");
         }
@@ -104,7 +104,7 @@ public class PasswordResetService {
      * @throws RuntimeException if database operation fails
      */
     @Transactional
-    public boolean resetPassword(String token, String newPassword) {
+    public boolean resetPassword(final String token, final String newPassword) {
         if (token == null || token.trim().isEmpty()) {
             throw new IllegalArgumentException("Token cannot be null or empty");
         }
@@ -149,7 +149,7 @@ public class PasswordResetService {
      * @return true if token is valid and can be used
      * @throws IllegalArgumentException if token is null or empty
      */
-    public boolean isTokenValid(String token) {
+    public boolean isTokenValid(final String token) {
         if (token == null || token.trim().isEmpty()) {
             throw new IllegalArgumentException("Token cannot be null or empty");
         }

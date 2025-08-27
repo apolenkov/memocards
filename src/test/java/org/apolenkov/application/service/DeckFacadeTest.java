@@ -1,7 +1,10 @@
 package org.apolenkov.application.service;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
@@ -165,8 +168,8 @@ class DeckFacadeTest {
         @DisplayName("ToggleKnown should toggle card knowledge status")
         void toggleKnownShouldToggleCardKnowledgeStatus() {
             // Given
-            Long deckId = 1L;
-            Long cardId = 5L;
+            long deckId = 1L;
+            long cardId = 5L;
             when(statsService.isCardKnown(deckId, cardId)).thenReturn(false);
 
             // When
@@ -181,8 +184,8 @@ class DeckFacadeTest {
         @DisplayName("ToggleKnown should toggle from known to unknown")
         void toggleKnownShouldToggleFromKnownToUnknown() {
             // Given
-            Long deckId = 1L;
-            Long cardId = 5L;
+            long deckId = 1L;
+            long cardId = 5L;
             when(statsService.isCardKnown(deckId, cardId)).thenReturn(true);
 
             // When
@@ -197,7 +200,7 @@ class DeckFacadeTest {
         @DisplayName("ResetProgress should reset deck progress")
         void resetProgressShouldResetDeckProgress() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
 
             // When
             deckFacade.resetProgress(deckId);
@@ -285,7 +288,7 @@ class DeckFacadeTest {
         @DisplayName("ProgressPercent should return correct percentage")
         void progressPercentShouldReturnCorrectPercentage() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             int deckSize = 10;
             int expectedPercent = 60;
 
@@ -316,7 +319,7 @@ class DeckFacadeTest {
         @DisplayName("ProgressPercent should handle zero deck size")
         void progressPercentShouldHandleZeroDeckSize() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             when(flashcardUseCase.getFlashcardsByDeckId(deckId)).thenReturn(List.of());
             when(statsService.getDeckProgressPercent(deckId, 0)).thenReturn(0);
 
@@ -338,36 +341,33 @@ class DeckFacadeTest {
         @DisplayName("Should handle null flashcard in saveFlashcard")
         void shouldHandleNullFlashcardInSaveFlashcard() {
             // Given
-            Flashcard nullFlashcard = null;
-            when(flashcardUseCase.saveFlashcard(nullFlashcard))
-                    .thenThrow(new NullPointerException("flashcard cannot be null"));
+            when(flashcardUseCase.saveFlashcard(null)).thenThrow(new NullPointerException("flashcard cannot be null"));
 
             // When & Then
-            assertThatThrownBy(() -> deckFacade.saveFlashcard(nullFlashcard))
+            assertThatThrownBy(() -> deckFacade.saveFlashcard(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("flashcard cannot be null");
-            verify(flashcardUseCase).saveFlashcard(nullFlashcard);
+            verify(flashcardUseCase).saveFlashcard(null);
         }
 
         @Test
         @DisplayName("Should handle null deck in saveDeck")
         void shouldHandleNullDeckInSaveDeck() {
             // Given
-            Deck nullDeck = null;
-            when(deckUseCase.saveDeck(nullDeck)).thenThrow(new NullPointerException("deck cannot be null"));
+            when(deckUseCase.saveDeck(null)).thenThrow(new NullPointerException("deck cannot be null"));
 
             // When & Then
-            assertThatThrownBy(() -> deckFacade.saveDeck(nullDeck))
+            assertThatThrownBy(() -> deckFacade.saveDeck(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessage("deck cannot be null");
-            verify(deckUseCase).saveDeck(nullDeck);
+            verify(deckUseCase).saveDeck(null);
         }
 
         @Test
         @DisplayName("Should handle very large deck IDs")
         void shouldHandleVeryLargeDeckIds() {
             // Given
-            Long largeDeckId = Long.MAX_VALUE;
+            long largeDeckId = Long.MAX_VALUE;
             when(flashcardUseCase.getFlashcardsByDeckId(largeDeckId)).thenReturn(List.of());
 
             // When & Then
@@ -378,8 +378,8 @@ class DeckFacadeTest {
         @DisplayName("Should handle very large card IDs")
         void shouldHandleVeryLargeCardIds() {
             // Given
-            Long deckId = 1L;
-            Long largeCardId = Long.MAX_VALUE;
+            long deckId = 1L;
+            long largeCardId = Long.MAX_VALUE;
             when(statsService.isCardKnown(deckId, largeCardId)).thenReturn(false);
 
             // When & Then

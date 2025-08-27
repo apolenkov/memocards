@@ -44,12 +44,12 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * the header with navigation controls and the main form for deck creation.
      * The view is configured with responsive design and proper spacing.
      *
-     * @param deckUseCase deck business logic for saving new decks
-     * @param userUseCase user business logic for current user operations
+     * @param deckUseCaseValue deck business logic for saving new decks
+     * @param userUseCaseValue user business logic for current user operations
      */
-    public DeckCreateView(DeckUseCase deckUseCase, UserUseCase userUseCase) {
-        this.deckUseCase = deckUseCase;
-        this.userUseCase = userUseCase;
+    public DeckCreateView(final DeckUseCase deckUseCaseValue, final UserUseCase userUseCaseValue) {
+        this.deckUseCase = deckUseCaseValue;
+        this.userUseCase = userUseCaseValue;
 
         getContent().setWidthFull();
         getContent().setPadding(true);

@@ -26,7 +26,7 @@ public class PracticeSettingsDialog extends Dialog {
      *
      * @param practiceSettingsService service for managing practice settings
      */
-    public PracticeSettingsDialog(PracticeSettingsService practiceSettingsService) {
+    public PracticeSettingsDialog(final PracticeSettingsService practiceSettingsService) {
         addClassName("dialog-md");
 
         // Create main layout with proper spacing and padding
