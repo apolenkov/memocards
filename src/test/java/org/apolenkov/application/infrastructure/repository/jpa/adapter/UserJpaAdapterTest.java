@@ -81,8 +81,8 @@ class UserJpaAdapterTest {
 
             // Then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getEmail()).isEqualTo("user1@test.com");
-            assertThat(result.get(0).getName()).isEqualTo("User 1");
+            assertThat(result.getFirst().getEmail()).isEqualTo("user1@test.com");
+            assertThat(result.getFirst().getName()).isEqualTo("User 1");
             assertThat(result.get(1).getEmail()).isEqualTo("user2@test.com");
             assertThat(result.get(1).getName()).isEqualTo("User 2");
             verify(repo).findAll();

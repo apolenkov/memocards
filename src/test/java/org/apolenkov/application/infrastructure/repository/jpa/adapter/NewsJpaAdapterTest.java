@@ -85,8 +85,8 @@ class NewsJpaAdapterTest {
 
             // Then
             assertThat(result).hasSize(3);
-            assertThat(result.get(0).getTitle()).isEqualTo("News 1");
-            assertThat(result.get(0).getCreatedAt()).isEqualTo(now);
+            assertThat(result.getFirst().getTitle()).isEqualTo("News 1");
+            assertThat(result.getFirst().getCreatedAt()).isEqualTo(now);
             assertThat(result.get(1).getTitle()).isEqualTo("News 2");
             assertThat(result.get(1).getCreatedAt()).isEqualTo(yesterday);
             assertThat(result.get(2).getTitle()).isEqualTo("News 3");
