@@ -76,8 +76,8 @@ public final class I18nHelper {
     }
 
     /**
-     * Resolves the current locale with fallback chain:
-     * VaadinSession -> LocaleContextHolder -> English
+     * Resolves the current locale with fallback chain.
+     * VaadinSession -> LocaleContextHolder -> English.
      *
      * @return resolved locale, never null
      */

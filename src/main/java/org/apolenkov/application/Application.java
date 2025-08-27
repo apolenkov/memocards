@@ -30,6 +30,8 @@ public class Application implements VaadinServiceInitListener {
 
     /**
      * Starts the Spring Boot application.
+     *
+     * @param args command line arguments passed to the application
      */
     public static void main(final String[] args) {
         LOGGER.info("Starting Flashcards application...");
@@ -117,6 +119,9 @@ public class Application implements VaadinServiceInitListener {
 
     /**
      * Processes UI errors with safe navigation and cycle protection.
+     *
+     * @param ui the UI instance where the error occurred
+     * @param errorEvent the error event containing error details
      */
     private void handleUiError(final UI ui, final ErrorEvent errorEvent) {
         if (LOGGER.isTraceEnabled()) {
@@ -185,6 +190,8 @@ public class Application implements VaadinServiceInitListener {
 
     /**
      * Applies user's preferred locale from cookie or session.
+     *
+     * @param ui the UI instance to apply locale settings to
      */
     private void applyPreferredLocale(final UI ui) {
         VaadinSession session = ui.getSession();

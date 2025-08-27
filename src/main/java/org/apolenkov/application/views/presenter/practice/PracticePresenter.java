@@ -218,86 +218,191 @@ public final class PracticePresenter {
             this.sessionStart = Instant.now();
         }
 
+        /**
+         * Gets the deck ID for this practice session.
+         *
+         * @return the deck ID
+         */
         public long getDeckId() {
             return deckId;
         }
 
+        /**
+         * Gets the list of flashcards for this practice session.
+         *
+         * @return the list of flashcards
+         */
         public List<Flashcard> getCards() {
             return cards;
         }
 
+        /**
+         * Gets the current card index in the practice session.
+         *
+         * @return the current card index
+         */
         public int getIndex() {
             return index;
         }
 
+        /**
+         * Checks if the answer is currently being shown.
+         *
+         * @return true if answer is shown, false otherwise
+         */
         public boolean isShowingAnswer() {
             return showingAnswer;
         }
 
+        /**
+         * Gets the practice direction for this session.
+         *
+         * @return the practice direction
+         */
         public PracticeDirection getDirection() {
             return direction;
         }
 
+        /**
+         * Gets the count of correct answers in this session.
+         *
+         * @return the correct answer count
+         */
         public int getCorrectCount() {
             return correctCount;
         }
 
+        /**
+         * Gets the count of hard cards in this session.
+         *
+         * @return the hard card count
+         */
         public int getHardCount() {
             return hardCount;
         }
 
+        /**
+         * Gets the total number of cards viewed in this session.
+         *
+         * @return the total viewed count
+         */
         public int getTotalViewed() {
             return totalViewed;
         }
 
+        /**
+         * Gets the session start timestamp.
+         *
+         * @return the session start time
+         */
         public Instant getSessionStart() {
             return sessionStart;
         }
 
+        /**
+         * Gets the timestamp when the current card was shown.
+         *
+         * @return the card show time
+         */
         public Instant getCardShowTime() {
             return cardShowTime;
         }
 
+        /**
+         * Gets the total answer delay in milliseconds for this session.
+         *
+         * @return the total answer delay in milliseconds
+         */
         public long getTotalAnswerDelayMs() {
             return totalAnswerDelayMs;
         }
 
+        /**
+         * Gets the list of card IDs that became known during this session.
+         *
+         * @return the list of newly known card IDs
+         */
         public List<Long> getKnownCardIdsDelta() {
             return knownCardIdsDelta;
         }
 
+        /**
+         * Gets the list of card IDs that failed during this session.
+         *
+         * @return the list of failed card IDs
+         */
         public List<Long> getFailedCardIds() {
             return failedCardIds;
         }
 
+        /**
+         * Sets the current card index in the practice session.
+         *
+         * @param indexValue the new card index
+         */
         public void setIndex(final int indexValue) {
             this.index = indexValue;
         }
 
+        /**
+         * Sets whether the answer is currently being shown.
+         *
+         * @param showingAnswerValue true to show answer, false to hide
+         */
         public void setShowingAnswer(final boolean showingAnswerValue) {
             this.showingAnswer = showingAnswerValue;
         }
 
+        /**
+         * Sets the practice direction for this session.
+         *
+         * @param directionValue the new practice direction
+         */
         public void setDirection(final PracticeDirection directionValue) {
             this.direction = directionValue;
         }
 
+        /**
+         * Sets the count of correct answers in this session.
+         *
+         * @param correctCountValue the new correct answer count
+         */
         public void setCorrectCount(final int correctCountValue) {
             this.correctCount = correctCountValue;
         }
 
+        /**
+         * Sets the count of hard cards in this session.
+         *
+         * @param hardCountValue the new hard card count
+         */
         public void setHardCount(final int hardCountValue) {
             this.hardCount = hardCountValue;
         }
 
+        /**
+         * Sets the total number of cards viewed in this session.
+         *
+         * @param totalViewedValue the new total viewed count
+         */
         public void setTotalViewed(final int totalViewedValue) {
             this.totalViewed = totalViewedValue;
         }
 
+        /**
+         * Sets the timestamp when the current card was shown.
+         *
+         * @param cardShowTimeValue the new card show time
+         */
         public void setCardShowTime(final Instant cardShowTimeValue) {
             this.cardShowTime = cardShowTimeValue;
         }
 
+        /**
+         * Sets the total answer delay in milliseconds for this session.
+         *
+         * @param totalAnswerDelayMsValue the new total answer delay
+         */
         public void setTotalAnswerDelayMs(final long totalAnswerDelayMsValue) {
             this.totalAnswerDelayMs = totalAnswerDelayMsValue;
         }
@@ -344,6 +449,12 @@ public final class PracticePresenter {
         return s.getCards().get(s.getIndex());
     }
 
+    /**
+     * Starts a new question in the practice session.
+     * Resets the answer display and records the start time for timing calculations.
+     *
+     * @param s the session to start the question for
+     */
     public void startQuestion(final Session s) {
         s.setShowingAnswer(false);
         s.setCardShowTime(Instant.now());

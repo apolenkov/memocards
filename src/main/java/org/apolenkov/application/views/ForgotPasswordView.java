@@ -108,6 +108,8 @@ public final class ForgotPasswordView extends Div implements BeforeEnterObserver
     /**
      * Handles password reset request submission.
      * Creates reset token and navigates to reset page or shows appropriate messages.
+     *
+     * @param email the email address for password reset
      */
     private void handleSubmit(final String email) {
         if (email == null || email.trim().isEmpty()) {
