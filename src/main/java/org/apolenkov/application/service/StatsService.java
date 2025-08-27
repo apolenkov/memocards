@@ -1,99 +1,51 @@
 package org.apolenkov.application.service;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.StatsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service for managing flashcard practice statistics and progress tracking.
- * Provides comprehensive statistics tracking for flashcard practice sessions,
- * including daily performance metrics, card knowledge status, and deck progress calculations.
+ * Service for managing statistics and progress tracking.
+ * Handles session recording, daily statistics aggregation, and card knowledge management.
  */
 @Service
+@Transactional
 public class StatsService {
 
     private final StatsRepository statsRepository;
 
     /**
-     * Creates StatsService with required repository dependency.
+     * Constructs StatsService with required dependencies.
      *
-     * @param statsRepositoryValue repository for persisting and retrieving statistics (non-null)
-     * @throws IllegalArgumentException if statsRepository is null
+     * @param statsRepositoryValue repository for statistics operations
      */
+    @Autowired
     public StatsService(final StatsRepository statsRepositoryValue) {
-        if (statsRepositoryValue == null) {
-            throw new IllegalArgumentException("StatsRepository cannot be null");
-        }
         this.statsRepository = statsRepositoryValue;
     }
 
     /**
      * Records practice session and updates daily statistics.
      *
-     * @param deckId ID of deck being practiced (must be positive)
-     * @param viewed number of cards viewed in this session (must be non-negative)
-     * @param correct number of cards answered correctly (must be non-negative)
-     * @param repeat number of cards marked for repetition (must be non-negative)
-     * @param hard number of cards marked as difficult (must be non-negative)
-     * @param sessionDuration total duration of practice session (non-null, must be positive)
-     * @param totalAnswerDelayMs total time spent thinking before answering (must be non-negative)
-     * @param knownCardIdsDelta collection of card IDs whose knowledge status changed (maybe null or empty)
+     * @param sessionData session data containing all required parameters
      * @throws IllegalArgumentException if any parameter violates constraints
      */
     @Transactional
-    @SuppressWarnings({"java:S107", "ParameterNumber"})
-    public void recordSession(
-            final long deckId,
-            final int viewed,
-            final int correct,
-            final int repeat,
-            final int hard,
-            final Duration sessionDuration,
-            final long totalAnswerDelayMs,
-            final Collection<Long> knownCardIdsDelta) {
-
-        // Validate parameters
-        if (deckId <= 0) {
-            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
-        }
-        if (correct < 0) {
-            throw new IllegalArgumentException("Correct count cannot be negative, got: " + correct);
-        }
-        if (repeat < 0) {
-            throw new IllegalArgumentException("Repeat count cannot be negative, got: " + repeat);
-        }
-        if (hard < 0) {
-            throw new IllegalArgumentException("Hard count cannot be negative, got: " + hard);
-        }
-        if (sessionDuration == null) {
-            throw new IllegalArgumentException("Session duration cannot be null");
-        }
-        if (totalAnswerDelayMs < 0) {
-            throw new IllegalArgumentException("Total answer delay cannot be negative, got: " + totalAnswerDelayMs);
-        }
-
+    public void recordSession(final SessionStatsDto sessionData) {
         // Early return if no cards were viewed (including negative values)
-        if (viewed <= 0) {
+        if (sessionData.viewed() <= 0) {
             return;
         }
 
         LocalDate today = LocalDate.now();
-        statsRepository.appendSession(
-                deckId,
-                today,
-                viewed,
-                correct,
-                repeat,
-                hard,
-                sessionDuration.toMillis(),
-                totalAnswerDelayMs,
-                knownCardIdsDelta);
+        statsRepository.appendSession(sessionData, today);
     }
 
     /**
@@ -186,6 +138,7 @@ public class StatsService {
 
     /**
      * Resets all progress for specific deck.
+     * Removes all known card associations and resets daily statistics.
      *
      * @param deckId ID of deck to reset progress for
      */
@@ -195,29 +148,32 @@ public class StatsService {
     }
 
     /**
-     * Retrieves aggregate statistics for multiple decks with performance metrics and progress information.
+     * Retrieves aggregated statistics for multiple decks.
+     * Provides summary information for dashboard and progress tracking.
      *
-     * @param deckIds list of deck IDs to retrieve aggregates for
-     * @param today reference date for calculating aggregates
-     * @return map of deck ID to aggregate statistics
+     * @param deckIds list of deck IDs to aggregate statistics for
+     * @return map of deck ID to aggregated statistics, never null
      */
     @Transactional(readOnly = true)
-    public java.util.Map<Long, org.apolenkov.application.domain.port.StatsRepository.DeckAggregate> getDeckAggregates(
-            final java.util.List<Long> deckIds, final java.time.LocalDate today) {
-        return statsRepository.getAggregatesForDecks(deckIds, today);
+    public Map<Long, StatsRepository.DeckAggregate> getDeckAggregates(final List<Long> deckIds) {
+        if (deckIds == null || deckIds.isEmpty()) {
+            return Map.of();
+        }
+        return statsRepository.getAggregatesForDecks(deckIds, LocalDate.now());
     }
 
     /**
-     * Record representing daily statistics for a deck with session counts, performance metrics, and timing.
+     * Record for daily statistics with calculated averages.
+     * Provides both raw counts and computed metrics for analysis.
      *
-     * @param date the date for these statistics
-     * @param sessions number of study sessions
-     * @param viewed number of cards viewed
-     * @param correct number of correct answers
-     * @param repeat number of cards marked for repetition
-     * @param hard number of cards marked as hard
-     * @param totalDurationMs total study duration in milliseconds
-     * @param totalAnswerDelayMs total delay before answering in milliseconds
+     * @param date calendar date for these statistics
+     * @param sessions number of practice sessions
+     * @param viewed total cards viewed
+     * @param correct total correct answers
+     * @param repeat total repeat attempts
+     * @param hard total hard card markings
+     * @param totalDurationMs total session duration in milliseconds
+     * @param totalAnswerDelayMs total answer delay in milliseconds
      */
     public record DailyStats(
             LocalDate date,
@@ -230,11 +186,12 @@ public class StatsService {
             long totalAnswerDelayMs) {
 
         /**
-         * Calculates average answer delay per card.
+         * Calculates average answer delay per card in milliseconds.
+         * Returns 0.0 if no cards were viewed to avoid division by zero.
          *
-         * @return average answer delay in milliseconds, or 0.0 if no cards viewed
+         * @return average delay in milliseconds, or 0.0 if no cards viewed
          */
-        public double getAvgDelayMs() {
+        public double averageAnswerDelayMs() {
             return viewed > 0 ? (double) totalAnswerDelayMs / viewed : 0.0;
         }
     }

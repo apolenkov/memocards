@@ -1,9 +1,9 @@
 package org.apolenkov.application.domain.port;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import org.apolenkov.application.domain.dto.SessionStatsDto;
 
 /**
  * Domain port for statistics and progress tracking.
@@ -16,27 +16,10 @@ public interface StatsRepository {
     /**
      * Records practice session for deck with performance metrics and known card tracking.
      *
-     * @param deckId deck identifier
-     * @param date practice date
-     * @param viewed cards viewed in session
-     * @param correct correct answers in session
-     * @param repeat repeat attempts in session
-     * @param hard hard cards in session
-     * @param sessionDurationMs session duration in milliseconds
-     * @param totalAnswerDelayMs total answer delay in milliseconds
-     * @param knownCardIdsDelta new known card IDs from this session
+     * @param sessionStats session statistics data
+     * @param date date for the session
      */
-    @SuppressWarnings({"java:S107", "ParameterNumber"})
-    void appendSession(
-            long deckId,
-            LocalDate date,
-            int viewed,
-            int correct,
-            int repeat,
-            int hard,
-            long sessionDurationMs,
-            long totalAnswerDelayMs,
-            Collection<Long> knownCardIdsDelta);
+    void appendSession(SessionStatsDto sessionStats, LocalDate date);
 
     /**
      * Gets daily statistics for deck.
