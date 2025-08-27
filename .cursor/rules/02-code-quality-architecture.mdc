@@ -1,0 +1,38 @@
+# Code Quality & Architecture
+
+## Core Principles
+- **DRY**: No code duplication, extract common functionality
+- **SOLID**: Follow all five object-oriented design principles
+- **Clean Architecture**: Strict separation into layers with correct dependency direction
+- **KISS**: Solution simplicity without unnecessary complexity
+- **YAGNI**: Implement only necessary functionality
+
+## Architectural Standards
+- **Avoid anti-patterns**: God Object, Spaghetti Code, Anemic Domain Model
+- **Use design patterns** appropriately for complex scenarios
+- **Implement proper separation of concerns**
+- **Follow dependency injection** best practices
+- **Write comprehensive tests** for all business logic
+
+## Java Best Practices
+- **Prefer primitive types** over wrappers when possible (see primitive-types-preference.mdc)
+- **Use constructor injection** for Spring beans (never @Autowired on fields)
+- **Follow Java 8+ patterns**: Stream API, Optional, records, pattern matching
+- **Never use FQN** - always add proper imports
+- **Use proper logging** (SLF4J/Logback, never System.out.println)
+
+## Spring Best Practices
+- **Constructor Injection**: Always use constructor injection for Spring beans
+- **No @Autowired on constructors**: Spring automatically detects single constructor
+- **Proper dependency management**: Use final fields for injected dependencies
+- **Bean lifecycle**: Follow Spring bean lifecycle best practices
+
+## Testability
+- **Unit tests**: Each component should be easily testable
+- **Integration tests**: Check interaction between components
+- **Test coverage**: High coverage of critical business logic
+- **Mock external dependencies** appropriately
+description:
+globs:
+alwaysApply: true
+---
