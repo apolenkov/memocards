@@ -1,0 +1,255 @@
+---
+description: Database design, JPA best practices and data access layer standards
+globs: ["**/entity/**", "**/repository/**", "**/dto/**", "**/mapper/**"]
+alwaysApply: true
+---
+
+# Database & JPA Best Practices
+
+## Database Design Principles
+- **Normalization**: Follow 3NF for most cases, denormalize strategically
+- **Indexing Strategy**: Create indexes for frequently queried columns
+- **Partitioning**: Use table partitioning for large datasets
+- **Archiving Strategy**: Implement data archiving for historical data
+- **Backup & Recovery**: Regular backups with point-in-time recovery
+
+## JPA Entity Design
+- **Immutable IDs**: Use @Id with @GeneratedValue for primary keys
+- **Proper Relationships**: Define clear relationships with appropriate fetch types
+- **Audit Fields**: Include created/updated timestamps and user information
+- **Version Control**: Use @Version for optimistic locking
+- **Validation**: Apply Bean Validation annotations at entity level
+
+## Repository Layer Best Practices
+- **Custom Queries**: Use @Query for complex operations
+- **Pagination**: Implement pagination for large result sets
+- **Projection**: Use DTOs and projections for read operations
+- **Batch Operations**: Use saveAll() and deleteAll() for bulk operations
+- **Query Optimization**: Avoid N+1 queries with proper joins
+
+## Data Transfer Objects (DTOs)
+- **Separation of Concerns**: Keep DTOs separate from entities
+- **Immutable Design**: Use records or final classes for DTOs
+- **Validation**: Apply validation at DTO level
+- **Mapping Strategy**: Use MapStruct or manual mapping consistently
+- **Versioning**: Include version information for optimistic locking
+
+## Transaction Management
+- **Service Layer Transactions**: Use @Transactional at service level
+- **Read-Only Transactions**: Mark read operations as read-only
+- **Propagation**: Use appropriate transaction propagation
+- **Isolation Levels**: Understand and use appropriate isolation levels
+- **Timeout Configuration**: Set reasonable transaction timeouts
+
+## Code Examples
+
+### ✅ Entity Design
+```java
+@Entity
+@Table(name = "users")
+@EntityListeners(AuditingEntityListener.class)
+public class User {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(name = "email", unique = true, nullable = false)
+    @Email
+    private String email;
+    
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
+    
+    @Column(name = "first_name")
+    @Size(max = 100)
+    private String firstName;
+    
+    @Column(name = "last_name")
+    @Size(max = 100)
+    private String lastName;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private UserStatus status = UserStatus.ACTIVE;
+    
+    @Version
+    @Column(name = "version")
+    private Long version;
+    
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    
+    @CreatedBy
+    @Column(name = "created_by", updatable = false)
+    private String createdBy;
+    
+    @LastModifiedBy
+    @Column(name = "updated_by")
+    private String updatedBy;
+    
+    // Relationships
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserRole> roles = new HashSet<>();
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<AuditLog> auditLogs = new HashSet<>();
+    
+    // Constructors, getters, setters, equals, hashCode
+}
+```
+
+### ✅ Repository Implementation
+```java
+@Repository
+public interface UserRepository extends JpaRepository<User, Long>, 
+                                     JpaSpecificationExecutor<User> {
+    
+    // Simple queries
+    Optional<User> findByEmail(String email);
+    boolean existsByEmail(String email);
+    List<User> findByStatus(UserStatus status);
+    
+    // Custom queries with projections
+    @Query("SELECT u.id, u.email, u.firstName, u.lastName FROM User u WHERE u.status = :status")
+    List<UserSummary> findUserSummariesByStatus(@Param("status") UserStatus status);
+    
+    // Complex queries with joins
+    @Query("""
+        SELECT u FROM User u 
+        LEFT JOIN FETCH u.roles r 
+        LEFT JOIN FETCH r.permissions 
+        WHERE u.status = :status
+        """)
+    List<User> findUsersWithRolesAndPermissions(@Param("status") UserStatus status);
+    
+    // Native queries for complex operations
+    @Query(value = """
+        SELECT u.id, u.email, COUNT(r.id) as role_count
+        FROM users u
+        LEFT JOIN user_roles r ON u.id = r.user_id
+        WHERE u.status = :status
+        GROUP BY u.id, u.email
+        HAVING COUNT(r.id) >= :minRoles
+        """, nativeQuery = true)
+    List<Object[]> findUsersWithMinimumRoles(@Param("status") String status, 
+                                           @Param("minRoles") int minRoles);
+    
+    // Specifications for dynamic queries
+    default Specification<User> hasEmailLike(String emailPattern) {
+        return (root, query, cb) -> 
+            cb.like(root.get("email"), "%" + emailPattern + "%");
+    }
+    
+    default Specification<User> hasRole(String roleName) {
+        return (root, query, cb) -> {
+            Join<User, UserRole> roleJoin = root.join("roles");
+            return cb.equal(roleJoin.get("name"), roleName);
+        };
+    }
+}
+```
+
+### ✅ Service Layer with Transactions
+```java
+@Service
+@Transactional(readOnly = true)
+public class UserService {
+    
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+    
+    public UserService(UserRepository userRepository, 
+                      UserMapper userMapper,
+                      PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
+    }
+    
+    @Transactional
+    public UserDto createUser(CreateUserRequest request) {
+        // Validate business rules
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new BusinessException("USER_EMAIL_EXISTS", 
+                "User with this email already exists");
+        }
+        
+        // Create entity
+        User user = userMapper.toEntity(request);
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        
+        // Save and return
+        User savedUser = userRepository.save(user);
+        return userMapper.toDto(savedUser);
+    }
+    
+    @Transactional
+    public void updateUser(Long userId, UpdateUserRequest request) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
+        
+        // Update fields
+        userMapper.updateEntityFromRequest(request, user);
+        
+        // Save changes
+        userRepository.save(user);
+    }
+    
+    @Transactional
+    public void deleteUser(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException(userId);
+        }
+        
+        userRepository.deleteById(userId);
+    }
+    
+    public Page<UserDto> findUsers(UserSearchCriteria criteria, Pageable pageable) {
+        Specification<User> spec = Specification.where(null);
+        
+        if (criteria.getEmailPattern() != null) {
+            spec = spec.and(userRepository.hasEmailLike(criteria.getEmailPattern()));
+        }
+        
+        if (criteria.getRole() != null) {
+            spec = spec.and(userRepository.hasRole(criteria.getRole()));
+        }
+        
+        if (criteria.getStatus() != null) {
+            spec = spec.and((root, query, cb) -> 
+                cb.equal(root.get("status"), criteria.getStatus()));
+        }
+        
+        Page<User> users = userRepository.findAll(spec, pageable);
+        return users.map(userMapper::toDto);
+    }
+}
+```
+
+## Performance Optimization
+- **Query Optimization**: Use EXPLAIN to analyze query performance
+- **Index Strategy**: Create composite indexes for multi-column queries
+- **Connection Pooling**: Configure appropriate connection pool settings
+- **Batch Processing**: Use batch operations for bulk data
+- **Caching**: Implement appropriate caching strategies
+
+## Data Integrity
+- **Constraints**: Use database constraints for data integrity
+- **Triggers**: Implement triggers for complex business rules
+- **Stored Procedures**: Use for complex business logic
+- **Audit Trail**: Maintain complete audit trail of changes
+- **Data Validation**: Validate data at multiple levels
+
+## Testing Strategy
+- **Test Data**: Use test data builders for consistent test data
+- **Database Testing**: Test with real database in integration tests
+- **Transaction Rollback**: Use @Transactional in tests for automatic rollback
+- **Performance Testing**: Test query performance with realistic data volumes
+- **Data Migration Testing**: Test all database migrations

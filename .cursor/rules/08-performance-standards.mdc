@@ -1,0 +1,146 @@
+---
+description: Performance optimization, monitoring and scalability standards
+globs: ["**/service/**", "**/controller/**", "**/repository/**", "**/config/**"]
+alwaysApply: true
+---
+
+
+# Performance & Monitoring Standards
+
+## Performance Principles
+- **Measure First**: Profile before optimizing
+- **Cache Strategically**: Implement appropriate caching layers
+- **Async Processing**: Use non-blocking operations where possible
+- **Database Optimization**: Optimize queries and connection management
+- **Resource Management**: Efficient memory and CPU usage
+
+## Application Performance Monitoring (APM)
+- **Implement distributed tracing** for request flows
+- **Monitor response times** and throughput metrics
+- **Track error rates** and availability metrics
+- **Monitor resource usage** (CPU, memory, disk, network)
+- **Set up alerting** for performance degradation
+
+## Database Performance
+- **Use connection pooling** with appropriate settings
+- **Implement query optimization** and indexing strategies
+- **Use batch operations** for bulk data processing
+- **Monitor slow queries** and optimize them
+- **Implement read replicas** for read-heavy workloads
+
+## Caching Strategies
+- **Application-level caching** for frequently accessed data
+- **Database query caching** for expensive operations
+- **HTTP response caching** for static content
+- **Session caching** for user state management
+- **Invalidation strategies** for cache consistency
+
+## Async & Non-blocking Operations
+- **Use CompletableFuture** for parallel processing
+- **Implement reactive patterns** where appropriate
+- **Use async database operations** for I/O intensive tasks
+- **Implement proper timeout handling** for external calls
+- **Use thread pools** with appropriate sizing
+
+## Memory Management
+- **Avoid memory leaks** through proper resource cleanup
+- **Use object pooling** for expensive object creation
+- **Implement lazy loading** for large datasets
+- **Monitor garbage collection** performance
+- **Use appropriate data structures** for memory efficiency
+
+## Code Examples
+
+### ✅ Efficient Database Operations
+```java
+@Service
+public class UserService {
+    
+    @Cacheable("users")
+    public UserDto getUserById(Long id) {
+        return userRepository.findById(id)
+            .map(this::mapToDto)
+            .orElseThrow(() -> new UserNotFoundException(id));
+    }
+    
+    @Transactional
+    public void createUsersBatch(List<CreateUserRequest> requests) {
+        // Batch processing for better performance
+        List<User> users = requests.stream()
+            .map(this::mapToEntity)
+            .collect(Collectors.toList());
+        userRepository.saveAll(users);
+    }
+}
+```
+
+### ✅ Async Processing
+```java
+@Service
+public class NotificationService {
+    
+    @Async
+    public CompletableFuture<Void> sendNotificationAsync(NotificationRequest request) {
+        try {
+            // Async notification sending
+            notificationClient.send(request);
+            return CompletableFuture.completedFuture(null);
+        } catch (Exception e) {
+            log.error("Failed to send notification", e);
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+    
+    public CompletableFuture<List<NotificationResult>> sendNotificationsBatch(
+            List<NotificationRequest> requests) {
+        List<CompletableFuture<NotificationResult>> futures = requests.stream()
+            .map(this::sendNotificationAsync)
+            .collect(Collectors.toList());
+        
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+            .thenApply(v -> futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList()));
+    }
+}
+```
+
+### ✅ Efficient Data Processing
+```java
+@Repository
+public class StatisticsRepository {
+    
+    @Query(value = """
+        SELECT deck_id, COUNT(*) as card_count, 
+               AVG(difficulty) as avg_difficulty
+        FROM cards 
+        WHERE deck_id IN :deckIds 
+        GROUP BY deck_id
+        """, nativeQuery = true)
+    List<Object[]> getStatisticsByDeckIds(@Param("deckIds") List<Long> deckIds);
+    
+    // Use native queries for complex aggregations
+    // Avoid N+1 queries with proper joins
+}
+```
+
+## Performance Testing Requirements
+- **Load testing** for expected user volumes
+- **Stress testing** to find breaking points
+- **Endurance testing** for memory leaks
+- **Spike testing** for sudden traffic increases
+- **Performance regression testing** in CI/CD
+
+## Monitoring & Alerting
+- **Real-time dashboards** for key metrics
+- **Automated alerting** for performance issues
+- **Capacity planning** based on usage trends
+- **Performance budgets** for critical user journeys
+- **Regular performance reviews** and optimization sessions
+
+## Scalability Considerations
+- **Horizontal scaling** strategies
+- **Database sharding** for large datasets
+- **Microservices architecture** for independent scaling
+- **CDN integration** for static content
+- **Load balancing** for traffic distribution

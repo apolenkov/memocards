@@ -13,7 +13,7 @@ PROFILE_DEV := --spring.profiles.active=dev
         code-quality code-quality-full code-quality-chars clean-frontend clean-quick deep-clean \
         coverage coverage-verify deps npm-install vaadin-prepare dev-setup quality-check dev-quality \
         clean-dev deep-clean-dev full-clean-dev lint-css lint-css-fix spotless-check sonarlint \
-        spotbugs checkstyle vaadin-clean vaadin-build-frontend
+        spotbugs checkstyle vaadin-clean vaadin-build-frontend cleanup-and-run
 
 # =============================================================================
 # HELP
@@ -45,6 +45,16 @@ clean: ## Remove all PostgreSQL data
 	@echo "All PostgreSQL data removed"
 
 # =============================================================================
+# CLEANUP UTILITIES
+# =============================================================================
+cleanup-and-run: ## Clean up environment and run specified command (usage: make cleanup-and-run COMMAND="your command")
+	@echo "Cleaning up environment..."
+	@kill -9 $$(lsof -t -i:$(APP_PORT)) 2>/dev/null || true
+	@rm -rf logs
+	@echo "Running: $(COMMAND)"
+	@$(COMMAND)
+
+# =============================================================================
 # APPLICATION - Build & Run
 # =============================================================================
 build: ## Build application
@@ -66,21 +76,17 @@ dev-auth: start ## Run with auto-login enabled
 # DEVELOPMENT WORKFLOWS - Clean & Run Combinations
 # =============================================================================
 # Common cleanup function
-define cleanup_and_run
-	@echo "$(1)"
-	@kill -9 $$(lsof -t -i:$(APP_PORT)) 2>/dev/null || true
-	@rm -rf logs
-	$(2)
-endef
-
 clean-dev: clean start ## Fast clean and run (Gradle clean only)
-	$(call cleanup_and_run,Cleaning (fast) and running...,$(GRADLE) cleanQuick bootRun)
+	@echo "Cleaning (fast) and running..."
+	$(GRADLE) cleanQuick bootRun
 
 deep-clean-dev: clean start ## Deep clean (Vaadin + frontend) and run
-	$(call cleanup_and_run,Deep cleaning and running...,$(GRADLE) deepClean bootRun)
+	@echo "Deep cleaning and running..."
+	$(GRADLE) deepClean bootRun
 
 full-clean-dev: clean start ## Full clean, format, check, build and run
-	$(call cleanup_and_run,Performing full clean and run...,$(GRADLE) deepClean spotlessApply check build bootRun)
+	@echo "Performing full clean and run..."
+	$(GRADLE) deepClean spotlessApply check build bootRun
 
 # =============================================================================
 # DEVELOPMENT SETUP - Environment Preparation

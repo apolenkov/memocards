@@ -1,0 +1,104 @@
+---
+description: Security best practices, OWASP compliance and secure coding standards
+globs: ["**/security/**", "**/auth/**", "**/controller/**", "**/service/**"]
+alwaysApply: true
+---
+
+# Security Standards & OWASP Compliance
+
+## Core Security Principles
+- **Defense in Depth**: Multiple layers of security controls
+- **Principle of Least Privilege**: Minimal required permissions
+- **Input Validation**: Validate all external inputs
+- **Output Encoding**: Encode all user-generated content
+- **Secure by Default**: Fail securely, deny by default
+
+## OWASP Top 10 Compliance
+- **A01:2021 – Broken Access Control**: Implement proper authorization
+- **A02:2021 – Cryptographic Failures**: Use strong encryption and secure storage
+- **A03:2021 – Injection**: Prevent SQL, NoSQL, LDAP, OS injection
+- **A04:2021 – Insecure Design**: Secure design patterns and threat modeling
+- **A05:2021 – Security Misconfiguration**: Secure default configurations
+
+## Input Validation & Sanitization
+- **Validate all inputs** at boundaries (UI, API, database)
+- **Use parameterized queries** for all database operations
+- **Sanitize user content** before rendering in UI
+- **Implement length limits** and format validation
+- **Use whitelist approach** for allowed characters/values
+
+## Authentication & Authorization
+- **Implement proper session management** with secure tokens
+- **Use strong password policies** and multi-factor authentication
+- **Implement role-based access control** (RBAC)
+- **Validate permissions** at both UI and service layers
+- **Log all authentication events** for audit purposes
+
+## Data Protection
+- **Encrypt sensitive data** at rest and in transit
+- **Use HTTPS/TLS 1.3** for all communications
+- **Implement proper key management** and rotation
+- **Mask sensitive data** in logs and error messages
+- **Follow data retention policies** and GDPR compliance
+
+## Secure Development Practices
+- **Never log sensitive information** (passwords, tokens, PII)
+- **Use secure random generators** for cryptographic operations
+- **Implement proper error handling** without information disclosure
+- **Regular security testing** and vulnerability assessments
+- **Keep dependencies updated** and scan for vulnerabilities
+
+## Security Headers & Configuration
+- **Set security headers**: CSP, HSTS, X-Frame-Options
+- **Configure CORS properly** for cross-origin requests
+- **Use secure cookie attributes**: HttpOnly, Secure, SameSite
+- **Implement rate limiting** to prevent abuse
+- **Configure proper timeout values** for sessions
+
+## Code Examples
+
+### ✅ Secure Input Validation
+```java
+@Valid
+public ResponseEntity<UserDto> createUser(@RequestBody @Valid CreateUserRequest request) {
+    // Validation happens automatically via @Valid
+    // Additional business logic validation
+    if (request.getEmail().contains("admin")) {
+        throw new SecurityException("Invalid email pattern");
+    }
+    return userService.createUser(request);
+}
+```
+
+### ❌ Insecure Input Handling
+```java
+// Never do this
+public String processInput(String userInput) {
+    return "Hello " + userInput; // XSS vulnerability
+}
+
+// Never do this
+public List<User> findUsers(String searchTerm) {
+    String sql = "SELECT * FROM users WHERE name LIKE '%" + searchTerm + "%'";
+    // SQL injection vulnerability
+}
+```
+
+### ✅ Secure Database Operations
+```java
+@Repository
+public class UserRepository {
+    
+    @Query("SELECT u FROM User u WHERE u.email = :email")
+    Optional<User> findByEmail(@Param("email") String email);
+    
+    // Use @Query with parameters, never string concatenation
+}
+```
+
+## Security Testing Requirements
+- **Static Application Security Testing** (SAST) integration
+- **Dynamic Application Security Testing** (DAST) in CI/CD
+- **Dependency vulnerability scanning** (OWASP Dependency Check)
+- **Security code reviews** for all changes
+- **Penetration testing** for production releases

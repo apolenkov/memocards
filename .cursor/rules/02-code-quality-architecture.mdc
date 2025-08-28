@@ -1,3 +1,9 @@
+---
+description: Code quality standards and architectural best practices
+globs:
+alwaysApply: true
+---
+
 # Code Quality & Architecture
 
 ## Core Principles
@@ -32,7 +38,3 @@
 - **Integration tests**: Check interaction between components
 - **Test coverage**: High coverage of critical business logic
 - **Mock external dependencies** appropriately
-description:
-globs:
-alwaysApply: true
----

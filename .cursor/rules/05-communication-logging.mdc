@@ -1,3 +1,9 @@
+---
+description: Communication preferences and logging standards
+globs:
+alwaysApply: true
+---
+
 # Communication & Logging
 
 ## Russian Communication
@@ -35,7 +41,3 @@ When implementing logging, the AI must:
 - **Use appropriate language** for different contexts
 - **Document logging strategy** and configuration
 - **Follow enterprise logging** best practices
-description:
-globs:
-alwaysApply: true
----
