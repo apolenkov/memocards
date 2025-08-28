@@ -3,7 +3,6 @@ package org.apolenkov.application.config;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apolenkov.application.views.LoginView;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -29,7 +28,6 @@ public class SecurityConfig extends VaadinWebSecurity {
      * @param environment Spring environment for profile detection
      * @param autoLoginFilter filter for automatic login in development mode
      */
-    @Autowired
     public SecurityConfig(final Environment environment, final DevAutoLoginFilter autoLoginFilter) {
         // Determine if production profile is active for security configuration
         String[] profiles = environment != null ? environment.getActiveProfiles() : null;
