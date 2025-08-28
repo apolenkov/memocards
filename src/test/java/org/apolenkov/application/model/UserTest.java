@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,8 +41,7 @@ class UserTest {
             assertThat(newUser.getPasswordHash()).isNull();
             assertThat(newUser.getName()).isNull();
             assertThat(newUser.getRoles()).isEmpty();
-            assertThat(newUser.getCreatedAt())
-                    .isCloseTo(LocalDateTime.now(), within(1, java.time.temporal.ChronoUnit.SECONDS));
+            assertThat(newUser.getCreatedAt()).isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.SECONDS));
         }
 
         @Test

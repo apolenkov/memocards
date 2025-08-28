@@ -47,7 +47,6 @@ public class DeckFacade {
      *
      * @param deckId ID of deck to retrieve
      * @return deck with specified ID
-     * @throws java.util.NoSuchElementException if no deck found with given ID
      * @throws IllegalArgumentException if deckId is not positive
      */
     @Transactional(readOnly = true)
@@ -207,7 +206,6 @@ public class DeckFacade {
      * @param deckId ID of deck to delete
      * @param confirmationText text that must match deck title
      * @throws IllegalArgumentException if confirmation text doesn't match deck title
-     * @throws java.util.NoSuchElementException if deck is not found
      */
     @Transactional
     public void deleteDeckWithConfirmation(final Long deckId, final String confirmationText) {

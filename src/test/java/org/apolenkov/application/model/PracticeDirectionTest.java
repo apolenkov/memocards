@@ -3,6 +3,8 @@ package org.apolenkov.application.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -288,8 +290,8 @@ class PracticeDirectionTest {
         @DisplayName("Should handle enum in collections")
         void shouldHandleEnumInCollections() {
             // Given
-            java.util.List<PracticeDirection> directions =
-                    java.util.List.of(PracticeDirection.FRONT_TO_BACK, PracticeDirection.BACK_TO_FRONT);
+            List<PracticeDirection> directions =
+                    List.of(PracticeDirection.FRONT_TO_BACK, PracticeDirection.BACK_TO_FRONT);
 
             // When & Then
             assertThat(directions)
@@ -302,8 +304,8 @@ class PracticeDirectionTest {
         @DisplayName("Should handle enum in sets")
         void shouldHandleEnumInSets() {
             // Given
-            java.util.Set<PracticeDirection> directions =
-                    java.util.Set.of(PracticeDirection.FRONT_TO_BACK, PracticeDirection.BACK_TO_FRONT);
+            Set<PracticeDirection> directions =
+                    Set.of(PracticeDirection.FRONT_TO_BACK, PracticeDirection.BACK_TO_FRONT);
 
             // When & Then
             assertThat(directions)

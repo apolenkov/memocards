@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,10 +95,10 @@ class UserUseCaseServiceTest {
             Long userId = 1L;
             User expectedUser = new User(userId, "test@example.com", "Test User");
 
-            when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(expectedUser));
+            when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUser));
 
             // When
-            java.util.Optional<User> result = userUseCaseService.getUserById(userId);
+            Optional<User> result = userUseCaseService.getUserById(userId);
 
             // Then
             assertThat(result).isPresent().contains(expectedUser);
@@ -109,10 +110,10 @@ class UserUseCaseServiceTest {
         void getUserByIdShouldReturnEmptyWhenUserDoesNotExist() {
             // Given
             Long userId = 999L;
-            when(userRepository.findById(userId)).thenReturn(java.util.Optional.empty());
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
             // When
-            java.util.Optional<User> result = userUseCaseService.getUserById(userId);
+            Optional<User> result = userUseCaseService.getUserById(userId);
 
             // Then
             assertThat(result).isEmpty();
@@ -134,7 +135,7 @@ class UserUseCaseServiceTest {
             when(securityContext.getAuthentication()).thenReturn(authentication);
             when(authentication.getPrincipal()).thenReturn(userDetails);
             when(userDetails.getUsername()).thenReturn(username);
-            when(userRepository.findByEmail(username)).thenReturn(java.util.Optional.of(expectedUser));
+            when(userRepository.findByEmail(username)).thenReturn(Optional.of(expectedUser));
 
             // When
             User result = userUseCaseService.getCurrentUser();
@@ -153,7 +154,7 @@ class UserUseCaseServiceTest {
 
             when(securityContext.getAuthentication()).thenReturn(authentication);
             when(authentication.getPrincipal()).thenReturn(username);
-            when(userRepository.findByEmail(username)).thenReturn(java.util.Optional.of(expectedUser));
+            when(userRepository.findByEmail(username)).thenReturn(Optional.of(expectedUser));
 
             // When
             User result = userUseCaseService.getCurrentUser();
@@ -211,7 +212,7 @@ class UserUseCaseServiceTest {
             when(securityContext.getAuthentication()).thenReturn(authentication);
             when(authentication.getPrincipal()).thenReturn(userDetails);
             when(userDetails.getUsername()).thenReturn(username);
-            when(userRepository.findByEmail(username)).thenReturn(java.util.Optional.empty());
+            when(userRepository.findByEmail(username)).thenReturn(Optional.empty());
 
             // When & Then
             assertThatThrownBy(() -> userUseCaseService.getCurrentUser())
@@ -231,10 +232,10 @@ class UserUseCaseServiceTest {
             Long largeId = Long.MAX_VALUE;
             User expectedUser = new User(largeId, "test@example.com", "Test User");
 
-            when(userRepository.findById(largeId)).thenReturn(java.util.Optional.of(expectedUser));
+            when(userRepository.findById(largeId)).thenReturn(Optional.of(expectedUser));
 
             // When
-            java.util.Optional<User> result = userUseCaseService.getUserById(largeId);
+            Optional<User> result = userUseCaseService.getUserById(largeId);
 
             // Then
             assertThat(result).isPresent();
@@ -251,7 +252,7 @@ class UserUseCaseServiceTest {
             when(securityContext.getAuthentication()).thenReturn(authentication);
             when(authentication.getPrincipal()).thenReturn(userDetails);
             when(userDetails.getUsername()).thenReturn(longEmail);
-            when(userRepository.findByEmail(longEmail)).thenReturn(java.util.Optional.of(expectedUser));
+            when(userRepository.findByEmail(longEmail)).thenReturn(Optional.of(expectedUser));
 
             // When
             User result = userUseCaseService.getCurrentUser();
@@ -271,7 +272,7 @@ class UserUseCaseServiceTest {
             when(securityContext.getAuthentication()).thenReturn(authentication);
             when(authentication.getPrincipal()).thenReturn(userDetails);
             when(userDetails.getUsername()).thenReturn(specialUsername);
-            when(userRepository.findByEmail(specialUsername)).thenReturn(java.util.Optional.of(expectedUser));
+            when(userRepository.findByEmail(specialUsername)).thenReturn(Optional.of(expectedUser));
 
             // When
             User result = userUseCaseService.getCurrentUser();
@@ -316,10 +317,10 @@ class UserUseCaseServiceTest {
             Long userId = 1L;
             User expectedUser = new User(userId, "test@example.com", "Test User");
 
-            when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(expectedUser));
+            when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUser));
 
             // When
-            java.util.Optional<User> result = userUseCaseService.getUserById(userId);
+            Optional<User> result = userUseCaseService.getUserById(userId);
 
             // Then
             assertThat(result).isPresent();
@@ -339,7 +340,7 @@ class UserUseCaseServiceTest {
             when(securityContext.getAuthentication()).thenReturn(authentication);
             when(authentication.getPrincipal()).thenReturn(userDetails);
             when(userDetails.getUsername()).thenReturn(username);
-            when(userRepository.findByEmail(username)).thenReturn(java.util.Optional.of(expectedUser));
+            when(userRepository.findByEmail(username)).thenReturn(Optional.of(expectedUser));
 
             // When
             User result = userUseCaseService.getCurrentUser();
@@ -367,7 +368,7 @@ class UserUseCaseServiceTest {
             when(newSecurityContext.getAuthentication()).thenReturn(newAuthentication);
             when(newAuthentication.getPrincipal()).thenReturn(userDetails);
             when(userDetails.getUsername()).thenReturn(username);
-            when(userRepository.findByEmail(username)).thenReturn(java.util.Optional.of(expectedUser));
+            when(userRepository.findByEmail(username)).thenReturn(Optional.of(expectedUser));
 
             // Change security context
             SecurityContextHolder.setContext(newSecurityContext);
@@ -393,14 +394,14 @@ class UserUseCaseServiceTest {
             when(securityContext.getAuthentication()).thenReturn(authentication);
             when(authentication.getPrincipal()).thenReturn(userDetails);
             when(userDetails.getUsername()).thenReturn(username1);
-            when(userRepository.findByEmail(username1)).thenReturn(java.util.Optional.of(user1));
+            when(userRepository.findByEmail(username1)).thenReturn(Optional.of(user1));
 
             User result1 = userUseCaseService.getCurrentUser();
             assertThat(result1).isEqualTo(user1);
 
             // Change authentication
             when(userDetails.getUsername()).thenReturn(username2);
-            when(userRepository.findByEmail(username2)).thenReturn(java.util.Optional.of(user2));
+            when(userRepository.findByEmail(username2)).thenReturn(Optional.of(user2));
 
             User result2 = userUseCaseService.getCurrentUser();
             assertThat(result2).isEqualTo(user2);

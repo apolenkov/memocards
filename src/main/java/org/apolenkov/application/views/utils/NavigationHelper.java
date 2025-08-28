@@ -2,6 +2,7 @@ package org.apolenkov.application.views.utils;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.QueryParameters;
+import java.util.Locale;
 import java.util.Optional;
 import org.apolenkov.application.config.RouteConstants;
 
@@ -108,7 +109,7 @@ public final class NavigationHelper {
      *
      * @param locale the locale to set for the current UI
      */
-    public static void setLocale(final java.util.Locale locale) {
+    public static void setLocale(final Locale locale) {
         getCurrentUI().ifPresent(ui -> ui.setLocale(locale));
     }
 

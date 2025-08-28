@@ -1,5 +1,6 @@
 package org.apolenkov.application;
 
+import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -30,7 +31,7 @@ public final class Application {
     public static void main(final String[] args) {
         LOGGER.info("Starting Flashcards application...");
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Application arguments: {}", java.util.Arrays.toString(args));
+            LOGGER.debug("Application arguments: {}", Arrays.toString(args));
         }
 
         ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
