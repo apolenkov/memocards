@@ -83,7 +83,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      */
     @Override
     @TransactionAnnotations.DeleteTransaction
-    public void deleteFlashcard(final Long id) {
+    public void deleteFlashcard(final long id) {
         flashcardRepository.deleteById(id);
     }
 
@@ -97,7 +97,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
-    public List<Flashcard> getFlashcardsForPractice(final Long deckId, final int count, final boolean random) {
+    public List<Flashcard> getFlashcardsForPractice(final long deckId, final int count, final boolean random) {
         List<Flashcard> allCards = new ArrayList<>(getFlashcardsByDeckId(deckId));
         if (random) {
             Collections.shuffle(allCards);
@@ -113,7 +113,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
-    public long countByDeckId(final Long deckId) {
+    public long countByDeckId(final long deckId) {
         return flashcardRepository.countByDeckId(deckId);
     }
 }

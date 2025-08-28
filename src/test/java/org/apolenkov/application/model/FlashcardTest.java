@@ -1,14 +1,14 @@
 package org.apolenkov.application.model;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.function.Consumer;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 import static org.awaitility.Awaitility.await;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,7 +38,7 @@ class FlashcardTest {
             Flashcard newFlashcard = new Flashcard();
 
             assertThat(newFlashcard.getId()).isNull();
-            assertThat(newFlashcard.getDeckId()).isNull();
+            assertThat(newFlashcard.getDeckId()).isZero();
             assertThat(newFlashcard.getFrontText()).isNull();
             assertThat(newFlashcard.getBackText()).isNull();
             assertThat(newFlashcard.getExample()).isNull();
@@ -93,12 +93,15 @@ class FlashcardTest {
         }
 
         @Test
-        @DisplayName("DeckId setter should throw exception for null")
-        @SuppressWarnings("DataFlowIssue") // To make error for test
-        void deckIdSetterShouldThrowExceptionForNull() {
-            assertThatThrownBy(() -> flashcard.setDeckId(null))
+        @DisplayName("DeckId setter should throw exception for non-positive values")
+        void deckIdSetterShouldThrowExceptionForNonPositiveValues() {
+            assertThatThrownBy(() -> flashcard.setDeckId(0))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("deckId is required");
+                    .hasMessage("deckId must be positive");
+
+            assertThatThrownBy(() -> flashcard.setDeckId(-1))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("deckId must be positive");
         }
 
         @Test

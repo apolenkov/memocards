@@ -82,7 +82,7 @@ class DeckJpaAdapterTest {
         @DisplayName("FindByUserId should return user's decks")
         void findByUserIdShouldReturnUsersDecks() {
             // Given
-            Long userId = 1L;
+            long userId = 1L;
             DeckEntity entity1 = createMockDeckEntity(1L, userId, "User Deck 1", "Description 1");
             DeckEntity entity2 = createMockDeckEntity(2L, userId, "User Deck 2", "Description 2");
             List<DeckEntity> entities = List.of(entity1, entity2);
@@ -103,7 +103,7 @@ class DeckJpaAdapterTest {
         @DisplayName("FindByUserId should return empty list when user has no decks")
         void findByUserIdShouldReturnEmptyListWhenUserHasNoDecks() {
             // Given
-            Long userId = 1L;
+            long userId = 1L;
             when(deckJpaRepository.findByUserId(userId)).thenReturn(List.of());
 
             // When
@@ -123,7 +123,7 @@ class DeckJpaAdapterTest {
         @DisplayName("FindById should return deck when exists")
         void findByIdShouldReturnDeckWhenExists() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             DeckEntity entity = createMockDeckEntity(deckId, 1L, "Test Deck", "Test Description");
 
             when(deckJpaRepository.findById(deckId)).thenReturn(Optional.of(entity));
@@ -142,7 +142,7 @@ class DeckJpaAdapterTest {
         @DisplayName("FindById should return empty when deck does not exist")
         void findByIdShouldReturnEmptyWhenDeckDoesNotExist() {
             // Given
-            Long deckId = 999L;
+            long deckId = 999L;
             when(deckJpaRepository.findById(deckId)).thenReturn(Optional.empty());
 
             // When
@@ -226,7 +226,7 @@ class DeckJpaAdapterTest {
         @DisplayName("DeleteById should delete deck")
         void deleteByIdShouldDeleteDeck() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
 
             // When
             deckJpaAdapter.deleteById(deckId);
@@ -244,8 +244,8 @@ class DeckJpaAdapterTest {
         @DisplayName("Save should correctly map entity to model")
         void saveShouldCorrectlyMapEntityToModel() {
             // Given
-            Long id = 1L;
-            Long userId = 2L;
+            long id = 1L;
+            long userId = 2L;
             String title = "Test Title";
             String description = "Test Description";
             LocalDateTime createdAt = LocalDateTime.of(2024, 1, 1, 12, 0);
@@ -281,8 +281,8 @@ class DeckJpaAdapterTest {
         @DisplayName("FindById should correctly map entity to model")
         void findByIdShouldCorrectlyMapEntityToModel() {
             // Given
-            Long id = 1L;
-            Long userId = 2L;
+            long id = 1L;
+            long userId = 2L;
             String title = "Test Title";
             String description = "Test Description";
             LocalDateTime createdAt = LocalDateTime.of(2024, 1, 1, 12, 0);
@@ -340,7 +340,7 @@ class DeckJpaAdapterTest {
         @DisplayName("Should handle very large IDs")
         void shouldHandleVeryLargeIds() {
             // Given
-            Long largeId = Long.MAX_VALUE;
+            long largeId = Long.MAX_VALUE;
             DeckEntity entity = createMockDeckEntity(largeId, 1L, "Test Deck", "Test Description");
 
             when(deckJpaRepository.findById(largeId)).thenReturn(Optional.of(entity));

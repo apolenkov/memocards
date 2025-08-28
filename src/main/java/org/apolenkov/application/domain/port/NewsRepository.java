@@ -25,7 +25,7 @@ public interface NewsRepository {
      * @param id news item identifier
      * @return news item if found, empty otherwise
      */
-    Optional<News> findById(Long id);
+    Optional<News> findById(long id);
 
     /**
      * Saves news item (creates new or updates existing).
@@ -40,5 +40,5 @@ public interface NewsRepository {
      *
      * @param id news item identifier to delete
      */
-    void deleteById(Long id);
+    void deleteById(long id);
 }

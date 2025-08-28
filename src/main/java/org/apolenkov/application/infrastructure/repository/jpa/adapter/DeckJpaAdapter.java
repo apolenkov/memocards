@@ -92,10 +92,7 @@ public class DeckJpaAdapter implements DeckRepository {
      * @throws IllegalArgumentException if userId is null
      */
     @Override
-    public List<Deck> findByUserId(final Long userId) {
-        if (userId == null) {
-            throw new IllegalArgumentException("User ID cannot be null");
-        }
+    public List<Deck> findByUserId(final long userId) {
         return repo.findByUserId(userId).stream().map(DeckJpaAdapter::toModel).toList();
     }
 
@@ -107,10 +104,7 @@ public class DeckJpaAdapter implements DeckRepository {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public Optional<Deck> findById(final Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Deck ID cannot be null");
-        }
+    public Optional<Deck> findById(final long id) {
         return repo.findById(id).map(DeckJpaAdapter::toModel);
     }
 
@@ -138,10 +132,7 @@ public class DeckJpaAdapter implements DeckRepository {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public void deleteById(final Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Deck ID cannot be null");
-        }
+    public void deleteById(final long id) {
         repo.deleteById(id);
     }
 }

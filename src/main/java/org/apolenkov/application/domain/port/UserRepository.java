@@ -25,7 +25,7 @@ public interface UserRepository {
      * @param id user identifier
      * @return user if found, empty otherwise
      */
-    Optional<User> findById(Long id);
+    Optional<User> findById(long id);
 
     /**
      * Finds user by email address.
@@ -48,5 +48,5 @@ public interface UserRepository {
      *
      * @param id user identifier to delete
      */
-    void deleteById(Long id);
+    void deleteById(long id);
 }

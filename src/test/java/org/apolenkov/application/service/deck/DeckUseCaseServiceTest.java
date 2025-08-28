@@ -88,7 +88,7 @@ class DeckUseCaseServiceTest {
         @DisplayName("GetDecksByUserId should return user's decks")
         void getDecksByUserIdShouldReturnUsersDecks() {
             // Given
-            Long userId = 1L;
+            long userId = 1L;
             Deck deck1 = new Deck(1L, userId, "User Deck 1", "Description 1");
             Deck deck2 = new Deck(2L, userId, "User Deck 2", "Description 2");
             List<Deck> expectedDecks = List.of(deck1, deck2);
@@ -107,7 +107,7 @@ class DeckUseCaseServiceTest {
         @DisplayName("GetDecksByUserId should return empty list when user has no decks")
         void getDecksByUserIdShouldReturnEmptyListWhenUserHasNoDecks() {
             // Given
-            Long userId = 1L;
+            long userId = 1L;
             when(deckRepository.findByUserId(userId)).thenReturn(List.of());
 
             // When
@@ -135,7 +135,7 @@ class DeckUseCaseServiceTest {
         @DisplayName("GetDeckById should return empty when deck does not exist")
         void getDeckByIdShouldReturnEmptyWhenDeckDoesNotExist() {
             // Given
-            Long deckId = 999L;
+            long deckId = 999L;
             when(deckRepository.findById(deckId)).thenReturn(Optional.empty());
 
             // When
@@ -204,7 +204,7 @@ class DeckUseCaseServiceTest {
         @DisplayName("DeleteDeck should delete deck and its flashcards")
         void deleteDeckShouldDeleteDeckAndItsFlashcards() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
 
             // When
             deckUseCaseService.deleteDeck(deckId);
@@ -218,7 +218,7 @@ class DeckUseCaseServiceTest {
         @DisplayName("DeleteDeck should handle deletion in correct order")
         void deleteDeckShouldHandleDeletionInCorrectOrder() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
 
             // When
             deckUseCaseService.deleteDeck(deckId);
@@ -317,7 +317,7 @@ class DeckUseCaseServiceTest {
             // The actual transaction behavior is tested in integration tests
 
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
 
             // When & Then
             assertThatNoException().isThrownBy(() -> deckUseCaseService.deleteDeck(deckId));

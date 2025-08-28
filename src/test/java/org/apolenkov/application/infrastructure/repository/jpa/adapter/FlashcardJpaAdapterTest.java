@@ -69,7 +69,7 @@ class FlashcardJpaAdapterTest {
         @DisplayName("FindByDeckId should return flashcards for deck")
         void findByDeckIdShouldReturnFlashcardsForDeck() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             FlashcardEntity entity1 = createFlashcardEntity(1L, deckId, "Front 1", "Back 1");
             FlashcardEntity entity2 = createFlashcardEntity(2L, deckId, "Front 2", "Back 2");
             List<FlashcardEntity> entities = List.of(entity1, entity2);
@@ -92,7 +92,7 @@ class FlashcardJpaAdapterTest {
         @DisplayName("FindByDeckId should return empty list when no flashcards exist")
         void findByDeckIdShouldReturnEmptyListWhenNoFlashcardsExist() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             when(repo.findByDeckId(deckId)).thenReturn(List.of());
 
             // When
@@ -111,7 +111,7 @@ class FlashcardJpaAdapterTest {
         @DisplayName("FindById should return flashcard when exists")
         void findByIdShouldReturnFlashcardWhenExists() {
             // Given
-            Long id = 1L;
+            long id = 1L;
             FlashcardEntity entity = createFlashcardEntity(id, 1L, "Front", "Back");
             when(repo.findById(id)).thenReturn(Optional.of(entity));
 
@@ -129,7 +129,7 @@ class FlashcardJpaAdapterTest {
         @DisplayName("FindById should return empty when flashcard does not exist")
         void findByIdShouldReturnEmptyWhenFlashcardDoesNotExist() {
             // Given
-            Long id = 1L;
+            long id = 1L;
             when(repo.findById(id)).thenReturn(Optional.empty());
 
             // When
@@ -201,7 +201,7 @@ class FlashcardJpaAdapterTest {
         @DisplayName("DeleteById should delete flashcard")
         void deleteByIdShouldDeleteFlashcard() {
             // Given
-            Long id = 1L;
+            long id = 1L;
 
             // When
             adapter.deleteById(id);
@@ -214,7 +214,7 @@ class FlashcardJpaAdapterTest {
         @DisplayName("DeleteByDeckId should delete all flashcards for deck")
         void deleteByDeckIdShouldDeleteAllFlashcardsForDeck() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
 
             // When
             adapter.deleteByDeckId(deckId);
@@ -231,7 +231,7 @@ class FlashcardJpaAdapterTest {
         @DisplayName("CountByDeckId should return correct count")
         void countByDeckIdShouldReturnCorrectCount() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             long expectedCount = 5L;
             when(repo.countByDeckId(deckId)).thenReturn(expectedCount);
 
@@ -251,7 +251,7 @@ class FlashcardJpaAdapterTest {
         @DisplayName("Should handle very large IDs")
         void shouldHandleVeryLargeIDs() {
             // Given
-            Long largeId = Long.MAX_VALUE;
+            long largeId = Long.MAX_VALUE;
             when(repo.findById(largeId)).thenReturn(Optional.empty());
 
             // When

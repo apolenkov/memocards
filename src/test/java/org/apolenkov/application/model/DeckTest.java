@@ -1,16 +1,16 @@
 package org.apolenkov.application.model;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -44,7 +44,7 @@ class DeckTest {
             Deck newDeck = new Deck();
 
             assertThat(newDeck.getId()).isNull();
-            assertThat(newDeck.getUserId()).isNull();
+            assertThat(newDeck.getUserId()).isZero();
             assertThat(newDeck.getTitle()).isNull();
             assertThat(newDeck.getDescription()).isNull();
             assertThat(newDeck.getFlashcards()).isEmpty();
@@ -81,11 +81,14 @@ class DeckTest {
         }
 
         @Test
-        @DisplayName("Create should throw exception for null userId")
-        void createShouldThrowExceptionForNullUserId() {
+        @DisplayName("Create should throw exception for non-positive userId")
+        void createShouldThrowExceptionForNonPositiveUserId() {
             IllegalArgumentException ex =
-                    assertThrows(IllegalArgumentException.class, () -> Deck.create(null, "Title", "Description"));
-            assertThat(ex).hasMessageContaining("userId");
+                    assertThrows(IllegalArgumentException.class, () -> Deck.create(0, "Title", "Description"));
+            assertThat(ex).hasMessageContaining("userId must be positive");
+
+            ex = assertThrows(IllegalArgumentException.class, () -> Deck.create(-1, "Title", "Description"));
+            assertThat(ex).hasMessageContaining("userId must be positive");
         }
 
         @ParameterizedTest
@@ -126,10 +129,13 @@ class DeckTest {
         }
 
         @Test
-        @DisplayName("UserId setter should throw exception for null")
-        void userIdSetterShouldThrowExceptionForNull() {
-            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> deck.setUserId(null));
-            assertThat(ex).hasMessage("userId is required");
+        @DisplayName("UserId setter should throw exception for non-positive values")
+        void userIdSetterShouldThrowExceptionForNonPositiveValues() {
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> deck.setUserId(0));
+            assertThat(ex).hasMessage("userId must be positive");
+
+            ex = assertThrows(IllegalArgumentException.class, () -> deck.setUserId(-1));
+            assertThat(ex).hasMessage("userId must be positive");
         }
 
         @Test

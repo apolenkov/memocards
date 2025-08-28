@@ -65,11 +65,11 @@ public final class NavigationHelper {
      * @param deckId the unique identifier of the deck to view
      * @throws IllegalArgumentException if deckId is null
      */
-    public static void navigateToDeck(final Long deckId) {
-        if (deckId == null) {
-            throw new IllegalArgumentException("Deck ID cannot be null");
+    public static void navigateToDeck(final long deckId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive");
         }
-        navigateTo(RouteConstants.DECK_ROUTE, deckId.toString());
+        navigateTo(RouteConstants.DECK_ROUTE, String.valueOf(deckId));
     }
 
     /**
@@ -82,11 +82,11 @@ public final class NavigationHelper {
      * @param deckId the unique identifier of the deck to practice with
      * @throws IllegalArgumentException if deckId is null
      */
-    public static void navigateToPractice(final Long deckId) {
-        if (deckId == null) {
-            throw new IllegalArgumentException("Deck ID cannot be null");
+    public static void navigateToPractice(final long deckId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive");
         }
-        navigateTo(RouteConstants.PRACTICE_ROUTE, deckId.toString());
+        navigateTo(RouteConstants.PRACTICE_ROUTE, String.valueOf(deckId));
     }
 
     /**

@@ -16,5 +16,5 @@ public interface UserSettingsJpaRepository extends JpaRepository<UserSettingsEnt
      * @param userId the user identifier
      * @return user settings if found, empty otherwise
      */
-    Optional<UserSettingsEntity> findByUserId(Long userId);
+    Optional<UserSettingsEntity> findByUserId(long userId);
 }

@@ -64,14 +64,11 @@ public class DeckUseCaseService implements DeckUseCase {
      *
      * @param userId the ID of the user whose decks to retrieve
      * @return a list of decks owned by the specified user, or empty list if none exist
-     * @throws IllegalArgumentException if userId is null
+     * @throws IllegalArgumentException if userId is invalid
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
-    public List<Deck> getDecksByUserId(final Long userId) {
-        if (userId == null) {
-            throw new IllegalArgumentException("User ID cannot be null");
-        }
+    public List<Deck> getDecksByUserId(final long userId) {
         return deckRepository.findByUserId(userId);
     }
 
@@ -84,10 +81,7 @@ public class DeckUseCaseService implements DeckUseCase {
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
-    public Optional<Deck> getDeckById(final Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Deck ID cannot be null");
-        }
+    public Optional<Deck> getDeckById(final long id) {
         return deckRepository.findById(id);
     }
 
@@ -120,16 +114,12 @@ public class DeckUseCaseService implements DeckUseCase {
      * Deletes deck and all associated flashcards.
      *
      * @param id the unique identifier of the deck to delete
-     * @throws IllegalArgumentException if id is null
+     * @throws IllegalArgumentException if id is invalid
      * @throws RuntimeException if database operation fails or deck doesn't exist
      */
     @Override
     @TransactionAnnotations.DeleteTransaction
-    public void deleteDeck(final Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Deck ID cannot be null");
-        }
-
+    public void deleteDeck(final long id) {
         // Delete associated flashcards first to maintain referential integrity
         flashcardRepository.deleteByDeckId(id);
         // Then delete the deck itself

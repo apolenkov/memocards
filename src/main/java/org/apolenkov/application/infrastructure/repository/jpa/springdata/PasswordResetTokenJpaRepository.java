@@ -32,7 +32,7 @@ public interface PasswordResetTokenJpaRepository extends JpaRepository<PasswordR
      * @param userId the user identifier
      * @return unused token if found, empty otherwise
      */
-    Optional<PasswordResetTokenEntity> findByUserIdAndUsedFalse(Long userId);
+    Optional<PasswordResetTokenEntity> findByUserIdAndUsedFalse(long userId);
 
     /**
      * Removes all expired tokens from the database.
@@ -50,5 +50,5 @@ public interface PasswordResetTokenJpaRepository extends JpaRepository<PasswordR
      */
     @Modifying
     @Query("UPDATE PasswordResetTokenEntity t SET t.used = true WHERE t.id = :id")
-    void markAsUsed(@Param("id") Long id);
+    void markAsUsed(@Param("id") long id);
 }

@@ -32,7 +32,7 @@ public interface PasswordResetTokenRepository {
      * @param userId user identifier
      * @return unused token if found, empty otherwise
      */
-    Optional<PasswordResetToken> findByUserIdAndNotUsed(Long userId);
+    Optional<PasswordResetToken> findByUserIdAndNotUsed(long userId);
 
     /**
      * Removes all expired tokens from system.
@@ -44,5 +44,5 @@ public interface PasswordResetTokenRepository {
      *
      * @param id token identifier to mark as used
      */
-    void markAsUsed(Long id);
+    void markAsUsed(long id);
 }

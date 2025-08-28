@@ -89,10 +89,7 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if deckId is null
      */
     @Override
-    public List<Flashcard> findByDeckId(final Long deckId) {
-        if (deckId == null) {
-            throw new IllegalArgumentException("Deck ID cannot be null");
-        }
+    public List<Flashcard> findByDeckId(final long deckId) {
         return repo.findByDeckId(deckId).stream()
                 .map(FlashcardJpaAdapter::toModel)
                 .toList();
@@ -106,10 +103,7 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public Optional<Flashcard> findById(final Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Flashcard ID cannot be null");
-        }
+    public Optional<Flashcard> findById(final long id) {
         return repo.findById(id).map(FlashcardJpaAdapter::toModel);
     }
 
@@ -135,10 +129,7 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public void deleteById(final Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Flashcard ID cannot be null");
-        }
+    public void deleteById(final long id) {
         repo.deleteById(id);
     }
 
@@ -150,10 +141,7 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if deckId is null
      */
     @Override
-    public long countByDeckId(final Long deckId) {
-        if (deckId == null) {
-            throw new IllegalArgumentException("Deck ID cannot be null");
-        }
+    public long countByDeckId(final long deckId) {
         return repo.countByDeckId(deckId);
     }
 
@@ -164,10 +152,7 @@ public class FlashcardJpaAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if deckId is null
      */
     @Override
-    public void deleteByDeckId(final Long deckId) {
-        if (deckId == null) {
-            throw new IllegalArgumentException("Deck ID cannot be null");
-        }
+    public void deleteByDeckId(final long deckId) {
         repo.deleteByDeckId(deckId);
     }
 }

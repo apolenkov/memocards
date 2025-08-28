@@ -17,7 +17,7 @@ class DeckCardViewModelTest {
         @DisplayName("Should create DeckCardViewModel with all fields")
         void shouldCreateDeckCardViewModelWithAllFields() {
             // Given
-            Long id = 1L;
+            long id = 1L;
             String title = "Test Deck";
             String description = "Test Description";
             int deckSize = 10;
@@ -62,7 +62,7 @@ class DeckCardViewModelTest {
         @DisplayName("Should create DeckCardViewModel with edge case values")
         void shouldCreateDeckCardViewModelWithEdgeCaseValues() {
             // Given - extreme boundary values to test robustness
-            Long id = Long.MAX_VALUE;
+            long id = Long.MAX_VALUE;
             String title = "";
             String description = "a".repeat(1000);
             int deckSize = Integer.MAX_VALUE;

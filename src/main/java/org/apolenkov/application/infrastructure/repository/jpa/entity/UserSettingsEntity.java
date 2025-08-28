@@ -33,7 +33,7 @@ public class UserSettingsEntity {
      * Identifier of the user these settings belong to (one-to-one relationship with unique constraint).
      */
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private long userId;
 
     /**
      * Preferred locale code for user's interface language in ISO format (e.g., "en-US", "ru-RU").
@@ -64,7 +64,7 @@ public class UserSettingsEntity {
      *
      * @return the user identifier, never null for persisted entities
      */
-    public Long getUserId() {
+    public long getUserId() {
         return userId;
     }
 
@@ -74,9 +74,9 @@ public class UserSettingsEntity {
      * @param userIdValue the user identifier to set, must not be null
      * @throws IllegalArgumentException if userId is null
      */
-    public void setUserId(final Long userIdValue) {
-        if (userIdValue == null) {
-            throw new IllegalArgumentException("User ID cannot be null");
+    public void setUserId(final long userIdValue) {
+        if (userIdValue <= 0) {
+            throw new IllegalArgumentException("User ID must be positive");
         }
         this.userId = userIdValue;
     }

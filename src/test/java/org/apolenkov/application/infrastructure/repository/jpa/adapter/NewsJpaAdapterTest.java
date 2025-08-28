@@ -116,7 +116,7 @@ class NewsJpaAdapterTest {
         @DisplayName("FindById should return news when exists")
         void findByIdShouldReturnNewsWhenExists() {
             // Given
-            Long id = 1L;
+            long id = 1L;
             NewsEntity entity = createNewsEntity(id, "Test News", "Test Content", "Test Author", LocalDateTime.now());
             when(repo.findById(id)).thenReturn(Optional.of(entity));
 
@@ -135,7 +135,7 @@ class NewsJpaAdapterTest {
         @DisplayName("FindById should return empty when news does not exist")
         void findByIdShouldReturnEmptyWhenNewsDoesNotExist() {
             // Given
-            Long id = 1L;
+            long id = 1L;
             when(repo.findById(id)).thenReturn(Optional.empty());
 
             // When
@@ -205,7 +205,7 @@ class NewsJpaAdapterTest {
         @DisplayName("DeleteById should delete news")
         void deleteByIdShouldDeleteNews() {
             // Given
-            Long id = 1L;
+            long id = 1L;
 
             // When
             adapter.deleteById(id);
@@ -222,7 +222,7 @@ class NewsJpaAdapterTest {
         @DisplayName("Should handle very large IDs")
         void shouldHandleVeryLargeIDs() {
             // Given
-            Long largeId = Long.MAX_VALUE;
+            long largeId = Long.MAX_VALUE;
             when(repo.findById(largeId)).thenReturn(Optional.empty());
 
             // When

@@ -171,7 +171,7 @@ public class DeckFacade {
      * @throws RuntimeException if database operation fails or flashcard doesn't exist
      */
     @Transactional
-    public void deleteFlashcard(final Long id) {
+    public void deleteFlashcard(final long id) {
         flashcardUseCase.deleteFlashcard(id);
     }
 
@@ -196,7 +196,7 @@ public class DeckFacade {
      * @throws RuntimeException if database operation fails or deck doesn't exist
      */
     @Transactional
-    public void deleteDeck(final Long deckId) {
+    public void deleteDeck(final long deckId) {
         deckUseCase.deleteDeck(deckId);
     }
 
@@ -208,7 +208,7 @@ public class DeckFacade {
      * @throws IllegalArgumentException if confirmation text doesn't match deck title
      */
     @Transactional
-    public void deleteDeckWithConfirmation(final Long deckId, final String confirmationText) {
+    public void deleteDeckWithConfirmation(final long deckId, final String confirmationText) {
         // Get deck and validate it exists
         Deck deck = deckUseCase.getDeckById(deckId).orElseThrow();
 

@@ -22,7 +22,7 @@ public class DeckEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long userId;
+    private long userId;
 
     @Column(nullable = false, length = 120)
     private String title;
@@ -59,7 +59,7 @@ public class DeckEntity {
      *
      * @return the user ID that owns this deck
      */
-    public Long getUserId() {
+    public long getUserId() {
         return userId;
     }
 
@@ -68,7 +68,10 @@ public class DeckEntity {
      *
      * @param userIdValue the user ID that owns this deck
      */
-    public void setUserId(final Long userIdValue) {
+    public void setUserId(final long userIdValue) {
+        if (userIdValue <= 0) {
+            throw new IllegalArgumentException("User ID must be positive");
+        }
         this.userId = userIdValue;
     }
 

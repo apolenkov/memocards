@@ -21,7 +21,7 @@ public interface DeckUseCase {
      * @param userId ID of user whose decks to retrieve
      * @return list of decks owned by specified user
      */
-    List<Deck> getDecksByUserId(Long userId);
+    List<Deck> getDecksByUserId(long userId);
 
     /**
      * Returns deck by ID.
@@ -29,7 +29,7 @@ public interface DeckUseCase {
      * @param id unique identifier of deck
      * @return Optional containing deck if found, empty otherwise
      */
-    Optional<Deck> getDeckById(Long id);
+    Optional<Deck> getDeckById(long id);
 
     /**
      * Saves deck to system (creates new or updates existing).
@@ -44,5 +44,5 @@ public interface DeckUseCase {
      *
      * @param id ID of deck to delete
      */
-    void deleteDeck(Long id);
+    void deleteDeck(long id);
 }

@@ -13,7 +13,7 @@ public final class Flashcard {
     private Long id;
 
     @NotNull
-    private Long deckId;
+    private long deckId;
 
     @NotBlank
     @Size(max = 300)
@@ -50,7 +50,7 @@ public final class Flashcard {
      * @throws IllegalArgumentException if deckId is null, or if frontText/backText are null or empty
      */
     public Flashcard(
-            final Long idValue, final Long deckIdValue, final String frontTextValue, final String backTextValue) {
+            final Long idValue, final long deckIdValue, final String frontTextValue, final String backTextValue) {
         this();
         this.id = idValue;
         setDeckId(deckIdValue);
@@ -70,7 +70,7 @@ public final class Flashcard {
      */
     public Flashcard(
             final Long idValue,
-            final Long deckIdValue,
+            final long deckIdValue,
             final String frontTextValue,
             final String backTextValue,
             final String exampleValue) {
@@ -101,7 +101,7 @@ public final class Flashcard {
      *
      * @return deck ID
      */
-    public Long getDeckId() {
+    public long getDeckId() {
         return deckId;
     }
 
@@ -111,9 +111,9 @@ public final class Flashcard {
      * @param deckIdValue deck ID to set
      * @throws IllegalArgumentException if deckId is null
      */
-    public void setDeckId(final Long deckIdValue) {
-        if (deckIdValue == null) {
-            throw new IllegalArgumentException("deckId is required");
+    public void setDeckId(final long deckIdValue) {
+        if (deckIdValue <= 0) {
+            throw new IllegalArgumentException("deckId must be positive");
         }
         this.deckId = deckIdValue;
     }
