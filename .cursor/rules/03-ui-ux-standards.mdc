@@ -1,3 +1,9 @@
+---
+description: UI/UX development standards and Vaadin best practices
+globs:
+alwaysApply: true
+---
+
 # UI/UX Standards
 
 ## Vaadin Development
@@ -36,7 +42,3 @@
 - **Use CSS Grid and Flexbox** for modern layouts
 - **Optimize performance** through efficient selectors
 - **Document complex CSS logic** with clear comments
-description:
-globs:
-alwaysApply: true
----

@@ -1,0 +1,193 @@
+---
+description: Comprehensive error handling, exception management and user experience standards
+globs: ["**/exception/**", "**/handler/**", "**/controller/**", "**/service/**"]
+alwaysApply: true
+---
+
+# Error Handling & Exception Management
+
+## Core Principles
+- **Fail Fast**: Detect and handle errors early
+- **Fail Gracefully**: Provide meaningful error messages
+- **Fail Securely**: Don't expose sensitive information
+- **User Experience**: Errors should guide users, not frustrate them
+- **Observability**: All errors should be logged and monitored
+
+## Exception Hierarchy Design
+- **Business Exceptions**: Domain-specific business rule violations
+- **Technical Exceptions**: Infrastructure and technical failures
+- **Validation Exceptions**: Input validation failures
+- **Security Exceptions**: Authentication and authorization failures
+- **System Exceptions**: Unexpected system failures
+
+## Exception Handling Strategy
+- **Centralized Exception Handling**: Use @ControllerAdvice for REST APIs
+- **Consistent Error Responses**: Standardized error response format
+- **Proper HTTP Status Codes**: Use appropriate HTTP status codes
+- **Error Localization**: Provide errors in user's language
+- **Graceful Degradation**: Handle partial failures gracefully
+
+## Business Exception Design
+- **Meaningful Error Codes**: Unique, searchable error codes
+- **User-Friendly Messages**: Clear, actionable error messages
+- **Technical Details**: Include technical details in logs only
+- **Recovery Suggestions**: Provide guidance on how to resolve
+- **Internationalization**: Support multiple languages
+
+## Validation & Input Errors
+- **Field-Level Validation**: Specific errors for each field
+- **Cross-Field Validation**: Business rule validation across fields
+- **Real-Time Validation**: Client-side validation with server confirmation
+- **Progressive Disclosure**: Show errors as user progresses
+- **Contextual Help**: Provide help text for complex fields
+
+## Error Response Format
+- **Consistent Structure**: Same error response format across all endpoints
+- **Error Code**: Unique identifier for error tracking
+- **User Message**: Human-readable error message
+- **Technical Details**: Developer-friendly details (in development)
+- **Timestamp**: When the error occurred
+- **Request ID**: For correlation with logs
+
+## Code Examples
+
+### ✅ Centralized Exception Handler
+```java
+@ControllerAdvice
+public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(
+            BusinessException ex, HttpServletRequest request) {
+        
+        ErrorResponse error = ErrorResponse.builder()
+            .timestamp(Instant.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error(ex.getErrorCode())
+            .message(ex.getUserMessage())
+            .path(request.getRequestURI())
+            .requestId(MDC.get("requestId"))
+            .build();
+        
+        log.warn("Business exception: {}", ex.getMessage(), ex);
+        return ResponseEntity.badRequest().body(error);
+    }
+    
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ValidationErrorResponse> handleValidationException(
+            ValidationException ex, HttpServletRequest request) {
+        
+        ValidationErrorResponse error = ValidationErrorResponse.builder()
+            .timestamp(Instant.now())
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error("VALIDATION_ERROR")
+            .message("Validation failed")
+            .fieldErrors(ex.getFieldErrors())
+            .path(request.getRequestURI())
+            .build();
+        
+        log.debug("Validation exception: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(error);
+    }
+}
+```
+
+### ✅ Business Exception Implementation
+```java
+public class BusinessException extends RuntimeException {
+    
+    private final String errorCode;
+    private final String userMessage;
+    private final Map<String, Object> parameters;
+    
+    public BusinessException(String errorCode, String userMessage) {
+        super(userMessage);
+        this.errorCode = errorCode;
+        this.userMessage = userMessage;
+        this.parameters = new HashMap<>();
+    }
+    
+    public BusinessException(String errorCode, String userMessage, 
+                           Map<String, Object> parameters) {
+        super(userMessage);
+        this.errorCode = errorCode;
+        this.userMessage = userMessage;
+        this.parameters = parameters;
+    }
+    
+    // Getters and builder methods
+}
+```
+
+### ✅ Service Layer Error Handling
+```java
+@Service
+@Transactional
+public class UserService {
+    
+    public UserDto createUser(CreateUserRequest request) {
+        try {
+            // Validate business rules
+            validateUserCreation(request);
+            
+            // Check for duplicates
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new BusinessException(
+                    "USER_EMAIL_EXISTS",
+                    "User with this email already exists"
+                );
+            }
+            
+            User user = userMapper.toEntity(request);
+            User savedUser = userRepository.save(user);
+            
+            return userMapper.toDto(savedUser);
+            
+        } catch (DataIntegrityViolationException e) {
+            log.error("Database constraint violation during user creation", e);
+            throw new BusinessException(
+                "USER_CREATION_FAILED",
+                "Failed to create user due to data constraints"
+            );
+        }
+    }
+    
+    private void validateUserCreation(CreateUserRequest request) {
+        List<FieldError> errors = new ArrayList<>();
+        
+        if (request.getAge() != null && request.getAge() < 13) {
+            errors.add(new FieldError("age", "age", "User must be at least 13 years old"));
+        }
+        
+        if (request.getPassword() != null && request.getPassword().length() < 8) {
+            errors.add(new FieldError("password", "password", "Password must be at least 8 characters"));
+        }
+        
+        if (!errors.isEmpty()) {
+            throw new ValidationException("User creation validation failed", errors);
+        }
+    }
+}
+```
+
+## Error Monitoring & Alerting
+- **Error Rate Monitoring**: Track error rates by type and endpoint
+- **Error Pattern Analysis**: Identify recurring error patterns
+- **Performance Impact**: Monitor how errors affect performance
+- **User Impact Assessment**: Measure user experience impact
+- **Automated Alerting**: Alert on error rate spikes
+
+## Error Recovery Strategies
+- **Retry Mechanisms**: Implement exponential backoff for transient failures
+- **Circuit Breaker Pattern**: Prevent cascade failures
+- **Fallback Mechanisms**: Provide alternative functionality when possible
+- **Graceful Degradation**: Reduce functionality rather than complete failure
+- **User Communication**: Keep users informed about system status
+
+## Testing Error Scenarios
+- **Exception Testing**: Test all exception paths
+- **Error Response Validation**: Verify error response format
+- **Localization Testing**: Test error messages in different languages
+- **Performance Testing**: Ensure error handling doesn't impact performance
+- **Security Testing**: Verify no sensitive information in error responses
+

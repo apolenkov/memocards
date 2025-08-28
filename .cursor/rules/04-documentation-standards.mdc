@@ -1,3 +1,9 @@
+---
+description: Documentation standards and JavaDoc quality requirements
+globs:
+alwaysApply: true
+---
+
 # Documentation Standards
 
 ## JavaDoc Quality
@@ -52,7 +58,3 @@ public void doSomething() { }
  */
 public String getValue() { return value; }
 ```
-description:
-globs:
-alwaysApply: true
----

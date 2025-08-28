@@ -1,3 +1,9 @@
+---
+description: Core AI behavior and autonomous execution standards
+globs:
+alwaysApply: true
+---
+
 # Core AI Behavior
 
 ## Autonomous Execution
@@ -24,7 +30,3 @@ When working on tasks, prioritize:
 - **Test across different screen sizes** and browsers
 - **Handle edge cases** automatically
 - **Implement comprehensive validation** for all inputs
-description:
-globs:
-alwaysApply: true
----

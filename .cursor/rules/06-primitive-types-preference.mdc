@@ -1,3 +1,9 @@
+---
+description: Primitive types preference over wrapper types for better performance
+globs:
+alwaysApply: true
+---
+
 # Primitive Types Preference Rule
 
 ## General Principle
@@ -98,7 +104,3 @@ private Long parentDeckId; // can be null
 5. Update method signatures in interfaces and implementations consistently
 6. **NEVER use FQN - always add proper imports**
 7. Use IDE auto-import functionality to manage imports automatically
-description:
-globs:
-alwaysApply: true
----
