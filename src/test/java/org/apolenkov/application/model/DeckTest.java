@@ -7,7 +7,9 @@ import static org.assertj.core.api.Assertions.within;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,10 +48,8 @@ class DeckTest {
             assertThat(newDeck.getTitle()).isNull();
             assertThat(newDeck.getDescription()).isNull();
             assertThat(newDeck.getFlashcards()).isEmpty();
-            assertThat(newDeck.getCreatedAt())
-                    .isCloseTo(LocalDateTime.now(), within(1, java.time.temporal.ChronoUnit.SECONDS));
-            assertThat(newDeck.getUpdatedAt())
-                    .isCloseTo(LocalDateTime.now(), within(1, java.time.temporal.ChronoUnit.SECONDS));
+            assertThat(newDeck.getCreatedAt()).isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.SECONDS));
+            assertThat(newDeck.getUpdatedAt()).isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.SECONDS));
         }
 
         @Test
@@ -211,7 +211,7 @@ class DeckTest {
             LocalDateTime beforeAdd = deck.getUpdatedAt();
 
             // Wait a bit to ensure timestamp difference
-            await().atMost(java.time.Duration.ofMillis(100));
+            await().atMost(Duration.ofMillis(100));
 
             deck.addFlashcard(flashcard);
 
@@ -237,7 +237,7 @@ class DeckTest {
             LocalDateTime beforeRemove = deck.getUpdatedAt();
 
             // Wait a bit to ensure timestamp difference
-            await().atMost(java.time.Duration.ofMillis(100));
+            await().atMost(Duration.ofMillis(100));
 
             deck.removeFlashcard(flashcard);
 
@@ -289,7 +289,7 @@ class DeckTest {
         @DisplayName("Title setter should update timestamp")
         void titleSetterShouldUpdateTimestamp() {
             LocalDateTime beforeUpdate = deck.getUpdatedAt();
-            await().atMost(java.time.Duration.ofMillis(100));
+            await().atMost(Duration.ofMillis(100));
 
             deck.setTitle("New Title");
 
@@ -300,7 +300,7 @@ class DeckTest {
         @DisplayName("Description setter should update timestamp")
         void descriptionSetterShouldUpdateTimestamp() {
             LocalDateTime beforeUpdate = deck.getUpdatedAt();
-            await().atMost(java.time.Duration.ofMillis(100));
+            await().atMost(Duration.ofMillis(100));
 
             deck.setDescription("New Description");
 

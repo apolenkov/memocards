@@ -15,6 +15,10 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 import org.apolenkov.application.config.RouteConstants;
 import org.springframework.core.env.Environment;
 
@@ -80,10 +84,8 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
     public void beforeEnter(final BeforeEnterEvent event) {
         Location location = event.getLocation();
         QueryParameters queryParams = location.getQueryParameters();
-        fromRoute = queryParams
-                .getParameters()
-                .getOrDefault("from", java.util.List.of(""))
-                .getFirst();
+        fromRoute =
+                queryParams.getParameters().getOrDefault("from", List.of("")).getFirst();
 
         if (!fromRoute.isEmpty() && !fromRoute.equals("error")) {
             addGoBackButton();
@@ -128,8 +130,7 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
         errorDetails.add(errorType, errorMessage, currentRoute);
 
         Span timestamp = new Span(getTranslation("error.timestamp") + " "
-                + java.time.LocalDateTime.now()
-                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         timestamp.addClassName("error-dev__timestamp");
 
         devContainer.add(devTitle, errorDetails, timestamp);
@@ -138,7 +139,7 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
 
     private boolean isDevProfile() {
         String[] activeProfiles = environment.getActiveProfiles();
-        return java.util.Arrays.asList(activeProfiles).contains("dev");
+        return Arrays.asList(activeProfiles).contains("dev");
     }
 
     @Override

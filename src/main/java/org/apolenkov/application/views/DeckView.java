@@ -27,6 +27,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.config.RouteConstants;
@@ -339,7 +340,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             deckTitle.setText(currentDeck.getTitle());
             deckStats.setText(getTranslation("deck.count", presenter.deckSize(currentDeck.getId())));
             deckDescription.setText(
-                    java.util.Optional.ofNullable(currentDeck.getDescription()).orElse(""));
+                    Optional.ofNullable(currentDeck.getDescription()).orElse(""));
         }
     }
 
@@ -349,7 +350,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private void loadFlashcards() {
         if (currentDeck != null) {
             List<Flashcard> flashcards = presenter.loadFlashcards(currentDeck.getId());
-            flashcardsDataProvider = new ListDataProvider<>(new java.util.ArrayList<>(flashcards));
+            flashcardsDataProvider = new ListDataProvider<>(new ArrayList<>(flashcards));
             flashcardGrid.setDataProvider(flashcardsDataProvider);
             applyFlashcardsFilter();
         }
@@ -367,7 +368,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 : "";
         boolean hideKnown = hideKnownCheckbox != null && Boolean.TRUE.equals(hideKnownCheckbox.getValue());
         List<Flashcard> filtered = presenter.listFilteredFlashcards(currentDeck.getId(), q, hideKnown);
-        flashcardsDataProvider = new ListDataProvider<>(new java.util.ArrayList<>(filtered));
+        flashcardsDataProvider = new ListDataProvider<>(new ArrayList<>(filtered));
         flashcardGrid.setDataProvider(flashcardsDataProvider);
     }
 

@@ -1,7 +1,9 @@
 package org.apolenkov.application.domain.port;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 
@@ -60,8 +62,7 @@ public interface StatsRepository {
      * @param today current date for today's statistics
      * @return map of deck ID to aggregate statistics
      */
-    java.util.Map<Long, DeckAggregate> getAggregatesForDecks(
-            java.util.Collection<Long> deckIds, java.time.LocalDate today);
+    Map<Long, DeckAggregate> getAggregatesForDecks(Collection<Long> deckIds, LocalDate today);
 
     /**
      * Daily statistics record for specific date.

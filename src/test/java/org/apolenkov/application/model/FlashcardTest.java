@@ -5,7 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 import static org.awaitility.Awaitility.await;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -40,10 +43,8 @@ class FlashcardTest {
             assertThat(newFlashcard.getBackText()).isNull();
             assertThat(newFlashcard.getExample()).isNull();
             assertThat(newFlashcard.getImageUrl()).isNull();
-            assertThat(newFlashcard.getCreatedAt())
-                    .isCloseTo(LocalDateTime.now(), within(1, java.time.temporal.ChronoUnit.SECONDS));
-            assertThat(newFlashcard.getUpdatedAt())
-                    .isCloseTo(LocalDateTime.now(), within(1, java.time.temporal.ChronoUnit.SECONDS));
+            assertThat(newFlashcard.getCreatedAt()).isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.SECONDS));
+            assertThat(newFlashcard.getUpdatedAt()).isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.SECONDS));
         }
 
         @Test
@@ -209,10 +210,10 @@ class FlashcardTest {
     @DisplayName("Timestamp Update Tests")
     class TimestampUpdateTests {
 
-        private void assertTimestampUpdated(final java.util.function.Consumer<Flashcard> mutation) {
+        private void assertTimestampUpdated(final Consumer<Flashcard> mutation) {
             LocalDateTime beforeUpdate = flashcard.getUpdatedAt();
 
-            await().atMost(java.time.Duration.ofMillis(100));
+            await().atMost(Duration.ofMillis(100));
 
             mutation.accept(flashcard);
             assertThat(flashcard.getUpdatedAt()).isAfter(beforeUpdate);

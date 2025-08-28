@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Set;
 import org.apolenkov.application.model.Deck;
+import org.apolenkov.application.model.User;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
@@ -414,8 +415,8 @@ class DeckQueryServiceTest {
     }
 
     // Helper method to create a mock user
-    private org.apolenkov.application.model.User createMockUser(final Long userId) {
-        org.apolenkov.application.model.User user = new org.apolenkov.application.model.User();
+    private User createMockUser(final Long userId) {
+        User user = new User();
         user.setId(userId);
         user.setEmail("test@example.com");
         user.setName("Test User");

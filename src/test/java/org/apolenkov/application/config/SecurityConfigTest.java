@@ -1,15 +1,16 @@
 package org.apolenkov.application.config;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import java.util.Arrays;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -151,8 +152,7 @@ class SecurityConfigTest {
             when(environment.getActiveProfiles()).thenReturn(new String[] {"prod"});
 
             // When
-            boolean isProd =
-                    java.util.Arrays.asList(environment.getActiveProfiles()).contains("prod");
+            boolean isProd = Arrays.asList(environment.getActiveProfiles()).contains("prod");
 
             // Then
             assertThat(isProd).isTrue();
@@ -165,8 +165,7 @@ class SecurityConfigTest {
             when(environment.getActiveProfiles()).thenReturn(new String[] {"dev"});
 
             // When
-            boolean isProd =
-                    java.util.Arrays.asList(environment.getActiveProfiles()).contains("prod");
+            boolean isProd = Arrays.asList(environment.getActiveProfiles()).contains("prod");
 
             // Then
             assertThat(isProd).isFalse();
@@ -179,8 +178,7 @@ class SecurityConfigTest {
             when(environment.getActiveProfiles()).thenReturn(new String[] {"dev", "test"});
 
             // When
-            boolean isProd =
-                    java.util.Arrays.asList(environment.getActiveProfiles()).contains("prod");
+            boolean isProd = Arrays.asList(environment.getActiveProfiles()).contains("prod");
 
             // Then
             assertThat(isProd).isFalse();
@@ -193,8 +191,7 @@ class SecurityConfigTest {
             when(environment.getActiveProfiles()).thenReturn(new String[] {});
 
             // When
-            boolean isProd =
-                    java.util.Arrays.asList(environment.getActiveProfiles()).contains("prod");
+            boolean isProd = Arrays.asList(environment.getActiveProfiles()).contains("prod");
 
             // Then
             assertThat(isProd).isFalse();
@@ -213,7 +210,7 @@ class SecurityConfigTest {
 
             // When
             boolean containsLongProfile =
-                    java.util.Arrays.asList(environment.getActiveProfiles()).contains(longProfile);
+                    Arrays.asList(environment.getActiveProfiles()).contains(longProfile);
 
             // Then
             assertThat(containsLongProfile).isTrue();
@@ -228,7 +225,7 @@ class SecurityConfigTest {
 
             // When
             boolean containsSpecialProfile =
-                    java.util.Arrays.asList(environment.getActiveProfiles()).contains(specialProfile);
+                    Arrays.asList(environment.getActiveProfiles()).contains(specialProfile);
 
             // Then
             assertThat(containsSpecialProfile).isTrue();
@@ -243,7 +240,7 @@ class SecurityConfigTest {
 
             // When
             boolean containsUnicodeProfile =
-                    java.util.Arrays.asList(environment.getActiveProfiles()).contains(unicodeProfile);
+                    Arrays.asList(environment.getActiveProfiles()).contains(unicodeProfile);
 
             // Then
             assertThat(containsUnicodeProfile).isTrue();
