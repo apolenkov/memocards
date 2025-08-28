@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.StatsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
  * Handles session recording, daily statistics aggregation, and card knowledge management.
  */
 @Service
-@Transactional
 public class StatsService {
 
     private final StatsRepository statsRepository;
@@ -26,7 +24,6 @@ public class StatsService {
      *
      * @param statsRepositoryValue repository for statistics operations
      */
-    @Autowired
     public StatsService(final StatsRepository statsRepositoryValue) {
         this.statsRepository = statsRepositoryValue;
     }

@@ -6,7 +6,6 @@ import java.util.Set;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.FlashcardUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +27,6 @@ public class CardQueryService {
      * @param flashcardUseCaseValue service for flashcard operations
      * @param statsServiceValue service for statistics and progress tracking
      */
-    @Autowired
     public CardQueryService(final FlashcardUseCase flashcardUseCaseValue, final StatsService statsServiceValue) {
         this.flashcardUseCase = flashcardUseCaseValue;
         this.statsService = statsServiceValue;
