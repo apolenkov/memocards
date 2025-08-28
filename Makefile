@@ -64,11 +64,11 @@ run: start ## Start application with database
 	@echo "Starting application..."
 	$(GRADLE) bootRun
 
-dev: start ## Run in development mode
+dev: cleanup-and-run start ## Run in development mode
 	@echo "Starting in development mode..."
 	$(GRADLE) bootRun --args='$(PROFILE_DEV)'
 
-dev-auth: start ## Run with auto-login enabled
+dev-auth: cleanup-and-run  start ## Run with auto-login enabled
 	@echo "Starting with auto-login enabled..."
 	DEV_AUTO_LOGIN_ENABLED=true $(GRADLE) bootRun --args='$(PROFILE_DEV)'
 
