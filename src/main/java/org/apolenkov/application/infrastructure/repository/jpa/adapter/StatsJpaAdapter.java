@@ -1,7 +1,11 @@
 package org.apolenkov.application.infrastructure.repository.jpa.adapter;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.StatsRepository;
@@ -97,7 +101,7 @@ public class StatsJpaAdapter implements StatsRepository {
         if (sessionStats.knownCardIdsDelta() != null
                 && !sessionStats.knownCardIdsDelta().isEmpty()) {
             Set<Long> existing = knownRepo.findKnownCardIds(sessionStats.deckId());
-            for (Long cardId : sessionStats.knownCardIdsDelta()) {
+            for (long cardId : sessionStats.knownCardIdsDelta()) {
                 // Only add cards that aren't already marked as known
                 if (!existing.contains(cardId)) {
                     KnownCardEntity knownCard = new KnownCardEntity();
@@ -180,28 +184,27 @@ public class StatsJpaAdapter implements StatsRepository {
      */
     @Override
     @Transactional(readOnly = true)
-    public java.util.Map<Long, DeckAggregate> getAggregatesForDecks(
-            final java.util.Collection<Long> deckIds, final java.time.LocalDate today) {
+    public Map<Long, DeckAggregate> getAggregatesForDecks(final Collection<Long> deckIds, final LocalDate today) {
         if (deckIds == null || deckIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         // Ensure unique deck IDs and convert to Long type
-        java.util.List<Long> ids = deckIds.stream().distinct().toList();
+        List<Long> ids = deckIds.stream().distinct().toList();
 
         // Fetch raw statistics data from database
-        java.util.List<Object[]> rows = statsRepo.findAllByDeckIds(ids);
-        java.util.Map<Long, DeckAggregate> result = new java.util.HashMap<>();
+        List<Object[]> rows = statsRepo.findAllByDeckIds(ids);
+        Map<Long, DeckAggregate> result = new HashMap<>();
 
         // Process each row and accumulate statistics
-        for (Object[] r : rows) {
-            long deckId = (Long) r[0];
-            java.time.LocalDate date = (java.time.LocalDate) r[1];
-            int sessions = ((Number) r[2]).intValue();
-            int viewed = ((Number) r[3]).intValue();
-            int correct = ((Number) r[4]).intValue();
-            int repeatCount = ((Number) r[5]).intValue();
-            int hard = ((Number) r[6]).intValue();
+        for (Object[] row : rows) {
+            long deckId = (long) row[0];
+            LocalDate date = (LocalDate) row[1];
+            int sessions = ((Number) row[2]).intValue();
+            int viewed = ((Number) row[3]).intValue();
+            int correct = ((Number) row[4]).intValue();
+            int repeatCount = ((Number) row[5]).intValue();
+            int hard = ((Number) row[6]).intValue();
 
             // Get existing aggregate or create default one
             DeckAggregate agg = result.getOrDefault(deckId, new DeckAggregate(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));

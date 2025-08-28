@@ -30,13 +30,13 @@ public class KnownCardEntity {
      * Deck identifier. References an existing deck.
      */
     @Column(nullable = false)
-    private Long deckId;
+    private long deckId;
 
     /**
      * Card identifier. References the learned flashcard.
      */
     @Column(nullable = false)
-    private Long cardId;
+    private long cardId;
 
     /**
      * Gets the primary key identifier.
@@ -61,7 +61,7 @@ public class KnownCardEntity {
      *
      * @return the deck ID this card belongs to
      */
-    public Long getDeckId() {
+    public long getDeckId() {
         return deckId;
     }
 
@@ -75,9 +75,9 @@ public class KnownCardEntity {
      * @param deckIdValue deck identifier, must not be null
      * @throws IllegalArgumentException if deckId is null
      */
-    public void setDeckId(final Long deckIdValue) {
-        if (deckIdValue == null) {
-            throw new IllegalArgumentException("Deck ID cannot be null");
+    public void setDeckId(final long deckIdValue) {
+        if (deckIdValue <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive");
         }
         this.deckId = deckIdValue;
     }
@@ -87,7 +87,7 @@ public class KnownCardEntity {
      *
      * @return the flashcard ID that has been learned
      */
-    public Long getCardId() {
+    public long getCardId() {
         return cardId;
     }
 
@@ -101,9 +101,9 @@ public class KnownCardEntity {
      * @param cardIdValue card identifier, must not be null
      * @throws IllegalArgumentException if cardId is null
      */
-    public void setCardId(final Long cardIdValue) {
-        if (cardIdValue == null) {
-            throw new IllegalArgumentException("Card ID cannot be null");
+    public void setCardId(final long cardIdValue) {
+        if (cardIdValue <= 0) {
+            throw new IllegalArgumentException("Card ID must be positive");
         }
         this.cardId = cardIdValue;
     }

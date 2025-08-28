@@ -24,7 +24,7 @@ public interface UserUseCase {
      * @param id unique identifier of user
      * @return Optional containing user if found, empty otherwise
      */
-    Optional<User> getUserById(Long id);
+    Optional<User> getUserById(long id);
 
     /**
      * Gets currently authenticated user.

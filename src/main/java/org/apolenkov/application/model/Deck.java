@@ -16,7 +16,7 @@ public final class Deck {
     private Long id;
 
     @NotNull
-    private Long userId;
+    private long userId;
 
     @NotBlank
     @Size(max = 120)
@@ -46,7 +46,7 @@ public final class Deck {
      * @param titleValue title of the deck
      * @param descriptionValue description of the deck
      */
-    public Deck(final Long idValue, final Long userIdValue, final String titleValue, final String descriptionValue) {
+    public Deck(final Long idValue, final long userIdValue, final String titleValue, final String descriptionValue) {
         this();
         this.id = idValue;
         setUserId(userIdValue);
@@ -63,9 +63,9 @@ public final class Deck {
      * @return new Deck instance
      * @throws IllegalArgumentException if userId is null or title is empty
      */
-    public static Deck create(final Long userId, final String title, final String description) {
-        if (userId == null) {
-            throw new IllegalArgumentException("userId is required");
+    public static Deck create(final long userId, final String title, final String description) {
+        if (userId <= 0) {
+            throw new IllegalArgumentException("userId must be positive");
         }
         String t = title != null ? title.trim() : null;
         if (t == null || t.isEmpty()) {
@@ -140,7 +140,7 @@ public final class Deck {
      *
      * @return user ID
      */
-    public Long getUserId() {
+    public long getUserId() {
         return userId;
     }
 
@@ -150,9 +150,9 @@ public final class Deck {
      * @param userIdValue user ID to set
      * @throws IllegalArgumentException if userId is null
      */
-    public void setUserId(final Long userIdValue) {
-        if (userIdValue == null) {
-            throw new IllegalArgumentException("userId is required");
+    public void setUserId(final long userIdValue) {
+        if (userIdValue <= 0) {
+            throw new IllegalArgumentException("userId must be positive");
         }
         this.userId = userIdValue;
     }

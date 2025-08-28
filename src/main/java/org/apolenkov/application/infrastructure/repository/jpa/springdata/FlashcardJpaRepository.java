@@ -17,7 +17,7 @@ public interface FlashcardJpaRepository extends JpaRepository<FlashcardEntity, L
      * @param deckId the deck identifier
      * @return list of flashcards in the deck
      */
-    List<FlashcardEntity> findByDeckId(Long deckId);
+    List<FlashcardEntity> findByDeckId(long deckId);
 
     /**
      * Counts flashcards in a specific deck.
@@ -25,12 +25,12 @@ public interface FlashcardJpaRepository extends JpaRepository<FlashcardEntity, L
      * @param deckId the deck identifier
      * @return number of flashcards in the deck
      */
-    long countByDeckId(Long deckId);
+    long countByDeckId(long deckId);
 
     /**
      * Deletes all flashcards in a specific deck.
      *
      * @param deckId the deck identifier
      */
-    void deleteByDeckId(Long deckId);
+    void deleteByDeckId(long deckId);
 }

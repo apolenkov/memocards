@@ -25,7 +25,7 @@ public interface DeckRepository {
      * @param userId ID of user whose decks to retrieve
      * @return list of decks belonging to specified user
      */
-    List<Deck> findByUserId(Long userId);
+    List<Deck> findByUserId(long userId);
 
     /**
      * Gets deck by unique identifier.
@@ -33,7 +33,7 @@ public interface DeckRepository {
      * @param id unique identifier of deck
      * @return optional containing deck if found, empty otherwise
      */
-    Optional<Deck> findById(Long id);
+    Optional<Deck> findById(long id);
 
     /**
      * Saves deck to repository.
@@ -48,5 +48,5 @@ public interface DeckRepository {
      *
      * @param id unique identifier of deck to delete
      */
-    void deleteById(Long id);
+    void deleteById(long id);
 }

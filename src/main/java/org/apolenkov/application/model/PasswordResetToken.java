@@ -10,7 +10,7 @@ import java.util.Objects;
 public final class PasswordResetToken {
     private Long id;
     private String token;
-    private Long userId;
+    private long userId;
     private LocalDateTime expiresAt;
     private boolean used;
 
@@ -26,7 +26,7 @@ public final class PasswordResetToken {
      * @param userIdValue ID of the user requesting password reset
      * @param expiresAtValue expiration date and time for this token
      */
-    public PasswordResetToken(final String tokenValue, final Long userIdValue, final LocalDateTime expiresAtValue) {
+    public PasswordResetToken(final String tokenValue, final long userIdValue, final LocalDateTime expiresAtValue) {
         this.token = tokenValue;
         this.userId = userIdValue;
         this.expiresAt = expiresAtValue;
@@ -76,7 +76,7 @@ public final class PasswordResetToken {
      *
      * @return user ID associated with this token
      */
-    public Long getUserId() {
+    public long getUserId() {
         return userId;
     }
 
@@ -85,7 +85,7 @@ public final class PasswordResetToken {
      *
      * @param userIdValue user ID to associate with this token
      */
-    public void setUserId(final Long userIdValue) {
+    public void setUserId(final long userIdValue) {
         this.userId = userIdValue;
     }
 
@@ -142,7 +142,7 @@ public final class PasswordResetToken {
      * @return true if token is valid for use
      */
     public boolean isValid() {
-        return !isExpired() && !isUsed() && userId != null;
+        return !isExpired() && !isUsed() && userId > 0;
     }
 
     @Override

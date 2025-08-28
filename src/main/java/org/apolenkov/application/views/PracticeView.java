@@ -119,7 +119,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     @Override
     public void setParameter(final BeforeEvent event, final String parameter) {
         try {
-            Long deckId = Long.parseLong(parameter);
+            long deckId = Long.parseLong(parameter);
             loadDeck(deckId);
             if (currentDeck != null && !autoStartAttempted) {
                 autoStartAttempted = true;
@@ -236,7 +236,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         container.add(actionButtons);
     }
 
-    private void loadDeck(final Long deckId) {
+    private void loadDeck(final long deckId) {
         Optional<Deck> deckOpt = presenter.loadDeck(deckId);
         deckOpt.ifPresentOrElse(
                 deck -> {

@@ -198,7 +198,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
      * @param content the new content for the news article
      * @param author the new author for the news article
      */
-    private void updateNews(final Long id, final String title, final String content, final String author) {
+    private void updateNews(final long id, final String title, final String content, final String author) {
         try {
             newsService.updateNews(id, title, content, author);
         } catch (Exception e) {

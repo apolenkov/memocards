@@ -52,7 +52,7 @@ public class UserUseCaseService implements UserUseCase {
      */
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
-    public Optional<User> getUserById(final Long id) {
+    public Optional<User> getUserById(final long id) {
         return userRepository.findById(id);
     }
 

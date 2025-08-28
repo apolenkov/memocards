@@ -399,7 +399,7 @@ public class DeckDailyStatsEntity {
          * Relationship: Many-to-one with DeckEntity, Business Rule: Must reference an existing deck
          */
         @NotNull
-        private Long deckId;
+        private long deckId;
 
         /**
          * Calendar date for these daily statistics.
@@ -434,9 +434,9 @@ public class DeckDailyStatsEntity {
          * @param dateValue the calendar date, must not be null
          * @throws IllegalArgumentException if either parameter is null
          */
-        public Id(final Long deckIdValue, final LocalDate dateValue) {
-            if (deckIdValue == null) {
-                throw new IllegalArgumentException("Deck ID cannot be null");
+        public Id(final long deckIdValue, final LocalDate dateValue) {
+            if (deckIdValue <= 0) {
+                throw new IllegalArgumentException("Deck ID must be positive");
             }
             if (dateValue == null) {
                 throw new IllegalArgumentException("Date cannot be null");
@@ -450,7 +450,7 @@ public class DeckDailyStatsEntity {
          *
          * @return the deck identifier, never null
          */
-        public Long getDeckId() {
+        public long getDeckId() {
             return deckId;
         }
 
@@ -460,9 +460,9 @@ public class DeckDailyStatsEntity {
          * @param deckIdValue the deck identifier to set, must not be null
          * @throws IllegalArgumentException if deckId is null
          */
-        public void setDeckId(final Long deckIdValue) {
-            if (deckIdValue == null) {
-                throw new IllegalArgumentException("Deck ID cannot be null");
+        public void setDeckId(final long deckIdValue) {
+            if (deckIdValue <= 0) {
+                throw new IllegalArgumentException("Deck ID must be positive");
             }
             this.deckId = deckIdValue;
         }

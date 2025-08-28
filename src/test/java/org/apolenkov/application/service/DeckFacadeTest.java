@@ -49,7 +49,7 @@ class DeckFacadeTest {
         @DisplayName("GetDeckOrThrow should return deck when exists")
         void getDeckOrThrowShouldReturnDeckWhenExists() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             Deck expectedDeck = new Deck(deckId, 1L, "Test Deck", "Test Description");
 
             when(deckUseCase.getDeckById(deckId)).thenReturn(Optional.of(expectedDeck));
@@ -66,7 +66,7 @@ class DeckFacadeTest {
         @DisplayName("GetDeckOrThrow should throw exception when deck does not exist")
         void getDeckOrThrowShouldThrowExceptionWhenDeckDoesNotExist() {
             // Given
-            Long deckId = 999L;
+            long deckId = 999L;
             when(deckUseCase.getDeckById(deckId)).thenReturn(Optional.empty());
 
             // When & Then
@@ -133,7 +133,7 @@ class DeckFacadeTest {
         @DisplayName("DeleteFlashcard should delete flashcard")
         void deleteFlashcardShouldDeleteFlashcard() {
             // Given
-            Long flashcardId = 1L;
+            long flashcardId = 1L;
 
             // When
             deckFacade.deleteFlashcard(flashcardId);
@@ -235,7 +235,7 @@ class DeckFacadeTest {
         @DisplayName("DeleteDeck should delete deck")
         void deleteDeckShouldDeleteDeck() {
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
 
             // When
             deckFacade.deleteDeck(deckId);
@@ -398,7 +398,7 @@ class DeckFacadeTest {
             // The actual transaction behavior is tested in integration tests
 
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
             Deck deck = new Deck(deckId, 1L, "Test Deck", "Test Description");
             when(deckUseCase.getDeckById(deckId)).thenReturn(Optional.of(deck));
 
@@ -417,7 +417,7 @@ class DeckFacadeTest {
             // The actual transaction behavior is tested in integration tests
 
             // Given
-            Long deckId = 1L;
+            long deckId = 1L;
 
             // When & Then
             assertThatNoException().isThrownBy(() -> deckFacade.deleteDeck(deckId));

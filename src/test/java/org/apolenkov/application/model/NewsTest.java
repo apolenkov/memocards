@@ -27,7 +27,7 @@ class NewsTest {
         @DisplayName("Constructor should set all fields correctly")
         void constructorShouldSetAllFieldsCorrectly() {
             // Given
-            Long id = 1L;
+            long id = 1L;
             String title = "Test Title";
             String content = "Test Content";
             String author = "Test Author";
@@ -82,7 +82,7 @@ class NewsTest {
         @DisplayName("Id getter and setter should work correctly")
         void idGetterAndSetterShouldWorkCorrectly() {
             // Given
-            Long newId = 999L;
+            long newId = 999L;
 
             // When
             news.setId(newId);
@@ -184,7 +184,7 @@ class NewsTest {
         @DisplayName("Should handle very large IDs")
         void shouldHandleVeryLargeIds() {
             // Given
-            Long largeId = Long.MAX_VALUE;
+            long largeId = Long.MAX_VALUE;
 
             // When
             news.setId(largeId);
@@ -197,7 +197,7 @@ class NewsTest {
         @DisplayName("Should handle negative IDs")
         void shouldHandleNegativeIds() {
             // Given
-            Long negativeId = -1L;
+            long negativeId = -1L;
 
             // When
             news.setId(negativeId);
@@ -210,7 +210,7 @@ class NewsTest {
         @DisplayName("Should handle zero ID")
         void shouldHandleZeroId() {
             // Given
-            Long zeroId = 0L;
+            long zeroId = 0L;
 
             // When
             news.setId(zeroId);
@@ -455,7 +455,7 @@ class NewsTest {
         @DisplayName("Should allow updating all fields independently")
         void shouldAllowUpdatingAllFieldsIndependently() {
             // Given
-            Long newId = 999L;
+            long newId = 999L;
             String newTitle = "Updated Title";
             String newContent = "Updated Content";
             String newAuthor = "Updated Author";
@@ -488,7 +488,7 @@ class NewsTest {
         @DisplayName("Should create complete news object")
         void shouldCreateCompleteNewsObject() {
             // Given
-            Long id = 1L;
+            long id = 1L;
             String title = "Breaking News";
             String content = "This is a breaking news story with important information.";
             String author = "John Doe";
@@ -511,7 +511,7 @@ class NewsTest {
         void shouldUpdateNewsObjectCompletely() {
             // Given
             News originalNews = new News(1L, "Original Title", "Original Content", "Original Author", testTime);
-            Long newId = 2L;
+            long newId = 2L;
             String newTitle = "New Title";
             String newContent = "New Content";
             String newAuthor = "New Author";

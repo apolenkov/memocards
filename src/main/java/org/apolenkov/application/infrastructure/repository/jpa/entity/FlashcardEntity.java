@@ -22,7 +22,7 @@ public class FlashcardEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long deckId;
+    private long deckId;
 
     @Column(nullable = false, length = 300)
     private String frontText;
@@ -65,7 +65,7 @@ public class FlashcardEntity {
      *
      * @return the deck ID this flashcard belongs to
      */
-    public Long getDeckId() {
+    public long getDeckId() {
         return deckId;
     }
 
@@ -74,7 +74,10 @@ public class FlashcardEntity {
      *
      * @param deckIdValue the deck ID this flashcard belongs to
      */
-    public void setDeckId(final Long deckIdValue) {
+    public void setDeckId(final long deckIdValue) {
+        if (deckIdValue <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive");
+        }
         this.deckId = deckIdValue;
     }
 

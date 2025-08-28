@@ -1,8 +1,12 @@
 package org.apolenkov.application.service.query;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import java.util.Set;
-
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.User;
 import org.apolenkov.application.service.StatsService;
@@ -10,8 +14,6 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.home.DeckCardViewModel;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,8 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,7 +56,7 @@ class DeckQueryServiceTest {
         void listDecksForCurrentUserShouldReturnUsersDecksWhenNoQuery() {
             // Given
             String query = "";
-            Long userId = 1L;
+            long userId = 1L;
             Deck deck1 = new Deck(1L, userId, "Deck 1", "Description 1");
             Deck deck2 = new Deck(2L, userId, "Deck 2", "Description 2");
             List<Deck> userDecks = List.of(deck1, deck2);
@@ -77,7 +77,7 @@ class DeckQueryServiceTest {
         @DisplayName("ListDecksForCurrentUser should return user's decks when query is null")
         void listDecksForCurrentUserShouldReturnUsersDecksWhenQueryIsNull() {
             // Given
-            Long userId = 1L;
+            long userId = 1L;
             Deck deck1 = new Deck(1L, userId, "Deck 1", "Description 1");
             Deck deck2 = new Deck(2L, userId, "Deck 2", "Description 2");
             List<Deck> userDecks = List.of(deck1, deck2);
@@ -104,7 +104,7 @@ class DeckQueryServiceTest {
         void listDecksForCurrentUserShouldFilterDecksByQuery(
                 final String query, final String expectedDeckTitle, final String expectedDeckDescription) {
             // Given
-            Long userId = 1L;
+            long userId = 1L;
             Deck expectedDeck = new Deck(1L, userId, expectedDeckTitle, expectedDeckDescription);
             Deck otherDeck = new Deck(2L, userId, "Other Deck", "Other Description");
             List<Deck> userDecks = List.of(expectedDeck, otherDeck);
@@ -126,7 +126,7 @@ class DeckQueryServiceTest {
         void listDecksForCurrentUserShouldTrimAndNormalizeQuery() {
             // Given
             String query = "  math  ";
-            Long userId = 1L;
+            long userId = 1L;
             Deck mathDeck = new Deck(1L, userId, "Math Deck", "Mathematics flashcards");
             Deck historyDeck = new Deck(2L, userId, "History Deck", "History flashcards");
             List<Deck> userDecks = List.of(mathDeck, historyDeck);
@@ -148,7 +148,7 @@ class DeckQueryServiceTest {
         void listDecksForCurrentUserShouldSortDecksByTitle() {
             // Given
             String query = "";
-            Long userId = 1L;
+            long userId = 1L;
             Deck deckC = new Deck(3L, userId, "C Deck", "Description C");
             Deck deckA = new Deck(1L, userId, "A Deck", "Description A");
             Deck deckB = new Deck(2L, userId, "B Deck", "Description B");
@@ -175,7 +175,7 @@ class DeckQueryServiceTest {
         void listDecksForCurrentUserShouldHandleMixedCaseTitlesGracefully() {
             // Given
             String query = "";
-            Long userId = 1L;
+            long userId = 1L;
             Deck deckWithTitle = new Deck(1L, userId, "Valid Title", "Description");
             Deck deckWithMixedCaseTitle = new Deck(2L, userId, "MiXeD cAsE TiTlE", "Description");
             List<Deck> userDecks = List.of(deckWithTitle, deckWithMixedCaseTitle);
@@ -198,7 +198,7 @@ class DeckQueryServiceTest {
         void listDecksForCurrentUserShouldReturnEmptyListWhenNoDecksMatchQuery() {
             // Given
             String query = "nonexistent";
-            Long userId = 1L;
+            long userId = 1L;
             Deck deck1 = new Deck(1L, userId, "Math Deck", "Mathematics flashcards");
             Deck deck2 = new Deck(2L, userId, "History Deck", "History flashcards");
             List<Deck> userDecks = List.of(deck1, deck2);
@@ -316,7 +316,7 @@ class DeckQueryServiceTest {
         void shouldHandleVeryLongQueries() {
             // Given
             String longQuery = "a".repeat(1000);
-            Long userId = 1L;
+            long userId = 1L;
             Deck deck = new Deck(1L, userId, "Test Deck", "Test Description");
             List<Deck> userDecks = List.of(deck);
 
@@ -332,7 +332,7 @@ class DeckQueryServiceTest {
         void shouldHandleSpecialCharactersInQuery() {
             // Given
             String specialQuery = "math@#$%^&*()_+-=[]{}|;':\",./<>?";
-            Long userId = 1L;
+            long userId = 1L;
             Deck deck = new Deck(1L, userId, "Math Deck", "Mathematics flashcards");
             List<Deck> userDecks = List.of(deck);
 
@@ -351,7 +351,7 @@ class DeckQueryServiceTest {
         void shouldHandleUnicodeCharactersInQuery() {
             // Given
             String unicodeQuery = "математика"; // Russian for "mathematics"
-            Long userId = 1L;
+            long userId = 1L;
             Deck deck = new Deck(1L, userId, "Math Deck", "Mathematics flashcards");
             List<Deck> userDecks = List.of(deck);
 
@@ -378,7 +378,7 @@ class DeckQueryServiceTest {
 
             // Given
             String query = "";
-            Long userId = 1L;
+            long userId = 1L;
             Deck deck = new Deck(1L, userId, "Test Deck", "Test Description");
             List<Deck> userDecks = List.of(deck);
 
@@ -415,7 +415,7 @@ class DeckQueryServiceTest {
     }
 
     // Helper method to create a mock user
-    private User createMockUser(final Long userId) {
+    private User createMockUser(final long userId) {
         User user = new User();
         user.setId(userId);
         user.setEmail("test@example.com");

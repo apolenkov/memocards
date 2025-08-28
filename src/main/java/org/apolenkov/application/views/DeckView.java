@@ -123,7 +123,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     @Override
     public void setParameter(final BeforeEvent event, final String parameter) {
         try {
-            Long deckId = Long.parseLong(parameter);
+            long deckId = Long.parseLong(parameter);
             loadDeck(deckId);
         } catch (NumberFormatException e) {
             NotificationHelper.showError(getTranslation("deck.invalidId"));
@@ -320,7 +320,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      *
      * @param deckId the ID of the deck to load
      */
-    private void loadDeck(final Long deckId) {
+    private void loadDeck(final long deckId) {
         Optional<Deck> deckOpt = presenter.loadDeck(deckId);
         if (deckOpt.isPresent()) {
             currentDeck = deckOpt.get();

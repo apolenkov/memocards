@@ -71,10 +71,7 @@ public class PasswordResetTokenJpaAdapter implements PasswordResetTokenRepositor
      * @throws IllegalArgumentException if userId is null
      */
     @Override
-    public Optional<PasswordResetToken> findByUserIdAndNotUsed(final Long userIdValue) {
-        if (userIdValue == null) {
-            throw new IllegalArgumentException("User ID cannot be null");
-        }
+    public Optional<PasswordResetToken> findByUserIdAndNotUsed(final long userIdValue) {
         return repository.findByUserIdAndUsedFalse(userIdValue).map(this::toModel);
     }
 
@@ -93,10 +90,7 @@ public class PasswordResetTokenJpaAdapter implements PasswordResetTokenRepositor
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public void markAsUsed(final Long idValue) {
-        if (idValue == null) {
-            throw new IllegalArgumentException("Token ID cannot be null");
-        }
+    public void markAsUsed(final long idValue) {
         repository.markAsUsed(idValue);
     }
 

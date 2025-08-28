@@ -56,7 +56,7 @@ public class DeckQueryService {
     @Transactional(readOnly = true)
     public List<Deck> listDecksForCurrentUser(final String query) {
         // Get current user ID and load all their decks
-        Long userId = userUseCase.getCurrentUser().getId();
+        long userId = userUseCase.getCurrentUser().getId();
         List<Deck> decks = deckUseCase.getDecksByUserId(userId);
 
         // Normalize search query: convert to lowercase, trim whitespace, handle null

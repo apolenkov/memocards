@@ -78,7 +78,7 @@ public class UserJpaAdapter implements UserRepository {
      * @return Optional containing the user if found
      */
     @Override
-    public Optional<User> findById(final Long id) {
+    public Optional<User> findById(final long id) {
         return repo.findById(id).map(UserJpaAdapter::toModel);
     }
 
@@ -110,7 +110,7 @@ public class UserJpaAdapter implements UserRepository {
      * @param id the unique identifier of the user to delete
      */
     @Override
-    public void deleteById(final Long id) {
+    public void deleteById(final long id) {
         repo.deleteById(id);
     }
 }

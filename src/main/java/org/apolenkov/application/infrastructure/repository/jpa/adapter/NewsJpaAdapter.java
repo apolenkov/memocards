@@ -94,10 +94,7 @@ public class NewsJpaAdapter implements NewsRepository {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public Optional<News> findById(final Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("News ID cannot be null");
-        }
+    public Optional<News> findById(final long id) {
         return repo.findById(id).map(NewsJpaAdapter::toModel);
     }
 
@@ -123,10 +120,7 @@ public class NewsJpaAdapter implements NewsRepository {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    public void deleteById(final Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("News ID cannot be null");
-        }
+    public void deleteById(final long id) {
         repo.deleteById(id);
     }
 }

@@ -37,7 +37,7 @@ public interface FlashcardUseCase {
      *
      * @param id ID of flashcard to delete
      */
-    void deleteFlashcard(Long id);
+    void deleteFlashcard(long id);
 
     /**
      * Returns flashcards for practice session.
@@ -47,7 +47,7 @@ public interface FlashcardUseCase {
      * @param random whether to randomize order of flashcards
      * @return list of flashcards prepared for practice
      */
-    List<Flashcard> getFlashcardsForPractice(Long deckId, int count, boolean random);
+    List<Flashcard> getFlashcardsForPractice(long deckId, int count, boolean random);
 
     /**
      * Returns total number of flashcards in deck.
@@ -55,5 +55,5 @@ public interface FlashcardUseCase {
      * @param deckId ID of deck to count flashcards for
      * @return total number of flashcards in specified deck
      */
-    long countByDeckId(Long deckId);
+    long countByDeckId(long deckId);
 }

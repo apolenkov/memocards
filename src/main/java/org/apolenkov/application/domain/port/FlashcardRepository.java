@@ -18,7 +18,7 @@ public interface FlashcardRepository {
      * @param deckId deck identifier
      * @return list of flashcards in deck
      */
-    List<Flashcard> findByDeckId(Long deckId);
+    List<Flashcard> findByDeckId(long deckId);
 
     /**
      * Finds flashcard by identifier.
@@ -26,7 +26,7 @@ public interface FlashcardRepository {
      * @param id flashcard identifier
      * @return flashcard if found, empty otherwise
      */
-    Optional<Flashcard> findById(Long id);
+    Optional<Flashcard> findById(long id);
 
     /**
      * Saves flashcard (creates new or updates existing).
@@ -41,7 +41,7 @@ public interface FlashcardRepository {
      *
      * @param id flashcard identifier to delete
      */
-    void deleteById(Long id);
+    void deleteById(long id);
 
     /**
      * Counts number of flashcards in deck.
@@ -49,12 +49,12 @@ public interface FlashcardRepository {
      * @param deckId deck identifier
      * @return total number of flashcards in deck
      */
-    long countByDeckId(Long deckId);
+    long countByDeckId(long deckId);
 
     /**
      * Deletes all flashcards in specific deck.
      *
      * @param deckId deck identifier
      */
-    void deleteByDeckId(Long deckId);
+    void deleteByDeckId(long deckId);
 }

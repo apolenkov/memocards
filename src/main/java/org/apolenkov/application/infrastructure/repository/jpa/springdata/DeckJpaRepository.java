@@ -16,5 +16,5 @@ public interface DeckJpaRepository extends JpaRepository<DeckEntity, Long> {
      * @param userId the user identifier
      * @return list of decks belonging to the user
      */
-    List<DeckEntity> findByUserId(Long userId);
+    List<DeckEntity> findByUserId(long userId);
 }

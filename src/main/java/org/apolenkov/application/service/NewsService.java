@@ -60,7 +60,7 @@ public class NewsService {
      * @param author new author name for news item
      * @throws IllegalArgumentException if title or content is null or empty, or if news item not found
      */
-    public void updateNews(final Long id, final String title, final String content, final String author) {
+    public void updateNews(final long id, final String title, final String content, final String author) {
         Optional<News> existingOpt = newsRepository.findById(id);
         if (existingOpt.isEmpty()) {
             throw new IllegalArgumentException("News not found with id: " + id);
@@ -81,7 +81,7 @@ public class NewsService {
      *
      * @param id unique identifier of news item to delete
      */
-    public void deleteNews(final Long id) {
+    public void deleteNews(final long id) {
         newsRepository.deleteById(id);
     }
 

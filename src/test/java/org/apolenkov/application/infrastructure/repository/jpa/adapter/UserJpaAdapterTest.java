@@ -110,7 +110,7 @@ class UserJpaAdapterTest {
         @DisplayName("FindById should return user when exists")
         void findByIdShouldReturnUserWhenExists() {
             // Given
-            Long id = 1L;
+            long id = 1L;
             UserEntity entity = createUserEntity(id, "user@test.com", "Test User");
             when(repo.findById(id)).thenReturn(Optional.of(entity));
 
@@ -128,7 +128,7 @@ class UserJpaAdapterTest {
         @DisplayName("FindById should return empty when user does not exist")
         void findByIdShouldReturnEmptyWhenUserDoesNotExist() {
             // Given
-            Long id = 1L;
+            long id = 1L;
             when(repo.findById(id)).thenReturn(Optional.empty());
 
             // When
@@ -255,7 +255,7 @@ class UserJpaAdapterTest {
         @DisplayName("DeleteById should delete user")
         void deleteByIdShouldDeleteUser() {
             // Given
-            Long id = 1L;
+            long id = 1L;
 
             // When
             adapter.deleteById(id);
@@ -272,7 +272,7 @@ class UserJpaAdapterTest {
         @DisplayName("Should handle very large IDs")
         void shouldHandleVeryLargeIDs() {
             // Given
-            Long largeId = Long.MAX_VALUE;
+            long largeId = Long.MAX_VALUE;
             when(repo.findById(largeId)).thenReturn(Optional.empty());
 
             // When
