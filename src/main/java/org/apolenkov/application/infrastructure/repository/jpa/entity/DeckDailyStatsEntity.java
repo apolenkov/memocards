@@ -66,7 +66,7 @@ public class DeckDailyStatsEntity {
      */
     @NotNull
     @Min(0)
-    @Column(nullable = false)
+    @Column(name = "repeat_count", nullable = false)
     private int repeatCount;
     /**
      * Number of cards marked as "hard" during practice sessions on the specified date.
@@ -82,7 +82,7 @@ public class DeckDailyStatsEntity {
      */
     @NotNull
     @Min(0)
-    @Column(nullable = false)
+    @Column(name = "total_duration_ms", nullable = false)
     private long totalDurationMs;
     /**
      * Total delay in milliseconds before answering cards during practice sessions.
@@ -90,7 +90,7 @@ public class DeckDailyStatsEntity {
      */
     @NotNull
     @Min(0)
-    @Column(nullable = false)
+    @Column(name = "total_delay_ms", nullable = false)
     private long totalAnswerDelayMs;
     /**
      * Version number for optimistic locking.
@@ -399,6 +399,7 @@ public class DeckDailyStatsEntity {
          * Relationship: Many-to-one with DeckEntity, Business Rule: Must reference an existing deck
          */
         @NotNull
+        @Column(name = "deck_id")
         private long deckId;
 
         /**
