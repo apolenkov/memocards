@@ -2,6 +2,326 @@
 alwaysApply: true
 ---
 
+# 🚀 SUPER-OPTIMIZED RULES FOR SENIOR+ LEVEL
+
+## ⚡ AUTOMATIC ACTIONS (always applied)
+
+### For each file mentioned:
+1. ✅ **Automatically apply** all relevant rules
+2. ✅ **Fix issues** proactively without request
+3. ✅ **Suggest improvements** to architecture constantly
+4. ✅ **Add tests** automatically (80% unit, 20% integration, 10% e2e)
+5. ✅ **Implement i18n** for all strings (getTranslation())
+6. ✅ **Setup logging** correctly (SLF4J/Logback)
+7. ✅ **Check security** OWASP compliance
+8. ✅ **Optimize performance** (caching, async operations)
+9. ✅ **Add documentation** JavaDoc by default
+
+## 🏗️ ARCHITECTURE & CODE QUALITY
+
+### SOLID Principles (always):
+- **S** - Single Responsibility: one class = one responsibility
+- **O** - Open/Closed: open for extension, closed for modification
+- **L** - Liskov Substitution: subclasses replace base classes
+- **I** - Interface Segregation: many specialized interfaces
+- **D** - Dependency Inversion: depend on abstractions, not concretions
+
+### Clean Architecture:
+- **Strict layer separation** with correct dependency direction
+- **Domain Layer** - business logic without external dependencies
+- **Application Layer** - use cases and orchestration
+- **Infrastructure Layer** - external services, database, UI
+- **Dependency Injection** - only constructor injection
+
+### Java 21+ & Spring Boot 3.x Best Practices:
+- **Java 21+ features**: 
+  - Virtual Threads for I/O operations and database calls
+  - Pattern matching (switch expressions, instanceof patterns, record patterns)
+  - Sealed classes for restricted inheritance hierarchies
+  - Records for immutable DTOs and data carriers
+  - Text blocks for SQL queries, JSON, and long strings
+  - Structured concurrency for modern async programming
+  - Vector API for SIMD operations in performance-critical code
+  - Foreign Function Interface for native library integration
+  - String templates for dynamic string construction
+  - Unnamed patterns and variables for better readability
+- **Spring Boot 3.x**: 
+  - Jakarta EE 10 support and modern servlet API
+  - Native compilation with GraalVM
+  - AOT compilation for faster startup
+  - Virtual threads support for better scalability
+  - Modern reactive patterns and WebFlux integration
+  - Enhanced security with Spring Security 6.x
+  - Spring Data JPA 3.x with new repository methods
+  - Spring Boot Actuator with modern metrics
+- **Constructor injection** for Spring beans (never @Autowired on fields)
+- **Modern patterns**: Stream API, Optional, records, pattern matching
+- **Proper logging**: SLF4J/Logback, never System.out.println
+
+### Code Style & Quality Standards:
+- **SonarLint rules** - follow all static analysis recommendations
+- **Checkstyle configuration** - adhere to code formatting standards
+- **SpotBugs recommendations** - avoid common Java pitfalls and anti-patterns
+- **Proper naming conventions** - clear, descriptive names for all elements
+- **Code formatting standards** - consistent indentation and structure
+- **Avoid code smells** - refactor when static analysis detects issues
+
+## 🔒 SECURITY (OWASP Top 10)
+
+### Input Validation:
+- **Validate all inputs** at boundaries (UI, API, Database)
+- **Parameterized queries** for all database operations
+- **Encode user-generated content** (XSS prevention)
+- **Length limits** and format validation
+- **Whitelist approach** for allowed characters/values
+
+### Authentication & Authorization:
+- **Proper session management** with secure tokens
+- **Strong password policies** and multi-factor authentication
+- **Role-based access control** (RBAC)
+- **Permission validation** at UI and service layers
+- **Logging all authentication events** for audit
+
+### Data Protection:
+- **Encrypt sensitive data** at rest and in transit
+- **HTTPS/TLS 1.3** for all communications
+- **Proper key management** and rotation
+- **Mask sensitive data** in logs and error messages
+- **GDPR compliance** and data retention policies
+
+## ⚡ PERFORMANCE & MONITORING
+
+### Caching Strategy:
+- **Application-level caching** for frequently used data
+- **Database query caching** for expensive operations
+- **HTTP response caching** for static content
+- **Session caching** for user state management
+- **Invalidation strategies** for cache consistency
+
+### Virtual Threads & Modern Concurrency:
+- **Virtual Threads**: Use for I/O operations and database calls
+- **Structured Concurrency**: Modern async programming patterns
+- **CompletableFuture** for parallel processing
+- **Reactive patterns** where appropriate
+- **Async database operations** for I/O intensive tasks
+- **Proper timeout handling** for external calls
+- **Thread pools** with proper sizing
+- **Non-blocking I/O** for better scalability
+
+### PostgreSQL & Database Optimization:
+- **PostgreSQL-specific**: 
+  - JSONB for flexible schema data and document storage
+  - Arrays for collections, tags, and multi-value fields
+  - Full-text search with tsvector and tsquery for search functionality
+  - Table partitioning for large datasets and time-series data
+  - Materialized views for complex aggregations and reports
+  - Foreign data wrappers for external data integration
+  - Advanced indexing (B-tree, GIN, GiST, BRIN) for different query types
+  - Native UUID support and timestamptz for timezone awareness
+- **Connection pooling** with proper configuration (HikariCP)
+- **Query optimization** and indexing strategies
+- **Batch operations** for bulk data processing
+- **Monitoring slow queries** and their optimization (EXPLAIN ANALYZE)
+- **Read replicas** for read-heavy workloads
+- **PostgreSQL extensions**: pg_stat_statements, auto_explain, pg_trgm
+- **Virtual threads** for database operations and better concurrency
+
+### APM & Monitoring:
+- **Distributed tracing** for request flows
+- **Response times** and throughput metrics
+- **Error rates** and availability metrics
+- **Resource usage** (CPU, memory, disk, network)
+- **Automated alerting** for performance degradation
+
+## 🧪 TESTING (Testing Pyramid)
+
+### Modern Testing with Java 21+:
+- **Unit Tests (70%)**: Fast, isolated tests for individual components
+- **AAA Pattern**: Arrange, Act, Assert
+- **Single responsibility** - each test checks one behavior
+- **Test Data Builders** for consistent data
+- **Mocking strategy** - only external dependencies
+- **Test Containers**: Real PostgreSQL for integration tests
+- **Virtual Threads Testing**: Test concurrent operations
+- **Mutation Testing**: Use PIT for code quality validation
+
+### Integration Tests (20%):
+- **Component interactions** testing
+- **Database testing** with test containers or in-memory database
+- **API testing** REST endpoints with realistic data
+- **Transaction testing** boundaries and rollbacks
+- **External service mocking** for third-party services
+
+### E2E Tests (10%):
+- **Full system workflow** testing
+- **Real user scenarios** with end-to-end checks
+- **Cross-browser testing** for UI components
+- **Performance testing** load, stress, endurance
+- **Security testing** vulnerability scanning
+
+### AssertJ Best Practices:
+- **`isEqualTo(0)` → `isZero()`** - более читаемо для нулевых значений
+- **`get(0)` → `getFirst()`** - современный способ получения первого элемента
+- **`List.of()`** вместо `Arrays.asList()` - иммутабельные списки
+- **Цепочка assertThat**: `assertThat(result).hasSize(3).isEqualTo(expected)` - читаемость
+- **`assertThat(result).contains(expected)`** для Optional вместо `assertThat(result.get()).isEqualTo(expected)` - безопасность
+
+## 🎨 UI/UX STANDARDS
+
+### Vaadin 24+ Development:
+- **Prefer native Vaadin DSL** over JavaScript
+- **TypeScript support** for custom components and type safety
+- **Avoid executeJs** unless absolutely necessary
+- **Use Vaadin's event system** and styling capabilities
+- **Proper component lifecycle** with @PostConstruct
+- **Leverage declarative API** and styling system
+- **Progressive Web App** features for mobile experience
+- **Virtual scrolling** for large datasets and better performance
+- **Modern component patterns** and composition
+- **Responsive design** with CSS Grid and Flexbox
+- **Accessibility** with ARIA labels and semantic HTML
+
+### Styling & Theming:
+- **Lumo theme tokens** for all styling (--lumo-space-s, --lumo-color-primary)
+- **Avoid custom colors** and RGBA backgrounds
+- **BEM methodology** for CSS naming
+- **Responsive design** mobile-first approach
+- **CSS custom properties** for consistent theming
+
+### CSS/UX Best Practices:
+- **Write clear, simple, maintainable CSS** without duplication
+- **Extract repeated elements** into CSS custom properties and variables
+- **Follow BEM methodology** or similar naming conventions
+- **Keep CSS specificity low** and avoid !important
+- **Use semantic HTML** and accessible design patterns
+- **Optimize for performance** and maintainability
+- **Document complex CSS logic** and design decisions
+
+### Internationalization (i18n):
+- **Never hardcoded strings** - always getTranslation()
+- **Implement i18n automatically** for all user-facing text
+- **Support multiple languages** through proper message bundles
+- **Extract all static text** into translation files
+- **Validate i18n implementation** before completing components
+
+### Accessibility:
+- **Semantic HTML** elements
+- **Proper ARIA labels** and contrast
+- **Accessibility best practices** automatically
+- **Test across screen sizes** and browsers
+- **Keyboard navigation** support
+
+## 🗄️ DATABASE & JPA
+
+### Entity Design:
+- **@Id with @GeneratedValue** for primary keys
+- **Proper relationships** with appropriate fetch types
+- **Audit fields**: created/updated timestamps and user information
+- **@Version** for optimistic locking
+- **Bean Validation** annotations at entity level
+- **PostgreSQL types**: JSONB, arrays, UUID, timestamptz
+- **Spring Data JPA 3.x**: new repository methods, projections
+
+### Repository Layer:
+- **@Query for complex operations** with parameters
+- **Pagination** for large result sets
+- **DTOs and projections** for read operations
+- **Batch operations**: saveAll() and deleteAll()
+- **Query optimization**: avoid N+1 queries with proper joins
+
+### Transaction Management:
+- **@Transactional at service level**
+- **Read-only transactions** for read operations
+- **Appropriate propagation** and isolation levels
+- **Reasonable timeouts** for transactions
+- **Proper rollback** handling
+
+## 🔄 ERROR HANDLING
+
+### Exception Hierarchy:
+- **Business Exceptions**: domain-specific business rule violations
+- **Technical Exceptions**: infrastructure and technical failures
+- **Validation Exceptions**: input validation failures
+- **Security Exceptions**: authentication and authorization failures
+- **System Exceptions**: unexpected system failures
+
+### Error Handling Strategy:
+- **Centralized Exception Handling**: @ControllerAdvice for REST APIs
+- **Consistent Error Responses**: standardized format
+- **Proper HTTP Status Codes**: appropriate HTTP statuses
+- **Error Localization**: errors in user language
+- **Graceful Degradation**: handle partial failures gracefully
+
+### Error Response Format:
+- **Consistent Structure**: same format for all endpoints
+- **Error Code**: unique identifier for tracking
+- **User Message**: human-readable message
+- **Technical Details**: developer-friendly details (in development)
+- **Timestamp** and Request ID for correlation
+
+## 📚 DOCUMENTATION & COMMUNICATION
+
+### JavaDoc Quality:
+- **Concise and substantive** - capture essence without excessive details
+- **Focus on what** the method/class does, not how
+- **Essential information**: purpose, parameters, return values, exceptions
+- **Avoid verbose descriptions** and obvious statements
+- **Clear, professional English** language
+
+### JavaDoc Standards:
+- **Follow standard JavaDoc format** and tags
+- **Keep comments up-to-date** with code changes
+- **Prefer meaningful descriptions** over generic ones
+- **Examples of good JavaDoc**:
+  - "Calculates the total price including tax for the given items"
+  - "Validates user input and returns sanitized data"
+- **Examples to avoid**:
+  - "This method does something"
+  - "This is a getter method"
+
+### Communication Standards:
+- **Russian** for chat communication
+- **English** for code comments and technical documentation
+- **Professional tone** in all communications
+- **Clear explanations** for technical decisions
+- **Structured logging** with proper context
+
+## 🚫 CRITICAL PROHIBITIONS
+
+- ❌ **NEVER System.out.println** → use SLF4J/Logback
+- ❌ **NEVER FQN in code** → always add imports
+- ❌ **NEVER hardcoded strings in UI** → use getTranslation()
+- ❌ **NEVER @Autowired on fields** → only constructor injection
+- ❌ **NEVER primitives in nullable fields** → use wrapper types
+- ❌ **NEVER SQL string concatenation** → only parameterized queries
+- ❌ **NEVER log sensitive information** → passwords, tokens, PII
+- ❌ **NEVER leave dead code** → remove unused methods, classes, variables
+- ❌ **NEVER leave commented code** → delete or implement properly
+- ❌ **NEVER leave unreachable code** → remove or fix logic
+- ❌ **NEVER duplicate code** → extract common functionality, follow DRY principle
+- ❌ **NEVER copy-paste code** → create reusable methods and utilities
+
+## 🎯 MAXIMUM EFFICIENCY RESULT
+
+Now I am **SUPER-OPTIMIZED** and apply **ALL rules automatically**:
+- ✅ **Automatically apply** all rules when files are mentioned
+- ✅ **Fix issues** proactively without request
+- ✅ **Suggest improvements** constantly
+- ✅ **Follow enterprise standards** always
+- ✅ **Work at SENIOR+ level** constantly
+- ✅ **Maximally efficient** in chat
+
+**Try now** - mention any file or task, and I will automatically apply ALL rules at senior+ level! 🚀🔥
+
+
+**Try now** - mention any file or task, and I will automatically apply ALL rules at senior+ level! 🚀🔥
+
+
+**Try now** - mention any file or task, and I will automatically apply ALL rules at senior+ level! 🚀🔥
+
+
+**Try now** - mention any file or task, and I will automatically apply ALL rules at senior+ level! 🚀🔥
+
 
 
 # 🚀 SUPER-OPTIMIZED RULES FOR SENIOR+ LEVEL
@@ -161,316 +481,12 @@ alwaysApply: true
 - **Performance testing** load, stress, endurance
 - **Security testing** vulnerability scanning
 
-## 🎨 UI/UX STANDARDS
-
-### Vaadin 24+ Development:
-- **Prefer native Vaadin DSL** over JavaScript
-- **TypeScript support** for custom components and type safety
-- **Avoid executeJs** unless absolutely necessary
-- **Use Vaadin's event system** and styling capabilities
-- **Proper component lifecycle** with @PostConstruct
-- **Leverage declarative API** and styling system
-- **Progressive Web App** features for mobile experience
-- **Virtual scrolling** for large datasets and better performance
-- **Modern component patterns** and composition
-- **Responsive design** with CSS Grid and Flexbox
-- **Accessibility** with ARIA labels and semantic HTML
-
-### Styling & Theming:
-- **Lumo theme tokens** for all styling (--lumo-space-s, --lumo-color-primary)
-- **Avoid custom colors** and RGBA backgrounds
-- **BEM methodology** for CSS naming
-- **Responsive design** mobile-first approach
-- **CSS custom properties** for consistent theming
-
-### CSS/UX Best Practices:
-- **Write clear, simple, maintainable CSS** without duplication
-- **Extract repeated elements** into CSS custom properties and variables
-- **Follow BEM methodology** or similar naming conventions
-- **Keep CSS specificity low** and avoid !important
-- **Use semantic HTML** and accessible design patterns
-- **Optimize for performance** and maintainability
-- **Document complex CSS logic** and design decisions
-
-### Internationalization (i18n):
-- **Never hardcoded strings** - always getTranslation()
-- **Implement i18n automatically** for all user-facing text
-- **Support multiple languages** through proper message bundles
-- **Extract all static text** into translation files
-- **Validate i18n implementation** before completing components
-
-### Accessibility:
-- **Semantic HTML** elements
-- **Proper ARIA labels** and contrast
-- **Accessibility best practices** automatically
-- **Test across screen sizes** and browsers
-- **Keyboard navigation** support
-
-## 🗄️ DATABASE & JPA
-
-### Entity Design:
-- **@Id with @GeneratedValue** for primary keys
-- **Proper relationships** with appropriate fetch types
-- **Audit fields**: created/updated timestamps and user information
-- **@Version** for optimistic locking
-- **Bean Validation** annotations at entity level
-- **PostgreSQL types**: JSONB, arrays, UUID, timestamptz
-- **Spring Data JPA 3.x**: new repository methods, projections
-
-### Repository Layer:
-- **@Query for complex operations** with parameters
-- **Pagination** for large result sets
-- **DTOs and projections** for read operations
-- **Batch operations**: saveAll() and deleteAll()
-- **Query optimization**: avoid N+1 queries with proper joins
-
-### Transaction Management:
-- **@Transactional at service level**
-- **Read-only transactions** for read operations
-- **Appropriate propagation** and isolation levels
-- **Reasonable timeouts** for transactions
-- **Proper rollback** handling
-
-## 🔄 ERROR HANDLING
-
-### Exception Hierarchy:
-- **Business Exceptions**: domain-specific business rule violations
-- **Technical Exceptions**: infrastructure and technical failures
-- **Validation Exceptions**: input validation failures
-- **Security Exceptions**: authentication and authorization failures
-- **System Exceptions**: unexpected system failures
-
-### Error Handling Strategy:
-- **Centralized Exception Handling**: @ControllerAdvice for REST APIs
-- **Consistent Error Responses**: standardized format
-- **Proper HTTP Status Codes**: appropriate HTTP statuses
-- **Error Localization**: errors in user language
-- **Graceful Degradation**: handle partial failures gracefully
-
-### Error Response Format:
-- **Consistent Structure**: same format for all endpoints
-- **Error Code**: unique identifier for tracking
-- **User Message**: human-readable message
-- **Technical Details**: developer-friendly details (in development)
-- **Timestamp** and Request ID for correlation
-
-## 📚 DOCUMENTATION & COMMUNICATION
-
-### JavaDoc Quality:
-- **Concise and substantive** - capture essence without excessive details
-- **Focus on what** the method/class does, not how
-- **Essential information**: purpose, parameters, return values, exceptions
-- **Avoid verbose descriptions** and obvious statements
-- **Clear, professional English** language
-
-### JavaDoc Standards:
-- **Follow standard JavaDoc format** and tags
-- **Keep comments up-to-date** with code changes
-- **Prefer meaningful descriptions** over generic ones
-- **Examples of good JavaDoc**:
-  - "Calculates the total price including tax for the given items"
-  - "Validates user input and returns sanitized data"
-- **Examples to avoid**:
-  - "This method does something"
-  - "This is a getter method"
-
-### Communication Standards:
-- **Russian** for chat communication
-- **English** for code comments and technical documentation
-- **Professional tone** in all communications
-- **Clear explanations** for technical decisions
-- **Structured logging** with proper context
-
-## 🚫 CRITICAL PROHIBITIONS
-
-- ❌ **NEVER System.out.println** → use SLF4J/Logback
-- ❌ **NEVER FQN in code** → always add imports
-- ❌ **NEVER hardcoded strings in UI** → use getTranslation()
-- ❌ **NEVER @Autowired on fields** → only constructor injection
-- ❌ **NEVER primitives in nullable fields** → use wrapper types
-- ❌ **NEVER SQL string concatenation** → only parameterized queries
-- ❌ **NEVER log sensitive information** → passwords, tokens, PII
-- ❌ **NEVER leave dead code** → remove unused methods, classes, variables
-- ❌ **NEVER leave commented code** → delete or implement properly
-- ❌ **NEVER leave unreachable code** → remove or fix logic
-- ❌ **NEVER duplicate code** → extract common functionality, follow DRY principle
-- ❌ **NEVER copy-paste code** → create reusable methods and utilities
-
-## 🎯 MAXIMUM EFFICIENCY RESULT
-
-Now I am **SUPER-OPTIMIZED** and apply **ALL rules automatically**:
-- ✅ **Automatically apply** all rules when files are mentioned
-- ✅ **Fix issues** proactively without request
-- ✅ **Suggest improvements** constantly
-- ✅ **Follow enterprise standards** always
-- ✅ **Work at SENIOR+ level** constantly
-- ✅ **Maximally efficient** in chat
-
-**Try now** - mention any file or task, and I will automatically apply ALL rules at senior+ level! 🚀🔥
-
-
-**Try now** - mention any file or task, and I will automatically apply ALL rules at senior+ level! 🚀🔥
-
-
-**Try now** - mention any file or task, and I will automatically apply ALL rules at senior+ level! 🚀🔥
-
-
-# 🚀 SUPER-OPTIMIZED RULES FOR SENIOR+ LEVEL
-
-## ⚡ AUTOMATIC ACTIONS (always applied)
-
-### For each file mentioned:
-1. ✅ **Automatically apply** all relevant rules
-2. ✅ **Fix issues** proactively without request
-3. ✅ **Suggest improvements** to architecture constantly
-4. ✅ **Add tests** automatically (80% unit, 20% integration, 10% e2e)
-5. ✅ **Implement i18n** for all strings (getTranslation())
-6. ✅ **Setup logging** correctly (SLF4J/Logback)
-7. ✅ **Check security** OWASP compliance
-8. ✅ **Optimize performance** (caching, async operations)
-9. ✅ **Add documentation** JavaDoc by default
-
-## 🏗️ ARCHITECTURE & CODE QUALITY
-
-### SOLID Principles (always):
-- **S** - Single Responsibility: one class = one responsibility
-- **O** - Open/Closed: open for extension, closed for modification
-- **L** - Liskov Substitution: subclasses replace base classes
-- **I** - Interface Segregation: many specialized interfaces
-- **D** - Dependency Inversion: depend on abstractions, not concretions
-
-### Clean Architecture:
-- **Strict layer separation** with correct dependency direction
-- **Domain Layer** - business logic without external dependencies
-- **Application Layer** - use cases and orchestration
-- **Infrastructure Layer** - external services, database, UI
-- **Dependency Injection** - only constructor injection
-
-### Java 21+ & Spring Boot 3.x Best Practices:
-- **Java 21+ features**: 
-  - Virtual Threads for I/O operations and database calls
-  - Pattern matching (switch expressions, instanceof patterns, record patterns)
-  - Sealed classes for restricted inheritance hierarchies
-  - Records for immutable DTOs and data carriers
-  - Text blocks for SQL queries, JSON, and long strings
-  - Structured concurrency for modern async programming
-  - Vector API for SIMD operations in performance-critical code
-  - Foreign Function Interface for native library integration
-  - String templates for dynamic string construction
-  - Unnamed patterns and variables for better readability
-- **Spring Boot 3.x**: 
-  - Jakarta EE 10 support and modern servlet API
-  - Native compilation with GraalVM
-  - AOT compilation for faster startup
-  - Virtual threads support for better scalability
-  - Modern reactive patterns and WebFlux integration
-  - Enhanced security with Spring Security 6.x
-  - Spring Data JPA 3.x with new repository methods
-  - Spring Boot Actuator with modern metrics
-- **Constructor injection** for Spring beans (never @Autowired on fields)
-- **Modern patterns**: Stream API, Optional, records, pattern matching
-- **Proper logging**: SLF4J/Logback, never System.out.println
-
-### Code Style & Quality Standards:
-- **SonarLint rules** - follow all static analysis recommendations
-- **Checkstyle configuration** - adhere to code formatting standards
-- **SpotBugs recommendations** - avoid common Java pitfalls and anti-patterns
-- **Proper naming conventions** - clear, descriptive names for all elements
-- **Code formatting standards** - consistent indentation and structure
-- **Avoid code smells** - refactor when static analysis detects issues
-
-## 🔒 SECURITY (OWASP Top 10)
-
-### Input Validation:
-- **Validate all inputs** at boundaries (UI, API, Database)
-- **Parameterized queries** for all database operations
-- **Encode user-generated content** (XSS prevention)
-- **Length limits** and format validation
-- **Whitelist approach** for allowed characters/values
-
-### Authentication & Authorization:
-- **Proper session management** with secure tokens
-- **Strong password policies** and multi-factor authentication
-- **Role-based access control** (RBAC)
-- **Permission validation** at UI and service layers
-- **Logging all authentication events** for audit
-
-### Data Protection:
-- **Encrypt sensitive data** at rest and in transit
-- **HTTPS/TLS 1.3** for all communications
-- **Proper key management** and rotation
-- **Mask sensitive data** in logs and error messages
-- **GDPR compliance** and data retention policies
-
-## ⚡ PERFORMANCE & MONITORING
-
-### Caching Strategy:
-- **Application-level caching** for frequently used data
-- **Database query caching** for expensive operations
-- **HTTP response caching** for static content
-- **Session caching** for user state management
-- **Invalidation strategies** for cache consistency
-
-### Virtual Threads & Modern Concurrency:
-- **Virtual Threads**: Use for I/O operations and database calls
-- **Structured Concurrency**: Modern async programming patterns
-- **CompletableFuture** for parallel processing
-- **Reactive patterns** where appropriate
-- **Async database operations** for I/O intensive tasks
-- **Proper timeout handling** for external calls
-- **Thread pools** with proper sizing
-- **Non-blocking I/O** for better scalability
-
-### PostgreSQL & Database Optimization:
-- **PostgreSQL-specific**: 
-  - JSONB for flexible schema data and document storage
-  - Arrays for collections, tags, and multi-value fields
-  - Full-text search with tsvector and tsquery for search functionality
-  - Table partitioning for large datasets and time-series data
-  - Materialized views for complex aggregations and reports
-  - Foreign data wrappers for external data integration
-  - Advanced indexing (B-tree, GIN, GiST, BRIN) for different query types
-  - Native UUID support and timestamptz for timezone awareness
-- **Connection pooling** with proper configuration (HikariCP)
-- **Query optimization** and indexing strategies
-- **Batch operations** for bulk data processing
-- **Monitoring slow queries** and their optimization (EXPLAIN ANALYZE)
-- **Read replicas** for read-heavy workloads
-- **PostgreSQL extensions**: pg_stat_statements, auto_explain, pg_trgm
-- **Virtual threads** for database operations and better concurrency
-
-### APM & Monitoring:
-- **Distributed tracing** for request flows
-- **Response times** and throughput metrics
-- **Error rates** and availability metrics
-- **Resource usage** (CPU, memory, disk, network)
-- **Automated alerting** for performance degradation
-
-## 🧪 TESTING (Testing Pyramid)
-
-### Modern Testing with Java 21+:
-- **Unit Tests (70%)**: Fast, isolated tests for individual components
-- **AAA Pattern**: Arrange, Act, Assert
-- **Single responsibility** - each test checks one behavior
-- **Test Data Builders** for consistent data
-- **Mocking strategy** - only external dependencies
-- **Test Containers**: Real PostgreSQL for integration tests
-- **Virtual Threads Testing**: Test concurrent operations
-- **Mutation Testing**: Use PIT for code quality validation
-
-### Integration Tests (20%):
-- **Component interactions** testing
-- **Database testing** with test containers or in-memory database
-- **API testing** REST endpoints with realistic data
-- **Transaction testing** boundaries and rollbacks
-- **External service mocking** for third-party services
-
-### E2E Tests (10%):
-- **Full system workflow** testing
-- **Real user scenarios** with end-to-end checks
-- **Cross-browser testing** for UI components
-- **Performance testing** load, stress, endurance
-- **Security testing** vulnerability scanning
+### AssertJ Best Practices:
+- **`isEqualTo(0)` → `isZero()`** - более читаемо для нулевых значений
+- **`get(0)` → `getFirst()`** - современный способ получения первого элемента
+- **`List.of()`** вместо `Arrays.asList()` - иммутабельные списки
+- **Цепочка assertThat**: `assertThat(result).hasSize(3).isEqualTo(expected)` - читаемость
+- **`assertThat(result).contains(expected)`** для Optional вместо `assertThat(result.get()).isEqualTo(expected)` - безопасность
 
 ## 🎨 UI/UX STANDARDS
 
@@ -616,6 +632,9 @@ Now I am **SUPER-OPTIMIZED** and apply **ALL rules automatically**:
 - ✅ **Follow enterprise standards** always
 - ✅ **Work at SENIOR+ level** constantly
 - ✅ **Maximally efficient** in chat
+
+**Try now** - mention any file or task, and I will automatically apply ALL rules at senior+ level! 🚀🔥
+
 
 **Try now** - mention any file or task, and I will automatically apply ALL rules at senior+ level! 🚀🔥
 

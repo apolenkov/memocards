@@ -9,6 +9,8 @@ val lineAwesome: String by project
 val assertj: String by project
 val mockito: String by project
 val webdrivermanager: String by project
+val testcontainersVersion: String by project
+val assertjCoreVersion: String by project
 
 plugins {
     idea
@@ -75,6 +77,7 @@ extensions.configure<DependencyManagementExtension> {
 
 dependencies {
     // Utilities
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("com.google.guava:guava")
     implementation("org.apache.commons:commons-lang3")
 
@@ -105,6 +108,14 @@ dependencies {
     testImplementation("org.assertj:assertj-core:$assertj")
     testImplementation("org.mockito:mockito-core:$mockito")
     testImplementation("io.github.bonigarcia:webdrivermanager:$webdrivermanager")
+
+    // Test containers for integration tests
+    testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion") // Using variable
+    testImplementation("org.testcontainers:postgresql:$testcontainersVersion") // Using variable
+
+    // Test dependencies
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.assertj:assertj-core:$assertjCoreVersion") // Using variable
 }
 
 configurations.all {
@@ -122,6 +133,11 @@ configurations.all {
         force("com.google.guava:guava:33.4.5-jre")
         force("com.google.errorprone:error_prone_annotations:2.36.0")
         force("io.github.classgraph:classgraph:4.8.179")
+
+        // Added to resolve the reported conflicts
+        force("com.github.docker-java:docker-java-api:3.4.1")
+        force("com.github.docker-java:docker-java-transport:3.4.1")
+        force("org.jetbrains:annotations:17.0.0")
     }
 }
 
