@@ -93,6 +93,11 @@
 - ❌ **NEVER use hardcoded strings in UI** - use getTranslation()
 - ❌ **NEVER use @Autowired on fields** - only constructor injection
 - ❌ **NEVER use primitive types in nullable fields** - use wrapper types
+- ❌ **NEVER leave dead code** - remove unused methods, classes, variables
+- ❌ **NEVER leave commented code** - delete or implement properly
+- ❌ **NEVER leave unreachable code** - remove or fix logic
+- ❌ **NEVER duplicate code** - extract common functionality, follow DRY principle
+- ❌ **NEVER copy-paste code** - create reusable methods and utilities
 
 ## 🔄 Error Handling
 - **Fail Fast**: Detect and handle errors early
