@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "autoApply": true,
+    "priority": 1
+  },
+  "chat": {
+    "efficiency": "maximum",
+    "autoFix": true,
+    "proactive": true
+  }
+}

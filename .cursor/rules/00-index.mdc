@@ -1,0 +1,96 @@
+
+
+
+# Development Rules Index
+
+## 🚀 MAXIMUM EFFICIENCY (CORE)
+- **[00-super-rules.mdc](00-super-rules.mdc)** - ALL rules in one file for maximum efficiency
+- **[01-commands.mdc](01-commands.mdc)** - Commands for maximum efficiency in chat
+- **[02-detailed-rules.mdc](02-detailed-rules.mdc)** - Detailed rules by topics (tag search)
+
+## 🎯 FILE STRUCTURE (OPTIMIZED!)
+
+### Core Rules (all in one place):
+- **SOLID Principles** - all 5 principles
+- **Clean Architecture** - strict layer separation
+- **Java 21+ & Spring Boot 3.x** - modern features and best practices
+- **Code Style & Quality** - SonarLint, Checkstyle, SpotBugs
+- **PostgreSQL** - specific optimizations and data types
+- **UI/UX Standards** - Vaadin 24+, i18n, accessibility, CSS best practices
+- **Security** - OWASP Top 10 2024, validation, SQL injection protection
+- **Performance** - Virtual Threads, caching, async operations, APM
+- **Testing** - Testing Pyramid (70/20/10), 80% coverage, TestContainers
+- **Database** - JPA 3.x, transactions, DTO, PostgreSQL optimization
+- **Error Handling** - Exception hierarchy, centralized handling
+- **Documentation** - JavaDoc quality standards, English code
+- **Communication** - Russian chat, English code, structured logging
+
+## 📁 Alternative Approaches
+- **[AGENTS.md](../AGENTS.md)** - Simple instructions in markdown format (alternative to .cursor/rules)
+
+## 🏷️ Quick Search by Tags
+
+### #java #spring
+- **SOLID Principles** - all 5 principles always
+- **Clean Architecture** - strict layer separation
+- **Java 21+ & Spring Boot 3.x** - modern features and best practices
+- **Constructor Injection** - only for Spring beans (never @Autowired on fields)
+- **Virtual Threads** - modern concurrency model
+- **Pattern Matching** - switch expressions, instanceof patterns
+
+### #security #owasp
+- **OWASP Top 10 2024** - compliance always
+- **Input Validation** - validation of all external inputs
+- **SQL Injection Protection** - parameterized queries
+- **XSS Prevention** - encoding of user-generated content
+- **Modern authentication** - OAuth2, JWT, MFA
+
+### #performance #monitoring
+- **Virtual Threads** - Java 21+ concurrency
+- **Caching Strategy** - strategic application
+- **Async Processing** - CompletableFuture for I/O
+- **Database Optimization** - query and index optimization
+- **APM** - distributed tracing, metrics, alerting
+- **PostgreSQL optimization** - JSONB, arrays, full-text search
+
+### #testing #qa
+- **Testing Pyramid**: 70% Unit, 20% Integration, 10% E2E
+- **Coverage**: minimum 80% for business logic
+- **AAA Pattern**: Arrange, Act, Assert
+- **Test Data Builders** - consistent test data
+- **Test Containers** - real PostgreSQL for integration tests
+- **Mutation Testing** - PIT for code quality validation
+
+### #ui #ux #vaadin
+- **Vaadin 24+ DSL** - prefer native components
+- **TypeScript support** - for custom components
+- **Lumo Theme** - use standard tokens
+- **i18n** - all strings through getTranslation()
+- **Accessibility** - ARIA labels, semantic HTML
+- **PWA features** - Progressive Web App capabilities
+
+### #database #jpa #postgresql
+- **JPA Entity Design** - @Id with @GeneratedValue, audit fields
+- **Repository Layer** - @Query with parameters, pagination
+- **DTOs** - separate from entities, immutable design
+- **Transactions** - @Transactional at service level
+- **PostgreSQL features**: JSONB, arrays, full-text search, partitioning
+- **Connection pooling** - HikariCP optimization
+
+## 📋 Quick Version for Fast Overview
+
+### Core Principles
+1. **Autonomy**: Complete tasks fully without confirmations
+2. **Quality**: Priority of architecture and standards over quick fixes
+3. **Security**: OWASP compliance, validation of all input data
+4. **Performance**: Virtual Threads, caching, async operations, database optimization
+5. **Testing**: 80% unit, 20% integration, 10% e2e tests
+
+### Key Prohibitions
+- ❌ Never use `System.out.println` - only SLF4J/Logback
+- ❌ Never use FQN - always add imports
+- ❌ Never use hardcoded strings in UI - only `getTranslation()`
+- ❌ Never use `@Autowired` on fields - only constructor injection
+
+- ❌ Never use hardcoded strings in UI - only `getTranslation()`
+- ❌ Never use `@Autowired` on fields - only constructor injection
