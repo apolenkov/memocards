@@ -2,10 +2,6 @@
 alwaysApply: true
 ---
 
-
-
-
-
 # 📚 DETAILED RULES FOR SPECIFIC TOPICS
 
 ## 🏷️ Search by Tags and Categories
@@ -43,6 +39,12 @@ alwaysApply: true
 - **Mocking Strategy** - only external dependencies
 - **Test Containers** - real PostgreSQL for integration tests
 - **Mutation Testing** - PIT for code quality validation
+- **AssertJ Best Practices**:
+  - `isEqualTo(0)` → `isZero()`
+  - `get(0)` → `getFirst()`
+  - `List.of()` вместо `Arrays.asList()`
+  - Цепочка assertThat: `assertThat(result).hasSize(3).isEqualTo(expected)`
+  - `assertThat(result).contains(expected)` для Optional вместо `assertThat(result.get()).isEqualTo(expected)`
 
 ### #ui #ux #vaadin
 - **Vaadin 24+ DSL** - prefer native components
@@ -255,6 +257,10 @@ Now you have **3 key files** instead of 17:
 **Maximum efficiency** with minimal number of files! 🚀
 
 
+**Maximum efficiency** with minimal number of files! 🚀
+
+
+
 
 
 # 📚 DETAILED RULES FOR SPECIFIC TOPICS
@@ -294,6 +300,12 @@ Now you have **3 key files** instead of 17:
 - **Mocking Strategy** - only external dependencies
 - **Test Containers** - real PostgreSQL for integration tests
 - **Mutation Testing** - PIT for code quality validation
+- **AssertJ Best Practices**:
+  - `isEqualTo(0)` → `isZero()`
+  - `get(0)` → `getFirst()`
+  - `List.of()` вместо `Arrays.asList()`
+  - Цепочка assertThat: `assertThat(result).hasSize(3).isEqualTo(expected)`
+  - `assertThat(result).contains(expected)` для Optional вместо `assertThat(result.get()).isEqualTo(expected)`
 
 ### #ui #ux #vaadin
 - **Vaadin 24+ DSL** - prefer native components
@@ -496,6 +508,9 @@ Now you have **3 key files** instead of 17:
 1. **`00-super-rules.mdc`** - ALL core rules in one place
 2. **`01-commands.mdc`** - commands for maximum efficiency
 3. **`02-detailed-rules.mdc`** - detailed rules by topics (this file)
+
+**Maximum efficiency** with minimal number of files! 🚀
+
 
 **Maximum efficiency** with minimal number of files! 🚀
 
