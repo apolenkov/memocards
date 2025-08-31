@@ -41,7 +41,7 @@ class DeckUseCaseServiceTest {
     @DisplayName("Should get all decks for user")
     void shouldGetAllDecksForUser() {
         // Given
-        Long userId = 1L;
+        long userId = 1L;
         List<Deck> expectedDecks = List.of(
                 new Deck(1L, userId, "Deck 1", "Description 1"), new Deck(2L, userId, "Deck 2", "Description 2"));
         when(deckRepository.findByUserId(userId)).thenReturn(expectedDecks);
@@ -57,7 +57,7 @@ class DeckUseCaseServiceTest {
     @DisplayName("Should get deck by id")
     void shouldGetDeckById() {
         // Given
-        Long deckId = 1L;
+        long deckId = 1L;
         Deck expectedDeck = new Deck(deckId, 1L, "Test Deck", "Description");
         when(deckRepository.findById(deckId)).thenReturn(Optional.of(expectedDeck));
 
@@ -86,7 +86,7 @@ class DeckUseCaseServiceTest {
     @DisplayName("Should delete deck")
     void shouldDeleteDeck() {
         // Given
-        Long deckId = 1L;
+        long deckId = 1L;
 
         // When
         deckUseCaseService.deleteDeck(deckId);
@@ -114,7 +114,7 @@ class DeckUseCaseServiceTest {
     @DisplayName("Should handle deck not found")
     void shouldHandleDeckNotFound() {
         // Given
-        Long deckId = 999L;
+        long deckId = 999L;
         when(deckRepository.findById(deckId)).thenReturn(Optional.empty());
 
         // When
@@ -128,7 +128,7 @@ class DeckUseCaseServiceTest {
     @DisplayName("Should handle empty deck list")
     void shouldHandleEmptyDeckList() {
         // Given
-        Long userId = 1L;
+        long userId = 1L;
         when(deckRepository.findByUserId(userId)).thenReturn(List.of());
 
         // When

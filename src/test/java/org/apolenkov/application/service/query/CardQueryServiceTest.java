@@ -36,7 +36,7 @@ class CardQueryServiceTest {
     @DisplayName("Should get filtered flashcards by deck id")
     void shouldGetFilteredFlashcardsByDeckId() {
         // Given
-        Long deckId = 1L;
+        long deckId = 1L;
         List<Flashcard> expectedFlashcards =
                 List.of(new Flashcard(1L, deckId, "Front 1", "Back 1"), new Flashcard(2L, deckId, "Front 2", "Back 2"));
         when(flashcardUseCase.getFlashcardsByDeckId(deckId)).thenReturn(expectedFlashcards);
@@ -53,7 +53,7 @@ class CardQueryServiceTest {
     @DisplayName("Should handle empty flashcard list")
     void shouldHandleEmptyFlashcardList() {
         // Given
-        Long deckId = 1L;
+        long deckId = 1L;
         when(flashcardUseCase.getFlashcardsByDeckId(deckId)).thenReturn(List.of());
         when(statsService.getKnownCardIds(deckId)).thenReturn(Set.of());
 
@@ -68,7 +68,7 @@ class CardQueryServiceTest {
     @DisplayName("Should filter flashcards by search query")
     void shouldFilterFlashcardsBySearchQuery() {
         // Given
-        Long deckId = 1L;
+        long deckId = 1L;
         List<Flashcard> allFlashcards = List.of(
                 new Flashcard(1L, deckId, "Front 1", "Back 1"),
                 new Flashcard(2L, deckId, "Front 2", "Back 2"),

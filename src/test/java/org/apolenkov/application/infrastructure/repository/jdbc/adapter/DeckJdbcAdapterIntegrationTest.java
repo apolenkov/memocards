@@ -27,7 +27,7 @@ class DeckJdbcAdapterIntegrationTest extends BaseIntegrationTest {
     @Test
     @DisplayName("Should connect to PostgreSQL container successfully")
     void shouldConnectToPostgreSQLContainer() {
-        // This test verifies that TestContainers are working
+        // This test verifies that TestContainers are working,
         // and we can connect to the PostgreSQL database
         assertThat(jdbcTemplate).isNotNull();
     }

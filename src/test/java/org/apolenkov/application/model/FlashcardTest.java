@@ -112,9 +112,13 @@ class FlashcardTest {
     @Test
     @DisplayName("Should set and get id")
     void shouldSetAndGetId() {
-        Long newId = 999L;
+        // Given
+        long newId = 999L;
+
+        // When
         testFlashcard.setId(newId);
 
+        // Then
         assertThat(testFlashcard.getId()).isEqualTo(newId);
     }
 
