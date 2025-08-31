@@ -181,12 +181,16 @@ class DeckFacadeTest {
     @Test
     @DisplayName("Should handle invalid deck id")
     void shouldHandleInvalidDeckId() {
-        assertThatThrownBy(() -> deckFacade.getDeckOrThrow(0L)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> deckFacade.getDeckOrThrow(0L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Deck ID must be positive");
     }
 
     @Test
     @DisplayName("Should handle negative deck id")
     void shouldHandleNegativeDeckId() {
-        assertThatThrownBy(() -> deckFacade.getDeckOrThrow(-1L)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> deckFacade.getDeckOrThrow(-1L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Deck ID must be positive");
     }
 }
