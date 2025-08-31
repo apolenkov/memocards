@@ -39,8 +39,8 @@ class SessionStatsDtoTest {
                 .hasMessageContaining("Viewed count must be positive");
     }
 
-    private SessionStatsDto createInvalidSessionStatsWithZeroValues() {
-        return SessionStatsDto.builder()
+    private void createInvalidSessionStatsWithZeroValues() {
+        SessionStatsDto.builder()
                 .deckId(1L)
                 .viewed(0)
                 .correct(0)
@@ -58,8 +58,8 @@ class SessionStatsDtoTest {
         assertThatThrownBy(this::createInvalidSessionStatsWithZeroDeckId).isInstanceOf(IllegalArgumentException.class);
     }
 
-    private SessionStatsDto createInvalidSessionStatsWithZeroDeckId() {
-        return SessionStatsDto.builder().deckId(0L).viewed(10).correct(8).build();
+    private void createInvalidSessionStatsWithZeroDeckId() {
+        SessionStatsDto.builder().deckId(0L).viewed(10).correct(8).build();
     }
 
     @Test

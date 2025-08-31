@@ -32,8 +32,8 @@ class UserUseCaseServiceTest {
     @DisplayName("Should get user by id")
     void shouldGetUserById() {
         // Given
-        Long userId = 1L;
-        User expectedUser = new User(userId, "user@example.com", "User Name");
+        long userId = 1L;
+        User expectedUser = new User(userId, "test@example.com", "Test User");
         when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUser));
 
         // When
@@ -47,7 +47,7 @@ class UserUseCaseServiceTest {
     @DisplayName("Should handle user not found")
     void shouldHandleUserNotFound() {
         // Given
-        Long userId = 999L;
+        long userId = 999L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // When
