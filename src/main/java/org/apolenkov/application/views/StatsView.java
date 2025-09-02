@@ -45,7 +45,6 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private static final String STATS_SESSIONS = "stats.sessions";
     private static final String STATS_VIEWED = "stats.viewed";
     private static final String STATS_CORRECT = "stats.correct";
-    private static final String STATS_REPEAT = "stats.repeat";
     private static final String STATS_HARD = "stats.hard";
 
     /**
@@ -134,9 +133,6 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         int totalCorrect = agg.values().stream()
                 .mapToInt(StatsRepository.DeckAggregate::correctAll)
                 .sum();
-        int totalRepeat = agg.values().stream()
-                .mapToInt(StatsRepository.DeckAggregate::repeatAll)
-                .sum();
         int totalHard = agg.values().stream()
                 .mapToInt(StatsRepository.DeckAggregate::hardAll)
                 .sum();
@@ -145,7 +141,6 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
                 createStatCard(STATS_SESSIONS, totalSessions),
                 createStatCard(STATS_VIEWED, totalViewed),
                 createStatCard(STATS_CORRECT, totalCorrect),
-                createStatCard(STATS_REPEAT, totalRepeat),
                 createStatCard(STATS_HARD, totalHard));
 
         // Create content container
@@ -218,9 +213,6 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         int todayCorrect = agg.values().stream()
                 .mapToInt(StatsRepository.DeckAggregate::correctToday)
                 .sum();
-        int todayRepeat = agg.values().stream()
-                .mapToInt(StatsRepository.DeckAggregate::repeatToday)
-                .sum();
         int todayHard = agg.values().stream()
                 .mapToInt(StatsRepository.DeckAggregate::hardToday)
                 .sum();
@@ -229,7 +221,6 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
                 createStatCard(STATS_SESSIONS, todaySessions),
                 createStatCard(STATS_VIEWED, todayViewed),
                 createStatCard(STATS_CORRECT, todayCorrect),
-                createStatCard(STATS_REPEAT, todayRepeat),
                 createStatCard(STATS_HARD, todayHard));
 
         // Create content container
@@ -333,8 +324,8 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
 
             currentDeckContainer.removeAll();
             Deck currentDeck = decks.get(index);
-            var stats = agg.getOrDefault(
-                    currentDeck.getId(), new StatsRepository.DeckAggregate(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+            var stats =
+                    agg.getOrDefault(currentDeck.getId(), new StatsRepository.DeckAggregate(0, 0, 0, 0, 0, 0, 0, 0));
             currentDeckContainer.add(createDeckStatCard(currentDeck, stats));
 
             // Update page indicator
@@ -447,7 +438,6 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
                 createDeckStatItem(STATS_SESSIONS, stats.sessionsAll(), stats.sessionsToday()),
                 createDeckStatItem(STATS_VIEWED, stats.viewedAll(), stats.viewedToday()),
                 createDeckStatItem(STATS_CORRECT, stats.correctAll(), stats.correctToday()),
-                createDeckStatItem(STATS_REPEAT, stats.repeatAll(), stats.repeatToday()),
                 createDeckStatItem(STATS_HARD, stats.hardAll(), stats.hardToday()));
 
         card.add(header, deckStatsGrid);

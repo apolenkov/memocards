@@ -22,19 +22,19 @@ import org.springframework.stereotype.Component;
 public class AuthFacade {
 
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationService;
+    private final org.apolenkov.application.service.user.RegistrationService registrationService;
 
     /**
      * Creates AuthFacade with required dependencies.
      *
      * @param authenticationConfigurationValue Spring Security authentication configuration
-     * @param jpaRegistrationServiceValue service for user registration operations
+     * @param registrationServiceValue service for user registration operations
      */
     public AuthFacade(
             final AuthenticationConfiguration authenticationConfigurationValue,
-            final org.apolenkov.application.service.user.JpaRegistrationService jpaRegistrationServiceValue) {
+            final org.apolenkov.application.service.user.RegistrationService registrationServiceValue) {
         this.authenticationConfiguration = authenticationConfigurationValue;
-        this.jpaRegistrationService = jpaRegistrationServiceValue;
+        this.registrationService = registrationServiceValue;
     }
 
     /**
@@ -70,7 +70,7 @@ public class AuthFacade {
             throw new IllegalArgumentException("Password must be at least 8 characters and contain letters and digits");
         }
 
-        jpaRegistrationService.register(username, username, rawPassword);
+        registrationService.register(username, username, rawPassword);
     }
 
     /**

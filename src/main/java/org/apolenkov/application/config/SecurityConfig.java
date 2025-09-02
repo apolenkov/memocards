@@ -11,7 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 /**
@@ -20,20 +19,17 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @Configuration(proxyBeanMethods = false)
 public class SecurityConfig extends VaadinWebSecurity {
     private final boolean prodProfileActive;
-    private final DevAutoLoginFilter devAutoLoginFilter;
 
     /**
-     * Creates security configuration with environment and auto-login filter.
+     * Creates security configuration with environment.
      *
      * @param environment Spring environment for profile detection
-     * @param autoLoginFilter filter for automatic login in development mode
      */
-    public SecurityConfig(final Environment environment, final DevAutoLoginFilter autoLoginFilter) {
+    public SecurityConfig(final Environment environment) {
         // Determine if production profile is active for security configuration
         String[] profiles = environment != null ? environment.getActiveProfiles() : null;
         this.prodProfileActive =
                 profiles != null && java.util.Arrays.asList(profiles).contains("prod");
-        this.devAutoLoginFilter = autoLoginFilter;
     }
 
     /**
@@ -60,11 +56,6 @@ public class SecurityConfig extends VaadinWebSecurity {
                 .logoutSuccessUrl("/")
                 .deleteCookies("JSESSIONID", "remember-me")
                 .invalidateHttpSession(true));
-
-        // Dev-only auto-login for development convenience
-        if (!prodProfileActive) {
-            http.addFilterBefore(devAutoLoginFilter, UsernamePasswordAuthenticationFilter.class);
-        }
 
         // Content Security Policy configuration based on profile
         if (prodProfileActive) {

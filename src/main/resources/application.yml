@@ -4,21 +4,14 @@ spring:
   profiles:
     active: dev
 
-# Dev profile settings
-dev:
-  auto-login:
-    enabled: ${DEV_AUTO_LOGIN_ENABLED:false}          # Disable automatic authorization: false
-    user: ${DEV_AUTO_LOGIN_USER:user@example.com}  # User for automatic authorization
-
-# Logging for dev profile (keep minimal here; detailed routing is in logback-spring.xml)
+# Logging configuration
 logging:
   level:
-    org.apolenkov.application.config.DevAutoLoginFilter: INFO
-    org.apolenkov.application.config.DevDomainBootstrap: INFO
-    org.apolenkov.application.config.AppI18NProvider: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
-    org.hibernate.orm.jdbc.extract: DEBUG
+    org.apolenkov.application: INFO
+    org.springframework.security: INFO
+    com.vaadin: WARN
+    org.springframework.jdbc: DEBUG
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
@@ -28,120 +21,77 @@ vaadin:
   allowed-packages: com.vaadin,org.vaadin,com.flowingcode,org.apolenkov.application
 
 ---
+# Development Profile
 spring:
   config:
     activate:
       on-profile: dev
   datasource:
     url: jdbc:postgresql://localhost:5432/flashcards
-#    url: jdbc:postgresql://localhost:5432/flashcards?autoCommit=false&reWriteBatchedInserts=true
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: none
-    open-in-view: false
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: false
-        use_sql_comments: false
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-#        connection:
-#          provider_disables_autocommit: true
-#          auto_commit: false
-        jdbc:
-          batch_size: 25
-          order_inserts: true
-          order_updates: true
-          batch_versioned_data: true
-          timezone: UTC
-          lob:
-            non_contextual_creation: true
-        cache:
-          use_second_level_cache: false
-          use_query_cache: false
-        generate_statistics: true
-        default_batch_fetch_size: 16
-        max_fetch_depth: 3
-        query:
-          plan_cache_max_size: 2048
-        plan_cache_parameter_metadata_max_size: 128
-      session:
-        events_log: false
-      enable_lazy_load_no_trans: false
-#      transaction:
-#        auto_join_transaction: false
-    flyway:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      # PostgreSQL optimizations
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: false
+      connection-test-query: "SELECT 1"
+      validation-timeout: 5000
+      pool-name: "FlashcardsHikariCP"
+  flyway:
     enabled: true
     locations: classpath:db/migration
-  logging:
-    level:
-      org.apolenkov.application: INFO
-      org.springframework.security: INFO
-      com.vaadin: WARN
-      org.hibernate.SQL: DEBUG
-      org.hibernate.orm.jdbc.bind: TRACE
-      org.hibernate.orm.jdbc.extract: DEBUG
-    pattern:
-      file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
 
 ---
+# Production Profile
 spring:
   config:
     activate:
       on-profile: prod
   datasource:
     url: ${DB_URL}
-#    url: ${DB_URL}?autoCommit=false&reWriteBatchedInserts=true
     username: ${DB_USER}
     password: ${DB_PASS}
-  jpa:
-    hibernate:
-      ddl-auto: none
-    open-in-view: false
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: false
-        use_sql_comments: false
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-#        connection:
-#          provider_disables_autocommit: true
-#          auto_commit: false
-        jdbc:
-          batch_size: 25
-          order_inserts: true
-          order_updates: true
-          batch_versioned_data: true
-          timezone: UTC
-          lob:
-            non_contextual_creation: true
-        cache:
-          use_second_level_cache: false
-          use_query_cache: false
-        generate_statistics: false
-        default_batch_fetch_size: 16
-        max_fetch_depth: 4
-        query:
-          plan_cache_max_size: 2048
-          plan_cache_parameter_metadata_max_size: 128
-        session:
-          events_log: false
-        enable_lazy_load_no_trans: false
-#        transaction:
-#          auto_join_transaction: false
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      # PostgreSQL optimizations
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: false
+      connection-test-query: "SELECT 1"
+      validation-timeout: 5000
+      pool-name: "FlashcardsHikariCP"
   flyway:
     enabled: true
     locations: classpath:db/migration
   logging:
     level:
-      org.apolenkov.application: INFO
-      org.springframework.security: INFO
-      com.vaadin: WARN
-      org.hibernate.SQL: WARN
-      org.hibernate.orm.jdbc.bind: OFF
-      org.hibernate.orm.jdbc.extract: WARN
-    pattern:
-      file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+      org.springframework.jdbc: WARN
+      org.springframework.jdbc.core.JdbcTemplate: WARN

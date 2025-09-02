@@ -10,7 +10,7 @@ import java.util.Collection;
  * @param deckId deck identifier (must be positive)
  * @param viewed number of cards viewed (must be positive)
  * @param correct number of correct answers (must be non-negative)
- * @param repeat number of cards marked for repetition (must be non-negative)
+ *
  * @param hard number of cards marked as hard (must be non-negative)
  * @param sessionDurationMs session duration in milliseconds (must be non-negative)
  * @param totalAnswerDelayMs total answer delay in milliseconds (must be non-negative)
@@ -20,7 +20,6 @@ public record SessionStatsDto(
         long deckId,
         int viewed,
         int correct,
-        int repeat,
         int hard,
         long sessionDurationMs,
         long totalAnswerDelayMs,
@@ -33,7 +32,7 @@ public record SessionStatsDto(
         private long deckId;
         private int viewed;
         private int correct;
-        private int repeat;
+
         private int hard;
         private long sessionDurationMs;
         private long totalAnswerDelayMs;
@@ -69,17 +68,6 @@ public record SessionStatsDto(
          */
         public Builder correct(final int correctValue) {
             this.correct = correctValue;
-            return this;
-        }
-
-        /**
-         * Sets the number of cards marked for repetition.
-         *
-         * @param repeatValue number of cards marked for repetition
-         * @return this builder instance
-         */
-        public Builder repeat(final int repeatValue) {
-            this.repeat = repeatValue;
             return this;
         }
 
@@ -136,7 +124,7 @@ public record SessionStatsDto(
         public SessionStatsDto build() {
             validateParameters();
             return new SessionStatsDto(
-                    deckId, viewed, correct, repeat, hard, sessionDurationMs, totalAnswerDelayMs, knownCardIdsDelta);
+                    deckId, viewed, correct, hard, sessionDurationMs, totalAnswerDelayMs, knownCardIdsDelta);
         }
 
         /**
@@ -154,9 +142,7 @@ public record SessionStatsDto(
             if (correct < 0) {
                 throw new IllegalArgumentException("Correct count cannot be negative, got: " + correct);
             }
-            if (repeat < 0) {
-                throw new IllegalArgumentException("Repeat count cannot be negative, got: " + repeat);
-            }
+
             if (hard < 0) {
                 throw new IllegalArgumentException("Hard count cannot be negative, got: " + hard);
             }

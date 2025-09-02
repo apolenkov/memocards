@@ -1,0 +1,219 @@
+package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
+
+import java.util.List;
+import java.util.Optional;
+import org.apolenkov.application.domain.port.NewsRepository;
+import org.apolenkov.application.infrastructure.repository.jdbc.dto.NewsDto;
+import org.apolenkov.application.infrastructure.repository.jdbc.sql.NewsSqlQueries;
+import org.apolenkov.application.model.News;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * JDBC adapter for news repository operations.
+ *
+ * <p>Implements NewsRepository using direct JDBC operations.
+ * Provides CRUD operations for news articles.
+ * Active in JDBC profiles only.</p>
+ */
+@Profile({"dev", "prod"})
+@Repository
+public class NewsJdbcAdapter implements NewsRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(NewsJdbcAdapter.class);
+
+    private final JdbcTemplate jdbcTemplate;
+
+    /**
+     * Creates adapter with JdbcTemplate dependency.
+     *
+     * @param jdbcTemplateValue the JdbcTemplate for database operations
+     * @throws IllegalArgumentException if jdbcTemplate is null
+     */
+    public NewsJdbcAdapter(final JdbcTemplate jdbcTemplateValue) {
+        if (jdbcTemplateValue == null) {
+            throw new IllegalArgumentException("JdbcTemplate cannot be null");
+        }
+        this.jdbcTemplate = jdbcTemplateValue;
+    }
+
+    /**
+     * RowMapper for NewsDto.
+     */
+    private static final RowMapper<NewsDto> NEWS_ROW_MAPPER = (rs, rowNum) -> {
+        Long id = rs.getLong("id");
+        String title = rs.getString("title");
+        String content = rs.getString("content");
+        String author = rs.getString("author");
+        java.sql.Timestamp createdAt = rs.getTimestamp("created_at");
+        java.sql.Timestamp updatedAt = rs.getTimestamp("updated_at");
+
+        return NewsDto.forExistingNews(
+                id,
+                title,
+                content,
+                author,
+                createdAt != null ? createdAt.toLocalDateTime() : null,
+                updatedAt != null ? updatedAt.toLocalDateTime() : null);
+    };
+
+    /**
+     * Retrieves all news items ordered by creation date (newest first).
+     *
+     * @return list of all news items ordered by creation date
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<News> findAllOrderByCreatedDesc() {
+        logger.debug("Retrieving all news ordered by creation date");
+        try {
+            List<NewsDto> newsDtos =
+                    jdbcTemplate.query(NewsSqlQueries.SELECT_ALL_NEWS_ORDER_BY_CREATED_DESC, NEWS_ROW_MAPPER);
+            return newsDtos.stream().map(NewsJdbcAdapter::toModel).toList();
+        } catch (DataAccessException e) {
+            logger.error("Failed to retrieve all news", e);
+            throw new RuntimeException("Failed to retrieve news", e);
+        }
+    }
+
+    /**
+     * Retrieves a news item by its unique identifier.
+     *
+     * @param id the unique identifier of the news item
+     * @return Optional containing the news if found
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<News> findById(final long id) {
+        logger.debug("Retrieving news by ID: {}", id);
+        try {
+            List<NewsDto> newsList = jdbcTemplate.query(NewsSqlQueries.SELECT_NEWS_BY_ID, NEWS_ROW_MAPPER, id);
+            if (newsList.isEmpty()) {
+                return Optional.empty();
+            }
+
+            return Optional.of(toModel(newsList.get(0)));
+        } catch (DataAccessException e) {
+            logger.error("Failed to retrieve news by ID: {}", id, e);
+            throw new RuntimeException("Failed to retrieve news", e);
+        }
+    }
+
+    /**
+     * Saves a news item to the database.
+     *
+     * @param news the news item to save
+     * @return the saved news item with updated fields
+     * @throws IllegalArgumentException if news is null
+     */
+    @Override
+    @Transactional
+    public News save(final News news) {
+        if (news == null) {
+            throw new IllegalArgumentException("News cannot be null");
+        }
+
+        logger.debug("Saving news: {}", news.getTitle());
+        try {
+            if (news.getId() == null) {
+                return createNews(news);
+            } else {
+                return updateNews(news);
+            }
+        } catch (DataAccessException e) {
+            logger.error("Failed to save news: {}", news.getTitle(), e);
+            throw new RuntimeException("Failed to save news", e);
+        }
+    }
+
+    /**
+     * Deletes a news item by its unique identifier.
+     *
+     * @param id the unique identifier of the news item to delete
+     */
+    @Override
+    @Transactional
+    public void deleteById(final long id) {
+        logger.debug("Deleting news by ID: {}", id);
+        try {
+            int deleted = jdbcTemplate.update(NewsSqlQueries.DELETE_NEWS, id);
+            if (deleted == 0) {
+                logger.warn("No news found with ID: {}", id);
+            }
+        } catch (DataAccessException e) {
+            logger.error("Failed to delete news by ID: {}", id, e);
+            throw new RuntimeException("Failed to delete news", e);
+        }
+    }
+
+    /**
+     * Creates new news article in database.
+     *
+     * @param news news article to create
+     * @return created news article with generated ID
+     */
+    private News createNews(final News news) {
+        NewsDto newsDto = NewsDto.forNewNews(news.getTitle(), news.getContent(), news.getAuthor());
+
+        // Insert news
+        jdbcTemplate.update(
+                NewsSqlQueries.INSERT_NEWS,
+                newsDto.title(),
+                newsDto.content(),
+                newsDto.author(),
+                newsDto.createdAt(),
+                newsDto.updatedAt());
+
+        // Get generated ID
+        Long generatedId = jdbcTemplate.queryForObject("SELECT LASTVAL()", Long.class);
+
+        // Return created news
+        NewsDto createdDto = NewsDto.forExistingNews(
+                generatedId,
+                newsDto.title(),
+                newsDto.content(),
+                newsDto.author(),
+                newsDto.createdAt(),
+                newsDto.updatedAt());
+
+        return toModel(createdDto);
+    }
+
+    /**
+     * Updates existing news article in database.
+     *
+     * @param news news article to update
+     * @return updated news article
+     */
+    private News updateNews(final News news) {
+        // Update news
+        jdbcTemplate.update(
+                NewsSqlQueries.UPDATE_NEWS,
+                news.getTitle(),
+                news.getContent(),
+                news.getAuthor(),
+                java.time.LocalDateTime.now(), // Update timestamp
+                news.getId());
+
+        return news;
+    }
+
+    /**
+     * Converts NewsDto to domain News model.
+     *
+     * @param newsDto DTO to convert
+     * @return corresponding domain model
+     */
+    private static News toModel(final NewsDto newsDto) {
+        final News news =
+                new News(newsDto.id(), newsDto.title(), newsDto.content(), newsDto.author(), newsDto.createdAt());
+        news.setUpdatedAt(newsDto.updatedAt());
+        return news;
+    }
+}
