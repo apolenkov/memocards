@@ -40,19 +40,19 @@ restart: stop start ## Restart PostgreSQL database
 logs: ## Show PostgreSQL logs
 	$(DOCKER_COMPOSE) logs -f postgres
 
-clean: ## Remove all PostgreSQL data
+erase: ## Remove all PostgreSQL data
 	$(DOCKER_COMPOSE) down -v
 	@echo "All PostgreSQL data removed"
 
 # =============================================================================
 # CLEANUP UTILITIES
 # =============================================================================
-cleanup-and-run: ## Clean up environment and run specified command (usage: make cleanup-and-run COMMAND="your command")
+clean: ## Clean up environment
 	@echo "Cleaning up environment..."
 	@kill -9 $$(lsof -t -i:$(APP_PORT)) 2>/dev/null || true
 	@rm -rf logs
 	@echo "Running: $(COMMAND)"
-	@$(COMMAND)
+	$(GRADLE) clean
 
 # =============================================================================
 # APPLICATION - Build & Run
