@@ -1,0 +1,99 @@
+package org.apolenkov.application.infrastructure.repository.jdbc.dto;
+
+import java.time.LocalDateTime;
+
+/**
+ * JDBC DTO for flashcard data transfer operations.
+ *
+ * <p>Immutable record representing flashcard data for JDBC operations.
+ * Used for mapping between database rows and domain models.</p>
+ *
+ * @param id unique flashcard identifier
+ * @param deckId ID of deck this flashcard belongs to
+ * @param frontText front side text (question/prompt)
+ * @param backText back side text (answer/explanation)
+ * @param example optional example text
+ * @param imageUrl optional image URL
+ * @param createdAt flashcard creation timestamp
+ * @param updatedAt flashcard last update timestamp
+ */
+public record FlashcardDto(
+        Long id,
+        long deckId,
+        String frontText,
+        String backText,
+        String example,
+        String imageUrl,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt) {
+
+    /**
+     * Creates FlashcardDto with validation.
+     *
+     * @param id unique flashcard identifier
+     * @param deckId ID of deck this flashcard belongs to
+     * @param frontText front side text (question/prompt)
+     * @param backText back side text (answer/explanation)
+     * @param example optional example text
+     * @param imageUrl optional image URL
+     * @param createdAt flashcard creation timestamp
+     * @param updatedAt flashcard last update timestamp
+     * @throws IllegalArgumentException if deckId is invalid or required text is null/empty
+     */
+    public FlashcardDto {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive");
+        }
+        if (frontText == null || frontText.trim().isEmpty()) {
+            throw new IllegalArgumentException("Front text cannot be null or empty");
+        }
+        if (backText == null || backText.trim().isEmpty()) {
+            throw new IllegalArgumentException("Back text cannot be null or empty");
+        }
+    }
+
+    /**
+     * Creates FlashcardDto for new flashcard (without ID).
+     *
+     * @param deckId ID of deck this flashcard belongs to
+     * @param frontText front side text (question/prompt)
+     * @param backText back side text (answer/explanation)
+     * @param example optional example text
+     * @param imageUrl optional image URL
+     * @return FlashcardDto for new flashcard
+     */
+    public static FlashcardDto forNewFlashcard(
+            final long deckId,
+            final String frontText,
+            final String backText,
+            final String example,
+            final String imageUrl) {
+        LocalDateTime now = LocalDateTime.now();
+        return new FlashcardDto(null, deckId, frontText, backText, example, imageUrl, now, now);
+    }
+
+    /**
+     * Creates FlashcardDto for existing flashcard.
+     *
+     * @param id unique flashcard identifier
+     * @param deckId ID of deck this flashcard belongs to
+     * @param frontText front side text (question/prompt)
+     * @param backText back side text (answer/explanation)
+     * @param example optional example text
+     * @param imageUrl optional image URL
+     * @param createdAt flashcard creation timestamp
+     * @param updatedAt flashcard last update timestamp
+     * @return FlashcardDto for existing flashcard
+     */
+    public static FlashcardDto forExistingFlashcard(
+            final Long id,
+            final long deckId,
+            final String frontText,
+            final String backText,
+            final String example,
+            final String imageUrl,
+            final LocalDateTime createdAt,
+            final LocalDateTime updatedAt) {
+        return new FlashcardDto(id, deckId, frontText, backText, example, imageUrl, createdAt, updatedAt);
+    }
+}

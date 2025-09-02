@@ -8,22 +8,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * JPA-based implementation of user registration service with secure password hashing.
+ * JDBC-based implementation of user registration service with secure password hashing.
  */
 @Service
 @Profile({"dev", "prod"})
-public class JpaRegistrationService {
+public class JdbcRegistrationService implements RegistrationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * Creates a new JpaRegistrationService with required dependencies.
+     * Creates a new JdbcRegistrationService with required dependencies.
      *
      * @param userRepositoryValue the repository for user persistence operations
      * @param passwordEncoderValue the encoder for secure password hashing
      */
-    public JpaRegistrationService(
+    public JdbcRegistrationService(
             final UserRepository userRepositoryValue, final PasswordEncoder passwordEncoderValue) {
         this.userRepository = userRepositoryValue;
         this.passwordEncoder = passwordEncoderValue;
@@ -38,6 +38,7 @@ public class JpaRegistrationService {
      * @param rawPassword the plain text password to be hashed and stored
      * @throws IllegalArgumentException if a user with the specified email already exists
      */
+    @Override
     @Transactional
     public void register(final String email, final String name, final String rawPassword) {
         userRepository.findByEmail(email).ifPresent(u -> {

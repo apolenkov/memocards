@@ -60,7 +60,6 @@ public class StatsService {
                         r.sessions(),
                         r.viewed(),
                         r.correct(),
-                        r.repeat(),
                         r.hard(),
                         r.totalDurationMs(),
                         r.totalAnswerDelayMs()))
@@ -167,7 +166,7 @@ public class StatsService {
      * @param sessions number of practice sessions
      * @param viewed total cards viewed
      * @param correct total correct answers
-     * @param repeat total repeat attempts
+     *
      * @param hard total hard card markings
      * @param totalDurationMs total session duration in milliseconds
      * @param totalAnswerDelayMs total answer delay in milliseconds
@@ -177,7 +176,6 @@ public class StatsService {
             int sessions,
             int viewed,
             int correct,
-            int repeat,
             int hard,
             long totalDurationMs,
             long totalAnswerDelayMs) {

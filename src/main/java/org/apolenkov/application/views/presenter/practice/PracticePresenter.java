@@ -2,12 +2,7 @@ package org.apolenkov.application.views.presenter.practice;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
@@ -180,242 +175,12 @@ public final class PracticePresenter {
                 .deckId(deckId)
                 .viewed(totalViewed)
                 .correct(correct)
-                .repeat(0)
                 .hard(hard)
                 .sessionDurationMs(sessionDuration.toMillis())
                 .totalAnswerDelayMs(totalAnswerDelayMs)
                 .knownCardIdsDelta(knownCardIdsDelta)
                 .build();
         statsService.recordSession(sessionData);
-    }
-
-    /**
-     * Represents active practice session with state tracking, performance metrics, and progress monitoring.
-     */
-    public static final class Session {
-        private final long deckId;
-        private final List<Flashcard> cards;
-        private int index;
-        private boolean showingAnswer;
-        private PracticeDirection direction;
-        private int correctCount;
-        private int hardCount;
-        private int totalViewed;
-        private final Instant sessionStart;
-        private Instant cardShowTime;
-        private long totalAnswerDelayMs;
-        private final List<Long> knownCardIdsDelta = new ArrayList<>();
-        private final List<Long> failedCardIds = new ArrayList<>();
-
-        /**
-         * Constructs new practice session with deck, direction, and reset counters.
-         *
-         * @param deckIdValue the ID of the deck being practiced
-         * @param cardsValue the list of flashcards for this session
-         * @param directionValue the practice direction (front-to-back or back-to-front)
-         */
-        public Session(
-                final long deckIdValue, final List<Flashcard> cardsValue, final PracticeDirection directionValue) {
-            this.deckId = deckIdValue;
-            this.cards = cardsValue;
-            this.direction = directionValue;
-            this.index = 0;
-            this.showingAnswer = false;
-            this.correctCount = 0;
-            this.hardCount = 0;
-            this.totalViewed = 0;
-            this.totalAnswerDelayMs = 0L;
-            this.sessionStart = Instant.now();
-        }
-
-        /**
-         * Gets the deck ID for this practice session.
-         *
-         * @return the deck ID
-         */
-        public long getDeckId() {
-            return deckId;
-        }
-
-        /**
-         * Gets the list of flashcards for this practice session.
-         *
-         * @return the list of flashcards
-         */
-        public List<Flashcard> getCards() {
-            return cards;
-        }
-
-        /**
-         * Gets the current card index in the practice session.
-         *
-         * @return the current card index
-         */
-        public int getIndex() {
-            return index;
-        }
-
-        /**
-         * Checks if the answer is currently being shown.
-         *
-         * @return true if answer is shown, false otherwise
-         */
-        public boolean isShowingAnswer() {
-            return showingAnswer;
-        }
-
-        /**
-         * Gets the practice direction for this session.
-         *
-         * @return the practice direction
-         */
-        public PracticeDirection getDirection() {
-            return direction;
-        }
-
-        /**
-         * Gets the count of correct answers in this session.
-         *
-         * @return the correct answer count
-         */
-        public int getCorrectCount() {
-            return correctCount;
-        }
-
-        /**
-         * Gets the count of hard cards in this session.
-         *
-         * @return the hard card count
-         */
-        public int getHardCount() {
-            return hardCount;
-        }
-
-        /**
-         * Gets the total number of cards viewed in this session.
-         *
-         * @return the total viewed count
-         */
-        public int getTotalViewed() {
-            return totalViewed;
-        }
-
-        /**
-         * Gets the session start timestamp.
-         *
-         * @return the session start time
-         */
-        public Instant getSessionStart() {
-            return sessionStart;
-        }
-
-        /**
-         * Gets the timestamp when the current card was shown.
-         *
-         * @return the card show time
-         */
-        public Instant getCardShowTime() {
-            return cardShowTime;
-        }
-
-        /**
-         * Gets the total answer delay in milliseconds for this session.
-         *
-         * @return the total answer delay in milliseconds
-         */
-        public long getTotalAnswerDelayMs() {
-            return totalAnswerDelayMs;
-        }
-
-        /**
-         * Gets the list of card IDs that became known during this session.
-         *
-         * @return the list of newly known card IDs
-         */
-        public List<Long> getKnownCardIdsDelta() {
-            return knownCardIdsDelta;
-        }
-
-        /**
-         * Gets the list of card IDs that failed during this session.
-         *
-         * @return the list of failed card IDs
-         */
-        public List<Long> getFailedCardIds() {
-            return failedCardIds;
-        }
-
-        /**
-         * Sets the current card index in the practice session.
-         *
-         * @param indexValue the new card index
-         */
-        public void setIndex(final int indexValue) {
-            this.index = indexValue;
-        }
-
-        /**
-         * Sets whether the answer is currently being shown.
-         *
-         * @param showingAnswerValue true to show answer, false to hide
-         */
-        public void setShowingAnswer(final boolean showingAnswerValue) {
-            this.showingAnswer = showingAnswerValue;
-        }
-
-        /**
-         * Sets the practice direction for this session.
-         *
-         * @param directionValue the new practice direction
-         */
-        public void setDirection(final PracticeDirection directionValue) {
-            this.direction = directionValue;
-        }
-
-        /**
-         * Sets the count of correct answers in this session.
-         *
-         * @param correctCountValue the new correct answer count
-         */
-        public void setCorrectCount(final int correctCountValue) {
-            this.correctCount = correctCountValue;
-        }
-
-        /**
-         * Sets the count of hard cards in this session.
-         *
-         * @param hardCountValue the new hard card count
-         */
-        public void setHardCount(final int hardCountValue) {
-            this.hardCount = hardCountValue;
-        }
-
-        /**
-         * Sets the total number of cards viewed in this session.
-         *
-         * @param totalViewedValue the new total viewed count
-         */
-        public void setTotalViewed(final int totalViewedValue) {
-            this.totalViewed = totalViewedValue;
-        }
-
-        /**
-         * Sets the timestamp when the current card was shown.
-         *
-         * @param cardShowTimeValue the new card show time
-         */
-        public void setCardShowTime(final Instant cardShowTimeValue) {
-            this.cardShowTime = cardShowTimeValue;
-        }
-
-        /**
-         * Sets the total answer delay in milliseconds for this session.
-         *
-         * @param totalAnswerDelayMsValue the new total answer delay
-         */
-        public void setTotalAnswerDelayMs(final long totalAnswerDelayMsValue) {
-            this.totalAnswerDelayMs = totalAnswerDelayMsValue;
-        }
     }
 
     /**
@@ -539,19 +304,6 @@ public final class PracticePresenter {
     }
 
     /**
-     * Progress information for a practice session.
-     * Contains comprehensive progress metrics for UI updates and analytics.
-     *
-     * @param current the current card position (1-based index)
-     * @param total the total number of cards in the session
-     * @param totalViewed the number of cards processed so far
-     * @param correct the number of cards answered correctly
-     * @param hard the number of cards marked as difficult
-     * @param percent the completion percentage (0-100)
-     */
-    public record Progress(long current, int total, int totalViewed, int correct, int hard, long percent) {}
-
-    /**
      * Calculates current progress information for a practice session.
      * Computes comprehensive progress metrics including current position, completion percentage, and performance statistics.
      *
@@ -590,4 +342,246 @@ public final class PracticePresenter {
                 s.getTotalAnswerDelayMs(),
                 s.getKnownCardIdsDelta());
     }
+
+    /**
+     * Represents active practice session with state tracking, performance metrics, and progress monitoring.
+     */
+    public static final class Session {
+        private final long deckId;
+        private final List<Flashcard> cards;
+        private final Instant sessionStart;
+        private final List<Long> knownCardIdsDelta = new ArrayList<>();
+        private final List<Long> failedCardIds = new ArrayList<>();
+        private int index;
+        private boolean showingAnswer;
+        private PracticeDirection direction;
+        private int correctCount;
+        private int hardCount;
+        private int totalViewed;
+        private Instant cardShowTime;
+        private long totalAnswerDelayMs;
+
+        /**
+         * Constructs new practice session with deck, direction, and reset counters.
+         *
+         * @param deckIdValue the ID of the deck being practiced
+         * @param cardsValue the list of flashcards for this session
+         * @param directionValue the practice direction (front-to-back or back-to-front)
+         */
+        public Session(
+                final long deckIdValue, final List<Flashcard> cardsValue, final PracticeDirection directionValue) {
+            this.deckId = deckIdValue;
+            this.cards = cardsValue;
+            this.direction = directionValue;
+            this.index = 0;
+            this.showingAnswer = false;
+            this.correctCount = 0;
+            this.hardCount = 0;
+            this.totalViewed = 0;
+            this.totalAnswerDelayMs = 0L;
+            this.sessionStart = Instant.now();
+        }
+
+        /**
+         * Gets the deck ID for this practice session.
+         *
+         * @return the deck ID
+         */
+        public long getDeckId() {
+            return deckId;
+        }
+
+        /**
+         * Gets the list of flashcards for this practice session.
+         *
+         * @return the list of flashcards
+         */
+        public List<Flashcard> getCards() {
+            return cards;
+        }
+
+        /**
+         * Gets the current card index in the practice session.
+         *
+         * @return the current card index
+         */
+        public int getIndex() {
+            return index;
+        }
+
+        /**
+         * Sets the current card index in the practice session.
+         *
+         * @param indexValue the new card index
+         */
+        public void setIndex(final int indexValue) {
+            this.index = indexValue;
+        }
+
+        /**
+         * Checks if the answer is currently being shown.
+         *
+         * @return true if answer is shown, false otherwise
+         */
+        public boolean isShowingAnswer() {
+            return showingAnswer;
+        }
+
+        /**
+         * Sets whether the answer is currently being shown.
+         *
+         * @param showingAnswerValue true to show answer, false to hide
+         */
+        public void setShowingAnswer(final boolean showingAnswerValue) {
+            this.showingAnswer = showingAnswerValue;
+        }
+
+        /**
+         * Gets the practice direction for this session.
+         *
+         * @return the practice direction
+         */
+        public PracticeDirection getDirection() {
+            return direction;
+        }
+
+        /**
+         * Sets the practice direction for this session.
+         *
+         * @param directionValue the new practice direction
+         */
+        public void setDirection(final PracticeDirection directionValue) {
+            this.direction = directionValue;
+        }
+
+        /**
+         * Gets the count of correct answers in this session.
+         *
+         * @return the correct answer count
+         */
+        public int getCorrectCount() {
+            return correctCount;
+        }
+
+        /**
+         * Sets the count of correct answers in this session.
+         *
+         * @param correctCountValue the new correct answer count
+         */
+        public void setCorrectCount(final int correctCountValue) {
+            this.correctCount = correctCountValue;
+        }
+
+        /**
+         * Gets the count of hard cards in this session.
+         *
+         * @return the hard card count
+         */
+        public int getHardCount() {
+            return hardCount;
+        }
+
+        /**
+         * Sets the count of hard cards in this session.
+         *
+         * @param hardCountValue the new hard card count
+         */
+        public void setHardCount(final int hardCountValue) {
+            this.hardCount = hardCountValue;
+        }
+
+        /**
+         * Gets the total number of cards viewed in this session.
+         *
+         * @return the total viewed count
+         */
+        public int getTotalViewed() {
+            return totalViewed;
+        }
+
+        /**
+         * Sets the total number of cards viewed in this session.
+         *
+         * @param totalViewedValue the new total viewed count
+         */
+        public void setTotalViewed(final int totalViewedValue) {
+            this.totalViewed = totalViewedValue;
+        }
+
+        /**
+         * Gets the session start timestamp.
+         *
+         * @return the session start time
+         */
+        public Instant getSessionStart() {
+            return sessionStart;
+        }
+
+        /**
+         * Gets the timestamp when the current card was shown.
+         *
+         * @return the card show time
+         */
+        public Instant getCardShowTime() {
+            return cardShowTime;
+        }
+
+        /**
+         * Sets the timestamp when the current card was shown.
+         *
+         * @param cardShowTimeValue the new card show time
+         */
+        public void setCardShowTime(final Instant cardShowTimeValue) {
+            this.cardShowTime = cardShowTimeValue;
+        }
+
+        /**
+         * Gets the total answer delay in milliseconds for this session.
+         *
+         * @return the total answer delay in milliseconds
+         */
+        public long getTotalAnswerDelayMs() {
+            return totalAnswerDelayMs;
+        }
+
+        /**
+         * Sets the total answer delay in milliseconds for this session.
+         *
+         * @param totalAnswerDelayMsValue the new total answer delay
+         */
+        public void setTotalAnswerDelayMs(final long totalAnswerDelayMsValue) {
+            this.totalAnswerDelayMs = totalAnswerDelayMsValue;
+        }
+
+        /**
+         * Gets the list of card IDs that became known during this session.
+         *
+         * @return the list of newly known card IDs
+         */
+        public List<Long> getKnownCardIdsDelta() {
+            return knownCardIdsDelta;
+        }
+
+        /**
+         * Gets the list of card IDs that failed during this session.
+         *
+         * @return the list of failed card IDs
+         */
+        public List<Long> getFailedCardIds() {
+            return failedCardIds;
+        }
+    }
+
+    /**
+     * Progress information for a practice session.
+     * Contains comprehensive progress metrics for UI updates and analytics.
+     *
+     * @param current the current card position (1-based index)
+     * @param total the total number of cards in the session
+     * @param totalViewed the number of cards processed so far
+     * @param correct the number of cards answered correctly
+     * @param hard the number of cards marked as difficult
+     * @param percent the completion percentage (0-100)
+     */
+    public record Progress(long current, int total, int totalViewed, int correct, int hard, long percent) {}
 }

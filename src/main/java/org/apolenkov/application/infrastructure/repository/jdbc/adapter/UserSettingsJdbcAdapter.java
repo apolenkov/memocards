@@ -1,0 +1,54 @@
+package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
+
+import java.util.Optional;
+import org.apolenkov.application.domain.port.UserSettingsRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * JDBC implementation of UserSettingsRepository.
+ * Handles persistence and retrieval of user settings using direct JDBC operations.
+ */
+@Repository
+@Profile({"dev", "prod"})
+public class UserSettingsJdbcAdapter implements UserSettingsRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserSettingsJdbcAdapter.class);
+    private final JdbcTemplate jdbcTemplate;
+
+    public UserSettingsJdbcAdapter(final JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<String> findPreferredLocaleCode(final long userId) {
+        logger.debug("Finding preferred locale code for user ID: {}", userId);
+        String sql = "SELECT preferred_locale_code FROM user_settings WHERE user_id = ?";
+        try {
+            String locale = jdbcTemplate.queryForObject(sql, String.class, userId);
+            return Optional.ofNullable(locale);
+        } catch (Exception e) {
+            logger.debug("No user settings found for user ID: {}", userId);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    @Transactional
+    public void savePreferredLocaleCode(final long userId, final String localeCode) {
+        logger.debug("Saving preferred locale code '{}' for user ID: {}", localeCode, userId);
+        String sql =
+                """
+            INSERT INTO user_settings (user_id, preferred_locale_code)
+            VALUES (?, ?)
+            ON CONFLICT (user_id)
+            DO UPDATE SET preferred_locale_code = ?
+            """;
+        jdbcTemplate.update(sql, userId, localeCode, localeCode);
+    }
+}

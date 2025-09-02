@@ -13,20 +13,20 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
- * JPA-based implementation of Spring Security's UserDetailsService with role mapping and validation.
+ * JDBC-based implementation of Spring Security's UserDetailsService with role mapping and validation.
  */
 @Service
 @Profile({"dev", "prod"})
-public class JpaUserDetailsService implements UserDetailsService {
+public class JdbcUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
     /**
-     * Creates a new JpaUserDetailsService with the required repository dependency.
+     * Creates a new JdbcUserDetailsService with the required repository dependency.
      *
      * @param userRepositoryValue the repository for user persistence operations
      */
-    public JpaUserDetailsService(final UserRepository userRepositoryValue) {
+    public JdbcUserDetailsService(final UserRepository userRepositoryValue) {
         this.userRepository = userRepositoryValue;
     }
 
