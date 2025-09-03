@@ -7,6 +7,7 @@ import org.apolenkov.application.model.PasswordResetToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -20,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile({"dev", "prod"})
 public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(PasswordResetTokenJdbcAdapter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PasswordResetTokenJdbcAdapter.class);
     private final JdbcTemplate jdbcTemplate;
 
     private static final RowMapper<PasswordResetToken> PASSWORD_RESET_TOKEN_ROW_MAPPER = (rs, rowNum) -> {
@@ -33,14 +34,19 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
         return token;
     };
 
-    public PasswordResetTokenJdbcAdapter(final JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    /**
+     * Creates PasswordResetTokenJdbcAdapter with JDBC template.
+     *
+     * @param jdbcTemplateParam JDBC template for database operations
+     */
+    public PasswordResetTokenJdbcAdapter(final JdbcTemplate jdbcTemplateParam) {
+        this.jdbcTemplate = jdbcTemplateParam;
     }
 
     @Override
     @Transactional
     public void save(final PasswordResetToken token) {
-        logger.debug("Saving password reset token: {}", token);
+        LOGGER.debug("Saving password reset token: {}", token);
         if (token.getId() == null) {
             String sql =
                     "INSERT INTO password_reset_tokens (token, user_id, expires_at, used) " + "VALUES (?, ?, ?, ?)";
@@ -56,13 +62,13 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
     @Override
     @Transactional(readOnly = true)
     public Optional<PasswordResetToken> findByToken(final String token) {
-        logger.debug("Finding password reset token: {}", token);
+        LOGGER.debug("Finding password reset token: {}", token);
         String sql = "SELECT id, token, user_id, expires_at, used FROM password_reset_tokens WHERE token = ?";
         try {
             PasswordResetToken resetToken = jdbcTemplate.queryForObject(sql, PASSWORD_RESET_TOKEN_ROW_MAPPER, token);
             return Optional.ofNullable(resetToken);
-        } catch (Exception e) {
-            logger.debug("No password reset token found: {}", token);
+        } catch (DataAccessException e) {
+            LOGGER.debug("No password reset token found: {}", token);
             return Optional.empty();
         }
     }
@@ -70,14 +76,14 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
     @Override
     @Transactional(readOnly = true)
     public Optional<PasswordResetToken> findByUserIdAndNotUsed(final long userId) {
-        logger.debug("Finding unused password reset token for user ID: {}", userId);
+        LOGGER.debug("Finding unused password reset token for user ID: {}", userId);
         String sql = "SELECT id, token, user_id, expires_at, used FROM password_reset_tokens "
                 + "WHERE user_id = ? AND used = false ORDER BY expires_at DESC LIMIT 1";
         try {
             PasswordResetToken resetToken = jdbcTemplate.queryForObject(sql, PASSWORD_RESET_TOKEN_ROW_MAPPER, userId);
             return Optional.ofNullable(resetToken);
-        } catch (Exception e) {
-            logger.debug("No unused password reset token found for user ID: {}", userId);
+        } catch (DataAccessException e) {
+            LOGGER.debug("No unused password reset token found for user ID: {}", userId);
             return Optional.empty();
         }
     }
@@ -85,7 +91,7 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
     @Override
     @Transactional
     public void deleteExpiredTokens() {
-        logger.debug("Deleting expired password reset tokens");
+        LOGGER.debug("Deleting expired password reset tokens");
         String sql = "DELETE FROM password_reset_tokens WHERE expires_at < ?";
         jdbcTemplate.update(sql, LocalDateTime.now());
     }
@@ -93,7 +99,7 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
     @Override
     @Transactional
     public void markAsUsed(final long id) {
-        logger.debug("Marking password reset token as used: {}", id);
+        LOGGER.debug("Marking password reset token as used: {}", id);
         String sql = "UPDATE password_reset_tokens SET used = true WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }

@@ -1,4 +1,4 @@
-package org.apolenkov.application.config;
+package org.apolenkov.application.config.vaadin;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.ServiceInitEvent;

@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.infrastructure.repository.jdbc.dto.UserDto;
+import org.apolenkov.application.infrastructure.repository.jdbc.exception.UserPersistenceException;
+import org.apolenkov.application.infrastructure.repository.jdbc.exception.UserRetrievalException;
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.UserSqlQueries;
 import org.apolenkov.application.model.User;
 import org.slf4j.Logger;
@@ -28,23 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class UserJdbcAdapter implements UserRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserJdbcAdapter.class);
-
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
-     * Creates adapter with JdbcTemplate dependency.
-     *
-     * @param jdbcTemplateValue the JdbcTemplate for database operations
-     * @throws IllegalArgumentException if jdbcTemplate is null
-     */
-    public UserJdbcAdapter(final JdbcTemplate jdbcTemplateValue) {
-        if (jdbcTemplateValue == null) {
-            throw new IllegalArgumentException("JdbcTemplate cannot be null");
-        }
-        this.jdbcTemplate = jdbcTemplateValue;
-    }
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserJdbcAdapter.class);
     /**
      * RowMapper for UserDto.
      */
@@ -64,11 +50,39 @@ public class UserJdbcAdapter implements UserRepository {
                 new HashSet<>() // Roles will be loaded separately
                 );
     };
-
     /**
      * RowMapper for user roles.
      */
     private static final RowMapper<String> ROLE_ROW_MAPPER = (rs, rowNum) -> rs.getString("role");
+
+    private final JdbcTemplate jdbcTemplate;
+
+    /**
+     * Creates adapter with JdbcTemplate dependency.
+     *
+     * @param jdbcTemplateValue the JdbcTemplate for database operations
+     * @throws IllegalArgumentException if jdbcTemplate is null
+     */
+    public UserJdbcAdapter(final JdbcTemplate jdbcTemplateValue) {
+        if (jdbcTemplateValue == null) {
+            throw new IllegalArgumentException("JdbcTemplate cannot be null");
+        }
+        this.jdbcTemplate = jdbcTemplateValue;
+    }
+
+    /**
+     * Converts UserDto to domain User model.
+     *
+     * @param userDto DTO to convert
+     * @return corresponding domain model
+     */
+    private static User toModel(final UserDto userDto) {
+        final User user = new User(userDto.id(), userDto.email(), userDto.name());
+        user.setPasswordHash(userDto.passwordHash());
+        user.setCreatedAt(userDto.createdAt());
+        user.setRoles(userDto.roles());
+        return user;
+    }
 
     /**
      * Retrieves all users from database.
@@ -78,7 +92,7 @@ public class UserJdbcAdapter implements UserRepository {
     @Override
     @Transactional(readOnly = true)
     public List<User> findAll() {
-        logger.debug("Retrieving all users");
+        LOGGER.debug("Retrieving all users");
         try {
             List<UserDto> userDtos = jdbcTemplate.query(UserSqlQueries.SELECT_ALL_USERS, USER_ROW_MAPPER);
             return userDtos.stream()
@@ -86,8 +100,7 @@ public class UserJdbcAdapter implements UserRepository {
                     .map(UserJdbcAdapter::toModel)
                     .toList();
         } catch (DataAccessException e) {
-            logger.error("Failed to retrieve all users", e);
-            throw new RuntimeException("Failed to retrieve users", e);
+            throw new UserRetrievalException("Failed to retrieve all users", e);
         }
     }
 
@@ -100,18 +113,17 @@ public class UserJdbcAdapter implements UserRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<User> findById(final long id) {
-        logger.debug("Retrieving user by ID: {}", id);
+        LOGGER.debug("Retrieving user by ID: {}", id);
         try {
             List<UserDto> users = jdbcTemplate.query(UserSqlQueries.SELECT_USER_BY_ID, USER_ROW_MAPPER, id);
             if (users.isEmpty()) {
                 return Optional.empty();
             }
 
-            UserDto userDto = loadUserRoles(users.get(0));
+            UserDto userDto = loadUserRoles(users.getFirst());
             return Optional.of(toModel(userDto));
         } catch (DataAccessException e) {
-            logger.error("Failed to retrieve user by ID: {}", id, e);
-            throw new RuntimeException("Failed to retrieve user", e);
+            throw new UserRetrievalException("Failed to retrieve user by ID: " + id, e);
         }
     }
 
@@ -129,18 +141,17 @@ public class UserJdbcAdapter implements UserRepository {
             throw new IllegalArgumentException("Email cannot be null or empty");
         }
 
-        logger.debug("Retrieving user by email: {}", email);
+        LOGGER.debug("Retrieving user by email: {}", email);
         try {
             List<UserDto> users = jdbcTemplate.query(UserSqlQueries.SELECT_USER_BY_EMAIL, USER_ROW_MAPPER, email);
             if (users.isEmpty()) {
                 return Optional.empty();
             }
 
-            UserDto userDto = loadUserRoles(users.get(0));
+            UserDto userDto = loadUserRoles(users.getFirst());
             return Optional.of(toModel(userDto));
         } catch (DataAccessException e) {
-            logger.error("Failed to retrieve user by email: {}", email, e);
-            throw new RuntimeException("Failed to retrieve user", e);
+            throw new UserRetrievalException("Failed to retrieve user by email: " + email, e);
         }
     }
 
@@ -158,7 +169,7 @@ public class UserJdbcAdapter implements UserRepository {
             throw new IllegalArgumentException("User cannot be null");
         }
 
-        logger.debug("Saving user: {}", user.getEmail());
+        LOGGER.debug("Saving user: {}", user.getEmail());
         try {
             if (user.getId() == null) {
                 return createUser(user);
@@ -166,8 +177,7 @@ public class UserJdbcAdapter implements UserRepository {
                 return updateUser(user);
             }
         } catch (DataAccessException e) {
-            logger.error("Failed to save user: {}", user.getEmail(), e);
-            throw new RuntimeException("Failed to save user", e);
+            throw new UserPersistenceException("Failed to save user: " + user.getEmail(), e);
         }
     }
 
@@ -179,7 +189,7 @@ public class UserJdbcAdapter implements UserRepository {
     @Override
     @Transactional
     public void deleteById(final long id) {
-        logger.debug("Deleting user by ID: {}", id);
+        LOGGER.debug("Deleting user by ID: {}", id);
         try {
             // Delete user roles first (foreign key constraint)
             jdbcTemplate.update(UserSqlQueries.DELETE_USER_ROLES, id);
@@ -187,11 +197,10 @@ public class UserJdbcAdapter implements UserRepository {
             // Delete user
             int deleted = jdbcTemplate.update(UserSqlQueries.DELETE_USER, id);
             if (deleted == 0) {
-                logger.warn("No user found with ID: {}", id);
+                LOGGER.warn("No user found with ID: {}", id);
             }
         } catch (DataAccessException e) {
-            logger.error("Failed to delete user by ID: {}", id, e);
-            throw new RuntimeException("Failed to delete user", e);
+            throw new UserPersistenceException("Failed to delete user by ID: " + id, e);
         }
     }
 
@@ -276,19 +285,5 @@ public class UserJdbcAdapter implements UserRepository {
 
         return UserDto.forExistingUser(
                 userDto.id(), userDto.email(), userDto.passwordHash(), userDto.name(), userDto.createdAt(), roles);
-    }
-
-    /**
-     * Converts UserDto to domain User model.
-     *
-     * @param userDto DTO to convert
-     * @return corresponding domain model
-     */
-    private static User toModel(final UserDto userDto) {
-        final User user = new User(userDto.id(), userDto.email(), userDto.name());
-        user.setPasswordHash(userDto.passwordHash());
-        user.setCreatedAt(userDto.createdAt());
-        user.setRoles(userDto.roles());
-        return user;
     }
 }

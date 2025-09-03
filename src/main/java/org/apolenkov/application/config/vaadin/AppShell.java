@@ -1,4 +1,4 @@
-package org.apolenkov.application.config;
+package org.apolenkov.application.config.vaadin;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
@@ -28,6 +28,5 @@ public class AppShell implements AppShellConfigurator {
     public void configurePage(final AppShellSettings settings) {
         // Use provided static favicon.ico from META-INF/resources
         settings.addFavIcon("icon", "icons/favicon.ico", "any");
-        settings.addMetaTag("theme-color", "var(--lumo-primary-color)");
     }
 }

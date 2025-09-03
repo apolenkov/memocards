@@ -1,4 +1,4 @@
-package org.apolenkov.application.config;
+package org.apolenkov.application.config.constants;
 
 /**
  * Constants for locale and theme preferences.

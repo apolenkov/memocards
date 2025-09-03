@@ -27,8 +27,10 @@ import org.springframework.stereotype.Component;
 @UIScope
 public class LanguageSwitcher extends HorizontalLayout {
 
-    public static final String SESSION_LOCALE_KEY = org.apolenkov.application.config.LocaleConstants.SESSION_LOCALE_KEY;
-    private static final String COOKIE_LOCALE_KEY = org.apolenkov.application.config.LocaleConstants.COOKIE_LOCALE_KEY;
+    public static final String SESSION_LOCALE_KEY =
+            org.apolenkov.application.config.constants.LocaleConstants.SESSION_LOCALE_KEY;
+    private static final String COOKIE_LOCALE_KEY =
+            org.apolenkov.application.config.constants.LocaleConstants.COOKIE_LOCALE_KEY;
 
     private final transient UserUseCase userUseCase;
     private final transient UserSettingsService userSettingsService;
@@ -78,7 +80,7 @@ public class LanguageSwitcher extends HorizontalLayout {
             } else {
                 newLocale = Locale.ENGLISH;
             }
-            VaadinSession.getCurrent().setAttribute(SESSION_LOCALE_KEY, newLocale);
+            VaadinSession.getCurrent().setAttribute(SESSION_LOCALE_KEY, newLocale.toLanguageTag());
             persistPreferredLocaleCookie(newLocale);
             persistIfLoggedIn(newLocale);
             getUI().ifPresent(ui -> {
@@ -119,14 +121,14 @@ public class LanguageSwitcher extends HorizontalLayout {
      */
     private Locale getCurrentLocale() {
         Object sessionAttribute = VaadinSession.getCurrent().getAttribute(SESSION_LOCALE_KEY);
-        if (sessionAttribute instanceof Locale locale) {
-            return locale;
+        if (sessionAttribute instanceof String localeTag) {
+            return Locale.forLanguageTag(localeTag);
         }
         // Fallback to cookie if present
         Locale fromCookie = readPreferredLocaleCookie();
         if (fromCookie != null) {
             // Store into session for this UI and apply
-            VaadinSession.getCurrent().setAttribute(SESSION_LOCALE_KEY, fromCookie);
+            VaadinSession.getCurrent().setAttribute(SESSION_LOCALE_KEY, fromCookie.toLanguageTag());
             getUI().ifPresent(ui -> ui.setLocale(fromCookie));
             return fromCookie;
         }

@@ -11,11 +11,12 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntConsumer;
-import org.apolenkov.application.config.SecurityConstants;
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.StatsService;
@@ -47,14 +48,31 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private static final String STATS_CORRECT = "stats.correct";
     private static final String STATS_HARD = "stats.hard";
 
+    private final transient DeckUseCase deckUseCase;
+    private final transient UserUseCase userUseCase;
+    private final transient StatsService statsService;
+
     /**
      * Creates a new StatsView with required dependencies.
      *
-     * @param deckUseCase service for deck operations
-     * @param userUseCase service for user operations
-     * @param statsService service for statistics and progress tracking
+     * @param deckUseCaseParam service for deck operations
+     * @param userUseCaseParam service for user operations
+     * @param statsServiceParam service for statistics and progress tracking
      */
-    public StatsView(final DeckUseCase deckUseCase, final UserUseCase userUseCase, final StatsService statsService) {
+    public StatsView(
+            final DeckUseCase deckUseCaseParam,
+            final UserUseCase userUseCaseParam,
+            final StatsService statsServiceParam) {
+        this.deckUseCase = deckUseCaseParam;
+        this.userUseCase = userUseCaseParam;
+        this.statsService = statsServiceParam;
+    }
+
+    /**
+     * Initializes the UI components and loads data after construction.
+     */
+    @PostConstruct
+    private void initializeUI() {
         setSpacing(true);
         setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
         setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
@@ -74,6 +92,19 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         pageSection.addClassName("stats-page__section");
         pageSection.addClassName(SURFACE_PANEL_CLASS);
 
+        contentContainer.add(pageSection);
+        add(contentContainer);
+
+        // Load data after UI initialization
+        loadStatsData(pageSection);
+    }
+
+    /**
+     * Loads statistics data and populates the view.
+     *
+     * @param pageSection the container to add stats sections to
+     */
+    private void loadStatsData(final VerticalLayout pageSection) {
         H2 mainTitle = new H2(getTranslation("stats.title"));
         mainTitle.addClassName("stats-view__title");
         pageSection.add(mainTitle);
@@ -86,9 +117,6 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         pageSection.add(createTodayStatsSection(agg));
         pageSection.add(createOverallStatsSection(agg));
         pageSection.add(createDeckStatsSection(decks, agg));
-
-        contentContainer.add(pageSection);
-        add(contentContainer);
     }
 
     /**

@@ -1,4 +1,4 @@
-package org.apolenkov.application.config;
+package org.apolenkov.application.config.vaadin;
 
 import com.vaadin.flow.i18n.I18NProvider;
 import java.text.MessageFormat;

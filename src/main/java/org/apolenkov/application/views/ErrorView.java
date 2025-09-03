@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import org.apolenkov.application.config.RouteConstants;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.springframework.core.env.Environment;
 
 /**
@@ -27,7 +27,7 @@ import org.springframework.core.env.Environment;
  * Shows a formatted error message with navigation options.
  * In development profile, displays additional debugging information.
  */
-@Route(value = "error", layout = PublicLayout.class)
+@Route(value = RouteConstants.ERROR_ROUTE, layout = PublicLayout.class)
 @AnonymousAllowed
 public final class ErrorView extends VerticalLayout implements HasDynamicTitle, BeforeEnterObserver {
 
@@ -87,13 +87,13 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
         fromRoute =
                 queryParams.getParameters().getOrDefault("from", List.of("")).getFirst();
 
-        if (!fromRoute.isEmpty() && !fromRoute.equals("error")) {
+        if (!fromRoute.isEmpty() && !fromRoute.equals(RouteConstants.ERROR_ROUTE)) {
             addGoBackButton();
         }
     }
 
     private void addGoBackButton() {
-        if (fromRoute.isEmpty() || fromRoute.equals("error")) {
+        if (fromRoute.isEmpty() || fromRoute.equals(RouteConstants.ERROR_ROUTE)) {
             return;
         }
 

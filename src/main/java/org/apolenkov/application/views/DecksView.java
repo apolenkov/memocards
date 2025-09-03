@@ -11,6 +11,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.List;
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.service.DeckFacade;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.components.CreateDeckDialog;
@@ -30,7 +31,7 @@ import org.apolenkov.application.views.utils.TextHelper;
  * dashboard for deck management operations.
  */
 @Route(value = "decks", layout = PublicLayout.class)
-@RolesAllowed({"ROLE_USER", "ROLE_ADMIN"})
+@RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
     private static final String HOME_TITLE_KEY = "home.title";

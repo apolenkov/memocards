@@ -1,7 +1,8 @@
-package org.apolenkov.application.config;
+package org.apolenkov.application.config.security;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.views.LoginView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,15 +46,16 @@ public class SecurityConfig extends VaadinWebSecurity {
         // CSRF protection via HttpOnly cookies for security
         CookieCsrfTokenRepository csrfRepo = new CookieCsrfTokenRepository();
         csrfRepo.setCookieCustomizer(cookie -> cookie.httpOnly(true));
-        http.csrf(csrf -> csrf.csrfTokenRepository(csrfRepo).ignoringRequestMatchers("/login"));
+        http.csrf(csrf -> csrf.csrfTokenRepository(csrfRepo).ignoringRequestMatchers("/" + RouteConstants.LOGIN_ROUTE));
 
         // Authentication and access control
-        http.exceptionHandling(ex -> ex.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
+        http.exceptionHandling(ex -> ex.authenticationEntryPoint(
+                        new LoginUrlAuthenticationEntryPoint("/" + RouteConstants.LOGIN_ROUTE))
                 .accessDeniedHandler(accessDeniedHandler()));
 
         // Logout configuration with session cleanup
-        http.logout(logout -> logout.logoutUrl("/logout")
-                .logoutSuccessUrl("/")
+        http.logout(logout -> logout.logoutUrl("/" + RouteConstants.LOGOUT_ROUTE)
+                .logoutSuccessUrl("/" + RouteConstants.HOME_ROUTE)
                 .deleteCookies("JSESSIONID", "remember-me")
                 .invalidateHttpSession(true));
 
@@ -95,7 +97,7 @@ public class SecurityConfig extends VaadinWebSecurity {
                                 requestURI, java.time.Instant.now()));
             } else {
                 // Redirect to access denied page for UI requests
-                response.sendRedirect("/access-denied");
+                response.sendRedirect("/" + RouteConstants.ACCESS_DENIED_ROUTE);
             }
         };
     }

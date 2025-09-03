@@ -23,7 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apolenkov.application.config.RouteConstants;
+import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
@@ -39,7 +40,7 @@ import org.apolenkov.application.views.utils.NotificationHelper;
  * configurable settings, progress tracking, and session statistics.
  */
 @Route(value = "practice", layout = PublicLayout.class)
-@RolesAllowed("ROLE_USER")
+@RolesAllowed(SecurityConstants.ROLE_USER)
 public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
     // Constants for duplicated literals

@@ -1,4 +1,4 @@
-package org.apolenkov.application.config;
+package org.apolenkov.application.config.security;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -8,6 +8,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
+import org.apolenkov.application.config.constants.LocaleConstants;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 

@@ -24,17 +24,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile({"dev", "prod"})
 public class StatsJdbcAdapter implements StatsRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(StatsJdbcAdapter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatsJdbcAdapter.class);
     private final JdbcTemplate jdbcTemplate;
 
-    public StatsJdbcAdapter(final JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    /**
+     * Creates StatsJdbcAdapter with JDBC template.
+     *
+     * @param jdbcTemplateParam JDBC template for database operations
+     */
+    public StatsJdbcAdapter(final JdbcTemplate jdbcTemplateParam) {
+        this.jdbcTemplate = jdbcTemplateParam;
     }
 
     @Override
     @Transactional
     public void appendSession(final SessionStatsDto sessionStats, final LocalDate date) {
-        logger.debug("Appending session stats for deck ID: {} on date: {}", sessionStats.deckId(), date);
+        LOGGER.debug("Appending session stats for deck ID: {} on date: {}", sessionStats.deckId(), date);
 
         // Update or insert daily stats
         String upsertSql =
@@ -86,7 +91,7 @@ public class StatsJdbcAdapter implements StatsRepository {
     @Override
     @Transactional(readOnly = true)
     public List<DailyStatsRecord> getDailyStats(final long deckId) {
-        logger.debug("Getting daily stats for deck ID: {}", deckId);
+        LOGGER.debug("Getting daily stats for deck ID: {}", deckId);
         String sql =
                 """
             SELECT date,
@@ -117,7 +122,7 @@ public class StatsJdbcAdapter implements StatsRepository {
     @Override
     @Transactional(readOnly = true)
     public Set<Long> getKnownCardIds(final long deckId) {
-        logger.debug("Getting known card IDs for deck ID: {}", deckId);
+        LOGGER.debug("Getting known card IDs for deck ID: {}", deckId);
         String sql =
                 """
             SELECT kc.card_id
@@ -132,7 +137,7 @@ public class StatsJdbcAdapter implements StatsRepository {
     @Override
     @Transactional
     public void setCardKnown(final long deckId, final long cardId, final boolean known) {
-        logger.debug("Setting card {} as {} for deck ID: {}", cardId, known ? "known" : "unknown", deckId);
+        LOGGER.debug("Setting card {} as {} for deck ID: {}", cardId, known ? "known" : "unknown", deckId);
 
         if (known) {
             String insertSql =
@@ -158,7 +163,7 @@ public class StatsJdbcAdapter implements StatsRepository {
     @Override
     @Transactional
     public void resetDeckProgress(final long deckId) {
-        logger.debug("Resetting progress for deck ID: {}", deckId);
+        LOGGER.debug("Resetting progress for deck ID: {}", deckId);
 
         // Delete daily stats
         jdbcTemplate.update("DELETE FROM deck_daily_stats WHERE deck_id = ?", deckId);
@@ -175,7 +180,7 @@ public class StatsJdbcAdapter implements StatsRepository {
     @Override
     @Transactional(readOnly = true)
     public Map<Long, DeckAggregate> getAggregatesForDecks(final Collection<Long> deckIds, final LocalDate today) {
-        logger.debug("Getting aggregates for {} decks on date: {}", deckIds.size(), today);
+        LOGGER.debug("Getting aggregates for {} decks on date: {}", deckIds.size(), today);
 
         if (deckIds.isEmpty()) {
             return new HashMap<>();

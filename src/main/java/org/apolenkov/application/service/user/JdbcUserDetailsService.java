@@ -2,6 +2,7 @@ package org.apolenkov.application.service.user;
 
 import java.util.Collection;
 import java.util.List;
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.springframework.context.annotation.Profile;
@@ -45,7 +46,7 @@ public class JdbcUserDetailsService implements UserDetailsService {
                 .findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         Collection<? extends GrantedAuthority> authorities = user.getRoles().isEmpty()
-                ? List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                ? List.of(new SimpleGrantedAuthority(SecurityConstants.ROLE_USER))
                 : user.getRoles().stream().map(SimpleGrantedAuthority::new).toList();
         if (user.getPasswordHash() == null || user.getPasswordHash().isBlank()) {
             throw new IllegalStateException("User has no password hash: " + username);

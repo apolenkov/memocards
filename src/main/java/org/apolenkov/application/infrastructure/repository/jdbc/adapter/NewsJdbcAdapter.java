@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.domain.port.NewsRepository;
 import org.apolenkov.application.infrastructure.repository.jdbc.dto.NewsDto;
+import org.apolenkov.application.infrastructure.repository.jdbc.exception.NewsPersistenceException;
+import org.apolenkov.application.infrastructure.repository.jdbc.exception.NewsRetrievalException;
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.NewsSqlQueries;
 import org.apolenkov.application.model.News;
 import org.slf4j.Logger;
@@ -26,23 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class NewsJdbcAdapter implements NewsRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(NewsJdbcAdapter.class);
-
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
-     * Creates adapter with JdbcTemplate dependency.
-     *
-     * @param jdbcTemplateValue the JdbcTemplate for database operations
-     * @throws IllegalArgumentException if jdbcTemplate is null
-     */
-    public NewsJdbcAdapter(final JdbcTemplate jdbcTemplateValue) {
-        if (jdbcTemplateValue == null) {
-            throw new IllegalArgumentException("JdbcTemplate cannot be null");
-        }
-        this.jdbcTemplate = jdbcTemplateValue;
-    }
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(NewsJdbcAdapter.class);
     /**
      * RowMapper for NewsDto.
      */
@@ -63,6 +49,34 @@ public class NewsJdbcAdapter implements NewsRepository {
                 updatedAt != null ? updatedAt.toLocalDateTime() : null);
     };
 
+    private final JdbcTemplate jdbcTemplate;
+
+    /**
+     * Creates adapter with JdbcTemplate dependency.
+     *
+     * @param jdbcTemplateValue the JdbcTemplate for database operations
+     * @throws IllegalArgumentException if jdbcTemplate is null
+     */
+    public NewsJdbcAdapter(final JdbcTemplate jdbcTemplateValue) {
+        if (jdbcTemplateValue == null) {
+            throw new IllegalArgumentException("JdbcTemplate cannot be null");
+        }
+        this.jdbcTemplate = jdbcTemplateValue;
+    }
+
+    /**
+     * Converts NewsDto to domain News model.
+     *
+     * @param newsDto DTO to convert
+     * @return corresponding domain model
+     */
+    private static News toModel(final NewsDto newsDto) {
+        final News news =
+                new News(newsDto.id(), newsDto.title(), newsDto.content(), newsDto.author(), newsDto.createdAt());
+        news.setUpdatedAt(newsDto.updatedAt());
+        return news;
+    }
+
     /**
      * Retrieves all news items ordered by creation date (newest first).
      *
@@ -71,14 +85,13 @@ public class NewsJdbcAdapter implements NewsRepository {
     @Override
     @Transactional(readOnly = true)
     public List<News> findAllOrderByCreatedDesc() {
-        logger.debug("Retrieving all news ordered by creation date");
+        LOGGER.debug("Retrieving all news ordered by creation date");
         try {
             List<NewsDto> newsDtos =
                     jdbcTemplate.query(NewsSqlQueries.SELECT_ALL_NEWS_ORDER_BY_CREATED_DESC, NEWS_ROW_MAPPER);
             return newsDtos.stream().map(NewsJdbcAdapter::toModel).toList();
         } catch (DataAccessException e) {
-            logger.error("Failed to retrieve all news", e);
-            throw new RuntimeException("Failed to retrieve news", e);
+            throw new NewsRetrievalException("Failed to retrieve all news", e);
         }
     }
 
@@ -91,17 +104,16 @@ public class NewsJdbcAdapter implements NewsRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<News> findById(final long id) {
-        logger.debug("Retrieving news by ID: {}", id);
+        LOGGER.debug("Retrieving news by ID: {}", id);
         try {
             List<NewsDto> newsList = jdbcTemplate.query(NewsSqlQueries.SELECT_NEWS_BY_ID, NEWS_ROW_MAPPER, id);
             if (newsList.isEmpty()) {
                 return Optional.empty();
             }
 
-            return Optional.of(toModel(newsList.get(0)));
+            return Optional.of(toModel(newsList.getFirst()));
         } catch (DataAccessException e) {
-            logger.error("Failed to retrieve news by ID: {}", id, e);
-            throw new RuntimeException("Failed to retrieve news", e);
+            throw new NewsRetrievalException("Failed to retrieve news by ID: " + id, e);
         }
     }
 
@@ -119,7 +131,7 @@ public class NewsJdbcAdapter implements NewsRepository {
             throw new IllegalArgumentException("News cannot be null");
         }
 
-        logger.debug("Saving news: {}", news.getTitle());
+        LOGGER.debug("Saving news: {}", news.getTitle());
         try {
             if (news.getId() == null) {
                 return createNews(news);
@@ -127,8 +139,7 @@ public class NewsJdbcAdapter implements NewsRepository {
                 return updateNews(news);
             }
         } catch (DataAccessException e) {
-            logger.error("Failed to save news: {}", news.getTitle(), e);
-            throw new RuntimeException("Failed to save news", e);
+            throw new NewsPersistenceException("Failed to save news: " + news.getTitle(), e);
         }
     }
 
@@ -140,15 +151,14 @@ public class NewsJdbcAdapter implements NewsRepository {
     @Override
     @Transactional
     public void deleteById(final long id) {
-        logger.debug("Deleting news by ID: {}", id);
+        LOGGER.debug("Deleting news by ID: {}", id);
         try {
             int deleted = jdbcTemplate.update(NewsSqlQueries.DELETE_NEWS, id);
             if (deleted == 0) {
-                logger.warn("No news found with ID: {}", id);
+                LOGGER.warn("No news found with ID: {}", id);
             }
         } catch (DataAccessException e) {
-            logger.error("Failed to delete news by ID: {}", id, e);
-            throw new RuntimeException("Failed to delete news", e);
+            throw new NewsPersistenceException("Failed to delete news by ID: " + id, e);
         }
     }
 
@@ -201,19 +211,6 @@ public class NewsJdbcAdapter implements NewsRepository {
                 java.time.LocalDateTime.now(), // Update timestamp
                 news.getId());
 
-        return news;
-    }
-
-    /**
-     * Converts NewsDto to domain News model.
-     *
-     * @param newsDto DTO to convert
-     * @return corresponding domain model
-     */
-    private static News toModel(final NewsDto newsDto) {
-        final News news =
-                new News(newsDto.id(), newsDto.title(), newsDto.content(), newsDto.author(), newsDto.createdAt());
-        news.setUpdatedAt(newsDto.updatedAt());
         return news;
     }
 }

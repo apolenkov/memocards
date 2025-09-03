@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apolenkov.application.config.TransactionAnnotations;
+import org.apolenkov.application.config.constants.TransactionAnnotations;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.usecase.FlashcardUseCase;

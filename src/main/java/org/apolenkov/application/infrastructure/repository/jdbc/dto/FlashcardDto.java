@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
  * @param backText back side text (answer/explanation)
  * @param example optional example text
  * @param imageUrl optional image URL
- * @param createdAt flashcard creation timestamp
- * @param updatedAt flashcard last update timestamp
+ * @param timestamps flashcard creation and update timestamps
  */
 public record FlashcardDto(
         Long id,
@@ -24,8 +23,7 @@ public record FlashcardDto(
         String backText,
         String example,
         String imageUrl,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt) {
+        FlashcardTimestamps timestamps) {
 
     /**
      * Creates FlashcardDto with validation.
@@ -36,8 +34,6 @@ public record FlashcardDto(
      * @param backText back side text (answer/explanation)
      * @param example optional example text
      * @param imageUrl optional image URL
-     * @param createdAt flashcard creation timestamp
-     * @param updatedAt flashcard last update timestamp
      * @throws IllegalArgumentException if deckId is invalid or required text is null/empty
      */
     public FlashcardDto {
@@ -69,7 +65,8 @@ public record FlashcardDto(
             final String example,
             final String imageUrl) {
         LocalDateTime now = LocalDateTime.now();
-        return new FlashcardDto(null, deckId, frontText, backText, example, imageUrl, now, now);
+        return new FlashcardDto(
+                null, deckId, frontText, backText, example, imageUrl, new FlashcardTimestamps(now, now));
     }
 
     /**
@@ -81,8 +78,7 @@ public record FlashcardDto(
      * @param backText back side text (answer/explanation)
      * @param example optional example text
      * @param imageUrl optional image URL
-     * @param createdAt flashcard creation timestamp
-     * @param updatedAt flashcard last update timestamp
+     * @param timestamps flashcard creation and update timestamps
      * @return FlashcardDto for existing flashcard
      */
     public static FlashcardDto forExistingFlashcard(
@@ -92,8 +88,15 @@ public record FlashcardDto(
             final String backText,
             final String example,
             final String imageUrl,
-            final LocalDateTime createdAt,
-            final LocalDateTime updatedAt) {
-        return new FlashcardDto(id, deckId, frontText, backText, example, imageUrl, createdAt, updatedAt);
+            final FlashcardTimestamps timestamps) {
+        return new FlashcardDto(id, deckId, frontText, backText, example, imageUrl, timestamps);
     }
+
+    /**
+     * Timestamps for flashcard creation and updates.
+     *
+     * @param createdAt flashcard creation timestamp
+     * @param updatedAt flashcard last update timestamp
+     */
+    public record FlashcardTimestamps(LocalDateTime createdAt, LocalDateTime updatedAt) {}
 }
