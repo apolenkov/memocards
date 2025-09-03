@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.infrastructure.repository.jdbc.dto.FlashcardDto;
+import org.apolenkov.application.infrastructure.repository.jdbc.exception.FlashcardPersistenceException;
+import org.apolenkov.application.infrastructure.repository.jdbc.exception.FlashcardRetrievalException;
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.FlashcardSqlQueries;
 import org.apolenkov.application.model.Flashcard;
 import org.slf4j.Logger;
@@ -26,23 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class FlashcardJdbcAdapter implements FlashcardRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(FlashcardJdbcAdapter.class);
-
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
-     * Creates adapter with JdbcTemplate dependency.
-     *
-     * @param jdbcTemplateValue the JdbcTemplate for database operations
-     * @throws IllegalArgumentException if jdbcTemplate is null
-     */
-    public FlashcardJdbcAdapter(final JdbcTemplate jdbcTemplateValue) {
-        if (jdbcTemplateValue == null) {
-            throw new IllegalArgumentException("JdbcTemplate cannot be null");
-        }
-        this.jdbcTemplate = jdbcTemplateValue;
-    }
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlashcardJdbcAdapter.class);
     /**
      * RowMapper for FlashcardDto.
      */
@@ -63,9 +49,41 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 backText,
                 example,
                 imageUrl,
-                createdAt != null ? createdAt.toLocalDateTime() : null,
-                updatedAt != null ? updatedAt.toLocalDateTime() : null);
+                new FlashcardDto.FlashcardTimestamps(
+                        createdAt != null ? createdAt.toLocalDateTime() : null,
+                        updatedAt != null ? updatedAt.toLocalDateTime() : null));
     };
+
+    private final JdbcTemplate jdbcTemplate;
+
+    /**
+     * Creates adapter with JdbcTemplate dependency.
+     *
+     * @param jdbcTemplateValue the JdbcTemplate for database operations
+     * @throws IllegalArgumentException if jdbcTemplate is null
+     */
+    public FlashcardJdbcAdapter(final JdbcTemplate jdbcTemplateValue) {
+        if (jdbcTemplateValue == null) {
+            throw new IllegalArgumentException("JdbcTemplate cannot be null");
+        }
+        this.jdbcTemplate = jdbcTemplateValue;
+    }
+
+    /**
+     * Converts FlashcardDto to domain Flashcard model.
+     *
+     * @param flashcardDto DTO to convert
+     * @return corresponding domain model
+     */
+    private static Flashcard toModel(final FlashcardDto flashcardDto) {
+        final Flashcard flashcard = new Flashcard(
+                flashcardDto.id(), flashcardDto.deckId(), flashcardDto.frontText(), flashcardDto.backText());
+        flashcard.setExample(flashcardDto.example());
+        flashcard.setImageUrl(flashcardDto.imageUrl());
+        flashcard.setCreatedAt(flashcardDto.timestamps().createdAt());
+        flashcard.setUpdatedAt(flashcardDto.timestamps().updatedAt());
+        return flashcard;
+    }
 
     /**
      * Retrieves all flashcards belonging to a specific deck.
@@ -81,14 +99,13 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
             throw new IllegalArgumentException("Deck ID must be positive");
         }
 
-        logger.debug("Retrieving flashcards for deck ID: {}", deckId);
+        LOGGER.debug("Retrieving flashcards for deck ID: {}", deckId);
         try {
             List<FlashcardDto> flashcardDtos =
                     jdbcTemplate.query(FlashcardSqlQueries.SELECT_FLASHCARDS_BY_DECK_ID, FLASHCARD_ROW_MAPPER, deckId);
             return flashcardDtos.stream().map(FlashcardJdbcAdapter::toModel).toList();
         } catch (DataAccessException e) {
-            logger.error("Failed to retrieve flashcards for deck ID: {}", deckId, e);
-            throw new RuntimeException("Failed to retrieve deck flashcards", e);
+            throw new FlashcardRetrievalException("Failed to retrieve flashcards for deck ID: " + deckId, e);
         }
     }
 
@@ -101,7 +118,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<Flashcard> findById(final long id) {
-        logger.debug("Retrieving flashcard by ID: {}", id);
+        LOGGER.debug("Retrieving flashcard by ID: {}", id);
         try {
             List<FlashcardDto> flashcards =
                     jdbcTemplate.query(FlashcardSqlQueries.SELECT_FLASHCARD_BY_ID, FLASHCARD_ROW_MAPPER, id);
@@ -109,10 +126,9 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 return Optional.empty();
             }
 
-            return Optional.of(toModel(flashcards.get(0)));
+            return Optional.of(toModel(flashcards.getFirst()));
         } catch (DataAccessException e) {
-            logger.error("Failed to retrieve flashcard by ID: {}", id, e);
-            throw new RuntimeException("Failed to retrieve flashcard", e);
+            throw new FlashcardRetrievalException("Failed to retrieve flashcard by ID: " + id, e);
         }
     }
 
@@ -130,7 +146,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
             throw new IllegalArgumentException("Flashcard cannot be null");
         }
 
-        logger.debug("Saving flashcard: {}", flashcard.getFrontText());
+        LOGGER.debug("Saving flashcard: {}", flashcard.getFrontText());
         try {
             if (flashcard.getId() == null) {
                 return createFlashcard(flashcard);
@@ -138,8 +154,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 return updateFlashcard(flashcard);
             }
         } catch (DataAccessException e) {
-            logger.error("Failed to save flashcard: {}", flashcard.getFrontText(), e);
-            throw new RuntimeException("Failed to save flashcard", e);
+            throw new FlashcardPersistenceException("Failed to save flashcard: " + flashcard.getFrontText(), e);
         }
     }
 
@@ -151,15 +166,14 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
     @Override
     @Transactional
     public void deleteById(final long id) {
-        logger.debug("Deleting flashcard by ID: {}", id);
+        LOGGER.debug("Deleting flashcard by ID: {}", id);
         try {
             int deleted = jdbcTemplate.update(FlashcardSqlQueries.DELETE_FLASHCARD, id);
             if (deleted == 0) {
-                logger.warn("No flashcard found with ID: {}", id);
+                LOGGER.warn("No flashcard found with ID: {}", id);
             }
         } catch (DataAccessException e) {
-            logger.error("Failed to delete flashcard by ID: {}", id, e);
-            throw new RuntimeException("Failed to delete flashcard", e);
+            throw new FlashcardPersistenceException("Failed to delete flashcard by ID: " + id, e);
         }
     }
 
@@ -177,14 +191,13 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
             throw new IllegalArgumentException("Deck ID must be positive");
         }
 
-        logger.debug("Counting flashcards for deck ID: {}", deckId);
+        LOGGER.debug("Counting flashcards for deck ID: {}", deckId);
         try {
             Long count =
                     jdbcTemplate.queryForObject(FlashcardSqlQueries.COUNT_FLASHCARDS_BY_DECK_ID, Long.class, deckId);
             return count != null ? count : 0L;
         } catch (DataAccessException e) {
-            logger.error("Failed to count flashcards for deck ID: {}", deckId, e);
-            throw new RuntimeException("Failed to count deck flashcards", e);
+            throw new FlashcardRetrievalException("Failed to count flashcards for deck ID: " + deckId, e);
         }
     }
 
@@ -201,13 +214,12 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
             throw new IllegalArgumentException("Deck ID must be positive");
         }
 
-        logger.debug("Deleting all flashcards for deck ID: {}", deckId);
+        LOGGER.debug("Deleting all flashcards for deck ID: {}", deckId);
         try {
             int deleted = jdbcTemplate.update(FlashcardSqlQueries.DELETE_FLASHCARDS_BY_DECK_ID, deckId);
-            logger.debug("Deleted {} flashcards for deck ID: {}", deleted, deckId);
+            LOGGER.debug("Deleted {} flashcards for deck ID: {}", deleted, deckId);
         } catch (DataAccessException e) {
-            logger.error("Failed to delete flashcards for deck ID: {}", deckId, e);
-            throw new RuntimeException("Failed to delete deck flashcards", e);
+            throw new FlashcardPersistenceException("Failed to delete flashcards for deck ID: " + deckId, e);
         }
     }
 
@@ -233,8 +245,8 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 flashcardDto.backText(),
                 flashcardDto.example(),
                 flashcardDto.imageUrl(),
-                flashcardDto.createdAt(),
-                flashcardDto.updatedAt());
+                flashcardDto.timestamps().createdAt(),
+                flashcardDto.timestamps().updatedAt());
 
         // Get generated ID
         Long generatedId = jdbcTemplate.queryForObject("SELECT LASTVAL()", Long.class);
@@ -247,8 +259,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 flashcardDto.backText(),
                 flashcardDto.example(),
                 flashcardDto.imageUrl(),
-                flashcardDto.createdAt(),
-                flashcardDto.updatedAt());
+                flashcardDto.timestamps());
 
         return toModel(createdDto);
     }
@@ -271,22 +282,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 java.time.LocalDateTime.now(), // Update timestamp
                 flashcard.getId());
 
-        return flashcard;
-    }
-
-    /**
-     * Converts FlashcardDto to domain Flashcard model.
-     *
-     * @param flashcardDto DTO to convert
-     * @return corresponding domain model
-     */
-    private static Flashcard toModel(final FlashcardDto flashcardDto) {
-        final Flashcard flashcard = new Flashcard(
-                flashcardDto.id(), flashcardDto.deckId(), flashcardDto.frontText(), flashcardDto.backText());
-        flashcard.setExample(flashcardDto.example());
-        flashcard.setImageUrl(flashcardDto.imageUrl());
-        flashcard.setCreatedAt(flashcardDto.createdAt());
-        flashcard.setUpdatedAt(flashcardDto.updatedAt());
         return flashcard;
     }
 }

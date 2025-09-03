@@ -18,6 +18,7 @@ import jakarta.annotation.security.RolesAllowed;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.News;
 import org.apolenkov.application.service.NewsService;
 import org.apolenkov.application.views.utils.ButtonHelper;
@@ -33,7 +34,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 @Route(value = "admin/news", layout = PublicLayout.class)
 @RouteAlias(value = "admin/content", layout = PublicLayout.class)
-@RolesAllowed("ROLE_ADMIN")
+@RolesAllowed(SecurityConstants.ROLE_ADMIN)
 public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
 
     private static final String COL_CREATED_AT = "createdAt";

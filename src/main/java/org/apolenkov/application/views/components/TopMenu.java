@@ -11,7 +11,8 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.ArrayList;
 import java.util.List;
-import org.apolenkov.application.config.RouteConstants;
+import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
@@ -32,12 +33,9 @@ import org.springframework.stereotype.Component;
 @UIScope
 public class TopMenu extends HorizontalLayout {
 
-    // Roles
-    private static final String ROLE_USER = "ROLE_USER";
-    private static final String ROLE_ADMIN = "ROLE_ADMIN";
+    // Roles - using SecurityConstants
 
-    // Routes
-    private static final String LOGOUT_ROUTE = "/logout";
+    // Routes - using RouteConstants
 
     // Styles
     private static final String DATA_TEST_ID_ATTRIBUTE = "data-test-id";
@@ -81,12 +79,32 @@ public class TopMenu extends HorizontalLayout {
      * Creates menu buttons with appropriate role requirements and navigation targets.
      */
     private void initializeMenuButtons() {
-        menuButtons.add(new MenuButton(getTranslation("main.decks"), "/decks", "nav-decks", false, ROLE_USER));
-        menuButtons.add(new MenuButton(getTranslation("main.stats"), "/stats", "nav-stats", false, ROLE_USER));
-        menuButtons.add(new MenuButton(getTranslation("main.settings"), "/settings", "nav-settings", false, ROLE_USER));
         menuButtons.add(new MenuButton(
-                getTranslation("admin.content.page.title"), "/admin/content", "nav-admin-content", false, ROLE_ADMIN));
-        menuButtons.add(new MenuButton(getTranslation("main.logout"), LOGOUT_ROUTE, "nav-logout", false));
+                getTranslation("main.decks"),
+                "/" + RouteConstants.DECKS_ROUTE,
+                "nav-decks",
+                false,
+                SecurityConstants.ROLE_USER));
+        menuButtons.add(new MenuButton(
+                getTranslation("main.stats"),
+                "/" + RouteConstants.STATS_ROUTE,
+                "nav-stats",
+                false,
+                SecurityConstants.ROLE_USER));
+        menuButtons.add(new MenuButton(
+                getTranslation("main.settings"),
+                "/" + RouteConstants.SETTINGS_ROUTE,
+                "nav-settings",
+                false,
+                SecurityConstants.ROLE_USER));
+        menuButtons.add(new MenuButton(
+                getTranslation("admin.content.page.title"),
+                "/" + RouteConstants.ADMIN_CONTENT_ROUTE,
+                "nav-admin-content",
+                false,
+                SecurityConstants.ROLE_ADMIN));
+        menuButtons.add(
+                new MenuButton(getTranslation("main.logout"), "/" + RouteConstants.LOGOUT_ROUTE, "nav-logout", false));
     }
 
     /**
@@ -167,7 +185,7 @@ public class TopMenu extends HorizontalLayout {
             return true;
         }
 
-        if (menuButton.getRoute().equals(LOGOUT_ROUTE)) {
+        if (menuButton.getRoute().equals("/" + RouteConstants.LOGOUT_ROUTE)) {
             return isAuthenticated;
         }
 
@@ -201,19 +219,23 @@ public class TopMenu extends HorizontalLayout {
     private Button createButton(final MenuButton menuButton) {
         Button button;
 
-        if (menuButton.getRoute().equals(LOGOUT_ROUTE)) {
-            button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> openLogoutDialog());
-            button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
-        } else if (menuButton.getRoute().equals("/settings")) {
-            button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> {
-                PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService);
-                dialog.open();
-            });
-            button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
-        } else {
-            button = ButtonHelper.createTertiaryButton(
-                    menuButton.getText(), e -> NavigationHelper.navigateTo(menuButton.getRoute()));
-            button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
+        switch (menuButton.getRoute()) {
+            case "/" + RouteConstants.LOGOUT_ROUTE -> {
+                button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> openLogoutDialog());
+                button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
+            }
+            case "/" + RouteConstants.SETTINGS_ROUTE -> {
+                button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> {
+                    PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService);
+                    dialog.open();
+                });
+                button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
+            }
+            default -> {
+                button = ButtonHelper.createTertiaryButton(
+                        menuButton.getText(), e -> NavigationHelper.navigateTo(menuButton.getRoute()));
+                button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
+            }
         }
 
         return button;

@@ -4,6 +4,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.server.ErrorEvent;
 import com.vaadin.flow.server.VaadinSession;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class ErrorHandlingConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ErrorHandlingConfiguration.class);
-    private static final String ERROR_ROUTE = "error";
+    private static final String ERROR_ROUTE = RouteConstants.ERROR_ROUTE;
     private static final String ATTR_ERROR_NAV_GUARD = "errorNavigationInProgress";
 
     /**

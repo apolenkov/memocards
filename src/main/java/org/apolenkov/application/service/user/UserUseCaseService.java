@@ -2,7 +2,7 @@ package org.apolenkov.application.service.user;
 
 import java.util.List;
 import java.util.Optional;
-import org.apolenkov.application.config.TransactionAnnotations;
+import org.apolenkov.application.config.constants.TransactionAnnotations;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.apolenkov.application.usecase.UserUseCase;
@@ -94,6 +94,7 @@ public class UserUseCaseService implements UserUseCase {
             return s;
         }
 
-        throw new IllegalStateException("Unsupported principal type: " + principal.getClass());
+        throw new IllegalStateException(
+                "Unsupported principal type: " + (principal != null ? principal.getClass() : "null"));
     }
 }

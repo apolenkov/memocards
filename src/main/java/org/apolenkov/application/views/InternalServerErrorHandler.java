@@ -6,6 +6,7 @@ import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.HasErrorParameter;
 import com.vaadin.flow.router.ParentLayout;
 import com.vaadin.flow.server.HttpStatusCode;
+import org.apolenkov.application.config.constants.RouteConstants;
 
 /**
  * Error handler for internal server errors (HTTP 500).
@@ -23,7 +24,7 @@ public class InternalServerErrorHandler extends Div implements HasErrorParameter
      */
     @Override
     public int setErrorParameter(final BeforeEnterEvent event, final ErrorParameter<Exception> parameter) {
-        event.rerouteTo("error");
+        event.rerouteTo(RouteConstants.ERROR_ROUTE);
         return HttpStatusCode.INTERNAL_SERVER_ERROR.getCode();
     }
 }

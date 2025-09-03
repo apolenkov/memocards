@@ -1,4 +1,4 @@
-package org.apolenkov.application.config;
+package org.apolenkov.application.config.constants;
 
 /**
  * Centralized route constants for the application.
@@ -46,6 +46,31 @@ public final class RouteConstants {
      * Route for reset password view.
      */
     public static final String RESET_PASSWORD_ROUTE = "reset-password";
+
+    /**
+     * Route for settings view.
+     */
+    public static final String SETTINGS_ROUTE = "settings";
+
+    /**
+     * Route for logout action.
+     */
+    public static final String LOGOUT_ROUTE = "logout";
+
+    /**
+     * Route for stats view.
+     */
+    public static final String STATS_ROUTE = "stats";
+
+    /**
+     * Route for admin content view.
+     */
+    public static final String ADMIN_CONTENT_ROUTE = "admin/content";
+
+    /**
+     * Route for access denied view.
+     */
+    public static final String ACCESS_DENIED_ROUTE = "access-denied";
 
     /**
      * Private constructor to prevent instantiation.

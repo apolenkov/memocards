@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.infrastructure.repository.jdbc.dto.DeckDto;
+import org.apolenkov.application.infrastructure.repository.jdbc.exception.DeckPersistenceException;
+import org.apolenkov.application.infrastructure.repository.jdbc.exception.DeckRetrievalException;
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.DeckSqlQueries;
 import org.apolenkov.application.model.Deck;
 import org.slf4j.Logger;
@@ -26,23 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class DeckJdbcAdapter implements DeckRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(DeckJdbcAdapter.class);
-
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
-     * Creates adapter with JdbcTemplate dependency.
-     *
-     * @param jdbcTemplateValue the JdbcTemplate for database operations
-     * @throws IllegalArgumentException if jdbcTemplate is null
-     */
-    public DeckJdbcAdapter(final JdbcTemplate jdbcTemplateValue) {
-        if (jdbcTemplateValue == null) {
-            throw new IllegalArgumentException("JdbcTemplate cannot be null");
-        }
-        this.jdbcTemplate = jdbcTemplateValue;
-    }
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeckJdbcAdapter.class);
     /**
      * RowMapper for DeckDto.
      */
@@ -63,6 +49,34 @@ public class DeckJdbcAdapter implements DeckRepository {
                 updatedAt != null ? updatedAt.toLocalDateTime() : null);
     };
 
+    private final JdbcTemplate jdbcTemplate;
+
+    /**
+     * Creates adapter with JdbcTemplate dependency.
+     *
+     * @param jdbcTemplateValue the JdbcTemplate for database operations
+     * @throws IllegalArgumentException if jdbcTemplate is null
+     */
+    public DeckJdbcAdapter(final JdbcTemplate jdbcTemplateValue) {
+        if (jdbcTemplateValue == null) {
+            throw new IllegalArgumentException("JdbcTemplate cannot be null");
+        }
+        this.jdbcTemplate = jdbcTemplateValue;
+    }
+
+    /**
+     * Converts DeckDto to domain Deck model.
+     *
+     * @param deckDto DTO to convert
+     * @return corresponding domain model
+     */
+    private static Deck toModel(final DeckDto deckDto) {
+        final Deck deck = new Deck(deckDto.id(), deckDto.userId(), deckDto.title(), deckDto.description());
+        deck.setCreatedAt(deckDto.createdAt());
+        deck.setUpdatedAt(deckDto.updatedAt());
+        return deck;
+    }
+
     /**
      * Retrieves all decks from database.
      *
@@ -71,13 +85,12 @@ public class DeckJdbcAdapter implements DeckRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Deck> findAll() {
-        logger.debug("Retrieving all decks");
+        LOGGER.debug("Retrieving all decks");
         try {
             List<DeckDto> deckDtos = jdbcTemplate.query(DeckSqlQueries.SELECT_ALL_DECKS, DECK_ROW_MAPPER);
             return deckDtos.stream().map(DeckJdbcAdapter::toModel).toList();
         } catch (DataAccessException e) {
-            logger.error("Failed to retrieve all decks", e);
-            throw new RuntimeException("Failed to retrieve decks", e);
+            throw new DeckRetrievalException("Failed to retrieve all decks", e);
         }
     }
 
@@ -95,14 +108,13 @@ public class DeckJdbcAdapter implements DeckRepository {
             throw new IllegalArgumentException("User ID must be positive");
         }
 
-        logger.debug("Retrieving decks for user ID: {}", userId);
+        LOGGER.debug("Retrieving decks for user ID: {}", userId);
         try {
             List<DeckDto> deckDtos =
                     jdbcTemplate.query(DeckSqlQueries.SELECT_DECKS_BY_USER_ID, DECK_ROW_MAPPER, userId);
             return deckDtos.stream().map(DeckJdbcAdapter::toModel).toList();
         } catch (DataAccessException e) {
-            logger.error("Failed to retrieve decks for user ID: {}", userId, e);
-            throw new RuntimeException("Failed to retrieve user decks", e);
+            throw new DeckRetrievalException("Failed to retrieve decks for user ID: " + userId, e);
         }
     }
 
@@ -115,17 +127,16 @@ public class DeckJdbcAdapter implements DeckRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<Deck> findById(final long id) {
-        logger.debug("Retrieving deck by ID: {}", id);
+        LOGGER.debug("Retrieving deck by ID: {}", id);
         try {
             List<DeckDto> decks = jdbcTemplate.query(DeckSqlQueries.SELECT_DECK_BY_ID, DECK_ROW_MAPPER, id);
             if (decks.isEmpty()) {
                 return Optional.empty();
             }
 
-            return Optional.of(toModel(decks.get(0)));
+            return Optional.of(toModel(decks.getFirst()));
         } catch (DataAccessException e) {
-            logger.error("Failed to retrieve deck by ID: {}", id, e);
-            throw new RuntimeException("Failed to retrieve deck", e);
+            throw new DeckRetrievalException("Failed to retrieve deck by ID: " + id, e);
         }
     }
 
@@ -143,7 +154,7 @@ public class DeckJdbcAdapter implements DeckRepository {
             throw new IllegalArgumentException("Deck cannot be null");
         }
 
-        logger.debug("Saving deck: {}", deck.getTitle());
+        LOGGER.debug("Saving deck: {}", deck.getTitle());
         try {
             if (deck.getId() == null) {
                 return createDeck(deck);
@@ -151,8 +162,7 @@ public class DeckJdbcAdapter implements DeckRepository {
                 return updateDeck(deck);
             }
         } catch (DataAccessException e) {
-            logger.error("Failed to save deck: {}", deck.getTitle(), e);
-            throw new RuntimeException("Failed to save deck", e);
+            throw new DeckPersistenceException("Failed to save deck: " + deck.getTitle(), e);
         }
     }
 
@@ -164,15 +174,14 @@ public class DeckJdbcAdapter implements DeckRepository {
     @Override
     @Transactional
     public void deleteById(final long id) {
-        logger.debug("Deleting deck by ID: {}", id);
+        LOGGER.debug("Deleting deck by ID: {}", id);
         try {
             int deleted = jdbcTemplate.update(DeckSqlQueries.DELETE_DECK, id);
             if (deleted == 0) {
-                logger.warn("No deck found with ID: {}", id);
+                LOGGER.warn("No deck found with ID: {}", id);
             }
         } catch (DataAccessException e) {
-            logger.error("Failed to delete deck by ID: {}", id, e);
-            throw new RuntimeException("Failed to delete deck", e);
+            throw new DeckPersistenceException("Failed to delete deck by ID: " + id, e);
         }
     }
 
@@ -225,19 +234,6 @@ public class DeckJdbcAdapter implements DeckRepository {
                 java.time.LocalDateTime.now(), // Update timestamp
                 deck.getId());
 
-        return deck;
-    }
-
-    /**
-     * Converts DeckDto to domain Deck model.
-     *
-     * @param deckDto DTO to convert
-     * @return corresponding domain model
-     */
-    private static Deck toModel(final DeckDto deckDto) {
-        final Deck deck = new Deck(deckDto.id(), deckDto.userId(), deckDto.title(), deckDto.description());
-        deck.setCreatedAt(deckDto.createdAt());
-        deck.setUpdatedAt(deckDto.updatedAt());
         return deck;
     }
 }

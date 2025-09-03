@@ -13,7 +13,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import java.util.function.Consumer;
-import org.apolenkov.application.config.RouteConstants;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.DeckFacade;
 import org.apolenkov.application.usecase.UserUseCase;

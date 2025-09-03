@@ -1,4 +1,4 @@
-package org.apolenkov.application.config;
+package org.apolenkov.application.config.data;
 
 import java.util.List;
 import org.apolenkov.application.domain.port.DeckRepository;

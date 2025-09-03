@@ -3,7 +3,7 @@ package org.apolenkov.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.apolenkov.application.service.user.JpaRegistrationService;
+import org.apolenkov.application.service.user.RegistrationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,13 +20,13 @@ class AuthFacadeTest {
     private AuthenticationConfiguration authenticationConfiguration;
 
     @Mock
-    private JpaRegistrationService jpaRegistrationService;
+    private RegistrationService registrationService;
 
     private AuthFacade authFacade;
 
     @BeforeEach
     void setUp() {
-        authFacade = new AuthFacade(authenticationConfiguration, jpaRegistrationService);
+        authFacade = new AuthFacade(authenticationConfiguration, registrationService);
     }
 
     @Test

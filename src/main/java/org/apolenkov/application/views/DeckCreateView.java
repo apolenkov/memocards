@@ -15,6 +15,7 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
@@ -31,7 +32,7 @@ import org.apolenkov.application.views.utils.TextHelper;
  * name and description. Includes validation and navigation controls.
  */
 @Route("decks/new")
-@RolesAllowed("ROLE_USER")
+@RolesAllowed(SecurityConstants.ROLE_USER)
 public class DeckCreateView extends Composite<VerticalLayout> implements HasDynamicTitle {
 
     private final transient DeckUseCase deckUseCase;

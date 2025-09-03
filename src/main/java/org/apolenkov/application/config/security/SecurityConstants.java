@@ -1,4 +1,4 @@
-package org.apolenkov.application.config;
+package org.apolenkov.application.config.security;
 
 /**
  * Constants for Spring Security role definitions.

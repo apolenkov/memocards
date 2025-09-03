@@ -10,7 +10,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
-import org.apolenkov.application.config.RouteConstants;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.views.home.DeckCardViewModel;
 
 /**

@@ -48,7 +48,7 @@ public class JdbcRegistrationService implements RegistrationService {
         user.setEmail(email);
         user.setName(name);
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
-        user.addRole(org.apolenkov.application.config.SecurityConstants.ROLE_USER);
+        user.addRole(org.apolenkov.application.config.security.SecurityConstants.ROLE_USER);
 
         userRepository.save(user);
     }

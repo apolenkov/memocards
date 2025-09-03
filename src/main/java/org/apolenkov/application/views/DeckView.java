@@ -30,7 +30,8 @@ import jakarta.annotation.security.RolesAllowed;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.apolenkov.application.config.RouteConstants;
+import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.DeckFacade;
@@ -43,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Route(value = "deck", layout = PublicLayout.class)
-@RolesAllowed("ROLE_USER")
+@RolesAllowed(SecurityConstants.ROLE_USER)
 public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckView.class);

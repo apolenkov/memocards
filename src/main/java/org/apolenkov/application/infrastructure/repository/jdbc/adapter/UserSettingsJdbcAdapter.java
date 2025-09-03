@@ -5,6 +5,7 @@ import org.apolenkov.application.domain.port.UserSettingsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,23 +18,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile({"dev", "prod"})
 public class UserSettingsJdbcAdapter implements UserSettingsRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserSettingsJdbcAdapter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserSettingsJdbcAdapter.class);
     private final JdbcTemplate jdbcTemplate;
 
-    public UserSettingsJdbcAdapter(final JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    /**
+     * Creates UserSettingsJdbcAdapter with JDBC template.
+     *
+     * @param jdbcTemplateParam JDBC template for database operations
+     */
+    public UserSettingsJdbcAdapter(final JdbcTemplate jdbcTemplateParam) {
+        this.jdbcTemplate = jdbcTemplateParam;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<String> findPreferredLocaleCode(final long userId) {
-        logger.debug("Finding preferred locale code for user ID: {}", userId);
+        LOGGER.debug("Finding preferred locale code for user ID: {}", userId);
         String sql = "SELECT preferred_locale_code FROM user_settings WHERE user_id = ?";
         try {
             String locale = jdbcTemplate.queryForObject(sql, String.class, userId);
             return Optional.ofNullable(locale);
-        } catch (Exception e) {
-            logger.debug("No user settings found for user ID: {}", userId);
+        } catch (DataAccessException e) {
+            LOGGER.debug("No user settings found for user ID: {}", userId);
             return Optional.empty();
         }
     }
@@ -41,7 +47,7 @@ public class UserSettingsJdbcAdapter implements UserSettingsRepository {
     @Override
     @Transactional
     public void savePreferredLocaleCode(final long userId, final String localeCode) {
-        logger.debug("Saving preferred locale code '{}' for user ID: {}", localeCode, userId);
+        LOGGER.debug("Saving preferred locale code '{}' for user ID: {}", localeCode, userId);
         String sql =
                 """
             INSERT INTO user_settings (user_id, preferred_locale_code)

@@ -6,16 +6,13 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinSession;
 import jakarta.servlet.http.Cookie;
 import java.util.Locale;
-import org.apolenkov.application.config.LocaleConstants;
+import org.apolenkov.application.config.constants.LocaleConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
  * Manages locale configuration for Vaadin UI instances.
- *
- * <p>This component is responsible for applying user's preferred locale
- * from cookies or session attributes.
  */
 @Component
 public class LocaleConfiguration {
@@ -33,7 +30,7 @@ public class LocaleConfiguration {
         // First priority: locale from cookie (user's persistent preference)
         Locale cookieLocale = readLocaleFromCookie();
         if (cookieLocale != null) {
-            session.setAttribute(LocaleConstants.SESSION_LOCALE_KEY, cookieLocale);
+            session.setAttribute(LocaleConstants.SESSION_LOCALE_KEY, cookieLocale.toLanguageTag());
             ui.setLocale(cookieLocale);
             LOGGER.debug("Locale set from cookie: {} [uiId={}]", cookieLocale, ui.getUIId());
             return;
@@ -41,7 +38,8 @@ public class LocaleConfiguration {
 
         // Second priority: locale from session (temporary preference)
         Object preferred = session.getAttribute(LocaleConstants.SESSION_LOCALE_KEY);
-        if (preferred instanceof Locale locale) {
+        if (preferred instanceof String localeTag) {
+            Locale locale = Locale.forLanguageTag(localeTag);
             ui.setLocale(locale);
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Locale set from session attribute: {} [uiId={}]", locale, ui.getUIId());

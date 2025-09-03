@@ -2,7 +2,12 @@ package org.apolenkov.application.views.presenter.practice;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;

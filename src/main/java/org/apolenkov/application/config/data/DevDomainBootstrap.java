@@ -1,7 +1,8 @@
-package org.apolenkov.application.config;
+package org.apolenkov.application.config.data;
 
 import java.util.Optional;
 import java.util.Set;
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.springframework.boot.CommandLineRunner;
@@ -30,7 +31,6 @@ class DevDomainBootstrap {
     @Order(10)
     CommandLineRunner ensureDomainUsers(final UserRepository users, final PasswordEncoder passwordEncoder) {
         return args -> {
-            // Get localized usernames from i18n provider with fallback defaults
             final String userName = "Ivan Petrov";
             final String adminName = "Administrator";
 
@@ -79,7 +79,6 @@ class DevDomainBootstrap {
         }
 
         User existing = existingOpt.get();
-        // Update existing user properties
         existing.setPasswordHash(passwordEncoder.encode(rawPassword));
         existing.setName(fullName);
         users.save(existing);

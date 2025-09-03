@@ -4,7 +4,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.QueryParameters;
 import java.util.Locale;
 import java.util.Optional;
-import org.apolenkov.application.config.RouteConstants;
+import org.apolenkov.application.config.constants.RouteConstants;
 
 /**
  * Utility class for centralized navigation operations.

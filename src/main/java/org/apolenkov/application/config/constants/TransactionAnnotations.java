@@ -1,4 +1,4 @@
-package org.apolenkov.application.config;
+package org.apolenkov.application.config.constants;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

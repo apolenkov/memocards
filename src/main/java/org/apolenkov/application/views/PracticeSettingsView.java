@@ -11,7 +11,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
-import org.apolenkov.application.config.SecurityConstants;
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.service.PracticeSettingsService;
 

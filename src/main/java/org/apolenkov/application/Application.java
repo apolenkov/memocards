@@ -5,10 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Main entry point for the Flashcards Spring Boot application.
+ *
+ * <p>This class is responsible for starting the Spring Boot application.
+ * All initialization logic is delegated to ApplicationInitializer.
  */
 @SpringBootApplication
 public final class Application {
@@ -34,16 +36,7 @@ public final class Application {
             LOGGER.debug("Application arguments: {}", Arrays.toString(args));
         }
 
-        ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
-
-        // Register shutdown hook for graceful application termination
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOGGER.info("Shutdown hook triggered, cleaning up...");
-            if (context.isActive()) {
-                context.close();
-            }
-            LOGGER.info("Shutdown hook completed");
-        }));
+        SpringApplication.run(Application.class, args);
 
         LOGGER.info("Flashcards application started successfully");
     }
