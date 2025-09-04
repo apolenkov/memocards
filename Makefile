@@ -9,11 +9,11 @@ PROFILE_DEV := --spring.profiles.active=dev
 # =============================================================================
 # PHONY TARGETS
 # =============================================================================
-.PHONY: help start stop restart logs clean build run dev dev-auth test format check ci \
-        code-quality code-quality-full code-quality-chars clean-frontend clean-quick deep-clean \
-        coverage coverage-verify deps npm-install vaadin-prepare dev-setup quality-check dev-quality \
-        clean-dev deep-clean-dev full-clean-dev lint-css lint-css-fix spotless-check sonarlint \
-        spotbugs checkstyle vaadin-clean vaadin-build-frontend cleanup-and-run
+.PHONY: help start stop restart logs clean build run dev test format check \
+        code-quality code-quality-full code-quality-chars \
+        coverage coverage-verify deps npm-install vaadin-prepare dev-setup quality-check \
+        lint-css lint-css-fix spotless-check sonarlint \
+        spotbugs checkstyle vaadin-build-frontend erase
 
 # =============================================================================
 # HELP
@@ -51,7 +51,6 @@ clean: ## Clean up environment
 	@echo "Cleaning up environment..."
 	@kill -9 $$(lsof -t -i:$(APP_PORT)) 2>/dev/null || true
 	@rm -rf logs
-	@echo "Running: $(COMMAND)"
 	$(GRADLE) clean
 
 # =============================================================================
@@ -64,29 +63,10 @@ run: start ## Start application with database
 	@echo "Starting application..."
 	$(GRADLE) bootRun
 
-dev: cleanup-and-run start ## Run in development mode
+dev: start ## Run in development mode
 	@echo "Starting in development mode..."
 	$(GRADLE) bootRun --args='$(PROFILE_DEV)'
 
-dev-auth: cleanup-and-run  start ## Run with auto-login enabled
-	@echo "Starting with auto-login enabled..."
-	DEV_AUTO_LOGIN_ENABLED=true $(GRADLE) bootRun --args='$(PROFILE_DEV)'
-
-# =============================================================================
-# DEVELOPMENT WORKFLOWS - Clean & Run Combinations
-# =============================================================================
-# Common cleanup function
-clean-dev: clean start ## Fast clean and run (Gradle clean only)
-	@echo "Cleaning (fast) and running..."
-	$(GRADLE) cleanQuick bootRun
-
-deep-clean-dev: clean start ## Deep clean (Vaadin + frontend) and run
-	@echo "Deep cleaning and running..."
-	$(GRADLE) deepClean bootRun
-
-full-clean-dev: clean start ## Full clean, format, check, build and run
-	@echo "Performing full clean and run..."
-	$(GRADLE) deepClean spotlessApply check build bootRun
 
 # =============================================================================
 # DEVELOPMENT SETUP - Environment Preparation
@@ -137,21 +117,6 @@ quality-check: code-quality-full coverage ## Run comprehensive quality checks an
 	@echo "Quality check complete!"
 
 # =============================================================================
-# CLEANING TASKS - Different Levels of Cleanup
-# =============================================================================
-clean-frontend: ## Clean Vaadin frontend artifacts and caches
-	$(GRADLE) cleanFrontend
-
-clean-quick: ## Fast clean (Gradle build/ only). Preserves node_modules and Vaadin caches
-	$(GRADLE) cleanQuick
-
-deep-clean: ## Full clean including Vaadin artifacts and caches
-	$(GRADLE) deepClean
-
-vaadin-clean: ## Clean Vaadin project completely
-	$(GRADLE) vaadinClean
-
-# =============================================================================
 # TEST COVERAGE
 # =============================================================================
 coverage: ## Generate test coverage report
@@ -186,29 +151,3 @@ spotbugs: ## Run SpotBugs analysis for main and test classes
 
 checkstyle: ## Run Checkstyle analysis for main and test classes
 	$(GRADLE) checkstyleMain checkstyleTest
-
-# =============================================================================
-# CI/CD PIPELINE
-# =============================================================================
-ci: ## Clean, check and build (CI pipeline)
-	$(GRADLE) clean check build
-
-# =============================================================================
-# COMBINED WORKFLOWS - Advanced Development Patterns
-# =============================================================================
-dev-quality: dev-setup quality-check ## Setup dev environment and run quality checks
-	@echo "Development environment setup and quality check complete!"
-
-# =============================================================================
-# UTILITY TARGETS
-# =============================================================================
-# Kill any process using the app port
-kill-port: ## Kill any process using the application port
-	@kill -9 $$(lsof -t -i:$(APP_PORT)) 2>/dev/null || echo "No process found on port $(APP_PORT)"
-
-# Show current project status
-status: ## Show current project status
-	@echo "Project: flashcards"
-	@echo "Port: $(APP_PORT)"
-	@echo "Database: $$(if docker-compose ps postgres | grep -q "Up"; then echo "Running"; else echo "Stopped"; fi)"
-	@echo "Port $(APP_PORT): $$(if lsof -i:$(APP_PORT) >/dev/null 2>&1; then echo "In use"; else echo "Available"; fi)"
