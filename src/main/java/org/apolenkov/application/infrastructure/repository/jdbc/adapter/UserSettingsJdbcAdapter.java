@@ -30,6 +30,13 @@ public class UserSettingsJdbcAdapter implements UserSettingsRepository {
         this.jdbcTemplate = jdbcTemplateParam;
     }
 
+    /**
+     * Finds preferred locale code for the given user.
+     * This method can be safely overridden by subclasses.
+     *
+     * @param userId the user ID to find locale for
+     * @return optional locale code
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<String> findPreferredLocaleCode(final long userId) {
@@ -44,6 +51,13 @@ public class UserSettingsJdbcAdapter implements UserSettingsRepository {
         }
     }
 
+    /**
+     * Saves preferred locale code for the given user.
+     * This method can be safely overridden by subclasses.
+     *
+     * @param userId the user ID to save locale for
+     * @param localeCode the locale code to save
+     */
     @Override
     @Transactional
     public void savePreferredLocaleCode(final long userId, final String localeCode) {

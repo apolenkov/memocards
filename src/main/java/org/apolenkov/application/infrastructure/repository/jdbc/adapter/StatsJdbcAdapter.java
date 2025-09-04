@@ -36,6 +36,13 @@ public class StatsJdbcAdapter implements StatsRepository {
         this.jdbcTemplate = jdbcTemplateParam;
     }
 
+    /**
+     * Appends session statistics to daily stats.
+     * This method can be safely overridden by subclasses.
+     *
+     * @param sessionStats the session statistics to append
+     * @param date the date for the statistics
+     */
     @Override
     @Transactional
     public void appendSession(final SessionStatsDto sessionStats, final LocalDate date) {
@@ -88,6 +95,13 @@ public class StatsJdbcAdapter implements StatsRepository {
         }
     }
 
+    /**
+     * Gets daily statistics for a deck.
+     * This method can be safely overridden by subclasses.
+     *
+     * @param deckId the deck ID to get stats for
+     * @return list of daily statistics records
+     */
     @Override
     @Transactional(readOnly = true)
     public List<DailyStatsRecord> getDailyStats(final long deckId) {
@@ -104,7 +118,7 @@ public class StatsJdbcAdapter implements StatsRepository {
              FROM deck_daily_stats
              WHERE deck_id = ?
              ORDER BY date DESC
-             """;
+            """;
 
         return jdbcTemplate.query(
                 sql,
@@ -119,6 +133,13 @@ public class StatsJdbcAdapter implements StatsRepository {
                 deckId);
     }
 
+    /**
+     * Gets known card IDs for a deck.
+     * This method can be safely overridden by subclasses.
+     *
+     * @param deckId the deck ID to get known cards for
+     * @return set of known card IDs
+     */
     @Override
     @Transactional(readOnly = true)
     public Set<Long> getKnownCardIds(final long deckId) {
@@ -134,6 +155,14 @@ public class StatsJdbcAdapter implements StatsRepository {
         return new HashSet<>(jdbcTemplate.queryForList(sql, Long.class, deckId));
     }
 
+    /**
+     * Sets card known status for a deck.
+     * This method can be safely overridden by subclasses.
+     *
+     * @param deckId the deck ID
+     * @param cardId the card ID
+     * @param known whether the card is known
+     */
     @Override
     @Transactional
     public void setCardKnown(final long deckId, final long cardId, final boolean known) {
@@ -160,6 +189,12 @@ public class StatsJdbcAdapter implements StatsRepository {
         }
     }
 
+    /**
+     * Resets progress for a deck.
+     * This method can be safely overridden by subclasses.
+     *
+     * @param deckId the deck ID to reset progress for
+     */
     @Override
     @Transactional
     public void resetDeckProgress(final long deckId) {
@@ -177,6 +212,14 @@ public class StatsJdbcAdapter implements StatsRepository {
         jdbcTemplate.update(deleteKnownCardsSql, deckId);
     }
 
+    /**
+     * Gets aggregates for multiple decks.
+     * This method can be safely overridden by subclasses.
+     *
+     * @param deckIds collection of deck IDs
+     * @param today the date for today's statistics
+     * @return map of deck ID to aggregate statistics
+     */
     @Override
     @Transactional(readOnly = true)
     public Map<Long, DeckAggregate> getAggregatesForDecks(final Collection<Long> deckIds, final LocalDate today) {
