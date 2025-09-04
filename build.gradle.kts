@@ -312,4 +312,3 @@ tasks.named("npmInstall") {
 }
 
 apply(from = "gradle/code_quality/check_code.gradle.kts")
-apply(from = "gradle/clean.gradle.kts")
