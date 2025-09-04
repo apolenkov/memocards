@@ -43,6 +43,12 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
         this.jdbcTemplate = jdbcTemplateParam;
     }
 
+    /**
+     * Saves password reset token to database.
+     * This method can be safely overridden by subclasses.
+     *
+     * @param token the token to save
+     */
     @Override
     @Transactional
     public void save(final PasswordResetToken token) {
@@ -59,6 +65,13 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
         }
     }
 
+    /**
+     * Finds password reset token by token string.
+     * This method can be safely overridden by subclasses.
+     *
+     * @param token the token string to find
+     * @return optional password reset token
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<PasswordResetToken> findByToken(final String token) {
@@ -73,6 +86,13 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
         }
     }
 
+    /**
+     * Finds unused password reset token for user.
+     * This method can be safely overridden by subclasses.
+     *
+     * @param userId the user ID to find token for
+     * @return optional unused password reset token
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<PasswordResetToken> findByUserIdAndNotUsed(final long userId) {
@@ -88,6 +108,10 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
         }
     }
 
+    /**
+     * Deletes expired password reset tokens.
+     * This method can be safely overridden by subclasses.
+     */
     @Override
     @Transactional
     public void deleteExpiredTokens() {
@@ -96,6 +120,12 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
         jdbcTemplate.update(sql, LocalDateTime.now());
     }
 
+    /**
+     * Marks password reset token as used.
+     * This method can be safely overridden by subclasses.
+     *
+     * @param id the token ID to mark as used
+     */
     @Override
     @Transactional
     public void markAsUsed(final long id) {
