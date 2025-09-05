@@ -311,4 +311,54 @@ tasks.named("npmInstall") {
     outputs.dir("node_modules")
 }
 
-apply(from = "gradle/code_quality/check_code.gradle.kts")
+tasks.register("codeQuality") {
+    description = "Runs core code quality checks (SonarLint, SpotBugs, Checkstyle)"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+
+    dependsOn(
+        "sonarlintMain",
+        "sonarlintTest",
+        "spotbugsMain",
+        "spotbugsTest",
+        "checkstyleMain",
+        "checkstyleTest",
+    )
+}
+
+tasks.register("lintCss") {
+    description = "Run stylelint for CSS in themes"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn("npmInstall")
+    mustRunAfter("vaadinPrepareFrontend")
+    doLast {
+        exec {
+            workingDir = project.projectDir
+            commandLine("npm", "run", "lint:css")
+        }
+    }
+}
+
+tasks.register("lintCssFix") {
+    description = "Run stylelint --fix for CSS in themes"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn("npmInstall")
+    mustRunAfter("vaadinPrepareFrontend")
+    doLast {
+        exec {
+            workingDir = project.projectDir
+            commandLine("npm", "run", "lint:css:fix")
+        }
+    }
+}
+
+// Complete code quality check (everything)
+tasks.register("codeQualityFull") {
+    description = "Runs all code quality checks including CSS linting and i18n"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+
+    dependsOn(
+        "codeQuality",
+        "codeQualityI18n",
+        "lintCss",
+    )
+}
