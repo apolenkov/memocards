@@ -1,9 +1,9 @@
 package org.apolenkov.application.service.deck;
 
+import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.apolenkov.application.config.constants.TransactionAnnotations;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.domain.port.FlashcardRepository;
@@ -12,8 +12,6 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import jakarta.validation.Validator;
 
 /**
  * Service implementation for deck-related business operations.

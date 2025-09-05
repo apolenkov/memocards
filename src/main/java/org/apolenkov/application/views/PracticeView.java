@@ -264,8 +264,13 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             return;
         }
         var p = presenter.progress(session);
+        // Calculate progress based on completed cards, not current position
+        int completedCards = p.totalViewed();
+        int totalCards = p.total();
+        int percent = totalCards > 0 ? Math.round((float) completedCards / totalCards * 100) : 0;
+
         statsSpan.setText(getTranslation(
-                "practice.progressLine", p.current(), p.total(), p.totalViewed(), p.correct(), p.hard(), p.percent()));
+                "practice.progressLine", p.current(), p.total(), p.totalViewed(), p.correct(), p.hard(), percent));
     }
 
     private String getQuestionText(final Flashcard card) {
@@ -350,6 +355,10 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         totalViewed = session.getTotalViewed();
         correctCount = session.getCorrectCount();
         hardCount = session.getHardCount();
+
+        // Update progress display immediately after marking
+        updateProgress();
+
         knowButton.setVisible(false);
         hardButton.setVisible(false);
         nextCard();
