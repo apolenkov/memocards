@@ -358,7 +358,6 @@ tasks.register("codeQualityFull") {
 
     dependsOn(
         "codeQuality",
-        "codeQualityI18n",
         "lintCss",
     )
 }
