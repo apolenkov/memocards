@@ -3,20 +3,14 @@ spring:
     name: flashcards
   profiles:
     active: dev
+  output:
+    ansi:
+      enabled: ALWAYS
 
-# Logging configuration
+# Logging configuration - levels defined in logback-spring.xml
 logging:
-  level:
-    org.apolenkov.application: INFO
-    org.springframework.security: INFO
-    com.vaadin: WARN
-    org.springframework.jdbc: DEBUG
-    org.springframework.jdbc.core.JdbcTemplate: DEBUG
-    # Suppress Tomcat session loading errors
-    "org.apache.catalina.session.StandardManager": WARN
   pattern:
-    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] - %msg%n"
 
 vaadin:
   launch-browser: true
@@ -26,11 +20,8 @@ vaadin:
 server:
   servlet:
     session:
-      # Disable persistent session storage to avoid loading errors
       persistent: false
-      # Session timeout in minutes (30 minutes)
       timeout: 30m
-  # Tomcat configuration
   tomcat:
     threads:
       max: 200
@@ -53,7 +44,6 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
-      # PostgreSQL optimizations
       data-source-properties:
         cachePrepStmts: true
         prepStmtCacheSize: 250
@@ -89,7 +79,6 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
-      # PostgreSQL optimizations
       data-source-properties:
         cachePrepStmts: true
         prepStmtCacheSize: 250
@@ -107,7 +96,3 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-  logging:
-    level:
-      org.springframework.jdbc: WARN
-      org.springframework.jdbc.core.JdbcTemplate: WARN
