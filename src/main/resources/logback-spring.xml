@@ -1,193 +1,154 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- Definition of log path variables -->
     <property name="LOG_PATH" value="logs"/>
-    <property name="LOG_ARCHIVE" value="${LOG_PATH}/archive"/>
     
-    <!-- Console appender for development - only errors -->
-    <springProfile name="dev">
-        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-                <level>ERROR</level>
-            </filter>
-            <encoder>
-                <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-            </encoder>
-        </appender>
-    </springProfile>
+    <!-- Console appender with professional color highlighting -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%15.15thread] %highlight(%-5level) %cyan(%-50.50logger{49}) [%yellow(%X{requestId:-})] [%blue(%X{userId:-})] : %m%n%ex</pattern>
+        </encoder>
+    </appender>
     
-    <!-- File appender for all logs -->
+    <!-- Async file appender for better performance -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+        <queueSize>1024</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+    </appender>
+    
+    <!-- Main application log file -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/application.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_ARCHIVE}/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/archive/application.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
             <maxHistory>30</maxHistory>
             <totalSizeCap>3GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] - %msg%n</pattern>
         </encoder>
     </appender>
     
-    <!-- File appender for errors -->
-    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/error.log</file>
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>ERROR</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
+    <!-- SQL queries log (separate from main log) -->
+    <appender name="SQL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/sql.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_ARCHIVE}/error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>100MB</maxFileSize>
-            <maxHistory>30</maxHistory>
+            <fileNamePattern>${LOG_PATH}/archive/sql.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>7</maxHistory>
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] - %msg%n</pattern>
         </encoder>
     </appender>
     
-    <!-- File appender for critical errors (duplication) -->
-    <appender name="CRITICAL_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/critical-errors.log</file>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>ERROR</level>
-        </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_ARCHIVE}/critical-errors.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>50MB</maxFileSize>
+    <!-- Security events log -->
+    <appender name="SECURITY_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/security.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/archive/security.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
             <maxHistory>90</maxHistory>
             <totalSizeCap>2GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n%ex{full}</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%X{requestId:-}] [%X{userId:-}] - %msg%n%ex{full}</pattern>
         </encoder>
     </appender>
     
-    <!-- File appender for SQL queries -->
-    <appender name="SQL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/sql.log</file>
+    <!-- Errors and warnings log -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/errors.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_ARCHIVE}/sql.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/archive/errors.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
             <maxHistory>30</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%X{requestId:-}] [%X{userId:-}] - %msg%n%ex{full}</pattern>
+        </encoder>
+    </appender>
+    
+    <!-- Warnings log -->
+    <appender name="WARN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/warnings.log</file>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/archive/warnings.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>7</maxHistory>
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] - %msg%n</pattern>
         </encoder>
     </appender>
     
-    <!-- File appender for security -->
-    <appender name="SECURITY_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/security.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_ARCHIVE}/security.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>100MB</maxFileSize>
-            <maxHistory>30</maxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
+    <!-- Audit log for security and business events -->
+    <appender name="AUDIT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/audit.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/archive/audit.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <maxHistory>365</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] - %msg%n</pattern>
         </encoder>
     </appender>
     
-    <!-- Logger for SQL queries -->
-    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
-        <appender-ref ref="SQL_FILE"/>
-        <appender-ref ref="FILE"/>
+    <!-- Application logger - only application logs -->
+    <logger name="org.apolenkov.application" level="INFO" additivity="false">
+        <appender-ref ref="ASYNC_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
     
-    <!-- Hibernate 6: parameter binding/extraction loggers -->
-    <logger name="org.hibernate.orm.jdbc.bind" level="TRACE" additivity="false">
-        <appender-ref ref="SQL_FILE"/>
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-    </logger>
-
-    <logger name="org.hibernate.orm.jdbc.extract" level="DEBUG" additivity="false">
-        <appender-ref ref="SQL_FILE"/>
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-    </logger>
-
-    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
-        <appender-ref ref="SQL_FILE"/>
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
+    <!-- Audit logger - security and business events -->
+    <logger name="org.apolenkov.application.audit" level="INFO" additivity="false">
+        <appender-ref ref="AUDIT_FILE"/>
+        <appender-ref ref="ASYNC_FILE"/>
     </logger>
     
-    <!-- Logger for security -->
+    <!-- Security logger - authentication and authorization -->
     <logger name="org.springframework.security" level="INFO" additivity="false">
         <appender-ref ref="SECURITY_FILE"/>
-        <appender-ref ref="FILE"/>
+        <appender-ref ref="ASYNC_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
-        <appender-ref ref="CRITICAL_ERROR_FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
     
-    <!-- Logger for application -->
-    <logger name="org.apolenkov.application" level="INFO" additivity="false">
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-        <appender-ref ref="CRITICAL_ERROR_FILE"/>
+    <!-- JDBC SQL logger - separate from main logs -->
+    <logger name="org.springframework.jdbc.core.JdbcTemplate" level="DEBUG" additivity="false">
+        <appender-ref ref="SQL_FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
     
-    <!-- Logger for Spring Framework -->
-    <logger name="org.springframework" level="INFO" additivity="false">
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-        <appender-ref ref="CRITICAL_ERROR_FILE"/>
+    <!-- Vaadin logger - reduce noise -->
+    <logger name="com.vaadin" level="WARN" additivity="false">
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="WARN_FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
     
-    <!-- Logger for Hibernate -->
-    <logger name="org.hibernate" level="INFO" additivity="false">
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-        <appender-ref ref="CRITICAL_ERROR_FILE"/>
+    <!-- Suppress Tomcat session loading errors -->
+    <logger name="org.apache.catalina.session.StandardManager" level="WARN" additivity="false">
+        <appender-ref ref="WARN_FILE"/>
     </logger>
     
-    <!-- Logger for Vaadin -->
-    <logger name="com.vaadin" level="INFO" additivity="false">
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-        <appender-ref ref="CRITICAL_ERROR_FILE"/>
-    </logger>
-    
-    <!-- Logger for system errors and exceptions -->
-    <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="ERROR" additivity="false">
-        <appender-ref ref="CRITICAL_ERROR_FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-        <appender-ref ref="FILE"/>
-    </logger>
-    
-    <!-- Logger for transaction errors -->
-    <logger name="org.springframework.transaction" level="ERROR" additivity="false">
-        <appender-ref ref="CRITICAL_ERROR_FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-        <appender-ref ref="FILE"/>
-    </logger>
-    
-    <!-- Logger for database errors -->
-    <logger name="org.springframework.jdbc" level="ERROR" additivity="false">
-        <appender-ref ref="CRITICAL_ERROR_FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-        <appender-ref ref="FILE"/>
-    </logger>
-    
-    <!-- Root logger -->
+    <!-- Root logger - minimal output -->
     <root level="INFO">
-        <appender-ref ref="FILE"/>
+        <appender-ref ref="ASYNC_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
-        <appender-ref ref="CRITICAL_ERROR_FILE"/>
     </root>
-    
-    <!-- Dev profile - console output (only errors) -->
-    <springProfile name="dev">
-        <root level="INFO">
-            <appender-ref ref="CONSOLE"/>
-        </root>
-    </springProfile>
 </configuration>

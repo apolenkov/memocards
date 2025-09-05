@@ -1,21 +1,28 @@
 package org.apolenkov.application.service.deck;
 
-import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.apolenkov.application.config.constants.TransactionAnnotations;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import jakarta.validation.Validator;
 
 /**
  * Service implementation for deck-related business operations.
  */
 @Service
 public class DeckUseCaseService implements DeckUseCase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeckUseCaseService.class);
+    private static final Logger AUDIT_LOG = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     private final DeckRepository deckRepository;
     private final FlashcardRepository flashcardRepository;
@@ -56,7 +63,10 @@ public class DeckUseCaseService implements DeckUseCase {
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
     public List<Deck> getAllDecks() {
-        return deckRepository.findAll();
+        LOGGER.debug("Retrieving all decks");
+        List<Deck> decks = deckRepository.findAll();
+        LOGGER.info("Retrieved {} decks from database", decks.size());
+        return decks;
     }
 
     /**
@@ -69,7 +79,10 @@ public class DeckUseCaseService implements DeckUseCase {
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
     public List<Deck> getDecksByUserId(final long userId) {
-        return deckRepository.findByUserId(userId);
+        LOGGER.debug("Retrieving decks for user {}", userId);
+        List<Deck> decks = deckRepository.findByUserId(userId);
+        LOGGER.info("Retrieved {} decks for user {}", decks.size(), userId);
+        return decks;
     }
 
     /**
@@ -82,7 +95,14 @@ public class DeckUseCaseService implements DeckUseCase {
     @Override
     @TransactionAnnotations.ReadOnlyTransaction
     public Optional<Deck> getDeckById(final long id) {
-        return deckRepository.findById(id);
+        LOGGER.debug("Retrieving deck with ID {}", id);
+        Optional<Deck> deck = deckRepository.findById(id);
+        if (deck.isPresent()) {
+            LOGGER.info("Deck {} found successfully", id);
+        } else {
+            LOGGER.debug("Deck {} not found", id);
+        }
+        return deck;
     }
 
     /**
@@ -100,14 +120,36 @@ public class DeckUseCaseService implements DeckUseCase {
             throw new IllegalArgumentException("The object to be validated must not be null");
         }
 
+        LOGGER.debug("Saving deck: title='{}', userId={}", deck.getTitle(), deck.getUserId());
+
         var violations = validator.validate(deck);
         if (!violations.isEmpty()) {
             String message = violations.stream()
                     .map(v -> v.getPropertyPath() + " " + v.getMessage())
                     .collect(Collectors.joining(", "));
+            LOGGER.warn("Deck validation failed: {}", message);
             throw new IllegalArgumentException("Validation failed: " + message);
         }
-        return deckRepository.save(deck);
+
+        Deck savedDeck = deckRepository.save(deck);
+
+        // Log business event
+        LOGGER.info(
+                "Deck saved: id={}, title='{}', userId={}, isNew={}",
+                savedDeck.getId(),
+                savedDeck.getTitle(),
+                savedDeck.getUserId(),
+                deck.getId() == null);
+
+        // Audit log
+        AUDIT_LOG.info(
+                "Deck {}: title='{}', userId={}, isNew={}",
+                savedDeck.getId(),
+                savedDeck.getTitle(),
+                savedDeck.getUserId(),
+                deck.getId() == null);
+
+        return savedDeck;
     }
 
     /**
@@ -120,9 +162,29 @@ public class DeckUseCaseService implements DeckUseCase {
     @Override
     @TransactionAnnotations.DeleteTransaction
     public void deleteDeck(final long id) {
+        LOGGER.debug("Deleting deck with ID {}", id);
+
+        // Get deck info before deletion for logging
+        Optional<Deck> deckOpt = deckRepository.findById(id);
+        if (deckOpt.isEmpty()) {
+            LOGGER.warn("Attempted to delete non-existent deck {}", id);
+            return;
+        }
+
+        Deck deck = deckOpt.get();
+        LOGGER.info("Deleting deck '{}' (ID: {}) for user {}", deck.getTitle(), id, deck.getUserId());
+
         // Delete associated flashcards first to maintain referential integrity
         flashcardRepository.deleteByDeckId(id);
+        LOGGER.debug("Deleted flashcards for deck {}", id);
+
         // Then delete the deck itself
         deckRepository.deleteById(id);
+
+        // Log business event
+        LOGGER.info("Deck deleted: id={}, title='{}', userId={}", id, deck.getTitle(), deck.getUserId());
+
+        // Audit log
+        AUDIT_LOG.warn("Deck deleted: id={}, title='{}', userId={}", id, deck.getTitle(), deck.getUserId());
     }
 }
