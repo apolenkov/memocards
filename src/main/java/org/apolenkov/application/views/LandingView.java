@@ -12,6 +12,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.service.NewsService;
 import org.apolenkov.application.views.utils.ButtonHelper;
@@ -28,15 +29,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @AnonymousAllowed
 public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
+    private final transient NewsService newsService;
+
     /**
      * Creates a new LandingView with news service dependency.
-     * Creates the complete landing page layout including hero section,
-     * news updates, and dynamic action buttons. The layout automatically
-     * adjusts based on the user's authentication status.
      *
-     * @param newsService service for retrieving and displaying news content
+     * @param service service for retrieving and displaying news content
      */
-    public LandingView(final NewsService newsService) {
+    public LandingView(final NewsService service) {
+        this.newsService = service;
+    }
+
+    /**
+     * Initializes the view components after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    private void init() {
         setSpacing(true);
         setPadding(true);
         setWidthFull();
@@ -98,7 +108,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         newsTitle.addClassName("landing-news__title");
         newsSection.add(newsTitle);
 
-        Div newsList = createNewsList(newsService);
+        Div newsList = createNewsList();
         newsSection.add(newsList);
 
         Div heroSection = new Div();
@@ -114,10 +124,9 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
     /**
      * Creates a news list container with all news cards.
      *
-     * @param newsService service for retrieving news items
      * @return a Div containing all news cards
      */
-    private Div createNewsList(final NewsService newsService) {
+    private Div createNewsList() {
         Div newsList = new Div();
         newsList.addClassName("landing-news__list");
 

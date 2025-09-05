@@ -26,6 +26,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +74,15 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     public DeckView(final DeckPresenter deckPresenter, final DeckFacade facade) {
         this.presenter = deckPresenter;
         this.deckFacade = facade;
+    }
 
+    /**
+     * Initializes the view components after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    private void init() {
         getContent().setWidthFull();
         getContent().setPadding(true);
         getContent().setSpacing(true);

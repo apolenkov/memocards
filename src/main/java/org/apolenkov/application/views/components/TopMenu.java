@@ -9,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.spring.annotation.UIScope;
+import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import org.apolenkov.application.config.constants.RouteConstants;
@@ -41,14 +42,13 @@ public class TopMenu extends HorizontalLayout {
     private static final String DATA_TEST_ID_ATTRIBUTE = "data-test-id";
 
     private final List<MenuButton> menuButtons = new ArrayList<>();
-    private final Anchor title;
+    private Anchor title;
 
     private final transient UserUseCase userUseCase;
     private final transient PracticeSettingsService practiceSettingsService;
 
     /**
      * Creates a new TopMenu with required dependencies.
-     * Initializes the menu with application logo, title, and navigation buttons.
      *
      * @param useCase service for user operations and current user information
      * @param settingsService service for practice session configuration
@@ -56,6 +56,15 @@ public class TopMenu extends HorizontalLayout {
     public TopMenu(final UserUseCase useCase, final PracticeSettingsService settingsService) {
         this.userUseCase = useCase;
         this.practiceSettingsService = settingsService;
+    }
+
+    /**
+     * Initializes the menu components after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    private void init() {
         setWidthFull();
         setPadding(true);
         setSpacing(true);

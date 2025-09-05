@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.components;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -40,6 +41,18 @@ public class CreateDeckDialog extends Dialog {
         this.deckFacade = facade;
         this.userUseCase = useCase;
         this.onCreated = createdCallback;
+    }
+
+    /**
+     * Initializes the dialog components when the component is attached to the UI.
+     * This method is called by Vaadin when the component is added to the component tree.
+     *
+     * @param attachEvent the attaching event
+     */
+    @Override
+    protected void onAttach(final AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+
         addClassName("dialog-md");
         build();
     }

@@ -12,6 +12,8 @@ logging:
     com.vaadin: WARN
     org.springframework.jdbc: DEBUG
     org.springframework.jdbc.core.JdbcTemplate: DEBUG
+    # Suppress Tomcat session loading errors
+    "org.apache.catalina.session.StandardManager": WARN
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
@@ -19,6 +21,20 @@ logging:
 vaadin:
   launch-browser: true
   allowed-packages: com.vaadin,org.vaadin,com.flowingcode,org.apolenkov.application
+
+# Server configuration
+server:
+  servlet:
+    session:
+      # Disable persistent session storage to avoid loading errors
+      persistent: false
+      # Session timeout in minutes (30 minutes)
+      timeout: 30m
+  # Tomcat configuration
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
 
 ---
 # Development Profile

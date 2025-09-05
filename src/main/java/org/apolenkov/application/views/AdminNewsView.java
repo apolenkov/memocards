@@ -14,6 +14,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
     private static final String COL_UPDATED_AT = "updatedAt";
 
     private final transient NewsService newsService;
-    private final transient ListDataProvider<News> dataProvider;
+    private ListDataProvider<News> dataProvider;
     private final transient List<News> newsList;
 
     /**
@@ -57,7 +58,15 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
 
         this.newsService = service;
         this.newsList = new ArrayList<>();
+    }
 
+    /**
+     * Initializes the view components after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    private void init() {
         setPadding(true);
         setSpacing(true);
         addClassName("admin-view");

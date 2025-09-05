@@ -11,6 +11,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.AuthFacade;
 import org.apolenkov.application.views.utils.ButtonHelper;
@@ -52,12 +53,24 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         }
     }
 
+    private final transient AuthFacade authFacade;
+
     /**
      * Creates a new LoginView with authentication facade dependency.
      *
-     * @param authFacade service for handling user authentication
+     * @param facade service for handling user authentication
      */
-    public LoginView(final AuthFacade authFacade) {
+    public LoginView(final AuthFacade facade) {
+        this.authFacade = facade;
+    }
+
+    /**
+     * Initializes the view components after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    private void init() {
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();
         wrapper.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);

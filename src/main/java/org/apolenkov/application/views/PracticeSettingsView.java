@@ -10,6 +10,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.PracticeDirection;
@@ -24,12 +25,24 @@ import org.apolenkov.application.service.PracticeSettingsService;
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class PracticeSettingsView extends VerticalLayout implements HasDynamicTitle {
 
+    private final transient PracticeSettingsService practiceSettingsService;
+
     /**
      * Creates a new practice settings view.
      *
-     * @param practiceSettingsService service for managing practice settings
+     * @param service service for managing practice settings
      */
-    public PracticeSettingsView(final PracticeSettingsService practiceSettingsService) {
+    public PracticeSettingsView(final PracticeSettingsService service) {
+        this.practiceSettingsService = service;
+    }
+
+    /**
+     * Initializes the view components after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    private void init() {
         setPadding(true);
         setSpacing(true);
 
