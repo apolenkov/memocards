@@ -86,17 +86,14 @@ test: ## Run unit tests
 code-quality: ## Run all code quality checks (SonarLint, SpotBugs, Checkstyle)
 	$(GRADLE) codeQuality
 
-code-quality-chars: ## Run character-based quality checks (non-English, i18n, translations)
-	$(GRADLE) codeQualityChars
-
-code-quality-full: ## Run all code quality checks including CSS linting
-	$(GRADLE) codeQualityFull
-
 lint-css: ## Run CSS linter (stylelint via Gradle)
 	$(GRADLE) lintCss
 
 lint-css-fix: ## Run CSS linter with auto-fix
 	$(GRADLE) lintCssFix
+
+code-quality-full: ## Run all code quality checks including CSS linting
+	$(GRADLE) codeQualityFull
 
 # =============================================================================
 # CODE FORMATTING & STYLE
