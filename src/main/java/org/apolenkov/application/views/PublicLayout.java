@@ -5,6 +5,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.views.components.LanguageSwitcher;
 import org.apolenkov.application.views.components.TopMenu;
 
@@ -19,8 +20,6 @@ public class PublicLayout extends AppLayout {
 
     /**
      * Creates a new PublicLayout with required components.
-     * Initializes the layout with language switcher and top menu components,
-     * setting up the primary navigation section and header content.
      *
      * @param languageSwitcherValue component for language selection
      * @param topMenuValue component for top navigation and user menu
@@ -28,6 +27,15 @@ public class PublicLayout extends AppLayout {
     public PublicLayout(final LanguageSwitcher languageSwitcherValue, final TopMenu topMenuValue) {
         this.languageSwitcher = languageSwitcherValue;
         this.topMenu = topMenuValue;
+    }
+
+    /**
+     * Initializes the layout components after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    private void init() {
         setPrimarySection(Section.NAVBAR);
         addHeaderContent();
     }

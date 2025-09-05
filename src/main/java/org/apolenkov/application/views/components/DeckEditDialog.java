@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.components;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -29,8 +30,6 @@ public class DeckEditDialog extends Dialog {
 
     /**
      * Creates a new DeckEditDialog for the specified deck.
-     * Initializes the dialog with the deck's current information
-     * and sets up the form layout with appropriate validation rules.
      *
      * @param facade service for deck operations and persistence
      * @param deckValue the deck object to edit
@@ -40,6 +39,18 @@ public class DeckEditDialog extends Dialog {
         this.deckFacade = facade;
         this.deck = deckValue;
         this.onSaved = savedCallback;
+    }
+
+    /**
+     * Initializes the dialog components when the component is attached to the UI.
+     * This method is called by Vaadin when the component is added to the component tree.
+     *
+     * @param attachEvent the attaching event
+     */
+    @Override
+    protected void onAttach(final AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+
         addClassName("dialog-md");
         build();
     }

@@ -9,6 +9,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.List;
 import org.apolenkov.application.config.security.SecurityConstants;
@@ -39,13 +40,10 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
     private final transient HomePresenter homePresenter;
     private final transient DeckFacade deckFacade;
     private final transient UserUseCase userUseCase;
-    private final VerticalLayout deckList;
+    private VerticalLayout deckList;
 
     /**
      * Creates a new DecksView with required dependencies.
-     * Creates a complete deck management interface with search functionality,
-     * deck listing, and creation capabilities. The view is configured with
-     * proper styling and responsive layout for optimal user experience.
      *
      * @param homePresenterValue service for home page operations and deck listing
      * @param deckFacadeValue service for deck management operations
@@ -58,7 +56,15 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         this.homePresenter = homePresenterValue;
         this.deckFacade = deckFacadeValue;
         this.userUseCase = userUseCaseValue;
+    }
 
+    /**
+     * Initializes the view components after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    private void init() {
         setPadding(false);
         setSpacing(false);
         addClassName("decks-view");

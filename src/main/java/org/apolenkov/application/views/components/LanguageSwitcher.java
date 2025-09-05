@@ -10,6 +10,7 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.spring.annotation.UIScope;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,8 +38,6 @@ public class LanguageSwitcher extends HorizontalLayout {
 
     /**
      * Creates a new LanguageSwitcher with required dependencies.
-     * Initializes the language selection interface with a dropdown containing
-     * available languages and sets up event listeners for language changes.
      *
      * @param useCase service for user operations and current user information
      * @param settingsService service for persisting user preferences
@@ -46,6 +45,15 @@ public class LanguageSwitcher extends HorizontalLayout {
     public LanguageSwitcher(final UserUseCase useCase, final UserSettingsService settingsService) {
         this.userUseCase = useCase;
         this.userSettingsService = settingsService;
+    }
+
+    /**
+     * Initializes the language selection interface after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    private void init() {
         setSpacing(true);
         setPadding(false);
         setAlignItems(Alignment.CENTER);

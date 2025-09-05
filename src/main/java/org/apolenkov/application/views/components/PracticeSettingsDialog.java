@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.components;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
@@ -19,14 +20,27 @@ import org.apolenkov.application.service.PracticeSettingsService;
  */
 public class PracticeSettingsDialog extends Dialog {
 
+    private final transient PracticeSettingsService practiceSettingsService;
+
     /**
      * Creates a new PracticeSettingsDialog.
-     * Creates and configures all UI components for practice settings,
-     * including form fields, validation, and event handlers.
      *
-     * @param practiceSettingsService service for managing practice settings
+     * @param service service for managing practice settings
      */
-    public PracticeSettingsDialog(final PracticeSettingsService practiceSettingsService) {
+    public PracticeSettingsDialog(final PracticeSettingsService service) {
+        this.practiceSettingsService = service;
+    }
+
+    /**
+     * Initializes the dialog components when the component is attached to the UI.
+     * This method is called by Vaadin when the component is added to the component tree.
+     *
+     * @param attachEvent the attaching event
+     */
+    @Override
+    protected void onAttach(final AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+
         addClassName("dialog-md");
 
         // Create main layout with proper spacing and padding

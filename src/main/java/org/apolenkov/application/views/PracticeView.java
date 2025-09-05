@@ -1,6 +1,5 @@
 package org.apolenkov.application.views;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,6 +16,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +51,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private transient Deck currentDeck;
     private transient PracticePresenter.Session session;
 
-    private boolean autoStartAttempted = false;
     private boolean noCardsNotified = false;
 
     // session stats
@@ -79,7 +78,15 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     public PracticeView(final FlashcardUseCase useCase, final PracticePresenter practicePresenter) {
         this.flashcardUseCase = useCase;
         this.presenter = practicePresenter;
+    }
 
+    /**
+     * Initializes the view components after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    private void init() {
         getContent().setWidthFull();
         getContent().setPadding(true);
         getContent().setSpacing(true);
@@ -122,27 +129,12 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         try {
             long deckId = Long.parseLong(parameter);
             loadDeck(deckId);
-            if (currentDeck != null && !autoStartAttempted) {
-                autoStartAttempted = true;
+            if (currentDeck != null) {
                 startDefaultPractice();
             }
         } catch (NumberFormatException e) {
             NotificationHelper.showError(getTranslation("practice.invalidId"));
             NavigationHelper.navigateToError(RouteConstants.DECKS_ROUTE);
-        }
-    }
-
-    /**
-     * Handles component attachment and auto-starts practice if deck is loaded.
-     *
-     * @param attachEvent the attachment event
-     */
-    @Override
-    protected void onAttach(final AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        if (currentDeck != null && !autoStartAttempted) {
-            autoStartAttempted = true;
-            startDefaultPractice();
         }
     }
 

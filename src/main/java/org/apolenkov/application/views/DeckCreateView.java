@@ -14,6 +14,7 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.Deck;
@@ -41,9 +42,6 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
     /**
      * Creates a new deck creation view.
-     * Initializes the view with proper layout and styling, creating
-     * the header with navigation controls and the main form for deck creation.
-     * The view is configured with responsive design and proper spacing.
      *
      * @param deckUseCaseValue deck business logic for saving new decks
      * @param userUseCaseValue user business logic for current user operations
@@ -51,7 +49,15 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
     public DeckCreateView(final DeckUseCase deckUseCaseValue, final UserUseCase userUseCaseValue) {
         this.deckUseCase = deckUseCaseValue;
         this.userUseCase = userUseCaseValue;
+    }
 
+    /**
+     * Initializes the view components after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    private void init() {
         getContent().setWidthFull();
         getContent().setPadding(true);
         getContent().setSpacing(true);

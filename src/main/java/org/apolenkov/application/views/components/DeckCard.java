@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.components;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -24,12 +25,22 @@ public class DeckCard extends Div {
 
     /**
      * Creates a new DeckCard with the specified view model.
-     * Initializes the card with deck data and sets up the complete user interface.
      *
      * @param model the view model containing deck data to display
      */
     public DeckCard(final DeckCardViewModel model) {
         this.viewModel = model;
+    }
+
+    /**
+     * Initializes the card components when the component is attached to the UI.
+     * This method is called by Vaadin when the component is added to the component tree.
+     *
+     * @param attachEvent the attaching event
+     */
+    @Override
+    protected void onAttach(final AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
 
         add(buildContent());
         addClickListener(e -> navigateToDeck());

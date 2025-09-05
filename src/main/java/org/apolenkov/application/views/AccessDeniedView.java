@@ -5,6 +5,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.PostConstruct;
 
 /**
  * View component for displaying access denied (403 Forbidden) errors.
@@ -18,6 +19,16 @@ public class AccessDeniedView extends VerticalLayout implements HasDynamicTitle 
      * Creates AccessDeniedView with localized error heading and simple layout.
      */
     public AccessDeniedView() {
+        // Constructor only - no UI initialization here
+    }
+
+    /**
+     * Initializes the view components after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    private void init() {
         add(new H2(getTranslation("error.403")));
     }
 
