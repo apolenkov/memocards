@@ -15,11 +15,14 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import org.apolenkov.application.config.constants.RouteConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
 /**
@@ -31,8 +34,12 @@ import org.springframework.core.env.Environment;
 @AnonymousAllowed
 public final class ErrorView extends VerticalLayout implements HasDynamicTitle, BeforeEnterObserver {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ErrorView.class);
     private final transient Environment environment;
+
     private String fromRoute;
+    private String errorType;
+    private String errorMessage;
 
     /**
      * Creates a new error view.
@@ -41,6 +48,10 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
      */
     public ErrorView(final Environment env) {
         this.environment = env;
+    }
+
+    @PostConstruct
+    private void initializeUI() {
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
@@ -61,23 +72,19 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
 
         Button goHome = new Button(getTranslation("main.gohome"));
         goHome.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        goHome.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(RouteConstants.DECKS_ROUTE)));
+        goHome.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(RouteConstants.HOME_ROUTE)));
 
-        Button reload = new Button(getTranslation("error.reload"));
-        reload.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        reload.addClickListener(e -> getUI().ifPresent(ui -> ui.getPage().reload()));
+        Button tryAgain = new Button(getTranslation("error.tryAgain"));
+        tryAgain.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        tryAgain.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(fromRoute)));
 
-        HorizontalLayout buttons = new HorizontalLayout(goHome, reload);
+        HorizontalLayout buttons = new HorizontalLayout(goHome, tryAgain);
         buttons.setSpacing(true);
         buttons.setAlignItems(Alignment.CENTER);
         buttons.setJustifyContentMode(JustifyContentMode.CENTER);
 
         errorContainer.add(title, description, buttons);
         add(errorContainer);
-
-        if (isDevProfile()) {
-            addDevInfo();
-        }
     }
 
     @Override
@@ -86,23 +93,25 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
         QueryParameters queryParams = location.getQueryParameters();
         fromRoute =
                 queryParams.getParameters().getOrDefault("from", List.of("")).getFirst();
+        errorType =
+                queryParams.getParameters().getOrDefault("error", List.of("")).getFirst();
+        errorMessage =
+                queryParams.getParameters().getOrDefault("message", List.of("")).getFirst();
 
-        if (!fromRoute.isEmpty() && !fromRoute.equals(RouteConstants.ERROR_ROUTE)) {
-            addGoBackButton();
-        }
-    }
-
-    private void addGoBackButton() {
-        if (fromRoute.isEmpty() || fromRoute.equals(RouteConstants.ERROR_ROUTE)) {
+        // If no fromRoute parameter and no error parameters, redirect to home page (user accessed error page directly)
+        if (fromRoute.isEmpty()
+                || (errorType == null || errorType.isEmpty())
+                || (errorMessage == null || errorMessage.isEmpty())) {
+            LOGGER.info("No fromRoute parameter and no error parameters, redirecting to home page");
+            event.rerouteTo(RouteConstants.DECKS_ROUTE);
             return;
         }
 
-        Button goBack = new Button(getTranslation("error.back"));
-        goBack.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(fromRoute)));
-        goBack.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        LOGGER.info("fromRoute = {}, errorType = {}, errorMessage = {}", fromRoute, errorType, errorMessage);
 
-        if (getComponentCount() > 2) {
-            addComponentAtIndex(2, goBack);
+        // Add dev info after reading parameters
+        if (isDevProfile()) {
+            addDevInfo();
         }
     }
 
@@ -118,16 +127,20 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
         Div errorDetails = new Div();
         errorDetails.addClassName("error-dev__details");
 
-        Span errorType = new Span(getTranslation("error.type") + ": " + "General Error");
-        errorType.addClassName("error-dev__type");
+        Span errorTypeSpan = new Span(getTranslation("error.type") + ": "
+                + (errorType != null && !errorType.isEmpty() ? errorType : getTranslation("error.unknown")));
+        errorTypeSpan.addClassName("error-dev__type");
 
-        Span errorMessage = new Span(getTranslation("error.message") + ": " + "An error occurred during navigation");
-        errorMessage.addClassName("error-dev__message");
+        Span errorMessageSpan = new Span(getTranslation("error.message") + ": "
+                + (errorMessage != null && !errorMessage.isEmpty()
+                        ? errorMessage
+                        : getTranslation("error.no.message")));
+        errorMessageSpan.addClassName("error-dev__message");
 
-        Span currentRoute = new Span(getTranslation("error.current.route") + ": " + "Error View");
+        Span currentRoute = new Span(getTranslation("error.current.route") + ": " + RouteConstants.ERROR_ROUTE);
         currentRoute.addClassName("error-dev__route");
 
-        errorDetails.add(errorType, errorMessage, currentRoute);
+        errorDetails.add(errorTypeSpan, errorMessageSpan, currentRoute);
 
         Span timestamp = new Span(getTranslation("error.timestamp") + " "
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));

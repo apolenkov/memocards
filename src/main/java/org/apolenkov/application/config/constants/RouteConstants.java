@@ -15,7 +15,7 @@ public final class RouteConstants {
     /**
      * Route for error view.
      */
-    public static final String ERROR_ROUTE = "error";
+    public static final String ERROR_ROUTE = "error-page";
 
     /**
      * Route for individual deck view.

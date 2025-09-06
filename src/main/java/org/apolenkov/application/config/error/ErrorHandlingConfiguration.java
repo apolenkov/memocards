@@ -4,6 +4,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.server.ErrorEvent;
 import com.vaadin.flow.server.VaadinSession;
+import java.util.Map;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,12 +86,21 @@ public class ErrorHandlingConfiguration {
         // Set navigation guard to prevent concurrent error navigation
         session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.TRUE);
         final String fromRoute = currentRoute;
+        final Throwable error = errorEvent.getThrowable();
         try {
             ui.access(() -> {
                 try {
                     if (fromRoute != null && !fromRoute.isEmpty()) {
                         LOGGER.debug("Navigating to '{}' from '{}' [uiId={}]", ERROR_ROUTE, fromRoute, ui.getUIId());
-                        ui.navigate(ERROR_ROUTE, QueryParameters.of("from", fromRoute));
+                        ui.navigate(
+                                ERROR_ROUTE,
+                                QueryParameters.simple(Map.of(
+                                        "from",
+                                        fromRoute,
+                                        "error",
+                                        error.getClass().getSimpleName(),
+                                        "message",
+                                        error.getMessage() != null ? error.getMessage() : "Unknown error")));
                     } else {
                         LOGGER.debug("Navigating to '{}' [uiId={}]", ERROR_ROUTE, ui.getUIId());
                         ui.navigate(ERROR_ROUTE);
