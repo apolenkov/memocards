@@ -16,7 +16,7 @@
 /* Error container */
 .error-container { 
     width: 100%; 
-    max-width: 500px; 
+    max-width: var(--app-container-md, 800px);
     padding: var(--lumo-space-xl); 
     text-align: center; 
 }
