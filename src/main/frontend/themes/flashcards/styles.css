@@ -20,6 +20,7 @@
 @import './views/practice-view.css';
 @import './views/landing-view.css';
 @import './views/error-view.css';
+@import './views/not-found-view.css';
 @import './views/forgot-password-view.css';
 @import './views/reset-password-view.css';
 @import './views/settings-view.css';
