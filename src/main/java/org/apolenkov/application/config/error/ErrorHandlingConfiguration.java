@@ -5,117 +5,176 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.server.ErrorEvent;
 import com.vaadin.flow.server.VaadinSession;
 import java.util.Map;
+import java.util.UUID;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 /**
- * Configures error handling for Vaadin UI instances.
- *
- * <p>This component is responsible for setting up error handlers
- * and managing error navigation with cycle protection.
+ * Centralized error handling for Vaadin applications.
+ * Provides secure error navigation with cycle protection and profile-based error details.
  */
 @Component
 public class ErrorHandlingConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ErrorHandlingConfiguration.class);
+    private final Environment environment;
+
+    // Logic details
     private static final String ERROR_ROUTE = RouteConstants.ERROR_ROUTE;
     private static final String ATTR_ERROR_NAV_GUARD = "errorNavigationInProgress";
 
     /**
-     * Sets up error handler for safe navigation to error route.
+     * Creates error handling configuration with environment support.
      *
-     * @param ui the UI instance to configure error handling for (non-null)
-     * @throws IllegalArgumentException if ui is null
+     * @param env the Spring environment for profile detection
+     */
+    public ErrorHandlingConfiguration(final Environment env) {
+        this.environment = env;
+    }
+
+    /**
+     * Installs error handler for UI instance with secure navigation.
+     *
+     * @param ui the UI instance to configure error handling for
      */
     public void installErrorHandler(final UI ui) {
         if (ui == null) {
             throw new IllegalArgumentException("UI cannot be null");
         }
         ui.getSession().setErrorHandler(errorEvent -> handleUiError(ui, errorEvent));
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("UI error handler installed [uiId={}]", ui.getUIId());
+        LOGGER.debug("Error handler installed [uiId={}]", ui.getUIId());
+    }
+
+    /**
+     * Handles UI errors with cycle protection and secure navigation.
+     *
+     * @param ui the UI instance where error occurred
+     * @param errorEvent the error event containing error details
+     */
+    private void handleUiError(final UI ui, final ErrorEvent errorEvent) {
+        VaadinSession session = ui.getSession();
+        String currentRoute = getCurrentRoute(ui);
+        Throwable error = errorEvent.getThrowable();
+
+        LOGGER.error("UI error [uiId={}, route={}]", ui.getUIId(), currentRoute, error);
+
+        if (shouldSkipNavigation(session, currentRoute)) {
+            return;
+        }
+
+        navigateToErrorPage(ui, session, currentRoute, error);
+    }
+
+    /**
+     * Safely retrieves current route from UI.
+     *
+     * @param ui the UI instance to get route from
+     * @return the current route path or null if unavailable
+     */
+    private String getCurrentRoute(final UI ui) {
+        try {
+            return ui.getInternals().getActiveViewLocation().getPath();
+        } catch (Exception e) {
+            LOGGER.debug("Failed to get current route [uiId={}]", ui.getUIId(), e);
+            return null;
         }
     }
 
     /**
-     * Processes UI errors with safe navigation and cycle protection.
+     * Determines if error navigation should be skipped to prevent cycles.
      *
-     * @param ui the UI instance where the error occurred
-     * @param errorEvent the error event containing error details
+     * @param session the Vaadin session to check navigation state
+     * @param currentRoute the current route path
+     * @return true if navigation should be skipped, false otherwise
      */
-    private void handleUiError(final UI ui, final ErrorEvent errorEvent) {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("UI error handled [uiId={}]", ui.getUIId(), errorEvent.getThrowable());
-        }
-
-        VaadinSession session = ui.getSession();
-        String currentRoute = null;
-        try {
-            currentRoute = ui.getInternals().getActiveViewLocation().getPath();
-        } catch (Exception e) {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Failed to read current route for error handling [uiId={}]", ui.getUIId(), e);
-            }
-        }
-
-        if (LOGGER.isErrorEnabled()) {
-            LOGGER.error(
-                    "Unhandled UI error [uiId={}, route={}]", ui.getUIId(), currentRoute, errorEvent.getThrowable());
-        }
-
-        // Check for navigation guards to prevent infinite error loops
+    private boolean shouldSkipNavigation(final VaadinSession session, final String currentRoute) {
         boolean navigationInProgress = Boolean.TRUE.equals(session.getAttribute(ATTR_ERROR_NAV_GUARD));
         boolean onErrorView = ERROR_ROUTE.equals(currentRoute);
 
         if (navigationInProgress) {
-            LOGGER.warn(
-                    "Skipping error navigation because previous navigation is still in progress [uiId={}, route={}]",
-                    ui.getUIId(),
-                    currentRoute);
-            return;
+            LOGGER.warn("Skipping error navigation - already in progress");
+            return true;
         }
 
         if (onErrorView) {
-            LOGGER.warn(
-                    "Error occurred on '{}' route; avoiding cyclic navigation [uiId={}]", ERROR_ROUTE, ui.getUIId());
-            return;
+            LOGGER.warn("Error on error page - avoiding cycle");
+            return true;
         }
 
-        // Set navigation guard to prevent concurrent error navigation
+        return false;
+    }
+
+    /**
+     * Navigates to error page with secure parameters and navigation guard.
+     *
+     * @param ui the UI instance to navigate
+     * @param session the Vaadin session for navigation guard
+     * @param currentRoute the current route path
+     * @param error the error that occurred
+     */
+    private void navigateToErrorPage(
+            final UI ui, final VaadinSession session, final String currentRoute, final Throwable error) {
         session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.TRUE);
-        final String fromRoute = currentRoute;
-        final Throwable error = errorEvent.getThrowable();
+        String errorId = UUID.randomUUID().toString();
+
         try {
             ui.access(() -> {
                 try {
-                    if (fromRoute != null && !fromRoute.isEmpty()) {
-                        LOGGER.debug("Navigating to '{}' from '{}' [uiId={}]", ERROR_ROUTE, fromRoute, ui.getUIId());
-                        ui.navigate(
-                                ERROR_ROUTE,
-                                QueryParameters.simple(Map.of(
-                                        "from",
-                                        fromRoute,
-                                        "error",
-                                        error.getClass().getSimpleName(),
-                                        "message",
-                                        error.getMessage() != null ? error.getMessage() : "Unknown error")));
-                    } else {
-                        LOGGER.debug("Navigating to '{}' [uiId={}]", ERROR_ROUTE, ui.getUIId());
-                        ui.navigate(ERROR_ROUTE);
-                    }
-                } catch (Exception navEx) {
-                    LOGGER.warn("Failed during error navigation [uiId={}]", ui.getUIId(), navEx);
+                    QueryParameters params = createErrorParameters(currentRoute, error, errorId);
+                    ui.navigate(ERROR_ROUTE, params);
+                    LOGGER.debug("Navigated to error page [uiId={}, errorId={}]", ui.getUIId(), errorId);
                 } finally {
-                    // Always clear navigation guard, even if navigation fails
                     session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);
                 }
             });
         } catch (Exception e) {
-            LOGGER.warn("Failed to schedule error navigation [uiId={}]", ui.getUIId(), e);
-            // Clear navigation guard on scheduling failure
+            LOGGER.warn("Failed to navigate to error page [uiId={}]", ui.getUIId(), e);
             session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);
         }
+    }
+
+    /**
+     * Creates secure error parameters based on active profile.
+     *
+     * @param currentRoute the current route path
+     * @param error the error that occurred
+     * @param errorId the unique error identifier
+     * @return QueryParameters for error page navigation
+     */
+    private QueryParameters createErrorParameters(
+            final String currentRoute, final Throwable error, final String errorId) {
+        if (currentRoute == null || currentRoute.isEmpty()) {
+            return QueryParameters.empty();
+        }
+
+        if (isDevProfile()) {
+            return QueryParameters.simple(Map.of(
+                    "from",
+                    currentRoute,
+                    "error",
+                    error.getClass().getSimpleName(),
+                    "message",
+                    error.getMessage() != null ? error.getMessage() : "Unknown error",
+                    "id",
+                    errorId));
+        } else {
+            return QueryParameters.simple(Map.of(
+                    "from", currentRoute,
+                    "error", "500",
+                    "id", errorId));
+        }
+    }
+
+    /**
+     * Checks if application is running in development profile.
+     *
+     * @return true if in development profile, false otherwise
+     */
+    private boolean isDevProfile() {
+        String[] activeProfiles = environment.getActiveProfiles();
+        return java.util.Arrays.asList(activeProfiles).contains("dev");
     }
 }

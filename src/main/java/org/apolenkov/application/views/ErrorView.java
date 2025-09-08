@@ -37,9 +37,27 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
     private static final Logger LOGGER = LoggerFactory.getLogger(ErrorView.class);
     private final transient Environment environment;
 
+    // Params routing
     private String fromRoute;
     private String errorType;
     private String errorMessage;
+    private String errorId;
+
+    // UI Components - created in @PostConstruct, updated in beforeEnter
+    private VerticalLayout errorContainer;
+    private VerticalLayout devContainer;
+    private H2 title;
+    private Span description;
+    private Button goHome;
+    private Button tryAgain;
+    private H3 devTitle;
+    private Span errorTypeSpan;
+    private Span errorMessageSpan;
+    private Span currentRoute;
+    private Span timestamp;
+
+    // Detales
+    private static final String ERROR_500_KEY = "error.500";
 
     /**
      * Creates a new error view.
@@ -52,29 +70,79 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
 
     @PostConstruct
     private void initializeUI() {
+        LOGGER.debug("Initializing ErrorView UI components");
+
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
         setPadding(true);
         setSpacing(true);
 
-        VerticalLayout errorContainer = new VerticalLayout();
+        createErrorContainer();
+        createNavigationButtons();
+        createDevInfoContainer();
+
+        LOGGER.debug("ErrorView UI initialization completed");
+    }
+
+    @Override
+    public void beforeEnter(final BeforeEnterEvent event) {
+        LOGGER.debug("Processing beforeEnter event for ErrorView");
+
+        extractErrorParameters(event);
+        LOGGER.info(
+                "Extracted parameters: fromRoute={}, errorType={}, errorMessage={}, errorId={}",
+                fromRoute,
+                errorType,
+                errorMessage,
+                errorId);
+
+        if (shouldRedirectToHome()) {
+            LOGGER.info("No valid error parameters found, redirecting to home page");
+            event.rerouteTo(RouteConstants.DECKS_ROUTE);
+            return;
+        }
+
+        // Security: Only log error details, never expose in UI for production
+        if (isDevProfile()) {
+            LOGGER.info(
+                    "Processing error in dev mode: fromRoute={}, errorType={}, errorMessage={}, errorId={}",
+                    fromRoute,
+                    errorType,
+                    errorMessage,
+                    errorId);
+            updateUIWithErrorDetails();
+            showDevInfo();
+        } else {
+            // Production: Generic error message only
+            LOGGER.warn("Error occurred: fromRoute={}, errorType={}, errorId={}", fromRoute, errorType, errorId);
+            updateUIWithGenericError();
+        }
+    }
+
+    private void createErrorContainer() {
+        errorContainer = new VerticalLayout();
         errorContainer.addClassName("error-container");
         errorContainer.addClassName("surface-panel");
         errorContainer.setSpacing(true);
         errorContainer.setAlignItems(Alignment.CENTER);
 
-        H2 title = new H2(getTranslation("error.500"));
+        title = new H2();
         title.addClassName("error-view__title");
 
-        Span description = new Span(getTranslation("error.500.description"));
+        description = new Span();
         description.addClassName("error-view__description");
 
-        Button goHome = new Button(getTranslation("main.gohome"));
+        errorContainer.add(title, description);
+        add(errorContainer);
+    }
+
+    private void createNavigationButtons() {
+        goHome = new Button();
         goHome.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         goHome.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(RouteConstants.HOME_ROUTE)));
 
-        Button tryAgain = new Button(getTranslation("error.tryAgain"));
+        tryAgain = new Button();
         tryAgain.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         tryAgain.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(fromRoute)));
 
@@ -83,71 +151,123 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
         buttons.setAlignItems(Alignment.CENTER);
         buttons.setJustifyContentMode(JustifyContentMode.CENTER);
 
-        errorContainer.add(title, description, buttons);
-        add(errorContainer);
+        errorContainer.add(buttons);
     }
 
-    @Override
-    public void beforeEnter(final BeforeEnterEvent event) {
+    private void createDevInfoContainer() {
+        devContainer = new VerticalLayout();
+        devContainer.addClassName("error-dev__container");
+        devContainer.addClassName("surface-panel");
+        devContainer.setSpacing(true);
+        devContainer.setVisible(false); // Hidden by default
+
+        devTitle = new H3();
+        devTitle.addClassName("error-dev__title");
+
+        Div errorDetails = new Div();
+        errorDetails.addClassName("error-dev__details");
+
+        errorTypeSpan = new Span();
+        errorTypeSpan.addClassName("error-dev__type");
+
+        errorMessageSpan = new Span();
+        errorMessageSpan.addClassName("error-dev__message");
+
+        currentRoute = new Span();
+        currentRoute.addClassName("error-dev__route");
+
+        timestamp = new Span();
+        timestamp.addClassName("error-dev__timestamp");
+
+        errorDetails.add(errorTypeSpan, errorMessageSpan, currentRoute);
+        devContainer.add(devTitle, errorDetails, timestamp);
+        add(devContainer);
+    }
+
+    private void extractErrorParameters(final BeforeEnterEvent event) {
         Location location = event.getLocation();
         QueryParameters queryParams = location.getQueryParameters();
+
         fromRoute =
                 queryParams.getParameters().getOrDefault("from", List.of("")).getFirst();
         errorType =
                 queryParams.getParameters().getOrDefault("error", List.of("")).getFirst();
         errorMessage =
                 queryParams.getParameters().getOrDefault("message", List.of("")).getFirst();
-
-        // If no fromRoute parameter and no error parameters, redirect to home page (user accessed error page directly)
-        if (fromRoute.isEmpty()
-                || (errorType == null || errorType.isEmpty())
-                || (errorMessage == null || errorMessage.isEmpty())) {
-            LOGGER.info("No fromRoute parameter and no error parameters, redirecting to home page");
-            event.rerouteTo(RouteConstants.DECKS_ROUTE);
-            return;
-        }
-
-        LOGGER.info("fromRoute = {}, errorType = {}, errorMessage = {}", fromRoute, errorType, errorMessage);
-
-        // Add dev info after reading parameters
-        if (isDevProfile()) {
-            addDevInfo();
-        }
+        errorId = queryParams.getParameters().getOrDefault("id", List.of("")).getFirst();
     }
 
-    private void addDevInfo() {
-        H3 devTitle = new H3(getTranslation("error.dev.title"));
-        devTitle.addClassName("error-dev__title");
+    private boolean shouldRedirectToHome() {
+        // Redirect to home if no valid error parameters are provided
+        // In production, only 'from' and 'error' parameters are guaranteed
+        // In dev, we have 'from', 'error', 'message', and 'id' parameters
+        return fromRoute == null || fromRoute.isEmpty() || errorType == null || errorType.isEmpty();
+    }
 
-        VerticalLayout devContainer = new VerticalLayout();
-        devContainer.addClassName("error-dev__container");
-        devContainer.addClassName("surface-panel");
-        devContainer.setSpacing(true);
+    private void updateUIWithErrorDetails() {
+        title.setText(getTranslation(ERROR_500_KEY));
+        description.setText(getTranslation("error.500.description"));
+        goHome.setText(getTranslation("main.gohome"));
+        tryAgain.setText(getTranslation("error.tryAgain"));
+    }
 
-        Div errorDetails = new Div();
-        errorDetails.addClassName("error-dev__details");
+    private void updateUIWithGenericError() {
+        title.setText(getTranslation(ERROR_500_KEY));
+        description.setText(getTranslation("error.500.description"));
+        goHome.setText(getTranslation("main.gohome"));
+        tryAgain.setText(getTranslation("error.tryAgain"));
+        // Hide dev container in production
+        devContainer.setVisible(false);
+    }
 
-        Span errorTypeSpan = new Span(getTranslation("error.type") + ": "
-                + (errorType != null && !errorType.isEmpty() ? errorType : getTranslation("error.unknown")));
-        errorTypeSpan.addClassName("error-dev__type");
+    private void showDevInfo() {
+        devTitle.setText(getTranslation("error.dev.title"));
 
-        Span errorMessageSpan = new Span(getTranslation("error.message") + ": "
-                + (errorMessage != null && !errorMessage.isEmpty()
-                        ? errorMessage
-                        : getTranslation("error.no.message")));
-        errorMessageSpan.addClassName("error-dev__message");
+        // Sanitize error details for security
+        String safeErrorType = sanitizeErrorDetail(errorType);
+        String safeErrorMessage = sanitizeErrorDetail(errorMessage);
+        String safeErrorId = sanitizeErrorDetail(errorId);
 
-        Span currentRoute = new Span(getTranslation("error.current.route") + ": " + RouteConstants.ERROR_ROUTE);
-        currentRoute.addClassName("error-dev__route");
-
-        errorDetails.add(errorTypeSpan, errorMessageSpan, currentRoute);
-
-        Span timestamp = new Span(getTranslation("error.timestamp") + " "
+        errorTypeSpan.setText(getTranslation("error.type") + ": " + safeErrorType);
+        errorMessageSpan.setText(getTranslation("error.message") + ": " + safeErrorMessage);
+        currentRoute.setText(getTranslation("error.current.route") + ": " + fromRoute);
+        timestamp.setText(getTranslation("error.timestamp") + " "
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        timestamp.addClassName("error-dev__timestamp");
 
-        devContainer.add(devTitle, errorDetails, timestamp);
-        add(devContainer);
+        // Add error ID to dev info if available
+        if (safeErrorId != null && !safeErrorId.isEmpty()) {
+            Span errorIdSpan = new Span();
+            errorIdSpan.setText(getTranslation("error.id") + ": " + safeErrorId);
+            errorIdSpan.addClassName("error-dev__id");
+            devContainer.add(errorIdSpan);
+        }
+
+        // Only show dev container in dev profile
+        devContainer.setVisible(isDevProfile());
+    }
+
+    /**
+     * Sanitizes error details to prevent XSS and information leakage.
+     * Only allows safe characters and limits length.
+     *
+     * @param errorDetail the error detail to sanitize
+     * @return sanitized error detail
+     */
+    private String sanitizeErrorDetail(final String errorDetail) {
+        if (errorDetail == null || errorDetail.isEmpty()) {
+            return getTranslation("error.unknown");
+        }
+
+        // Remove potentially dangerous characters
+        String sanitized =
+                errorDetail.replaceAll("[<>\"'&]", "").replaceAll("\\s+", " ").trim();
+
+        // Limit length to prevent information leakage
+        if (sanitized.length() > 200) {
+            sanitized = sanitized.substring(0, 200) + "...";
+        }
+
+        return sanitized.isEmpty() ? getTranslation("error.unknown") : sanitized;
     }
 
     private boolean isDevProfile() {
@@ -157,6 +277,6 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
 
     @Override
     public String getPageTitle() {
-        return getTranslation("error.500");
+        return getTranslation(ERROR_500_KEY);
     }
 }
