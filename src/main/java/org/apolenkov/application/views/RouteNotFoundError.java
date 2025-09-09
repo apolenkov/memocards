@@ -8,6 +8,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.HasErrorParameter;
@@ -16,6 +17,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apolenkov.application.views.utils.NavigationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +87,7 @@ public class RouteNotFoundError extends VerticalLayout implements HasErrorParame
         Div errorContainer = new Div();
         errorContainer.addClassName("not-found-container");
         errorContainer.addClassName("surface-panel");
-        errorContainer.getStyle().setTextAlign(com.vaadin.flow.dom.Style.TextAlign.CENTER);
+        errorContainer.getStyle().setTextAlign(Style.TextAlign.CENTER);
 
         // Error code (404)
         H1 errorCode = new H1();
@@ -137,7 +139,7 @@ public class RouteNotFoundError extends VerticalLayout implements HasErrorParame
      */
     private void navigateToHome() {
         LOGGER.debug("Navigating to home page from RouteNotFoundError");
-        getUI().ifPresent(ui -> ui.navigate(""));
+        NavigationHelper.navigateToHome();
     }
 
     /**

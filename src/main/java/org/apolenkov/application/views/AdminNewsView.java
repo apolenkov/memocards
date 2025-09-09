@@ -26,6 +26,7 @@ import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.DialogHelper;
 import org.apolenkov.application.views.utils.GridHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
+import org.apolenkov.application.views.utils.NotificationHelper;
 import org.apolenkov.application.views.utils.TextHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -195,8 +196,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         try {
             newsService.createNews(title, content, author);
         } catch (Exception e) {
-            org.apolenkov.application.views.utils.NotificationHelper.showError(
-                    getTranslation("admin.news.error.create", e.getMessage()));
+            NotificationHelper.showError(getTranslation("admin.news.error.create", e.getMessage()));
         }
     }
 
@@ -212,8 +212,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         try {
             newsService.updateNews(id, title, content, author);
         } catch (Exception e) {
-            org.apolenkov.application.views.utils.NotificationHelper.showError(
-                    getTranslation("admin.news.error.update", e.getMessage()));
+            NotificationHelper.showError(getTranslation("admin.news.error.update", e.getMessage()));
         }
     }
 
@@ -235,11 +234,9 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
                     try {
                         newsService.deleteNews(news.getId());
                         refreshNews();
-                        org.apolenkov.application.views.utils.NotificationHelper.showSuccess(
-                                getTranslation("admin.news.deleted"));
+                        NotificationHelper.showSuccess(getTranslation("admin.news.deleted"));
                     } catch (Exception ex) {
-                        org.apolenkov.application.views.utils.NotificationHelper.showError(
-                                getTranslation("admin.news.error.delete", ex.getMessage()));
+                        NotificationHelper.showError(getTranslation("admin.news.error.delete", ex.getMessage()));
                     }
                 },
                 null);

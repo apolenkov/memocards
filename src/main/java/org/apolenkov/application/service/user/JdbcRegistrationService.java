@@ -1,5 +1,6 @@
 package org.apolenkov.application.service.user;
 
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.springframework.context.annotation.Profile;
@@ -48,7 +49,7 @@ public class JdbcRegistrationService implements RegistrationService {
         user.setEmail(email);
         user.setName(name);
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
-        user.addRole(org.apolenkov.application.config.security.SecurityConstants.ROLE_USER);
+        user.addRole(SecurityConstants.ROLE_USER);
 
         userRepository.save(user);
     }

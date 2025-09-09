@@ -16,6 +16,7 @@ import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.AuthFacade;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
+import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 
 /**
@@ -154,9 +155,8 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
      * @return configured tertiary Button that navigates to home page
      */
     private Button createBackToHomeButton() {
-        Button backToHome =
-                ButtonHelper.createTertiaryButton(getTranslation("common.backToHome"), e -> getUI().ifPresent(
-                                ui -> ui.navigate(RouteConstants.HOME_ROUTE)));
+        Button backToHome = ButtonHelper.createTertiaryButton(
+                getTranslation("common.backToHome"), e -> NavigationHelper.navigateToHome());
         backToHome.setWidthFull();
         return backToHome;
     }
@@ -349,10 +349,10 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
             authFacade.registerUser(vEmail, vPwd);
             authFacade.authenticateAndPersist(vEmail, vPwd);
             NotificationHelper.showSuccess(getTranslation("auth.register.successLogin"));
-            getUI().ifPresent(ui -> ui.navigate(RouteConstants.DECKS_ROUTE));
+            NavigationHelper.navigateToDecks();
         } catch (Exception ex) {
             NotificationHelper.showError(getTranslation("auth.register.autoLoginFailed"));
-            getUI().ifPresent(ui -> ui.navigate(RouteConstants.LOGIN_ROUTE));
+            NavigationHelper.navigateTo(RouteConstants.LOGIN_ROUTE);
         }
     }
 

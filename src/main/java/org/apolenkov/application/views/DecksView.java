@@ -35,7 +35,7 @@ import org.apolenkov.application.views.utils.TextHelper;
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
-    private static final String HOME_TITLE_KEY = "home.title";
+    private static final String DECKS_TITLE_KEY = "main.decks";
 
     private final transient HomePresenter homePresenter;
     private final transient DeckFacade deckFacade;
@@ -76,7 +76,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         content.setAlignItems(Alignment.CENTER);
         content.addClassName("decks-view__content");
 
-        H2 title = TextHelper.createPageTitle(getTranslation(HOME_TITLE_KEY));
+        H2 title = TextHelper.createPageTitle(getTranslation(DECKS_TITLE_KEY));
         title.addClassName("decks-view__title");
 
         TextField search = FormHelper.createOptionalTextField("", getTranslation("home.search.placeholder"));
@@ -155,6 +155,6 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation(HOME_TITLE_KEY);
+        return getTranslation(DECKS_TITLE_KEY);
     }
 }
