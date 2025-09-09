@@ -7,6 +7,7 @@ import com.vaadin.flow.server.VaadinSession;
 import java.util.Map;
 import java.util.UUID;
 import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.views.utils.NavigationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -124,7 +125,7 @@ public class ErrorHandlingConfiguration {
             ui.access(() -> {
                 try {
                     QueryParameters params = createErrorParameters(currentRoute, error, errorId);
-                    ui.navigate(ERROR_ROUTE, params);
+                    NavigationHelper.navigateToError(ERROR_ROUTE, params);
                     LOGGER.debug("Navigated to error page [uiId={}, errorId={}]", ui.getUIId(), errorId);
                 } finally {
                     session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);

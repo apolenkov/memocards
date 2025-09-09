@@ -7,6 +7,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -74,8 +75,8 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     @PostConstruct
     private void initializeUI() {
         setSpacing(true);
-        setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
-        setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
+        setAlignItems(FlexComponent.Alignment.CENTER);
+        setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         addClassName("stats-view");
 
         // Create a container with consistent width
@@ -83,7 +84,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         contentContainer.setSpacing(true);
         contentContainer.setWidthFull();
         contentContainer.addClassName("container-md");
-        contentContainer.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+        contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Single shaded section holds title and all groups
         VerticalLayout pageSection = new VerticalLayout();
@@ -111,7 +112,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
 
         List<Deck> decks =
                 deckUseCase.getDecksByUserId(userUseCase.getCurrentUser().getId());
-        Map<Long, org.apolenkov.application.domain.port.StatsRepository.DeckAggregate> agg =
+        Map<Long, StatsRepository.DeckAggregate> agg =
                 statsService.getDeckAggregates(decks.stream().map(Deck::getId).toList());
 
         pageSection.add(createTodayStatsSection(agg));

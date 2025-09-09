@@ -267,9 +267,7 @@ public class TopMenu extends HorizontalLayout {
                         getUI().ifPresent(ui ->
                                 ui.getPage().setLocation("/")); // Keep setLocation for logout (server redirect)
                     } catch (Exception ignored) {
-                        getUI().ifPresent(ui -> ui.navigate(
-                                RouteConstants.ERROR_ROUTE,
-                                com.vaadin.flow.router.QueryParameters.of("from", RouteConstants.HOME_ROUTE)));
+                        NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
                     }
                 },
                 null);

@@ -29,6 +29,7 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.apolenkov.application.utils.EntityErrorUtils;
 import org.apolenkov.application.views.presenter.practice.PracticePresenter;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
@@ -133,8 +134,9 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                 startDefaultPractice();
             }
         } catch (NumberFormatException e) {
-            NotificationHelper.showError(getTranslation("practice.invalidId"));
-            NavigationHelper.navigateToError(RouteConstants.DECKS_ROUTE);
+            // Throw exception for invalid ID - will be caught by EntityNotFoundErrorHandler
+            EntityErrorUtils.throwEntityNotFound(
+                    parameter, RouteConstants.DECKS_ROUTE, getTranslation("practice.invalidId"));
         }
     }
 
@@ -169,7 +171,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             if (currentDeck != null) {
                 NavigationHelper.navigateToDeck(currentDeck.getId());
             } else {
-                NavigationHelper.navigateToError(RouteConstants.DECKS_ROUTE);
+                // If no deck is loaded, navigate to decks list
+                NavigationHelper.navigateToDecks();
             }
         });
         backButton.setText(getTranslation("practice.back"));
@@ -231,15 +234,14 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     private void loadDeck(final long deckId) {
         Optional<Deck> deckOpt = presenter.loadDeck(deckId);
-        deckOpt.ifPresentOrElse(
-                deck -> {
-                    currentDeck = deck;
-                    deckTitle.setText(getTranslation(PRACTICE_TITLE_KEY, currentDeck.getTitle()));
-                },
-                () -> {
-                    NotificationHelper.showError(getTranslation("deck.notFound"));
-                    NavigationHelper.navigateToError(RouteConstants.DECKS_ROUTE);
-                });
+        if (deckOpt.isPresent()) {
+            currentDeck = deckOpt.get();
+            deckTitle.setText(getTranslation(PRACTICE_TITLE_KEY, currentDeck.getTitle()));
+        } else {
+            // Just throw the exception - it will be caught by EntityNotFoundErrorHandler
+            EntityErrorUtils.throwEntityNotFound(
+                    String.valueOf(deckId), RouteConstants.DECKS_ROUTE, getTranslation("deck.notFound"));
+        }
     }
 
     private void startPractice(final int count, final boolean random) {
@@ -425,9 +427,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             totalViewed = 0;
             showCurrentCard();
         });
-        Button backToDeckButton =
-                new Button(getTranslation("practice.backToDeck"), e -> getUI().ifPresent(ui -> ui.navigate(
-                        RouteConstants.DECK_ROUTE + "/" + currentDeck.getId().toString())));
+        Button backToDeckButton = new Button(
+                getTranslation("practice.backToDeck"), e -> NavigationHelper.navigateToDeck(currentDeck.getId()));
         Button homeButton = new Button(getTranslation("practice.backToDecks"), e -> NavigationHelper.navigateToDecks());
         actionButtons.add(againButton, backToDeckButton, homeButton);
     }

@@ -2,6 +2,7 @@ package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -17,6 +18,7 @@ import org.apolenkov.application.service.AuthFacade;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.FormHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
+import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -73,8 +75,8 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
     private void init() {
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();
-        wrapper.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
-        wrapper.setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
+        wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
+        wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
@@ -94,7 +96,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         // Create form fields container
         VerticalLayout formFields = new VerticalLayout();
         formFields.setSpacing(true);
-        formFields.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+        formFields.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Create binder and model first
         Binder<LoginModel> binder = new Binder<>(LoginModel.class);
@@ -114,7 +116,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
             if (binder.validate().isOk()) {
                 try {
                     authFacade.authenticateAndPersist(model.getEmail(), model.getPassword());
-                    getUI().ifPresent(ui -> ui.navigate(RouteConstants.HOME_ROUTE));
+                    NavigationHelper.navigateToHome();
                 } catch (Exception ex) {
                     NotificationHelper.showError(getTranslation("auth.login.errorMessage"));
                 }
@@ -122,14 +124,13 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         });
         submit.setWidthFull();
 
-        Button forgot =
-                ButtonHelper.createTertiaryButton(getTranslation("auth.login.forgotPassword"), e -> getUI().ifPresent(
-                                ui -> ui.navigate(RouteConstants.FORGOT_PASSWORD_ROUTE)));
+        Button forgot = ButtonHelper.createTertiaryButton(
+                getTranslation("auth.login.forgotPassword"),
+                e -> NavigationHelper.navigateTo(RouteConstants.FORGOT_PASSWORD_ROUTE));
         forgot.setWidthFull();
 
-        Button backToHome =
-                ButtonHelper.createTertiaryButton(getTranslation("common.backToHome"), e -> getUI().ifPresent(
-                                ui -> ui.navigate(RouteConstants.HOME_ROUTE)));
+        Button backToHome = ButtonHelper.createTertiaryButton(
+                getTranslation("common.backToHome"), e -> NavigationHelper.navigateToHome());
         backToHome.setWidthFull();
 
         // Bind fields to model
@@ -160,7 +161,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
     public void beforeEnter(final BeforeEnterEvent event) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            event.rerouteTo("");
+            NavigationHelper.navigateToHome();
             return;
         }
         boolean hasError =

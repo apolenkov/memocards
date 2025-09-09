@@ -1,10 +1,9 @@
 package org.apolenkov.application.views;
 
-import static org.apolenkov.application.config.constants.RouteConstants.LOGIN_ROUTE;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.data.binder.Binder;
@@ -18,8 +17,10 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.PasswordResetService;
+import org.apolenkov.application.utils.EntityErrorUtils;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
+import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -55,8 +56,8 @@ public class ResetPasswordView extends VerticalLayout
     private void init() {
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
         wrapper.setSizeFull();
-        wrapper.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
-        wrapper.setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
+        wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
+        wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
@@ -71,7 +72,7 @@ public class ResetPasswordView extends VerticalLayout
         // Create form fields container
         VerticalLayout formFields = new VerticalLayout();
         formFields.setSpacing(true);
-        formFields.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+        formFields.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Create binder and model
         Binder<ResetPasswordModel> binder = new Binder<>(ResetPasswordModel.class);
@@ -95,12 +96,11 @@ public class ResetPasswordView extends VerticalLayout
 
         Button backToLogin = ButtonHelper.createTertiaryButton(
                 getTranslation("auth.resetPassword.backToLogin"),
-                e -> getUI().ifPresent(ui -> ui.navigate(LOGIN_ROUTE)));
+                e -> NavigationHelper.navigateTo(RouteConstants.LOGIN_ROUTE));
         backToLogin.setWidthFull();
 
-        Button backToHome =
-                ButtonHelper.createTertiaryButton(getTranslation("common.backToHome"), e -> getUI().ifPresent(
-                                ui -> ui.navigate(RouteConstants.HOME_ROUTE)));
+        Button backToHome = ButtonHelper.createTertiaryButton(
+                getTranslation("common.backToHome"), e -> NavigationHelper.navigateToHome());
         backToHome.setWidthFull();
 
         // Bind fields to model
@@ -134,8 +134,9 @@ public class ResetPasswordView extends VerticalLayout
 
         // Validate token
         if (!passwordResetService.isTokenValid(token)) {
-            NotificationHelper.showError(getTranslation("auth.resetPassword.invalidToken"));
-            getUI().ifPresent(ui -> ui.navigate(LOGIN_ROUTE));
+            // Throw exception for invalid token - will be caught by EntityNotFoundErrorHandler
+            EntityErrorUtils.throwEntityNotFound(
+                    parameter, RouteConstants.LOGIN_ROUTE, getTranslation("auth.resetPassword.invalidToken"));
         }
     }
 
@@ -159,7 +160,7 @@ public class ResetPasswordView extends VerticalLayout
             boolean success = passwordResetService.resetPassword(token, password);
             if (success) {
                 NotificationHelper.showSuccess(getTranslation("auth.resetPassword.success"));
-                getUI().ifPresent(ui -> ui.navigate(LOGIN_ROUTE));
+                NavigationHelper.navigateTo(RouteConstants.LOGIN_ROUTE);
             } else {
                 NotificationHelper.showError(getTranslation("auth.resetPassword.failed"));
             }
@@ -180,7 +181,7 @@ public class ResetPasswordView extends VerticalLayout
     public void beforeEnter(final BeforeEnterEvent event) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            event.rerouteTo("");
+            NavigationHelper.navigateToHome();
         }
     }
 

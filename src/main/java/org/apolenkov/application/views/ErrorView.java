@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.views.utils.NavigationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -99,7 +100,7 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
 
         if (shouldRedirectToHome()) {
             LOGGER.info("No valid error parameters found, redirecting to home page");
-            event.rerouteTo(RouteConstants.DECKS_ROUTE);
+            NavigationHelper.navigateToDecks();
             return;
         }
 
@@ -140,11 +141,11 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
     private void createNavigationButtons() {
         goHome = new Button();
         goHome.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        goHome.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(RouteConstants.HOME_ROUTE)));
+        goHome.addClickListener(e -> NavigationHelper.navigateToHome());
 
         tryAgain = new Button();
         tryAgain.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        tryAgain.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(fromRoute)));
+        tryAgain.addClickListener(e -> NavigationHelper.navigateTo(fromRoute));
 
         HorizontalLayout buttons = new HorizontalLayout(goHome, tryAgain);
         buttons.setSpacing(true);

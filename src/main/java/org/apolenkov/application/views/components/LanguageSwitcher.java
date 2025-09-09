@@ -15,6 +15,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Locale;
+import org.apolenkov.application.config.constants.LocaleConstants;
 import org.apolenkov.application.service.UserSettingsService;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.springframework.stereotype.Component;
@@ -28,10 +29,8 @@ import org.springframework.stereotype.Component;
 @UIScope
 public class LanguageSwitcher extends HorizontalLayout {
 
-    public static final String SESSION_LOCALE_KEY =
-            org.apolenkov.application.config.constants.LocaleConstants.SESSION_LOCALE_KEY;
-    private static final String COOKIE_LOCALE_KEY =
-            org.apolenkov.application.config.constants.LocaleConstants.COOKIE_LOCALE_KEY;
+    public static final String SESSION_LOCALE_KEY = LocaleConstants.SESSION_LOCALE_KEY;
+    private static final String COOKIE_LOCALE_KEY = LocaleConstants.COOKIE_LOCALE_KEY;
 
     private final transient UserUseCase userUseCase;
     private final transient UserSettingsService userSettingsService;

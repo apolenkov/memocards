@@ -11,8 +11,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
-import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.views.home.DeckCardViewModel;
+import org.apolenkov.application.views.utils.NavigationHelper;
 
 /**
  * Reusable card component for displaying deck information.
@@ -144,7 +144,7 @@ public class DeckCard extends Div {
      */
     private void navigateToDeck() {
         if (viewModel.id() != null) {
-            getUI().ifPresent(ui -> ui.navigate(RouteConstants.DECK_ROUTE + "/" + viewModel.id()));
+            NavigationHelper.navigateToDeck(viewModel.id());
         }
     }
 
@@ -154,9 +154,7 @@ public class DeckCard extends Div {
      */
     private void navigateToPractice() {
         if (viewModel.id() != null) {
-            getUI().ifPresent(ui -> ui.navigate(
-                    org.apolenkov.application.views.PracticeView.class,
-                    viewModel.id().toString()));
+            NavigationHelper.navigateToPractice(viewModel.id());
         }
     }
 }

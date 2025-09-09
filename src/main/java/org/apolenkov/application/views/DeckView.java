@@ -36,6 +36,7 @@ import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.DeckFacade;
+import org.apolenkov.application.utils.EntityErrorUtils;
 import org.apolenkov.application.views.components.DeckEditDialog;
 import org.apolenkov.application.views.presenter.DeckPresenter;
 import org.apolenkov.application.views.utils.ButtonHelper;
@@ -53,6 +54,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private static final String FILL_REQUIRED_KEY = "dialog.fillRequired";
     private static final String TITLE_PROPERTY = "title";
     private static final String CANCEL_TRANSLATION_KEY = "common.cancel";
+    private static final String SURFACE_PANEL_CLASS = "surface-panel";
+    private static final String CONTAINER_MD_CLASS = "container-md";
+    private static final String DECK_VIEW_SECTION_CLASS = "deck-view__section";
+    private static final String DECK_VIEW_TITLE_CLASS = "deck-view__title";
+    private static final String MAIN_DECKS_KEY = "main.decks";
 
     private final transient DeckFacade deckFacade;
     private final transient DeckPresenter presenter;
@@ -88,30 +94,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         getContent().setSpacing(true);
         getContent().setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Main content container with consistent width and centering
-        VerticalLayout contentContainer = new VerticalLayout();
-        contentContainer.setSpacing(true);
-        contentContainer.setWidthFull();
-        contentContainer.addClassName("container-md");
-        contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
-
-        // Primary content section with surface styling
-        VerticalLayout pageSection = new VerticalLayout();
-        pageSection.setSpacing(true);
-        pageSection.setPadding(true);
-        pageSection.setWidthFull();
-        pageSection.addClassName("deck-view__section");
-        pageSection.addClassName("surface-panel");
-        pageSection.addClassName("container-md");
-
-        createHeader(pageSection);
-        createDeckInfo(pageSection);
-        createActions(pageSection);
-        createFlashcardsGrid(pageSection);
-
-        contentContainer.add(pageSection);
-
-        getContent().add(contentContainer);
+        // Show loading state initially
+        showLoadingState();
     }
 
     /**
@@ -136,8 +120,10 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             long deckId = Long.parseLong(parameter);
             loadDeck(deckId);
         } catch (NumberFormatException e) {
-            NotificationHelper.showError(getTranslation("deck.invalidId"));
-            NavigationHelper.navigateToError(RouteConstants.DECKS_ROUTE);
+            LOGGER.warn("Invalid deck ID parameter: {}", parameter);
+            // Throw exception for invalid ID - will be caught by EntityNotFoundErrorHandler
+            EntityErrorUtils.throwEntityNotFound(
+                    parameter, RouteConstants.DECKS_ROUTE, getTranslation("deck.invalidId"));
         }
     }
 
@@ -156,10 +142,10 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
         Button backButton = ButtonHelper.createBackButton(e -> NavigationHelper.navigateToDecks());
-        backButton.setText(getTranslation("main.decks"));
+        backButton.setText(getTranslation(MAIN_DECKS_KEY));
 
         deckTitle = new H2(getTranslation("deck.loading"));
-        deckTitle.addClassName("deck-view__title");
+        deckTitle.addClassName(DECK_VIEW_TITLE_CLASS);
 
         deckStats = new Span();
         deckStats.addClassName("deck-view__stats");
@@ -178,7 +164,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private void createDeckInfo(final VerticalLayout container) {
         Div infoSection = new Div();
         infoSection.addClassName("deck-view__info-section");
-        infoSection.addClassName("surface-panel");
+        infoSection.addClassName(SURFACE_PANEL_CLASS);
 
         deckDescription = new Span(getTranslation("deck.description.loading"));
         deckDescription.addClassName("deck-view__description");
@@ -326,6 +312,65 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     }
 
     /**
+     * Shows loading state while deck is being loaded.
+     */
+    private void showLoadingState() {
+        getContent().removeAll();
+
+        VerticalLayout loadingContainer = new VerticalLayout();
+        loadingContainer.setSpacing(true);
+        loadingContainer.setWidthFull();
+        loadingContainer.addClassName(CONTAINER_MD_CLASS);
+        loadingContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        VerticalLayout loadingSection = new VerticalLayout();
+        loadingSection.setSpacing(true);
+        loadingSection.setPadding(true);
+        loadingSection.setWidthFull();
+        loadingSection.addClassName(DECK_VIEW_SECTION_CLASS);
+        loadingSection.addClassName(SURFACE_PANEL_CLASS);
+        loadingSection.addClassName(CONTAINER_MD_CLASS);
+
+        H2 loadingTitle = new H2(getTranslation("deck.loading"));
+        loadingTitle.addClassName(DECK_VIEW_TITLE_CLASS);
+
+        loadingSection.add(loadingTitle);
+        loadingContainer.add(loadingSection);
+        getContent().add(loadingContainer);
+    }
+
+    /**
+     * Creates the main deck content after successful deck loading.
+     */
+    private void createDeckContent() {
+        getContent().removeAll();
+
+        // Main content container with consistent width and centering
+        VerticalLayout contentContainer = new VerticalLayout();
+        contentContainer.setSpacing(true);
+        contentContainer.setWidthFull();
+        contentContainer.addClassName(CONTAINER_MD_CLASS);
+        contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        // Primary content section with surface styling
+        VerticalLayout pageSection = new VerticalLayout();
+        pageSection.setSpacing(true);
+        pageSection.setPadding(true);
+        pageSection.setWidthFull();
+        pageSection.addClassName(DECK_VIEW_SECTION_CLASS);
+        pageSection.addClassName(SURFACE_PANEL_CLASS);
+        pageSection.addClassName(CONTAINER_MD_CLASS);
+
+        createHeader(pageSection);
+        createDeckInfo(pageSection);
+        createActions(pageSection);
+        createFlashcardsGrid(pageSection);
+
+        contentContainer.add(pageSection);
+        getContent().add(contentContainer);
+    }
+
+    /**
      * Loads a deck by ID and initializes the view.
      *
      * @param deckId the ID of the deck to load
@@ -334,11 +379,14 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         Optional<Deck> deckOpt = presenter.loadDeck(deckId);
         if (deckOpt.isPresent()) {
             currentDeck = deckOpt.get();
+            createDeckContent();
             updateDeckInfo();
             loadFlashcards();
         } else {
-            NotificationHelper.showError(getTranslation("deck.notFound"));
-            NavigationHelper.navigateToError(RouteConstants.DECKS_ROUTE);
+            LOGGER.warn("Deck not found with ID: {}", deckId);
+            // Just throw the exception - it will be caught by EntityNotFoundErrorHandler
+            EntityErrorUtils.throwEntityNotFound(
+                    String.valueOf(deckId), RouteConstants.DECKS_ROUTE, getTranslation("deck.notFound"));
         }
     }
 
