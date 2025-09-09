@@ -133,22 +133,4 @@ public final class NotificationHelper {
             notification.addThemeVariants(variant);
         }
     }
-
-    /**
-     * Shows a validation error notification.
-     * Displays a standardized error notification for form validation
-     * failures using the localized error message.
-     */
-    public static void showValidationError() {
-        showError(I18nHelper.tr("dialog.fillRequired"));
-    }
-
-    /**
-     * Shows a delete success notification.
-     * Displays a success notification confirming successful deletion
-     * operations with bottom positioning for quick acknowledgment.
-     */
-    public static void showDeleteSuccess() {
-        showSuccessBottom(I18nHelper.tr("dialog.deleted"));
-    }
 }

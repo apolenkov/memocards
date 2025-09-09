@@ -16,8 +16,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.exceptions.EntityNotFoundException;
 import org.apolenkov.application.service.PasswordResetService;
-import org.apolenkov.application.utils.EntityErrorUtils;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
@@ -55,9 +55,6 @@ public class ResetPasswordView extends VerticalLayout
     @PostConstruct
     private void init() {
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
-        wrapper.setSizeFull();
-        wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
-        wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
@@ -95,8 +92,7 @@ public class ResetPasswordView extends VerticalLayout
         submit.setWidthFull();
 
         Button backToLogin = ButtonHelper.createTertiaryButton(
-                getTranslation("auth.resetPassword.backToLogin"),
-                e -> NavigationHelper.navigateTo(RouteConstants.LOGIN_ROUTE));
+                getTranslation("auth.resetPassword.backToLogin"), e -> NavigationHelper.navigateToLogin());
         backToLogin.setWidthFull();
 
         Button backToHome = ButtonHelper.createTertiaryButton(
@@ -135,7 +131,7 @@ public class ResetPasswordView extends VerticalLayout
         // Validate token
         if (!passwordResetService.isTokenValid(token)) {
             // Throw exception for invalid token - will be caught by EntityNotFoundErrorHandler
-            EntityErrorUtils.throwEntityNotFound(
+            throw new EntityNotFoundException(
                     parameter, RouteConstants.LOGIN_ROUTE, getTranslation("auth.resetPassword.invalidToken"));
         }
     }
@@ -160,7 +156,7 @@ public class ResetPasswordView extends VerticalLayout
             boolean success = passwordResetService.resetPassword(token, password);
             if (success) {
                 NotificationHelper.showSuccess(getTranslation("auth.resetPassword.success"));
-                NavigationHelper.navigateTo(RouteConstants.LOGIN_ROUTE);
+                NavigationHelper.navigateToLogin();
             } else {
                 NotificationHelper.showError(getTranslation("auth.resetPassword.failed"));
             }

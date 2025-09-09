@@ -13,7 +13,6 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
-import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.AuthFacade;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.FormHelper;
@@ -74,9 +73,6 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
     @PostConstruct
     private void init() {
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
-        wrapper.setSizeFull();
-        wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
-        wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
@@ -125,8 +121,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         submit.setWidthFull();
 
         Button forgot = ButtonHelper.createTertiaryButton(
-                getTranslation("auth.login.forgotPassword"),
-                e -> NavigationHelper.navigateTo(RouteConstants.FORGOT_PASSWORD_ROUTE));
+                getTranslation("auth.login.forgotPassword"), e -> NavigationHelper.navigateToForgotPassword());
         forgot.setWidthFull();
 
         Button backToHome = ButtonHelper.createTertiaryButton(

@@ -25,6 +25,7 @@ public final class LayoutHelper {
         VerticalLayout layout = new VerticalLayout();
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        layout.setSizeFull();
         layout.setSpacing(true);
         layout.setPadding(true);
         return layout;

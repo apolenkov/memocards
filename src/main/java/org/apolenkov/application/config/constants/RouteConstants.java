@@ -33,6 +33,11 @@ public final class RouteConstants {
     public static final String LOGIN_ROUTE = "login";
 
     /**
+     * Route for register view.
+     */
+    public static final String REGISTER_ROUTE = "register";
+
+    /**
      * Route for home view.
      */
     public static final String HOME_ROUTE = "";
@@ -66,11 +71,6 @@ public final class RouteConstants {
      * Route for admin content view.
      */
     public static final String ADMIN_CONTENT_ROUTE = "admin/content";
-
-    /**
-     * Route for access denied view.
-     */
-    public static final String ACCESS_DENIED_ROUTE = "access-denied";
 
     /**
      * Private constructor to prevent instantiation.

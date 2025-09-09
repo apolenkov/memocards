@@ -81,6 +81,56 @@ public final class NavigationHelper {
     }
 
     /**
+     * Navigate to login page
+     *
+     * <p>Navigates to the user authentication page where users can
+     * sign in to their accounts. This is typically used for
+     * redirecting unauthenticated users or after logout.</p>
+     */
+    public static void navigateToLogin() {
+        navigateTo(RouteConstants.LOGIN_ROUTE);
+    }
+
+    /**
+     * Navigate to register page
+     *
+     * <p>Navigates to the user registration page where new users can
+     * create accounts. This is typically used for redirecting users
+     * who want to sign up for the service.</p>
+     */
+    public static void navigateToRegister() {
+        navigateTo(RouteConstants.REGISTER_ROUTE);
+    }
+
+    /**
+     * Navigate to forgot password page
+     *
+     * <p>Navigates to the password recovery page where users can
+     * request a password reset. This is typically used when users
+     * have forgotten their login credentials.</p>
+     */
+    public static void navigateToForgotPassword() {
+        navigateTo(RouteConstants.FORGOT_PASSWORD_ROUTE);
+    }
+
+    /**
+     * Navigate to reset password page with token
+     *
+     * <p>Navigates to the password reset page with a specific token.
+     * This is typically used when users click on password reset links
+     * from their email to complete the password reset process.</p>
+     *
+     * @param token the password reset token for validation
+     * @throws IllegalArgumentException if token is null or empty
+     */
+    public static void navigateToResetPassword(final String token) {
+        if (token == null || token.trim().isEmpty()) {
+            throw new IllegalArgumentException("Reset password token cannot be null or empty");
+        }
+        navigateTo(RouteConstants.RESET_PASSWORD_ROUTE, token);
+    }
+
+    /**
      * Navigate to home page
      *
      * <p>Navigates to the main home page of the application.

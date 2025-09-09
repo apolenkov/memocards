@@ -6,6 +6,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -33,10 +34,10 @@ import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.exceptions.EntityNotFoundException;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.DeckFacade;
-import org.apolenkov.application.utils.EntityErrorUtils;
 import org.apolenkov.application.views.components.DeckEditDialog;
 import org.apolenkov.application.views.presenter.DeckPresenter;
 import org.apolenkov.application.views.utils.ButtonHelper;
@@ -122,8 +123,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         } catch (NumberFormatException e) {
             LOGGER.warn("Invalid deck ID parameter: {}", parameter);
             // Throw exception for invalid ID - will be caught by EntityNotFoundErrorHandler
-            EntityErrorUtils.throwEntityNotFound(
-                    parameter, RouteConstants.DECKS_ROUTE, getTranslation("deck.invalidId"));
+            throw new EntityNotFoundException(parameter, RouteConstants.DECKS_ROUTE, getTranslation("deck.invalidId"));
         }
     }
 
@@ -141,7 +141,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        Button backButton = ButtonHelper.createBackButton(e -> NavigationHelper.navigateToDecks());
+        Button backButton = ButtonHelper.createButton(
+                getTranslation("common.back"),
+                VaadinIcon.ARROW_LEFT,
+                e -> NavigationHelper.navigateToDecks(),
+                ButtonVariant.LUMO_TERTIARY);
         backButton.setText(getTranslation(MAIN_DECKS_KEY));
 
         deckTitle = new H2(getTranslation("deck.loading"));
@@ -182,28 +186,42 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         HorizontalLayout actionsLayout = new HorizontalLayout();
         actionsLayout.setWidthFull();
 
-        Button practiceButton = ButtonHelper.createPlayButton(e -> {
-            if (currentDeck != null) {
-                NavigationHelper.navigateToPractice(currentDeck.getId());
-            }
-        });
+        Button practiceButton = ButtonHelper.createButton(
+                getTranslation("common.start"),
+                VaadinIcon.PLAY,
+                e -> {
+                    if (currentDeck != null) {
+                        NavigationHelper.navigateToPractice(currentDeck.getId());
+                    }
+                },
+                ButtonVariant.LUMO_SUCCESS);
         practiceButton.setText(getTranslation("deck.startSession"));
 
-        Button addFlashcardButton = ButtonHelper.createPlusButton(e -> openFlashcardDialog(null));
+        Button addFlashcardButton = ButtonHelper.createButton(
+                getTranslation("common.add"),
+                VaadinIcon.PLUS,
+                e -> openFlashcardDialog(null),
+                ButtonVariant.LUMO_PRIMARY);
         addFlashcardButton.setText(getTranslation("deck.addCard"));
         addFlashcardButton.getElement().setAttribute("data-testid", "deck-add-card");
 
-        Button editDeckButton = ButtonHelper.createEditButton(e -> {
-            if (currentDeck != null) {
-                new DeckEditDialog(deckFacade, currentDeck, updated -> updateDeckInfo()).open();
-            }
-        });
+        Button editDeckButton = ButtonHelper.createButton(
+                getTranslation("common.edit"),
+                VaadinIcon.EDIT,
+                e -> {
+                    if (currentDeck != null) {
+                        new DeckEditDialog(deckFacade, currentDeck, updated -> updateDeckInfo()).open();
+                    }
+                },
+                ButtonVariant.LUMO_TERTIARY);
         editDeckButton.getElement().setProperty(TITLE_PROPERTY, getTranslation("deck.edit.tooltip"));
 
-        Button deleteDeckButton = new Button(VaadinIcon.TRASH.create());
-        deleteDeckButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
-        deleteDeckButton.getElement().setProperty(TITLE_PROPERTY, getTranslation("deck.delete.tooltip"));
-        deleteDeckButton.addClickListener(e -> deleteDeck());
+        Button deleteDeckButton = ButtonHelper.createButton(
+                getTranslation("common.delete"),
+                VaadinIcon.TRASH,
+                e -> deleteDeck(),
+                ButtonVariant.LUMO_TERTIARY,
+                ButtonVariant.LUMO_ERROR);
 
         actionsLayout.add(practiceButton, addFlashcardButton, editDeckButton, deleteDeckButton);
         container.add(actionsLayout);
@@ -231,15 +249,18 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         rightFilters.setAlignItems(FlexComponent.Alignment.CENTER);
         hideKnownCheckbox = new Checkbox(getTranslation("deck.hideKnown"), true);
         hideKnownCheckbox.addValueChangeListener(e -> applyFlashcardsFilter());
-        Button resetProgress = new Button(getTranslation("deck.resetProgress"), VaadinIcon.ROTATE_LEFT.create());
-        resetProgress.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
-        resetProgress.addClickListener(e -> {
-            if (currentDeck != null) {
-                presenter.resetProgress(currentDeck.getId());
-                NotificationHelper.showSuccessBottom(getTranslation("deck.progressReset"));
-                loadFlashcards();
-            }
-        });
+        Button resetProgress = ButtonHelper.createButton(
+                getTranslation("deck.resetProgress"),
+                VaadinIcon.ROTATE_LEFT,
+                e -> {
+                    if (currentDeck != null) {
+                        presenter.resetProgress(currentDeck.getId());
+                        NotificationHelper.showSuccessBottom(getTranslation("deck.progressReset"));
+                        loadFlashcards();
+                    }
+                },
+                ButtonVariant.LUMO_TERTIARY,
+                ButtonVariant.LUMO_ERROR);
         rightFilters.add(hideKnownCheckbox, resetProgress);
 
         searchRow.add(flashcardSearchField, rightFilters);
@@ -255,57 +276,69 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 .setFlexGrow(2);
 
         flashcardGrid
-                .addColumn(Flashcard::getBackText)
-                .setHeader(getTranslation("deck.col.back"))
-                .setFlexGrow(2);
-
-        flashcardGrid
                 .addColumn(flashcard -> {
                     String example = flashcard.getExample();
                     return example != null && !example.trim().isEmpty() ? example : "-";
                 })
                 .setHeader(getTranslation("deck.col.example"))
-                .setFlexGrow(3);
+                .setFlexGrow(2);
 
         flashcardGrid
                 .addComponentColumn(flashcard -> {
                     boolean known = currentDeck != null && presenter.isKnown(currentDeck.getId(), flashcard.getId());
-                    return new Span(known ? getTranslation("deck.knownMark") : "");
+                    if (known) {
+                        Span statusSpan = new Span(getTranslation("deck.knownMark"));
+                        statusSpan.addClassName("known-status");
+                        return statusSpan;
+                    } else {
+                        return new Span("-");
+                    }
                 })
                 .setHeader(getTranslation("deck.col.status"))
-                .setFlexGrow(0)
-                .setAutoWidth(true);
+                .setTextAlign(ColumnTextAlign.CENTER)
+                .setFlexGrow(1);
 
         flashcardGrid
                 .addComponentColumn(flashcard -> {
                     HorizontalLayout actions = new HorizontalLayout();
-                    actions.setSpacing(true);
+                    actions.setSpacing(false);
+                    actions.setPadding(false);
+                    actions.addClassName("actions-layout");
                     actions.setAlignItems(FlexComponent.Alignment.CENTER);
                     actions.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
-                    Button editButton = new Button(VaadinIcon.EDIT.create());
-                    editButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
-                    editButton.addClickListener(e -> openFlashcardDialog(flashcard));
+                    Button editButton = ButtonHelper.createIconButton(
+                            VaadinIcon.EDIT,
+                            e -> openFlashcardDialog(flashcard),
+                            ButtonVariant.LUMO_SMALL,
+                            ButtonVariant.LUMO_TERTIARY);
+                    editButton.getElement().setProperty(TITLE_PROPERTY, getTranslation("common.edit"));
 
-                    Button toggleKnown = new Button(VaadinIcon.CHECK.create());
-                    toggleKnown.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_SUCCESS);
+                    Button toggleKnown = ButtonHelper.createIconButton(
+                            VaadinIcon.CHECK,
+                            e -> {
+                                presenter.toggleKnown(currentDeck.getId(), flashcard.getId());
+                                flashcardGrid.getDataProvider().refreshAll();
+                                applyFlashcardsFilter();
+                            },
+                            ButtonVariant.LUMO_SMALL,
+                            ButtonVariant.LUMO_SUCCESS);
                     toggleKnown.getElement().setProperty(TITLE_PROPERTY, getTranslation("deck.toggleKnown.tooltip"));
-                    toggleKnown.addClickListener(e -> {
-                        presenter.toggleKnown(currentDeck.getId(), flashcard.getId());
-                        flashcardGrid.getDataProvider().refreshAll();
-                        applyFlashcardsFilter();
-                    });
 
-                    Button deleteButton = new Button(VaadinIcon.TRASH.create());
-                    deleteButton.addThemeVariants(
-                            ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
-                    deleteButton.addClickListener(e -> deleteFlashcard(flashcard));
+                    Button deleteButton = ButtonHelper.createIconButton(
+                            VaadinIcon.TRASH,
+                            e -> deleteFlashcard(flashcard),
+                            ButtonVariant.LUMO_SMALL,
+                            ButtonVariant.LUMO_TERTIARY,
+                            ButtonVariant.LUMO_ERROR);
+                    deleteButton.getElement().setProperty(TITLE_PROPERTY, getTranslation("common.delete"));
 
                     actions.add(editButton, toggleKnown, deleteButton);
                     return actions;
                 })
                 .setHeader(getTranslation("deck.col.actions"))
                 .setFlexGrow(0)
+                .setTextAlign(ColumnTextAlign.CENTER)
                 .setAutoWidth(true);
 
         container.add(flashcardGrid);
@@ -385,7 +418,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         } else {
             LOGGER.warn("Deck not found with ID: {}", deckId);
             // Just throw the exception - it will be caught by EntityNotFoundErrorHandler
-            EntityErrorUtils.throwEntityNotFound(
+            throw new EntityNotFoundException(
                     String.valueOf(deckId), RouteConstants.DECKS_ROUTE, getTranslation("deck.notFound"));
         }
     }
@@ -534,12 +567,13 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             final Dialog dialog, final BeanValidationBinder<Flashcard> binder, final Flashcard flashcard) {
         HorizontalLayout buttonsLayout = new HorizontalLayout();
 
-        Button saveButton = new Button(getTranslation("dialog.save"), VaadinIcon.CHECK.create());
-        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        saveButton.addClickListener(e -> handleFlashcardSave(dialog, binder, flashcard));
+        Button saveButton = ButtonHelper.createButton(
+                getTranslation("dialog.save"),
+                VaadinIcon.CHECK,
+                e -> handleFlashcardSave(dialog, binder, flashcard),
+                ButtonVariant.LUMO_PRIMARY);
 
-        Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
-        cancelButton.addClickListener(e -> dialog.close());
+        Button cancelButton = ButtonHelper.createButton(getTranslation(CANCEL_TRANSLATION_KEY), e -> dialog.close());
 
         buttonsLayout.add(saveButton, cancelButton);
         return buttonsLayout;
@@ -565,7 +599,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             NotificationHelper.showSuccessBottom(
                     flashcard == null ? getTranslation("deck.card.added") : getTranslation("deck.card.updated"));
         } catch (ValidationException vex) {
-            NotificationHelper.showValidationError();
+            NotificationHelper.showError(getTranslation(FILL_REQUIRED_KEY));
         } catch (Exception ex) {
             NotificationHelper.showErrorLong(ex.getMessage());
         }
@@ -580,13 +614,17 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         Dialog confirmDialog = new Dialog();
 
         VerticalLayout layout = new VerticalLayout();
+        layout.setSpacing(true);
+        layout.setPadding(false);
         layout.add(new H3(getTranslation("dialog.delete.confirmTitle")));
         layout.add(new Span(getTranslation("dialog.delete.confirmText")));
 
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
+        buttons.setPadding(false);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttons.setWidthFull();
 
         Button confirmButton = new Button(getTranslation("dialog.delete"), VaadinIcon.TRASH.create());
         confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
@@ -595,11 +633,12 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             loadFlashcards();
             updateDeckInfo();
             confirmDialog.close();
-            NotificationHelper.showDeleteSuccess();
+            NotificationHelper.showSuccessBottom(getTranslation("dialog.deleted"));
         });
 
         Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancelButton.addClickListener(e -> confirmDialog.close());
 
         buttons.add(confirmButton, cancelButton);
         layout.add(buttons);
@@ -680,13 +719,14 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancelButton.addClickListener(e -> confirmDialog.close());
 
         confirmButton.addClickListener(e -> {
             try {
                 deckFacade.deleteDeck(currentDeck.getId());
                 confirmDialog.close();
                 NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
-                NavigationHelper.navigateTo(RouteConstants.DECKS_ROUTE);
+                NavigationHelper.navigateToDecks();
             } catch (Exception ex) {
                 NotificationHelper.showErrorLong(ex.getMessage());
             }
@@ -761,6 +801,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancelButton.addClickListener(e -> confirmDialog.close());
 
         // Frontend validation for better UX - enables/disables button immediately
         confirmInput.addValueChangeListener(
@@ -780,7 +821,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 deckFacade.deleteDeckWithConfirmation(currentDeck.getId(), confirmationText);
                 confirmDialog.close();
                 NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
-                NavigationHelper.navigateTo(RouteConstants.DECKS_ROUTE);
+                NavigationHelper.navigateToDecks();
             } catch (IllegalArgumentException ex) {
                 // Handle validation errors from backend
                 NotificationHelper.showErrorLong(getTranslation("deck.delete.confirmationMismatch"));

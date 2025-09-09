@@ -2,9 +2,11 @@ package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,10 +24,8 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.FormHelper;
-import org.apolenkov.application.views.utils.IconHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
-import org.apolenkov.application.views.utils.TextHelper;
 
 /**
  * View for creating new flashcard decks.
@@ -82,10 +82,14 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        Button backButton = ButtonHelper.createBackButton(e -> NavigationHelper.navigateTo("decks"));
+        Button backButton = ButtonHelper.createButton(
+                getTranslation("common.back"),
+                VaadinIcon.ARROW_LEFT,
+                e -> NavigationHelper.navigateToDecks(),
+                ButtonVariant.LUMO_TERTIARY);
         backButton.setText(getTranslation("deckCreate.back"));
 
-        H2 title = TextHelper.createPageTitle(getTranslation("deckCreate.title"));
+        H2 title = new H2(getTranslation("deckCreate.title"));
 
         leftSection.add(backButton, title);
         headerLayout.add(leftSection);
@@ -107,7 +111,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         formLayout.setSpacing(true);
         formLayout.addClassName("deck-create__form-layout");
 
-        H3 formTitle = TextHelper.createSectionTitle(getTranslation("deckCreate.section"));
+        H3 formTitle = new H3(getTranslation("deckCreate.section"));
 
         TextField titleField = FormHelper.createRequiredTextField(
                 getTranslation("deckCreate.name"), getTranslation("deckCreate.name.placeholder"));
@@ -129,11 +133,11 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         Button saveButton = ButtonHelper.createPrimaryButton(getTranslation("deckCreate.create"), e -> saveDeck());
-        saveButton.setIcon(IconHelper.createCheckIcon());
+        saveButton.setIcon(VaadinIcon.CHECK.create());
 
         Button cancelButton = ButtonHelper.createTertiaryButton(
-                getTranslation("deckCreate.cancel"), e -> NavigationHelper.navigateTo("decks"));
-        cancelButton.setIcon(IconHelper.createCloseIcon());
+                getTranslation("deckCreate.cancel"), e -> NavigationHelper.navigateToDecks());
+        cancelButton.setIcon(VaadinIcon.CLOSE.create());
 
         buttonsLayout.add(saveButton, cancelButton);
 
@@ -155,9 +159,9 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
             binder.writeBean(newDeck);
             Deck savedDeck = deckUseCase.saveDeck(newDeck);
             NotificationHelper.showSuccessBottom(getTranslation("deckCreate.created", savedDeck.getTitle()));
-            NavigationHelper.navigateTo("deck/" + savedDeck.getId().toString());
+            NavigationHelper.navigateToDeck(savedDeck.getId());
         } catch (ValidationException vex) {
-            NotificationHelper.showValidationError();
+            NotificationHelper.showError(getTranslation("dialog.fillRequired"));
         } catch (Exception e) {
             NotificationHelper.showError(getTranslation("deckCreate.error", e.getMessage()));
         }

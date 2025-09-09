@@ -24,7 +24,6 @@ public class ErrorHandlingConfiguration {
     private final Environment environment;
 
     // Logic details
-    private static final String ERROR_ROUTE = RouteConstants.ERROR_ROUTE;
     private static final String ATTR_ERROR_NAV_GUARD = "errorNavigationInProgress";
 
     /**
@@ -93,7 +92,7 @@ public class ErrorHandlingConfiguration {
      */
     private boolean shouldSkipNavigation(final VaadinSession session, final String currentRoute) {
         boolean navigationInProgress = Boolean.TRUE.equals(session.getAttribute(ATTR_ERROR_NAV_GUARD));
-        boolean onErrorView = ERROR_ROUTE.equals(currentRoute);
+        boolean onErrorView = RouteConstants.ERROR_ROUTE.equals(currentRoute);
 
         if (navigationInProgress) {
             LOGGER.warn("Skipping error navigation - already in progress");
@@ -125,7 +124,7 @@ public class ErrorHandlingConfiguration {
             ui.access(() -> {
                 try {
                     QueryParameters params = createErrorParameters(currentRoute, error, errorId);
-                    NavigationHelper.navigateToError(ERROR_ROUTE, params);
+                    NavigationHelper.navigateToError(RouteConstants.ERROR_ROUTE, params);
                     LOGGER.debug("Navigated to error page [uiId={}, errorId={}]", ui.getUIId(), errorId);
                 } finally {
                     session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);

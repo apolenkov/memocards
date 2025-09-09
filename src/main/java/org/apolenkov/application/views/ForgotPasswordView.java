@@ -12,7 +12,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.PasswordResetService;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.FormHelper;
@@ -50,9 +49,6 @@ public final class ForgotPasswordView extends Div implements BeforeEnterObserver
         this.passwordResetService = service;
 
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
-        wrapper.setSizeFull();
-        wrapper.setAlignItems(FlexComponent.Alignment.CENTER);
-        wrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
@@ -86,8 +82,7 @@ public final class ForgotPasswordView extends Div implements BeforeEnterObserver
 
         // Navigation buttons for better UX
         Button backToLogin = ButtonHelper.createTertiaryButton(
-                getTranslation("auth.forgotPassword.backToLogin"),
-                e -> NavigationHelper.navigateTo(RouteConstants.LOGIN_ROUTE));
+                getTranslation("auth.forgotPassword.backToLogin"), e -> NavigationHelper.navigateToLogin());
         backToLogin.setWidthFull();
 
         Button backToHome = ButtonHelper.createTertiaryButton(
@@ -128,7 +123,7 @@ public final class ForgotPasswordView extends Div implements BeforeEnterObserver
                 NotificationHelper.showSuccess(getTranslation("auth.forgotPassword.tokenCreated"));
 
                 // Navigate to reset password page with the generated token
-                NavigationHelper.navigateTo(RouteConstants.RESET_PASSWORD_ROUTE, token);
+                NavigationHelper.navigateToResetPassword(token);
             } else {
                 // Don't reveal if email exists for security reasons
                 NotificationHelper.showInfo(getTranslation("auth.forgotPassword.emailNotFound"));
