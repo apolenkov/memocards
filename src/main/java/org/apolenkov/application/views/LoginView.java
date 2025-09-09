@@ -161,7 +161,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
     public void beforeEnter(final BeforeEnterEvent event) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            NavigationHelper.navigateToHome();
+            NavigationHelper.forwardToHome(event);
             return;
         }
         boolean hasError =

@@ -181,7 +181,7 @@ public class ResetPasswordView extends VerticalLayout
     public void beforeEnter(final BeforeEnterEvent event) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            NavigationHelper.navigateToHome();
+            NavigationHelper.forwardToHome(event);
         }
     }
 

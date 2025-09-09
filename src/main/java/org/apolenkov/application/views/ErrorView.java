@@ -100,7 +100,7 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
 
         if (shouldRedirectToHome()) {
             LOGGER.info("No valid error parameters found, redirecting to home page");
-            NavigationHelper.navigateToDecks();
+            NavigationHelper.forwardToHome(event);
             return;
         }
 

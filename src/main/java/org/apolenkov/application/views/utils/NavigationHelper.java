@@ -1,9 +1,11 @@
 package org.apolenkov.application.views.utils;
 
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.QueryParameters;
 import java.util.Optional;
 import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.views.LandingView;
 
 /**
  * Utility class for centralized navigation operations.
@@ -86,6 +88,19 @@ public final class NavigationHelper {
      */
     public static void navigateToHome() {
         navigateTo(RouteConstants.HOME_ROUTE);
+    }
+
+    /**
+     * Forward to home page using BeforeEnterEvent
+     *
+     * <p>Forwards to the main home page using BeforeEnterEvent.
+     * This method should be used in BeforeEnterObserver implementations
+     * to properly redirect without showing the current view content.</p>
+     *
+     * @param event the BeforeEnterEvent to use for forwarding
+     */
+    public static void forwardToHome(final BeforeEnterEvent event) {
+        event.forwardTo(LandingView.class);
     }
 
     /**
