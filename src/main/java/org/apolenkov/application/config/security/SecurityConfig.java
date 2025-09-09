@@ -1,7 +1,6 @@
 package org.apolenkov.application.config.security;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
-import jakarta.servlet.http.HttpServletResponse;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.views.LoginView;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +9,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
@@ -49,9 +47,8 @@ public class SecurityConfig extends VaadinWebSecurity {
         http.csrf(csrf -> csrf.csrfTokenRepository(csrfRepo).ignoringRequestMatchers("/" + RouteConstants.LOGIN_ROUTE));
 
         // Authentication and access control
-        http.exceptionHandling(ex -> ex.authenticationEntryPoint(
-                        new LoginUrlAuthenticationEntryPoint("/" + RouteConstants.LOGIN_ROUTE))
-                .accessDeniedHandler(accessDeniedHandler()));
+        http.exceptionHandling(ex ->
+                ex.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/" + RouteConstants.LOGIN_ROUTE)));
 
         // Logout configuration with session cleanup
         http.logout(logout -> logout.logoutUrl("/" + RouteConstants.LOGOUT_ROUTE)
@@ -73,33 +70,6 @@ public class SecurityConfig extends VaadinWebSecurity {
                             csp -> csp.policyDirectives(
                                     "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; connect-src 'self' ws: wss:; font-src 'self' data:; frame-src 'self' blob:; worker-src 'self' blob:")));
         }
-    }
-
-    /**
-     * Creates access denied handler for unauthorized requests.
-     * Returns handler that returns JSON for API requests or redirects for UI requests.
-     *
-     * @return handler that returns JSON for API requests or redirects for UI requests
-     */
-    private AccessDeniedHandler accessDeniedHandler() {
-        return (request, response, accessDeniedException) -> {
-            String requestURI = request.getRequestURI();
-            // Determine if this is an API request or UI request
-            boolean isApiRequest = requestURI != null && requestURI.startsWith("/api/");
-
-            if (isApiRequest) {
-                // Return RFC 7807 Problem Details JSON for API requests
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.setContentType("application/problem+json");
-                response.getWriter()
-                        .write(String.format(
-                                "{\"type\":\"https://httpstatuses.io/403\",\"title\":\"Access Denied\",\"status\":403,\"detail\":\"Access denied for resource\",\"path\":\"%s\",\"timestamp\":\"%s\"}",
-                                requestURI, java.time.Instant.now()));
-            } else {
-                // Redirect to access denied page for UI requests
-                response.sendRedirect("/" + RouteConstants.ACCESS_DENIED_ROUTE);
-            }
-        };
     }
 
     /**

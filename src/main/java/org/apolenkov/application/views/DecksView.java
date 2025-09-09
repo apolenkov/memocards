@@ -1,8 +1,10 @@
 package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -21,9 +23,7 @@ import org.apolenkov.application.views.home.DeckCardViewModel;
 import org.apolenkov.application.views.home.HomePresenter;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.FormHelper;
-import org.apolenkov.application.views.utils.IconHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
-import org.apolenkov.application.views.utils.TextHelper;
 
 /**
  * View for displaying and managing user's flashcard decks.
@@ -76,12 +76,12 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         content.setAlignItems(Alignment.CENTER);
         content.addClassName("decks-view__content");
 
-        H2 title = TextHelper.createPageTitle(getTranslation(DECKS_TITLE_KEY));
+        H2 title = new H2(getTranslation(DECKS_TITLE_KEY));
         title.addClassName("decks-view__title");
 
         TextField search = FormHelper.createOptionalTextField("", getTranslation("home.search.placeholder"));
         search.setValueChangeMode(ValueChangeMode.EAGER);
-        search.setPrefixComponent(IconHelper.createSearchIcon());
+        search.setPrefixComponent(VaadinIcon.SEARCH.create());
 
         deckList = new VerticalLayout();
         deckList.setPadding(false);
@@ -91,7 +91,8 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
 
         search.addValueChangeListener(e -> refreshDecks(e.getValue()));
 
-        Button addDeckBtn = ButtonHelper.createPlusButton(e -> openCreateDeckDialog());
+        Button addDeckBtn = ButtonHelper.createButton(
+                getTranslation("common.add"), VaadinIcon.PLUS, e -> openCreateDeckDialog(), ButtonVariant.LUMO_PRIMARY);
         addDeckBtn.setText(getTranslation("home.addDeck"));
 
         HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addDeckBtn);

@@ -16,9 +16,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
  */
 public final class DialogHelper {
 
-    private static final String I18N_DIALOG_CONFIRM = "dialog.confirm";
-    private static final String I18N_DIALOG_CANCEL = "dialog.cancel";
-
     private DialogHelper() {
         // Utility class - prevent instantiation
     }
@@ -75,21 +72,5 @@ public final class DialogHelper {
 
         dialog.add(layout);
         return dialog;
-    }
-
-    /**
-     * Creates a confirmation dialog using provided Translator for default button texts.
-     *
-     * @param title dialog title
-     * @param message dialog message
-     * @param onConfirm confirm action
-     * @param onCancel cancel action (nullable)
-     * @return configured dialog
-     */
-    public static Dialog createConfirmationDialog(
-            final String title, final String message, final Runnable onConfirm, final Runnable onCancel) {
-        String confirm = I18nHelper.tr(I18N_DIALOG_CONFIRM);
-        String cancel = I18nHelper.tr(I18N_DIALOG_CANCEL);
-        return createConfirmationDialog(title, message, confirm, cancel, onConfirm, onCancel);
     }
 }

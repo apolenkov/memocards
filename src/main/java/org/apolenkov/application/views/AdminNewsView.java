@@ -2,10 +2,13 @@ package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -24,10 +27,8 @@ import org.apolenkov.application.model.News;
 import org.apolenkov.application.service.NewsService;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.DialogHelper;
-import org.apolenkov.application.views.utils.GridHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
-import org.apolenkov.application.views.utils.TextHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -72,19 +73,28 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         setSpacing(true);
         addClassName("admin-view");
 
-        H2 title = TextHelper.createPageTitle(getTranslation("admin.content.page.title"));
+        H2 title = new H2(getTranslation("admin.content.page.title"));
         add(title);
 
-        Button addNewsBtn = ButtonHelper.createPlusButton(e -> showNewsDialog(null));
+        Button addNewsBtn = ButtonHelper.createButton(
+                getTranslation("common.add"), VaadinIcon.PLUS, e -> showNewsDialog(null), ButtonVariant.LUMO_PRIMARY);
         addNewsBtn.setText(getTranslation("admin.news.add"));
         addNewsBtn.addClassName("admin-view__add-button");
         add(addNewsBtn);
 
-        Grid<News> newsGrid = GridHelper.createBasicGrid(News.class);
+        Grid<News> newsGrid = new Grid<>(News.class, false);
+        newsGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        newsGrid.setWidthFull();
         newsGrid.setColumns("title", "content", "author", COL_CREATED_AT, COL_UPDATED_AT);
-        GridHelper.addTextColumn(newsGrid, getTranslation("admin.news.title"), News::getTitle, 2);
-        GridHelper.addTextColumn(newsGrid, getTranslation("admin.news.content"), News::getContent, 3);
-        GridHelper.addTextColumn(newsGrid, getTranslation("admin.news.author"), News::getAuthor, 2);
+        newsGrid.addColumn(News::getTitle)
+                .setHeader(getTranslation("admin.news.title"))
+                .setFlexGrow(2);
+        newsGrid.addColumn(News::getContent)
+                .setHeader(getTranslation("admin.news.content"))
+                .setFlexGrow(3);
+        newsGrid.addColumn(News::getAuthor)
+                .setHeader(getTranslation("admin.news.author"))
+                .setFlexGrow(2);
         newsGrid.getColumnByKey(COL_CREATED_AT).setHeader(getTranslation("admin.news.createdAt"));
         newsGrid.getColumnByKey(COL_UPDATED_AT).setHeader(getTranslation("admin.news.updatedAt"));
         newsGrid.getColumnByKey(COL_CREATED_AT)
@@ -101,8 +111,16 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
 
         // widths controlled via theme classes, allow auto sizing
         newsGrid.addComponentColumn(news -> LayoutHelper.createButtonRow(
-                        ButtonHelper.createEditButton(e -> showNewsDialog(news)),
-                        ButtonHelper.createDeleteButton(e -> deleteNews(news))))
+                        ButtonHelper.createButton(
+                                getTranslation("common.edit"),
+                                VaadinIcon.EDIT,
+                                e -> showNewsDialog(news),
+                                ButtonVariant.LUMO_TERTIARY),
+                        ButtonHelper.createButton(
+                                getTranslation("common.delete"),
+                                VaadinIcon.TRASH,
+                                e -> deleteNews(news),
+                                ButtonVariant.LUMO_ERROR)))
                 .setHeader(getTranslation("admin.users.actions"))
                 .setFlexGrow(0);
 
@@ -128,8 +146,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         content.setSpacing(true);
         content.setPadding(true);
 
-        H3 dialogTitle = TextHelper.createSectionTitle(
-                news == null ? getTranslation("admin.news.add") : getTranslation("dialog.edit"));
+        H3 dialogTitle = new H3(news == null ? getTranslation("admin.news.add") : getTranslation("dialog.edit"));
         content.add(dialogTitle);
 
         TextField titleField = new TextField(getTranslation("admin.news.title"));
@@ -230,6 +247,8 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         Dialog confirmDialog = DialogHelper.createConfirmationDialog(
                 getTranslation("admin.news.confirm.delete.title"),
                 message,
+                getTranslation("dialog.confirm"),
+                getTranslation("dialog.cancel"),
                 () -> {
                     try {
                         newsService.deleteNews(news.getId());

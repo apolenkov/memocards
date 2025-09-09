@@ -24,7 +24,6 @@ import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.LayoutHelper;
-import org.apolenkov.application.views.utils.TextHelper;
 
 /**
  * View for displaying user statistics and analytics.
@@ -139,7 +138,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         headerLayout.setAlignItems(Alignment.CENTER);
         headerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
-        H3 sectionTitle = TextHelper.createSectionTitle(getTranslation("stats.overall"));
+        H3 sectionTitle = new H3(getTranslation("stats.overall"));
         sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
 
         Button toggleButton = new Button(VaadinIcon.CHEVRON_DOWN.create());

@@ -260,6 +260,8 @@ public class TopMenu extends HorizontalLayout {
         Dialog dialog = DialogHelper.createConfirmationDialog(
                 getTranslation("auth.logout.confirm"),
                 getTranslation("auth.logout.confirm"),
+                getTranslation("dialog.confirm"),
+                getTranslation("dialog.cancel"),
                 () -> {
                     try {
                         var req = VaadinServletRequest.getCurrent().getHttpServletRequest();

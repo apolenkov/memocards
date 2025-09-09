@@ -20,5 +20,10 @@
     margin-top: var(--lumo-space-m);
 }
 
+/* Spacing between form and submit button */
+.form-spacing {
+    height: var(--lumo-space-l);
+}
+
 
 

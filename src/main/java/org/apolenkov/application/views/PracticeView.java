@@ -9,6 +9,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -25,11 +26,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.exceptions.EntityNotFoundException;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.usecase.FlashcardUseCase;
-import org.apolenkov.application.utils.EntityErrorUtils;
 import org.apolenkov.application.views.presenter.practice.PracticePresenter;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
@@ -135,7 +136,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             }
         } catch (NumberFormatException e) {
             // Throw exception for invalid ID - will be caught by EntityNotFoundErrorHandler
-            EntityErrorUtils.throwEntityNotFound(
+            throw new EntityNotFoundException(
                     parameter, RouteConstants.DECKS_ROUTE, getTranslation("practice.invalidId"));
         }
     }
@@ -167,14 +168,18 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        Button backButton = ButtonHelper.createBackButton(e -> {
-            if (currentDeck != null) {
-                NavigationHelper.navigateToDeck(currentDeck.getId());
-            } else {
-                // If no deck is loaded, navigate to decks list
-                NavigationHelper.navigateToDecks();
-            }
-        });
+        Button backButton = ButtonHelper.createButton(
+                getTranslation("common.back"),
+                VaadinIcon.ARROW_LEFT,
+                e -> {
+                    if (currentDeck != null) {
+                        NavigationHelper.navigateToDeck(currentDeck.getId());
+                    } else {
+                        // If no deck is loaded, navigate to decks list
+                        NavigationHelper.navigateToDecks();
+                    }
+                },
+                ButtonVariant.LUMO_TERTIARY);
         backButton.setText(getTranslation("practice.back"));
 
         deckTitle = new H2(getTranslation(PRACTICE_TITLE_KEY));
@@ -217,15 +222,24 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         actionButtons.setAlignItems(FlexComponent.Alignment.CENTER);
         actionButtons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
-        showAnswerButton = ButtonHelper.createLargeButton(getTranslation("practice.showAnswer"), e -> showAnswer());
-        showAnswerButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        showAnswerButton = ButtonHelper.createButton(
+                getTranslation("practice.showAnswer"),
+                e -> showAnswer(),
+                ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_LARGE);
 
-        knowButton = ButtonHelper.createLargeButton(getTranslation("practice.know"), e -> markLabeled("know"));
-        knowButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        knowButton = ButtonHelper.createButton(
+                getTranslation("practice.know"),
+                e -> markLabeled("know"),
+                ButtonVariant.LUMO_SUCCESS,
+                ButtonVariant.LUMO_LARGE);
         knowButton.setVisible(false);
 
-        hardButton = ButtonHelper.createLargeButton(getTranslation("practice.hard"), e -> markLabeled("hard"));
-        hardButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        hardButton = ButtonHelper.createButton(
+                getTranslation("practice.hard"),
+                e -> markLabeled("hard"),
+                ButtonVariant.LUMO_ERROR,
+                ButtonVariant.LUMO_LARGE);
         hardButton.setVisible(false);
 
         actionButtons.add(showAnswerButton, knowButton, hardButton);
@@ -239,7 +253,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             deckTitle.setText(getTranslation(PRACTICE_TITLE_KEY, currentDeck.getTitle()));
         } else {
             // Just throw the exception - it will be caught by EntityNotFoundErrorHandler
-            EntityErrorUtils.throwEntityNotFound(
+            throw new EntityNotFoundException(
                     String.valueOf(deckId), RouteConstants.DECKS_ROUTE, getTranslation("deck.notFound"));
         }
     }
@@ -406,30 +420,35 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         cardContent.add(completionLayout);
 
         actionButtons.removeAll();
-        Button againButton = new Button(getTranslation("practice.repeatHard"), e -> {
-            List<Flashcard> failed = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId()).stream()
-                    .filter(fc -> session.getFailedCardIds().contains(fc.getId()))
-                    .filter(fc -> presenter.getNotKnownCards(currentDeck.getId()).stream()
-                            .map(Flashcard::getId)
-                            .collect(Collectors.toSet())
-                            .contains(fc.getId()))
-                    .toList();
-            showSessionButtons();
-            if (failed.isEmpty()) {
-                startDefaultPractice();
-                return;
-            }
-            session = new PracticePresenter.Session(
-                    currentDeck.getId(), new ArrayList<>(failed), presenter.defaultDirection());
-            Collections.shuffle(session.getCards());
-            correctCount = 0;
-            hardCount = 0;
-            totalViewed = 0;
-            showCurrentCard();
-        });
-        Button backToDeckButton = new Button(
+        Button againButton = ButtonHelper.createButton(
+                getTranslation("practice.repeatHard"),
+                e -> {
+                    List<Flashcard> failed = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId()).stream()
+                            .filter(fc -> session.getFailedCardIds().contains(fc.getId()))
+                            .filter(fc -> presenter.getNotKnownCards(currentDeck.getId()).stream()
+                                    .map(Flashcard::getId)
+                                    .collect(Collectors.toSet())
+                                    .contains(fc.getId()))
+                            .toList();
+                    showSessionButtons();
+                    if (failed.isEmpty()) {
+                        startDefaultPractice();
+                        return;
+                    }
+                    session = new PracticePresenter.Session(
+                            currentDeck.getId(), new ArrayList<>(failed), presenter.defaultDirection());
+                    Collections.shuffle(session.getCards());
+                    correctCount = 0;
+                    hardCount = 0;
+                    totalViewed = 0;
+                    showCurrentCard();
+                },
+                ButtonVariant.LUMO_ERROR,
+                ButtonVariant.LUMO_LARGE);
+        Button backToDeckButton = ButtonHelper.createButton(
                 getTranslation("practice.backToDeck"), e -> NavigationHelper.navigateToDeck(currentDeck.getId()));
-        Button homeButton = new Button(getTranslation("practice.backToDecks"), e -> NavigationHelper.navigateToDecks());
+        Button homeButton = ButtonHelper.createButton(
+                getTranslation("practice.backToDecks"), e -> NavigationHelper.navigateToDecks());
         actionButtons.add(againButton, backToDeckButton, homeButton);
     }
 

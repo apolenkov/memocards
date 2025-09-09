@@ -12,7 +12,6 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
-import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.AuthFacade;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
@@ -73,9 +72,6 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
     @PostConstruct
     private void init() {
         VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
-        wrapper.setSizeFull();
-        wrapper.setAlignItems(Alignment.CENTER);
-        wrapper.setJustifyContentMode(JustifyContentMode.CENTER);
 
         Div formContainer = new Div();
         formContainer.addClassName("register-form");
@@ -94,7 +90,11 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
         Button submit = createSubmitButton();
         Button backToHome = createBackToHomeButton();
 
-        formContainer.add(titleDiv, form, submit, backToHome);
+        // Add spacing between form and submit button
+        Div spacing = new Div();
+        spacing.addClassName("form-spacing");
+
+        formContainer.add(titleDiv, form, spacing, submit, backToHome);
         wrapper.add(formContainer);
         add(wrapper);
     }
@@ -352,7 +352,7 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
             NavigationHelper.navigateToDecks();
         } catch (Exception ex) {
             NotificationHelper.showError(getTranslation("auth.register.autoLoginFailed"));
-            NavigationHelper.navigateTo(RouteConstants.LOGIN_ROUTE);
+            NavigationHelper.navigateToLogin();
         }
     }
 

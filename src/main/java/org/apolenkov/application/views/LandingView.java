@@ -17,7 +17,6 @@ import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.service.NewsService;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
-import org.apolenkov.application.views.utils.TextHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -65,15 +64,15 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         hero.addClickListener(e -> {
             if (auth != null && !(auth instanceof AnonymousAuthenticationToken)) {
-                NavigationHelper.navigateTo("decks");
+                NavigationHelper.navigateToDecks();
             } else {
-                NavigationHelper.navigateTo("login");
+                NavigationHelper.navigateToLogin();
             }
         });
 
         heroIcon.add(hero);
 
-        H1 title = TextHelper.createMainTitle(getTranslation("app.title"));
+        H1 title = new H1(getTranslation("app.title"));
         title.addClassName("landing-hero__title");
 
         Paragraph subtitle = new Paragraph(getTranslation("landing.subtitle"));
@@ -84,10 +83,10 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
 
         if (auth == null || auth instanceof AnonymousAuthenticationToken) {
             Button login = ButtonHelper.createPrimaryButton(
-                    getTranslation("auth.login"), e -> NavigationHelper.navigateTo("login"));
+                    getTranslation("auth.login"), e -> NavigationHelper.navigateToLogin());
 
             Button register = ButtonHelper.createTertiaryButton(
-                    getTranslation("auth.register"), e -> NavigationHelper.navigateTo("register"));
+                    getTranslation("auth.register"), e -> NavigationHelper.navigateToRegister());
 
             actions.add(login, register);
         } else {
@@ -95,7 +94,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
                     auth.getAuthorities().stream().anyMatch(a -> SecurityConstants.ROLE_USER.equals(a.getAuthority()));
             if (hasUser) {
                 Button goToDecks = ButtonHelper.createPrimaryButton(
-                        getTranslation("landing.goToDecks"), e -> NavigationHelper.navigateTo("decks"));
+                        getTranslation("landing.goToDecks"), e -> NavigationHelper.navigateToDecks());
                 actions.add(goToDecks);
             }
         }
@@ -104,7 +103,7 @@ public class LandingView extends VerticalLayout implements HasDynamicTitle {
         newsSection.addClassName("surface-panel");
         newsSection.addClassName("landing-news__section");
 
-        H3 newsTitle = TextHelper.createSectionTitle(getTranslation("landing.news"));
+        H3 newsTitle = new H3(getTranslation("landing.news"));
         newsTitle.addClassName("landing-news__title");
         newsSection.add(newsTitle);
 

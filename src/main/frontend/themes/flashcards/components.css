@@ -15,6 +15,19 @@
 	backdrop-filter: blur(8px);
 }
 
+/* Status indicators */
+.known-status {
+	color: var(--lumo-tertiary-text-color);
+	font-size: var(--lumo-font-size-s);
+	font-weight: 600;
+	text-align: center;
+}
+
+/* Grid actions spacing */
+.actions-layout {
+	gap: var(--lumo-space-xs);
+}
+
 /* Button variants */
 .btn-primary {
 	padding: var(--lumo-space-s) var(--lumo-space-m);

@@ -79,6 +79,7 @@ public class PracticeSettingsView extends VerticalLayout implements HasDynamicTi
             n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         });
         Button cancel = new Button(getTranslation("common.cancel"));
+        cancel.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("decks")));
         HorizontalLayout actions = new HorizontalLayout(save, cancel);
 
         add(countSelect, modeGroup, dirGroup, actions);
