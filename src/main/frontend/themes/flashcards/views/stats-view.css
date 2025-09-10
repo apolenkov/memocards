@@ -24,6 +24,7 @@
     margin-bottom: var(--lumo-space-l);
     color: var(--lumo-primary-contrast-color);
     text-align: center;
+    font-weight: 600;
 }
 
 /* Stats cards */
@@ -62,13 +63,12 @@
 .deck-stats-card.surface-card { /* visuals via component token */ }
 
 .deck-stats-card__header {
-    margin-bottom: var(--lumo-space-s);
+    margin-bottom: var(--lumo-space-l);
 }
 
 .deck-stats-card__title {
-    margin: 0;
     color: var(--lumo-primary-text-color);
-    font-size: var(--lumo-font-size-xl);
+    font-size: var(--lumo-font-size-m);
 }
 
 /* Stats sections */
@@ -76,9 +76,13 @@
 
 .stats-section.surface-panel { border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent); }
 
+/* Stats section header - clickable area */
 .stats-section__title {
-    margin: 0;
-    color: var(--lumo-primary-contrast-color);
+    color: var(--lumo-primary-text-color);
+}
+
+.stats-section__header:hover .stats-section__title {
+  color: var(--lumo-primary-contrast-color);
 }
 
 /* Stats pagination */
@@ -99,9 +103,12 @@
 
 /* Stats deck items */
 .stats-deck-item {
-    min-width: 60px;
+    min-width: 120px;
+    padding: var(--lumo-space-s);
     text-align: center;
 }
+
+.stats-deck-item.surface-card { /* visuals via component token */ }
 
 .stats-deck-item__total {
     margin-bottom: var(--lumo-space-xs);

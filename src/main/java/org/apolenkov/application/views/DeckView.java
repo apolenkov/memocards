@@ -41,6 +41,7 @@ import org.apolenkov.application.service.DeckFacade;
 import org.apolenkov.application.views.components.DeckEditDialog;
 import org.apolenkov.application.views.presenter.DeckPresenter;
 import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 import org.slf4j.Logger;
@@ -619,26 +620,23 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         layout.add(new H3(getTranslation("dialog.delete.confirmTitle")));
         layout.add(new Span(getTranslation("dialog.delete.confirmText")));
 
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSpacing(true);
-        buttons.setPadding(false);
-        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        buttons.setWidthFull();
+        HorizontalLayout buttons = LayoutHelper.createButtonLayout();
 
-        Button confirmButton = new Button(getTranslation("dialog.delete"), VaadinIcon.TRASH.create());
-        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
-        confirmButton.addClickListener(e -> {
-            deckFacade.deleteFlashcard(flashcard.getId());
-            loadFlashcards();
-            updateDeckInfo();
-            confirmDialog.close();
-            NotificationHelper.showSuccessBottom(getTranslation("dialog.deleted"));
-        });
+        Button confirmButton = ButtonHelper.createButton(
+                getTranslation("dialog.delete"),
+                VaadinIcon.TRASH,
+                e -> {
+                    deckFacade.deleteFlashcard(flashcard.getId());
+                    loadFlashcards();
+                    updateDeckInfo();
+                    confirmDialog.close();
+                    NotificationHelper.showSuccessBottom(getTranslation("dialog.deleted"));
+                },
+                ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_ERROR);
 
-        Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
-        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        cancelButton.addClickListener(e -> confirmDialog.close());
+        Button cancelButton = ButtonHelper.createButton(
+                getTranslation(CANCEL_TRANSLATION_KEY), e -> confirmDialog.close(), ButtonVariant.LUMO_TERTIARY);
 
         buttons.add(confirmButton, cancelButton);
         layout.add(buttons);
@@ -709,17 +707,21 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         }
 
         // Buttons
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSpacing(true);
-        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        HorizontalLayout buttons = LayoutHelper.createButtonLayout();
 
-        Button confirmButton = new Button(getTranslation("deck.delete.simpleConfirm"), VaadinIcon.TRASH.create());
-        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+        Button confirmButton = ButtonHelper.createButton(
+                getTranslation("deck.delete.simpleConfirm"),
+                VaadinIcon.TRASH,
+                e -> {
+                    deckFacade.deleteDeck(currentDeck.getId());
+                    NavigationHelper.navigateToDecks();
+                    NotificationHelper.showSuccessBottom(getTranslation("deck.deleted"));
+                },
+                ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_ERROR);
 
-        Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
-        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        cancelButton.addClickListener(e -> confirmDialog.close());
+        Button cancelButton = ButtonHelper.createButton(
+                getTranslation(CANCEL_TRANSLATION_KEY), e -> confirmDialog.close(), ButtonVariant.LUMO_TERTIARY);
 
         confirmButton.addClickListener(e -> {
             try {
@@ -731,8 +733,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 NotificationHelper.showErrorLong(ex.getMessage());
             }
         });
-
-        cancelButton.addClickListener(e -> confirmDialog.close());
 
         buttons.add(confirmButton, cancelButton);
         layout.add(icon, title, description, buttons);
@@ -790,18 +790,20 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         confirmInput.setRequired(true);
 
         // Buttons
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSpacing(true);
-        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        HorizontalLayout buttons = LayoutHelper.createButtonLayout();
 
-        Button confirmButton = new Button(getTranslation("deck.delete.confirm"), VaadinIcon.TRASH.create());
-        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+        Button confirmButton = ButtonHelper.createButton(
+                getTranslation("deck.delete.confirm"),
+                VaadinIcon.TRASH,
+                e -> {
+                    // Placeholder - will be replaced by actual click listener below
+                },
+                ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_ERROR);
         confirmButton.setEnabled(false);
 
-        Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
-        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        cancelButton.addClickListener(e -> confirmDialog.close());
+        Button cancelButton = ButtonHelper.createButton(
+                getTranslation(CANCEL_TRANSLATION_KEY), e -> confirmDialog.close(), ButtonVariant.LUMO_TERTIARY);
 
         // Frontend validation for better UX - enables/disables button immediately
         confirmInput.addValueChangeListener(
@@ -831,8 +833,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 LOGGER.error("Error deleting deck: {}", currentDeck.getId(), ex);
             }
         });
-
-        cancelButton.addClickListener(e -> confirmDialog.close());
 
         buttons.add(confirmButton, cancelButton);
         layout.add(warningIcon, title, description, deckInfo, confirmInput, buttons);

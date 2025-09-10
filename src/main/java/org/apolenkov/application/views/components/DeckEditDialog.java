@@ -6,7 +6,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -16,6 +15,8 @@ import com.vaadin.flow.data.binder.ValidationException;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.DeckFacade;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
 
 /**
  * Dialog component for editing existing flashcard decks.
@@ -87,32 +88,31 @@ public class DeckEditDialog extends Dialog {
                 .bind(Deck::getTitle, Deck::setTitle);
         binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
 
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSpacing(true);
-        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        buttons.setWidthFull();
+        HorizontalLayout buttons = LayoutHelper.createButtonLayout();
 
-        Button save = new Button(getTranslation("deck.edit.save"));
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        save.addClickListener(e -> {
-            try {
-                binder.writeBean(deck);
-                Deck saved = deckFacade.saveDeck(deck);
-                Notification.show(getTranslation("deck.edit.success"), 2000, Notification.Position.BOTTOM_START);
-                close();
-                if (onSaved != null) {
-                    onSaved.accept(saved);
-                }
-            } catch (ValidationException vex) {
-                Notification.show(getTranslation("dialog.fillRequired"), 3000, Notification.Position.BOTTOM_START);
-            } catch (Exception ex) {
-                Notification.show(ex.getMessage(), 4000, Notification.Position.BOTTOM_START);
-            }
-        });
+        Button save = ButtonHelper.createButton(
+                getTranslation("deck.edit.save"),
+                e -> {
+                    try {
+                        binder.writeBean(deck);
+                        Deck saved = deckFacade.saveDeck(deck);
+                        Notification.show(
+                                getTranslation("deck.edit.success"), 2000, Notification.Position.BOTTOM_START);
+                        close();
+                        if (onSaved != null) {
+                            onSaved.accept(saved);
+                        }
+                    } catch (ValidationException vex) {
+                        Notification.show(
+                                getTranslation("dialog.fillRequired"), 3000, Notification.Position.BOTTOM_START);
+                    } catch (Exception ex) {
+                        Notification.show(ex.getMessage(), 4000, Notification.Position.BOTTOM_START);
+                    }
+                },
+                ButtonVariant.LUMO_PRIMARY);
 
-        Button cancel = new Button(getTranslation("common.cancel"));
-        cancel.addClickListener(e -> close());
+        Button cancel =
+                ButtonHelper.createButton(getTranslation("common.cancel"), e -> close(), ButtonVariant.LUMO_TERTIARY);
         buttons.add(save, cancel);
 
         layout.add(header, titleField, descriptionArea, buttons);

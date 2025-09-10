@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ import org.springframework.core.env.Environment;
 public final class ErrorView extends VerticalLayout implements HasDynamicTitle, BeforeEnterObserver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ErrorView.class);
+    private static final String ERROR_TRY_AGAIN_KEY = "error.tryAgain";
     private final transient Environment environment;
 
     // Params routing
@@ -139,13 +141,13 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
     }
 
     private void createNavigationButtons() {
-        goHome = new Button();
-        goHome.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        goHome.addClickListener(e -> NavigationHelper.navigateToHome());
+        goHome = ButtonHelper.createButton(
+                getTranslation("error.goHome"), e -> NavigationHelper.navigateToHome(), ButtonVariant.LUMO_PRIMARY);
 
-        tryAgain = new Button();
-        tryAgain.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        tryAgain.addClickListener(e -> NavigationHelper.navigateTo(fromRoute));
+        tryAgain = ButtonHelper.createButton(
+                getTranslation(ERROR_TRY_AGAIN_KEY),
+                e -> NavigationHelper.navigateTo(fromRoute),
+                ButtonVariant.LUMO_TERTIARY);
 
         HorizontalLayout buttons = new HorizontalLayout(goHome, tryAgain);
         buttons.setSpacing(true);
@@ -209,14 +211,14 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
         title.setText(getTranslation(ERROR_500_KEY));
         description.setText(getTranslation("error.500.description"));
         goHome.setText(getTranslation("main.gohome"));
-        tryAgain.setText(getTranslation("error.tryAgain"));
+        tryAgain.setText(getTranslation(ERROR_TRY_AGAIN_KEY));
     }
 
     private void updateUIWithGenericError() {
         title.setText(getTranslation(ERROR_500_KEY));
         description.setText(getTranslation("error.500.description"));
         goHome.setText(getTranslation("main.gohome"));
-        tryAgain.setText(getTranslation("error.tryAgain"));
+        tryAgain.setText(getTranslation(ERROR_TRY_AGAIN_KEY));
         // Hide dev container in production
         devContainer.setVisible(false);
     }

@@ -1,6 +1,7 @@
 package org.apolenkov.application.views;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -15,6 +16,7 @@ import jakarta.annotation.security.RolesAllowed;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.service.PracticeSettingsService;
+import org.apolenkov.application.views.utils.ButtonHelper;
 
 /**
  * View for configuring practice session settings.
@@ -67,19 +69,26 @@ public class PracticeSettingsView extends VerticalLayout implements HasDynamicTi
         dirGroup.setItems(f2b, b2f);
         dirGroup.setValue(practiceSettingsService.getDefaultDirection() == PracticeDirection.FRONT_TO_BACK ? f2b : b2f);
 
-        Button save = new Button(getTranslation("settings.save"), e -> {
-            practiceSettingsService.setDefaultCount(countSelect.getValue());
-            practiceSettingsService.setDefaultRandomOrder(modeGroup.getValue().equals(random));
-            practiceSettingsService.setDefaultDirection(
-                    dirGroup.getValue().equals(f2b)
-                            ? PracticeDirection.FRONT_TO_BACK
-                            : PracticeDirection.BACK_TO_FRONT);
+        Button save = ButtonHelper.createButton(
+                getTranslation("settings.save"),
+                e -> {
+                    practiceSettingsService.setDefaultCount(countSelect.getValue());
+                    practiceSettingsService.setDefaultRandomOrder(
+                            modeGroup.getValue().equals(random));
+                    practiceSettingsService.setDefaultDirection(
+                            dirGroup.getValue().equals(f2b)
+                                    ? PracticeDirection.FRONT_TO_BACK
+                                    : PracticeDirection.BACK_TO_FRONT);
 
-            Notification n = Notification.show(getTranslation("settings.saved"), 3000, Notification.Position.MIDDLE);
-            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-        });
-        Button cancel = new Button(getTranslation("common.cancel"));
-        cancel.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("decks")));
+                    Notification n =
+                            Notification.show(getTranslation("settings.saved"), 3000, Notification.Position.MIDDLE);
+                    n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                },
+                ButtonVariant.LUMO_PRIMARY);
+        Button cancel = ButtonHelper.createButton(
+                getTranslation("common.cancel"),
+                e -> getUI().ifPresent(ui -> ui.navigate("decks")),
+                ButtonVariant.LUMO_TERTIARY);
         HorizontalLayout actions = new HorizontalLayout(save, cancel);
 
         add(countSelect, modeGroup, dirGroup, actions);

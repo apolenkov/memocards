@@ -23,6 +23,7 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 
 /**
@@ -36,6 +37,7 @@ import org.apolenkov.application.views.utils.LayoutHelper;
 public class StatsView extends VerticalLayout implements HasDynamicTitle {
 
     private static final String SURFACE_PANEL_CLASS = "surface-panel";
+    private static final String SURFACE_CARD_CLASS = "surface-card";
     private static final String STATS_SECTION_CLASS = "stats-section";
     private static final String STATS_SECTION_TITLE_CLASS = "stats-section__title";
     private static final String TITLE_ATTRIBUTE = "title";
@@ -126,27 +128,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
      * @return configured vertical layout for overall stats
      */
     private VerticalLayout createOverallStatsSection(final Map<Long, StatsRepository.DeckAggregate> agg) {
-        VerticalLayout section = new VerticalLayout();
-        section.setSpacing(true);
-        section.setWidthFull();
-        section.addClassName(STATS_SECTION_CLASS);
-        section.addClassName(SURFACE_PANEL_CLASS);
-
-        // Create collapsible header
-        HorizontalLayout headerLayout = new HorizontalLayout();
-        headerLayout.setWidthFull();
-        headerLayout.setAlignItems(Alignment.CENTER);
-        headerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
-
-        H3 sectionTitle = new H3(getTranslation("stats.overall"));
-        sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
-
-        Button toggleButton = new Button(VaadinIcon.CHEVRON_DOWN.create());
-        toggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
-
-        headerLayout.add(sectionTitle, toggleButton);
-        section.add(headerLayout);
+        VerticalLayout section = createStatsSectionHeader("stats.overall");
 
         HorizontalLayout statsGrid = LayoutHelper.createStatsGrid();
         statsGrid.addClassName("stats-overall-grid");
@@ -176,25 +158,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         contentContainer.setSpacing(true);
         contentContainer.add(statsGrid);
 
-        // Hide section by default
-        contentContainer.setVisible(false);
-        toggleButton.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-        toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_EXPAND_KEY));
-
-        // Add toggle functionality
-        toggleButton.addClickListener(e -> {
-            if (contentContainer.isVisible()) {
-                contentContainer.setVisible(false);
-                toggleButton.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-                toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_EXPAND_KEY));
-            } else {
-                contentContainer.setVisible(true);
-                toggleButton.setIcon(VaadinIcon.CHEVRON_DOWN.create());
-                toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
-            }
-        });
-
-        section.add(contentContainer);
+        setupCollapsibleSection(section, contentContainer);
         return section;
     }
 
@@ -205,27 +169,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
      * @return configured vertical layout for today's stats
      */
     private VerticalLayout createTodayStatsSection(final Map<Long, StatsRepository.DeckAggregate> agg) {
-        VerticalLayout section = new VerticalLayout();
-        section.setSpacing(true);
-        section.setWidthFull();
-        section.addClassName(STATS_SECTION_CLASS);
-        section.addClassName(SURFACE_PANEL_CLASS);
-
-        // Create collapsible header
-        HorizontalLayout headerLayout = new HorizontalLayout();
-        headerLayout.setWidthFull();
-        headerLayout.setAlignItems(Alignment.CENTER);
-        headerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
-
-        H3 sectionTitle = new H3(getTranslation("stats.today"));
-        sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
-
-        Button toggleButton = new Button(VaadinIcon.CHEVRON_DOWN.create());
-        toggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
-
-        headerLayout.add(sectionTitle, toggleButton);
-        section.add(headerLayout);
+        VerticalLayout section = createStatsSectionHeader("stats.today");
 
         HorizontalLayout statsGrid = new HorizontalLayout();
         statsGrid.setWidthFull();
@@ -256,20 +200,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         contentContainer.setSpacing(true);
         contentContainer.add(statsGrid);
 
-        // Add toggle functionality
-        toggleButton.addClickListener(e -> {
-            if (contentContainer.isVisible()) {
-                contentContainer.setVisible(false);
-                toggleButton.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-                toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_EXPAND_KEY));
-            } else {
-                contentContainer.setVisible(true);
-                toggleButton.setIcon(VaadinIcon.CHEVRON_DOWN.create());
-                toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
-            }
-        });
-
-        section.add(contentContainer);
+        setupCollapsibleSection(section, contentContainer, true); // Today section is open by default
         return section;
     }
 
@@ -282,46 +213,92 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
      */
     private VerticalLayout createDeckStatsSection(
             final List<Deck> decks, final Map<Long, StatsRepository.DeckAggregate> agg) {
-        VerticalLayout section = new VerticalLayout();
-        section.setSpacing(true);
-        section.setPadding(true);
-        section.setWidthFull();
-        section.addClassName(STATS_SECTION_CLASS);
-        section.addClassName(SURFACE_PANEL_CLASS);
+        VerticalLayout section = createStatsSectionHeader("stats.byDeck");
+        VerticalLayout contentContainer = createDeckStatsContent(decks, agg);
+        setupCollapsibleSection(section, contentContainer);
+        return section;
+    }
 
-        // Create collapsible header
-        HorizontalLayout headerLayout = new HorizontalLayout();
-        headerLayout.setWidthFull();
-        headerLayout.setAlignItems(Alignment.CENTER);
-        headerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
+    /**
+     * Creates the content container for deck statistics with pagination.
+     *
+     * @param decks list of user's decks
+     * @param agg aggregated statistics data for all decks
+     * @return configured vertical layout with paginated deck stats
+     */
+    private VerticalLayout createDeckStatsContent(
+            final List<Deck> decks, final Map<Long, StatsRepository.DeckAggregate> agg) {
+        VerticalLayout contentContainer = new VerticalLayout();
+        contentContainer.setPadding(false);
+        contentContainer.setSpacing(true);
 
-        H3 sectionTitle = new H3(getTranslation("stats.byDeck"));
-        sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
+        VerticalLayout paginatedContainer = createPaginatedDeckStats(decks, agg);
+        contentContainer.add(paginatedContainer);
 
-        Button toggleButton = new Button(VaadinIcon.CHEVRON_DOWN.create());
-        toggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
+        return contentContainer;
+    }
 
-        headerLayout.add(sectionTitle, toggleButton);
-        section.add(headerLayout);
-
-        // Create paginated container for deck stats
+    /**
+     * Creates paginated container for deck statistics with navigation controls.
+     *
+     * @param decks list of user's decks
+     * @param agg aggregated statistics data for all decks
+     * @return configured vertical layout with pagination
+     */
+    private VerticalLayout createPaginatedDeckStats(
+            final List<Deck> decks, final Map<Long, StatsRepository.DeckAggregate> agg) {
         VerticalLayout paginatedContainer = new VerticalLayout();
         paginatedContainer.setSpacing(true);
         paginatedContainer.setAlignItems(Alignment.CENTER);
 
-        // Navigation controls
+        // Initialize pagination state
+        final int[] currentIndex = {0};
+        final int totalDecks = decks.size();
+
+        // Create navigation controls
+        HorizontalLayout navigationLayout = createDeckNavigationControls();
+        Span pageIndicator = (Span) navigationLayout
+                .getChildren()
+                .filter(Span.class::isInstance)
+                .findFirst()
+                .orElse(null);
+
+        // Current deck display
+        Div currentDeckContainer = new Div();
+        currentDeckContainer.setWidthFull();
+        currentDeckContainer.addClassName("stats-current-deck__container");
+
+        // Create update display function
+        IntConsumer updateDisplay = createDeckUpdateDisplayFunction(
+                decks, agg, currentDeckContainer, pageIndicator, navigationLayout, totalDecks);
+
+        // Setup button click handlers
+        setupDeckNavigationHandlers(navigationLayout, currentIndex, updateDisplay, totalDecks);
+
+        // Initial display
+        updateDisplay.accept(0);
+
+        paginatedContainer.add(navigationLayout, currentDeckContainer);
+        return paginatedContainer;
+    }
+
+    /**
+     * Creates navigation controls for deck statistics pagination.
+     *
+     * @return configured horizontal layout with navigation buttons
+     */
+    private HorizontalLayout createDeckNavigationControls() {
         HorizontalLayout navigationLayout = new HorizontalLayout();
         navigationLayout.setSpacing(true);
         navigationLayout.setAlignItems(Alignment.CENTER);
         navigationLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
-        Button prevButton = new Button(VaadinIcon.CHEVRON_LEFT.create());
-        prevButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
+        Button prevButton = ButtonHelper.createIconButton(
+                VaadinIcon.CHEVRON_LEFT, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
         prevButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation("stats.previousDeck"));
 
-        Button nextButton = new Button(VaadinIcon.CHEVRON_RIGHT.create());
-        nextButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
+        Button nextButton = ButtonHelper.createIconButton(
+                VaadinIcon.CHEVRON_RIGHT, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
         nextButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation("stats.nextDeck"));
 
         // Page indicator
@@ -329,24 +306,33 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
         pageIndicator.addClassName("stats-pagination__indicator");
 
         navigationLayout.add(prevButton, pageIndicator, nextButton);
+        return navigationLayout;
+    }
 
-        // Current deck display
-        Div currentDeckContainer = new Div();
-        currentDeckContainer.setWidthFull();
-        currentDeckContainer.addClassName("stats-current-deck__container");
-
-        // Initialize pagination state
-        final int[] currentIndex = {0};
-        final int totalDecks = decks.size();
-
-        // Update display function
-        IntConsumer updateDisplay = index -> {
+    /**
+     * Creates the update display function for deck statistics.
+     *
+     * @param decks list of user's decks
+     * @param agg aggregated statistics data for all decks
+     * @param currentDeckContainer container for current deck display
+     * @param pageIndicator span for page indicator
+     * @param navigationLayout layout containing navigation buttons
+     * @param totalDecks total number of decks
+     * @return function to update display based on current index
+     */
+    private IntConsumer createDeckUpdateDisplayFunction(
+            final List<Deck> decks,
+            final Map<Long, StatsRepository.DeckAggregate> agg,
+            final Div currentDeckContainer,
+            final Span pageIndicator,
+            final HorizontalLayout navigationLayout,
+            final int totalDecks) {
+        return index -> {
             if (totalDecks == 0) {
                 currentDeckContainer.removeAll();
                 currentDeckContainer.add(new Span(getTranslation("stats.noDecks")));
                 pageIndicator.setText("");
-                prevButton.setEnabled(false);
-                nextButton.setEnabled(false);
+                setNavigationButtonsEnabled(navigationLayout, false, false);
                 return;
             }
 
@@ -360,56 +346,199 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
             pageIndicator.setText(getTranslation("stats.deckPage", index + 1, totalDecks));
 
             // Update button states
-            prevButton.setEnabled(index > 0);
-            nextButton.setEnabled(index < totalDecks - 1);
+            setNavigationButtonsEnabled(navigationLayout, index > 0, index < totalDecks - 1);
         };
+    }
 
-        // Button click handlers
-        prevButton.addClickListener(e -> {
-            if (currentIndex[0] > 0) {
-                currentIndex[0]--;
-                updateDisplay.accept(currentIndex[0]);
-            }
-        });
+    /**
+     * Sets up click handlers for deck navigation buttons.
+     *
+     * @param navigationLayout layout containing navigation buttons
+     * @param currentIndex current page index (mutable array)
+     * @param updateDisplay function to update display
+     * @param totalDecks total number of decks
+     */
+    private void setupDeckNavigationHandlers(
+            final HorizontalLayout navigationLayout,
+            final int[] currentIndex,
+            final IntConsumer updateDisplay,
+            final int totalDecks) {
+        Button prevButton = (Button) navigationLayout
+                .getChildren()
+                .filter(Button.class::isInstance)
+                .findFirst()
+                .orElse(null);
+        Button nextButton = (Button) navigationLayout
+                .getChildren()
+                .filter(Button.class::isInstance)
+                .skip(1)
+                .findFirst()
+                .orElse(null);
 
-        nextButton.addClickListener(e -> {
-            if (currentIndex[0] < totalDecks - 1) {
-                currentIndex[0]++;
-                updateDisplay.accept(currentIndex[0]);
-            }
-        });
+        if (prevButton != null) {
+            prevButton.addClickListener(e -> {
+                if (currentIndex[0] > 0) {
+                    currentIndex[0]--;
+                    updateDisplay.accept(currentIndex[0]);
+                }
+            });
+        }
 
-        // Initial display
-        updateDisplay.accept(0);
+        if (nextButton != null) {
+            nextButton.addClickListener(e -> {
+                if (currentIndex[0] < totalDecks - 1) {
+                    currentIndex[0]++;
+                    updateDisplay.accept(currentIndex[0]);
+                }
+            });
+        }
+    }
 
-        paginatedContainer.add(navigationLayout, currentDeckContainer);
+    /**
+     * Sets the enabled state of navigation buttons.
+     *
+     * @param navigationLayout layout containing navigation buttons
+     * @param prevEnabled whether previous button should be enabled
+     * @param nextEnabled whether next button should be enabled
+     */
+    private void setNavigationButtonsEnabled(
+            final HorizontalLayout navigationLayout, final boolean prevEnabled, final boolean nextEnabled) {
+        Button prevButton = (Button) navigationLayout
+                .getChildren()
+                .filter(Button.class::isInstance)
+                .findFirst()
+                .orElse(null);
+        Button nextButton = (Button) navigationLayout
+                .getChildren()
+                .filter(Button.class::isInstance)
+                .skip(1)
+                .findFirst()
+                .orElse(null);
 
-        // Create content container
-        VerticalLayout contentContainer = new VerticalLayout();
-        contentContainer.setPadding(false);
-        contentContainer.setSpacing(true);
-        contentContainer.add(paginatedContainer);
+        if (prevButton != null) {
+            prevButton.setEnabled(prevEnabled);
+        }
+        if (nextButton != null) {
+            nextButton.setEnabled(nextEnabled);
+        }
+    }
 
-        // Hide section by default
-        contentContainer.setVisible(false);
-        toggleButton.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-        toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_EXPAND_KEY));
+    /**
+     * Creates a statistics section header with title and toggle button.
+     *
+     * @param titleKey translation key for the section title
+     * @return configured vertical layout with header
+     */
+    private VerticalLayout createStatsSectionHeader(final String titleKey) {
+        VerticalLayout section = new VerticalLayout();
+        section.setSpacing(true);
+        section.setPadding(true);
+        section.setWidthFull();
+        section.addClassName(STATS_SECTION_CLASS);
+        section.addClassName(SURFACE_PANEL_CLASS);
 
-        // Add toggle functionality
-        toggleButton.addClickListener(e -> {
-            if (contentContainer.isVisible()) {
-                contentContainer.setVisible(false);
-                toggleButton.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
-                toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_EXPAND_KEY));
-            } else {
-                contentContainer.setVisible(true);
+        // Create collapsible header
+        HorizontalLayout headerLayout = new HorizontalLayout();
+        headerLayout.setWidthFull();
+        headerLayout.setAlignItems(Alignment.CENTER);
+        headerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
+        headerLayout.addClassName("stats-section__header");
+
+        H3 sectionTitle = new H3(getTranslation(titleKey));
+        sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
+
+        Button toggleButton = ButtonHelper.createIconButton(VaadinIcon.CHEVRON_DOWN, ButtonVariant.LUMO_TERTIARY);
+        toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
+
+        headerLayout.add(sectionTitle, toggleButton);
+        section.add(headerLayout);
+
+        return section;
+    }
+
+    /**
+     * Sets up collapsible functionality for a statistics section.
+     *
+     * @param section the main section container
+     * @param contentContainer the content to be collapsed/expanded
+     * @param openByDefault whether the section should be open by default
+     */
+    private void setupCollapsibleSection(
+            final VerticalLayout section, final VerticalLayout contentContainer, final boolean openByDefault) {
+        // Set initial visibility
+        contentContainer.setVisible(openByDefault);
+
+        // Find header layout and components
+        HorizontalLayout headerLayout = (HorizontalLayout) section.getChildren()
+                .filter(HorizontalLayout.class::isInstance)
+                .findFirst()
+                .orElse(null);
+
+        if (headerLayout == null) {
+            section.add(contentContainer);
+            return;
+        }
+
+        // Find title and toggle button
+        H3 sectionTitle = (H3) headerLayout
+                .getChildren()
+                .filter(H3.class::isInstance)
+                .findFirst()
+                .orElse(null);
+
+        Button toggleButton = (Button) headerLayout
+                .getChildren()
+                .filter(Button.class::isInstance)
+                .findFirst()
+                .orElse(null);
+
+        if (toggleButton != null) {
+            // Set initial icon and tooltip
+            if (openByDefault) {
                 toggleButton.setIcon(VaadinIcon.CHEVRON_DOWN.create());
                 toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
+            } else {
+                toggleButton.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
+                toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_EXPAND_KEY));
             }
-        });
+
+            // Toggle functionality
+            Runnable toggleAction = () -> {
+                if (contentContainer.isVisible()) {
+                    contentContainer.setVisible(false);
+                    toggleButton.setIcon(VaadinIcon.CHEVRON_RIGHT.create());
+                    toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_EXPAND_KEY));
+                } else {
+                    contentContainer.setVisible(true);
+                    toggleButton.setIcon(VaadinIcon.CHEVRON_DOWN.create());
+                    toggleButton.getElement().setAttribute(TITLE_ATTRIBUTE, getTranslation(STATS_COLLAPSE_KEY));
+                }
+            };
+
+            // Add click listener to toggle button
+            toggleButton.addClickListener(e -> toggleAction.run());
+
+            // Make entire header clickable for better UX
+            headerLayout.getStyle().set("cursor", "pointer");
+            headerLayout.addClickListener(e -> toggleAction.run());
+
+            // Style section title for better visual feedback
+            if (sectionTitle != null) {
+                sectionTitle.getStyle().set("cursor", "pointer");
+            }
+        }
 
         section.add(contentContainer);
-        return section;
+    }
+
+    /**
+     * Sets up collapsible functionality for a statistics section (closed by default).
+     *
+     * @param section the main section container
+     * @param contentContainer the content to be collapsed/expanded
+     */
+    private void setupCollapsibleSection(final VerticalLayout section, final VerticalLayout contentContainer) {
+        setupCollapsibleSection(section, contentContainer, false);
     }
 
     /**
@@ -422,7 +551,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private Div createStatCard(final String labelKey, final int value) {
         Div card = new Div();
         card.addClassName("stats-card");
-        card.addClassName("surface-card");
+        card.addClassName(SURFACE_CARD_CLASS);
 
         Div valueDiv = new Div();
         valueDiv.addClassName("stats-card__value");
@@ -446,7 +575,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private Div createDeckStatCard(final Deck deck, final StatsRepository.DeckAggregate stats) {
         Div card = new Div();
         card.addClassName("deck-stats-card");
-        card.addClassName("surface-card");
+        card.addClassName(SURFACE_CARD_CLASS);
 
         Div header = new Div();
         header.addClassName("deck-stats-card__header");
@@ -483,6 +612,7 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private Div createDeckStatItem(final String labelKey, final int total, final int today) {
         Div item = new Div();
         item.addClassName("stats-deck-item");
+        item.addClassName(SURFACE_CARD_CLASS);
 
         Div totalDiv = new Div();
         totalDiv.addClassName("stats-deck-item__total");

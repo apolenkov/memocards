@@ -17,6 +17,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,15 +116,11 @@ public class RouteNotFoundError extends VerticalLayout implements HasErrorParame
         goHomeSuggestion.setText(getTranslation(ERROR_404_GO_HOME_KEY));
 
         // Navigation buttons
-        Button goHomeButton = new Button();
-        goHomeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        goHomeButton.setText(getTranslation(MAIN_GO_HOME_KEY));
-        goHomeButton.addClickListener(e -> navigateToHome());
+        Button goHomeButton = ButtonHelper.createButton(
+                getTranslation(MAIN_GO_HOME_KEY), e -> navigateToHome(), ButtonVariant.LUMO_PRIMARY);
 
-        Button goBackButton = new Button();
-        goBackButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        goBackButton.setText(getTranslation("common.back"));
-        goBackButton.addClickListener(e -> goBack());
+        Button goBackButton =
+                ButtonHelper.createButton(getTranslation("common.back"), e -> goBack(), ButtonVariant.LUMO_TERTIARY);
 
         HorizontalLayout buttonLayout = new HorizontalLayout(goHomeButton, goBackButton);
         buttonLayout.setSpacing(true);

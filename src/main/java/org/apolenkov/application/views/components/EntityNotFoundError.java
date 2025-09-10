@@ -6,6 +6,8 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,21 +129,13 @@ public class EntityNotFoundError extends VerticalLayout {
         errorSuggestion.setText(getTranslation("entity.notFound.suggestion"));
 
         // Navigation buttons
-        Button goBackButton = new Button();
-        goBackButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        goBackButton.setText(getTranslation("entity.notFound.goBack"));
-        goBackButton.addClickListener(e -> handleBackAction());
+        Button goBackButton = ButtonHelper.createButton(
+                getTranslation("entity.notFound.goBack"), e -> handleBackAction(), ButtonVariant.LUMO_PRIMARY);
 
-        Button goHomeButton = new Button();
-        goHomeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        goHomeButton.setText(getTranslation(MAIN_GO_HOME_KEY));
-        goHomeButton.addClickListener(e -> navigateToHome());
+        Button goHomeButton = ButtonHelper.createButton(
+                getTranslation(MAIN_GO_HOME_KEY), e -> navigateToHome(), ButtonVariant.LUMO_TERTIARY);
 
-        HorizontalLayout buttonLayout = new HorizontalLayout(goBackButton, goHomeButton);
-        buttonLayout.setSpacing(true);
-        buttonLayout.setAlignItems(Alignment.CENTER);
-        buttonLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-        buttonLayout.setWidthFull();
+        HorizontalLayout buttonLayout = LayoutHelper.createButtonLayout(goBackButton, goHomeButton);
 
         errorSection.add(errorTitle, errorDescription, errorSuggestion, buttonLayout);
         errorContainer.add(errorSection);
