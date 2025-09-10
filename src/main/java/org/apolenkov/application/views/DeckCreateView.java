@@ -24,6 +24,7 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.FormHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 
@@ -128,9 +129,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
                 .bind(Deck::getTitle, Deck::setTitle);
         binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
 
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.setSpacing(true);
-        buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        HorizontalLayout buttonsLayout = LayoutHelper.createButtonLayout();
 
         Button saveButton = ButtonHelper.createPrimaryButton(getTranslation("deckCreate.create"), e -> saveDeck());
         saveButton.setIcon(VaadinIcon.CHECK.create());

@@ -2,16 +2,18 @@ package org.apolenkov.application.views.components;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
 import org.apolenkov.application.service.PracticeSettingsService;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
 
 /**
  * Dialog component for configuring practice session settings.
@@ -76,26 +78,28 @@ public class PracticeSettingsDialog extends Dialog {
                         : b2f);
 
         // Create button layout with save and cancel actions
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSpacing(true);
-        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        HorizontalLayout buttons = LayoutHelper.createButtonLayout();
 
-        Button save = new Button(getTranslation("settings.save"), e -> {
-            // Save all selected settings to the service
-            practiceSettingsService.setDefaultCount(countSelect.getValue());
-            practiceSettingsService.setDefaultRandomOrder(modeGroup.getValue().equals(random));
-            practiceSettingsService.setDefaultDirection(
-                    dirGroup.getValue().equals(f2b)
-                            ? org.apolenkov.application.model.PracticeDirection.FRONT_TO_BACK
-                            : org.apolenkov.application.model.PracticeDirection.BACK_TO_FRONT);
-            // Show success notification and close dialog
-            Notification n =
-                    Notification.show(getTranslation("settings" + ".saved"), 3000, Notification.Position.BOTTOM_START);
-            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-            close();
-        });
-        Button cancel = new Button(getTranslation("common.cancel"), e -> close());
+        Button save = ButtonHelper.createButton(
+                getTranslation("settings.save"),
+                e -> {
+                    // Save all selected settings to the service
+                    practiceSettingsService.setDefaultCount(countSelect.getValue());
+                    practiceSettingsService.setDefaultRandomOrder(
+                            modeGroup.getValue().equals(random));
+                    practiceSettingsService.setDefaultDirection(
+                            dirGroup.getValue().equals(f2b)
+                                    ? org.apolenkov.application.model.PracticeDirection.FRONT_TO_BACK
+                                    : org.apolenkov.application.model.PracticeDirection.BACK_TO_FRONT);
+                    // Show success notification and close dialog
+                    Notification n = Notification.show(
+                            getTranslation("settings" + ".saved"), 3000, Notification.Position.BOTTOM_START);
+                    n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    close();
+                },
+                ButtonVariant.LUMO_PRIMARY);
+        Button cancel =
+                ButtonHelper.createButton(getTranslation("common.cancel"), e -> close(), ButtonVariant.LUMO_TERTIARY);
         buttons.add(save, cancel);
 
         // Assemble final layout and add to dialog

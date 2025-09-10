@@ -144,4 +144,24 @@ public final class ButtonHelper {
         }
         return button;
     }
+
+    /**
+     * Creates an icon-only button without click listener.
+     * Useful when click listener needs to be added later.
+     *
+     * @param icon the Vaadin icon to display (non-null)
+     * @param variants the button variants to apply
+     * @return a configured icon-only button without click listener
+     * @throws IllegalArgumentException if icon is null
+     */
+    public static Button createIconButton(final VaadinIcon icon, final ButtonVariant... variants) {
+        if (icon == null) {
+            throw new IllegalArgumentException("Icon cannot be null");
+        }
+        Button button = new Button(icon.create());
+        if (variants.length > 0) {
+            button.addThemeVariants(variants);
+        }
+        return button;
+    }
 }

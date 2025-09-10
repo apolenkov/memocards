@@ -17,6 +17,8 @@ import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.DeckFacade;
 import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 
 /**
@@ -92,39 +94,38 @@ public class CreateDeckDialog extends Dialog {
         binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
 
         // Create button layout with save and cancel actions
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSpacing(true);
-        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        HorizontalLayout buttons = LayoutHelper.createButtonLayout();
 
-        Button save = new Button(getTranslation("dialog.create"));
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        save.addClickListener(e -> {
-            // Create new deck instance and populate with form data
-            Deck bean = new Deck();
-            bean.setUserId(userUseCase.getCurrentUser().getId());
-            try {
-                // Validate and write form data to bean
-                binder.writeBean(bean);
-                Deck saved = deckFacade.saveDeck(bean);
-                Notification.show(getTranslation("home.deckCreated"), 2000, Notification.Position.BOTTOM_START);
-                close();
-                // Execute callback and navigate to new deck
-                if (onCreated != null) {
-                    onCreated.accept(saved);
-                }
-                NavigationHelper.navigateToDeck(saved.getId());
-            } catch (ValidationException vex) {
-                // Show validation error message
-                Notification.show(getTranslation("dialog.fillRequired"), 3000, Notification.Position.BOTTOM_START);
-            } catch (Exception ex) {
-                // Show general error message
-                Notification.show(ex.getMessage(), 4000, Notification.Position.BOTTOM_START);
-            }
-        });
+        Button save = ButtonHelper.createButton(
+                getTranslation("dialog.create"),
+                e -> {
+                    // Create new deck instance and populate with form data
+                    Deck bean = new Deck();
+                    bean.setUserId(userUseCase.getCurrentUser().getId());
+                    try {
+                        // Validate and write form data to bean
+                        binder.writeBean(bean);
+                        Deck saved = deckFacade.saveDeck(bean);
+                        Notification.show(getTranslation("home.deckCreated"), 2000, Notification.Position.BOTTOM_START);
+                        close();
+                        // Execute callback and navigate to new deck
+                        if (onCreated != null) {
+                            onCreated.accept(saved);
+                        }
+                        NavigationHelper.navigateToDeck(saved.getId());
+                    } catch (ValidationException vex) {
+                        // Show validation error message
+                        Notification.show(
+                                getTranslation("dialog.fillRequired"), 3000, Notification.Position.BOTTOM_START);
+                    } catch (Exception ex) {
+                        // Show general error message
+                        Notification.show(ex.getMessage(), 4000, Notification.Position.BOTTOM_START);
+                    }
+                },
+                ButtonVariant.LUMO_PRIMARY);
 
-        Button cancel = new Button(getTranslation("common.cancel"));
-        cancel.addClickListener(e -> close());
+        Button cancel =
+                ButtonHelper.createButton(getTranslation("common.cancel"), e -> close(), ButtonVariant.LUMO_TERTIARY);
         buttons.add(save, cancel);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setSpacing(true);

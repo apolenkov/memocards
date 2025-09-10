@@ -32,6 +32,25 @@ public final class LayoutHelper {
     }
 
     /**
+     * Creates a standard button layout for dialogs and forms.
+     * Provides consistent spacing, alignment, and full width for button containers.
+     *
+     * @param components the button components to add to the layout
+     * @return a configured HorizontalLayout with standard button styling
+     */
+    public static HorizontalLayout createButtonLayout(final Component... components) {
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setSpacing(true);
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        layout.setWidthFull();
+        if (components.length > 0) {
+            layout.add(components);
+        }
+        return layout;
+    }
+
+    /**
      * Creates a button row layout with consistent spacing and alignment.
      *
      * @param buttons buttons to arrange in a row

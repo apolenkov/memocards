@@ -12,6 +12,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import org.apolenkov.application.views.home.DeckCardViewModel;
+import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 
 /**
@@ -86,9 +87,11 @@ public class DeckCard extends Div {
         HorizontalLayout progressLayout = buildProgress();
 
         // Create practice button with primary styling and navigation
-        Button practiceButton = new Button(getTranslation("home.practice"));
-        practiceButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
-        practiceButton.addClickListener(e -> navigateToPractice());
+        Button practiceButton = ButtonHelper.createButton(
+                getTranslation("home.practice"),
+                e -> navigateToPractice(),
+                ButtonVariant.LUMO_SMALL,
+                ButtonVariant.LUMO_PRIMARY);
         practiceButton.addClassName("deck-card__practice-button");
 
         // Assemble all components in the main layout
