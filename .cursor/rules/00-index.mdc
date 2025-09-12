@@ -11,6 +11,7 @@ alwaysApply: true
 - **[00-super-rules.mdc](00-super-rules.mdc)** - ALL rules in one file for maximum efficiency
 - **[01-commands.mdc](01-commands.mdc)** - Commands for maximum efficiency in chat
 - **[02-detailed-rules.mdc](02-detailed-rules.mdc)** - Detailed rules by topics (tag search)
+- **[03-class-size-limits.mdc](03-class-size-limits.mdc)** - Class size limits & refactoring rules
 
 ## 🎯 FILE STRUCTURE (OPTIMIZED!)
 
@@ -107,6 +108,7 @@ alwaysApply: true
 - **[00-super-rules.mdc](00-super-rules.mdc)** - ALL rules in one file for maximum efficiency
 - **[01-commands.mdc](01-commands.mdc)** - Commands for maximum efficiency in chat
 - **[02-detailed-rules.mdc](02-detailed-rules.mdc)** - Detailed rules by topics (tag search)
+- **[03-class-size-limits.mdc](03-class-size-limits.mdc)** - Class size limits & refactoring rules
 
 ## 🎯 FILE STRUCTURE (OPTIMIZED!)
 
