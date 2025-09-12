@@ -13,7 +13,7 @@ PROFILE_DEV := --spring.profiles.active=dev
         code-quality code-quality-full code-quality-chars \
         coverage coverage-verify deps npm-install vaadin-prepare dev-setup quality-check \
         lint-css lint-css-fix spotless-check sonarlint \
-        spotbugs checkstyle vaadin-build-frontend erase
+        spotbugs checkstyle vaadin-build-frontend erase seed
 
 # =============================================================================
 # HELP
@@ -63,9 +63,6 @@ run: start ## Start application with database
 	@echo "Starting application..."
 	$(GRADLE) bootRun
 
-dev: start ## Run in development mode
-	@echo "Starting in development mode..."
-	$(GRADLE) bootRun --args='$(PROFILE_DEV)'
 
 
 # =============================================================================
@@ -148,3 +145,18 @@ spotbugs: ## Run SpotBugs analysis for main and test classes
 
 checkstyle: ## Run Checkstyle analysis for main and test classes
 	$(GRADLE) checkstyleMain checkstyleTest
+
+# =============================================================================
+# DATA SEEDING
+# =============================================================================
+dev: ## Start application in dev mode (demo data only)
+	@echo "🚀 Starting application in dev mode (demo data only)..."
+	@$(GRADLE) bootRun --args="--spring.profiles.active=dev"
+
+dev-seed: ## Start application with demo data and test data generation
+	@echo "🚀 Starting application with demo data and test data generation..."
+	@GENERATE_TEST_DATA=true $(GRADLE) bootRun --args="--spring.profiles.active=dev"
+
+dev-load: ## Start application with demo data and massive test data generation
+	@echo "🚀 Starting application with demo data and massive test data generation..."
+	@GENERATE_TEST_DATA=true $(GRADLE) bootRun --args="--spring.profiles.active=dev"
