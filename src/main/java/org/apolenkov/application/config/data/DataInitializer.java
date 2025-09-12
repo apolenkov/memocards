@@ -3,7 +3,6 @@ package org.apolenkov.application.config.data;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.domain.port.FlashcardRepository;
@@ -38,6 +37,7 @@ public class DataInitializer {
      * Logic detales.
      */
     private static final String ADMIN_EMAIL = "admin@example.com";
+
     private static final String ADMIN_PASSWORD = "admin";
     private static final String USER_EMAIL = "user@example.com";
     private static final String USER_PASSWORD = "user";
@@ -58,13 +58,7 @@ public class DataInitializer {
         return args -> {
             LOGGER.info("=== Ensuring domain users exist ===");
 
-            syncUser(
-                    users,
-                    passwordEncoder,
-                    USER_EMAIL,
-                    USER_PASSWORD,
-                    USER_NAME,
-                    Set.of(SecurityConstants.ROLE_USER));
+            syncUser(users, passwordEncoder, USER_EMAIL, USER_PASSWORD, USER_NAME, Set.of(SecurityConstants.ROLE_USER));
 
             syncUser(
                     users,
