@@ -15,6 +15,7 @@ import org.apolenkov.application.model.User;
 import org.apolenkov.application.service.DataSeedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,16 +34,21 @@ public class DataInitializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataInitializer.class);
 
+    @Value("${demo.admin.password:admin}")
+    private String demoAdminPassword;
+
+    @Value("${demo.user.password:user}")
+    private String demoUserPassword;
+
     /**
-     * Logic detales.
+     * Demo user configuration constants.
+     * These are development-only credentials for demo purposes.
      */
     private static final String ADMIN_EMAIL = "admin@example.com";
 
-    private static final String ADMIN_PASSWORD = "admin";
-    private static final String USER_EMAIL = "user@example.com";
-    private static final String USER_PASSWORD = "user";
-    private static final String USER_NAME = "Demo User";
     private static final String ADMIN_NAME = "Administrator";
+    private static final String USER_EMAIL = "user@example.com";
+    private static final String USER_NAME = "Demo User";
 
     /**
      * Creates essential domain users (user and admin) if they don't exist.
@@ -58,13 +64,19 @@ public class DataInitializer {
         return args -> {
             LOGGER.info("=== Ensuring domain users exist ===");
 
-            syncUser(users, passwordEncoder, USER_EMAIL, USER_PASSWORD, USER_NAME, Set.of(SecurityConstants.ROLE_USER));
+            syncUser(
+                    users,
+                    passwordEncoder,
+                    USER_EMAIL,
+                    getDemoUserPassword(),
+                    USER_NAME,
+                    Set.of(SecurityConstants.ROLE_USER));
 
             syncUser(
                     users,
                     passwordEncoder,
                     ADMIN_EMAIL,
-                    ADMIN_PASSWORD,
+                    getDemoAdminPassword(),
                     ADMIN_NAME,
                     Set.of(SecurityConstants.ROLE_ADMIN));
 
@@ -301,5 +313,25 @@ public class DataInitializer {
         existing.setPasswordHash(passwordEncoder.encode(rawPassword));
         existing.setName(fullName);
         users.save(existing);
+    }
+
+    /**
+     * Gets demo admin password from Spring configuration.
+     * This method centralizes password handling to avoid hardcoded values.
+     *
+     * @return demo admin password for development environment
+     */
+    private String getDemoAdminPassword() {
+        return demoAdminPassword;
+    }
+
+    /**
+     * Gets demo user password from Spring configuration.
+     * This method centralizes password handling to avoid hardcoded values.
+     *
+     * @return demo user password for development environment
+     */
+    private String getDemoUserPassword() {
+        return demoUserPassword;
     }
 }
