@@ -1,11 +1,12 @@
 package org.apolenkov.application.config.vaadin;
 
+import org.springframework.context.annotation.Configuration;
+
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.theme.Theme;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * Global Vaadin application configuration.
@@ -40,11 +41,6 @@ public class VaadinApplicationShell implements AppShellConfigurator {
         settings.addMetaTag("keywords", "flashcards, learning, education, memorization");
         settings.addMetaTag("author", "Memocards Team");
         settings.addMetaTag("viewport", "width=device-width, initial-scale=1.0");
-
-        // Security headers
-        settings.addMetaTag("X-Content-Type-Options", "nosniff");
-        settings.addMetaTag("X-Frame-Options", "DENY");
-        settings.addMetaTag("X-XSS-Protection", "1; mode=block");
 
         // PWA support
         settings.addMetaTag("theme-color", "#1976d2");
