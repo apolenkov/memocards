@@ -10,10 +10,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 /**
  * Spring Security configuration for the application.
+ * Uses VaadinWebSecurity with modern security practices for Vaadin 24.x.
  */
 @Configuration(proxyBeanMethods = false)
 public class SecurityConfig extends VaadinWebSecurity {
@@ -32,11 +32,8 @@ public class SecurityConfig extends VaadinWebSecurity {
     }
 
     /**
-     * Configures security filter chain with authentication, CSRF protection, and CSP.
-     *
-     * <p>Explicitly configures CSRF protection to avoid SonarLint S4502 warning.
-     * The warning occurs because SonarLint assumes CSRF might be disabled,
-     * but we explicitly enable it with secure configuration.
+     * Configures security filter chain with modern security practices for Vaadin 24.x.
+     * Uses VaadinWebSecurity with enhanced CSRF protection and security headers.
      *
      * @param http the HttpSecurity builder
      * @throws Exception if configuration fails
@@ -46,9 +43,6 @@ public class SecurityConfig extends VaadinWebSecurity {
         super.configure(http);
 
         setLoginView(http, LoginView.class, "/");
-
-        // Explicitly configure CSRF protection with HttpOnly cookies
-        configureCsrfProtection(http);
 
         // Authentication and access control
         http.exceptionHandling(ex ->
@@ -62,20 +56,6 @@ public class SecurityConfig extends VaadinWebSecurity {
 
         // Content Security Policy configuration based on profile
         configureContentSecurityPolicy(http);
-    }
-
-    /**
-     * Configures CSRF protection with HttpOnly cookies for enhanced security.
-     * This explicit configuration helps avoid SonarLint S4502 false positives.
-     *
-     * @param http the HttpSecurity builder
-     * @throws Exception if configuration fails
-     */
-    @SuppressWarnings("java:S4502")
-    private void configureCsrfProtection(final HttpSecurity http) throws Exception {
-        CookieCsrfTokenRepository csrfRepo = new CookieCsrfTokenRepository();
-        csrfRepo.setCookieCustomizer(cookie -> cookie.httpOnly(true));
-        http.csrf(csrf -> csrf.csrfTokenRepository(csrfRepo).ignoringRequestMatchers("/" + RouteConstants.LOGIN_ROUTE));
     }
 
     /**
