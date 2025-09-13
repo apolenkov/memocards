@@ -54,7 +54,7 @@ public class DataInitializer {
      */
     @Bean
     @Order(10)
-    CommandLineRunner ensureDomainUsers(final UserRepository users, final PasswordEncoder passwordEncoder) {
+    public CommandLineRunner ensureDomainUsers(final UserRepository users, final PasswordEncoder passwordEncoder) {
         return args -> {
             LOGGER.info("=== Ensuring domain users exist ===");
 
@@ -87,7 +87,7 @@ public class DataInitializer {
      */
     @Bean
     @Order(20)
-    CommandLineRunner initDemoData(
+    public CommandLineRunner initDemoData(
             final UserRepository users,
             final DeckRepository decks,
             final FlashcardRepository cards,
