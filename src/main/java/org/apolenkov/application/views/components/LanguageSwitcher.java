@@ -110,14 +110,11 @@ public class LanguageSwitcher extends HorizontalLayout {
      * @return the appropriate display text for the current locale
      */
     private String getSelectedValueForLocale(final Locale current, final String en, final String ru, final String es) {
-        String language = current.getLanguage().toLowerCase();
-        if ("ru".equals(language)) {
-            return ru;
-        } else if ("es".equals(language)) {
-            return es;
-        } else {
-            return en;
-        }
+        return switch (current.getLanguage().toLowerCase()) {
+            case "ru" -> ru;
+            case "es" -> es;
+            default -> en;
+        };
     }
 
     /**

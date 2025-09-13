@@ -71,6 +71,7 @@ public class SecurityConfig extends VaadinWebSecurity {
      * @param http the HttpSecurity builder
      * @throws Exception if configuration fails
      */
+    @SuppressWarnings("java:S4502")
     private void configureCsrfProtection(final HttpSecurity http) throws Exception {
         CookieCsrfTokenRepository csrfRepo = new CookieCsrfTokenRepository();
         csrfRepo.setCookieCustomizer(cookie -> cookie.httpOnly(true));

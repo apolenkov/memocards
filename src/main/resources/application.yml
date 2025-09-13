@@ -62,6 +62,13 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+# Demo user configuration (development only)
+demo:
+  admin:
+    password: admin
+  user:
+    password: user
+
 ---
 # Production Profile
 spring:
@@ -96,3 +103,10 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+# Demo user configuration (development only)
+demo:
+  admin:
+    password: admin
+  user:
+    password: user
