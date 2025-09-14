@@ -1,12 +1,11 @@
 package org.apolenkov.application.config.vaadin;
 
-import org.springframework.context.annotation.Configuration;
-
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.theme.Theme;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Global Vaadin application configuration.
