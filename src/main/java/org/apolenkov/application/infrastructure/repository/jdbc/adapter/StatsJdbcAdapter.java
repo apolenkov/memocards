@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
@@ -91,43 +90,6 @@ public class StatsJdbcAdapter implements StatsRepository {
                 jdbcTemplate.update(knownCardSql, sessionStats.deckId(), cardId, sessionStats.deckId(), cardId);
             }
         }
-    }
-
-    /**
-     * Gets daily statistics for a deck.
-     * This method can be safely overridden by subclasses.
-     *
-     * @param deckId the deck ID to get stats for
-     * @return list of daily statistics records
-     */
-    @Override
-    public List<DailyStatsRecord> getDailyStats(final long deckId) {
-        LOGGER.debug("Getting daily stats for deck ID: {}", deckId);
-        String sql =
-                """
-            SELECT date,
-                   sessions,
-                   viewed,
-                   correct,
-                   hard,
-                   total_duration_ms,
-                   total_delay_ms as total_answer_delay_ms
-             FROM deck_daily_stats
-             WHERE deck_id = ?
-             ORDER BY date DESC
-            """;
-
-        return jdbcTemplate.query(
-                sql,
-                (rs, rowNum) -> new DailyStatsRecord(
-                        rs.getObject("date", LocalDate.class),
-                        rs.getInt("sessions"),
-                        rs.getInt("viewed"),
-                        rs.getInt("correct"),
-                        rs.getInt("hard"),
-                        rs.getLong("total_duration_ms"),
-                        rs.getLong("total_answer_delay_ms")),
-                deckId);
     }
 
     /**

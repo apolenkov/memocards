@@ -32,9 +32,8 @@ public interface FlashcardRepository {
      * Saves flashcard (creates new or updates existing).
      *
      * @param flashcard flashcard to save
-     * @return saved flashcard with generated ID
      */
-    Flashcard save(Flashcard flashcard);
+    void save(Flashcard flashcard);
 
     /**
      * Deletes flashcard by identifier.

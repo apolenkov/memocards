@@ -31,9 +31,8 @@ public interface NewsRepository {
      * Saves news item (creates new or updates existing).
      *
      * @param item news item to save
-     * @return saved news item with generated ID
      */
-    News save(News item);
+    void save(News item);
 
     /**
      * Deletes news item by identifier.

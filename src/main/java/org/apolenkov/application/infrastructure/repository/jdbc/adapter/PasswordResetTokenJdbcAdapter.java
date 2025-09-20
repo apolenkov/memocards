@@ -105,17 +105,6 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
     }
 
     /**
-     * Deletes expired password reset tokens.
-     * This method can be safely overridden by subclasses.
-     */
-    @Override
-    public void deleteExpiredTokens() {
-        LOGGER.debug("Deleting expired password reset tokens");
-        String sql = "DELETE FROM password_reset_tokens WHERE expires_at < ?";
-        jdbcTemplate.update(sql, LocalDateTime.now());
-    }
-
-    /**
      * Marks password reset token as used.
      * This method can be safely overridden by subclasses.
      *
