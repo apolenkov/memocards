@@ -5,8 +5,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -14,6 +12,7 @@ import com.vaadin.flow.component.select.Select;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
+import org.apolenkov.application.views.utils.NotificationHelper;
 
 /**
  * Dialog component for configuring practice session settings.
@@ -92,9 +91,7 @@ public class PracticeSettingsDialog extends Dialog {
                                     ? org.apolenkov.application.model.PracticeDirection.FRONT_TO_BACK
                                     : org.apolenkov.application.model.PracticeDirection.BACK_TO_FRONT);
                     // Show success notification and close dialog
-                    Notification n = Notification.show(
-                            getTranslation("settings" + ".saved"), 3000, Notification.Position.BOTTOM_START);
-                    n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    NotificationHelper.showSuccessBottom(getTranslation("settings.saved"));
                     close();
                 },
                 ButtonVariant.LUMO_PRIMARY);

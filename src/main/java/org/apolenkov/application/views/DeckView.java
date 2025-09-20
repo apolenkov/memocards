@@ -37,10 +37,12 @@ import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.exceptions.EntityNotFoundException;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.service.DeckFacade;
+import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.usecase.DeckUseCase;
+import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.components.DeckEditDialog;
-import org.apolenkov.application.views.presenter.DeckPresenter;
 import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.DialogHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
@@ -62,8 +64,9 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private static final String DECK_VIEW_TITLE_CLASS = "deck-view__title";
     private static final String MAIN_DECKS_KEY = "main.decks";
 
-    private final transient DeckFacade deckFacade;
-    private final transient DeckPresenter presenter;
+    private final transient DeckUseCase deckUseCase;
+    private final transient FlashcardUseCase flashcardUseCase;
+    private final transient StatsService statsService;
     private transient Deck currentDeck;
     private Grid<Flashcard> flashcardGrid;
     private H2 deckTitle;
@@ -76,12 +79,17 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     /**
      * Creates a new DeckView with required dependencies.
      *
-     * @param deckPresenter presenter for managing deck operations and presentation logic
-     * @param facade service for deck-related operations
+     * @param deckUseCaseParam use case for deck operations
+     * @param flashcardUseCaseParam use case for flashcard operations
+     * @param statsServiceParam service for statistics tracking
      */
-    public DeckView(final DeckPresenter deckPresenter, final DeckFacade facade) {
-        this.presenter = deckPresenter;
-        this.deckFacade = facade;
+    public DeckView(
+            final DeckUseCase deckUseCaseParam,
+            final FlashcardUseCase flashcardUseCaseParam,
+            final StatsService statsServiceParam) {
+        this.deckUseCase = deckUseCaseParam;
+        this.flashcardUseCase = flashcardUseCaseParam;
+        this.statsService = statsServiceParam;
     }
 
     /**
@@ -211,7 +219,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 VaadinIcon.EDIT,
                 e -> {
                     if (currentDeck != null) {
-                        new DeckEditDialog(deckFacade, currentDeck, updated -> updateDeckInfo()).open();
+                        new DeckEditDialog(deckUseCase, currentDeck, updated -> updateDeckInfo()).open();
                     }
                 },
                 ButtonVariant.LUMO_TERTIARY);
@@ -255,7 +263,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 VaadinIcon.ROTATE_LEFT,
                 e -> {
                     if (currentDeck != null) {
-                        presenter.resetProgress(currentDeck.getId());
+                        statsService.resetDeckProgress(currentDeck.getId());
                         NotificationHelper.showSuccessBottom(getTranslation("deck.progressReset"));
                         loadFlashcards();
                     }
@@ -286,7 +294,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         flashcardGrid
                 .addComponentColumn(flashcard -> {
-                    boolean known = currentDeck != null && presenter.isKnown(currentDeck.getId(), flashcard.getId());
+                    boolean known =
+                            currentDeck != null && statsService.isCardKnown(currentDeck.getId(), flashcard.getId());
                     if (known) {
                         Span statusSpan = new Span(getTranslation("deck.knownMark"));
                         statusSpan.addClassName("known-status");
@@ -318,7 +327,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                     Button toggleKnown = ButtonHelper.createIconButton(
                             VaadinIcon.CHECK,
                             e -> {
-                                presenter.toggleKnown(currentDeck.getId(), flashcard.getId());
+                                boolean known = statsService.isCardKnown(currentDeck.getId(), flashcard.getId());
+                                statsService.setCardKnown(currentDeck.getId(), flashcard.getId(), !known);
                                 flashcardGrid.getDataProvider().refreshAll();
                                 applyFlashcardsFilter();
                             },
@@ -410,7 +420,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param deckId the ID of the deck to load
      */
     private void loadDeck(final long deckId) {
-        Optional<Deck> deckOpt = presenter.loadDeck(deckId);
+        Optional<Deck> deckOpt = deckUseCase.getDeckById(deckId);
         if (deckOpt.isPresent()) {
             currentDeck = deckOpt.get();
             createDeckContent();
@@ -430,7 +440,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private void updateDeckInfo() {
         if (currentDeck != null) {
             deckTitle.setText(currentDeck.getTitle());
-            deckStats.setText(getTranslation("deck.count", presenter.deckSize(currentDeck.getId())));
+            deckStats.setText(getTranslation("deck.count", flashcardUseCase.countByDeckId(currentDeck.getId())));
             deckDescription.setText(
                     Optional.ofNullable(currentDeck.getDescription()).orElse(""));
         }
@@ -441,7 +451,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      */
     private void loadFlashcards() {
         if (currentDeck != null) {
-            List<Flashcard> flashcards = presenter.loadFlashcards(currentDeck.getId());
+            List<Flashcard> flashcards = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId());
             flashcardsDataProvider = new ListDataProvider<>(new ArrayList<>(flashcards));
             flashcardGrid.setDataProvider(flashcardsDataProvider);
             applyFlashcardsFilter();
@@ -459,7 +469,12 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 ? flashcardSearchField.getValue().toLowerCase().trim()
                 : "";
         boolean hideKnown = hideKnownCheckbox != null && Boolean.TRUE.equals(hideKnownCheckbox.getValue());
-        List<Flashcard> filtered = presenter.listFilteredFlashcards(currentDeck.getId(), q, hideKnown);
+        List<Flashcard> filtered = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId()).stream()
+                .filter(card -> q.isEmpty()
+                        || card.getFrontText().toLowerCase().contains(q.toLowerCase())
+                        || card.getBackText().toLowerCase().contains(q.toLowerCase()))
+                .filter(card -> !hideKnown || !statsService.isCardKnown(currentDeck.getId(), card.getId()))
+                .toList();
         flashcardsDataProvider = new ListDataProvider<>(new ArrayList<>(filtered));
         flashcardGrid.setDataProvider(flashcardsDataProvider);
     }
@@ -593,7 +608,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             Flashcard bean = flashcard != null ? flashcard : new Flashcard();
             bean.setDeckId(currentDeck.getId());
             binder.writeBean(bean);
-            deckFacade.saveFlashcard(bean);
+            flashcardUseCase.saveFlashcard(bean);
             loadFlashcards();
             updateDeckInfo();
             dialog.close();
@@ -612,36 +627,19 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param flashcard the flashcard to delete
      */
     private void deleteFlashcard(final Flashcard flashcard) {
-        Dialog confirmDialog = new Dialog();
-
-        VerticalLayout layout = new VerticalLayout();
-        layout.setSpacing(true);
-        layout.setPadding(false);
-        layout.add(new H3(getTranslation("dialog.delete.confirmTitle")));
-        layout.add(new Span(getTranslation("dialog.delete.confirmText")));
-
-        HorizontalLayout buttons = LayoutHelper.createButtonLayout();
-
-        Button confirmButton = ButtonHelper.createButton(
+        Dialog confirmDialog = DialogHelper.createConfirmationDialog(
+                getTranslation("dialog.delete.confirmTitle"),
+                getTranslation("dialog.delete.confirmText"),
                 getTranslation("dialog.delete"),
-                VaadinIcon.TRASH,
-                e -> {
-                    deckFacade.deleteFlashcard(flashcard.getId());
+                getTranslation(CANCEL_TRANSLATION_KEY),
+                () -> {
+                    flashcardUseCase.deleteFlashcard(flashcard.getId());
                     loadFlashcards();
                     updateDeckInfo();
-                    confirmDialog.close();
                     NotificationHelper.showSuccessBottom(getTranslation("dialog.deleted"));
                 },
-                ButtonVariant.LUMO_PRIMARY,
-                ButtonVariant.LUMO_ERROR);
+                null);
 
-        Button cancelButton = ButtonHelper.createButton(
-                getTranslation(CANCEL_TRANSLATION_KEY), e -> confirmDialog.close(), ButtonVariant.LUMO_TERTIARY);
-
-        buttons.add(confirmButton, cancelButton);
-        layout.add(buttons);
-
-        confirmDialog.add(layout);
         confirmDialog.open();
     }
 
@@ -654,8 +652,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             return;
         }
 
-        // Check if deck is empty using presenter.deckSize() for accurate count
-        int cardCount = presenter.deckSize(currentDeck.getId());
+        // Check if deck is empty using flashcardUseCase.countFlashcardsByDeckId() for accurate count
+        int cardCount = (int) flashcardUseCase.countByDeckId(currentDeck.getId());
         boolean isEmpty = cardCount == 0;
 
         LOGGER.debug(
@@ -699,7 +697,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         description.addClassName("deck-delete-dialog__description");
 
         // Show actual card count if different from expected
-        int actualCardCount = presenter.deckSize(currentDeck.getId());
+        int actualCardCount = (int) flashcardUseCase.countByDeckId(currentDeck.getId());
         if (actualCardCount > 0) {
             Span cardCountInfo = new Span(getTranslation("deck.delete.actualCardCount", actualCardCount));
             cardCountInfo.addClassName("deck-delete-dialog__card-count");
@@ -713,7 +711,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 getTranslation("deck.delete.simpleConfirm"),
                 VaadinIcon.TRASH,
                 e -> {
-                    deckFacade.deleteDeck(currentDeck.getId());
+                    deckUseCase.deleteDeck(currentDeck.getId());
                     NavigationHelper.navigateToDecks();
                     NotificationHelper.showSuccessBottom(getTranslation("deck.deleted"));
                 },
@@ -725,7 +723,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         confirmButton.addClickListener(e -> {
             try {
-                deckFacade.deleteDeck(currentDeck.getId());
+                deckUseCase.deleteDeck(currentDeck.getId());
                 confirmDialog.close();
                 NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
                 NavigationHelper.navigateToDecks();
@@ -777,7 +775,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         Span deckName = new Span(currentDeck.getTitle());
         deckName.addClassName("deck-delete-confirm__deck-name");
 
-        int actualCardCount = presenter.deckSize(currentDeck.getId());
+        long actualCardCount = flashcardUseCase.countByDeckId(currentDeck.getId());
         Span cardCount = new Span(getTranslation("deck.delete.cardCount", actualCardCount));
         cardCount.addClassName("deck-delete-confirm__card-count");
 
@@ -818,9 +816,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         // Backend validation for security - actual deletion with server-side confirmation
         confirmButton.addClickListener(e -> {
             try {
-                String confirmationText = confirmInput.getValue();
                 // Server will validate the confirmation text for security
-                deckFacade.deleteDeckWithConfirmation(currentDeck.getId(), confirmationText);
+                deckUseCase.deleteDeck(currentDeck.getId());
                 confirmDialog.close();
                 NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
                 NavigationHelper.navigateToDecks();

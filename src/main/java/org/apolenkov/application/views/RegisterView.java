@@ -12,7 +12,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
-import org.apolenkov.application.service.AuthFacade;
+import org.apolenkov.application.service.user.RegistrationService;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
@@ -26,9 +26,9 @@ import org.apolenkov.application.views.utils.NotificationHelper;
 public class RegisterView extends VerticalLayout implements HasDynamicTitle {
 
     /**
-     * Authentication facade for handling user registration and login operations.
+     * Registration service for handling user registration operations.
      */
-    private final transient AuthFacade authFacade;
+    private final transient RegistrationService registrationService;
 
     /**
      * Email validator instance for validating email field format.
@@ -56,12 +56,12 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
     private PasswordField confirm;
 
     /**
-     * Creates a new RegisterView with authentication facade dependency.
+     * Creates a new RegisterView with registration service dependency.
      *
-     * @param facade service for handling user registration and authentication
+     * @param registrationServiceParam service for handling user registration
      */
-    public RegisterView(final AuthFacade facade) {
-        this.authFacade = facade;
+    public RegisterView(final RegistrationService registrationServiceParam) {
+        this.registrationService = registrationServiceParam;
     }
 
     /**
@@ -346,13 +346,11 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
         String vPwd = password.getValue();
 
         try {
-            authFacade.registerUser(vEmail, vPwd);
-            authFacade.authenticateAndPersist(vEmail, vPwd);
-            NotificationHelper.showSuccess(getTranslation("auth.register.successLogin"));
-            NavigationHelper.navigateToDecks();
-        } catch (Exception ex) {
-            NotificationHelper.showError(getTranslation("auth.register.autoLoginFailed"));
+            registerUser(vEmail, vPwd);
+            NotificationHelper.showSuccess(getTranslation("auth.register.success"));
             NavigationHelper.navigateToLogin();
+        } catch (Exception ex) {
+            NotificationHelper.showError(getTranslation("auth.register.error"));
         }
     }
 
@@ -366,5 +364,41 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
     @Override
     public String getPageTitle() {
         return getTranslation("auth.register");
+    }
+
+    /**
+     * Registers new user with specified credentials.
+     * Validates password against security requirements and creates new user account.
+     * Password must be at least 8 characters and contain letters and digits.
+     *
+     * @param username email address to use as username
+     * @param rawPassword plain text password to validate and hash
+     * @throws IllegalArgumentException if password does not meet security requirements
+     */
+    private void registerUser(final String username, final String rawPassword) {
+        if (rawPassword == null || rawPassword.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters and contain letters and digits");
+        }
+
+        boolean hasLetter = false;
+        boolean hasDigit = false;
+
+        for (char c : rawPassword.toCharArray()) {
+            if (Character.isLetter(c)) {
+                hasLetter = true;
+            } else if (Character.isDigit(c)) {
+                hasDigit = true;
+            }
+
+            if (hasLetter && hasDigit) {
+                break;
+            }
+        }
+
+        if (!hasLetter || !hasDigit) {
+            throw new IllegalArgumentException("Password must be at least 8 characters and contain letters and digits");
+        }
+
+        registrationService.register(username, username, rawPassword);
     }
 }

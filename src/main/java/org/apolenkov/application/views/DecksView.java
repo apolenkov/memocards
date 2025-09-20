@@ -15,7 +15,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.List;
 import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.service.DeckFacade;
+import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.components.CreateDeckDialog;
 import org.apolenkov.application.views.components.DeckCard;
@@ -38,7 +38,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
     private static final String DECKS_TITLE_KEY = "main.decks";
 
     private final transient HomePresenter homePresenter;
-    private final transient DeckFacade deckFacade;
+    private final transient DeckUseCase deckUseCase;
     private final transient UserUseCase userUseCase;
     private VerticalLayout deckList;
 
@@ -46,15 +46,15 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
      * Creates a new DecksView with required dependencies.
      *
      * @param homePresenterValue service for home page operations and deck listing
-     * @param deckFacadeValue service for deck management operations
+     * @param deckUseCaseValue use case for deck management operations
      * @param userUseCaseValue service for user operations and authentication
      */
     public DecksView(
             final HomePresenter homePresenterValue,
-            final DeckFacade deckFacadeValue,
+            final DeckUseCase deckUseCaseValue,
             final UserUseCase userUseCaseValue) {
         this.homePresenter = homePresenterValue;
-        this.deckFacade = deckFacadeValue;
+        this.deckUseCase = deckUseCaseValue;
         this.userUseCase = userUseCaseValue;
     }
 
@@ -143,7 +143,7 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
      * is automatically refreshed to show the new deck.
      */
     private void openCreateDeckDialog() {
-        CreateDeckDialog dialog = new CreateDeckDialog(deckFacade, userUseCase, created -> refreshDecks(""));
+        CreateDeckDialog dialog = new CreateDeckDialog(deckUseCase, userUseCase, created -> refreshDecks(""));
         dialog.open();
     }
 

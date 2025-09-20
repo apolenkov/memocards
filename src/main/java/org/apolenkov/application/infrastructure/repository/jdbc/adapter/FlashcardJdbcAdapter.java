@@ -15,7 +15,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JDBC adapter for flashcard repository operations.
@@ -24,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Provides CRUD operations for flashcards within decks.
  * Active in JDBC profiles only.</p>
  */
-@Profile({"dev", "prod"})
+@Profile({"dev", "prod", "test"})
 @Repository
 public class FlashcardJdbcAdapter implements FlashcardRepository {
 
@@ -93,7 +92,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Override
-    @Transactional(readOnly = true)
     public List<Flashcard> findByDeckId(final long deckId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive");
@@ -116,7 +114,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      * @return Optional containing the flashcard if found
      */
     @Override
-    @Transactional(readOnly = true)
     public Optional<Flashcard> findById(final long id) {
         LOGGER.debug("Retrieving flashcard by ID: {}", id);
         try {
@@ -140,7 +137,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if flashcard is null
      */
     @Override
-    @Transactional
     public Flashcard save(final Flashcard flashcard) {
         if (flashcard == null) {
             throw new IllegalArgumentException("Flashcard cannot be null");
@@ -164,7 +160,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      * @param id the unique identifier of the flashcard to delete
      */
     @Override
-    @Transactional
     public void deleteById(final long id) {
         LOGGER.debug("Deleting flashcard by ID: {}", id);
         try {
@@ -185,7 +180,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Override
-    @Transactional(readOnly = true)
     public long countByDeckId(final long deckId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive");
@@ -193,8 +187,11 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
 
         LOGGER.debug("Counting flashcards for deck ID: {}", deckId);
         try {
-            Long count =
-                    jdbcTemplate.queryForObject(FlashcardSqlQueries.COUNT_FLASHCARDS_BY_DECK_ID, Long.class, deckId);
+            Long count = jdbcTemplate
+                    .query(FlashcardSqlQueries.COUNT_FLASHCARDS_BY_DECK_ID, (rs, rowNum) -> rs.getLong(1), deckId)
+                    .stream()
+                    .findFirst()
+                    .orElse(0L);
             return count != null ? count : 0L;
         } catch (DataAccessException e) {
             throw new FlashcardRetrievalException("Failed to count flashcards for deck ID: " + deckId, e);
@@ -208,7 +205,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Override
-    @Transactional
     public void deleteByDeckId(final long deckId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive");
@@ -237,9 +233,10 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 flashcard.getExample(),
                 flashcard.getImageUrl());
 
-        // Insert flashcard
-        jdbcTemplate.update(
-                FlashcardSqlQueries.INSERT_FLASHCARD,
+        // Insert flashcard and get generated ID using RETURNING clause
+        Long generatedId = jdbcTemplate.queryForObject(
+                FlashcardSqlQueries.INSERT_FLASHCARD_RETURNING_ID,
+                Long.class,
                 flashcardDto.deckId(),
                 flashcardDto.frontText(),
                 flashcardDto.backText(),
@@ -247,9 +244,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 flashcardDto.imageUrl(),
                 flashcardDto.timestamps().createdAt(),
                 flashcardDto.timestamps().updatedAt());
-
-        // Get generated ID
-        Long generatedId = jdbcTemplate.queryForObject("SELECT LASTVAL()", Long.class);
 
         // Return created flashcard
         FlashcardDto createdDto = FlashcardDto.forExistingFlashcard(

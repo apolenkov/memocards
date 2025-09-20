@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
  * JDBC-based implementation of Spring Security's UserDetailsService with role mapping and validation.
  */
 @Service
-@Profile({"dev", "prod"})
+@Profile({"dev", "prod", "test"})
 public class JdbcUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -42,8 +42,11 @@ public class JdbcUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+        if (username == null || username.trim().isEmpty()) {
+            throw new UsernameNotFoundException("Username cannot be null or empty");
+        }
         User user = userRepository
-                .findByEmail(username)
+                .findByEmail(username.trim())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         Collection<? extends GrantedAuthority> authorities = user.getRoles().isEmpty()
                 ? List.of(new SimpleGrantedAuthority(SecurityConstants.ROLE_USER))

@@ -14,14 +14,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JDBC implementation of StatsRepository.
  * Handles persistence and retrieval of statistics data using direct JDBC operations.
  */
 @Repository
-@Profile({"dev", "prod"})
+@Profile({"dev", "prod", "test"})
 public class StatsJdbcAdapter implements StatsRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsJdbcAdapter.class);
@@ -44,7 +43,6 @@ public class StatsJdbcAdapter implements StatsRepository {
      * @param date the date for the statistics
      */
     @Override
-    @Transactional
     public void appendSession(final SessionStatsDto sessionStats, final LocalDate date) {
         LOGGER.debug("Appending session stats for deck ID: {} on date: {}", sessionStats.deckId(), date);
 
@@ -103,7 +101,6 @@ public class StatsJdbcAdapter implements StatsRepository {
      * @return list of daily statistics records
      */
     @Override
-    @Transactional(readOnly = true)
     public List<DailyStatsRecord> getDailyStats(final long deckId) {
         LOGGER.debug("Getting daily stats for deck ID: {}", deckId);
         String sql =
@@ -141,7 +138,6 @@ public class StatsJdbcAdapter implements StatsRepository {
      * @return set of known card IDs
      */
     @Override
-    @Transactional(readOnly = true)
     public Set<Long> getKnownCardIds(final long deckId) {
         LOGGER.debug("Getting known card IDs for deck ID: {}", deckId);
         String sql =
@@ -164,7 +160,6 @@ public class StatsJdbcAdapter implements StatsRepository {
      * @param known whether the card is known
      */
     @Override
-    @Transactional
     public void setCardKnown(final long deckId, final long cardId, final boolean known) {
         LOGGER.debug("Setting card {} as {} for deck ID: {}", cardId, known ? "known" : "unknown", deckId);
 
@@ -196,7 +191,6 @@ public class StatsJdbcAdapter implements StatsRepository {
      * @param deckId the deck ID to reset progress for
      */
     @Override
-    @Transactional
     public void resetDeckProgress(final long deckId) {
         LOGGER.debug("Resetting progress for deck ID: {}", deckId);
 
@@ -221,7 +215,6 @@ public class StatsJdbcAdapter implements StatsRepository {
      * @return map of deck ID to aggregate statistics
      */
     @Override
-    @Transactional(readOnly = true)
     public Map<Long, DeckAggregate> getAggregatesForDecks(final Collection<Long> deckIds, final LocalDate today) {
         LOGGER.debug("Getting aggregates for {} decks on date: {}", deckIds.size(), today);
 

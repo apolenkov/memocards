@@ -17,7 +17,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JDBC adapter for user repository operations.
@@ -26,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Provides CRUD operations for users with role management.
  * Active in JDBC profiles only.</p>
  */
-@Profile({"dev", "prod"})
+@Profile({"dev", "prod", "test"})
 @Repository
 public class UserJdbcAdapter implements UserRepository {
 
@@ -90,7 +89,6 @@ public class UserJdbcAdapter implements UserRepository {
      * @return list of all users
      */
     @Override
-    @Transactional(readOnly = true)
     public List<User> findAll() {
         LOGGER.debug("Retrieving all users");
         try {
@@ -111,7 +109,6 @@ public class UserJdbcAdapter implements UserRepository {
      * @return Optional containing user if found
      */
     @Override
-    @Transactional(readOnly = true)
     public Optional<User> findById(final long id) {
         LOGGER.debug("Retrieving user by ID: {}", id);
         try {
@@ -135,7 +132,6 @@ public class UserJdbcAdapter implements UserRepository {
      * @throws IllegalArgumentException if email is null or empty
      */
     @Override
-    @Transactional(readOnly = true)
     public Optional<User> findByEmail(final String email) {
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email cannot be null or empty");
@@ -163,7 +159,6 @@ public class UserJdbcAdapter implements UserRepository {
      * @throws IllegalArgumentException if user is null
      */
     @Override
-    @Transactional
     public User save(final User user) {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
@@ -187,7 +182,6 @@ public class UserJdbcAdapter implements UserRepository {
      * @param id unique identifier of user to delete
      */
     @Override
-    @Transactional
     public void deleteById(final long id) {
         LOGGER.debug("Deleting user by ID: {}", id);
         try {
@@ -213,16 +207,14 @@ public class UserJdbcAdapter implements UserRepository {
     private User createUser(final User user) {
         UserDto userDto = UserDto.forNewUser(user.getEmail(), user.getPasswordHash(), user.getName(), user.getRoles());
 
-        // Insert user
-        jdbcTemplate.update(
-                UserSqlQueries.INSERT_USER,
+        // Insert user and get generated ID using RETURNING clause
+        Long generatedId = jdbcTemplate.queryForObject(
+                UserSqlQueries.INSERT_USER_RETURNING_ID,
+                Long.class,
                 userDto.email(),
                 userDto.passwordHash(),
                 userDto.name(),
                 userDto.createdAt());
-
-        // Get generated ID
-        Long generatedId = jdbcTemplate.queryForObject("SELECT LASTVAL()", Long.class);
 
         // Insert roles
         insertUserRoles(generatedId, user.getRoles());

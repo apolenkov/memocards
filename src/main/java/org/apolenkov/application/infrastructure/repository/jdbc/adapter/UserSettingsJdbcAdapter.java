@@ -8,14 +8,13 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JDBC implementation of UserSettingsRepository.
  * Handles persistence and retrieval of user settings using direct JDBC operations.
  */
 @Repository
-@Profile({"dev", "prod"})
+@Profile({"dev", "prod", "test"})
 public class UserSettingsJdbcAdapter implements UserSettingsRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserSettingsJdbcAdapter.class);
@@ -38,7 +37,6 @@ public class UserSettingsJdbcAdapter implements UserSettingsRepository {
      * @return optional locale code
      */
     @Override
-    @Transactional(readOnly = true)
     public Optional<String> findPreferredLocaleCode(final long userId) {
         LOGGER.debug("Finding preferred locale code for user ID: {}", userId);
         String sql = "SELECT preferred_locale_code FROM user_settings WHERE user_id = ?";
@@ -59,7 +57,6 @@ public class UserSettingsJdbcAdapter implements UserSettingsRepository {
      * @param localeCode the locale code to save
      */
     @Override
-    @Transactional
     public void savePreferredLocaleCode(final long userId, final String localeCode) {
         LOGGER.debug("Saving preferred locale code '{}' for user ID: {}", localeCode, userId);
         String sql =

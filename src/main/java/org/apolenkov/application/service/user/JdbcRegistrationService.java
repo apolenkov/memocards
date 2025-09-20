@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
  * JDBC-based implementation of user registration service with secure password hashing.
  */
 @Service
-@Profile({"dev", "prod"})
+@Profile({"dev", "prod", "test"})
 public class JdbcRegistrationService implements RegistrationService {
 
     private final UserRepository userRepository;

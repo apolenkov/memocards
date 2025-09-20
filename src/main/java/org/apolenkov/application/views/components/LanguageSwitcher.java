@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Locale;
 import org.apolenkov.application.config.constants.LocaleConstants;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.UserSettingsService;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.springframework.stereotype.Component;
@@ -177,7 +178,7 @@ public class LanguageSwitcher extends HorizontalLayout {
         }
         HttpServletResponse response = vaadinResponse.getHttpServletResponse();
         Cookie cookie = new Cookie(COOKIE_LOCALE_KEY, locale.toLanguageTag());
-        cookie.setPath("/");
+        cookie.setPath(RouteConstants.ROOT_PATH);
         cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year
         cookie.setHttpOnly(true);
         cookie.setSecure(true);

@@ -8,6 +8,11 @@ package org.apolenkov.application.config.constants;
 public final class RouteConstants {
 
     /**
+     * Root path constant for URL construction.
+     */
+    public static final String ROOT_PATH = "/";
+
+    /**
      * Route for decks list view.
      */
     public static final String DECKS_ROUTE = "decks";

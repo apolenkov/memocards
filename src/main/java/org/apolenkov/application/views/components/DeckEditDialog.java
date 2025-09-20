@@ -5,7 +5,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -14,9 +13,10 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.service.DeckFacade;
+import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
+import org.apolenkov.application.views.utils.NotificationHelper;
 
 /**
  * Dialog component for editing existing flashcard decks.
@@ -25,19 +25,20 @@ import org.apolenkov.application.views.utils.LayoutHelper;
  */
 public class DeckEditDialog extends Dialog {
 
-    private final transient DeckFacade deckFacade;
+    private final transient DeckUseCase deckUseCase;
     private final transient Deck deck;
     private final transient Consumer<Deck> onSaved;
 
     /**
      * Creates a new DeckEditDialog for the specified deck.
      *
-     * @param facade service for deck operations and persistence
+     * @param deckUseCaseParam use case for deck operations and persistence
      * @param deckValue the deck object to edit
      * @param savedCallback callback to execute when the deck is successfully saved
      */
-    public DeckEditDialog(final DeckFacade facade, final Deck deckValue, final Consumer<Deck> savedCallback) {
-        this.deckFacade = facade;
+    public DeckEditDialog(
+            final DeckUseCase deckUseCaseParam, final Deck deckValue, final Consumer<Deck> savedCallback) {
+        this.deckUseCase = deckUseCaseParam;
         this.deck = deckValue;
         this.onSaved = savedCallback;
     }
@@ -95,18 +96,16 @@ public class DeckEditDialog extends Dialog {
                 e -> {
                     try {
                         binder.writeBean(deck);
-                        Deck saved = deckFacade.saveDeck(deck);
-                        Notification.show(
-                                getTranslation("deck.edit.success"), 2000, Notification.Position.BOTTOM_START);
+                        Deck saved = deckUseCase.saveDeck(deck);
+                        NotificationHelper.showSuccessBottom(getTranslation("deck.edit.success"));
                         close();
                         if (onSaved != null) {
                             onSaved.accept(saved);
                         }
                     } catch (ValidationException vex) {
-                        Notification.show(
-                                getTranslation("dialog.fillRequired"), 3000, Notification.Position.BOTTOM_START);
+                        NotificationHelper.showError(getTranslation("dialog.fillRequired"));
                     } catch (Exception ex) {
-                        Notification.show(ex.getMessage(), 4000, Notification.Position.BOTTOM_START);
+                        NotificationHelper.showError(ex.getMessage());
                     }
                 },
                 ButtonVariant.LUMO_PRIMARY);

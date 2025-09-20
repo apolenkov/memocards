@@ -35,7 +35,7 @@ public final class NavigationHelper {
      * @param parameter the single parameter to append to the route
      */
     public static void navigateTo(final String route, final String parameter) {
-        getCurrentUI().ifPresent(ui -> ui.navigate(route + "/" + parameter));
+        getCurrentUI().ifPresent(ui -> ui.navigate(route + RouteConstants.ROOT_PATH + parameter));
     }
 
     /**
