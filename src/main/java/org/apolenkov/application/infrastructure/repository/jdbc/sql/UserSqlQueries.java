@@ -54,12 +54,13 @@ public final class UserSqlQueries {
             """;
 
     /**
-     * SQL query to insert new user.
+     * SQL query to insert new user and return generated ID.
      */
-    public static final String INSERT_USER =
+    public static final String INSERT_USER_RETURNING_ID =
             """
             INSERT INTO users (email, password_hash, name, created_at)
             VALUES (?, ?, ?, ?)
+            RETURNING id
             """;
 
     /**
@@ -96,23 +97,5 @@ public final class UserSqlQueries {
             """
             DELETE FROM user_roles
             WHERE user_id = ?
-            """;
-
-    /**
-     * SQL query to check if user exists by email.
-     */
-    public static final String EXISTS_USER_BY_EMAIL =
-            """
-            SELECT COUNT(1)
-            FROM users
-            WHERE email = ?
-            """;
-
-    /**
-     * SQL query to get user count.
-     */
-    public static final String COUNT_USERS = """
-            SELECT COUNT(1)
-            FROM users
             """;
 }

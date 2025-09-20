@@ -6,11 +6,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apolenkov.application.config.constants.TransactionAnnotations;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service implementation for flashcard use cases and business operations.
@@ -39,7 +39,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      * @return a list of flashcards belonging to the specified deck
      */
     @Override
-    @TransactionAnnotations.ReadOnlyTransaction
+    @Transactional(readOnly = true)
     public List<Flashcard> getFlashcardsByDeckId(final long deckId) {
         return flashcardRepository.findByDeckId(deckId);
     }
@@ -51,7 +51,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      * @return an Optional containing the flashcard if found, empty otherwise
      */
     @Override
-    @TransactionAnnotations.ReadOnlyTransaction
+    @Transactional(readOnly = true)
     public Optional<Flashcard> getFlashcardById(final long id) {
         return flashcardRepository.findById(id);
     }
@@ -64,7 +64,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      * @throws IllegalArgumentException if flashcard validation fails
      */
     @Override
-    @TransactionAnnotations.WriteTransaction
+    @Transactional
     public Flashcard saveFlashcard(final Flashcard flashcard) {
         var violations = validator.validate(flashcard);
         if (!violations.isEmpty()) {
@@ -82,7 +82,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      * @param id the unique identifier of the flashcard to delete
      */
     @Override
-    @TransactionAnnotations.DeleteTransaction
+    @Transactional
     public void deleteFlashcard(final long id) {
         flashcardRepository.deleteById(id);
     }
@@ -96,9 +96,9 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      * @return a list of flashcards suitable for practice sessions
      */
     @Override
-    @TransactionAnnotations.ReadOnlyTransaction
+    @Transactional(readOnly = true)
     public List<Flashcard> getFlashcardsForPractice(final long deckId, final int count, final boolean random) {
-        List<Flashcard> allCards = new ArrayList<>(getFlashcardsByDeckId(deckId));
+        List<Flashcard> allCards = new ArrayList<>(flashcardRepository.findByDeckId(deckId));
         if (random) {
             Collections.shuffle(allCards);
         }
@@ -112,7 +112,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      * @return the total number of flashcards in the specified deck
      */
     @Override
-    @TransactionAnnotations.ReadOnlyTransaction
+    @Transactional(readOnly = true)
     public long countByDeckId(final long deckId) {
         return flashcardRepository.countByDeckId(deckId);
     }

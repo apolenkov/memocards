@@ -132,20 +132,20 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 0;
-    background: url('./assets/bg-custom-dark-2.webp') no-repeat center center
+    background: url('./assets/bg-custom-dark.webp') no-repeat center center
     fixed;
     background-size: cover;
 }
 
 html {
-    background: url('./assets/bg-custom-dark-2.webp') no-repeat center center
+    background: url('./assets/bg-custom-dark.webp') no-repeat center center
     fixed;
     background-size: cover;
 }
 
 .app {
     min-height: 100vh;
-    background: url('./assets/bg-custom-dark-2.webp') no-repeat center center
+    background: url('./assets/bg-custom-dark.webp') no-repeat center center
     fixed;
     background-size: cover;
 }

@@ -15,7 +15,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JDBC adapter for deck repository operations.
@@ -24,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Provides CRUD operations for flashcard decks.
  * Active in JDBC profiles only.</p>
  */
-@Profile({"dev", "prod"})
+@Profile({"dev", "prod", "test"})
 @Repository
 public class DeckJdbcAdapter implements DeckRepository {
 
@@ -83,7 +82,6 @@ public class DeckJdbcAdapter implements DeckRepository {
      * @return list of all decks
      */
     @Override
-    @Transactional(readOnly = true)
     public List<Deck> findAll() {
         LOGGER.debug("Retrieving all decks");
         try {
@@ -102,7 +100,6 @@ public class DeckJdbcAdapter implements DeckRepository {
      * @throws IllegalArgumentException if userId is invalid
      */
     @Override
-    @Transactional(readOnly = true)
     public List<Deck> findByUserId(final long userId) {
         if (userId <= 0) {
             throw new IllegalArgumentException("User ID must be positive");
@@ -125,7 +122,6 @@ public class DeckJdbcAdapter implements DeckRepository {
      * @return Optional containing deck if found
      */
     @Override
-    @Transactional(readOnly = true)
     public Optional<Deck> findById(final long id) {
         LOGGER.debug("Retrieving deck by ID: {}", id);
         try {
@@ -148,7 +144,6 @@ public class DeckJdbcAdapter implements DeckRepository {
      * @throws IllegalArgumentException if deck is null
      */
     @Override
-    @Transactional
     public Deck save(final Deck deck) {
         if (deck == null) {
             throw new IllegalArgumentException("Deck cannot be null");
@@ -172,7 +167,6 @@ public class DeckJdbcAdapter implements DeckRepository {
      * @param id unique identifier of deck to delete
      */
     @Override
-    @Transactional
     public void deleteById(final long id) {
         LOGGER.debug("Deleting deck by ID: {}", id);
         try {
@@ -194,17 +188,15 @@ public class DeckJdbcAdapter implements DeckRepository {
     private Deck createDeck(final Deck deck) {
         DeckDto deckDto = DeckDto.forNewDeck(deck.getUserId(), deck.getTitle(), deck.getDescription());
 
-        // Insert deck
-        jdbcTemplate.update(
-                DeckSqlQueries.INSERT_DECK,
+        // Insert deck and get generated ID using RETURNING clause
+        Long generatedId = jdbcTemplate.queryForObject(
+                DeckSqlQueries.INSERT_DECK_RETURNING_ID,
+                Long.class,
                 deckDto.userId(),
                 deckDto.title(),
                 deckDto.description(),
                 deckDto.createdAt(),
                 deckDto.updatedAt());
-
-        // Get generated ID
-        Long generatedId = jdbcTemplate.queryForObject("SELECT LASTVAL()", Long.class);
 
         // Return created deck
         DeckDto createdDto = DeckDto.forExistingDeck(

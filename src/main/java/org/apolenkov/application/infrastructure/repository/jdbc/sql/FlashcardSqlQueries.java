@@ -34,12 +34,13 @@ public final class FlashcardSqlQueries {
             """;
 
     /**
-     * SQL query to insert new flashcard.
+     * SQL query to insert new flashcard and return generated ID.
      */
-    public static final String INSERT_FLASHCARD =
+    public static final String INSERT_FLASHCARD_RETURNING_ID =
             """
             INSERT INTO flashcards (deck_id, front_text, back_text, example, image_url, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)
+            RETURNING id
             """;
 
     /**
@@ -78,46 +79,5 @@ public final class FlashcardSqlQueries {
             SELECT COUNT(1)
             FROM flashcards
             WHERE deck_id = ?
-            """;
-
-    /**
-     * SQL query to check if flashcard exists by ID.
-     */
-    public static final String EXISTS_FLASHCARD_BY_ID =
-            """
-            SELECT COUNT(1)
-            FROM flashcards
-            WHERE id = ?
-            """;
-
-    /**
-     * SQL query to check if flashcard belongs to deck.
-     */
-    public static final String EXISTS_FLASHCARD_BY_ID_AND_DECK_ID =
-            """
-            SELECT COUNT(1)
-            FROM flashcards
-            WHERE id = ? AND deck_id = ?
-            """;
-
-    /**
-     * SQL query to get total flashcard count.
-     */
-    public static final String COUNT_ALL_FLASHCARDS =
-            """
-            SELECT COUNT(1)
-            FROM flashcards
-            """;
-
-    /**
-     * SQL query to select random flashcards from deck.
-     */
-    public static final String SELECT_RANDOM_FLASHCARDS_BY_DECK_ID =
-            """
-            SELECT f.id, f.deck_id, f.front_text, f.back_text, f.example, f.image_url, f.created_at, f.updated_at
-            FROM flashcards f
-            WHERE f.deck_id = ?
-            ORDER BY RANDOM()
-            LIMIT ?
             """;
 }

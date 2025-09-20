@@ -58,44 +58,4 @@ public final class NewsSqlQueries {
             DELETE FROM news
             WHERE id = ?
             """;
-
-    /**
-     * SQL query to count all news articles.
-     */
-    public static final String COUNT_ALL_NEWS = """
-            SELECT COUNT(1)
-            FROM news
-            """;
-
-    /**
-     * SQL query to check if news exists by ID.
-     */
-    public static final String EXISTS_NEWS_BY_ID =
-            """
-            SELECT COUNT(1)
-            FROM news
-            WHERE id = ?
-            """;
-
-    /**
-     * SQL query to select recent news (last N articles).
-     */
-    public static final String SELECT_RECENT_NEWS =
-            """
-            SELECT n.id, n.title, n.content, n.author, n.created_at, n.updated_at
-            FROM news n
-            ORDER BY n.created_at DESC
-            LIMIT ?
-            """;
-
-    /**
-     * SQL query to select news by author.
-     */
-    public static final String SELECT_NEWS_BY_AUTHOR =
-            """
-            SELECT n.id, n.title, n.content, n.author, n.created_at, n.updated_at
-            FROM news n
-            WHERE n.author = ?
-            ORDER BY n.created_at DESC
-            """;
 }

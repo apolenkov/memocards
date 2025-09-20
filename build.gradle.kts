@@ -77,7 +77,7 @@ extensions.configure<DependencyManagementExtension> {
 
 dependencies {
     // Utilities
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.google.guava:guava")
     implementation("org.apache.commons:commons-lang3")
 
@@ -112,10 +112,6 @@ dependencies {
     // Test containers for integration tests
     testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion") // Using variable
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion") // Using variable
-
-    // Test dependencies
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.assertj:assertj-core:$assertjCoreVersion") // Using variable
 }
 
 configurations.all {
@@ -123,8 +119,6 @@ configurations.all {
         failOnVersionConflict()
 
         // Existing force declarations
-        force("commons-logging:commons-logging:1.1.1")
-        force("commons-lang:commons-lang:2.5")
         force("commons-io:commons-io:2.18.0")
         force("org.checkerframework:checker-qual:3.48.3")
 

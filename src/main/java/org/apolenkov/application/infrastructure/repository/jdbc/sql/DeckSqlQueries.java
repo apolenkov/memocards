@@ -44,12 +44,13 @@ public final class DeckSqlQueries {
             """;
 
     /**
-     * SQL query to insert new deck.
+     * SQL query to insert new deck and return generated ID.
      */
-    public static final String INSERT_DECK =
+    public static final String INSERT_DECK_RETURNING_ID =
             """
             INSERT INTO decks (user_id, title, description, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?)
+            RETURNING id
             """;
 
     /**
@@ -68,43 +69,5 @@ public final class DeckSqlQueries {
     public static final String DELETE_DECK = """
             DELETE FROM decks
             WHERE id = ?
-            """;
-
-    /**
-     * SQL query to count decks by user ID.
-     */
-    public static final String COUNT_DECKS_BY_USER_ID =
-            """
-            SELECT COUNT(1)
-            FROM decks
-            WHERE user_id = ?
-            """;
-
-    /**
-     * SQL query to check if deck exists by ID.
-     */
-    public static final String EXISTS_DECK_BY_ID =
-            """
-            SELECT COUNT(1)
-            FROM decks
-            WHERE id = ?
-            """;
-
-    /**
-     * SQL query to check if deck belongs to user.
-     */
-    public static final String EXISTS_DECK_BY_ID_AND_USER_ID =
-            """
-            SELECT COUNT(1)
-            FROM decks
-            WHERE id = ? AND user_id = ?
-            """;
-
-    /**
-     * SQL query to get total deck count.
-     */
-    public static final String COUNT_ALL_DECKS = """
-            SELECT COUNT(1)
-            FROM decks
             """;
 }

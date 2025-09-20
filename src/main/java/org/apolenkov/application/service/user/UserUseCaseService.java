@@ -2,7 +2,6 @@ package org.apolenkov.application.service.user;
 
 import java.util.List;
 import java.util.Optional;
-import org.apolenkov.application.config.constants.TransactionAnnotations;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.apolenkov.application.usecase.UserUseCase;
@@ -10,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service implementation for user use cases with Spring Security integration
@@ -39,7 +39,7 @@ public class UserUseCaseService implements UserUseCase {
      * @return a list of all users in the system, never null (maybe empty)
      */
     @Override
-    @TransactionAnnotations.ReadOnlyTransaction
+    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -51,7 +51,7 @@ public class UserUseCaseService implements UserUseCase {
      * @return an Optional containing the user if found, empty otherwise
      */
     @Override
-    @TransactionAnnotations.ReadOnlyTransaction
+    @Transactional(readOnly = true)
     public Optional<User> getUserById(final long id) {
         return userRepository.findById(id);
     }
@@ -65,7 +65,7 @@ public class UserUseCaseService implements UserUseCase {
      *                               type is unsupported, or if the authenticated principal has no corresponding domain user
      */
     @Override
-    @TransactionAnnotations.ReadOnlyTransaction
+    @Transactional(readOnly = true)
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {

@@ -14,7 +14,7 @@ public class TestContainersConfig {
      * Custom PostgreSQL container implementation for testing.
      */
     public static final class CustomPostgreSQLContainer extends PostgreSQLContainer<CustomPostgreSQLContainer> {
-        private static final String IMAGE_VERSION = "postgres:12";
+        private static final String IMAGE_VERSION = "postgres:15";
         private static CustomPostgreSQLContainer container;
 
         /**

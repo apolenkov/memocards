@@ -11,17 +11,25 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
-import org.apolenkov.application.service.AuthFacade;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.FormHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 /**
  * User authentication view with secure login interface, form validation, and navigation options.
@@ -54,15 +62,15 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         }
     }
 
-    private final transient AuthFacade authFacade;
+    private final transient AuthenticationConfiguration authenticationConfiguration;
 
     /**
-     * Creates a new LoginView with authentication facade dependency.
+     * Creates a new LoginView with authentication configuration dependency.
      *
-     * @param facade service for handling user authentication
+     * @param authenticationConfigurationParam Spring Security authentication configuration
      */
-    public LoginView(final AuthFacade facade) {
-        this.authFacade = facade;
+    public LoginView(final AuthenticationConfiguration authenticationConfigurationParam) {
+        this.authenticationConfiguration = authenticationConfigurationParam;
     }
 
     /**
@@ -111,7 +119,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         Button submit = ButtonHelper.createPrimaryButton(getTranslation("auth.login.submit"), e -> {
             if (binder.validate().isOk()) {
                 try {
-                    authFacade.authenticateAndPersist(model.getEmail(), model.getPassword());
+                    authenticateAndPersist(model.getEmail(), model.getPassword());
                     NavigationHelper.navigateToHome();
                 } catch (Exception ex) {
                     NotificationHelper.showError(getTranslation("auth.login.errorMessage"));
@@ -176,5 +184,44 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
     @Override
     public String getPageTitle() {
         return getTranslation("auth.login");
+    }
+
+    /**
+     * Authenticates user and persists authentication session.
+     * Performs user authentication using Spring Security's authentication manager
+     * and persists authentication context to HTTP session for subsequent requests.
+     *
+     * @param username email address of user to authenticate
+     * @param rawPassword plain text password for authentication
+     * @throws IllegalArgumentException if authentication fails due to invalid credentials
+     */
+    private void authenticateAndPersist(final String username, final String rawPassword) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty");
+        }
+        if (rawPassword == null) {
+            throw new IllegalArgumentException("Password cannot be null");
+        }
+
+        UsernamePasswordAuthenticationToken authRequest =
+                new UsernamePasswordAuthenticationToken(username, rawPassword);
+        Authentication auth;
+        try {
+            auth = authenticationConfiguration.getAuthenticationManager().authenticate(authRequest);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Authentication failed", e);
+        }
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(auth);
+        SecurityContextHolder.setContext(context);
+
+        VaadinServletRequest vsr = (VaadinServletRequest) VaadinService.getCurrentRequest();
+        VaadinServletResponse vsp = (VaadinServletResponse) VaadinService.getCurrentResponse();
+        if (vsr != null && vsp != null) {
+            HttpServletRequest req = vsr.getHttpServletRequest();
+            HttpServletResponse resp = vsp.getHttpServletResponse();
+            new HttpSessionSecurityContextRepository().saveContext(context, req, resp);
+        }
     }
 }

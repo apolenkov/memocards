@@ -63,6 +63,15 @@ CREATE TABLE IF NOT EXISTS known_cards (
     card_id BIGINT NOT NULL REFERENCES flashcards(id) ON DELETE CASCADE
 );
 
+-- Prevent duplicates for known cards
+ALTER TABLE known_cards
+ADD CONSTRAINT uk_known_cards_deck_card UNIQUE (deck_id, card_id);
+
+-- Helpful indexes for performance
+CREATE INDEX IF NOT EXISTS idx_known_cards_deck ON known_cards (deck_id);
+CREATE INDEX IF NOT EXISTS idx_flashcards_deck_id ON flashcards (deck_id);
+CREATE INDEX IF NOT EXISTS idx_decks_user_id ON decks (user_id);
+
 -- News table - application announcements and updates
 CREATE TABLE IF NOT EXISTS news (
     id BIGSERIAL PRIMARY KEY,

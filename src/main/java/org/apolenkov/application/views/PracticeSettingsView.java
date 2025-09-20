@@ -3,8 +3,6 @@ package org.apolenkov.application.views;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -17,6 +15,7 @@ import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.NotificationHelper;
 
 /**
  * View for configuring practice session settings.
@@ -80,9 +79,7 @@ public class PracticeSettingsView extends VerticalLayout implements HasDynamicTi
                                     ? PracticeDirection.FRONT_TO_BACK
                                     : PracticeDirection.BACK_TO_FRONT);
 
-                    Notification n =
-                            Notification.show(getTranslation("settings.saved"), 3000, Notification.Position.MIDDLE);
-                    n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    NotificationHelper.showSuccess(getTranslation("settings.saved"));
                 },
                 ButtonVariant.LUMO_PRIMARY);
         Button cancel = ButtonHelper.createButton(

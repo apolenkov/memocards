@@ -4,7 +4,6 @@ import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apolenkov.application.config.constants.TransactionAnnotations;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.model.Deck;
@@ -12,6 +11,7 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service implementation for deck-related business operations.
@@ -59,7 +59,7 @@ public class DeckUseCaseService implements DeckUseCase {
      * @return a list of all decks in the system, or empty list if none exist
      */
     @Override
-    @TransactionAnnotations.ReadOnlyTransaction
+    @Transactional(readOnly = true)
     public List<Deck> getAllDecks() {
         LOGGER.debug("Retrieving all decks");
         List<Deck> decks = deckRepository.findAll();
@@ -75,7 +75,7 @@ public class DeckUseCaseService implements DeckUseCase {
      * @throws IllegalArgumentException if userId is invalid
      */
     @Override
-    @TransactionAnnotations.ReadOnlyTransaction
+    @Transactional(readOnly = true)
     public List<Deck> getDecksByUserId(final long userId) {
         LOGGER.debug("Retrieving decks for user {}", userId);
         List<Deck> decks = deckRepository.findByUserId(userId);
@@ -91,7 +91,7 @@ public class DeckUseCaseService implements DeckUseCase {
      * @throws IllegalArgumentException if id is null
      */
     @Override
-    @TransactionAnnotations.ReadOnlyTransaction
+    @Transactional(readOnly = true)
     public Optional<Deck> getDeckById(final long id) {
         LOGGER.debug("Retrieving deck with ID {}", id);
         Optional<Deck> deck = deckRepository.findById(id);
@@ -112,7 +112,7 @@ public class DeckUseCaseService implements DeckUseCase {
      * @throws RuntimeException if database operation fails
      */
     @Override
-    @TransactionAnnotations.WriteTransaction
+    @Transactional
     public Deck saveDeck(final Deck deck) {
         if (deck == null) {
             throw new IllegalArgumentException("The object to be validated must not be null");
@@ -158,7 +158,7 @@ public class DeckUseCaseService implements DeckUseCase {
      * @throws RuntimeException if database operation fails or deck doesn't exist
      */
     @Override
-    @TransactionAnnotations.DeleteTransaction
+    @Transactional
     public void deleteDeck(final long id) {
         LOGGER.debug("Deleting deck with ID {}", id);
 

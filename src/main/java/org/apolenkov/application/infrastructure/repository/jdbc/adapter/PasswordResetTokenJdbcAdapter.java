@@ -11,14 +11,13 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JDBC implementation of PasswordResetTokenRepository.
  * Handles persistence and retrieval of password reset tokens using direct JDBC operations.
  */
 @Repository
-@Profile({"dev", "prod"})
+@Profile({"dev", "prod", "test"})
 public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PasswordResetTokenJdbcAdapter.class);
@@ -50,7 +49,6 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
      * @param token the token to save
      */
     @Override
-    @Transactional
     public void save(final PasswordResetToken token) {
         LOGGER.debug("Saving password reset token: {}", token);
         if (token.getId() == null) {
@@ -73,7 +71,6 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
      * @return optional password reset token
      */
     @Override
-    @Transactional(readOnly = true)
     public Optional<PasswordResetToken> findByToken(final String token) {
         LOGGER.debug("Finding password reset token: {}", token);
         String sql = "SELECT id, token, user_id, expires_at, used FROM password_reset_tokens WHERE token = ?";
@@ -94,7 +91,6 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
      * @return optional unused password reset token
      */
     @Override
-    @Transactional(readOnly = true)
     public Optional<PasswordResetToken> findByUserIdAndNotUsed(final long userId) {
         LOGGER.debug("Finding unused password reset token for user ID: {}", userId);
         String sql = "SELECT id, token, user_id, expires_at, used FROM password_reset_tokens "
@@ -113,7 +109,6 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
      * This method can be safely overridden by subclasses.
      */
     @Override
-    @Transactional
     public void deleteExpiredTokens() {
         LOGGER.debug("Deleting expired password reset tokens");
         String sql = "DELETE FROM password_reset_tokens WHERE expires_at < ?";
@@ -127,7 +122,6 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
      * @param id the token ID to mark as used
      */
     @Override
-    @Transactional
     public void markAsUsed(final long id) {
         LOGGER.debug("Marking password reset token as used: {}", id);
         String sql = "UPDATE password_reset_tokens SET used = true WHERE id = ?";

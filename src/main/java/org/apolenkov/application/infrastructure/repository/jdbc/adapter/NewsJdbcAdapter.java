@@ -15,7 +15,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JDBC adapter for news repository operations.
@@ -24,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Provides CRUD operations for news articles.
  * Active in JDBC profiles only.</p>
  */
-@Profile({"dev", "prod"})
+@Profile({"dev", "prod", "test"})
 @Repository
 public class NewsJdbcAdapter implements NewsRepository {
 
@@ -83,7 +82,6 @@ public class NewsJdbcAdapter implements NewsRepository {
      * @return list of all news items ordered by creation date
      */
     @Override
-    @Transactional(readOnly = true)
     public List<News> findAllOrderByCreatedDesc() {
         LOGGER.debug("Retrieving all news ordered by creation date");
         try {
@@ -102,7 +100,6 @@ public class NewsJdbcAdapter implements NewsRepository {
      * @return Optional containing the news if found
      */
     @Override
-    @Transactional(readOnly = true)
     public Optional<News> findById(final long id) {
         LOGGER.debug("Retrieving news by ID: {}", id);
         try {
@@ -125,7 +122,6 @@ public class NewsJdbcAdapter implements NewsRepository {
      * @throws IllegalArgumentException if news is null
      */
     @Override
-    @Transactional
     public News save(final News news) {
         if (news == null) {
             throw new IllegalArgumentException("News cannot be null");
@@ -149,7 +145,6 @@ public class NewsJdbcAdapter implements NewsRepository {
      * @param id the unique identifier of the news item to delete
      */
     @Override
-    @Transactional
     public void deleteById(final long id) {
         LOGGER.debug("Deleting news by ID: {}", id);
         try {

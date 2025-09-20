@@ -5,7 +5,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -15,11 +14,12 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.service.DeckFacade;
+import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
+import org.apolenkov.application.views.utils.NotificationHelper;
 
 /**
  * Dialog component for creating new decks.
@@ -28,20 +28,23 @@ import org.apolenkov.application.views.utils.NavigationHelper;
  */
 public class CreateDeckDialog extends Dialog {
 
-    private final transient DeckFacade deckFacade;
+    private final transient DeckUseCase deckUseCase;
     private final transient UserUseCase userUseCase;
     private final transient Consumer<Deck> onCreated;
 
     /**
      * Creates a new CreateDeckDialog.
      *
-     * @param facade service for deck operations
-     * @param useCase service for user operations
+     * @param deckUseCaseParam use case for deck operations
+     * @param userUseCaseParam service for user operations
      * @param createdCallback callback function called when deck is successfully created
      */
-    public CreateDeckDialog(final DeckFacade facade, final UserUseCase useCase, final Consumer<Deck> createdCallback) {
-        this.deckFacade = facade;
-        this.userUseCase = useCase;
+    public CreateDeckDialog(
+            final DeckUseCase deckUseCaseParam,
+            final UserUseCase userUseCaseParam,
+            final Consumer<Deck> createdCallback) {
+        this.deckUseCase = deckUseCaseParam;
+        this.userUseCase = userUseCaseParam;
         this.onCreated = createdCallback;
     }
 
@@ -105,8 +108,8 @@ public class CreateDeckDialog extends Dialog {
                     try {
                         // Validate and write form data to bean
                         binder.writeBean(bean);
-                        Deck saved = deckFacade.saveDeck(bean);
-                        Notification.show(getTranslation("home.deckCreated"), 2000, Notification.Position.BOTTOM_START);
+                        Deck saved = deckUseCase.saveDeck(bean);
+                        NotificationHelper.showSuccessBottom(getTranslation("home.deckCreated"));
                         close();
                         // Execute callback and navigate to new deck
                         if (onCreated != null) {
@@ -115,11 +118,10 @@ public class CreateDeckDialog extends Dialog {
                         NavigationHelper.navigateToDeck(saved.getId());
                     } catch (ValidationException vex) {
                         // Show validation error message
-                        Notification.show(
-                                getTranslation("dialog.fillRequired"), 3000, Notification.Position.BOTTOM_START);
+                        NotificationHelper.showError(getTranslation("dialog.fillRequired"));
                     } catch (Exception ex) {
                         // Show general error message
-                        Notification.show(ex.getMessage(), 4000, Notification.Position.BOTTOM_START);
+                        NotificationHelper.showError(ex.getMessage());
                     }
                 },
                 ButtonVariant.LUMO_PRIMARY);

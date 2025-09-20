@@ -71,7 +71,7 @@ public class TopMenu extends HorizontalLayout {
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.BETWEEN);
 
-        title = new Anchor("/", "");
+        title = new Anchor(RouteConstants.ROOT_PATH, "");
 
         Image navIcon = new Image(
                 new StreamResource(
@@ -90,30 +90,33 @@ public class TopMenu extends HorizontalLayout {
     private void initializeMenuButtons() {
         menuButtons.add(new MenuButton(
                 getTranslation("main.decks"),
-                "/" + RouteConstants.DECKS_ROUTE,
+                RouteConstants.ROOT_PATH + RouteConstants.DECKS_ROUTE,
                 "nav-decks",
                 false,
                 SecurityConstants.ROLE_USER));
         menuButtons.add(new MenuButton(
                 getTranslation("main.stats"),
-                "/" + RouteConstants.STATS_ROUTE,
+                RouteConstants.ROOT_PATH + RouteConstants.STATS_ROUTE,
                 "nav-stats",
                 false,
                 SecurityConstants.ROLE_USER));
         menuButtons.add(new MenuButton(
                 getTranslation("main.settings"),
-                "/" + RouteConstants.SETTINGS_ROUTE,
+                RouteConstants.ROOT_PATH + RouteConstants.SETTINGS_ROUTE,
                 "nav-settings",
                 false,
                 SecurityConstants.ROLE_USER));
         menuButtons.add(new MenuButton(
                 getTranslation("admin.content.page.title"),
-                "/" + RouteConstants.ADMIN_CONTENT_ROUTE,
+                RouteConstants.ROOT_PATH + RouteConstants.ADMIN_CONTENT_ROUTE,
                 "nav-admin-content",
                 false,
                 SecurityConstants.ROLE_ADMIN));
-        menuButtons.add(
-                new MenuButton(getTranslation("main.logout"), "/" + RouteConstants.LOGOUT_ROUTE, "nav-logout", false));
+        menuButtons.add(new MenuButton(
+                getTranslation("main.logout"),
+                RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE,
+                "nav-logout",
+                false));
     }
 
     /**
@@ -194,7 +197,7 @@ public class TopMenu extends HorizontalLayout {
             return true;
         }
 
-        if (menuButton.getRoute().equals("/" + RouteConstants.LOGOUT_ROUTE)) {
+        if (menuButton.getRoute().equals(RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE)) {
             return isAuthenticated;
         }
 
@@ -229,11 +232,11 @@ public class TopMenu extends HorizontalLayout {
         Button button;
 
         switch (menuButton.getRoute()) {
-            case "/" + RouteConstants.LOGOUT_ROUTE -> {
+            case RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE -> {
                 button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> openLogoutDialog());
                 button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
             }
-            case "/" + RouteConstants.SETTINGS_ROUTE -> {
+            case RouteConstants.ROOT_PATH + RouteConstants.SETTINGS_ROUTE -> {
                 button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> {
                     PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService);
                     dialog.open();
@@ -266,8 +269,9 @@ public class TopMenu extends HorizontalLayout {
                     try {
                         var req = VaadinServletRequest.getCurrent().getHttpServletRequest();
                         new SecurityContextLogoutHandler().logout(req, null, null);
-                        getUI().ifPresent(ui ->
-                                ui.getPage().setLocation("/")); // Keep setLocation for logout (server redirect)
+                        getUI().ifPresent(ui -> ui.getPage()
+                                .setLocation(
+                                        RouteConstants.ROOT_PATH)); // Keep setLocation for logout (server redirect)
                     } catch (Exception ignored) {
                         NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
                     }
