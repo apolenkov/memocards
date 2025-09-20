@@ -36,7 +36,7 @@ spring:
     virtual:
       enabled: true
   datasource:
-    url: jdbc:postgresql://localhost:5433/flashcards
+    url: jdbc:postgresql://localhost:5432/flashcards
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
