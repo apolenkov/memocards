@@ -133,11 +133,10 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      * Saves a flashcard to the database.
      *
      * @param flashcard the flashcard to save
-     * @return the saved flashcard with updated fields
      * @throws IllegalArgumentException if flashcard is null
      */
     @Override
-    public Flashcard save(final Flashcard flashcard) {
+    public void save(final Flashcard flashcard) {
         if (flashcard == null) {
             throw new IllegalArgumentException("Flashcard cannot be null");
         }
@@ -145,9 +144,9 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
         LOGGER.debug("Saving flashcard: {}", flashcard.getFrontText());
         try {
             if (flashcard.getId() == null) {
-                return createFlashcard(flashcard);
+                createFlashcard(flashcard);
             } else {
-                return updateFlashcard(flashcard);
+                updateFlashcard(flashcard);
             }
         } catch (DataAccessException e) {
             throw new FlashcardPersistenceException("Failed to save flashcard: " + flashcard.getFrontText(), e);
@@ -187,12 +186,11 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
 
         LOGGER.debug("Counting flashcards for deck ID: {}", deckId);
         try {
-            Long count = jdbcTemplate
+            return jdbcTemplate
                     .query(FlashcardSqlQueries.COUNT_FLASHCARDS_BY_DECK_ID, (rs, rowNum) -> rs.getLong(1), deckId)
                     .stream()
                     .findFirst()
                     .orElse(0L);
-            return count != null ? count : 0L;
         } catch (DataAccessException e) {
             throw new FlashcardRetrievalException("Failed to count flashcards for deck ID: " + deckId, e);
         }
@@ -223,9 +221,8 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      * Creates new flashcard in database.
      *
      * @param flashcard flashcard to create
-     * @return created flashcard with generated ID
      */
-    private Flashcard createFlashcard(final Flashcard flashcard) {
+    private void createFlashcard(final Flashcard flashcard) {
         FlashcardDto flashcardDto = FlashcardDto.forNewFlashcard(
                 flashcard.getDeckId(),
                 flashcard.getFrontText(),
@@ -255,16 +252,15 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 flashcardDto.imageUrl(),
                 flashcardDto.timestamps());
 
-        return toModel(createdDto);
+        toModel(createdDto);
     }
 
     /**
      * Updates existing flashcard in database.
      *
      * @param flashcard flashcard to update
-     * @return updated flashcard
      */
-    private Flashcard updateFlashcard(final Flashcard flashcard) {
+    private void updateFlashcard(final Flashcard flashcard) {
         // Update flashcard
         jdbcTemplate.update(
                 FlashcardSqlQueries.UPDATE_FLASHCARD,
@@ -275,7 +271,5 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 flashcard.getImageUrl(),
                 java.time.LocalDateTime.now(), // Update timestamp
                 flashcard.getId());
-
-        return flashcard;
     }
 }

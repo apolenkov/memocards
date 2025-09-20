@@ -6,15 +6,6 @@ package org.apolenkov.application.infrastructure.repository.jdbc.exception;
 public class FlashcardPersistenceException extends RuntimeException {
 
     /**
-     * Constructs a new flashcard persistence exception with the specified detail message.
-     *
-     * @param message the detail message
-     */
-    public FlashcardPersistenceException(final String message) {
-        super(message);
-    }
-
-    /**
      * Constructs a new flashcard persistence exception with the specified detail message and cause.
      *
      * @param message the detail message

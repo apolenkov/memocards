@@ -6,15 +6,6 @@ package org.apolenkov.application.infrastructure.repository.jdbc.exception;
 public class DeckPersistenceException extends RuntimeException {
 
     /**
-     * Constructs a new deck persistence exception with the specified detail message.
-     *
-     * @param message the detail message
-     */
-    public DeckPersistenceException(final String message) {
-        super(message);
-    }
-
-    /**
      * Constructs a new deck persistence exception with the specified detail message and cause.
      *
      * @param message the detail message

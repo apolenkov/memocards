@@ -1,7 +1,6 @@
 package org.apolenkov.application.service;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,28 +42,6 @@ public class StatsService {
 
         LocalDate today = LocalDate.now();
         statsRepository.appendSession(sessionData, today);
-    }
-
-    /**
-     * Retrieves daily statistics for specific deck, sorted chronologically.
-     *
-     * @param deckId ID of deck to retrieve statistics for (must be positive)
-     * @return chronologically sorted list of daily statistics, never null (maybe empty)
-     * @throws IllegalArgumentException if deckId is not positive
-     */
-    @Transactional(readOnly = true)
-    public List<DailyStats> getDailyStatsForDeck(final long deckId) {
-        return statsRepository.getDailyStats(deckId).stream()
-                .map(r -> new DailyStats(
-                        r.date(),
-                        r.sessions(),
-                        r.viewed(),
-                        r.correct(),
-                        r.hard(),
-                        r.totalDurationMs(),
-                        r.totalAnswerDelayMs()))
-                .sorted(Comparator.comparing(DailyStats::date))
-                .toList();
     }
 
     /**
@@ -156,38 +133,5 @@ public class StatsService {
             return Map.of();
         }
         return statsRepository.getAggregatesForDecks(deckIds, LocalDate.now());
-    }
-
-    /**
-     * Record for daily statistics with calculated averages.
-     * Provides both raw counts and computed metrics for analysis.
-     *
-     * @param date calendar date for these statistics
-     * @param sessions number of practice sessions
-     * @param viewed total cards viewed
-     * @param correct total correct answers
-     *
-     * @param hard total hard card markings
-     * @param totalDurationMs total session duration in milliseconds
-     * @param totalAnswerDelayMs total answer delay in milliseconds
-     */
-    public record DailyStats(
-            LocalDate date,
-            int sessions,
-            int viewed,
-            int correct,
-            int hard,
-            long totalDurationMs,
-            long totalAnswerDelayMs) {
-
-        /**
-         * Calculates average answer delay per card in milliseconds.
-         * Returns 0.0 if no cards were viewed to avoid division by zero.
-         *
-         * @return average delay in milliseconds, or 0.0 if no cards viewed
-         */
-        public double averageAnswerDelayMs() {
-            return viewed > 0 ? (double) totalAnswerDelayMs / viewed : 0.0;
-        }
     }
 }

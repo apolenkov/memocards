@@ -118,11 +118,10 @@ public class NewsJdbcAdapter implements NewsRepository {
      * Saves a news item to the database.
      *
      * @param news the news item to save
-     * @return the saved news item with updated fields
      * @throws IllegalArgumentException if news is null
      */
     @Override
-    public News save(final News news) {
+    public void save(final News news) {
         if (news == null) {
             throw new IllegalArgumentException("News cannot be null");
         }
@@ -130,9 +129,9 @@ public class NewsJdbcAdapter implements NewsRepository {
         LOGGER.debug("Saving news: {}", news.getTitle());
         try {
             if (news.getId() == null) {
-                return createNews(news);
+                createNews(news);
             } else {
-                return updateNews(news);
+                updateNews(news);
             }
         } catch (DataAccessException e) {
             throw new NewsPersistenceException("Failed to save news: " + news.getTitle(), e);
@@ -161,9 +160,8 @@ public class NewsJdbcAdapter implements NewsRepository {
      * Creates new news article in database.
      *
      * @param news news article to create
-     * @return created news article with generated ID
      */
-    private News createNews(final News news) {
+    private void createNews(final News news) {
         NewsDto newsDto = NewsDto.forNewNews(news.getTitle(), news.getContent(), news.getAuthor());
 
         // Insert news
@@ -187,16 +185,15 @@ public class NewsJdbcAdapter implements NewsRepository {
                 newsDto.createdAt(),
                 newsDto.updatedAt());
 
-        return toModel(createdDto);
+        toModel(createdDto);
     }
 
     /**
      * Updates existing news article in database.
      *
      * @param news news article to update
-     * @return updated news article
      */
-    private News updateNews(final News news) {
+    private void updateNews(final News news) {
         // Update news
         jdbcTemplate.update(
                 NewsSqlQueries.UPDATE_NEWS,
@@ -205,7 +202,5 @@ public class NewsJdbcAdapter implements NewsRepository {
                 news.getAuthor(),
                 java.time.LocalDateTime.now(), // Update timestamp
                 news.getId());
-
-        return news;
     }
 }

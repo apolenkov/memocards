@@ -195,13 +195,11 @@ public final class PracticePresenter {
      * @param deckId the ID of the deck to practice
      * @param count the number of cards to include in the session
      * @param random whether to randomize the card order
-     * @param direction the practice direction for the session
      * @return a new Session instance ready for practice
      */
-    public Session startSession(
-            final long deckId, final int count, final boolean random, final PracticeDirection direction) {
+    public Session startSession(final long deckId, final int count, final boolean random) {
         List<Flashcard> cards = prepareSession(deckId, count, random);
-        return new Session(deckId, cards, direction);
+        return new Session(deckId, cards);
     }
 
     /**
@@ -359,7 +357,6 @@ public final class PracticePresenter {
         private final List<Long> failedCardIds = new ArrayList<>();
         private int index;
         private boolean showingAnswer;
-        private PracticeDirection direction;
         private int correctCount;
         private int hardCount;
         private int totalViewed;
@@ -371,13 +368,10 @@ public final class PracticePresenter {
          *
          * @param deckIdValue the ID of the deck being practiced
          * @param cardsValue the list of flashcards for this session
-         * @param directionValue the practice direction (front-to-back or back-to-front)
          */
-        public Session(
-                final long deckIdValue, final List<Flashcard> cardsValue, final PracticeDirection directionValue) {
+        public Session(final long deckIdValue, final List<Flashcard> cardsValue) {
             this.deckId = deckIdValue;
             this.cards = cardsValue;
-            this.direction = directionValue;
             this.index = 0;
             this.showingAnswer = false;
             this.correctCount = 0;
@@ -439,24 +433,6 @@ public final class PracticePresenter {
          */
         public void setShowingAnswer(final boolean showingAnswerValue) {
             this.showingAnswer = showingAnswerValue;
-        }
-
-        /**
-         * Gets the practice direction for this session.
-         *
-         * @return the practice direction
-         */
-        public PracticeDirection getDirection() {
-            return direction;
-        }
-
-        /**
-         * Sets the practice direction for this session.
-         *
-         * @param directionValue the new practice direction
-         */
-        public void setDirection(final PracticeDirection directionValue) {
-            this.direction = directionValue;
         }
 
         /**

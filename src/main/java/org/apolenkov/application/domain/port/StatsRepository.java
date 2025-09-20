@@ -2,7 +2,6 @@ package org.apolenkov.application.domain.port;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
@@ -22,14 +21,6 @@ public interface StatsRepository {
      * @param date date for the session
      */
     void appendSession(SessionStatsDto sessionStats, LocalDate date);
-
-    /**
-     * Gets daily statistics for deck.
-     *
-     * @param deckId deck identifier
-     * @return list of daily statistics records
-     */
-    List<DailyStatsRecord> getDailyStats(long deckId);
 
     /**
      * Gets known card IDs for deck.

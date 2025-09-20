@@ -6,15 +6,6 @@ package org.apolenkov.application.infrastructure.repository.jdbc.exception;
 public class UserRetrievalException extends RuntimeException {
 
     /**
-     * Constructs a new user retrieval exception with the specified detail message.
-     *
-     * @param message the detail message
-     */
-    public UserRetrievalException(final String message) {
-        super(message);
-    }
-
-    /**
      * Constructs a new user retrieval exception with the specified detail message and cause.
      *
      * @param message the detail message

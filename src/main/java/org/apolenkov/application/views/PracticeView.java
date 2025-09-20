@@ -267,7 +267,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             showNoCardsOnce();
             return;
         }
-        session = presenter.startSession(currentDeck.getId(), count, random, sessionDirection);
+        session = presenter.startSession(currentDeck.getId(), count, random);
         correctCount = 0;
         hardCount = 0;
         totalViewed = 0;
@@ -435,8 +435,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                         startDefaultPractice();
                         return;
                     }
-                    session = new PracticePresenter.Session(
-                            currentDeck.getId(), new ArrayList<>(failed), presenter.defaultDirection());
+                    session = new PracticePresenter.Session(currentDeck.getId(), new ArrayList<>(failed));
                     Collections.shuffle(session.getCards());
                     correctCount = 0;
                     hardCount = 0;
