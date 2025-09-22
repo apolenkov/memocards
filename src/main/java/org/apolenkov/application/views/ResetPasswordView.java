@@ -29,7 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Validates reset tokens and allows users to set new passwords.
  * Accessible only to anonymous users with valid reset tokens.
  */
-@Route(value = "reset-password", layout = PublicLayout.class)
+@Route(value = RouteConstants.RESET_PASSWORD_ROUTE, layout = PublicLayout.class)
 @AnonymousAllowed
 public class ResetPasswordView extends BaseView implements HasUrlParameter<String>, BeforeEnterObserver {
 

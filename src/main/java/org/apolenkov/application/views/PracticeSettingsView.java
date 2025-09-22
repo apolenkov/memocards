@@ -9,10 +9,12 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 
 /**
@@ -20,7 +22,7 @@ import org.apolenkov.application.views.utils.NotificationHelper;
  * Allows users to set default preferences for practice sessions including
  * card count, order mode (random/sequential), and direction (front-to-back/back-to-front).
  */
-@Route(value = "settings", layout = PublicLayout.class)
+@Route(value = RouteConstants.SETTINGS_ROUTE, layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class PracticeSettingsView extends BaseView {
 
@@ -81,9 +83,7 @@ public class PracticeSettingsView extends BaseView {
                 },
                 ButtonVariant.LUMO_PRIMARY);
         Button cancel = ButtonHelper.createButton(
-                getTranslation("common.cancel"),
-                e -> getUI().ifPresent(ui -> ui.navigate("decks")),
-                ButtonVariant.LUMO_TERTIARY);
+                getTranslation("common.cancel"), e -> NavigationHelper.navigateToDecks(), ButtonVariant.LUMO_TERTIARY);
         HorizontalLayout actions = new HorizontalLayout(save, cancel);
 
         add(countSelect, modeGroup, dirGroup, actions);

@@ -41,7 +41,7 @@ import org.apolenkov.application.views.utils.NotificationHelper;
  * Provides a complete practice interface for studying flashcards with
  * configurable settings, progress tracking, and session statistics.
  */
-@Route(value = "practice", layout = PublicLayout.class)
+@Route(value = RouteConstants.PRACTICE_ROUTE, layout = PublicLayout.class)
 @RolesAllowed(SecurityConstants.ROLE_USER)
 public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 

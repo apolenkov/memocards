@@ -17,6 +17,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * Custom error view for handling 404 Not Found errors.
  * This component is automatically used by Vaadin when a route is not found.
  */
-@Route(value = "error/404", layout = PublicLayout.class)
+@Route(value = RouteConstants.ERROR_404_ROUTE, layout = PublicLayout.class)
 @AnonymousAllowed
 public class RouteNotFoundError extends VerticalLayout implements HasErrorParameter<NotFoundException> {
 

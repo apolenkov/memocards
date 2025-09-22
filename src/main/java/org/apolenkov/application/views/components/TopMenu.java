@@ -1,14 +1,12 @@
 package org.apolenkov.application.views.components;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -278,9 +276,7 @@ public class TopMenu extends HorizontalLayout {
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidthFull();
 
-        Button confirmButton = new Button(getTranslation("dialog.confirm"), VaadinIcon.CHECK.create());
-        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
-        confirmButton.addClickListener(e -> {
+        Button confirmButton = ButtonHelper.createConfirmButton(getTranslation("dialog.confirm"), e -> {
             try {
                 var req = VaadinServletRequest.getCurrent().getHttpServletRequest();
                 new SecurityContextLogoutHandler().logout(req, null, null);
@@ -292,8 +288,7 @@ public class TopMenu extends HorizontalLayout {
             dialog.close();
         });
 
-        Button cancelButton = new Button(getTranslation("dialog.cancel"));
-        cancelButton.addClickListener(e -> dialog.close());
+        Button cancelButton = ButtonHelper.createCancelButton(getTranslation("dialog.cancel"), e -> dialog.close());
 
         buttons.add(confirmButton, cancelButton);
         layout.add(buttons);

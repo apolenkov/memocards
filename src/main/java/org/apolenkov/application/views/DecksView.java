@@ -13,6 +13,7 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.List;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
@@ -29,7 +30,7 @@ import org.apolenkov.application.views.utils.LayoutHelper;
  * searching through them, and creating new decks. It serves as the main
  * dashboard for deck management operations.
  */
-@Route(value = "decks", layout = PublicLayout.class)
+@Route(value = RouteConstants.DECKS_ROUTE, layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class DecksView extends BaseView {
 

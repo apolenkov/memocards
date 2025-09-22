@@ -11,6 +11,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.PasswordResetService;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
@@ -19,7 +20,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-@Route(value = "forgot-password", layout = PublicLayout.class)
+@Route(value = RouteConstants.FORGOT_PASSWORD_ROUTE, layout = PublicLayout.class)
 @AnonymousAllowed
 public final class ForgotPasswordView extends BaseView implements BeforeEnterObserver {
 

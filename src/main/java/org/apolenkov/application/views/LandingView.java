@@ -11,6 +11,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.service.NewsService;
 import org.apolenkov.application.views.utils.ButtonHelper;
@@ -22,7 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /**
  * Landing page view with hero section, news updates, and dynamic navigation based on authentication status.
  */
-@Route(value = "", layout = PublicLayout.class)
+@Route(value = RouteConstants.HOME_ROUTE, layout = PublicLayout.class)
 @AnonymousAllowed
 public class LandingView extends BaseView {
 

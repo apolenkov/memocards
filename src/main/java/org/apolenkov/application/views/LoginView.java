@@ -17,6 +17,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
@@ -31,7 +32,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 /**
  * User authentication view with secure login interface, form validation, and navigation options.
  */
-@Route(value = "login", layout = PublicLayout.class)
+@Route(value = RouteConstants.LOGIN_ROUTE, layout = PublicLayout.class)
 @AnonymousAllowed
 public class LoginView extends BaseView implements BeforeEnterObserver {
 

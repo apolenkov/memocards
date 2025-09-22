@@ -164,4 +164,40 @@ public final class ButtonHelper {
         }
         return button;
     }
+
+    /**
+     * Creates a confirm button with consistent styling for dialogs.
+     * Commonly used pattern for confirmation dialogs.
+     *
+     * @param text the display text for the button (non-null, non-empty)
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured confirm button with check icon and success styling
+     * @throws IllegalArgumentException if text is null or empty, or clickListener is null
+     */
+    public static Button createConfirmButton(
+            final String text, final ComponentEventListener<ClickEvent<Button>> clickListener) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Button text cannot be null or empty");
+        }
+        if (clickListener == null) {
+            throw new IllegalArgumentException("Click listener cannot be null");
+        }
+        Button button = new Button(text, VaadinIcon.CHECK.create(), clickListener);
+        button.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        return button;
+    }
+
+    /**
+     * Creates a cancel button with consistent styling for dialogs.
+     * Commonly used pattern for cancellation actions.
+     *
+     * @param text the display text for the button (non-null, non-empty)
+     * @param clickListener the event handler for button clicks (non-null)
+     * @return a configured cancel button with tertiary styling
+     * @throws IllegalArgumentException if text is null or empty, or clickListener is null
+     */
+    public static Button createCancelButton(
+            final String text, final ComponentEventListener<ClickEvent<Button>> clickListener) {
+        return createTertiaryButton(text, clickListener);
+    }
 }

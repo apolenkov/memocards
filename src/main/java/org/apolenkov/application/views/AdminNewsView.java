@@ -20,6 +20,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.News;
 import org.apolenkov.application.service.NewsService;
@@ -32,8 +33,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /**
  * Administrative interface for managing news articles.
  */
-@Route(value = "admin/news", layout = PublicLayout.class)
-@RouteAlias(value = "admin/content", layout = PublicLayout.class)
+@Route(value = RouteConstants.ADMIN_NEWS_ROUTE, layout = PublicLayout.class)
+@RouteAlias(value = RouteConstants.ADMIN_CONTENT_ROUTE, layout = PublicLayout.class)
 @RolesAllowed(SecurityConstants.ROLE_ADMIN)
 public class AdminNewsView extends BaseView {
 
@@ -242,9 +243,7 @@ public class AdminNewsView extends BaseView {
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidthFull();
 
-        Button confirmButton = new Button(getTranslation("dialog.confirm"), VaadinIcon.CHECK.create());
-        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
-        confirmButton.addClickListener(e -> {
+        Button confirmButton = ButtonHelper.createConfirmButton(getTranslation("dialog.confirm"), e -> {
             try {
                 newsService.deleteNews(news.getId());
                 refreshNews("");
@@ -255,8 +254,8 @@ public class AdminNewsView extends BaseView {
             confirmDialog.close();
         });
 
-        Button cancelButton = new Button(getTranslation("dialog.cancel"));
-        cancelButton.addClickListener(e -> confirmDialog.close());
+        Button cancelButton =
+                ButtonHelper.createCancelButton(getTranslation("dialog.cancel"), e -> confirmDialog.close());
 
         buttons.add(confirmButton, cancelButton);
         layout.add(buttons);

@@ -56,27 +56,6 @@ public interface StatsRepository {
     Map<Long, DeckAggregate> getAggregatesForDecks(Collection<Long> deckIds, LocalDate today);
 
     /**
-     * Daily statistics record for specific date.
-     *
-     * @param date the date for these statistics
-     * @param sessions number of study sessions
-     * @param viewed number of cards viewed
-     * @param correct number of correct answers
-     *
-     * @param hard number of cards marked as hard
-     * @param totalDurationMs total study duration in milliseconds
-     * @param totalAnswerDelayMs total delay before answering in milliseconds
-     */
-    record DailyStatsRecord(
-            LocalDate date,
-            int sessions,
-            int viewed,
-            int correct,
-            int hard,
-            long totalDurationMs,
-            long totalAnswerDelayMs) {}
-
-    /**
      * Aggregate statistics for deck (all-time and today).
      *
      * @param sessionsAll total sessions across all time

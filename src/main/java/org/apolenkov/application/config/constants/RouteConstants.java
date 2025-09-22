@@ -78,6 +78,16 @@ public final class RouteConstants {
     public static final String ADMIN_CONTENT_ROUTE = "admin/content";
 
     /**
+     * Route for admin news view.
+     */
+    public static final String ADMIN_NEWS_ROUTE = "admin/news";
+
+    /**
+     * Route for 404 error view.
+     */
+    public static final String ERROR_404_ROUTE = "error/404";
+
+    /**
      * Actuator endpoints - public access (no authentication required).
      */
     public static final String ACTUATOR_HEALTH = "/actuator/health";

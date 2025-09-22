@@ -11,6 +11,7 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.user.RegistrationService;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
@@ -19,7 +20,7 @@ import org.apolenkov.application.views.utils.NotificationHelper;
 /**
  * User registration view with comprehensive form validation, security measures, and automatic login.
  */
-@Route(value = "register", layout = PublicLayout.class)
+@Route(value = RouteConstants.REGISTER_ROUTE, layout = PublicLayout.class)
 @AnonymousAllowed
 public class RegisterView extends BaseView {
 
