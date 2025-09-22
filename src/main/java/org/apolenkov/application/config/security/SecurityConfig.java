@@ -1,5 +1,6 @@
 package org.apolenkov.application.config.security;
 
+import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.logging.MdcFilter;
 import org.springframework.context.annotation.Bean;
@@ -10,8 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.vaadin.flow.spring.security.VaadinWebSecurity;
 
 /**
  * Spring Security configuration for the application.

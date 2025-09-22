@@ -4,29 +4,28 @@ import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.News;
 import org.apolenkov.application.service.NewsService;
 import org.apolenkov.application.views.utils.ButtonHelper;
 import org.apolenkov.application.views.utils.DialogHelper;
+import org.apolenkov.application.views.utils.FormHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 import org.springframework.security.core.Authentication;
@@ -40,12 +39,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @RolesAllowed(SecurityConstants.ROLE_ADMIN)
 public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
 
-    private static final String COL_CREATED_AT = "createdAt";
-    private static final String COL_UPDATED_AT = "updatedAt";
+    private static final String COLOR_STYLE = "color";
+    private static final String FONT_SIZE_STYLE = "font-size";
+    private static final String LUMO_FONT_SIZE_S = "var(--lumo-font-size-s)";
 
     private final transient NewsService newsService;
-    private ListDataProvider<News> dataProvider;
-    private final transient List<News> newsList;
+    private VerticalLayout newsList;
 
     /**
      * Creates news management interface.
@@ -59,7 +58,6 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         }
 
         this.newsService = service;
-        this.newsList = new ArrayList<>();
     }
 
     /**
@@ -69,68 +67,54 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
      */
     @PostConstruct
     private void init() {
-        setPadding(true);
-        setSpacing(true);
-        addClassName("admin-view");
+        setPadding(false);
+        setSpacing(false);
+        addClassName("admin-content-view");
+
+        VerticalLayout content = new VerticalLayout();
+        content.setSizeFull();
+        content.setPadding(true);
+        content.setSpacing(true);
+        content.setAlignItems(Alignment.CENTER);
+        content.addClassName("admin-content-view__content");
 
         H2 title = new H2(getTranslation("admin.content.page.title"));
-        add(title);
+        title.addClassName("admin-content-view__title");
+
+        TextField search = FormHelper.createOptionalTextField("", getTranslation("admin.content.search.placeholder"));
+        search.setValueChangeMode(ValueChangeMode.EAGER);
+        search.setPrefixComponent(VaadinIcon.SEARCH.create());
+        search.addValueChangeListener(e -> refreshNews(e.getValue()));
 
         Button addNewsBtn = ButtonHelper.createButton(
                 getTranslation("common.add"), VaadinIcon.PLUS, e -> showNewsDialog(null), ButtonVariant.LUMO_PRIMARY);
         addNewsBtn.setText(getTranslation("admin.news.add"));
-        addNewsBtn.addClassName("admin-view__add-button");
-        add(addNewsBtn);
 
-        Grid<News> newsGrid = new Grid<>(News.class, false);
-        newsGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        newsGrid.setWidthFull();
-        newsGrid.setColumns("title", "content", "author", COL_CREATED_AT, COL_UPDATED_AT);
-        newsGrid.addColumn(News::getTitle)
-                .setHeader(getTranslation("admin.news.title"))
-                .setFlexGrow(2);
-        newsGrid.addColumn(News::getContent)
-                .setHeader(getTranslation("admin.news.content"))
-                .setFlexGrow(3);
-        newsGrid.addColumn(News::getAuthor)
-                .setHeader(getTranslation("admin.news.author"))
-                .setFlexGrow(2);
-        newsGrid.getColumnByKey(COL_CREATED_AT).setHeader(getTranslation("admin.news.createdAt"));
-        newsGrid.getColumnByKey(COL_UPDATED_AT).setHeader(getTranslation("admin.news.updatedAt"));
-        newsGrid.getColumnByKey(COL_CREATED_AT)
-                .setRenderer(new com.vaadin.flow.data.renderer.LocalDateTimeRenderer<>(
-                        News::getCreatedAt, "dd.MM.yyyy HH:mm"));
-        newsGrid.getColumnByKey(COL_UPDATED_AT)
-                .setRenderer(new com.vaadin.flow.data.renderer.ComponentRenderer<>(news -> {
-                    if (news.getUpdatedAt() != null) {
-                        return new com.vaadin.flow.component.html.Span(
-                                news.getUpdatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
-                    }
-                    return new com.vaadin.flow.component.html.Span(getTranslation("common.emDash"));
-                }));
+        HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addNewsBtn);
+        toolbar.setAlignItems(Alignment.CENTER);
+        toolbar.setJustifyContentMode(JustifyContentMode.CENTER);
+        toolbar.addClassName("admin-content-toolbar");
 
-        // widths controlled via theme classes, allow auto sizing
-        newsGrid.addComponentColumn(news -> LayoutHelper.createButtonRow(
-                        ButtonHelper.createButton(
-                                getTranslation("common.edit"),
-                                VaadinIcon.EDIT,
-                                e -> showNewsDialog(news),
-                                ButtonVariant.LUMO_TERTIARY),
-                        ButtonHelper.createButton(
-                                getTranslation("common.delete"),
-                                VaadinIcon.TRASH,
-                                e -> deleteNews(news),
-                                ButtonVariant.LUMO_ERROR)))
-                .setHeader(getTranslation("admin.users.actions"))
-                .setFlexGrow(0);
+        newsList = new VerticalLayout();
+        newsList.setPadding(false);
+        newsList.setSpacing(true);
+        newsList.setWidthFull();
+        newsList.setAlignItems(Alignment.CENTER);
 
-        dataProvider = new ListDataProvider<>(newsList);
-        newsGrid.setDataProvider(dataProvider);
+        VerticalLayout newsContainer = new VerticalLayout();
+        newsContainer.setSpacing(true);
+        newsContainer.setAlignItems(Alignment.CENTER);
+        newsContainer.setWidthFull();
+        newsContainer.addClassName("container-md");
+        newsContainer.addClassName("admin-content-section");
+        newsContainer.addClassName("surface-panel");
 
-        add(newsGrid);
-        newsGrid.setSizeFull();
+        newsContainer.add(title, toolbar, newsList);
 
-        refreshNews();
+        content.add(newsContainer);
+        add(content);
+
+        refreshNews("");
     }
 
     /**
@@ -191,7 +175,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
                 updateNews(news.getId(), t, c, authorField.getValue());
             }
             dialog.close();
-            refreshNews();
+            refreshNews("");
         });
 
         Button cancelBtn = ButtonHelper.createTertiaryButton(getTranslation("common.cancel"), e -> dialog.close());
@@ -252,7 +236,7 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
                 () -> {
                     try {
                         newsService.deleteNews(news.getId());
-                        refreshNews();
+                        refreshNews("");
                         NotificationHelper.showSuccess(getTranslation("admin.news.deleted"));
                     } catch (Exception ex) {
                         NotificationHelper.showError(getTranslation("admin.news.error.delete", ex.getMessage()));
@@ -276,12 +260,111 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
     }
 
     /**
-     * Refreshes news data in the grid.
+     * Refreshes news data based on search query.
+     * This method updates the news list by filtering news based on the
+     * provided search query. It handles empty results gracefully by displaying
+     * an appropriate message when no news match the search criteria.
+     *
+     * @param query the search query to filter news by title or content
      */
-    private void refreshNews() {
-        newsList.clear();
-        newsList.addAll(newsService.getAllNews());
-        dataProvider.refreshAll();
+    private void refreshNews(final String query) {
+        newsList.removeAll();
+        List<News> allNews = newsService.getAllNews();
+
+        List<News> filteredNews = allNews.stream()
+                .filter(news -> query == null
+                        || query.isEmpty()
+                        || news.getTitle().toLowerCase().contains(query.toLowerCase())
+                        || news.getContent().toLowerCase().contains(query.toLowerCase())
+                        || news.getAuthor().toLowerCase().contains(query.toLowerCase()))
+                .toList();
+
+        if (filteredNews.isEmpty()) {
+            Span empty = new Span(getTranslation("admin.content.search.noResults"));
+            empty.addClassName("admin-content-empty-message");
+            newsList.add(empty);
+            return;
+        }
+
+        // Create news cards similar to deck cards
+        filteredNews.forEach(news -> {
+            VerticalLayout newsCard = createNewsCard(news);
+            newsList.add(newsCard);
+        });
+    }
+
+    /**
+     * Creates a news card component similar to deck cards.
+     * This method creates a card-like component for displaying news information
+     * with title, content preview, author, and action buttons.
+     *
+     * @param news the news item to display
+     * @return a vertical layout containing the news card
+     */
+    private VerticalLayout createNewsCard(final News news) {
+        VerticalLayout card = new VerticalLayout();
+        card.setPadding(true);
+        card.setSpacing(true);
+        card.setWidthFull();
+        card.setMaxWidth("700px");
+        card.addClassName("news-card");
+
+        // Title
+        H3 title = new H3(news.getTitle());
+        title.addClassName("news-card__title");
+        title.getStyle().set("margin", "0");
+
+        // Content preview (first 150 characters)
+        String contentPreview = news.getContent();
+        if (contentPreview.length() > 150) {
+            contentPreview = contentPreview.substring(0, 150) + "...";
+        }
+        Span content = new Span(contentPreview);
+        content.addClassName("news-card__content");
+        content.getStyle().set(COLOR_STYLE, "var(--lumo-secondary-text-color)");
+        content.getStyle().set(FONT_SIZE_STYLE, LUMO_FONT_SIZE_S);
+        content.getStyle().set("line-height", "1.4");
+
+        // Author and date
+        HorizontalLayout metaInfo = new HorizontalLayout();
+        metaInfo.setSpacing(true);
+        metaInfo.setAlignItems(Alignment.CENTER);
+
+        Span author = new Span(getTranslation("admin.news.author") + ": " + news.getAuthor());
+        author.addClassName("news-card__author");
+        author.getStyle().set(COLOR_STYLE, "var(--lumo-secondary-text-color)");
+        author.getStyle().set(FONT_SIZE_STYLE, LUMO_FONT_SIZE_S);
+
+        Span createdAt = new Span(news.getCreatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
+        createdAt.addClassName("news-card__date");
+        createdAt.getStyle().set(COLOR_STYLE, "var(--lumo-tertiary-text-color)");
+        createdAt.getStyle().set(FONT_SIZE_STYLE, LUMO_FONT_SIZE_S);
+
+        metaInfo.add(author, createdAt);
+
+        // Action buttons
+        HorizontalLayout actions = new HorizontalLayout();
+        actions.setSpacing(true);
+        actions.setAlignItems(Alignment.CENTER);
+
+        Button editBtn = ButtonHelper.createButton(
+                getTranslation("common.edit"),
+                VaadinIcon.EDIT,
+                e -> showNewsDialog(news),
+                ButtonVariant.LUMO_TERTIARY,
+                ButtonVariant.LUMO_SMALL);
+
+        Button deleteBtn = ButtonHelper.createButton(
+                getTranslation("common.delete"),
+                VaadinIcon.TRASH,
+                e -> deleteNews(news),
+                ButtonVariant.LUMO_ERROR,
+                ButtonVariant.LUMO_SMALL);
+
+        actions.add(editBtn, deleteBtn);
+
+        card.add(title, content, metaInfo, actions);
+        return card;
     }
 
     /**
