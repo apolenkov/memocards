@@ -8,12 +8,12 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import jakarta.annotation.PostConstruct;
@@ -24,8 +24,6 @@ import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.News;
 import org.apolenkov.application.service.NewsService;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.DialogHelper;
-import org.apolenkov.application.views.utils.FormHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 import org.springframework.security.core.Authentication;
@@ -37,7 +35,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Route(value = "admin/news", layout = PublicLayout.class)
 @RouteAlias(value = "admin/content", layout = PublicLayout.class)
 @RolesAllowed(SecurityConstants.ROLE_ADMIN)
-public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
+public class AdminNewsView extends BaseView {
 
     private static final String COLOR_STYLE = "color";
     private static final String FONT_SIZE_STYLE = "font-size";
@@ -81,7 +79,9 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         H2 title = new H2(getTranslation("admin.content.page.title"));
         title.addClassName("admin-content-view__title");
 
-        TextField search = FormHelper.createOptionalTextField("", getTranslation("admin.content.search.placeholder"));
+        TextField search = new TextField();
+        search.setPlaceholder(getTranslation("admin.content.search.placeholder"));
+        search.setClearButtonVisible(true);
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPrefixComponent(VaadinIcon.SEARCH.create());
         search.addValueChangeListener(e -> refreshNews(e.getValue()));
@@ -91,8 +91,6 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         addNewsBtn.setText(getTranslation("admin.news.add"));
 
         HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addNewsBtn);
-        toolbar.setAlignItems(Alignment.CENTER);
-        toolbar.setJustifyContentMode(JustifyContentMode.CENTER);
         toolbar.addClassName("admin-content-toolbar");
 
         newsList = new VerticalLayout();
@@ -179,7 +177,10 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
         });
 
         Button cancelBtn = ButtonHelper.createTertiaryButton(getTranslation("common.cancel"), e -> dialog.close());
-        HorizontalLayout buttonRow = LayoutHelper.createButtonRow(saveBtn, cancelBtn);
+        HorizontalLayout buttonRow = new HorizontalLayout();
+        buttonRow.setSpacing(true);
+        buttonRow.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        buttonRow.add(saveBtn, cancelBtn);
         content.add(buttonRow);
 
         dialog.add(content);
@@ -228,21 +229,38 @@ public class AdminNewsView extends VerticalLayout implements HasDynamicTitle {
                 + "</b>"
                 + getTranslation("admin.news.confirm.delete.suffix");
 
-        Dialog confirmDialog = DialogHelper.createConfirmationDialog(
-                getTranslation("admin.news.confirm.delete.title"),
-                message,
-                getTranslation("dialog.confirm"),
-                getTranslation("dialog.cancel"),
-                () -> {
-                    try {
-                        newsService.deleteNews(news.getId());
-                        refreshNews("");
-                        NotificationHelper.showSuccess(getTranslation("admin.news.deleted"));
-                    } catch (Exception ex) {
-                        NotificationHelper.showError(getTranslation("admin.news.error.delete", ex.getMessage()));
-                    }
-                },
-                null);
+        Dialog confirmDialog = new Dialog();
+        confirmDialog.addClassName("dialog-sm");
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.add(new H3(getTranslation("admin.news.confirm.delete.title")));
+        layout.add(new Span(message));
+
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttons.setWidthFull();
+
+        Button confirmButton = new Button(getTranslation("dialog.confirm"), VaadinIcon.CHECK.create());
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        confirmButton.addClickListener(e -> {
+            try {
+                newsService.deleteNews(news.getId());
+                refreshNews("");
+                NotificationHelper.showSuccess(getTranslation("admin.news.deleted"));
+            } catch (Exception ex) {
+                NotificationHelper.showError(getTranslation("admin.news.error.delete", ex.getMessage()));
+            }
+            confirmDialog.close();
+        });
+
+        Button cancelButton = new Button(getTranslation("dialog.cancel"));
+        cancelButton.addClickListener(e -> confirmDialog.close());
+
+        buttons.add(confirmButton, cancelButton);
+        layout.add(buttons);
+        confirmDialog.add(layout);
         confirmDialog.open();
     }
 

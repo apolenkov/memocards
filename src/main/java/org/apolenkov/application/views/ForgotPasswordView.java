@@ -9,13 +9,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.apolenkov.application.service.PasswordResetService;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.FormHelper;
-import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -24,7 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route(value = "forgot-password", layout = PublicLayout.class)
 @AnonymousAllowed
-public final class ForgotPasswordView extends Div implements BeforeEnterObserver, HasDynamicTitle {
+public final class ForgotPasswordView extends BaseView implements BeforeEnterObserver {
 
     private static final class ForgotPasswordModel {
         private String email;
@@ -48,7 +45,7 @@ public final class ForgotPasswordView extends Div implements BeforeEnterObserver
     public ForgotPasswordView(final PasswordResetService service) {
         this.passwordResetService = service;
 
-        VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
+        VerticalLayout wrapper = createCenteredVerticalLayout();
 
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
@@ -71,8 +68,9 @@ public final class ForgotPasswordView extends Div implements BeforeEnterObserver
         binder.setBean(model);
 
         // Create form fields with proper validation
-        TextField email = FormHelper.createRequiredTextField(
-                getTranslation("auth.email"), getTranslation("auth.email.placeholder"));
+        TextField email = new TextField(getTranslation("auth.email"));
+        email.setPlaceholder(getTranslation("auth.email.placeholder"));
+        email.setRequiredIndicatorVisible(true);
         email.setWidthFull();
 
         // Submit button triggers password reset process

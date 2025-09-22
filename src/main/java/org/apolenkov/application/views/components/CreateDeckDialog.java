@@ -17,7 +17,6 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 
@@ -97,7 +96,11 @@ public class CreateDeckDialog extends Dialog {
         binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
 
         // Create button layout with save and cancel actions
-        HorizontalLayout buttons = LayoutHelper.createButtonLayout();
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttons.setWidthFull();
 
         Button save = ButtonHelper.createButton(
                 getTranslation("dialog.create"),

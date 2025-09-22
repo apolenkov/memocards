@@ -9,7 +9,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
@@ -22,7 +21,6 @@ import org.apolenkov.application.views.components.DeckCard;
 import org.apolenkov.application.views.home.DeckCardViewModel;
 import org.apolenkov.application.views.home.HomePresenter;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.FormHelper;
 import org.apolenkov.application.views.utils.LayoutHelper;
 
 /**
@@ -33,7 +31,7 @@ import org.apolenkov.application.views.utils.LayoutHelper;
  */
 @Route(value = "decks", layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
-public class DecksView extends VerticalLayout implements HasDynamicTitle {
+public class DecksView extends BaseView {
 
     private static final String DECKS_TITLE_KEY = "main.decks";
 
@@ -79,7 +77,9 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         H2 title = new H2(getTranslation(DECKS_TITLE_KEY));
         title.addClassName("decks-view__title");
 
-        TextField search = FormHelper.createOptionalTextField("", getTranslation("home.search.placeholder"));
+        TextField search = new TextField();
+        search.setPlaceholder(getTranslation("home.search.placeholder"));
+        search.setClearButtonVisible(true);
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPrefixComponent(VaadinIcon.SEARCH.create());
 
@@ -96,8 +96,6 @@ public class DecksView extends VerticalLayout implements HasDynamicTitle {
         addDeckBtn.setText(getTranslation("home.addDeck"));
 
         HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addDeckBtn);
-        toolbar.setAlignItems(Alignment.CENTER);
-        toolbar.setJustifyContentMode(JustifyContentMode.CENTER);
         toolbar.addClassName("decks-toolbar");
 
         VerticalLayout deckContainer = new VerticalLayout();

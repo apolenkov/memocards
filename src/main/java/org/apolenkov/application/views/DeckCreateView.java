@@ -23,8 +23,6 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.FormHelper;
-import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 
@@ -114,12 +112,14 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
         H3 formTitle = new H3(getTranslation("deckCreate.section"));
 
-        TextField titleField = FormHelper.createRequiredTextField(
-                getTranslation("deckCreate.name"), getTranslation("deckCreate.name.placeholder"));
+        TextField titleField = new TextField(getTranslation("deckCreate.name"));
+        titleField.setPlaceholder(getTranslation("deckCreate.name.placeholder"));
+        titleField.setRequiredIndicatorVisible(true);
         titleField.setWidthFull();
 
-        TextArea descriptionArea = FormHelper.createTextArea(
-                getTranslation("deckCreate.description"), getTranslation("deckCreate.description.placeholder"));
+        TextArea descriptionArea = new TextArea(getTranslation("deckCreate.description"));
+        descriptionArea.setPlaceholder(getTranslation("deckCreate.description.placeholder"));
+        descriptionArea.setClearButtonVisible(true);
         descriptionArea.setWidthFull();
         descriptionArea.addClassName("text-area--md");
 
@@ -129,7 +129,11 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
                 .bind(Deck::getTitle, Deck::setTitle);
         binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
 
-        HorizontalLayout buttonsLayout = LayoutHelper.createButtonLayout();
+        HorizontalLayout buttonsLayout = new HorizontalLayout();
+        buttonsLayout.setSpacing(true);
+        buttonsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttonsLayout.setWidthFull();
 
         Button saveButton = ButtonHelper.createPrimaryButton(getTranslation("deckCreate.create"), e -> saveDeck());
         saveButton.setIcon(VaadinIcon.CHECK.create());

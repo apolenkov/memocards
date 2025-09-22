@@ -7,8 +7,6 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -26,7 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 @Route(value = "", layout = PublicLayout.class)
 @AnonymousAllowed
-public class LandingView extends VerticalLayout implements HasDynamicTitle {
+public class LandingView extends BaseView {
 
     private final transient NewsService newsService;
 

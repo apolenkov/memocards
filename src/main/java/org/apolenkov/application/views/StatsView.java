@@ -10,7 +10,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
@@ -24,7 +23,6 @@ import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.LayoutHelper;
 
 /**
  * View for displaying user statistics and analytics.
@@ -34,7 +32,7 @@ import org.apolenkov.application.views.utils.LayoutHelper;
  */
 @Route(value = "stats", layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
-public class StatsView extends VerticalLayout implements HasDynamicTitle {
+public class StatsView extends BaseView {
 
     private static final String SURFACE_PANEL_CLASS = "surface-panel";
     private static final String SURFACE_CARD_CLASS = "surface-card";
@@ -130,7 +128,9 @@ public class StatsView extends VerticalLayout implements HasDynamicTitle {
     private VerticalLayout createOverallStatsSection(final Map<Long, StatsRepository.DeckAggregate> agg) {
         VerticalLayout section = createStatsSectionHeader("stats.overall");
 
-        HorizontalLayout statsGrid = LayoutHelper.createStatsGrid();
+        HorizontalLayout statsGrid = new HorizontalLayout();
+        statsGrid.setWidthFull();
+        statsGrid.setSpacing(true);
         statsGrid.addClassName("stats-overall-grid");
         statsGrid.setJustifyContentMode(JustifyContentMode.EVENLY);
 
