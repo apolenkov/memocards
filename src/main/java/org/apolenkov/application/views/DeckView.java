@@ -42,12 +42,13 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.components.DeckEditDialog;
 import org.apolenkov.application.views.utils.ButtonHelper;
+import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Route(value = "deck", layout = PublicLayout.class)
+@Route(value = RouteConstants.DECK_ROUTE, layout = PublicLayout.class)
 @RolesAllowed(SecurityConstants.ROLE_USER)
 public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
@@ -240,11 +241,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param container the container to add the grid to
      */
     private void createFlashcardsGrid(final VerticalLayout container) {
-        HorizontalLayout searchRow = new HorizontalLayout();
-        searchRow.setWidthFull();
-        searchRow.setAlignItems(FlexComponent.Alignment.CENTER);
-        searchRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-
         flashcardSearchField = new TextField();
         flashcardSearchField.setPlaceholder(getTranslation("deck.searchCards"));
         flashcardSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
@@ -270,7 +266,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 ButtonVariant.LUMO_ERROR);
         rightFilters.add(hideKnownCheckbox, resetProgress);
 
-        searchRow.add(flashcardSearchField, rightFilters);
+        HorizontalLayout searchRow = LayoutHelper.createSearchRow(flashcardSearchField, rightFilters);
         container.add(searchRow);
 
         flashcardGrid = new Grid<>(Flashcard.class, false);
@@ -638,9 +634,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidthFull();
 
-        Button confirmButton = new Button(getTranslation("dialog.delete"), VaadinIcon.CHECK.create());
-        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
-        confirmButton.addClickListener(e -> {
+        Button confirmButton = ButtonHelper.createConfirmButton(getTranslation("dialog.delete"), e -> {
             flashcardUseCase.deleteFlashcard(flashcard.getId());
             loadFlashcards();
             updateDeckInfo();
@@ -648,8 +642,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             confirmDialog.close();
         });
 
-        Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
-        cancelButton.addClickListener(e -> confirmDialog.close());
+        Button cancelButton =
+                ButtonHelper.createCancelButton(getTranslation(CANCEL_TRANSLATION_KEY), e -> confirmDialog.close());
 
         buttons.add(confirmButton, cancelButton);
         layout.add(buttons);

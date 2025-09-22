@@ -16,6 +16,7 @@ import jakarta.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntConsumer;
+import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.model.Deck;
@@ -30,7 +31,7 @@ import org.apolenkov.application.views.utils.ButtonHelper;
  * including today's stats, overall statistics, and detailed deck-specific metrics.
  * The statistics are presented in collapsible sections for better organization.
  */
-@Route(value = "stats", layout = PublicLayout.class)
+@Route(value = RouteConstants.STATS_ROUTE, layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class StatsView extends BaseView {
 
