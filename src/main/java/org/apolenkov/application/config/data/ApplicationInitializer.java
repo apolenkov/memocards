@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,14 +26,23 @@ public class ApplicationInitializer implements CommandLineRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationInitializer.class);
 
     private final ConfigurableApplicationContext applicationContext;
+    private final JdbcTemplate jdbcTemplate;
+    private final Environment environment;
 
     /**
-     * Creates ApplicationInitializer with application context.
+     * Creates ApplicationInitializer with required dependencies.
      *
      * @param applicationContextParam the Spring application context
+     * @param jdbcTemplateParam the JDBC template for database operations
+     * @param environmentParam the Spring environment for configuration access
      */
-    public ApplicationInitializer(final ConfigurableApplicationContext applicationContextParam) {
+    public ApplicationInitializer(
+            final ConfigurableApplicationContext applicationContextParam,
+            final JdbcTemplate jdbcTemplateParam,
+            final Environment environmentParam) {
         this.applicationContext = applicationContextParam;
+        this.jdbcTemplate = jdbcTemplateParam;
+        this.environment = environmentParam;
     }
 
     /**
@@ -100,10 +111,15 @@ public class ApplicationInitializer implements CommandLineRunner {
      */
     private void validateDatabaseConnection() {
         LOGGER.debug("Validating database connection...");
-        // Database validation logic would go here
-        // For now, just log that validation is performed
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Database connection validation completed");
+        try {
+            Integer result = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
+            if (result != null && result == 1) {
+                LOGGER.info("Database connection validated successfully");
+            } else {
+                throw new IllegalStateException("Database validation failed: unexpected result");
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Database connection validation failed", e);
         }
     }
 
@@ -112,10 +128,18 @@ public class ApplicationInitializer implements CommandLineRunner {
      */
     private void validateConfiguration() {
         LOGGER.debug("Validating application configuration...");
-        // Configuration validation logic would go here
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Configuration validation completed");
+
+        // Check required properties
+        String[] requiredProperties = {"spring.datasource.url", "spring.datasource.username"};
+
+        for (String property : requiredProperties) {
+            String value = environment.getProperty(property);
+            if (value == null || value.trim().isEmpty()) {
+                throw new IllegalStateException("Required property not set: " + property);
+            }
         }
+
+        LOGGER.info("Application configuration validated successfully");
     }
 
     /**

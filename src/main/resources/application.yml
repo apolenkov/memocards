@@ -15,6 +15,13 @@ logging:
 vaadin:
   allowed-packages: com.vaadin,org.vaadin,com.flowingcode,org.apolenkov.application
 
+# Basic actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
 # Server configuration
 server:
   servlet:
@@ -32,9 +39,7 @@ spring:
   config:
     activate:
       on-profile: dev
-  threads:
-    virtual:
-      enabled: true
+  # Basic configuration
   datasource:
     url: jdbc:postgresql://localhost:5432/flashcards
     username: postgres

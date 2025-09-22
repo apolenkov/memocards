@@ -1,6 +1,5 @@
 package org.apolenkov.application.config.security;
 
-import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.logging.MdcFilter;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +10,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.vaadin.flow.spring.security.VaadinWebSecurity;
 
 /**
  * Spring Security configuration for the application.
@@ -38,9 +39,18 @@ public class SecurityConfig extends VaadinWebSecurity {
      */
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
-        super.configure(http);
-
         setLoginView(http, RouteConstants.ROOT_PATH + RouteConstants.LOGIN_ROUTE);
+
+        // Permit access to actuator endpoints for monitoring and health checks
+        // This must be configured BEFORE calling super.configure()
+        http.authorizeHttpRequests(
+                auth -> auth.requestMatchers(RouteConstants.ACTUATOR_HEALTH, RouteConstants.ACTUATOR_INFO)
+                        .permitAll()
+                        .requestMatchers(RouteConstants.ACTUATOR_BASE_PATH)
+                        .authenticated());
+
+        // Call parent configuration which will add .anyRequest().authenticated()
+        super.configure(http);
 
         // Authentication and access control
         http.exceptionHandling(ex -> ex.authenticationEntryPoint(
@@ -52,14 +62,13 @@ public class SecurityConfig extends VaadinWebSecurity {
                 .deleteCookies("JSESSIONID", "remember-me")
                 .invalidateHttpSession(true));
 
-        // Security headers for modern security practices - minimal set
-        http.headers(
-                headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny) // Clickjacking protection
-                        .contentTypeOptions(contentTypeOptions -> {}) // MIME sniffing protection
-                        .httpStrictTransportSecurity(hstsConfig -> hstsConfig // Enforce HTTPS
-                                .maxAgeInSeconds(31536000)));
+        // Enhanced security headers for protection against common attacks
+        http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+                .contentTypeOptions(contentTypeOptions -> {}) // MIME sniffing protection
+                .httpStrictTransportSecurity(
+                        hstsConfig -> hstsConfig.maxAgeInSeconds(31536000))); // Enforce HTTPS for 1 year
 
-        // Add MDC filter for request correlation logging
+        // Add filters for request processing
         http.addFilterBefore(mdcFilter, UsernamePasswordAuthenticationFilter.class);
     }
 

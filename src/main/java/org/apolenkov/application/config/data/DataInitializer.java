@@ -68,7 +68,7 @@ public class DataInitializer {
                     users,
                     passwordEncoder,
                     USER_EMAIL,
-                    getDemoUserPassword(),
+                    getDemoPassword(false),
                     USER_NAME,
                     Set.of(SecurityConstants.ROLE_USER));
 
@@ -76,7 +76,7 @@ public class DataInitializer {
                     users,
                     passwordEncoder,
                     ADMIN_EMAIL,
-                    getDemoAdminPassword(),
+                    getDemoPassword(true),
                     ADMIN_NAME,
                     Set.of(SecurityConstants.ROLE_ADMIN));
 
@@ -316,22 +316,13 @@ public class DataInitializer {
     }
 
     /**
-     * Gets demo admin password from Spring configuration.
+     * Gets demo password from Spring configuration.
      * This method centralizes password handling to avoid hardcoded values.
      *
-     * @return demo admin password for development environment
+     * @param isAdmin whether to get admin or user password
+     * @return demo password for development environment
      */
-    private String getDemoAdminPassword() {
-        return demoAdminPassword;
-    }
-
-    /**
-     * Gets demo user password from Spring configuration.
-     * This method centralizes password handling to avoid hardcoded values.
-     *
-     * @return demo user password for development environment
-     */
-    private String getDemoUserPassword() {
-        return demoUserPassword;
+    private String getDemoPassword(final boolean isAdmin) {
+        return isAdmin ? demoAdminPassword : demoUserPassword;
     }
 }
