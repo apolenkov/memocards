@@ -4,10 +4,10 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +135,12 @@ public class EntityNotFoundError extends VerticalLayout {
         Button goHomeButton = ButtonHelper.createButton(
                 getTranslation(MAIN_GO_HOME_KEY), e -> navigateToHome(), ButtonVariant.LUMO_TERTIARY);
 
-        HorizontalLayout buttonLayout = LayoutHelper.createButtonLayout(goBackButton, goHomeButton);
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.setSpacing(true);
+        buttonLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttonLayout.setWidthFull();
+        buttonLayout.add(goBackButton, goHomeButton);
 
         errorSection.add(errorTitle, errorDescription, errorSuggestion, buttonLayout);
         errorContainer.add(errorSection);

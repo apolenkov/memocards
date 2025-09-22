@@ -9,7 +9,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
@@ -19,8 +18,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.FormHelper;
-import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -36,7 +33,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
  */
 @Route(value = "login", layout = PublicLayout.class)
 @AnonymousAllowed
-public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTitle {
+public class LoginView extends BaseView implements BeforeEnterObserver {
 
     /**
      * Internal data model for the login form.
@@ -80,7 +77,7 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
      */
     @PostConstruct
     private void init() {
-        VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
+        VerticalLayout wrapper = createCenteredVerticalLayout();
 
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
@@ -107,8 +104,9 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
         LoginModel model = new LoginModel();
         binder.setBean(model);
 
-        TextField email = FormHelper.createRequiredTextField(
-                getTranslation("auth.email"), getTranslation("auth.email.placeholder"));
+        TextField email = new TextField(getTranslation("auth.email"));
+        email.setPlaceholder(getTranslation("auth.email.placeholder"));
+        email.setRequiredIndicatorVisible(true);
         email.setWidthFull();
 
         PasswordField password = new PasswordField(getTranslation("auth.login.password"));

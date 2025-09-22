@@ -5,6 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -15,7 +16,6 @@ import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 
 /**
@@ -89,7 +89,11 @@ public class DeckEditDialog extends Dialog {
                 .bind(Deck::getTitle, Deck::setTitle);
         binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
 
-        HorizontalLayout buttons = LayoutHelper.createButtonLayout();
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttons.setWidthFull();
 
         Button save = ButtonHelper.createButton(
                 getTranslation("deck.edit.save"),

@@ -8,13 +8,11 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.validator.EmailValidator;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.service.user.RegistrationService;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 
@@ -23,7 +21,7 @@ import org.apolenkov.application.views.utils.NotificationHelper;
  */
 @Route(value = "register", layout = PublicLayout.class)
 @AnonymousAllowed
-public class RegisterView extends VerticalLayout implements HasDynamicTitle {
+public class RegisterView extends BaseView {
 
     /**
      * Registration service for handling user registration operations.
@@ -71,7 +69,7 @@ public class RegisterView extends VerticalLayout implements HasDynamicTitle {
      */
     @PostConstruct
     private void init() {
-        VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
+        VerticalLayout wrapper = createCenteredVerticalLayout();
 
         Div formContainer = new Div();
         formContainer.addClassName("register-form");

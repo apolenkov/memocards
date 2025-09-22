@@ -42,8 +42,6 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.components.DeckEditDialog;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.DialogHelper;
-import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 import org.slf4j.Logger;
@@ -627,18 +625,35 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param flashcard the flashcard to delete
      */
     private void deleteFlashcard(final Flashcard flashcard) {
-        Dialog confirmDialog = DialogHelper.createConfirmationDialog(
-                getTranslation("dialog.delete.confirmTitle"),
-                getTranslation("dialog.delete.confirmText"),
-                getTranslation("dialog.delete"),
-                getTranslation(CANCEL_TRANSLATION_KEY),
-                () -> {
-                    flashcardUseCase.deleteFlashcard(flashcard.getId());
-                    loadFlashcards();
-                    updateDeckInfo();
-                    NotificationHelper.showSuccessBottom(getTranslation("dialog.deleted"));
-                },
-                null);
+        Dialog confirmDialog = new Dialog();
+        confirmDialog.addClassName("dialog-sm");
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.add(new H3(getTranslation("dialog.delete.confirmTitle")));
+        layout.add(new Span(getTranslation("dialog.delete.confirmText")));
+
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttons.setWidthFull();
+
+        Button confirmButton = new Button(getTranslation("dialog.delete"), VaadinIcon.CHECK.create());
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        confirmButton.addClickListener(e -> {
+            flashcardUseCase.deleteFlashcard(flashcard.getId());
+            loadFlashcards();
+            updateDeckInfo();
+            NotificationHelper.showSuccessBottom(getTranslation("dialog.deleted"));
+            confirmDialog.close();
+        });
+
+        Button cancelButton = new Button(getTranslation(CANCEL_TRANSLATION_KEY));
+        cancelButton.addClickListener(e -> confirmDialog.close());
+
+        buttons.add(confirmButton, cancelButton);
+        layout.add(buttons);
+        confirmDialog.add(layout);
 
         confirmDialog.open();
     }
@@ -705,7 +720,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         }
 
         // Buttons
-        HorizontalLayout buttons = LayoutHelper.createButtonLayout();
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttons.setWidthFull();
 
         Button confirmButton = ButtonHelper.createButton(
                 getTranslation("deck.delete.simpleConfirm"),
@@ -788,7 +807,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         confirmInput.setRequired(true);
 
         // Buttons
-        HorizontalLayout buttons = LayoutHelper.createButtonLayout();
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttons.setWidthFull();
 
         Button confirmButton = ButtonHelper.createButton(
                 getTranslation("deck.delete.confirm"),

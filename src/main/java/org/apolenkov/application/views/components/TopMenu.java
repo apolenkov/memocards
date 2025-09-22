@@ -1,11 +1,17 @@
 package org.apolenkov.application.views.components;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -17,7 +23,6 @@ import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.DialogHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -260,23 +265,39 @@ public class TopMenu extends HorizontalLayout {
      * logout handler and redirects to the home page.
      */
     private void openLogoutDialog() {
-        Dialog dialog = DialogHelper.createConfirmationDialog(
-                getTranslation("auth.logout.confirm"),
-                getTranslation("auth.logout.confirm"),
-                getTranslation("dialog.confirm"),
-                getTranslation("dialog.cancel"),
-                () -> {
-                    try {
-                        var req = VaadinServletRequest.getCurrent().getHttpServletRequest();
-                        new SecurityContextLogoutHandler().logout(req, null, null);
-                        getUI().ifPresent(ui -> ui.getPage()
-                                .setLocation(
-                                        RouteConstants.ROOT_PATH)); // Keep setLocation for logout (server redirect)
-                    } catch (Exception ignored) {
-                        NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
-                    }
-                },
-                null);
+        Dialog dialog = new Dialog();
+        dialog.addClassName("dialog-sm");
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.add(new H3(getTranslation("auth.logout.confirm")));
+        layout.add(new Span(getTranslation("auth.logout.confirm")));
+
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttons.setWidthFull();
+
+        Button confirmButton = new Button(getTranslation("dialog.confirm"), VaadinIcon.CHECK.create());
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        confirmButton.addClickListener(e -> {
+            try {
+                var req = VaadinServletRequest.getCurrent().getHttpServletRequest();
+                new SecurityContextLogoutHandler().logout(req, null, null);
+                getUI().ifPresent(ui -> ui.getPage()
+                        .setLocation(RouteConstants.ROOT_PATH)); // Keep setLocation for logout (server redirect)
+            } catch (Exception ignored) {
+                NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
+            }
+            dialog.close();
+        });
+
+        Button cancelButton = new Button(getTranslation("dialog.cancel"));
+        cancelButton.addClickListener(e -> dialog.close());
+
+        buttons.add(confirmButton, cancelButton);
+        layout.add(buttons);
+        dialog.add(layout);
         dialog.setCloseOnEsc(true);
         dialog.setCloseOnOutsideClick(true);
         dialog.open();

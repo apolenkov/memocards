@@ -10,7 +10,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -19,7 +18,6 @@ import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.exceptions.EntityNotFoundException;
 import org.apolenkov.application.service.PasswordResetService;
 import org.apolenkov.application.views.utils.ButtonHelper;
-import org.apolenkov.application.views.utils.LayoutHelper;
 import org.apolenkov.application.views.utils.NavigationHelper;
 import org.apolenkov.application.views.utils.NotificationHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -33,8 +31,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 @Route(value = "reset-password", layout = PublicLayout.class)
 @AnonymousAllowed
-public class ResetPasswordView extends VerticalLayout
-        implements HasDynamicTitle, HasUrlParameter<String>, BeforeEnterObserver {
+public class ResetPasswordView extends BaseView implements HasUrlParameter<String>, BeforeEnterObserver {
 
     private final transient PasswordResetService passwordResetService;
     private String token;
@@ -54,7 +51,7 @@ public class ResetPasswordView extends VerticalLayout
      */
     @PostConstruct
     private void init() {
-        VerticalLayout wrapper = LayoutHelper.createCenteredVerticalLayout();
+        VerticalLayout wrapper = createCenteredVerticalLayout();
 
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
