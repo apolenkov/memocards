@@ -121,7 +121,11 @@ public class LoginView extends Div implements BeforeEnterObserver, HasDynamicTit
                 try {
                     authenticateAndPersist(model.getEmail(), model.getPassword());
                     NavigationHelper.navigateToHome();
+                } catch (IllegalArgumentException ex) {
+                    // Validation error - show specific message
+                    NotificationHelper.showError(ex.getMessage());
                 } catch (Exception ex) {
+                    // Generic error - show generic message
                     NotificationHelper.showError(getTranslation("auth.login.errorMessage"));
                 }
             }

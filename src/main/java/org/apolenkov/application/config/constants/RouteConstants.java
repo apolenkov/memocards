@@ -78,6 +78,18 @@ public final class RouteConstants {
     public static final String ADMIN_CONTENT_ROUTE = "admin/content";
 
     /**
+     * Actuator endpoints - public access (no authentication required).
+     */
+    public static final String ACTUATOR_HEALTH = "/actuator/health";
+
+    public static final String ACTUATOR_INFO = "/actuator/info";
+
+    /**
+     * Actuator base path for authenticated endpoints.
+     */
+    public static final String ACTUATOR_BASE_PATH = "/actuator/**";
+
+    /**
      * Private constructor to prevent instantiation.
      */
     private RouteConstants() {

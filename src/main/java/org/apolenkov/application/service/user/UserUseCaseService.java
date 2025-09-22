@@ -5,6 +5,8 @@ import java.util.Optional;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.apolenkov.application.usecase.UserUseCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class UserUseCaseService implements UserUseCase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserUseCaseService.class);
 
     private final UserRepository userRepository;
 
@@ -34,18 +38,19 @@ public class UserUseCaseService implements UserUseCase {
     }
 
     /**
-     * Gets all users in the system.
+     * Gets all users in the system with caching.
      *
      * @return a list of all users in the system, never null (maybe empty)
      */
     @Override
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
+        LOGGER.debug("Retrieving all users from database");
         return userRepository.findAll();
     }
 
     /**
-     * Gets a specific user by their unique identifier.
+     * Gets a specific user by their unique identifier with caching.
      *
      * @param id the unique identifier of the user to retrieve
      * @return an Optional containing the user if found, empty otherwise
@@ -53,6 +58,7 @@ public class UserUseCaseService implements UserUseCase {
     @Override
     @Transactional(readOnly = true)
     public Optional<User> getUserById(final long id) {
+        LOGGER.debug("Retrieving user by ID: {}", id);
         return userRepository.findById(id);
     }
 
@@ -86,15 +92,11 @@ public class UserUseCaseService implements UserUseCase {
     }
 
     private String getUsername(final Object principal) {
-        if (principal instanceof UserDetails p) {
-            return p.getUsername();
-        }
-
-        if (principal instanceof String s) {
-            return s;
-        }
-
-        throw new IllegalStateException(
-                "Unsupported principal type: " + (principal != null ? principal.getClass() : "null"));
+        return switch (principal) {
+            case UserDetails userDetails -> userDetails.getUsername();
+            case String username -> username;
+            case null -> throw new IllegalStateException("Principal is null");
+            default -> throw new IllegalStateException("Unsupported principal type: " + principal.getClass());
+        };
     }
 }
