@@ -1,26 +1,5 @@
 package org.apolenkov.application.views.presentation.pages;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.exceptions.EntityNotFoundException;
-import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.service.StatsService;
-import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.usecase.FlashcardUseCase;
-import org.apolenkov.application.views.presentation.components.DeckEditDialog;
-import org.apolenkov.application.views.presentation.layouts.PublicLayout;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.LayoutHelper;
-import org.apolenkov.application.views.shared.utils.NavigationHelper;
-import org.apolenkov.application.views.shared.utils.NotificationHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -48,9 +27,27 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.exceptions.EntityNotFoundException;
+import org.apolenkov.application.model.Deck;
+import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.usecase.DeckUseCase;
+import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.apolenkov.application.views.presentation.components.DeckEditDialog;
+import org.apolenkov.application.views.presentation.layouts.PublicLayout;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.LayoutHelper;
+import org.apolenkov.application.views.shared.utils.NavigationHelper;
+import org.apolenkov.application.views.shared.utils.NotificationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Route(value = RouteConstants.DECK_ROUTE, layout = PublicLayout.class)
 @RolesAllowed(SecurityConstants.ROLE_USER)

@@ -1,24 +1,5 @@
 package org.apolenkov.application.views.presentation.pages;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.exceptions.EntityNotFoundException;
-import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.model.PracticeDirection;
-import org.apolenkov.application.usecase.FlashcardUseCase;
-import org.apolenkov.application.views.business.presenters.PracticePresenter;
-import org.apolenkov.application.views.presentation.layouts.PublicLayout;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.NavigationHelper;
-import org.apolenkov.application.views.shared.utils.NotificationHelper;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -36,9 +17,25 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.exceptions.EntityNotFoundException;
+import org.apolenkov.application.model.Deck;
+import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.model.PracticeDirection;
+import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.apolenkov.application.views.business.presenters.PracticePresenter;
+import org.apolenkov.application.views.presentation.layouts.PublicLayout;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.NavigationHelper;
+import org.apolenkov.application.views.shared.utils.NotificationHelper;
 
 /**
  * Interactive flashcard practice session view.

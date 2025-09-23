@@ -1,16 +1,5 @@
 package org.apolenkov.application.views.presentation.pages;
 
-import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.service.NewsService;
-import org.apolenkov.application.views.presentation.layouts.PublicLayout;
-import org.apolenkov.application.views.shared.base.BaseView;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.NavigationHelper;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -21,8 +10,17 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-
 import jakarta.annotation.PostConstruct;
+import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.service.NewsService;
+import org.apolenkov.application.views.presentation.layouts.PublicLayout;
+import org.apolenkov.application.views.shared.base.BaseView;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.NavigationHelper;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Landing page view with hero section, news updates, and dynamic navigation based on authentication status.
