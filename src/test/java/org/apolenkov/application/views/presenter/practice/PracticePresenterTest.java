@@ -12,6 +12,7 @@ import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.apolenkov.application.views.business.presenters.PracticePresenter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
