@@ -1,20 +1,5 @@
 package org.apolenkov.application.views.presentation.pages;
 
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.model.News;
-import org.apolenkov.application.service.NewsService;
-import org.apolenkov.application.views.presentation.layouts.PublicLayout;
-import org.apolenkov.application.views.shared.base.BaseView;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.LayoutHelper;
-import org.apolenkov.application.views.shared.utils.NotificationHelper;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -32,9 +17,21 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.model.News;
+import org.apolenkov.application.service.NewsService;
+import org.apolenkov.application.views.presentation.layouts.PublicLayout;
+import org.apolenkov.application.views.shared.base.BaseView;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.LayoutHelper;
+import org.apolenkov.application.views.shared.utils.NotificationHelper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Administrative interface for managing news articles.

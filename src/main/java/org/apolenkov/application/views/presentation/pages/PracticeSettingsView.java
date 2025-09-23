@@ -1,5 +1,14 @@
 package org.apolenkov.application.views.presentation.pages;
 
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.router.Route;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.security.RolesAllowed;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.PracticeDirection;
@@ -9,17 +18,6 @@ import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
-
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
-import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.router.Route;
-
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.security.RolesAllowed;
 
 /**
  * View for configuring practice session settings.
