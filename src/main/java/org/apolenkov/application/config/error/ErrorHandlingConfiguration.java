@@ -7,7 +7,7 @@ import com.vaadin.flow.server.VaadinSession;
 import java.util.Map;
 import java.util.UUID;
 import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.views.utils.NavigationHelper;
+import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
