@@ -4,6 +4,7 @@ import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
@@ -225,17 +226,25 @@ public class AdminNewsView extends BaseView {
      * @param news the news article to delete
      */
     private void deleteNews(final News news) {
-        String message = getTranslation("admin.news.confirm.delete.prefix")
-                + " <b>" + org.apache.commons.text.StringEscapeUtils.escapeHtml4(news.getTitle())
-                + "</b>"
-                + getTranslation("admin.news.confirm.delete.suffix");
-
         Dialog confirmDialog = new Dialog();
         confirmDialog.addClassName("dialog-sm");
 
         VerticalLayout layout = new VerticalLayout();
         layout.add(new H3(getTranslation("admin.news.confirm.delete.title")));
-        layout.add(new Span(message));
+
+        // Create message using native Vaadin DSL components
+        Div messageContainer = new Div();
+        messageContainer.addClassName("text-center");
+        messageContainer.setWidthFull();
+
+        // Use native Vaadin components instead of HTML manipulation
+        Span prefixSpan = new Span(getTranslation("admin.news.confirm.delete.prefix") + " ");
+        Span titleSpan = new Span(news.getTitle());
+        titleSpan.getElement().getStyle().set("font-weight", "bold");
+        Span suffixSpan = new Span(getTranslation("admin.news.confirm.delete.suffix"));
+
+        messageContainer.add(prefixSpan, titleSpan, suffixSpan);
+        layout.add(messageContainer);
 
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);

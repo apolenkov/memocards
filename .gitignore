@@ -1,6 +1,7 @@
 HELP.md
 .gradle
 build/
+bin
 !**/dev-bundle/webapp/VAADIN/build
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**
