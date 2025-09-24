@@ -8,8 +8,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apolenkov.application.exceptions.EntityNotFoundException;
-import org.apolenkov.application.views.presentation.components.EntityNotFoundError;
-import org.apolenkov.application.views.presentation.layouts.PublicLayout;
+import org.apolenkov.application.views.core.error.EntityNotFoundError;
+import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
