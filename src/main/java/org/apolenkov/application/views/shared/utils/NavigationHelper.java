@@ -5,7 +5,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.QueryParameters;
 import java.util.Optional;
 import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.views.presentation.pages.LandingView;
+import org.apolenkov.application.views.landing.pages.LandingView;
 
 /**
  * Utility class for centralized navigation operations.
