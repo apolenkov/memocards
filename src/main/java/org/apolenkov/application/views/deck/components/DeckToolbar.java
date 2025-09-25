@@ -24,9 +24,6 @@ public final class DeckToolbar extends HorizontalLayout {
     private final TextField searchField;
     private final Button addButton;
 
-    // State
-    private boolean initialized;
-
     /**
      * Creates a new DeckToolbar with default configuration.
      * Initializes search field and add button with proper styling and event handling.
@@ -80,14 +77,10 @@ public final class DeckToolbar extends HorizontalLayout {
     @Override
     protected void onAttach(final AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        if (initialized) {
-            return;
-        }
         configureLayout();
         configureSearchField();
         configureAddButton();
         addComponents();
-        initialized = true;
     }
 
     /**

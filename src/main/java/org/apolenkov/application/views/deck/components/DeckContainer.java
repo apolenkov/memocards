@@ -25,9 +25,6 @@ public final class DeckContainer extends VerticalLayout {
     private final DeckToolbar toolbar;
     private final DeckList deckList;
 
-    // State
-    private boolean initialized;
-
     /**
      * Creates a new DeckContainer with all required components.
      * Initializes title, toolbar, and deck list with proper configuration.
@@ -64,15 +61,11 @@ public final class DeckContainer extends VerticalLayout {
     @Override
     protected void onAttach(final AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        if (initialized) {
-            return;
-        }
         // Initialize title content now to avoid using getTranslation in constructor
         title.setText(getTranslation(DECKS_TITLE_KEY));
         title.addClassName(DECKS_TITLE_CLASS);
         configureLayout();
         addComponents();
-        initialized = true;
     }
 
     /**

@@ -1,6 +1,8 @@
 package org.apolenkov.application.views.deck.pages;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -27,6 +29,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import java.util.ArrayList;
@@ -41,7 +44,10 @@ import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.core.layout.PublicLayout;
+import org.apolenkov.application.views.deck.components.DeckActions;
 import org.apolenkov.application.views.deck.components.DeckEditDialog;
+import org.apolenkov.application.views.deck.components.DeckHeader;
+import org.apolenkov.application.views.deck.components.DeckInfo;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.LayoutHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
@@ -61,20 +67,24 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private static final String SURFACE_PANEL_CLASS = "surface-panel";
     private static final String CONTAINER_MD_CLASS = "container-md";
     private static final String DECK_VIEW_SECTION_CLASS = "deck-view__section";
-    private static final String DECK_VIEW_TITLE_CLASS = "deck-view__title";
-    private static final String MAIN_DECKS_KEY = "main.decks";
 
     private final transient DeckUseCase deckUseCase;
     private final transient FlashcardUseCase flashcardUseCase;
     private final transient StatsService statsService;
     private transient Deck currentDeck;
     private Grid<Flashcard> flashcardGrid;
-    private H2 deckTitle;
-    private Span deckDescription;
-    private Span deckStats;
+    private DeckHeader deckHeader;
+    private DeckInfo deckInfo;
+    private DeckActions deckActions;
     private TextField flashcardSearchField;
     private ListDataProvider<Flashcard> flashcardsDataProvider;
     private Checkbox hideKnownCheckbox;
+
+    // Event Registrations
+    private Registration practiceClickListenerRegistration;
+    private Registration addFlashcardClickListenerRegistration;
+    private Registration editDeckClickListenerRegistration;
+    private Registration deleteDeckClickListenerRegistration;
 
     /**
      * Creates a new DeckView with required dependencies.
@@ -119,6 +129,112 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     }
 
     /**
+     * Updates deck info when component is attached to UI.
+     * Ensures that deck information is properly displayed after all components are initialized.
+     *
+     * @param attachEvent the attach event
+     */
+    @Override
+    protected void onAttach(final AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        // Setup event listeners for deck actions
+        setupActionListeners();
+        // Update deck info after all components are attached and initialized
+        updateDeckInfo();
+    }
+
+    /**
+     * Cleans up event listeners when the component is detached.
+     * Prevents memory leaks by removing event listener registrations.
+     *
+     * @param detachEvent the detach event
+     */
+    @Override
+    protected void onDetach(final DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+
+        if (practiceClickListenerRegistration != null) {
+            practiceClickListenerRegistration.remove();
+            practiceClickListenerRegistration = null;
+        }
+
+        if (addFlashcardClickListenerRegistration != null) {
+            addFlashcardClickListenerRegistration.remove();
+            addFlashcardClickListenerRegistration = null;
+        }
+
+        if (editDeckClickListenerRegistration != null) {
+            editDeckClickListenerRegistration.remove();
+            editDeckClickListenerRegistration = null;
+        }
+
+        if (deleteDeckClickListenerRegistration != null) {
+            deleteDeckClickListenerRegistration.remove();
+            deleteDeckClickListenerRegistration = null;
+        }
+    }
+
+    /**
+     * Sets up event listeners for deck action buttons.
+     * Configures click handlers for practice, add, edit and delete actions.
+     */
+    private void setupActionListeners() {
+        if (deckActions == null) {
+            return;
+        }
+
+        setupPracticeButtonListener();
+        setupAddFlashcardButtonListener();
+        setupEditDeckButtonListener();
+        setupDeleteDeckButtonListener();
+    }
+
+    /**
+     * Sets up the practice button click listener.
+     */
+    private void setupPracticeButtonListener() {
+        if (practiceClickListenerRegistration == null) {
+            practiceClickListenerRegistration = deckActions.addPracticeClickListener(e -> {
+                if (currentDeck != null) {
+                    NavigationHelper.navigateToPractice(currentDeck.getId());
+                }
+            });
+        }
+    }
+
+    /**
+     * Sets up the add flashcard button click listener.
+     */
+    private void setupAddFlashcardButtonListener() {
+        if (addFlashcardClickListenerRegistration == null) {
+            addFlashcardClickListenerRegistration =
+                    deckActions.addAddFlashcardClickListener(e -> openFlashcardDialog(null));
+        }
+    }
+
+    /**
+     * Sets up the edit deck button click listener.
+     */
+    private void setupEditDeckButtonListener() {
+        if (editDeckClickListenerRegistration == null) {
+            editDeckClickListenerRegistration = deckActions.addEditDeckClickListener(e -> {
+                if (currentDeck != null) {
+                    new DeckEditDialog(deckUseCase, currentDeck, updated -> updateDeckInfo()).open();
+                }
+            });
+        }
+    }
+
+    /**
+     * Sets up the delete deck button click listener.
+     */
+    private void setupDeleteDeckButtonListener() {
+        if (deleteDeckClickListenerRegistration == null) {
+            deleteDeckClickListenerRegistration = deckActions.addDeleteDeckClickListener(e -> deleteDeck());
+        }
+    }
+
+    /**
      * Sets the deck ID parameter from the URL and loads the deck.
      *
      * @param event the navigation event containing URL parameters
@@ -142,31 +258,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param container the container to add the header to
      */
     private void createHeader(final VerticalLayout container) {
-        HorizontalLayout headerLayout = new HorizontalLayout();
-        headerLayout.setWidthFull();
-        headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-
-        HorizontalLayout leftSection = new HorizontalLayout();
-        leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
-
-        Button backButton = ButtonHelper.createButton(
-                getTranslation("common.back"),
-                VaadinIcon.ARROW_LEFT,
-                e -> NavigationHelper.navigateToDecks(),
-                ButtonVariant.LUMO_TERTIARY);
-        backButton.setText(getTranslation(MAIN_DECKS_KEY));
-
-        deckTitle = new H2(getTranslation("deck.loading"));
-        deckTitle.addClassName(DECK_VIEW_TITLE_CLASS);
-
-        deckStats = new Span();
-        deckStats.addClassName("deck-view__stats");
-
-        leftSection.add(backButton, deckTitle, deckStats);
-        headerLayout.add(leftSection);
-
-        container.add(headerLayout);
+        deckHeader = new DeckHeader();
+        container.add(deckHeader);
     }
 
     /**
@@ -175,15 +268,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param container the container to add the deck info to
      */
     private void createDeckInfo(final VerticalLayout container) {
-        Div infoSection = new Div();
-        infoSection.addClassName("deck-view__info-section");
-        infoSection.addClassName(SURFACE_PANEL_CLASS);
-
-        deckDescription = new Span(getTranslation("deck.description.loading"));
-        deckDescription.addClassName("deck-view__description");
-
-        infoSection.add(deckDescription);
-        container.add(infoSection);
+        deckInfo = new DeckInfo();
+        container.add(deckInfo);
     }
 
     /**
@@ -192,48 +278,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param container the container to add the actions to
      */
     private void createActions(final VerticalLayout container) {
-        HorizontalLayout actionsLayout = new HorizontalLayout();
-        actionsLayout.setWidthFull();
-
-        Button practiceButton = ButtonHelper.createButton(
-                getTranslation("common.start"),
-                VaadinIcon.PLAY,
-                e -> {
-                    if (currentDeck != null) {
-                        NavigationHelper.navigateToPractice(currentDeck.getId());
-                    }
-                },
-                ButtonVariant.LUMO_SUCCESS);
-        practiceButton.setText(getTranslation("deck.startSession"));
-
-        Button addFlashcardButton = ButtonHelper.createButton(
-                getTranslation("common.add"),
-                VaadinIcon.PLUS,
-                e -> openFlashcardDialog(null),
-                ButtonVariant.LUMO_PRIMARY);
-        addFlashcardButton.setText(getTranslation("deck.addCard"));
-        addFlashcardButton.getElement().setAttribute("data-testid", "deck-add-card");
-
-        Button editDeckButton = ButtonHelper.createButton(
-                getTranslation("common.edit"),
-                VaadinIcon.EDIT,
-                e -> {
-                    if (currentDeck != null) {
-                        new DeckEditDialog(deckUseCase, currentDeck, updated -> updateDeckInfo()).open();
-                    }
-                },
-                ButtonVariant.LUMO_TERTIARY);
-        editDeckButton.getElement().setProperty(TITLE_PROPERTY, getTranslation("deck.edit.tooltip"));
-
-        Button deleteDeckButton = ButtonHelper.createButton(
-                getTranslation("common.delete"),
-                VaadinIcon.TRASH,
-                e -> deleteDeck(),
-                ButtonVariant.LUMO_TERTIARY,
-                ButtonVariant.LUMO_ERROR);
-
-        actionsLayout.add(practiceButton, addFlashcardButton, editDeckButton, deleteDeckButton);
-        container.add(actionsLayout);
+        deckActions = new DeckActions();
+        container.add(deckActions);
     }
 
     /**
@@ -371,7 +417,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         loadingSection.addClassName(CONTAINER_MD_CLASS);
 
         H2 loadingTitle = new H2(getTranslation("deck.loading"));
-        loadingTitle.addClassName(DECK_VIEW_TITLE_CLASS);
+        loadingTitle.addClassName("deck-view__title");
 
         loadingSection.add(loadingTitle);
         loadingContainer.add(loadingSection);
@@ -419,7 +465,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         if (deckOpt.isPresent()) {
             currentDeck = deckOpt.get();
             createDeckContent();
-            updateDeckInfo();
             loadFlashcards();
         } else {
             LOGGER.warn("Deck not found with ID: {}", deckId);
@@ -434,10 +479,15 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      */
     private void updateDeckInfo() {
         if (currentDeck != null) {
-            deckTitle.setText(currentDeck.getTitle());
-            deckStats.setText(getTranslation("deck.count", flashcardUseCase.countByDeckId(currentDeck.getId())));
-            deckDescription.setText(
-                    Optional.ofNullable(currentDeck.getDescription()).orElse(""));
+            if (deckHeader != null) {
+                deckHeader.setDeckTitle(currentDeck.getTitle());
+                deckHeader.setDeckStats(
+                        getTranslation("deck.count", flashcardUseCase.countByDeckId(currentDeck.getId())));
+            }
+            if (deckInfo != null) {
+                deckInfo.setDescription(
+                        Optional.ofNullable(currentDeck.getDescription()).orElse(""));
+            }
         }
     }
 
@@ -782,9 +832,9 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         description.addClassName("deck-delete-confirm__description");
 
         // Deck info
-        Div deckInfo = new Div();
-        deckInfo.addClassName("deck-delete-confirm__info");
-        deckInfo.addClassName("glass-md");
+        Div deckInfoDiv = new Div();
+        deckInfoDiv.addClassName("deck-delete-confirm__info");
+        deckInfoDiv.addClassName("glass-md");
 
         Span deckName = new Span(currentDeck.getTitle());
         deckName.addClassName("deck-delete-confirm__deck-name");
@@ -793,7 +843,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         Span cardCount = new Span(getTranslation("deck.delete.cardCount", actualCardCount));
         cardCount.addClassName("deck-delete-confirm__card-count");
 
-        deckInfo.add(deckName, cardCount);
+        deckInfoDiv.add(deckName, cardCount);
 
         // Confirmation input
         TextField confirmInput = new TextField(getTranslation("deck.delete.confirmInput"));
@@ -850,7 +900,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         });
 
         buttons.add(confirmButton, cancelButton);
-        layout.add(warningIcon, title, description, deckInfo, confirmInput, buttons);
+        layout.add(warningIcon, title, description, deckInfoDiv, confirmInput, buttons);
 
         confirmDialog.add(layout);
         confirmDialog.open();
