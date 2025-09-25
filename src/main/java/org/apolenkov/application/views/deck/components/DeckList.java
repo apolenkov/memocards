@@ -17,9 +17,6 @@ public final class DeckList extends VerticalLayout {
     private static final String EMPTY_MESSAGE_KEY = "home.search.noResults";
     private static final String EMPTY_MESSAGE_CLASS = "decks-empty-message";
 
-    // State
-    private boolean initialized;
-
     /**
      * Creates a new DeckList with default configuration.
      * Initialization is deferred to onAttach to avoid this-escape warnings.
@@ -43,11 +40,7 @@ public final class DeckList extends VerticalLayout {
     @Override
     protected void onAttach(final AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        if (initialized) {
-            return;
-        }
         configureLayout();
-        initialized = true;
     }
 
     /**
