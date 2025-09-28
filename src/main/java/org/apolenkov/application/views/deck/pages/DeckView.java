@@ -649,26 +649,20 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 getTranslation("deck.delete.simpleConfirm"),
                 VaadinIcon.TRASH,
                 e -> {
-                    deckUseCase.deleteDeck(currentDeck.getId());
-                    NavigationHelper.navigateToDecks();
-                    NotificationHelper.showSuccessBottom(getTranslation("deck.deleted"));
+                    try {
+                        deckUseCase.deleteDeck(currentDeck.getId());
+                        confirmDialog.close();
+                        NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
+                        NavigationHelper.navigateToDecks();
+                    } catch (Exception ex) {
+                        NotificationHelper.showErrorLong(ex.getMessage());
+                    }
                 },
                 ButtonVariant.LUMO_PRIMARY,
                 ButtonVariant.LUMO_ERROR);
 
         Button cancelButton = ButtonHelper.createButton(
                 getTranslation(CANCEL_TRANSLATION_KEY), e -> confirmDialog.close(), ButtonVariant.LUMO_TERTIARY);
-
-        confirmButton.addClickListener(e -> {
-            try {
-                deckUseCase.deleteDeck(currentDeck.getId());
-                confirmDialog.close();
-                NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
-                NavigationHelper.navigateToDecks();
-            } catch (Exception ex) {
-                NotificationHelper.showErrorLong(ex.getMessage());
-            }
-        });
 
         buttons.add(confirmButton, cancelButton);
         layout.add(icon, title, description, buttons);
