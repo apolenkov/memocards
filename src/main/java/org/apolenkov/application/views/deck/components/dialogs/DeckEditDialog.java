@@ -25,22 +25,26 @@ import org.apolenkov.application.views.shared.utils.NotificationHelper;
  */
 public class DeckEditDialog extends Dialog {
 
+    // Dependencies
     private final transient DeckUseCase deckUseCase;
+
+    // Data
     private final transient Deck deck;
+
+    // Callbacks
     private final transient Consumer<Deck> onSaved;
 
     /**
      * Creates a new DeckEditDialog for the specified deck.
      *
      * @param deckUseCaseParam use case for deck operations and persistence
-     * @param deckValue the deck object to edit
-     * @param savedCallback callback to execute when the deck is successfully saved
+     * @param deckParam the deck object to edit
+     * @param onSavedParam callback to execute when the deck is successfully saved
      */
-    public DeckEditDialog(
-            final DeckUseCase deckUseCaseParam, final Deck deckValue, final Consumer<Deck> savedCallback) {
+    public DeckEditDialog(final DeckUseCase deckUseCaseParam, final Deck deckParam, final Consumer<Deck> onSavedParam) {
         this.deckUseCase = deckUseCaseParam;
-        this.deck = deckValue;
-        this.onSaved = savedCallback;
+        this.deck = deckParam;
+        this.onSaved = onSavedParam;
     }
 
     /**
@@ -59,66 +63,138 @@ public class DeckEditDialog extends Dialog {
 
     /**
      * Builds the complete dialog interface.
-     * Creates and configures all form elements including input fields,
-     * validation binding, buttons, and event handlers.
+     * Coordinates the creation of all dialog elements.
      */
     private void build() {
         VerticalLayout layout = new VerticalLayout();
         layout.setPadding(false);
         layout.setSpacing(true);
 
-        H3 header = new H3(getTranslation("deck.edit.title"));
+        H3 header = createHeader();
+        TextField titleField = createTitleField();
+        TextArea descriptionArea = createDescriptionArea();
+        HorizontalLayout buttons = createButtonLayout(titleField, descriptionArea);
 
+        layout.add(header, titleField, descriptionArea, buttons);
+        add(layout);
+    }
+
+    /**
+     * Creates the dialog header.
+     *
+     * @return configured header component
+     */
+    private H3 createHeader() {
+        return new H3(getTranslation("deck.edit.title"));
+    }
+
+    /**
+     * Creates the title input field with validation and pre-filled value.
+     *
+     * @return configured title field
+     */
+    private TextField createTitleField() {
         TextField titleField = new TextField(getTranslation("dialog.deckTitle"));
         titleField.setWidthFull();
         titleField.setRequiredIndicatorVisible(true);
         titleField.setMaxLength(120);
         titleField.setClearButtonVisible(true);
         titleField.setValue(deck.getTitle() != null ? deck.getTitle() : "");
+        return titleField;
+    }
 
+    /**
+     * Creates the description text area with pre-filled value.
+     *
+     * @return configured description area
+     */
+    private TextArea createDescriptionArea() {
         TextArea descriptionArea = new TextArea(getTranslation("dialog.description"));
         descriptionArea.setWidthFull();
         descriptionArea.addClassName("text-area--md");
         descriptionArea.setMaxLength(500);
         descriptionArea.setPlaceholder(getTranslation("dialog.description.placeholder"));
         descriptionArea.setValue(deck.getDescription() != null ? deck.getDescription() : "");
+        return descriptionArea;
+    }
 
-        BeanValidationBinder<Deck> binder = new BeanValidationBinder<>(Deck.class);
-        binder.forField(titleField)
-                .asRequired(getTranslation("deckCreate.enterTitle"))
-                .bind(Deck::getTitle, Deck::setTitle);
-        binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
-
+    /**
+     * Creates the button layout with save and cancel buttons.
+     *
+     * @param titleField the title field for validation
+     * @param descriptionArea the description area for validation
+     * @return configured button layout
+     */
+    private HorizontalLayout createButtonLayout(final TextField titleField, final TextArea descriptionArea) {
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidthFull();
 
-        Button save = ButtonHelper.createButton(
-                getTranslation("deck.edit.save"),
-                e -> {
-                    try {
-                        binder.writeBean(deck);
-                        Deck saved = deckUseCase.saveDeck(deck);
-                        NotificationHelper.showSuccessBottom(getTranslation("deck.edit.success"));
-                        close();
-                        if (onSaved != null) {
-                            onSaved.accept(saved);
-                        }
-                    } catch (ValidationException vex) {
-                        NotificationHelper.showError(getTranslation("dialog.fillRequired"));
-                    } catch (Exception ex) {
-                        NotificationHelper.showError(ex.getMessage());
-                    }
-                },
-                ButtonVariant.LUMO_PRIMARY);
+        BeanValidationBinder<Deck> binder = createBinder(titleField, descriptionArea);
+        Button save = createSaveButton(binder);
+        Button cancel = createCancelButton();
 
-        Button cancel =
-                ButtonHelper.createButton(getTranslation("common.cancel"), e -> close(), ButtonVariant.LUMO_TERTIARY);
         buttons.add(save, cancel);
+        return buttons;
+    }
 
-        layout.add(header, titleField, descriptionArea, buttons);
-        add(layout);
+    /**
+     * Creates the validation binder for form fields.
+     *
+     * @param titleField the title field to bind
+     * @param descriptionArea the description area to bind
+     * @return configured validation binder
+     */
+    private BeanValidationBinder<Deck> createBinder(final TextField titleField, final TextArea descriptionArea) {
+        BeanValidationBinder<Deck> binder = new BeanValidationBinder<>(Deck.class);
+        binder.forField(titleField)
+                .asRequired(getTranslation("deckCreate.enterTitle"))
+                .bind(Deck::getTitle, Deck::setTitle);
+        binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
+        return binder;
+    }
+
+    /**
+     * Creates the save button with action handler.
+     *
+     * @param binder the validation binder
+     * @return configured save button
+     */
+    private Button createSaveButton(final BeanValidationBinder<Deck> binder) {
+        return ButtonHelper.createButton(
+                getTranslation("deck.edit.save"), e -> handleSaveAction(binder), ButtonVariant.LUMO_PRIMARY);
+    }
+
+    /**
+     * Creates the cancel button.
+     *
+     * @return configured cancel button
+     */
+    private Button createCancelButton() {
+        return ButtonHelper.createButton(getTranslation("common.cancel"), e -> close(), ButtonVariant.LUMO_TERTIARY);
+    }
+
+    /**
+     * Handles the save action with validation and business logic.
+     *
+     * @param binder the validation binder
+     */
+    private void handleSaveAction(final BeanValidationBinder<Deck> binder) {
+        try {
+            binder.writeBean(deck);
+            Deck saved = deckUseCase.saveDeck(deck);
+            NotificationHelper.showSuccessBottom(getTranslation("deck.edit.success"));
+            close();
+
+            if (onSaved != null) {
+                onSaved.accept(saved);
+            }
+        } catch (ValidationException vex) {
+            NotificationHelper.showError(getTranslation("dialog.fillRequired"));
+        } catch (Exception ex) {
+            NotificationHelper.showError(ex.getMessage());
+        }
     }
 }
