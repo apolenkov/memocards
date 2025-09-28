@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deck.components;
+package org.apolenkov.application.views.deck.components.decks;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;

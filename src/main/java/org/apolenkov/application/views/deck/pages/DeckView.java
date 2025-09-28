@@ -5,12 +5,8 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
@@ -23,8 +19,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
-import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
@@ -32,7 +26,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.config.constants.RouteConstants;
@@ -44,12 +37,12 @@ import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.core.layout.PublicLayout;
-import org.apolenkov.application.views.deck.components.DeckActions;
-import org.apolenkov.application.views.deck.components.DeckEditDialog;
-import org.apolenkov.application.views.deck.components.DeckHeader;
-import org.apolenkov.application.views.deck.components.DeckInfo;
+import org.apolenkov.application.views.deck.components.deck.DeckActions;
+import org.apolenkov.application.views.deck.components.deck.DeckGrid;
+import org.apolenkov.application.views.deck.components.deck.DeckHeader;
+import org.apolenkov.application.views.deck.components.deck.DeckInfo;
+import org.apolenkov.application.views.deck.components.dialogs.DeckEditDialog;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.LayoutHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
 import org.slf4j.Logger;
@@ -62,7 +55,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckView.class);
 
     private static final String FILL_REQUIRED_KEY = "dialog.fillRequired";
-    private static final String TITLE_PROPERTY = "title";
     private static final String CANCEL_TRANSLATION_KEY = "common.cancel";
     private static final String SURFACE_PANEL_CLASS = "surface-panel";
     private static final String CONTAINER_MD_CLASS = "container-md";
@@ -72,13 +64,10 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private final transient FlashcardUseCase flashcardUseCase;
     private final transient StatsService statsService;
     private transient Deck currentDeck;
-    private Grid<Flashcard> flashcardGrid;
     private DeckHeader deckHeader;
     private DeckInfo deckInfo;
     private DeckActions deckActions;
-    private TextField flashcardSearchField;
-    private ListDataProvider<Flashcard> flashcardsDataProvider;
-    private Checkbox hideKnownCheckbox;
+    private DeckGrid deckGrid;
 
     // Event Registrations
     private Registration practiceClickListenerRegistration;
@@ -108,7 +97,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
-    private void init() {
+    public void init() {
         getContent().setWidthFull();
         getContent().setPadding(true);
         getContent().setSpacing(true);
@@ -132,7 +121,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * Updates deck info when component is attached to UI.
      * Ensures that deck information is properly displayed after all components are initialized.
      *
-     * @param attachEvent the attach event
+     * @param attachEvent the attachment event
      */
     @Override
     protected void onAttach(final AttachEvent attachEvent) {
@@ -288,112 +277,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param container the container to add the grid to
      */
     private void createFlashcardsGrid(final VerticalLayout container) {
-        flashcardSearchField = new TextField();
-        flashcardSearchField.setPlaceholder(getTranslation("deck.searchCards"));
-        flashcardSearchField.setPrefixComponent(VaadinIcon.SEARCH.create());
-        flashcardSearchField.setClearButtonVisible(true);
-        flashcardSearchField.setValueChangeMode(ValueChangeMode.EAGER);
-        flashcardSearchField.addValueChangeListener(e -> applyFlashcardsFilter());
-
-        HorizontalLayout rightFilters = new HorizontalLayout();
-        rightFilters.setAlignItems(FlexComponent.Alignment.CENTER);
-        hideKnownCheckbox = new Checkbox(getTranslation("deck.hideKnown"), true);
-        hideKnownCheckbox.addValueChangeListener(e -> applyFlashcardsFilter());
-        Button resetProgress = ButtonHelper.createButton(
-                getTranslation("deck.resetProgress"),
-                VaadinIcon.ROTATE_LEFT,
-                e -> {
-                    if (currentDeck != null) {
-                        statsService.resetDeckProgress(currentDeck.getId());
-                        NotificationHelper.showSuccessBottom(getTranslation("deck.progressReset"));
-                        loadFlashcards();
-                    }
-                },
-                ButtonVariant.LUMO_TERTIARY,
-                ButtonVariant.LUMO_ERROR);
-        rightFilters.add(hideKnownCheckbox, resetProgress);
-
-        HorizontalLayout searchRow = LayoutHelper.createSearchRow(flashcardSearchField, rightFilters);
-        container.add(searchRow);
-
-        flashcardGrid = new Grid<>(Flashcard.class, false);
-        flashcardGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        flashcardGrid.setWidthFull();
-
-        flashcardGrid
-                .addColumn(Flashcard::getFrontText)
-                .setHeader(getTranslation("deck.col.front"))
-                .setFlexGrow(2);
-
-        flashcardGrid
-                .addColumn(flashcard -> {
-                    String example = flashcard.getExample();
-                    return example != null && !example.trim().isEmpty() ? example : "-";
-                })
-                .setHeader(getTranslation("deck.col.example"))
-                .setFlexGrow(2);
-
-        flashcardGrid
-                .addComponentColumn(flashcard -> {
-                    boolean known =
-                            currentDeck != null && statsService.isCardKnown(currentDeck.getId(), flashcard.getId());
-                    if (known) {
-                        Span statusSpan = new Span(getTranslation("deck.knownMark"));
-                        statusSpan.addClassName("known-status");
-                        return statusSpan;
-                    } else {
-                        return new Span("-");
-                    }
-                })
-                .setHeader(getTranslation("deck.col.status"))
-                .setTextAlign(ColumnTextAlign.CENTER)
-                .setFlexGrow(1);
-
-        flashcardGrid
-                .addComponentColumn(flashcard -> {
-                    HorizontalLayout actions = new HorizontalLayout();
-                    actions.setSpacing(false);
-                    actions.setPadding(false);
-                    actions.addClassName("actions-layout");
-                    actions.setAlignItems(FlexComponent.Alignment.CENTER);
-                    actions.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-
-                    Button editButton = ButtonHelper.createIconButton(
-                            VaadinIcon.EDIT,
-                            e -> openFlashcardDialog(flashcard),
-                            ButtonVariant.LUMO_SMALL,
-                            ButtonVariant.LUMO_TERTIARY);
-                    editButton.getElement().setProperty(TITLE_PROPERTY, getTranslation("common.edit"));
-
-                    Button toggleKnown = ButtonHelper.createIconButton(
-                            VaadinIcon.CHECK,
-                            e -> {
-                                boolean known = statsService.isCardKnown(currentDeck.getId(), flashcard.getId());
-                                statsService.setCardKnown(currentDeck.getId(), flashcard.getId(), !known);
-                                flashcardGrid.getDataProvider().refreshAll();
-                                applyFlashcardsFilter();
-                            },
-                            ButtonVariant.LUMO_SMALL,
-                            ButtonVariant.LUMO_SUCCESS);
-                    toggleKnown.getElement().setProperty(TITLE_PROPERTY, getTranslation("deck.toggleKnown.tooltip"));
-
-                    Button deleteButton = ButtonHelper.createIconButton(
-                            VaadinIcon.TRASH,
-                            e -> deleteFlashcard(flashcard),
-                            ButtonVariant.LUMO_SMALL,
-                            ButtonVariant.LUMO_TERTIARY,
-                            ButtonVariant.LUMO_ERROR);
-                    deleteButton.getElement().setProperty(TITLE_PROPERTY, getTranslation("common.delete"));
-
-                    actions.add(editButton, toggleKnown, deleteButton);
-                    return actions;
-                })
-                .setHeader(getTranslation("deck.col.actions"))
-                .setFlexGrow(0)
-                .setTextAlign(ColumnTextAlign.CENTER)
-                .setAutoWidth(true);
-
-        container.add(flashcardGrid);
+        deckGrid = new DeckGrid(statsService);
+        // Set callbacks immediately after creation
+        deckGrid.setEditFlashcardCallback(this::openFlashcardDialog);
+        deckGrid.setDeleteFlashcardCallback(this::deleteFlashcard);
+        container.add(deckGrid);
     }
 
     /**
@@ -495,33 +383,11 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * Loads flashcards for the current deck and updates the grid.
      */
     private void loadFlashcards() {
-        if (currentDeck != null) {
+        if (currentDeck != null && deckGrid != null) {
             List<Flashcard> flashcards = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId());
-            flashcardsDataProvider = new ListDataProvider<>(new ArrayList<>(flashcards));
-            flashcardGrid.setDataProvider(flashcardsDataProvider);
-            applyFlashcardsFilter();
+            deckGrid.setCurrentDeckId(currentDeck.getId());
+            deckGrid.setFlashcards(flashcards);
         }
-    }
-
-    /**
-     * Applies search and filter criteria to the flashcards grid.
-     */
-    private void applyFlashcardsFilter() {
-        if (flashcardsDataProvider == null || currentDeck == null) {
-            return;
-        }
-        String q = flashcardSearchField != null && flashcardSearchField.getValue() != null
-                ? flashcardSearchField.getValue().toLowerCase().trim()
-                : "";
-        boolean hideKnown = hideKnownCheckbox != null && Boolean.TRUE.equals(hideKnownCheckbox.getValue());
-        List<Flashcard> filtered = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId()).stream()
-                .filter(card -> q.isEmpty()
-                        || card.getFrontText().toLowerCase().contains(q.toLowerCase())
-                        || card.getBackText().toLowerCase().contains(q.toLowerCase()))
-                .filter(card -> !hideKnown || !statsService.isCardKnown(currentDeck.getId(), card.getId()))
-                .toList();
-        flashcardsDataProvider = new ListDataProvider<>(new ArrayList<>(filtered));
-        flashcardGrid.setDataProvider(flashcardsDataProvider);
     }
 
     /**
@@ -654,7 +520,15 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             bean.setDeckId(currentDeck.getId());
             binder.writeBean(bean);
             flashcardUseCase.saveFlashcard(bean);
-            loadFlashcards();
+
+            if (flashcard == null) {
+                // New flashcard - reload all data
+                loadFlashcards();
+            } else {
+                // Existing flashcard - update locally
+                deckGrid.updateFlashcard(bean);
+            }
+
             updateDeckInfo();
             dialog.close();
             NotificationHelper.showSuccessBottom(
@@ -687,7 +561,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         Button confirmButton = ButtonHelper.createConfirmButton(getTranslation("dialog.delete"), e -> {
             flashcardUseCase.deleteFlashcard(flashcard.getId());
-            loadFlashcards();
+            deckGrid.removeFlashcard(flashcard.getId());
             updateDeckInfo();
             NotificationHelper.showSuccessBottom(getTranslation("dialog.deleted"));
             confirmDialog.close();

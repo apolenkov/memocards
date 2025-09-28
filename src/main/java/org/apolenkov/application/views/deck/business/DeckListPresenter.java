@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * Presenter for the home view, handling deck listing operations.
  */
 @Component
-public class HomePresenter {
+public class DeckListPresenter {
 
     private final DeckUseCase deckUseCase;
     private final FlashcardUseCase flashcardUseCase;
@@ -22,7 +22,7 @@ public class HomePresenter {
     private final UserUseCase userUseCase;
 
     /**
-     * Creates a new HomePresenter with the specified dependencies.
+     * Creates a new DeckListPresenter with the specified dependencies.
      *
      * @param deckUseCaseParam the use case for deck operations (non-null)
      * @param flashcardUseCaseParam the use case for flashcard operations (non-null)
@@ -30,7 +30,7 @@ public class HomePresenter {
      * @param userUseCaseParam the use case for user operations (non-null)
      * @throws IllegalArgumentException if any parameter is null
      */
-    public HomePresenter(
+    public DeckListPresenter(
             final DeckUseCase deckUseCaseParam,
             final FlashcardUseCase flashcardUseCaseParam,
             final StatsService statsServiceParam,
@@ -95,6 +95,7 @@ public class HomePresenter {
         int known = statsService.getKnownCardIds(deck.getId()).size();
         // Calculate progress percentage based on known cards vs. total
         int percent = statsService.getDeckProgressPercent(deck.getId(), deckSize);
+
         return new DeckCardViewModel(deck.getId(), deck.getTitle(), deck.getDescription(), deckSize, known, percent);
     }
 

@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deck.components;
+package org.apolenkov.application.views.deck.components.dialogs;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
@@ -15,36 +15,32 @@ import com.vaadin.flow.data.binder.ValidationException;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
 
 /**
- * Dialog component for creating new decks.
- * Provides a form interface for users to create new flashcard decks with validation
- * and automatic navigation to the newly created deck.
+ * Dialog component for editing existing flashcard decks.
+ * Provides users with the ability to modify deck information
+ * including title and description with form validation and error handling.
  */
-public class CreateDeckDialog extends Dialog {
+public class DeckEditDialog extends Dialog {
 
     private final transient DeckUseCase deckUseCase;
-    private final transient UserUseCase userUseCase;
-    private final transient Consumer<Deck> onCreated;
+    private final transient Deck deck;
+    private final transient Consumer<Deck> onSaved;
 
     /**
-     * Creates a new CreateDeckDialog.
+     * Creates a new DeckEditDialog for the specified deck.
      *
-     * @param deckUseCaseParam use case for deck operations
-     * @param userUseCaseParam service for user operations
-     * @param createdCallback callback function called when deck is successfully created
+     * @param deckUseCaseParam use case for deck operations and persistence
+     * @param deckValue the deck object to edit
+     * @param savedCallback callback to execute when the deck is successfully saved
      */
-    public CreateDeckDialog(
-            final DeckUseCase deckUseCaseParam,
-            final UserUseCase userUseCaseParam,
-            final Consumer<Deck> createdCallback) {
+    public DeckEditDialog(
+            final DeckUseCase deckUseCaseParam, final Deck deckValue, final Consumer<Deck> savedCallback) {
         this.deckUseCase = deckUseCaseParam;
-        this.userUseCase = userUseCaseParam;
-        this.onCreated = createdCallback;
+        this.deck = deckValue;
+        this.onSaved = savedCallback;
     }
 
     /**
@@ -62,40 +58,37 @@ public class CreateDeckDialog extends Dialog {
     }
 
     /**
-     * Builds the dialog UI components and layout.
+     * Builds the complete dialog interface.
      * Creates and configures all form elements including input fields,
      * validation binding, buttons, and event handlers.
      */
     private void build() {
-        // Create main layout with proper spacing and padding
         VerticalLayout layout = new VerticalLayout();
         layout.setPadding(false);
         layout.setSpacing(true);
 
-        H3 header = new H3(getTranslation("dialog.newDeck"));
+        H3 header = new H3(getTranslation("deck.edit.title"));
 
-        // Configure title field with validation and constraints
         TextField titleField = new TextField(getTranslation("dialog.deckTitle"));
         titleField.setWidthFull();
         titleField.setRequiredIndicatorVisible(true);
         titleField.setMaxLength(120);
         titleField.setClearButtonVisible(true);
+        titleField.setValue(deck.getTitle() != null ? deck.getTitle() : "");
 
-        // Configure description area with appropriate styling
         TextArea descriptionArea = new TextArea(getTranslation("dialog.description"));
         descriptionArea.setWidthFull();
         descriptionArea.addClassName("text-area--md");
         descriptionArea.setMaxLength(500);
         descriptionArea.setPlaceholder(getTranslation("dialog.description.placeholder"));
+        descriptionArea.setValue(deck.getDescription() != null ? deck.getDescription() : "");
 
-        // Set up bean validation binding for form data integrity
         BeanValidationBinder<Deck> binder = new BeanValidationBinder<>(Deck.class);
         binder.forField(titleField)
-                .asRequired(getTranslation("home.enterTitle"))
+                .asRequired(getTranslation("deckCreate.enterTitle"))
                 .bind(Deck::getTitle, Deck::setTitle);
         binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
 
-        // Create button layout with save and cancel actions
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -103,27 +96,19 @@ public class CreateDeckDialog extends Dialog {
         buttons.setWidthFull();
 
         Button save = ButtonHelper.createButton(
-                getTranslation("dialog.create"),
+                getTranslation("deck.edit.save"),
                 e -> {
-                    // Create new deck instance and populate with form data
-                    Deck bean = new Deck();
-                    bean.setUserId(userUseCase.getCurrentUser().getId());
                     try {
-                        // Validate and write form data to bean
-                        binder.writeBean(bean);
-                        Deck saved = deckUseCase.saveDeck(bean);
-                        NotificationHelper.showSuccessBottom(getTranslation("home.deckCreated"));
+                        binder.writeBean(deck);
+                        Deck saved = deckUseCase.saveDeck(deck);
+                        NotificationHelper.showSuccessBottom(getTranslation("deck.edit.success"));
                         close();
-                        // Execute callback and navigate to new deck
-                        if (onCreated != null) {
-                            onCreated.accept(saved);
+                        if (onSaved != null) {
+                            onSaved.accept(saved);
                         }
-                        NavigationHelper.navigateToDeck(saved.getId());
                     } catch (ValidationException vex) {
-                        // Show validation error message
                         NotificationHelper.showError(getTranslation("dialog.fillRequired"));
                     } catch (Exception ex) {
-                        // Show general error message
                         NotificationHelper.showError(ex.getMessage());
                     }
                 },
@@ -132,12 +117,7 @@ public class CreateDeckDialog extends Dialog {
         Button cancel =
                 ButtonHelper.createButton(getTranslation("common.cancel"), e -> close(), ButtonVariant.LUMO_TERTIARY);
         buttons.add(save, cancel);
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        buttons.setSpacing(true);
-        buttons.setWidthFull();
-        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Assemble final layout and add to dialog
         layout.add(header, titleField, descriptionArea, buttons);
         add(layout);
     }

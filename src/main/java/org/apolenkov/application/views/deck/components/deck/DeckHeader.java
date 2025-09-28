@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deck.components;
+package org.apolenkov.application.views.deck.components.deck;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
@@ -17,11 +17,6 @@ import org.apolenkov.application.views.shared.utils.NavigationHelper;
  * refactoring of DecksView.
  */
 public final class DeckHeader extends HorizontalLayout {
-
-    // Constants
-    private static final String MAIN_DECKS_KEY = "main.decks";
-    private static final String DECK_VIEW_TITLE_CLASS = "deck-view__title";
-    private static final String DECK_VIEW_STATS_CLASS = "deck-view__stats";
 
     // UI Components
     private final Button backButton;
@@ -67,7 +62,7 @@ public final class DeckHeader extends HorizontalLayout {
         backButton.setIcon(VaadinIcon.ARROW_LEFT.create());
         backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         backButton.addClickListener(e -> NavigationHelper.navigateToDecks());
-        backButton.setText(getTranslation(MAIN_DECKS_KEY));
+        backButton.setText(getTranslation("main.decks"));
     }
 
     /**
@@ -76,7 +71,7 @@ public final class DeckHeader extends HorizontalLayout {
      */
     private void configureTitle() {
         deckTitle.setText(getTranslation("deck.loading"));
-        deckTitle.addClassName(DECK_VIEW_TITLE_CLASS);
+        deckTitle.addClassName("deck-view__title");
     }
 
     /**
@@ -84,7 +79,7 @@ public final class DeckHeader extends HorizontalLayout {
      * Sets up the stats span with proper styling.
      */
     private void configureStats() {
-        deckStats.addClassName(DECK_VIEW_STATS_CLASS);
+        deckStats.addClassName("deck-view__stats");
     }
 
     /**

@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deck.components;
+package org.apolenkov.application.views.deck.components.decks;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.H2;
@@ -12,13 +12,6 @@ import org.apolenkov.application.views.deck.business.DeckCardViewModel;
  * including title, toolbar, and deck list components.
  */
 public final class DeckContainer extends VerticalLayout {
-
-    // Constants
-    private static final String DECKS_TITLE_KEY = "main.decks";
-    private static final String CONTAINER_MD_CLASS = "container-md";
-    private static final String DECKS_SECTION_CLASS = "decks-section";
-    private static final String SURFACE_PANEL_CLASS = "surface-panel";
-    private static final String DECKS_TITLE_CLASS = "decks-view__title";
 
     // UI Components
     private final H2 title;
@@ -45,9 +38,9 @@ public final class DeckContainer extends VerticalLayout {
         setSpacing(true);
         setAlignItems(Alignment.CENTER);
         setWidthFull();
-        addClassName(CONTAINER_MD_CLASS);
-        addClassName(DECKS_SECTION_CLASS);
-        addClassName(SURFACE_PANEL_CLASS);
+        addClassName("container-md");
+        addClassName("decks-section");
+        addClassName("surface-panel");
     }
 
     /**
@@ -62,8 +55,8 @@ public final class DeckContainer extends VerticalLayout {
     protected void onAttach(final AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         // Initialize title content now to avoid using getTranslation in constructor
-        title.setText(getTranslation(DECKS_TITLE_KEY));
-        title.addClassName(DECKS_TITLE_CLASS);
+        title.setText(getTranslation("main.decks"));
+        title.addClassName("decks-view__title");
         configureLayout();
         addComponents();
     }
