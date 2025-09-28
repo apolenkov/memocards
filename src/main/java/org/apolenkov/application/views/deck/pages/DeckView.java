@@ -197,7 +197,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private void setupAddFlashcardButtonListener() {
         if (addFlashcardClickListenerRegistration == null) {
             addFlashcardClickListenerRegistration =
-                    deckActions.addAddFlashcardClickListener(e -> openFlashcardDialog(null));
+                    deckGrid.addAddFlashcardClickListener(e -> openFlashcardDialog(null));
         }
     }
 

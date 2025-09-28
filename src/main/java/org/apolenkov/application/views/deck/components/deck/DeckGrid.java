@@ -1,10 +1,9 @@
 package org.apolenkov.application.views.deck.components.deck;
 
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.views.deck.components.grid.DeckFlashcardGrid;
@@ -12,6 +11,16 @@ import org.apolenkov.application.views.deck.components.grid.DeckGridFilter;
 import org.apolenkov.application.views.deck.components.grid.DeckSearchControls;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.shared.Registration;
 
 /**
  * Component for displaying flashcards in a grid with search and filtering capabilities.
@@ -28,12 +37,14 @@ public final class DeckGrid extends VerticalLayout {
     // UI Components
     private final DeckSearchControls searchControls;
     private final DeckFlashcardGrid flashcardGrid;
+    private final Button addFlashcardButton;
 
     // Data
     private transient Long currentDeckId;
     private transient List<Flashcard> allFlashcards;
 
-    // Callbacks - none needed
+    // Event Registrations
+    private Registration addFlashcardClickListenerRegistration;
 
     /**
      * Creates a new DeckGrid component.
@@ -44,6 +55,7 @@ public final class DeckGrid extends VerticalLayout {
         this.statsService = statsServiceParam;
         this.searchControls = new DeckSearchControls();
         this.flashcardGrid = new DeckFlashcardGrid(statsService);
+        this.addFlashcardButton = new Button();
         this.allFlashcards = new ArrayList<>();
     }
 
@@ -55,8 +67,9 @@ public final class DeckGrid extends VerticalLayout {
     @Override
     protected void onAttach(final AttachEvent attachEvent) {
         super.onAttach(attachEvent);
+        createAddFlashcardButton();
         setupCallbacks();
-        add(searchControls, flashcardGrid);
+        createLayout();
         applyFilter();
     }
 
@@ -226,5 +239,56 @@ public final class DeckGrid extends VerticalLayout {
         if (flashcardGrid != null) {
             flashcardGrid.setDeleteFlashcardCallback(callback);
         }
+    }
+
+    /**
+     * Creates the add flashcard button.
+     */
+    private void createAddFlashcardButton() {
+        addFlashcardButton.setText(getTranslation("deck.addCard"));
+        addFlashcardButton.setIcon(VaadinIcon.PLUS.create());
+        addFlashcardButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+    }
+
+    /**
+     * Creates the layout with add button, search controls, and flashcard grid.
+     * Groups buttons logically: Add card (separate row), Search/Filters (separate row).
+     */
+    private void createLayout() {
+        // Row 1: Add card button (centered)
+        HorizontalLayout addCardRow = new HorizontalLayout();
+        addCardRow.setWidthFull();
+        addCardRow.setJustifyContentMode(
+                com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
+        addCardRow.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+
+        addFlashcardButton.setWidth("auto");
+        addCardRow.add(addFlashcardButton);
+
+        // Row 2: Search and filter controls
+        HorizontalLayout searchRow = new HorizontalLayout();
+        searchRow.setWidthFull();
+        searchRow.setJustifyContentMode(
+                com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
+        searchRow.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+        searchRow.setSpacing(true);
+        searchRow.add(searchControls);
+
+        // Add all rows
+        add(addCardRow, searchRow, flashcardGrid);
+    }
+
+    /**
+     * Sets the add flashcard click listener.
+     *
+     * @param listener the click listener
+     * @return registration for removing the listener
+     */
+    public Registration addAddFlashcardClickListener(final ComponentEventListener<ClickEvent<Button>> listener) {
+        if (addFlashcardClickListenerRegistration != null) {
+            addFlashcardClickListenerRegistration.remove();
+        }
+        addFlashcardClickListenerRegistration = addFlashcardButton.addClickListener(listener);
+        return addFlashcardClickListenerRegistration;
     }
 }
