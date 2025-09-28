@@ -21,7 +21,6 @@ public final class DeckActions extends HorizontalLayout {
 
     // UI Components
     private final Button practiceButton;
-    private final Button addFlashcardButton;
     private final Button editDeckButton;
     private final Button deleteDeckButton;
 
@@ -31,17 +30,18 @@ public final class DeckActions extends HorizontalLayout {
      */
     public DeckActions() {
         this.practiceButton = new Button();
-        this.addFlashcardButton = new Button();
         this.editDeckButton = new Button();
         this.deleteDeckButton = new Button();
     }
 
     /**
      * Configures the actions layout with proper styling.
-     * Sets up the horizontal layout with full width.
+     * Sets up the horizontal layout with full width and centered alignment.
      */
     private void configureLayout() {
         setWidthFull();
+        setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
+        setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
     }
 
     /**
@@ -53,18 +53,6 @@ public final class DeckActions extends HorizontalLayout {
         practiceButton.setIcon(VaadinIcon.PLAY.create());
         practiceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         practiceButton.setText(getTranslation("deck.startSession"));
-    }
-
-    /**
-     * Configures the add flashcard button.
-     * Sets up button with proper styling, icon and test ID.
-     */
-    private void configureAddFlashcardButton() {
-        addFlashcardButton.setText(getTranslation("common.add"));
-        addFlashcardButton.setIcon(VaadinIcon.PLUS.create());
-        addFlashcardButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        addFlashcardButton.setText(getTranslation("deck.addCard"));
-        addFlashcardButton.getElement().setAttribute("data-testid", "deck-add-card");
     }
 
     /**
@@ -93,7 +81,7 @@ public final class DeckActions extends HorizontalLayout {
      * Arranges buttons in proper order.
      */
     private void addComponents() {
-        add(practiceButton, addFlashcardButton, editDeckButton, deleteDeckButton);
+        add(practiceButton, editDeckButton, deleteDeckButton);
     }
 
     /**
@@ -104,16 +92,6 @@ public final class DeckActions extends HorizontalLayout {
      */
     public Registration addPracticeClickListener(final ComponentEventListener<ClickEvent<Button>> listener) {
         return practiceButton.addClickListener(listener);
-    }
-
-    /**
-     * Adds a listener for add flashcard button clicks.
-     *
-     * @param listener the event listener for add flashcard button clicks
-     * @return registration for removing the listener
-     */
-    public Registration addAddFlashcardClickListener(final ComponentEventListener<ClickEvent<Button>> listener) {
-        return addFlashcardButton.addClickListener(listener);
     }
 
     /**
@@ -147,7 +125,6 @@ public final class DeckActions extends HorizontalLayout {
         super.onAttach(attachEvent);
         configureLayout();
         configurePracticeButton();
-        configureAddFlashcardButton();
         configureEditDeckButton();
         configureDeleteDeckButton();
         addComponents();

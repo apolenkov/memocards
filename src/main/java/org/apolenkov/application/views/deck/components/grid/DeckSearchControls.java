@@ -1,5 +1,11 @@
 package org.apolenkov.application.views.deck.components.grid;
 
+import java.util.function.Consumer;
+
+import org.apolenkov.application.views.shared.utils.NotificationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -9,11 +15,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import java.util.function.Consumer;
-import org.apolenkov.application.views.shared.utils.LayoutHelper;
-import org.apolenkov.application.views.shared.utils.NotificationHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Component for search and filter controls in the deck grid.
@@ -102,14 +103,25 @@ public final class DeckSearchControls extends HorizontalLayout {
 
     /**
      * Creates the search controls layout.
+     * Groups search and filters in a compact, centered layout.
      */
     private void createLayout() {
-        HorizontalLayout rightFilters = new HorizontalLayout();
-        rightFilters.setAlignItems(FlexComponent.Alignment.CENTER);
-        rightFilters.add(hideKnownCheckbox, resetProgressButton);
+        // Create compact horizontal layout
+        setWidthFull();
+        setAlignItems(FlexComponent.Alignment.CENTER);
+        setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        setSpacing(true);
 
-        HorizontalLayout searchRow = LayoutHelper.createSearchRow(searchField, rightFilters);
-        add(searchRow);
+        // Add search field with fixed width
+        searchField.setWidth("250px");
+        add(searchField);
+
+        // Add compact filter controls
+        HorizontalLayout filters = new HorizontalLayout();
+        filters.setSpacing(true);
+        filters.setAlignItems(FlexComponent.Alignment.CENTER);
+        filters.add(hideKnownCheckbox, resetProgressButton);
+        add(filters);
     }
 
     /**
