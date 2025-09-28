@@ -13,9 +13,9 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.deck.business.DeckCardViewModel;
-import org.apolenkov.application.views.deck.business.HomePresenter;
-import org.apolenkov.application.views.deck.components.CreateDeckDialog;
-import org.apolenkov.application.views.deck.components.DeckContainer;
+import org.apolenkov.application.views.deck.business.DeckListPresenter;
+import org.apolenkov.application.views.deck.components.decks.DeckContainer;
+import org.apolenkov.application.views.deck.components.dialogs.CreateDeckDialog;
 import org.apolenkov.application.views.shared.base.BaseView;
 
 /**
@@ -32,7 +32,7 @@ public final class DecksView extends BaseView {
     private static final String DECKS_TITLE_KEY = "main.decks";
 
     // Dependencies
-    private final transient HomePresenter homePresenter;
+    private final transient DeckListPresenter deckListPresenter;
     private final transient DeckUseCase deckUseCase;
     private final transient UserUseCase userUseCase;
 
@@ -46,15 +46,15 @@ public final class DecksView extends BaseView {
     /**
      * Creates a new DecksView with required dependencies.
      *
-     * @param homePresenterValue service for home page operations and deck listing
+     * @param deckListPresenterValue service for home page operations and deck listing
      * @param deckUseCaseValue use case for deck management operations
      * @param userUseCaseValue service for user operations and authentication
      */
     public DecksView(
-            final HomePresenter homePresenterValue,
+            final DeckListPresenter deckListPresenterValue,
             final DeckUseCase deckUseCaseValue,
             final UserUseCase userUseCaseValue) {
-        this.homePresenter = homePresenterValue;
+        this.deckListPresenter = deckListPresenterValue;
         this.deckUseCase = deckUseCaseValue;
         this.userUseCase = userUseCaseValue;
     }
@@ -105,7 +105,7 @@ public final class DecksView extends BaseView {
      * @param query the search query to filter decks by title or description
      */
     private void refreshDecks(final String query) {
-        final java.util.List<DeckCardViewModel> decks = homePresenter.listDecksForCurrentUser(query);
+        final java.util.List<DeckCardViewModel> decks = deckListPresenter.listDecksForCurrentUser(query);
         deckContainer.refreshDecks(decks);
     }
 

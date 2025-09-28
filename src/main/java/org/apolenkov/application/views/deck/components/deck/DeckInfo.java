@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deck.components;
+package org.apolenkov.application.views.deck.components.deck;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.Div;
@@ -11,11 +11,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
  * and follows the component pattern established in the refactoring.
  */
 public final class DeckInfo extends VerticalLayout {
-
-    // Constants
-    private static final String DECK_VIEW_INFO_SECTION_CLASS = "deck-view__info-section";
-    private static final String DECK_VIEW_DESCRIPTION_CLASS = "deck-view__description";
-    private static final String SURFACE_PANEL_CLASS = "surface-panel";
 
     // UI Components
     private final Div infoSection;
@@ -35,10 +30,10 @@ public final class DeckInfo extends VerticalLayout {
      * Sets up the container with proper CSS classes and structure.
      */
     private void configureLayout() {
-        infoSection.addClassName(DECK_VIEW_INFO_SECTION_CLASS);
-        infoSection.addClassName(SURFACE_PANEL_CLASS);
+        infoSection.addClassName("deck-view__info-section");
+        infoSection.addClassName("surface-panel");
 
-        description.addClassName(DECK_VIEW_DESCRIPTION_CLASS);
+        description.addClassName("deck-view__description");
         description.setText(getTranslation("deck.description.loading"));
 
         infoSection.add(description);

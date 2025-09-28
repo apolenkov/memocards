@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deck.components;
+package org.apolenkov.application.views.deck.components.decks;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.Span;
@@ -12,10 +12,6 @@ import org.apolenkov.application.views.deck.business.DeckCardViewModel;
  * clean separation between data and presentation logic.
  */
 public final class DeckList extends VerticalLayout {
-
-    // Constants
-    private static final String EMPTY_MESSAGE_KEY = "home.search.noResults";
-    private static final String EMPTY_MESSAGE_CLASS = "decks-empty-message";
 
     /**
      * Creates a new DeckList with default configuration.
@@ -65,8 +61,8 @@ public final class DeckList extends VerticalLayout {
      * Shows a localized message indicating no search results.
      */
     private void showEmptyState() {
-        Span emptyMessage = new Span(getTranslation(EMPTY_MESSAGE_KEY));
-        emptyMessage.addClassName(EMPTY_MESSAGE_CLASS);
+        Span emptyMessage = new Span(getTranslation("home.search.noResults"));
+        emptyMessage.addClassName("decks-empty-message");
         add(emptyMessage);
     }
 
