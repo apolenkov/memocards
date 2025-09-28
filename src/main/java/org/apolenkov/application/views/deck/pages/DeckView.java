@@ -627,7 +627,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         title.addClassName("deck-delete-dialog__title");
 
         // Description
-        Span description = new Span(getTranslation("deck.delete.simpleDescription", currentDeck.getTitle()));
+        String deckTitle = currentDeck.getTitle();
+        Span description = new Span(getTranslation("deck.delete.simpleDescription", deckTitle));
         description.addClassName("deck-delete-dialog__description");
 
         // Show actual card count if different from expected
