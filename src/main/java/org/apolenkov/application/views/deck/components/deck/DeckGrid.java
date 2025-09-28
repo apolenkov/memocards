@@ -1,17 +1,5 @@
 package org.apolenkov.application.views.deck.components.deck;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-
-import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.service.StatsService;
-import org.apolenkov.application.views.deck.components.grid.DeckFlashcardGrid;
-import org.apolenkov.application.views.deck.components.grid.DeckGridFilter;
-import org.apolenkov.application.views.deck.components.grid.DeckSearchControls;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -21,6 +9,16 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.views.deck.components.grid.DeckFlashcardGrid;
+import org.apolenkov.application.views.deck.components.grid.DeckGridFilter;
+import org.apolenkov.application.views.deck.components.grid.DeckSearchControls;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Component for displaying flashcards in a grid with search and filtering capabilities.
