@@ -44,12 +44,21 @@ public final class DeckGridColumns {
      * @param grid the grid to add column to
      */
     public static void addExampleColumn(final Grid<Flashcard> grid) {
-        grid.addColumn(flashcard -> {
-                    String example = flashcard.getExample();
-                    return example != null && !example.trim().isEmpty() ? example : "-";
-                })
+        grid.addColumn(DeckGridColumns::formatExample)
                 .setHeader(grid.getTranslation("deck.col.example"))
                 .setFlexGrow(2);
+    }
+
+    /**
+     * Formats the example text for display in the grid.
+     * Returns "-" if the example is null or empty.
+     *
+     * @param flashcard the flashcard to format
+     * @return formatted example text or "-" if empty
+     */
+    private static String formatExample(final Flashcard flashcard) {
+        String example = flashcard.getExample();
+        return example != null && !example.trim().isEmpty() ? example : "-";
     }
 
     /**
