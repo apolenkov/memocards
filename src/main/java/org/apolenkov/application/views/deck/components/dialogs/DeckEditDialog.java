@@ -17,6 +17,8 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dialog component for editing existing flashcard decks.
@@ -24,6 +26,9 @@ import org.apolenkov.application.views.shared.utils.NotificationHelper;
  * including title and description with form validation and error handling.
  */
 public class DeckEditDialog extends Dialog {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeckEditDialog.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Dependencies
     private final transient DeckUseCase deckUseCase;
@@ -183,8 +188,23 @@ public class DeckEditDialog extends Dialog {
      */
     private void handleSaveAction(final BeanValidationBinder<Deck> binder) {
         try {
+            // Store original values for audit comparison
+            String originalTitle = deck.getTitle();
+            String originalDescription = deck.getDescription();
+
             binder.writeBean(deck);
             Deck saved = deckUseCase.saveDeck(deck);
+
+            // Audit log for deck editing
+            AUDIT_LOGGER.info(
+                    "User edited deck '{}' (ID: {}) - Title changed: '{}' -> '{}', Description length: {} -> {}",
+                    saved.getTitle(),
+                    saved.getId(),
+                    originalTitle,
+                    saved.getTitle(),
+                    originalDescription != null ? originalDescription.length() : 0,
+                    saved.getDescription() != null ? saved.getDescription().length() : 0);
+
             NotificationHelper.showSuccessBottom(getTranslation("deck.edit.success"));
             close();
 
@@ -192,8 +212,10 @@ public class DeckEditDialog extends Dialog {
                 onSaved.accept(saved);
             }
         } catch (ValidationException vex) {
+            LOGGER.warn("Deck editing failed due to validation error for deck ID: {}", deck.getId());
             NotificationHelper.showError(getTranslation("dialog.fillRequired"));
         } catch (Exception ex) {
+            LOGGER.error("Error editing deck ID {}: {}", deck.getId(), ex.getMessage(), ex);
             NotificationHelper.showError(ex.getMessage());
         }
     }

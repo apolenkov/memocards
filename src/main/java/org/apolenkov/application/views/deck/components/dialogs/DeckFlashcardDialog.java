@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 public final class DeckFlashcardDialog extends Dialog {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckFlashcardDialog.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
     private static final String FILL_REQUIRED_KEY = "dialog.fillRequired";
 
     // Dependencies
@@ -235,7 +236,9 @@ public final class DeckFlashcardDialog extends Dialog {
     private void handleSave() {
         try {
             Flashcard flashcard;
-            if (editingFlashcard != null) {
+            boolean isEditing = editingFlashcard != null;
+
+            if (isEditing) {
                 // Editing existing flashcard - preserve ID and deckId
                 flashcard = editingFlashcard;
                 binder.writeBean(flashcard);
@@ -248,21 +251,38 @@ public final class DeckFlashcardDialog extends Dialog {
 
             flashcardUseCase.saveFlashcard(flashcard);
 
+            // Audit log for flashcard creation/editing
+            if (isEditing) {
+                AUDIT_LOGGER.info(
+                        "User edited flashcard '{}' (ID: {}) in deck '{}' (ID: {})",
+                        flashcard.getFrontText(),
+                        flashcard.getId(),
+                        currentDeck.getTitle(),
+                        currentDeck.getId());
+            } else {
+                AUDIT_LOGGER.info(
+                        "User created flashcard '{}' (ID: {}) in deck '{}' (ID: {})",
+                        flashcard.getFrontText(),
+                        flashcard.getId(),
+                        currentDeck.getTitle(),
+                        currentDeck.getId());
+            }
+
             // Notify parent component
             if (onFlashcardSaved != null) {
                 onFlashcardSaved.accept(flashcard);
             }
 
             close();
-            String message =
-                    editingFlashcard != null ? getTranslation("deck.card.updated") : getTranslation("deck.card.added");
+            String message = isEditing ? getTranslation("deck.card.updated") : getTranslation("deck.card.added");
             NotificationHelper.showSuccessBottom(message);
 
         } catch (ValidationException vex) {
+            LOGGER.warn("Flashcard save failed due to validation error");
             NotificationHelper.showError(getTranslation(FILL_REQUIRED_KEY));
         } catch (Exception ex) {
+            LOGGER.error("Error saving flashcard: {}", ex.getMessage(), ex);
             NotificationHelper.showErrorLong(ex.getMessage());
-            LOGGER.error("Error saving flashcard", ex);
         }
     }
 
