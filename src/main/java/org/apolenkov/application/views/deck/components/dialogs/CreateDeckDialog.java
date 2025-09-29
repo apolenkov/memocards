@@ -19,6 +19,8 @@ import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dialog component for creating new decks.
@@ -26,6 +28,9 @@ import org.apolenkov.application.views.shared.utils.NotificationHelper;
  * and automatic navigation to the newly created deck.
  */
 public class CreateDeckDialog extends Dialog {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateDeckDialog.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Dependencies
     private final transient DeckUseCase deckUseCase;
@@ -189,6 +194,14 @@ public class CreateDeckDialog extends Dialog {
         try {
             binder.writeBean(bean);
             Deck saved = deckUseCase.saveDeck(bean);
+
+            // Audit log for deck creation
+            AUDIT_LOGGER.info(
+                    "User created new deck '{}' with {} characters description - Deck ID: {}",
+                    saved.getTitle(),
+                    saved.getDescription() != null ? saved.getDescription().length() : 0,
+                    saved.getId());
+
             NotificationHelper.showSuccessBottom(getTranslation("home.deckCreated"));
             close();
 
@@ -197,8 +210,10 @@ public class CreateDeckDialog extends Dialog {
             }
             NavigationHelper.navigateToDeck(saved.getId());
         } catch (ValidationException vex) {
+            LOGGER.warn("Deck creation failed due to validation error");
             NotificationHelper.showError(getTranslation("dialog.fillRequired"));
         } catch (Exception ex) {
+            LOGGER.error("Error creating deck: {}", ex.getMessage(), ex);
             NotificationHelper.showError(ex.getMessage());
         }
     }

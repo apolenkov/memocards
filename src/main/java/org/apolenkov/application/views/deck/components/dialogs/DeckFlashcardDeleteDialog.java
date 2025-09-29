@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 public final class DeckFlashcardDeleteDialog extends Dialog {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckFlashcardDeleteDialog.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Dependencies
     private final transient FlashcardUseCase flashcardUseCase;
@@ -64,42 +65,129 @@ public final class DeckFlashcardDeleteDialog extends Dialog {
         }
 
         addClassName("dialog-sm");
+        VerticalLayout layout = createDialogLayout();
+        add(layout);
+        open();
+    }
 
+    /**
+     * Creates the dialog layout with title, description and buttons.
+     *
+     * @return configured VerticalLayout
+     */
+    private VerticalLayout createDialogLayout() {
         VerticalLayout layout = new VerticalLayout();
-        layout.add(new H3(getTranslation("deck.card.deleteTitle")));
-        layout.add(new Span(getTranslation("deck.card.deleteDescription")));
+        layout.add(createDialogTitle());
+        layout.add(createDialogDescription());
+        layout.add(createButtonLayout());
+        return layout;
+    }
 
+    /**
+     * Creates dialog title.
+     *
+     * @return configured H3 title
+     */
+    private H3 createDialogTitle() {
+        return new H3(getTranslation("deck.card.deleteTitle"));
+    }
+
+    /**
+     * Creates dialog description.
+     *
+     * @return configured Span description
+     */
+    private Span createDialogDescription() {
+        return new Span(getTranslation("deck.card.deleteDescription"));
+    }
+
+    /**
+     * Creates button layout with confirm and cancel buttons.
+     *
+     * @return configured HorizontalLayout with buttons
+     */
+    private HorizontalLayout createButtonLayout() {
+        HorizontalLayout buttons = createBaseButtonLayout();
+
+        Button confirmButton = createConfirmButton();
+        Button cancelButton = createCancelButton();
+
+        buttons.add(confirmButton, cancelButton);
+        return buttons;
+    }
+
+    /**
+     * Creates base button layout with common styling.
+     *
+     * @return configured HorizontalLayout
+     */
+    private HorizontalLayout createBaseButtonLayout() {
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidthFull();
+        return buttons;
+    }
 
-        Button confirmButton = ButtonHelper.createConfirmButton(getTranslation("deck.card.deleteConfirm"), e -> {
-            try {
-                flashcardUseCase.deleteFlashcard(flashcard.getId());
+    /**
+     * Creates confirm button with deletion logic.
+     *
+     * @return configured Button
+     */
+    private Button createConfirmButton() {
+        return ButtonHelper.createConfirmButton(
+                getTranslation("deck.card.deleteConfirm"), e -> handleFlashcardDeletion());
+    }
 
-                // Notify parent component
-                if (onFlashcardDeleted != null) {
-                    onFlashcardDeleted.accept(flashcard.getId());
-                }
+    /**
+     * Creates cancel button.
+     *
+     * @return configured Button
+     */
+    private Button createCancelButton() {
+        return ButtonHelper.createCancelButton(getTranslation("common.cancel"), e -> close());
+    }
 
-                close();
-                NotificationHelper.showSuccessBottom(getTranslation("deck.card.deleted"));
+    /**
+     * Handles flashcard deletion with error handling.
+     */
+    private void handleFlashcardDeletion() {
+        try {
+            flashcardUseCase.deleteFlashcard(flashcard.getId());
 
-                LOGGER.info("Flashcard {} deleted successfully", flashcard.getId());
-            } catch (Exception ex) {
-                LOGGER.error("Error deleting flashcard: {}", flashcard.getId(), ex);
-                NotificationHelper.showErrorLong(ex.getMessage());
-            }
-        });
+            // Audit log for flashcard deletion
+            AUDIT_LOGGER.info(
+                    "User deleted flashcard '{}' (ID: {}) from deck (ID: {})",
+                    flashcard.getFrontText(),
+                    flashcard.getId(),
+                    flashcard.getDeckId());
 
-        Button cancelButton = ButtonHelper.createCancelButton(getTranslation("common.cancel"), e -> close());
+            notifyFlashcardDeleted();
+            close();
+            NotificationHelper.showSuccessBottom(getTranslation("deck.card.deleted"));
+            LOGGER.info("Flashcard {} deleted successfully", flashcard.getId());
+        } catch (Exception ex) {
+            handleDeletionError(ex);
+        }
+    }
 
-        buttons.add(confirmButton, cancelButton);
-        layout.add(buttons);
-        add(layout);
+    /**
+     * Notifies parent component about flashcard deletion.
+     */
+    private void notifyFlashcardDeleted() {
+        if (onFlashcardDeleted != null) {
+            onFlashcardDeleted.accept(flashcard.getId());
+        }
+    }
 
-        open();
+    /**
+     * Handles deletion errors.
+     *
+     * @param ex exception that occurred
+     */
+    private void handleDeletionError(final Exception ex) {
+        LOGGER.error("Error deleting flashcard: {}", flashcard.getId(), ex);
+        NotificationHelper.showErrorLong(ex.getMessage());
     }
 }

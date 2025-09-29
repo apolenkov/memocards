@@ -8,6 +8,8 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.shared.Registration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Component for deck action buttons including practice, add, edit and delete.
@@ -15,6 +17,9 @@ import com.vaadin.flow.shared.Registration;
  * and follows the component pattern established in the refactoring.
  */
 public final class DeckActions extends HorizontalLayout {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeckActions.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Constants
     private static final String TITLE_PROPERTY = "title";
@@ -91,7 +96,10 @@ public final class DeckActions extends HorizontalLayout {
      * @return registration for removing the listener
      */
     public Registration addPracticeClickListener(final ComponentEventListener<ClickEvent<Button>> listener) {
-        return practiceButton.addClickListener(listener);
+        return practiceButton.addClickListener(e -> {
+            logPracticeAction();
+            listener.onComponentEvent(e);
+        });
     }
 
     /**
@@ -101,7 +109,10 @@ public final class DeckActions extends HorizontalLayout {
      * @return registration for removing the listener
      */
     public Registration addEditDeckClickListener(final ComponentEventListener<ClickEvent<Button>> listener) {
-        return editDeckButton.addClickListener(listener);
+        return editDeckButton.addClickListener(e -> {
+            logEditAction();
+            listener.onComponentEvent(e);
+        });
     }
 
     /**
@@ -111,7 +122,10 @@ public final class DeckActions extends HorizontalLayout {
      * @return registration for removing the listener
      */
     public Registration addDeleteDeckClickListener(final ComponentEventListener<ClickEvent<Button>> listener) {
-        return deleteDeckButton.addClickListener(listener);
+        return deleteDeckButton.addClickListener(e -> {
+            logDeleteAction();
+            listener.onComponentEvent(e);
+        });
     }
 
     /**
@@ -128,5 +142,29 @@ public final class DeckActions extends HorizontalLayout {
         configureEditDeckButton();
         configureDeleteDeckButton();
         addComponents();
+    }
+
+    /**
+     * Logs practice action for audit purposes.
+     */
+    private void logPracticeAction() {
+        AUDIT_LOGGER.info("User clicked PRACTICE button - starting practice session");
+        LOGGER.debug("Practice button clicked");
+    }
+
+    /**
+     * Logs edit action for audit purposes.
+     */
+    private void logEditAction() {
+        AUDIT_LOGGER.info("User clicked EDIT button - opening deck edit dialog");
+        LOGGER.debug("Edit deck button clicked");
+    }
+
+    /**
+     * Logs delete action for audit purposes.
+     */
+    private void logDeleteAction() {
+        AUDIT_LOGGER.info("User clicked DELETE button - initiating deck deletion process");
+        LOGGER.debug("Delete deck button clicked");
     }
 }
