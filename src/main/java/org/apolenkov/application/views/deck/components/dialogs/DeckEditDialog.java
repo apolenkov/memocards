@@ -188,35 +188,101 @@ public class DeckEditDialog extends Dialog {
      */
     private void handleSaveAction(final BeanValidationBinder<Deck> binder) {
         try {
-            // Store original values for audit comparison
-            String originalTitle = deck.getTitle();
-            String originalDescription = deck.getDescription();
-
-            binder.writeBean(deck);
-            Deck saved = deckUseCase.saveDeck(deck);
-
-            // Audit log for deck editing
-            AUDIT_LOGGER.info(
-                    "User edited deck '{}' (ID: {}) - Title changed: '{}' -> '{}', Description length: {} -> {}",
-                    saved.getTitle(),
-                    saved.getId(),
-                    originalTitle,
-                    saved.getTitle(),
-                    originalDescription != null ? originalDescription.length() : 0,
-                    saved.getDescription() != null ? saved.getDescription().length() : 0);
-
-            NotificationHelper.showSuccessBottom(getTranslation("deck.edit.success"));
-            close();
-
-            if (onSaved != null) {
-                onSaved.accept(saved);
-            }
+            DeckEditData editData = prepareEditData();
+            Deck saved = performSave(binder);
+            logEditAction(editData, saved);
+            handleSuccessfulSave(saved);
         } catch (ValidationException vex) {
-            LOGGER.warn("Deck editing failed due to validation error for deck ID: {}", deck.getId());
-            NotificationHelper.showError(getTranslation("dialog.fillRequired"));
+            handleValidationError();
         } catch (Exception ex) {
-            LOGGER.error("Error editing deck ID {}: {}", deck.getId(), ex.getMessage(), ex);
-            NotificationHelper.showError(ex.getMessage());
+            handleSaveError(ex);
+        }
+    }
+
+    /**
+     * Prepares data for editing operation.
+     *
+     * @return edit data with original values
+     */
+    private DeckEditData prepareEditData() {
+        return new DeckEditData(deck.getTitle(), deck.getDescription());
+    }
+
+    /**
+     * Performs the save operation.
+     *
+     * @param binder validation binder
+     * @return saved deck
+     * @throws ValidationException if validation fails
+     */
+    private Deck performSave(final BeanValidationBinder<Deck> binder) throws ValidationException {
+        binder.writeBean(deck);
+        return deckUseCase.saveDeck(deck);
+    }
+
+    /**
+     * Logs the edit action with audit information.
+     *
+     * @param editData original data
+     * @param saved saved deck
+     */
+    private void logEditAction(final DeckEditData editData, final Deck saved) {
+        AUDIT_LOGGER.info(
+                "User edited deck '{}' (ID: {}) - Title changed: '{}' -> '{}', Description length: {} -> {}",
+                saved.getTitle(),
+                saved.getId(),
+                editData.originalTitle(),
+                saved.getTitle(),
+                editData.originalDescriptionLength(),
+                saved.getDescription() != null ? saved.getDescription().length() : 0);
+    }
+
+    /**
+     * Handles successful save operation.
+     *
+     * @param saved saved deck
+     */
+    private void handleSuccessfulSave(final Deck saved) {
+        NotificationHelper.showSuccessBottom(getTranslation("deck.edit.success"));
+        close();
+
+        if (onSaved != null) {
+            onSaved.accept(saved);
+        }
+    }
+
+    /**
+     * Handles validation errors.
+     */
+    private void handleValidationError() {
+        LOGGER.warn("Deck editing failed due to validation error for deck ID: {}", deck.getId());
+        NotificationHelper.showError(getTranslation("dialog.fillRequired"));
+    }
+
+    /**
+     * Handles general save errors.
+     *
+     * @param ex exception that occurred
+     */
+    private void handleSaveError(final Exception ex) {
+        LOGGER.error("Error editing deck ID {}: {}", deck.getId(), ex.getMessage(), ex);
+        NotificationHelper.showError(ex.getMessage());
+    }
+
+    /**
+     * Record for storing original edit data.
+     *
+     * @param originalTitle original title
+     * @param originalDescription original description
+     */
+    private record DeckEditData(String originalTitle, String originalDescription) {
+        /**
+         * Gets original description length.
+         *
+         * @return description length or 0 if null
+         */
+        public int originalDescriptionLength() {
+            return originalDescription != null ? originalDescription.length() : 0;
         }
     }
 }

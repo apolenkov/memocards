@@ -286,25 +286,43 @@ public final class DeckComplexDeleteDialog extends Dialog {
      */
     private void handleDeletion() {
         try {
-            deckUseCase.deleteDeck(currentDeck.getId());
-
-            // Audit log for complex deck deletion
-            long cardCount = flashcardUseCase.countByDeckId(currentDeck.getId());
-            AUDIT_LOGGER.info(
-                    "User deleted deck '{}' (ID: {}) with {} cards - Complex deletion (confirmed)",
-                    currentDeck.getTitle(),
-                    currentDeck.getId(),
-                    cardCount);
-
-            close();
-            NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
-            NavigationHelper.navigateToDecks();
-            notifyDeckDeleted();
+            performDeletion();
+            logDeletionSuccess();
+            handleSuccessfulDeletion();
         } catch (IllegalArgumentException ex) {
             handleValidationError();
         } catch (Exception ex) {
             handleDeletionError(ex);
         }
+    }
+
+    /**
+     * Performs the actual deck deletion.
+     */
+    private void performDeletion() {
+        deckUseCase.deleteDeck(currentDeck.getId());
+    }
+
+    /**
+     * Logs successful deletion with audit information.
+     */
+    private void logDeletionSuccess() {
+        long cardCount = flashcardUseCase.countByDeckId(currentDeck.getId());
+        AUDIT_LOGGER.info(
+                "User deleted deck '{}' (ID: {}) with {} cards - Complex deletion (confirmed)",
+                currentDeck.getTitle(),
+                currentDeck.getId(),
+                cardCount);
+    }
+
+    /**
+     * Handles successful deletion flow.
+     */
+    private void handleSuccessfulDeletion() {
+        close();
+        NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
+        NavigationHelper.navigateToDecks();
+        notifyDeckDeleted();
     }
 
     /**

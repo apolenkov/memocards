@@ -183,11 +183,11 @@ public class DataInitializer {
      */
     private void createTravelCards(final Deck travel, final FlashcardRepository cards) {
         final List<Flashcard> travelCards = List.of(
-                new Flashcard(null, travel.getId(), "Hello", "Hello", "Hello, how are you?"),
-                new Flashcard(null, travel.getId(), "Thank you", "Thank you", "Thank you very much!"),
-                new Flashcard(null, travel.getId(), "Excuse me", "Excuse me", "Excuse me, where is the station?"),
-                new Flashcard(null, travel.getId(), "How much?", "How much is this?", "How much does this cost?"),
-                new Flashcard(null, travel.getId(), "Where is...?", "Where is it?", "Where is the nearest bank?"));
+                new Flashcard(null, travel.getId(), "Hello", "Привет", "Hello, how are you?"),
+                new Flashcard(null, travel.getId(), "Thank you", "Спасибо", "Thank you very much!"),
+                new Flashcard(null, travel.getId(), "Excuse me", "Извините", "Excuse me, where is the station?"),
+                new Flashcard(null, travel.getId(), "How much?", "Сколько стоит?", "How much does this cost?"),
+                new Flashcard(null, travel.getId(), "Where is...?", "Где находится...?", "Where is the nearest bank?"));
         travelCards.forEach(cards::save);
     }
 
@@ -200,17 +200,18 @@ public class DataInitializer {
     private void createItCards(final Deck it, final FlashcardRepository cards) {
         final List<Flashcard> itCards = List.of(
                 new Flashcard(
-                        null, it.getId(), "Algorithm", "Algorithm", "A step-by-step procedure for solving a problem"),
-                new Flashcard(null, it.getId(), "Database", "Database", "Organized collection of data"),
-                new Flashcard(null, it.getId(), "API", "API", "Application Programming Interface"),
+                        null, it.getId(), "Algorithm", "Алгоритм", "A step-by-step procedure for solving a problem"),
+                new Flashcard(null, it.getId(), "Database", "База данных", "Organized collection of data"),
                 new Flashcard(
-                        null, it.getId(), "Framework", "Framework", "A platform for developing software applications"),
-                new Flashcard(null, it.getId(), "Bug", "Bug", "An error in a computer program"),
+                        null, it.getId(), "API", "Интерфейс программирования", "Application Programming Interface"),
+                new Flashcard(
+                        null, it.getId(), "Framework", "Фреймворк", "A platform for developing software applications"),
+                new Flashcard(null, it.getId(), "Bug", "Ошибка в программе", "An error in a computer program"),
                 new Flashcard(
                         null,
                         it.getId(),
                         "Version Control",
-                        "Version Control",
+                        "Система контроля версий",
                         "Managing changes to documents and code"));
         itCards.forEach(cards::save);
     }
@@ -223,13 +224,11 @@ public class DataInitializer {
      */
     private void createEnglishCards(final Deck english, final FlashcardRepository cards) {
         final List<Flashcard> englishCards = List.of(
-                new Flashcard(null, english.getId(), "Apple", "A fruit", "I eat an apple every day"),
-                new Flashcard(null, english.getId(), "Beautiful", "Attractive", "She has beautiful eyes"),
-                new Flashcard(
-                        null, english.getId(), "Computer", "A machine for processing data", "I work on my computer"),
-                new Flashcard(null, english.getId(), "Dog", "An animal", "My dog is very friendly"),
-                new Flashcard(
-                        null, english.getId(), "Education", "The process of learning", "Education is very important"));
+                new Flashcard(null, english.getId(), "Apple", "Яблоко", "I eat an apple every day"),
+                new Flashcard(null, english.getId(), "Beautiful", "Красивый", "She has beautiful eyes"),
+                new Flashcard(null, english.getId(), "Computer", "Компьютер", "I work on my computer"),
+                new Flashcard(null, english.getId(), "Dog", "Собака", "My dog is very friendly"),
+                new Flashcard(null, english.getId(), "Education", "Образование", "Education is very important"));
         englishCards.forEach(cards::save);
     }
 
