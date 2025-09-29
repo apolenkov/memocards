@@ -53,6 +53,14 @@ public class DataSeedService {
         "Program error",
         "Quality assurance"
     };
+    private static final String[] CARD_EXAMPLES = {
+        "Binary search, Quick sort, Dijkstra's algorithm",
+        "MySQL, PostgreSQL, MongoDB collections",
+        "REST endpoints, GraphQL queries, HTTP requests",
+        "Spring Boot, React, Angular, Vue.js",
+        "NullPointerException, IndexOutOfBounds, StackOverflow",
+        "Unit tests, Integration tests, E2E testing"
+    };
     private static final String DEFAULT_TEST_PASSWORD = "testPassword123";
     private static final String TEST_PASSWORD_PROPERTY = "seed.test.password";
 
@@ -226,9 +234,11 @@ public class DataSeedService {
      * @return configured test flashcard
      */
     private Flashcard createTestCard(final Deck deck, final int index) {
-        String front = CARD_FRONTS[random.nextInt(CARD_FRONTS.length)] + " " + (index + 1);
-        String back = CARD_BACKS[random.nextInt(CARD_BACKS.length)];
-        return new Flashcard(null, deck.getId(), front, back, "Example: " + front);
+        int cardIndex = random.nextInt(CARD_FRONTS.length);
+        String front = CARD_FRONTS[cardIndex] + " " + (index + 1);
+        String back = CARD_BACKS[cardIndex];
+        String example = CARD_EXAMPLES[cardIndex];
+        return new Flashcard(null, deck.getId(), front, back, example);
     }
 
     /**

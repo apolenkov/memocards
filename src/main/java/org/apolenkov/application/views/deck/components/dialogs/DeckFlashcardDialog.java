@@ -235,55 +235,117 @@ public final class DeckFlashcardDialog extends Dialog {
      */
     private void handleSave() {
         try {
-            Flashcard flashcard;
-            boolean isEditing = editingFlashcard != null;
-
-            if (isEditing) {
-                // Editing existing flashcard - preserve ID and deckId
-                flashcard = editingFlashcard;
-                binder.writeBean(flashcard);
-            } else {
-                // Creating new flashcard
-                flashcard = new Flashcard();
-                flashcard.setDeckId(currentDeck.getId());
-                binder.writeBean(flashcard);
-            }
-
+            Flashcard flashcard = prepareFlashcard();
             flashcardUseCase.saveFlashcard(flashcard);
 
-            // Audit log for flashcard creation/editing
-            if (isEditing) {
-                AUDIT_LOGGER.info(
-                        "User edited flashcard '{}' (ID: {}) in deck '{}' (ID: {})",
-                        flashcard.getFrontText(),
-                        flashcard.getId(),
-                        currentDeck.getTitle(),
-                        currentDeck.getId());
-            } else {
-                AUDIT_LOGGER.info(
-                        "User created flashcard '{}' (ID: {}) in deck '{}' (ID: {})",
-                        flashcard.getFrontText(),
-                        flashcard.getId(),
-                        currentDeck.getTitle(),
-                        currentDeck.getId());
-            }
-
-            // Notify parent component
-            if (onFlashcardSaved != null) {
-                onFlashcardSaved.accept(flashcard);
-            }
-
-            close();
-            String message = isEditing ? getTranslation("deck.card.updated") : getTranslation("deck.card.added");
-            NotificationHelper.showSuccessBottom(message);
+            logFlashcardAction(flashcard);
+            notifyParentAndClose(flashcard);
 
         } catch (ValidationException vex) {
-            LOGGER.warn("Flashcard save failed due to validation error");
-            NotificationHelper.showError(getTranslation(FILL_REQUIRED_KEY));
+            handleValidationError();
         } catch (Exception ex) {
-            LOGGER.error("Error saving flashcard: {}", ex.getMessage(), ex);
-            NotificationHelper.showErrorLong(ex.getMessage());
+            handleSaveError(ex);
         }
+    }
+
+    /**
+     * Prepares flashcard for saving (create or edit).
+     *
+     * @return prepared flashcard
+     * @throws ValidationException if validation fails
+     */
+    private Flashcard prepareFlashcard() throws ValidationException {
+        boolean isEditing = editingFlashcard != null;
+
+        if (isEditing) {
+            return prepareEditingFlashcard();
+        } else {
+            return prepareNewFlashcard();
+        }
+    }
+
+    /**
+     * Prepares existing flashcard for editing.
+     *
+     * @return prepared flashcard
+     * @throws ValidationException if validation fails
+     */
+    private Flashcard prepareEditingFlashcard() throws ValidationException {
+        Flashcard flashcard = editingFlashcard;
+        binder.writeBean(flashcard);
+        return flashcard;
+    }
+
+    /**
+     * Prepares new flashcard for creation.
+     *
+     * @return prepared flashcard
+     * @throws ValidationException if validation fails
+     */
+    private Flashcard prepareNewFlashcard() throws ValidationException {
+        Flashcard flashcard = new Flashcard();
+        flashcard.setDeckId(currentDeck.getId());
+        binder.writeBean(flashcard);
+        return flashcard;
+    }
+
+    /**
+     * Logs flashcard action (create or edit).
+     *
+     * @param flashcard the flashcard being saved
+     */
+    private void logFlashcardAction(final Flashcard flashcard) {
+        boolean isEditing = editingFlashcard != null;
+        String action = isEditing ? "edited" : "created";
+
+        AUDIT_LOGGER.info(
+                "User {} flashcard '{}' (ID: {}) in deck '{}' (ID: {})",
+                action,
+                flashcard.getFrontText(),
+                flashcard.getId(),
+                currentDeck.getTitle(),
+                currentDeck.getId());
+    }
+
+    /**
+     * Notifies parent component and closes dialog.
+     *
+     * @param flashcard the saved flashcard
+     */
+    private void notifyParentAndClose(final Flashcard flashcard) {
+        if (onFlashcardSaved != null) {
+            onFlashcardSaved.accept(flashcard);
+        }
+
+        close();
+        showSuccessMessage();
+    }
+
+    /**
+     * Shows success message based on action type.
+     */
+    private void showSuccessMessage() {
+        boolean isEditing = editingFlashcard != null;
+        String message = isEditing ? getTranslation("deck.card.updated") : getTranslation("deck.card.added");
+        NotificationHelper.showSuccessBottom(message);
+    }
+
+    /**
+     * Handles validation errors.
+     */
+    private void handleValidationError() {
+        LOGGER.warn("Flashcard save failed due to validation error");
+        NotificationHelper.showError(getTranslation(FILL_REQUIRED_KEY));
+    }
+
+    /**
+     * Handles general save errors.
+     *
+     * @param ex exception that occurred
+     */
+    private void handleSaveError(final Exception ex) {
+        LOGGER.error("Error saving flashcard: {}", ex.getMessage(), ex);
+        NotificationHelper.showErrorLong(ex.getMessage());
     }
 
     /**
