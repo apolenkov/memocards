@@ -9,6 +9,7 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.views.shared.interfaces.TranslationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,19 +129,4 @@ public final class StatsDataLoader {
      * @param aggregates aggregated statistics for decks
      */
     public record StatsData(List<Deck> decks, Map<Long, StatsRepository.DeckAggregate> aggregates) {}
-
-    /**
-     * Interface for providing translations.
-     */
-    @FunctionalInterface
-    public interface TranslationProvider {
-        /**
-         * Gets translation for the given key.
-         *
-         * @param key the translation key
-         * @param params optional parameters for message formatting
-         * @return translated text
-         */
-        String getTranslation(String key, Object... params);
-    }
 }

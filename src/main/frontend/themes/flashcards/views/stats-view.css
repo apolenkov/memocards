@@ -85,6 +85,17 @@
   color: var(--lumo-primary-contrast-color);
 }
 
+/* Clickable title styles */
+.clickable-title {
+    cursor: pointer;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.clickable-title:hover {
+    color: var(--lumo-primary-contrast-color);
+    opacity: 0.8;
+}
+
 /* Stats pagination */
 .stats-pagination__indicator {
     min-width: 80px;
