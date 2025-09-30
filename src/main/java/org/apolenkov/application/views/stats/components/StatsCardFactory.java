@@ -6,18 +6,13 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.model.Deck;
+import org.apolenkov.application.views.shared.interfaces.TranslationProvider;
 
 /**
  * Factory for creating statistics card components.
  * Handles creation of various types of statistics cards with consistent styling.
  */
 public final class StatsCardFactory {
-
-    private static final String SURFACE_CARD_CLASS = "surface-card";
-    private static final String STATS_SESSIONS = "stats.sessions";
-    private static final String STATS_VIEWED = "stats.viewed";
-    private static final String STATS_CORRECT = "stats.correct";
-    private static final String STATS_HARD = "stats.hard";
 
     // Translation provider interface
     private TranslationProvider translationProvider;
@@ -41,7 +36,7 @@ public final class StatsCardFactory {
     public Div createStatCard(final String labelKey, final int value) {
         Div card = new Div();
         card.addClassName("stats-card");
-        card.addClassName(SURFACE_CARD_CLASS);
+        card.addClassName(StatsConstants.SURFACE_CARD_CLASS);
 
         Div valueDiv = new Div();
         valueDiv.addClassName("stats-card__value");
@@ -65,7 +60,7 @@ public final class StatsCardFactory {
     public Div createDeckStatCard(final Deck deck, final StatsRepository.DeckAggregate stats) {
         Div card = new Div();
         card.addClassName("deck-stats-card");
-        card.addClassName(SURFACE_CARD_CLASS);
+        card.addClassName(StatsConstants.SURFACE_CARD_CLASS);
 
         Div header = new Div();
         header.addClassName("deck-stats-card__header");
@@ -82,10 +77,10 @@ public final class StatsCardFactory {
         deckStatsGrid.setJustifyContentMode(JustifyContentMode.EVENLY);
 
         deckStatsGrid.add(
-                createDeckStatItem(STATS_SESSIONS, stats.sessionsAll(), stats.sessionsToday()),
-                createDeckStatItem(STATS_VIEWED, stats.viewedAll(), stats.viewedToday()),
-                createDeckStatItem(STATS_CORRECT, stats.correctAll(), stats.correctToday()),
-                createDeckStatItem(STATS_HARD, stats.hardAll(), stats.hardToday()));
+                createDeckStatItem(StatsConstants.STATS_SESSIONS, stats.sessionsAll(), stats.sessionsToday()),
+                createDeckStatItem(StatsConstants.STATS_VIEWED, stats.viewedAll(), stats.viewedToday()),
+                createDeckStatItem(StatsConstants.STATS_CORRECT, stats.correctAll(), stats.correctToday()),
+                createDeckStatItem(StatsConstants.STATS_HARD, stats.hardAll(), stats.hardToday()));
 
         card.add(header, deckStatsGrid);
         return card;
@@ -102,7 +97,7 @@ public final class StatsCardFactory {
     public Div createDeckStatItem(final String labelKey, final int total, final int today) {
         Div item = new Div();
         item.addClassName("stats-deck-item");
-        item.addClassName(SURFACE_CARD_CLASS);
+        item.addClassName(StatsConstants.SURFACE_CARD_CLASS);
 
         Div totalDiv = new Div();
         totalDiv.addClassName("stats-deck-item__total");
@@ -132,20 +127,5 @@ public final class StatsCardFactory {
             return key;
         }
         return translationProvider.getTranslation(key, params);
-    }
-
-    /**
-     * Interface for providing translations.
-     */
-    @FunctionalInterface
-    public interface TranslationProvider {
-        /**
-         * Gets translation for the given key.
-         *
-         * @param key the translation key
-         * @param params optional parameters for message formatting
-         * @return translated text
-         */
-        String getTranslation(String key, Object... params);
     }
 }

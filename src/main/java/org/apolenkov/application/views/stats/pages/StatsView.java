@@ -13,6 +13,7 @@ import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.stats.components.StatsCardFactory;
+import org.apolenkov.application.views.stats.components.StatsConstants;
 import org.apolenkov.application.views.stats.components.StatsDataLoader;
 import org.apolenkov.application.views.stats.components.StatsSectionFactory;
 
@@ -25,8 +26,6 @@ import org.apolenkov.application.views.stats.components.StatsSectionFactory;
 @Route(value = RouteConstants.STATS_ROUTE, layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class StatsView extends BaseView {
-
-    private static final String SURFACE_PANEL_CLASS = "surface-panel";
 
     private final transient StatsDataLoader dataLoader;
     private final transient StatsCardFactory cardFactory;
@@ -70,7 +69,7 @@ public class StatsView extends BaseView {
         pageSection.setSpacing(true);
         pageSection.setWidthFull();
         pageSection.addClassName("stats-page__section");
-        pageSection.addClassName(SURFACE_PANEL_CLASS);
+        pageSection.addClassName(StatsConstants.SURFACE_PANEL_CLASS);
 
         contentContainer.add(pageSection);
         add(contentContainer);
