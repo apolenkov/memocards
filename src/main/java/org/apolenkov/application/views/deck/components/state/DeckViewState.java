@@ -12,6 +12,7 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.deck.components.layout.DeckViewLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +32,6 @@ import org.slf4j.LoggerFactory;
 public final class DeckViewState {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckViewState.class);
-
-    // Styles
-    private static final String CONTAINER_MD_CLASS = "container-md";
-    private static final String DECK_VIEW_SECTION_CLASS = "deck-view__section";
-    private static final String SURFACE_PANEL_CLASS = "surface-panel";
 
     // Dependencies
     private final DeckUseCase deckUseCase;
@@ -89,19 +85,19 @@ public final class DeckViewState {
         VerticalLayout loadingContainer = new VerticalLayout();
         loadingContainer.setSpacing(true);
         loadingContainer.setWidthFull();
-        loadingContainer.addClassName(CONTAINER_MD_CLASS);
+        loadingContainer.addClassName(DeckConstants.CONTAINER_MD_CLASS);
         loadingContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
         VerticalLayout loadingSection = new VerticalLayout();
         loadingSection.setSpacing(true);
         loadingSection.setPadding(true);
         loadingSection.setWidthFull();
-        loadingSection.addClassName(DECK_VIEW_SECTION_CLASS);
-        loadingSection.addClassName(SURFACE_PANEL_CLASS);
-        loadingSection.addClassName(CONTAINER_MD_CLASS);
+        loadingSection.addClassName(DeckConstants.DECK_VIEW_SECTION_CLASS);
+        loadingSection.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
+        loadingSection.addClassName(DeckConstants.CONTAINER_MD_CLASS);
 
         H2 loadingTitle = new H2("Loading...");
-        loadingTitle.addClassName("deck-view__title");
+        loadingTitle.addClassName(DeckConstants.DECK_VIEW_TITLE_CLASS);
 
         loadingSection.add(loadingTitle);
         loadingContainer.add(loadingSection);

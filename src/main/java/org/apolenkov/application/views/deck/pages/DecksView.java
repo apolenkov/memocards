@@ -14,6 +14,7 @@ import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.deck.business.DeckCardViewModel;
 import org.apolenkov.application.views.deck.business.DeckListPresenter;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.deck.components.decks.DeckContainer;
 import org.apolenkov.application.views.deck.components.dialogs.CreateDeckDialog;
 import org.apolenkov.application.views.shared.base.BaseView;
@@ -27,9 +28,6 @@ import org.apolenkov.application.views.shared.base.BaseView;
 @Route(value = RouteConstants.DECKS_ROUTE, layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public final class DecksView extends BaseView {
-
-    // Constants
-    private static final String DECKS_TITLE_KEY = "main.decks";
 
     // Dependencies
     private final transient DeckListPresenter deckListPresenter;
@@ -129,7 +127,7 @@ public final class DecksView extends BaseView {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation(DECKS_TITLE_KEY);
+        return getTranslation(DeckConstants.DECKS_TITLE_KEY);
     }
 
     /**

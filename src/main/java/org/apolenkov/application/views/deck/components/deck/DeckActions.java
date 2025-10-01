@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.shared.Registration;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,9 +21,6 @@ public final class DeckActions extends HorizontalLayout {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckActions.class);
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
-
-    // Constants
-    private static final String TITLE_PROPERTY = "title";
 
     // UI Components
     private final Button practiceButton;
@@ -54,7 +52,7 @@ public final class DeckActions extends HorizontalLayout {
      * Sets up button with proper styling and icon.
      */
     private void configurePracticeButton() {
-        practiceButton.setText(getTranslation("common.start"));
+        practiceButton.setText(getTranslation(DeckConstants.COMMON_START));
         practiceButton.setIcon(VaadinIcon.PLAY.create());
         practiceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         practiceButton.setText(getTranslation("deck.startSession"));
@@ -65,10 +63,10 @@ public final class DeckActions extends HorizontalLayout {
      * Sets up button with proper styling and tooltip.
      */
     private void configureEditDeckButton() {
-        editDeckButton.setText(getTranslation("common.edit"));
+        editDeckButton.setText(getTranslation(DeckConstants.COMMON_EDIT));
         editDeckButton.setIcon(VaadinIcon.EDIT.create());
         editDeckButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        editDeckButton.getElement().setProperty(TITLE_PROPERTY, getTranslation("deck.edit.tooltip"));
+        editDeckButton.getElement().setProperty(DeckConstants.TITLE_PROPERTY, getTranslation("deck.edit.tooltip"));
     }
 
     /**
@@ -76,7 +74,7 @@ public final class DeckActions extends HorizontalLayout {
      * Sets up button with proper styling and error variant.
      */
     private void configureDeleteDeckButton() {
-        deleteDeckButton.setText(getTranslation("common.delete"));
+        deleteDeckButton.setText(getTranslation(DeckConstants.COMMON_DELETE));
         deleteDeckButton.setIcon(VaadinIcon.TRASH.create());
         deleteDeckButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
     }

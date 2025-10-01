@@ -1,5 +1,17 @@
 package org.apolenkov.application.views.deck.components.dialogs;
 
+import java.util.function.Consumer;
+
+import org.apolenkov.application.model.Deck;
+import org.apolenkov.application.usecase.DeckUseCase;
+import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.views.deck.components.DeckConstants;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.NavigationHelper;
+import org.apolenkov.application.views.shared.utils.NotificationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -12,15 +24,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
-import java.util.function.Consumer;
-import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.usecase.UserUseCase;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.NavigationHelper;
-import org.apolenkov.application.views.shared.utils.NotificationHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Dialog component for creating new decks.
@@ -102,7 +105,7 @@ public class CreateDeckDialog extends Dialog {
      * @return configured title field
      */
     private TextField createTitleField() {
-        TextField titleField = new TextField(getTranslation("dialog.deckTitle"));
+        TextField titleField = new TextField(getTranslation(DeckConstants.DECK_DECK_TITLE));
         titleField.setWidthFull();
         titleField.setRequiredIndicatorVisible(true);
         titleField.setMaxLength(120);
@@ -118,7 +121,7 @@ public class CreateDeckDialog extends Dialog {
     private TextArea createDescriptionArea() {
         TextArea descriptionArea = new TextArea(getTranslation("dialog.description"));
         descriptionArea.setWidthFull();
-        descriptionArea.addClassName("text-area--md");
+        descriptionArea.addClassName(DeckConstants.TEXT_AREA_MD_CLASS);
         descriptionArea.setMaxLength(500);
         descriptionArea.setPlaceholder(getTranslation("dialog.description.placeholder"));
         return descriptionArea;
@@ -170,7 +173,7 @@ public class CreateDeckDialog extends Dialog {
      */
     private Button createSaveButton(final BeanValidationBinder<Deck> binder) {
         return ButtonHelper.createButton(
-                getTranslation("dialog.create"), e -> handleSaveAction(binder), ButtonVariant.LUMO_PRIMARY);
+                getTranslation(DeckConstants.DIALOG_CREATE), e -> handleSaveAction(binder), ButtonVariant.LUMO_PRIMARY);
     }
 
     /**

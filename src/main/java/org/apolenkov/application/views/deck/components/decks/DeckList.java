@@ -1,10 +1,13 @@
 package org.apolenkov.application.views.deck.components.decks;
 
+import java.util.List;
+
+import org.apolenkov.application.views.deck.business.DeckCardViewModel;
+import org.apolenkov.application.views.deck.components.DeckConstants;
+
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import java.util.List;
-import org.apolenkov.application.views.deck.business.DeckCardViewModel;
 
 /**
  * Reusable component for displaying a list of deck cards.
@@ -30,7 +33,7 @@ public final class DeckList extends VerticalLayout {
         setSpacing(true);
         setWidthFull();
         setAlignItems(Alignment.CENTER);
-        addClassName("deck-list");
+        addClassName(DeckConstants.DECK_LIST_CLASS);
     }
 
     @Override
@@ -62,7 +65,7 @@ public final class DeckList extends VerticalLayout {
      */
     private void showEmptyState() {
         Span emptyMessage = new Span(getTranslation("home.search.noResults"));
-        emptyMessage.addClassName("decks-empty-message");
+        emptyMessage.addClassName(DeckConstants.DECKS_EMPTY_MESSAGE_CLASS);
         add(emptyMessage);
     }
 

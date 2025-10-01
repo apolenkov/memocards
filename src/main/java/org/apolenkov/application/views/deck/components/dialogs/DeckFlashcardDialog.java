@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
 import org.slf4j.Logger;
@@ -39,7 +40,6 @@ public final class DeckFlashcardDialog extends Dialog {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckFlashcardDialog.class);
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
-    private static final String FILL_REQUIRED_KEY = "dialog.fillRequired";
 
     // Dependencies
     private final transient FlashcardUseCase flashcardUseCase;
@@ -76,7 +76,7 @@ public final class DeckFlashcardDialog extends Dialog {
         this.flashcardUseCase = flashcardUseCaseParam;
         this.currentDeck = currentDeckParam;
         this.onFlashcardSaved = onFlashcardSavedParam;
-        addClassName("dialog-md");
+        addClassName(DeckConstants.DIALOG_MD_CLASS);
     }
 
     /**
@@ -119,19 +119,19 @@ public final class DeckFlashcardDialog extends Dialog {
     private void createForm() {
         formLayout = new FormLayout();
 
-        frontTextField = new TextField(getTranslation("deck.col.front"));
+        frontTextField = new TextField(getTranslation(DeckConstants.DECK_COL_FRONT));
         frontTextField.setWidthFull();
         frontTextField.setRequired(true);
 
-        backTextField = new TextField(getTranslation("deck.col.back"));
+        backTextField = new TextField(getTranslation(DeckConstants.DECK_COL_BACK));
         backTextField.setWidthFull();
         backTextField.setRequired(true);
 
-        exampleArea = new TextArea(getTranslation("deck.example.optional"));
+        exampleArea = new TextArea(getTranslation(DeckConstants.DECK_EXAMPLE_OPTIONAL));
         exampleArea.setWidthFull();
-        exampleArea.addClassName("text-area--sm");
+        exampleArea.addClassName(DeckConstants.TEXT_AREA_SM_CLASS);
 
-        imageUrlField = new TextField(getTranslation("deck.imageUrl.optional"));
+        imageUrlField = new TextField(getTranslation(DeckConstants.DECK_IMAGE_URL_OPTIONAL));
         imageUrlField.setWidthFull();
 
         formLayout.add(frontTextField, backTextField, exampleArea, imageUrlField);
@@ -144,10 +144,10 @@ public final class DeckFlashcardDialog extends Dialog {
         binder = new BeanValidationBinder<>(Flashcard.class);
 
         binder.forField(frontTextField)
-                .asRequired(getTranslation(FILL_REQUIRED_KEY))
+                .asRequired(getTranslation(DeckConstants.FILL_REQUIRED_KEY))
                 .bind(Flashcard::getFrontText, Flashcard::setFrontText);
         binder.forField(backTextField)
-                .asRequired(getTranslation(FILL_REQUIRED_KEY))
+                .asRequired(getTranslation(DeckConstants.FILL_REQUIRED_KEY))
                 .bind(Flashcard::getBackText, Flashcard::setBackText);
         binder.forField(exampleArea).bind(Flashcard::getExample, Flashcard::setExample);
         binder.forField(imageUrlField).bind(Flashcard::getImageUrl, Flashcard::setImageUrl);
@@ -164,10 +164,13 @@ public final class DeckFlashcardDialog extends Dialog {
         buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         saveButton = ButtonHelper.createButton(
-                getTranslation("dialog.save"), VaadinIcon.CHECK, e -> handleSave(), ButtonVariant.LUMO_PRIMARY);
+                getTranslation(DeckConstants.DIALOG_SAVE),
+                VaadinIcon.CHECK,
+                e -> handleSave(),
+                ButtonVariant.LUMO_PRIMARY);
 
         cancelButton = ButtonHelper.createButton(
-                getTranslation("common.cancel"), e -> handleCancel(), ButtonVariant.LUMO_TERTIARY);
+                getTranslation(DeckConstants.COMMON_CANCEL), e -> handleCancel(), ButtonVariant.LUMO_TERTIARY);
 
         buttonsLayout.add(saveButton, cancelButton);
     }
@@ -190,7 +193,9 @@ public final class DeckFlashcardDialog extends Dialog {
 
         // Set dialog title
         H3 title = new H3(
-                flashcard == null ? getTranslation("deck.card.addTitle") : getTranslation("deck.card.editTitle"));
+                flashcard == null
+                        ? getTranslation(DeckConstants.DECK_CARD_ADD_TITLE)
+                        : getTranslation(DeckConstants.DECK_CARD_EDIT_TITLE));
 
         // Populate form with flashcard data
         populateForm(flashcard);
@@ -326,7 +331,9 @@ public final class DeckFlashcardDialog extends Dialog {
      */
     private void showSuccessMessage() {
         boolean isEditing = editingFlashcard != null;
-        String message = isEditing ? getTranslation("deck.card.updated") : getTranslation("deck.card.added");
+        String message = isEditing
+                ? getTranslation(DeckConstants.DECK_CARD_UPDATED)
+                : getTranslation(DeckConstants.DECK_CARD_ADDED);
         NotificationHelper.showSuccessBottom(message);
     }
 
@@ -335,7 +342,7 @@ public final class DeckFlashcardDialog extends Dialog {
      */
     private void handleValidationError() {
         LOGGER.warn("Flashcard save failed due to validation error");
-        NotificationHelper.showError(getTranslation(FILL_REQUIRED_KEY));
+        NotificationHelper.showError(getTranslation(DeckConstants.FILL_REQUIRED_KEY));
     }
 
     /**

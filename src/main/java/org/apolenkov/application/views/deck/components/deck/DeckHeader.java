@@ -8,6 +8,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 
 /**
@@ -58,7 +59,7 @@ public final class DeckHeader extends HorizontalLayout {
      * Sets up button with proper styling and navigation functionality.
      */
     private void configureBackButton() {
-        backButton.setText(getTranslation("common.back"));
+        backButton.setText(getTranslation(DeckConstants.COMMON_BACK));
         backButton.setIcon(VaadinIcon.ARROW_LEFT.create());
         backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         backButton.addClickListener(e -> NavigationHelper.navigateToDecks());
