@@ -82,12 +82,33 @@ public final class DeckViewState {
 
         parentContent.getContent().removeAll();
 
+        VerticalLayout loadingContainer = createLoadingContainer();
+        VerticalLayout loadingSection = createLoadingSection();
+
+        loadingContainer.add(loadingSection);
+        parentContent.getContent().add(loadingContainer);
+    }
+
+    /**
+     * Creates the loading container layout.
+     *
+     * @return the configured loading container
+     */
+    private VerticalLayout createLoadingContainer() {
         VerticalLayout loadingContainer = new VerticalLayout();
         loadingContainer.setSpacing(true);
         loadingContainer.setWidthFull();
         loadingContainer.addClassName(DeckConstants.CONTAINER_MD_CLASS);
         loadingContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+        return loadingContainer;
+    }
 
+    /**
+     * Creates the loading section with title.
+     *
+     * @return the configured loading section
+     */
+    private VerticalLayout createLoadingSection() {
         VerticalLayout loadingSection = new VerticalLayout();
         loadingSection.setSpacing(true);
         loadingSection.setPadding(true);
@@ -100,8 +121,7 @@ public final class DeckViewState {
         loadingTitle.addClassName(DeckConstants.DECK_VIEW_TITLE_CLASS);
 
         loadingSection.add(loadingTitle);
-        loadingContainer.add(loadingSection);
-        parentContent.getContent().add(loadingContainer);
+        return loadingSection;
     }
 
     /**
