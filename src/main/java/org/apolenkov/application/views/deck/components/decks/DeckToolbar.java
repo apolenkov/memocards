@@ -1,5 +1,10 @@
 package org.apolenkov.application.views.deck.components.decks;
 
+import java.util.function.Consumer;
+
+import org.apolenkov.application.views.deck.components.DeckConstants;
+import org.apolenkov.application.views.shared.utils.LayoutHelper;
+
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -10,8 +15,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.shared.Registration;
-import java.util.function.Consumer;
-import org.apolenkov.application.views.shared.utils.LayoutHelper;
 
 /**
  * Reusable toolbar component for deck management operations.
@@ -62,7 +65,7 @@ public final class DeckToolbar extends HorizontalLayout {
      */
     private void configureLayout() {
         setWidthFull();
-        addClassName("deck-toolbar");
+        addClassName(DeckConstants.DECK_TOOLBAR_CLASS);
     }
 
     /**

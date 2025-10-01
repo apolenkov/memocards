@@ -5,6 +5,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.deck.components.deck.DeckActions;
 import org.apolenkov.application.views.deck.components.deck.DeckGrid;
 import org.apolenkov.application.views.deck.components.deck.DeckHeader;
@@ -22,11 +23,6 @@ import org.apolenkov.application.views.deck.components.deck.DeckInfo;
  * </ul>
  */
 public final class DeckViewLayout {
-
-    // Styles
-    private static final String SURFACE_PANEL_CLASS = "surface-panel";
-    private static final String CONTAINER_MD_CLASS = "container-md";
-    private static final String DECK_VIEW_SECTION_CLASS = "deck-view__section";
 
     // Dependencies
     private final StatsService statsService;
@@ -78,7 +74,7 @@ public final class DeckViewLayout {
         VerticalLayout contentContainer = new VerticalLayout();
         contentContainer.setSpacing(true);
         contentContainer.setWidthFull();
-        contentContainer.addClassName(CONTAINER_MD_CLASS);
+        contentContainer.addClassName(DeckConstants.CONTAINER_MD_CLASS);
         contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Primary content section with surface styling
@@ -86,9 +82,9 @@ public final class DeckViewLayout {
         pageSection.setSpacing(true);
         pageSection.setPadding(true);
         pageSection.setWidthFull();
-        pageSection.addClassName(DECK_VIEW_SECTION_CLASS);
-        pageSection.addClassName(SURFACE_PANEL_CLASS);
-        pageSection.addClassName(CONTAINER_MD_CLASS);
+        pageSection.addClassName(DeckConstants.DECK_VIEW_SECTION_CLASS);
+        pageSection.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
+        pageSection.addClassName(DeckConstants.CONTAINER_MD_CLASS);
 
         createHeader(pageSection);
         createDeckInfo(pageSection);

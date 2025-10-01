@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 
 /**
@@ -19,9 +20,6 @@ import org.apolenkov.application.views.shared.utils.ButtonHelper;
  * Provides methods to add different types of columns to the grid.
  */
 public final class DeckGridColumns {
-
-    // Constants
-    private static final String TITLE_PROPERTY = "title";
 
     private DeckGridColumns() {
         // Utility class
@@ -34,7 +32,7 @@ public final class DeckGridColumns {
      */
     public static void addFrontColumn(final Grid<Flashcard> grid) {
         grid.addColumn(Flashcard::getFrontText)
-                .setHeader(grid.getTranslation("deck.col.front"))
+                .setHeader(grid.getTranslation(DeckConstants.DECK_COL_FRONT))
                 .setFlexGrow(2);
     }
 
@@ -89,7 +87,7 @@ public final class DeckGridColumns {
         boolean known = currentDeckId != null && statsService.isCardKnown(currentDeckId, flashcard.getId());
         if (known) {
             Span statusSpan = new Span("✓"); // Simple checkmark instead of translation
-            statusSpan.addClassName("known-status");
+            statusSpan.addClassName(DeckConstants.KNOWN_STATUS_CLASS);
             return statusSpan;
         } else {
             return new Span("-");
@@ -135,7 +133,7 @@ public final class DeckGridColumns {
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(false);
         actions.setPadding(false);
-        actions.addClassName("actions-layout");
+        actions.addClassName(DeckConstants.ACTIONS_LAYOUT_CLASS);
         actions.setAlignItems(FlexComponent.Alignment.CENTER);
         actions.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
@@ -144,14 +142,14 @@ public final class DeckGridColumns {
                 e -> Optional.ofNullable(editCallback).ifPresent(cb -> cb.accept(flashcard)),
                 ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_TERTIARY);
-        editButton.getElement().setProperty(TITLE_PROPERTY, "Edit");
+        editButton.getElement().setProperty(DeckConstants.TITLE_PROPERTY, "Edit");
 
         Button toggleKnown = ButtonHelper.createIconButton(
                 VaadinIcon.CHECK,
                 e -> Optional.ofNullable(toggleCallback).ifPresent(cb -> cb.accept(flashcard)),
                 ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_SUCCESS);
-        toggleKnown.getElement().setProperty(TITLE_PROPERTY, "Toggle Known");
+        toggleKnown.getElement().setProperty(DeckConstants.TITLE_PROPERTY, "Toggle Known");
 
         Button deleteButton = ButtonHelper.createIconButton(
                 VaadinIcon.TRASH,
@@ -159,7 +157,7 @@ public final class DeckGridColumns {
                 ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_TERTIARY,
                 ButtonVariant.LUMO_ERROR);
-        deleteButton.getElement().setProperty(TITLE_PROPERTY, "Delete");
+        deleteButton.getElement().setProperty(DeckConstants.TITLE_PROPERTY, "Delete");
 
         actions.add(editButton, toggleKnown, deleteButton);
         return actions;

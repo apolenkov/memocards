@@ -1,5 +1,14 @@
 package org.apolenkov.application.views.deck.pages;
 
+import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.model.Deck;
+import org.apolenkov.application.usecase.DeckUseCase;
+import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.views.deck.components.DeckConstants;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.NavigationHelper;
+import org.apolenkov.application.views.shared.utils.NotificationHelper;
+
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -16,15 +25,9 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
-import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.usecase.UserUseCase;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.NavigationHelper;
-import org.apolenkov.application.views.shared.utils.NotificationHelper;
 
 /**
  * View for creating new flashcard decks.
@@ -114,7 +117,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      */
     private Button createBackButton() {
         Button backButton = ButtonHelper.createButton(
-                getTranslation("common.back"),
+                getTranslation(DeckConstants.COMMON_BACK),
                 VaadinIcon.ARROW_LEFT,
                 e -> NavigationHelper.navigateToDecks(),
                 ButtonVariant.LUMO_TERTIARY);
@@ -151,7 +154,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
     private Div createFormContainer() {
         Div formContainer = new Div();
         formContainer.addClassName("surface-panel");
-        formContainer.addClassName("deck-create__form");
+        formContainer.addClassName(DeckConstants.DECK_CREATE_FORM_CLASS);
         return formContainer;
     }
 
@@ -163,7 +166,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
     private VerticalLayout createFormLayout() {
         VerticalLayout formLayout = new VerticalLayout();
         formLayout.setSpacing(true);
-        formLayout.addClassName("deck-create__form-layout");
+        formLayout.addClassName(DeckConstants.DECK_CREATE_FORM_LAYOUT_CLASS);
 
         H3 formTitle = createFormTitle();
         TextField titleField = createTitleField();
@@ -206,7 +209,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         descriptionArea.setPlaceholder(getTranslation("deckCreate.description.placeholder"));
         descriptionArea.setClearButtonVisible(true);
         descriptionArea.setWidthFull();
-        descriptionArea.addClassName("text-area--md");
+        descriptionArea.addClassName(DeckConstants.TEXT_AREA_MD_CLASS);
         return descriptionArea;
     }
 
@@ -243,7 +246,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         BeanValidationBinder<Deck> validationBinder = new BeanValidationBinder<>(Deck.class);
         validationBinder
                 .forField(titleField)
-                .asRequired(getTranslation("deckCreate.enterTitle"))
+                .asRequired(getTranslation(DeckConstants.DECK_CREATE_ENTER_TITLE))
                 .bind(Deck::getTitle, Deck::setTitle);
         validationBinder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
         return validationBinder;

@@ -1,5 +1,15 @@
 package org.apolenkov.application.views.deck.components.dialogs;
 
+import java.util.function.Consumer;
+
+import org.apolenkov.application.model.Deck;
+import org.apolenkov.application.usecase.DeckUseCase;
+import org.apolenkov.application.views.deck.components.DeckConstants;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.NotificationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -12,13 +22,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
-import java.util.function.Consumer;
-import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.NotificationHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Dialog component for editing existing flashcard decks.
@@ -90,7 +93,7 @@ public class DeckEditDialog extends Dialog {
      * @return configured header component
      */
     private H3 createHeader() {
-        return new H3(getTranslation("deck.edit.title"));
+        return new H3(getTranslation(DeckConstants.DECK_EDIT_TITLE));
     }
 
     /**
@@ -99,7 +102,7 @@ public class DeckEditDialog extends Dialog {
      * @return configured title field
      */
     private TextField createTitleField() {
-        TextField titleField = new TextField(getTranslation("dialog.deckTitle"));
+        TextField titleField = new TextField(getTranslation(DeckConstants.DECK_DECK_TITLE));
         titleField.setWidthFull();
         titleField.setRequiredIndicatorVisible(true);
         titleField.setMaxLength(120);
@@ -114,11 +117,11 @@ public class DeckEditDialog extends Dialog {
      * @return configured description area
      */
     private TextArea createDescriptionArea() {
-        TextArea descriptionArea = new TextArea(getTranslation("dialog.description"));
+        TextArea descriptionArea = new TextArea(getTranslation(DeckConstants.DECK_DESCRIPTION));
         descriptionArea.setWidthFull();
-        descriptionArea.addClassName("text-area--md");
+        descriptionArea.addClassName(DeckConstants.TEXT_AREA_MD_CLASS);
         descriptionArea.setMaxLength(500);
-        descriptionArea.setPlaceholder(getTranslation("dialog.description.placeholder"));
+        descriptionArea.setPlaceholder(getTranslation(DeckConstants.DECK_DESCRIPTION_PLACEHOLDER));
         descriptionArea.setValue(deck.getDescription() != null ? deck.getDescription() : "");
         return descriptionArea;
     }
@@ -155,7 +158,7 @@ public class DeckEditDialog extends Dialog {
     private BeanValidationBinder<Deck> createBinder(final TextField titleField, final TextArea descriptionArea) {
         BeanValidationBinder<Deck> binder = new BeanValidationBinder<>(Deck.class);
         binder.forField(titleField)
-                .asRequired(getTranslation("deckCreate.enterTitle"))
+                .asRequired(getTranslation(DeckConstants.DECK_CREATE_ENTER_TITLE))
                 .bind(Deck::getTitle, Deck::setTitle);
         binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
         return binder;
@@ -169,7 +172,9 @@ public class DeckEditDialog extends Dialog {
      */
     private Button createSaveButton(final BeanValidationBinder<Deck> binder) {
         return ButtonHelper.createButton(
-                getTranslation("deck.edit.save"), e -> handleSaveAction(binder), ButtonVariant.LUMO_PRIMARY);
+                getTranslation(DeckConstants.DECK_EDIT_SAVE),
+                e -> handleSaveAction(binder),
+                ButtonVariant.LUMO_PRIMARY);
     }
 
     /**
@@ -178,7 +183,8 @@ public class DeckEditDialog extends Dialog {
      * @return configured cancel button
      */
     private Button createCancelButton() {
-        return ButtonHelper.createButton(getTranslation("common.cancel"), e -> close(), ButtonVariant.LUMO_TERTIARY);
+        return ButtonHelper.createButton(
+                getTranslation(DeckConstants.COMMON_CANCEL), e -> close(), ButtonVariant.LUMO_TERTIARY);
     }
 
     /**
@@ -243,7 +249,7 @@ public class DeckEditDialog extends Dialog {
      * @param saved saved deck
      */
     private void handleSuccessfulSave(final Deck saved) {
-        NotificationHelper.showSuccessBottom(getTranslation("deck.edit.success"));
+        NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_EDIT_SUCCESS));
         close();
 
         if (onSaved != null) {

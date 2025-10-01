@@ -1,10 +1,13 @@
 package org.apolenkov.application.views.deck.components.decks;
 
+import java.util.List;
+
+import org.apolenkov.application.views.deck.business.DeckCardViewModel;
+import org.apolenkov.application.views.deck.components.DeckConstants;
+
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import java.util.List;
-import org.apolenkov.application.views.deck.business.DeckCardViewModel;
 
 /**
  * Reusable container component for deck management views.
@@ -39,7 +42,7 @@ public final class DeckContainer extends VerticalLayout {
         setAlignItems(Alignment.CENTER);
         setWidthFull();
         addClassName("container-md");
-        addClassName("decks-section");
+        addClassName(DeckConstants.DECKS_SECTION_CLASS);
         addClassName("surface-panel");
     }
 
@@ -56,7 +59,7 @@ public final class DeckContainer extends VerticalLayout {
         super.onAttach(attachEvent);
         // Initialize title content now to avoid using getTranslation in constructor
         title.setText(getTranslation("main.decks"));
-        title.addClassName("decks-view__title");
+        title.addClassName(DeckConstants.DECKS_VIEW_TITLE_CLASS);
         configureLayout();
         addComponents();
     }

@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
@@ -144,7 +145,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured H3 title
      */
     private H3 createTitle() {
-        H3 title = new H3(getTranslation("deck.delete.confirmTitle"));
+        H3 title = new H3(getTranslation(DeckConstants.DECK_DELETE_CONFIRM_TITLE));
         title.addClassName("deck-delete-confirm__title");
         return title;
     }
@@ -155,7 +156,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured Span description
      */
     private Span createDescription() {
-        Span description = new Span(getTranslation("deck.delete.confirmDescription"));
+        Span description = new Span(getTranslation(DeckConstants.DECK_DELETE_CONFIRM_DESCRIPTION));
         description.addClassName("deck-delete-confirm__description");
         return description;
     }
@@ -174,7 +175,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
         deckName.addClassName("deck-delete-confirm__deck-name");
 
         long actualCardCount = flashcardUseCase.countByDeckId(currentDeck.getId());
-        Span cardCount = new Span(getTranslation("deck.delete.cardCount", actualCardCount));
+        Span cardCount = new Span(getTranslation(DeckConstants.DECK_DELETE_CARD_COUNT, actualCardCount));
         cardCount.addClassName("deck-delete-confirm__card-count");
 
         deckInfoDiv.add(deckName, cardCount);
@@ -187,7 +188,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured TextField
      */
     private TextField createConfirmationInput() {
-        TextField confirmInput = new TextField(getTranslation("deck.delete.confirmInput"));
+        TextField confirmInput = new TextField(getTranslation(DeckConstants.DECK_DELETE_CONFIRM_INPUT));
         confirmInput.setPlaceholder(currentDeck.getTitle());
         confirmInput.setWidthFull();
         confirmInput.setRequired(true);
@@ -234,7 +235,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      */
     private Button createConfirmButton() {
         Button confirmButton = ButtonHelper.createButton(
-                getTranslation("deck.delete.confirm"),
+                getTranslation(DeckConstants.DECK_DELETE_CONFIRM),
                 VaadinIcon.TRASH,
                 e -> {
                     // Placeholder - will be replaced by actual click listener
@@ -251,7 +252,8 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured Button
      */
     private Button createCancelButton() {
-        return ButtonHelper.createButton(getTranslation("common.cancel"), e -> close(), ButtonVariant.LUMO_TERTIARY);
+        return ButtonHelper.createButton(
+                getTranslation(DeckConstants.COMMON_CANCEL), e -> close(), ButtonVariant.LUMO_TERTIARY);
     }
 
     /**
@@ -320,7 +322,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      */
     private void handleSuccessfulDeletion() {
         close();
-        NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
+        NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_DELETE_SUCCESS));
         NavigationHelper.navigateToDecks();
         notifyDeckDeleted();
     }
@@ -329,7 +331,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * Handles validation errors from backend.
      */
     private void handleValidationError() {
-        NotificationHelper.showErrorLong(getTranslation("deck.delete.confirmationMismatch"));
+        NotificationHelper.showErrorLong(getTranslation(DeckConstants.DECK_DELETE_CONFIRMATION_MISMATCH));
         LOGGER.warn("Deck deletion failed due to confirmation mismatch for deck: {}", currentDeck.getId());
     }
 
