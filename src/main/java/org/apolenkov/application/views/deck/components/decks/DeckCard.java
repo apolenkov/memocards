@@ -1,10 +1,5 @@
 package org.apolenkov.application.views.deck.components.decks;
 
-import org.apolenkov.application.views.deck.business.DeckCardViewModel;
-import org.apolenkov.application.views.deck.components.DeckConstants;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.NavigationHelper;
-
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -16,6 +11,10 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
+import org.apolenkov.application.views.deck.business.DeckCardViewModel;
+import org.apolenkov.application.views.deck.components.DeckConstants;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.NavigationHelper;
 
 /**
  * Reusable card component for displaying deck information.
