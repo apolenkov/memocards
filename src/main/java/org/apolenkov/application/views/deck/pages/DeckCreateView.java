@@ -1,14 +1,5 @@
 package org.apolenkov.application.views.deck.pages;
 
-import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.usecase.UserUseCase;
-import org.apolenkov.application.views.deck.components.DeckConstants;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.NavigationHelper;
-import org.apolenkov.application.views.shared.utils.NotificationHelper;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -25,9 +16,16 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.model.Deck;
+import org.apolenkov.application.usecase.DeckUseCase;
+import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.views.deck.components.DeckConstants;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.NavigationHelper;
+import org.apolenkov.application.views.shared.utils.NotificationHelper;
 
 /**
  * View for creating new flashcard decks.

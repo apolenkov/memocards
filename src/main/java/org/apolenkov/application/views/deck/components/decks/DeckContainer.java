@@ -1,13 +1,11 @@
 package org.apolenkov.application.views.deck.components.decks;
 
-import java.util.List;
-
-import org.apolenkov.application.views.deck.business.DeckCardViewModel;
-import org.apolenkov.application.views.deck.components.DeckConstants;
-
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import java.util.List;
+import org.apolenkov.application.views.deck.business.DeckCardViewModel;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 
 /**
  * Reusable container component for deck management views.
