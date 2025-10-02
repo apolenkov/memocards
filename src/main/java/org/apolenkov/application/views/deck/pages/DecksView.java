@@ -66,7 +66,7 @@ public final class DecksView extends BaseView {
         // Configure main view layout
         setPadding(false);
         setSpacing(false);
-        addClassName("decks-view");
+        addClassName(DeckConstants.DECKS_VIEW_CLASS);
 
         // Create content layout
         VerticalLayout content = new VerticalLayout();
@@ -74,7 +74,7 @@ public final class DecksView extends BaseView {
         content.setPadding(true);
         content.setSpacing(true);
         content.setAlignItems(Alignment.CENTER);
-        content.addClassName("decks-view__content");
+        content.addClassName(DeckConstants.DECKS_VIEW_CONTENT_CLASS);
         add(content);
 
         // Create and add deck container

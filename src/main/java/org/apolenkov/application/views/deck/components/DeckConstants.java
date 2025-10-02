@@ -10,6 +10,8 @@ public final class DeckConstants {
     // Translation keys for deck operations
     public static final String DECKS_TITLE_KEY = "main.decks";
     public static final String FILL_REQUIRED_KEY = "dialog.fillRequired";
+    public static final String DECK_CARDS_KEY = "deck.cards";
+    public static final String DECK_INVALID_ID_KEY = "deck.invalidId";
 
     // Translation keys for deck dialogs
     public static final String DECK_EDIT_TITLE = "deck.edit.title";
@@ -147,6 +149,9 @@ public final class DeckConstants {
     public static final String DECK_VIEW_INFO_SECTION_CLASS = "deck-view__info-section";
     public static final String DECK_VIEW_DESCRIPTION_CLASS = "deck-view__description";
     public static final String DECK_VIEW_STATS_CLASS = "deck-view__stats";
+    public static final String DECKS_VIEW_CLASS = "decks-view";
+    public static final String DECKS_VIEW_CONTENT_CLASS = "decks-view__content";
+    public static final String GLASS_MD_CLASS = "glass-md";
 
     // Deck toolbar CSS classes
     public static final String DECK_TOOLBAR_SEARCH_CLASS = "deck-toolbar__search";

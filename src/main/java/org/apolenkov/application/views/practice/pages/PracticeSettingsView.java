@@ -14,6 +14,7 @@ import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.views.core.layout.PublicLayout;
+import org.apolenkov.application.views.practice.components.PracticeConstants;
 import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
@@ -45,50 +46,147 @@ public class PracticeSettingsView extends BaseView {
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
+    @SuppressWarnings("unused")
     private void init() {
+        setupLayout();
+        addSettingsComponents();
+    }
+
+    /**
+     * Sets up the basic layout properties.
+     */
+    private void setupLayout() {
         setPadding(true);
         setSpacing(true);
+        add(new H3(getTranslation(PracticeConstants.SETTINGS_TITLE_KEY)));
+    }
 
-        add(new H3(getTranslation("settings.title")));
-
-        Select<Integer> countSelect = new Select<>();
-        countSelect.setLabel(getTranslation("settings.count"));
-        countSelect.setItems(5, 10, 15, 20, 25, 30);
-        countSelect.setValue(practiceSettingsService.getDefaultCount());
-
-        RadioButtonGroup<String> modeGroup = new RadioButtonGroup<>();
-        modeGroup.setLabel(getTranslation("settings.mode"));
-        String random = getTranslation("settings.mode.random");
-        String seq = getTranslation("settings.mode.sequential");
-        modeGroup.setItems(random, seq);
-        modeGroup.setValue(practiceSettingsService.isDefaultRandomOrder() ? random : seq);
-
-        RadioButtonGroup<String> dirGroup = new RadioButtonGroup<>();
-        dirGroup.setLabel(getTranslation("settings.direction"));
-        String f2b = getTranslation("settings.direction.f2b");
-        String b2f = getTranslation("settings.direction.b2f");
-        dirGroup.setItems(f2b, b2f);
-        dirGroup.setValue(practiceSettingsService.getDefaultDirection() == PracticeDirection.FRONT_TO_BACK ? f2b : b2f);
-
-        Button save = ButtonHelper.createButton(
-                getTranslation("settings.save"),
-                e -> {
-                    practiceSettingsService.setDefaultCount(countSelect.getValue());
-                    practiceSettingsService.setDefaultRandomOrder(
-                            modeGroup.getValue().equals(random));
-                    practiceSettingsService.setDefaultDirection(
-                            dirGroup.getValue().equals(f2b)
-                                    ? PracticeDirection.FRONT_TO_BACK
-                                    : PracticeDirection.BACK_TO_FRONT);
-
-                    NotificationHelper.showSuccess(getTranslation("settings.saved"));
-                },
-                ButtonVariant.LUMO_PRIMARY);
-        Button cancel = ButtonHelper.createButton(
-                getTranslation("common.cancel"), e -> NavigationHelper.navigateToDecks(), ButtonVariant.LUMO_TERTIARY);
-        HorizontalLayout actions = new HorizontalLayout(save, cancel);
+    /**
+     * Adds all settings components to the view.
+     */
+    private void addSettingsComponents() {
+        Select<Integer> countSelect = createCountSelect();
+        RadioButtonGroup<String> modeGroup = createModeGroup();
+        RadioButtonGroup<String> dirGroup = createDirectionGroup();
+        HorizontalLayout actions = createActionButtons(countSelect, modeGroup, dirGroup);
 
         add(countSelect, modeGroup, dirGroup, actions);
+    }
+
+    /**
+     * Creates the card count selection component.
+     *
+     * @return configured count select component
+     */
+    private Select<Integer> createCountSelect() {
+        Select<Integer> countSelect = new Select<>();
+        countSelect.setLabel(getTranslation(PracticeConstants.SETTINGS_COUNT_KEY));
+        countSelect.setItems(5, 10, 15, 20, 25, 30);
+        countSelect.setValue(practiceSettingsService.getDefaultCount());
+        return countSelect;
+    }
+
+    /**
+     * Creates the practice mode selection component.
+     *
+     * @return configured mode radio button group
+     */
+    private RadioButtonGroup<String> createModeGroup() {
+        RadioButtonGroup<String> modeGroup = new RadioButtonGroup<>();
+        modeGroup.setLabel(getTranslation(PracticeConstants.SETTINGS_MODE_KEY));
+        String random = getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY);
+        String seq = getTranslation(PracticeConstants.SETTINGS_MODE_SEQUENTIAL_KEY);
+        modeGroup.setItems(random, seq);
+        modeGroup.setValue(practiceSettingsService.isDefaultRandomOrder() ? random : seq);
+        return modeGroup;
+    }
+
+    /**
+     * Creates the practice direction selection component.
+     *
+     * @return configured direction radio button group
+     */
+    private RadioButtonGroup<String> createDirectionGroup() {
+        RadioButtonGroup<String> dirGroup = new RadioButtonGroup<>();
+        dirGroup.setLabel(getTranslation(PracticeConstants.SETTINGS_DIRECTION_KEY));
+        String f2b = getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY);
+        String b2f = getTranslation(PracticeConstants.SETTINGS_DIRECTION_B2F_KEY);
+        dirGroup.setItems(f2b, b2f);
+        dirGroup.setValue(practiceSettingsService.getDefaultDirection() == PracticeDirection.FRONT_TO_BACK ? f2b : b2f);
+        return dirGroup;
+    }
+
+    /**
+     * Creates the action buttons layout with save and cancel buttons.
+     *
+     * @param countSelect the count selection component
+     * @param modeGroup the mode selection component
+     * @param dirGroup the direction selection component
+     * @return configured action buttons layout
+     */
+    private HorizontalLayout createActionButtons(
+            final Select<Integer> countSelect,
+            final RadioButtonGroup<String> modeGroup,
+            final RadioButtonGroup<String> dirGroup) {
+
+        Button save = createSaveButton(countSelect, modeGroup, dirGroup);
+        Button cancel = createCancelButton();
+
+        return new HorizontalLayout(save, cancel);
+    }
+
+    /**
+     * Creates the save button with settings persistence logic.
+     *
+     * @param countSelect the count selection component
+     * @param modeGroup the mode selection component
+     * @param dirGroup the direction selection component
+     * @return configured save button
+     */
+    private Button createSaveButton(
+            final Select<Integer> countSelect,
+            final RadioButtonGroup<String> modeGroup,
+            final RadioButtonGroup<String> dirGroup) {
+
+        return ButtonHelper.createButton(
+                getTranslation(PracticeConstants.SETTINGS_SAVE_KEY),
+                e -> saveSettings(countSelect, modeGroup, dirGroup),
+                ButtonVariant.LUMO_PRIMARY);
+    }
+
+    /**
+     * Creates the cancel button.
+     *
+     * @return configured cancel button
+     */
+    private Button createCancelButton() {
+        return ButtonHelper.createButton(
+                getTranslation(PracticeConstants.COMMON_CANCEL_KEY),
+                e -> NavigationHelper.navigateToDecks(),
+                ButtonVariant.LUMO_TERTIARY);
+    }
+
+    /**
+     * Saves all selected settings to the service and shows success notification.
+     *
+     * @param countSelect the count selection component
+     * @param modeGroup the mode selection component
+     * @param dirGroup the direction selection component
+     */
+    private void saveSettings(
+            final Select<Integer> countSelect,
+            final RadioButtonGroup<String> modeGroup,
+            final RadioButtonGroup<String> dirGroup) {
+
+        practiceSettingsService.setDefaultCount(countSelect.getValue());
+        practiceSettingsService.setDefaultRandomOrder(
+                modeGroup.getValue().equals(getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY)));
+        practiceSettingsService.setDefaultDirection(
+                dirGroup.getValue().equals(getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY))
+                        ? PracticeDirection.FRONT_TO_BACK
+                        : PracticeDirection.BACK_TO_FRONT);
+
+        NotificationHelper.showSuccess(getTranslation(PracticeConstants.SETTINGS_SAVED_KEY));
     }
 
     /**
@@ -98,6 +196,6 @@ public class PracticeSettingsView extends BaseView {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("settings.title");
+        return getTranslation(PracticeConstants.SETTINGS_TITLE_KEY);
     }
 }

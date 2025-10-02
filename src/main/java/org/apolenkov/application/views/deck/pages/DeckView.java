@@ -22,6 +22,7 @@ import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.core.layout.PublicLayout;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.deck.components.dialogs.DeckDeleteDialog;
 import org.apolenkov.application.views.deck.components.dialogs.DeckEditDialog;
 import org.apolenkov.application.views.deck.components.dialogs.DeckFlashcardDeleteDialog;
@@ -95,7 +96,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("deck.cards");
+        return getTranslation(DeckConstants.DECK_CARDS_KEY);
     }
 
     /**
@@ -221,7 +222,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         } catch (NumberFormatException e) {
             LOGGER.warn("Invalid deck ID parameter: {}", parameter);
             // Throw exception for invalid ID - will be caught by EntityNotFoundErrorHandler
-            throw new EntityNotFoundException(parameter, RouteConstants.DECKS_ROUTE, getTranslation("deck.invalidId"));
+            throw new EntityNotFoundException(
+                    parameter, RouteConstants.DECKS_ROUTE, getTranslation(DeckConstants.DECK_INVALID_ID_KEY));
         }
     }
 
