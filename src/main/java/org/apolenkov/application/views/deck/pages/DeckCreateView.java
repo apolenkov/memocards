@@ -152,7 +152,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      */
     private Div createFormContainer() {
         Div formContainer = new Div();
-        formContainer.addClassName("surface-panel");
+        formContainer.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
         formContainer.addClassName(DeckConstants.DECK_CREATE_FORM_CLASS);
         return formContainer;
     }
@@ -290,7 +290,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
                     getTranslation(DeckConstants.DECK_CREATE_CREATED, savedDeck.getTitle()));
             NavigationHelper.navigateToDeck(savedDeck.getId());
         } catch (ValidationException vex) {
-            NotificationHelper.showError(getTranslation("dialog.fillRequired"));
+            NotificationHelper.showError(getTranslation(DeckConstants.FILL_REQUIRED_KEY));
         } catch (Exception e) {
             NotificationHelper.showError(getTranslation(DeckConstants.DECK_CREATE_ERROR, e.getMessage()));
         }

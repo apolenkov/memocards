@@ -213,7 +213,7 @@ public class CreateDeckDialog extends Dialog {
             NavigationHelper.navigateToDeck(saved.getId());
         } catch (ValidationException vex) {
             LOGGER.warn("Deck creation failed due to validation error");
-            NotificationHelper.showError(getTranslation("dialog.fillRequired"));
+            NotificationHelper.showError(getTranslation(DeckConstants.FILL_REQUIRED_KEY));
         } catch (Exception ex) {
             LOGGER.error("Error creating deck: {}", ex.getMessage(), ex);
             NotificationHelper.showError(ex.getMessage());

@@ -169,7 +169,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
     private Div createDeckInfo() {
         Div deckInfoDiv = new Div();
         deckInfoDiv.addClassName(DeckConstants.DECK_DELETE_CONFIRM_INFO_CLASS);
-        deckInfoDiv.addClassName("glass-md");
+        deckInfoDiv.addClassName(DeckConstants.GLASS_MD_CLASS);
 
         Span deckName = new Span(currentDeck.getTitle());
         deckName.addClassName(DeckConstants.DECK_DELETE_CONFIRM_DECK_NAME_CLASS);
