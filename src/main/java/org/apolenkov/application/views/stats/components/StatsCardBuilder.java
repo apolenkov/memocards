@@ -2,32 +2,31 @@ package org.apolenkov.application.views.stats.components;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.views.shared.interfaces.TranslationProvider;
 
 /**
- * Factory for creating statistics card components.
+ * Builder for creating statistics card components.
  * Handles creation of various types of statistics cards with consistent styling.
  */
-public final class StatsCardFactory {
+public final class StatsCardBuilder {
 
-    // Translation provider interface
-    private TranslationProvider translationProvider;
+    private final TranslationProvider translationProvider;
 
     /**
-     * Sets the translation provider for internationalization.
+     * Creates a new StatsCardBuilder with translation provider.
      *
      * @param translationProviderParam provider for translations
      */
-    public void setTranslationProvider(final TranslationProvider translationProviderParam) {
+    public StatsCardBuilder(final TranslationProvider translationProviderParam) {
         this.translationProvider = translationProviderParam;
     }
 
     /**
-     * Creates a statistics card with label, value and CSS modifier.
+     * Creates a single statistics card.
      *
      * @param labelKey translation key for the label
      * @param value numeric value to display
@@ -35,16 +34,16 @@ public final class StatsCardFactory {
      */
     public Div createStatCard(final String labelKey, final int value) {
         Div card = new Div();
-        card.addClassName("stats-card");
+        card.addClassName(StatsConstants.STATS_CARD_CLASS);
         card.addClassName(StatsConstants.SURFACE_CARD_CLASS);
 
         Div valueDiv = new Div();
-        valueDiv.addClassName("stats-card__value");
+        valueDiv.addClassName(StatsConstants.STATS_CARD_VALUE_CLASS);
         valueDiv.setText(String.valueOf(value));
 
         Div labelDiv = new Div();
-        labelDiv.addClassName("stats-card__label");
-        labelDiv.setText(getTranslation(labelKey));
+        labelDiv.addClassName(StatsConstants.STATS_CARD_LABEL_CLASS);
+        labelDiv.setText(translationProvider.getTranslation(labelKey));
 
         card.add(valueDiv, labelDiv);
         return card;
@@ -59,28 +58,29 @@ public final class StatsCardFactory {
      */
     public Div createDeckStatCard(final Deck deck, final StatsRepository.DeckAggregate stats) {
         Div card = new Div();
-        card.addClassName("deck-stats-card");
+        card.addClassName(StatsConstants.DECK_STATS_CARD_CLASS);
         card.addClassName(StatsConstants.SURFACE_CARD_CLASS);
 
+        // Header
         Div header = new Div();
-        header.addClassName("deck-stats-card__header");
+        header.addClassName(StatsConstants.DECK_STATS_CARD_HEADER_CLASS);
 
         H3 deckTitle = new H3(deck.getTitle());
-        deckTitle.addClassName("deck-stats-card__title");
-
+        deckTitle.addClassName(StatsConstants.DECK_STATS_CARD_TITLE_CLASS);
         header.add(deckTitle);
 
+        // Stats grid
         HorizontalLayout deckStatsGrid = new HorizontalLayout();
         deckStatsGrid.setWidthFull();
         deckStatsGrid.setSpacing(true);
-        deckStatsGrid.addClassName("stats-deck-grid");
-        deckStatsGrid.setJustifyContentMode(JustifyContentMode.EVENLY);
+        deckStatsGrid.addClassName(StatsConstants.STATS_DECK_GRID_CLASS);
+        deckStatsGrid.setJustifyContentMode(FlexComponent.JustifyContentMode.EVENLY);
 
         deckStatsGrid.add(
-                createDeckStatItem(StatsConstants.STATS_SESSIONS, stats.sessionsAll(), stats.sessionsToday()),
-                createDeckStatItem(StatsConstants.STATS_VIEWED, stats.viewedAll(), stats.viewedToday()),
-                createDeckStatItem(StatsConstants.STATS_CORRECT, stats.correctAll(), stats.correctToday()),
-                createDeckStatItem(StatsConstants.STATS_HARD, stats.hardAll(), stats.hardToday()));
+                createDeckStatItem(StatsConstants.STATS_SESSIONS_KEY, stats.sessionsAll(), stats.sessionsToday()),
+                createDeckStatItem(StatsConstants.STATS_VIEWED_KEY, stats.viewedAll(), stats.viewedToday()),
+                createDeckStatItem(StatsConstants.STATS_CORRECT_KEY, stats.correctAll(), stats.correctToday()),
+                createDeckStatItem(StatsConstants.STATS_HARD_KEY, stats.hardAll(), stats.hardToday()));
 
         card.add(header, deckStatsGrid);
         return card;
@@ -96,36 +96,22 @@ public final class StatsCardFactory {
      */
     public Div createDeckStatItem(final String labelKey, final int total, final int today) {
         Div item = new Div();
-        item.addClassName("stats-deck-item");
+        item.addClassName(StatsConstants.STATS_DECK_ITEM_CLASS);
         item.addClassName(StatsConstants.SURFACE_CARD_CLASS);
 
         Div totalDiv = new Div();
-        totalDiv.addClassName("stats-deck-item__total");
+        totalDiv.addClassName(StatsConstants.STATS_DECK_ITEM_TOTAL_CLASS);
         totalDiv.setText(String.valueOf(total));
 
         Div todayDiv = new Div();
-        todayDiv.addClassName("stats-deck-item__today");
+        todayDiv.addClassName(StatsConstants.STATS_DECK_ITEM_TODAY_CLASS);
         todayDiv.setText("+" + today);
 
         Div labelDiv = new Div();
-        labelDiv.addClassName("stats-deck-item__label");
-        labelDiv.setText(getTranslation(labelKey));
+        labelDiv.addClassName(StatsConstants.STATS_DECK_ITEM_LABEL_CLASS);
+        labelDiv.setText(translationProvider.getTranslation(labelKey));
 
         item.add(totalDiv, todayDiv, labelDiv);
         return item;
-    }
-
-    /**
-     * Gets translation for the given key.
-     *
-     * @param key the translation key
-     * @param params optional parameters for message formatting
-     * @return translated text
-     */
-    private String getTranslation(final String key, final Object... params) {
-        if (translationProvider == null) {
-            return key;
-        }
-        return translationProvider.getTranslation(key, params);
     }
 }

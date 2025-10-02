@@ -63,7 +63,7 @@ public class DeckEditDialog extends Dialog {
     protected void onAttach(final AttachEvent attachEvent) {
         super.onAttach(attachEvent);
 
-        addClassName("dialog-md");
+        addClassName(DeckConstants.DIALOG_MD_CLASS);
         build();
     }
 
@@ -260,7 +260,7 @@ public class DeckEditDialog extends Dialog {
      */
     private void handleValidationError() {
         LOGGER.warn("Deck editing failed due to validation error for deck ID: {}", deck.getId());
-        NotificationHelper.showError(getTranslation("dialog.fillRequired"));
+        NotificationHelper.showError(getTranslation(DeckConstants.FILL_REQUIRED_KEY));
     }
 
     /**

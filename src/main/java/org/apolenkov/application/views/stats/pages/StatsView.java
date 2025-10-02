@@ -1,35 +1,56 @@
 package org.apolenkov.application.views.stats.pages;
 
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+import java.util.List;
+import java.util.Map;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.domain.port.StatsRepository;
+import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
-import org.apolenkov.application.views.stats.components.StatsCardFactory;
+import org.apolenkov.application.views.stats.components.CollapsibleSectionBuilder;
+import org.apolenkov.application.views.stats.components.DeckPaginationBuilder;
+import org.apolenkov.application.views.stats.components.StatsCalculator;
+import org.apolenkov.application.views.stats.components.StatsCardBuilder;
 import org.apolenkov.application.views.stats.components.StatsConstants;
-import org.apolenkov.application.views.stats.components.StatsDataLoader;
-import org.apolenkov.application.views.stats.components.StatsSectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * View for displaying user statistics and analytics.
- * This view provides comprehensive statistics about user's learning progress,
- * including today's stats, overall statistics, and detailed deck-specific metrics.
- * The statistics are presented in collapsible sections for better organization.
+ * Simplified statistics view with integrated components.
+ * Displays user learning progress with collapsible sections for better organization.
+ * Uses modern Vaadin DSL and follows KISS principle.
  */
 @Route(value = RouteConstants.STATS_ROUTE, layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class StatsView extends BaseView {
 
-    private final transient StatsDataLoader dataLoader;
-    private final transient StatsCardFactory cardFactory;
-    private final transient StatsSectionFactory sectionFactory;
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatsView.class);
+
+    // Services
+    private final transient DeckUseCase deckUseCase;
+    private final transient UserUseCase userUseCase;
+    private final transient StatsService statsService;
+
+    // Data
+    private transient List<Deck> decks;
+    private transient Map<Long, StatsRepository.DeckAggregate> aggregates;
+
+    // Builders
+    private transient StatsCalculator statsCalculator;
+    private transient StatsCardBuilder cardBuilder;
+    private transient CollapsibleSectionBuilder sectionBuilder;
 
     /**
      * Creates a new StatsView with required dependencies.
@@ -42,40 +63,41 @@ public class StatsView extends BaseView {
             final DeckUseCase deckUseCaseParam,
             final UserUseCase userUseCaseParam,
             final StatsService statsServiceParam) {
-        this.dataLoader = new StatsDataLoader(deckUseCaseParam, userUseCaseParam, statsServiceParam);
-        this.cardFactory = new StatsCardFactory();
-        this.sectionFactory = new StatsSectionFactory();
+        this.deckUseCase = deckUseCaseParam;
+        this.userUseCase = userUseCaseParam;
+        this.statsService = statsServiceParam;
     }
 
     /**
-     * Initializes the UI components and loads data after construction.
+     * Initializes the UI components and loads data.
      */
     @PostConstruct
+    @SuppressWarnings("unused")
     private void initializeUI() {
         setSpacing(true);
         setAlignItems(FlexComponent.Alignment.CENTER);
         setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        addClassName("stats-view");
+        addClassName(StatsConstants.STATS_VIEW_CLASS);
 
-        // Create a container with consistent width
+        // Main container
         VerticalLayout contentContainer = new VerticalLayout();
         contentContainer.setSpacing(true);
         contentContainer.setWidthFull();
-        contentContainer.addClassName("container-md");
+        contentContainer.addClassName(StatsConstants.CONTAINER_MD_CLASS);
         contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Single shaded section holds title and all groups
+        // Page section
         VerticalLayout pageSection = new VerticalLayout();
         pageSection.setSpacing(true);
         pageSection.setWidthFull();
-        pageSection.addClassName("stats-page__section");
+        pageSection.addClassName(StatsConstants.STATS_PAGE_SECTION_CLASS);
         pageSection.addClassName(StatsConstants.SURFACE_PANEL_CLASS);
 
         contentContainer.add(pageSection);
         add(contentContainer);
 
-        // Load data after UI initialization
-        loadStatsData(pageSection);
+        // Load and display data
+        loadAndDisplayStats(pageSection);
     }
 
     /**
@@ -83,20 +105,122 @@ public class StatsView extends BaseView {
      *
      * @param pageSection the container to add stats sections to
      */
-    private void loadStatsData(final VerticalLayout pageSection) {
-        // Set up translation provider for components
-        dataLoader.setTranslationProvider(this::getTranslation);
-        cardFactory.setTranslationProvider(this::getTranslation);
-        sectionFactory.setTranslationProvider(this::getTranslation);
-        sectionFactory.setCardFactory(cardFactory);
+    private void loadAndDisplayStats(final VerticalLayout pageSection) {
+        LOGGER.debug("Loading statistics data for current user");
 
-        // Load data using the data loader
-        StatsDataLoader.StatsData statsData = dataLoader.loadStatsData(pageSection);
+        // Add main title
+        H2 mainTitle = new H2(getTranslation(StatsConstants.STATS_TITLE_KEY));
+        mainTitle.addClassName(StatsConstants.STATS_VIEW_TITLE_CLASS);
+        pageSection.add(mainTitle);
 
-        // Add sections using loaded data
-        pageSection.add(sectionFactory.createTodayStatsSection(statsData.aggregates()));
-        pageSection.add(sectionFactory.createOverallStatsSection(statsData.aggregates()));
-        pageSection.add(sectionFactory.createDeckStatsSection(statsData.decks(), statsData.aggregates()));
+        // Load data and initialize builders
+        loadStatsData();
+        initializeBuilders();
+
+        // Add sections
+        pageSection.add(createTodayStatsSection());
+        pageSection.add(createOverallStatsSection());
+        pageSection.add(createDeckStatsSection());
+
+        LOGGER.debug("Loaded {} decks with statistics", decks.size());
+    }
+
+    /**
+     * Loads statistics data from services.
+     */
+    private void loadStatsData() {
+        long userId = userUseCase.getCurrentUser().getId();
+        decks = deckUseCase.getDecksByUserId(userId);
+
+        List<Long> deckIds = decks.stream().map(Deck::getId).toList();
+        aggregates = statsService.getDeckAggregates(deckIds);
+    }
+
+    /**
+     * Initializes all builder components.
+     */
+    private void initializeBuilders() {
+        statsCalculator = new StatsCalculator(aggregates);
+        cardBuilder = new StatsCardBuilder(this::getTranslation);
+        sectionBuilder = new CollapsibleSectionBuilder(this::getTranslation);
+    }
+
+    /**
+     * Creates today's statistics section.
+     *
+     * @return configured collapsible section
+     */
+    private VerticalLayout createTodayStatsSection() {
+        VerticalLayout contentContainer = new VerticalLayout();
+        contentContainer.setSpacing(true);
+        contentContainer.add(createStatsGrid(false)); // today's stats
+
+        return sectionBuilder.createCollapsibleSection(
+                StatsConstants.STATS_TODAY_KEY, contentContainer, true // open by default
+                );
+    }
+
+    /**
+     * Creates overall statistics section.
+     *
+     * @return configured collapsible section
+     */
+    private VerticalLayout createOverallStatsSection() {
+        VerticalLayout contentContainer = new VerticalLayout();
+        contentContainer.setSpacing(true);
+        contentContainer.add(createStatsGrid(true)); // overall stats
+
+        return sectionBuilder.createCollapsibleSection(
+                StatsConstants.STATS_OVERALL_KEY, contentContainer, false // closed by default
+                );
+    }
+
+    /**
+     * Creates deck-specific statistics section with pagination.
+     *
+     * @return configured collapsible section
+     */
+    private VerticalLayout createDeckStatsSection() {
+        VerticalLayout contentContainer = new VerticalLayout();
+        contentContainer.setSpacing(true);
+        contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        if (decks.isEmpty()) {
+            contentContainer.add(new Span(getTranslation(StatsConstants.STATS_NO_DECKS_KEY)));
+        } else {
+            DeckPaginationBuilder paginationBuilder =
+                    new DeckPaginationBuilder(this::getTranslation, cardBuilder, decks, aggregates);
+            contentContainer.add(paginationBuilder.createDeckPagination());
+        }
+
+        return sectionBuilder.createCollapsibleSection(StatsConstants.STATS_BY_DECK_KEY, contentContainer, false);
+    }
+
+    /**
+     * Creates a statistics grid with cards.
+     *
+     * @param useOverallStats whether to use overall stats (true) or today's stats (false)
+     * @return configured horizontal layout with statistics cards
+     */
+    private HorizontalLayout createStatsGrid(final boolean useOverallStats) {
+        HorizontalLayout statsGrid = new HorizontalLayout();
+        statsGrid.setWidthFull();
+        statsGrid.setSpacing(true);
+        statsGrid.addClassName(
+                useOverallStats ? StatsConstants.STATS_OVERALL_GRID_CLASS : StatsConstants.STATS_TODAY_GRID_CLASS);
+        statsGrid.setJustifyContentMode(FlexComponent.JustifyContentMode.EVENLY);
+
+        // Calculate aggregated statistics
+        StatsCalculator.StatsValues stats = statsCalculator.calculateStats(useOverallStats);
+
+        // Add statistics cards
+        statsGrid.add(
+                cardBuilder.createStatCard(StatsConstants.STATS_SESSIONS_KEY, stats.sessions()),
+                cardBuilder.createStatCard(StatsConstants.STATS_VIEWED_KEY, stats.viewed()),
+                cardBuilder.createStatCard(StatsConstants.STATS_CORRECT_KEY, stats.correct()),
+                cardBuilder.createStatCard(StatsConstants.STATS_HARD_KEY, stats.hard()));
+
+        return statsGrid;
     }
 
     /**
@@ -106,6 +230,6 @@ public class StatsView extends BaseView {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("stats.title");
+        return getTranslation(StatsConstants.STATS_TITLE_KEY);
     }
 }

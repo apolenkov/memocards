@@ -87,8 +87,8 @@
 
 /* Clickable title styles */
 .clickable-title {
-    cursor: pointer;
     transition: color 0.2s ease, opacity 0.2s ease;
+    cursor: pointer;
 }
 
 .clickable-title:hover {

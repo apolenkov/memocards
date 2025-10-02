@@ -55,7 +55,7 @@ public final class DeckActions extends HorizontalLayout {
         practiceButton.setText(getTranslation(DeckConstants.COMMON_START));
         practiceButton.setIcon(VaadinIcon.PLAY.create());
         practiceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        practiceButton.setText(getTranslation("deck.startSession"));
+        practiceButton.setText(getTranslation(DeckConstants.DECK_START_SESSION));
     }
 
     /**
@@ -66,7 +66,9 @@ public final class DeckActions extends HorizontalLayout {
         editDeckButton.setText(getTranslation(DeckConstants.COMMON_EDIT));
         editDeckButton.setIcon(VaadinIcon.EDIT.create());
         editDeckButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        editDeckButton.getElement().setProperty(DeckConstants.TITLE_PROPERTY, getTranslation("deck.edit.tooltip"));
+        editDeckButton
+                .getElement()
+                .setProperty(DeckConstants.TITLE_PROPERTY, getTranslation(DeckConstants.DECK_EDIT_TOOLTIP));
     }
 
     /**

@@ -71,29 +71,29 @@ public class DeckCard extends Div {
         titleLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Add deck icon with appropriate styling class
-        Span icon = new Span(getTranslation("home.deckIcon"));
-        icon.addClassName("deck-card__icon");
+        Span icon = new Span(getTranslation(DeckConstants.HOME_DECK_ICON));
+        icon.addClassName(DeckConstants.DECK_CARD_ICON_CLASS);
 
         // Create title with deck size information
         H3 title = new H3(viewModel.title() + " (" + viewModel.deckSize() + ")");
-        title.addClassName("deck-card__title");
+        title.addClassName(DeckConstants.DECK_CARD_TITLE_CLASS);
 
         titleLayout.add(icon, title);
 
         // Add description with styling class
         Span description = new Span(viewModel.description());
-        description.addClassName("deck-card__description");
+        description.addClassName(DeckConstants.DECK_CARD_DESCRIPTION_CLASS);
 
         // Build progress section with visual indicators
         HorizontalLayout progressLayout = buildProgress();
 
         // Create practice button with primary styling and navigation
         Button practiceButton = ButtonHelper.createButton(
-                getTranslation("home.practice"),
+                getTranslation(DeckConstants.HOME_PRACTICE),
                 e -> navigateToPractice(),
                 ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_PRIMARY);
-        practiceButton.addClassName("deck-card__practice-button");
+        practiceButton.addClassName(DeckConstants.DECK_CARD_PRACTICE_BUTTON_CLASS);
 
         // Assemble all components in the main layout
         cardContent.add(titleLayout, description, progressLayout, practiceButton);
@@ -120,8 +120,8 @@ public class DeckCard extends Div {
         int percent = viewModel.progressPercent();
 
         // Create progress label with appropriate styling
-        Span progressLabel = new Span(getTranslation("home.progress"));
-        progressLabel.addClassName("deck-card__progress-label");
+        Span progressLabel = new Span(getTranslation(DeckConstants.HOME_PROGRESS));
+        progressLabel.addClassName(DeckConstants.DECK_CARD_PROGRESS_LABEL_CLASS);
 
         // Create progress bar with normalized value (0.0 to 1.0)
         ProgressBar progressBar = new ProgressBar();
@@ -130,12 +130,12 @@ public class DeckCard extends Div {
         layout.setFlexGrow(1, progressBar);
 
         // Display percentage text with suffix
-        Span progressText = new Span(percent + getTranslation("home.percentSuffix"));
-        progressText.addClassName("deck-card__progress-text");
+        Span progressText = new Span(percent + getTranslation(DeckConstants.HOME_PERCENT_SUFFIX));
+        progressText.addClassName(DeckConstants.DECK_CARD_PROGRESS_TEXT_CLASS);
 
         // Show detailed progress (e.g., "5 of 20 cards")
-        Span progressDetails = new Span(getTranslation("home.progress.details", known, deckSize));
-        progressDetails.addClassName("deck-card__progress-details");
+        Span progressDetails = new Span(getTranslation(DeckConstants.HOME_PROGRESS_DETAILS, known, deckSize));
+        progressDetails.addClassName(DeckConstants.DECK_CARD_PROGRESS_DETAILS_CLASS);
 
         // Assemble progress components in horizontal layout
         layout.add(progressLabel, progressBar, progressText, progressDetails);

@@ -43,7 +43,7 @@ public final class DeckGridColumns {
      */
     public static void addExampleColumn(final Grid<Flashcard> grid) {
         grid.addColumn(DeckGridColumns::formatExample)
-                .setHeader(grid.getTranslation("deck.col.example"))
+                .setHeader(grid.getTranslation(DeckConstants.DECK_COL_EXAMPLE))
                 .setFlexGrow(2);
     }
 
@@ -69,7 +69,7 @@ public final class DeckGridColumns {
     public static void addStatusColumn(
             final Grid<Flashcard> grid, final StatsService statsService, final Long currentDeckId) {
         grid.addComponentColumn(flashcard -> createStatusComponent(flashcard, statsService, currentDeckId))
-                .setHeader(grid.getTranslation("deck.col.status"))
+                .setHeader(grid.getTranslation(DeckConstants.DECK_COL_STATUS))
                 .setTextAlign(ColumnTextAlign.CENTER)
                 .setFlexGrow(1);
     }
@@ -110,7 +110,7 @@ public final class DeckGridColumns {
         grid.addComponentColumn(
                         flashcard -> createActionsComponent(flashcard, editCallback, toggleCallback, deleteCallback))
                 .setKey("actions")
-                .setHeader(grid.getTranslation("deck.col.actions"))
+                .setHeader(grid.getTranslation(DeckConstants.DECK_COL_ACTIONS))
                 .setFlexGrow(0)
                 .setTextAlign(ColumnTextAlign.CENTER)
                 .setAutoWidth(true);

@@ -4,6 +4,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 
 /**
  * Component for displaying deck information including description.
@@ -30,11 +31,11 @@ public final class DeckInfo extends VerticalLayout {
      * Sets up the container with proper CSS classes and structure.
      */
     private void configureLayout() {
-        infoSection.addClassName("deck-view__info-section");
-        infoSection.addClassName("surface-panel");
+        infoSection.addClassName(DeckConstants.DECK_VIEW_INFO_SECTION_CLASS);
+        infoSection.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
 
-        description.addClassName("deck-view__description");
-        description.setText(getTranslation("deck.description.loading"));
+        description.addClassName(DeckConstants.DECK_VIEW_DESCRIPTION_CLASS);
+        description.setText(getTranslation(DeckConstants.DECK_DESCRIPTION_LOADING));
 
         infoSection.add(description);
         add(infoSection);

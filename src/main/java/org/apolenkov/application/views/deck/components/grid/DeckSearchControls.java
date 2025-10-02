@@ -10,6 +10,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import java.util.function.Consumer;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,7 @@ public final class DeckSearchControls extends HorizontalLayout {
      * Configures the search field with placeholder, prefix icon, and value change listener.
      */
     private void configureSearchField() {
-        searchField.setPlaceholder(getTranslation("deck.searchCards"));
+        searchField.setPlaceholder(getTranslation(DeckConstants.DECK_SEARCH_CARDS));
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -74,7 +75,7 @@ public final class DeckSearchControls extends HorizontalLayout {
      * Configures the hide known checkbox with proper styling.
      */
     private void configureHideKnownCheckbox() {
-        hideKnownCheckbox.setLabel(getTranslation("deck.hideKnown"));
+        hideKnownCheckbox.setLabel(getTranslation(DeckConstants.DECK_HIDE_KNOWN));
         hideKnownCheckbox.setValue(true);
         hideKnownCheckbox.addValueChangeListener(e -> {
             if (filterCallback != null) {
@@ -87,12 +88,12 @@ public final class DeckSearchControls extends HorizontalLayout {
      * Configures the reset progress button.
      */
     private void configureResetProgressButton() {
-        resetProgressButton.setText(getTranslation("deck.resetProgress"));
+        resetProgressButton.setText(getTranslation(DeckConstants.DECK_RESET_PROGRESS));
         resetProgressButton.setIcon(VaadinIcon.ROTATE_LEFT.create());
         resetProgressButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
         resetProgressButton.addClickListener(e -> {
             LOGGER.info("Reset progress button clicked");
-            NotificationHelper.showSuccessBottom(getTranslation("deck.progressReset"));
+            NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_PROGRESS_RESET));
             if (resetCallback != null) {
                 resetCallback.run();
             }
