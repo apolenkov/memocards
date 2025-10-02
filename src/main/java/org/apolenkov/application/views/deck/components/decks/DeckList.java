@@ -62,7 +62,7 @@ public final class DeckList extends VerticalLayout {
      * Shows a localized message indicating no search results.
      */
     private void showEmptyState() {
-        Span emptyMessage = new Span(getTranslation("home.search.noResults"));
+        Span emptyMessage = new Span(getTranslation(DeckConstants.HOME_SEARCH_NO_RESULTS));
         emptyMessage.addClassName(DeckConstants.DECKS_EMPTY_MESSAGE_CLASS);
         add(emptyMessage);
     }

@@ -66,7 +66,7 @@ public class CreateDeckDialog extends Dialog {
     protected void onAttach(final AttachEvent attachEvent) {
         super.onAttach(attachEvent);
 
-        addClassName("dialog-md");
+        addClassName(DeckConstants.DIALOG_MD_CLASS);
         build();
     }
 
@@ -94,7 +94,7 @@ public class CreateDeckDialog extends Dialog {
      * @return configured header component
      */
     private H3 createHeader() {
-        return new H3(getTranslation("dialog.newDeck"));
+        return new H3(getTranslation(DeckConstants.DIALOG_NEW_DECK));
     }
 
     /**
@@ -117,11 +117,11 @@ public class CreateDeckDialog extends Dialog {
      * @return configured description area
      */
     private TextArea createDescriptionArea() {
-        TextArea descriptionArea = new TextArea(getTranslation("dialog.description"));
+        TextArea descriptionArea = new TextArea(getTranslation(DeckConstants.DIALOG_DESCRIPTION));
         descriptionArea.setWidthFull();
         descriptionArea.addClassName(DeckConstants.TEXT_AREA_MD_CLASS);
         descriptionArea.setMaxLength(500);
-        descriptionArea.setPlaceholder(getTranslation("dialog.description.placeholder"));
+        descriptionArea.setPlaceholder(getTranslation(DeckConstants.DIALOG_DESCRIPTION_PLACEHOLDER));
         return descriptionArea;
     }
 
@@ -157,7 +157,7 @@ public class CreateDeckDialog extends Dialog {
     private BeanValidationBinder<Deck> createBinder(final TextField titleField, final TextArea descriptionArea) {
         BeanValidationBinder<Deck> binder = new BeanValidationBinder<>(Deck.class);
         binder.forField(titleField)
-                .asRequired(getTranslation("home.enterTitle"))
+                .asRequired(getTranslation(DeckConstants.HOME_ENTER_TITLE))
                 .bind(Deck::getTitle, Deck::setTitle);
         binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
         return binder;
@@ -180,7 +180,8 @@ public class CreateDeckDialog extends Dialog {
      * @return configured cancel button
      */
     private Button createCancelButton() {
-        return ButtonHelper.createButton(getTranslation("common.cancel"), e -> close(), ButtonVariant.LUMO_TERTIARY);
+        return ButtonHelper.createButton(
+                getTranslation(DeckConstants.COMMON_CANCEL), e -> close(), ButtonVariant.LUMO_TERTIARY);
     }
 
     /**
@@ -203,7 +204,7 @@ public class CreateDeckDialog extends Dialog {
                     saved.getDescription() != null ? saved.getDescription().length() : 0,
                     saved.getId());
 
-            NotificationHelper.showSuccessBottom(getTranslation("home.deckCreated"));
+            NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.HOME_DECK_CREATED));
             close();
 
             if (onCreated != null) {

@@ -14,6 +14,7 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.deck.components.layout.DeckViewLayout;
+import org.apolenkov.application.views.shared.interfaces.TranslationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,7 +143,7 @@ public final class DeckViewState {
             throw new EntityNotFoundException(
                     String.valueOf(deckId),
                     RouteConstants.DECKS_ROUTE,
-                    translationProvider.getTranslation("deck.notFound"));
+                    translationProvider.getTranslation(DeckConstants.DECK_NOT_FOUND));
         }
     }
 
@@ -158,12 +159,12 @@ public final class DeckViewState {
                 deckViewLayout
                         .getDeckHeader()
                         .setDeckStats(translationProvider.getTranslation(
-                                "deck.count", flashcardUseCase.countByDeckId(currentDeck.getId())));
+                                DeckConstants.DECK_COUNT, flashcardUseCase.countByDeckId(currentDeck.getId())));
             }
             if (deckViewLayout.getDeckInfo() != null) {
                 String description = Optional.ofNullable(currentDeck.getDescription())
                         .filter(desc -> !desc.trim().isEmpty())
-                        .orElse(translationProvider.getTranslation("deck.description.empty"));
+                        .orElse(translationProvider.getTranslation(DeckConstants.DECK_DESCRIPTION_EMPTY));
                 deckViewLayout.getDeckInfo().setDescription(description);
             }
         }
@@ -197,20 +198,5 @@ public final class DeckViewState {
      */
     public void setCurrentDeck(final Deck deck) {
         this.currentDeck = deck;
-    }
-
-    /**
-     * Interface for translation provider to avoid direct dependency on Vaadin components.
-     */
-    @FunctionalInterface
-    public interface TranslationProvider {
-        /**
-         * Gets translation for the given key.
-         *
-         * @param key the translation key
-         * @param params the translation parameters
-         * @return the translated text
-         */
-        String getTranslation(String key, Object... params);
     }
 }

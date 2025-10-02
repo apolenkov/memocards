@@ -63,7 +63,7 @@ public final class DeckHeader extends HorizontalLayout {
         backButton.setIcon(VaadinIcon.ARROW_LEFT.create());
         backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         backButton.addClickListener(e -> NavigationHelper.navigateToDecks());
-        backButton.setText(getTranslation("main.decks"));
+        backButton.setText(getTranslation(DeckConstants.DECKS_TITLE_KEY));
     }
 
     /**
@@ -71,8 +71,8 @@ public final class DeckHeader extends HorizontalLayout {
      * Sets up the title with proper styling and initial loading state.
      */
     private void configureTitle() {
-        deckTitle.setText(getTranslation("deck.loading"));
-        deckTitle.addClassName("deck-view__title");
+        deckTitle.setText(getTranslation(DeckConstants.DECK_LOADING));
+        deckTitle.addClassName(DeckConstants.DECK_VIEW_TITLE_CLASS);
     }
 
     /**
@@ -80,7 +80,7 @@ public final class DeckHeader extends HorizontalLayout {
      * Sets up the stats span with proper styling.
      */
     private void configureStats() {
-        deckStats.addClassName("deck-view__stats");
+        deckStats.addClassName(DeckConstants.DECK_VIEW_STATS_CLASS);
     }
 
     /**

@@ -135,7 +135,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
     private Div createWarningIcon() {
         Div warningIcon = new Div();
         warningIcon.add(VaadinIcon.WARNING.create());
-        warningIcon.addClassName("deck-delete-confirm__warning-icon");
+        warningIcon.addClassName(DeckConstants.DECK_DELETE_CONFIRM_WARNING_ICON_CLASS);
         return warningIcon;
     }
 
@@ -146,7 +146,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      */
     private H3 createTitle() {
         H3 title = new H3(getTranslation(DeckConstants.DECK_DELETE_CONFIRM_TITLE));
-        title.addClassName("deck-delete-confirm__title");
+        title.addClassName(DeckConstants.DECK_DELETE_CONFIRM_TITLE_CLASS);
         return title;
     }
 
@@ -157,7 +157,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      */
     private Span createDescription() {
         Span description = new Span(getTranslation(DeckConstants.DECK_DELETE_CONFIRM_DESCRIPTION));
-        description.addClassName("deck-delete-confirm__description");
+        description.addClassName(DeckConstants.DECK_DELETE_CONFIRM_DESCRIPTION_CLASS);
         return description;
     }
 
@@ -168,15 +168,15 @@ public final class DeckComplexDeleteDialog extends Dialog {
      */
     private Div createDeckInfo() {
         Div deckInfoDiv = new Div();
-        deckInfoDiv.addClassName("deck-delete-confirm__info");
+        deckInfoDiv.addClassName(DeckConstants.DECK_DELETE_CONFIRM_INFO_CLASS);
         deckInfoDiv.addClassName("glass-md");
 
         Span deckName = new Span(currentDeck.getTitle());
-        deckName.addClassName("deck-delete-confirm__deck-name");
+        deckName.addClassName(DeckConstants.DECK_DELETE_CONFIRM_DECK_NAME_CLASS);
 
         long actualCardCount = flashcardUseCase.countByDeckId(currentDeck.getId());
         Span cardCount = new Span(getTranslation(DeckConstants.DECK_DELETE_CARD_COUNT, actualCardCount));
-        cardCount.addClassName("deck-delete-confirm__card-count");
+        cardCount.addClassName(DeckConstants.DECK_DELETE_CONFIRM_CARD_COUNT_CLASS);
 
         deckInfoDiv.add(deckName, cardCount);
         return deckInfoDiv;

@@ -38,6 +38,10 @@ public final class DeckConstants {
     public static final String DECK_CARD_EDIT_TITLE = "deck.card.editTitle";
     public static final String DECK_CARD_UPDATED = "deck.card.updated";
     public static final String DECK_CARD_ADDED = "deck.card.added";
+    public static final String DECK_CARD_DELETE_TITLE = "deck.card.deleteTitle";
+    public static final String DECK_CARD_DELETE_DESCRIPTION = "deck.card.deleteDescription";
+    public static final String DECK_CARD_DELETE_CONFIRM = "deck.card.deleteConfirm";
+    public static final String DECK_CARD_DELETED = "deck.card.deleted";
 
     // Translation keys for common actions
     public static final String COMMON_CANCEL = "common.cancel";
@@ -49,6 +53,56 @@ public final class DeckConstants {
     // Translation keys for dialog actions
     public static final String DIALOG_SAVE = "dialog.save";
     public static final String DIALOG_CREATE = "dialog.create";
+    public static final String DIALOG_NEW_DECK = "dialog.newDeck";
+    public static final String DIALOG_DESCRIPTION = "dialog.description";
+    public static final String DIALOG_DESCRIPTION_PLACEHOLDER = "dialog.description.placeholder";
+
+    // Translation keys for home components
+    public static final String HOME_DECK_ICON = "home.deckIcon";
+    public static final String HOME_PRACTICE = "home.practice";
+    public static final String HOME_PROGRESS = "home.progress";
+    public static final String HOME_PERCENT_SUFFIX = "home.percentSuffix";
+    public static final String HOME_PROGRESS_DETAILS = "home.progress.details";
+    public static final String HOME_ENTER_TITLE = "home.enterTitle";
+    public static final String HOME_DECK_CREATED = "home.deckCreated";
+    public static final String HOME_SEARCH_NO_RESULTS = "home.search.noResults";
+    public static final String HOME_ADD_DECK = "home.addDeck";
+    public static final String HOME_SEARCH_PLACEHOLDER = "home.search.placeholder";
+
+    // Translation keys for deck operations
+    public static final String DECK_START_SESSION = "deck.startSession";
+    public static final String DECK_EDIT_TOOLTIP = "deck.edit.tooltip";
+    public static final String DECK_LOADING = "deck.loading";
+    public static final String DECK_DESCRIPTION_LOADING = "deck.description.loading";
+    public static final String DECK_DESCRIPTION_EMPTY = "deck.description.empty";
+    public static final String DECK_NOT_FOUND = "deck.notFound";
+    public static final String DECK_COUNT = "deck.count";
+    public static final String DECK_ADD_CARD = "deck.addCard";
+    public static final String DECK_SEARCH_CARDS = "deck.searchCards";
+    public static final String DECK_HIDE_KNOWN = "deck.hideKnown";
+    public static final String DECK_RESET_PROGRESS = "deck.resetProgress";
+    public static final String DECK_PROGRESS_RESET = "deck.progressReset";
+    public static final String DECK_COL_EXAMPLE = "deck.col.example";
+    public static final String DECK_COL_STATUS = "deck.col.status";
+    public static final String DECK_COL_ACTIONS = "deck.col.actions";
+
+    // Translation keys for deck creation
+    public static final String DECK_CREATE_TITLE = "deckCreate.title";
+    public static final String DECK_CREATE_BACK = "deckCreate.back";
+    public static final String DECK_CREATE_SECTION = "deckCreate.section";
+    public static final String DECK_CREATE_NAME = "deckCreate.name";
+    public static final String DECK_CREATE_NAME_PLACEHOLDER = "deckCreate.name.placeholder";
+    public static final String DECK_CREATE_DESCRIPTION = "deckCreate.description";
+    public static final String DECK_CREATE_DESCRIPTION_PLACEHOLDER = "deckCreate.description.placeholder";
+    public static final String DECK_CREATE_CREATE = "deckCreate.create";
+    public static final String DECK_CREATE_CANCEL = "deckCreate.cancel";
+    public static final String DECK_CREATE_CREATED = "deckCreate.created";
+    public static final String DECK_CREATE_ERROR = "deckCreate.error";
+
+    // Translation keys for deck deletion
+    public static final String DECK_DELETE_SIMPLE_TITLE = "deck.delete.simpleTitle";
+    public static final String DECK_DELETE_SIMPLE_DESCRIPTION = "deck.delete.simpleDescription";
+    public static final String DECK_DELETE_SIMPLE_CONFIRM = "deck.delete.simpleConfirm";
 
     // CSS classes
     public static final String SURFACE_PANEL_CLASS = "surface-panel";
@@ -58,6 +112,7 @@ public final class DeckConstants {
 
     // Dialog CSS classes
     public static final String DIALOG_MD_CLASS = "dialog-md";
+    public static final String DIALOG_SM_CLASS = "dialog-sm";
     public static final String TEXT_AREA_MD_CLASS = "text-area--md";
     public static final String TEXT_AREA_SM_CLASS = "text-area--sm";
 
@@ -78,6 +133,35 @@ public final class DeckConstants {
     // Deck create CSS classes
     public static final String DECK_CREATE_FORM_CLASS = "deck-create__form";
     public static final String DECK_CREATE_FORM_LAYOUT_CLASS = "deck-create__form-layout";
+
+    // Deck card CSS classes
+    public static final String DECK_CARD_ICON_CLASS = "deck-card__icon";
+    public static final String DECK_CARD_TITLE_CLASS = "deck-card__title";
+    public static final String DECK_CARD_DESCRIPTION_CLASS = "deck-card__description";
+    public static final String DECK_CARD_PRACTICE_BUTTON_CLASS = "deck-card__practice-button";
+    public static final String DECK_CARD_PROGRESS_LABEL_CLASS = "deck-card__progress-label";
+    public static final String DECK_CARD_PROGRESS_TEXT_CLASS = "deck-card__progress-text";
+    public static final String DECK_CARD_PROGRESS_DETAILS_CLASS = "deck-card__progress-details";
+
+    // Deck view CSS classes
+    public static final String DECK_VIEW_INFO_SECTION_CLASS = "deck-view__info-section";
+    public static final String DECK_VIEW_DESCRIPTION_CLASS = "deck-view__description";
+    public static final String DECK_VIEW_STATS_CLASS = "deck-view__stats";
+
+    // Deck toolbar CSS classes
+    public static final String DECK_TOOLBAR_SEARCH_CLASS = "deck-toolbar__search";
+    public static final String DECK_TOOLBAR_ADD_BUTTON_CLASS = "deck-toolbar__add-button";
+
+    // Deck deletion CSS classes
+    public static final String DECK_DELETE_DIALOG_ICON_CLASS = "deck-delete-dialog__icon";
+    public static final String DECK_DELETE_DIALOG_TITLE_CLASS = "deck-delete-dialog__title";
+    public static final String DECK_DELETE_DIALOG_DESCRIPTION_CLASS = "deck-delete-dialog__description";
+    public static final String DECK_DELETE_CONFIRM_WARNING_ICON_CLASS = "deck-delete-confirm__warning-icon";
+    public static final String DECK_DELETE_CONFIRM_TITLE_CLASS = "deck-delete-confirm__title";
+    public static final String DECK_DELETE_CONFIRM_DESCRIPTION_CLASS = "deck-delete-confirm__description";
+    public static final String DECK_DELETE_CONFIRM_INFO_CLASS = "deck-delete-confirm__info";
+    public static final String DECK_DELETE_CONFIRM_DECK_NAME_CLASS = "deck-delete-confirm__deck-name";
+    public static final String DECK_DELETE_CONFIRM_CARD_COUNT_CLASS = "deck-delete-confirm__card-count";
 
     // Grid CSS classes
     public static final String ACTIONS_LAYOUT_CLASS = "actions-layout";

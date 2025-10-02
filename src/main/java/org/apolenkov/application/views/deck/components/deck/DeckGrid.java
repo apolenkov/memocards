@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.deck.components.grid.DeckFlashcardGrid;
 import org.apolenkov.application.views.deck.components.grid.DeckGridFilter;
 import org.apolenkov.application.views.deck.components.grid.DeckSearchControls;
@@ -243,7 +244,7 @@ public final class DeckGrid extends VerticalLayout {
      * Creates the add flashcard button.
      */
     private void createAddFlashcardButton() {
-        addFlashcardButton.setText(getTranslation("deck.addCard"));
+        addFlashcardButton.setText(getTranslation(DeckConstants.DECK_ADD_CARD));
         addFlashcardButton.setIcon(VaadinIcon.PLUS.create());
         addFlashcardButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
     }

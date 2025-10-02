@@ -39,9 +39,9 @@ public final class DeckContainer extends VerticalLayout {
         setSpacing(true);
         setAlignItems(Alignment.CENTER);
         setWidthFull();
-        addClassName("container-md");
+        addClassName(DeckConstants.CONTAINER_MD_CLASS);
         addClassName(DeckConstants.DECKS_SECTION_CLASS);
-        addClassName("surface-panel");
+        addClassName(DeckConstants.SURFACE_PANEL_CLASS);
     }
 
     /**
@@ -56,7 +56,7 @@ public final class DeckContainer extends VerticalLayout {
     protected void onAttach(final AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         // Initialize title content now to avoid using getTranslation in constructor
-        title.setText(getTranslation("main.decks"));
+        title.setText(getTranslation(DeckConstants.DECKS_TITLE_KEY));
         title.addClassName(DeckConstants.DECKS_VIEW_TITLE_CLASS);
         configureLayout();
         addComponents();

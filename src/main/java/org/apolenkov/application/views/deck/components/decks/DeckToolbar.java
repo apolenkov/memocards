@@ -39,11 +39,11 @@ public final class DeckToolbar extends HorizontalLayout {
      * Defers translation and configuration to avoid this-escape in constructor.
      */
     private void configureSearchField() {
-        searchField.setPlaceholder(getTranslation("home.search.placeholder"));
+        searchField.setPlaceholder(getTranslation(DeckConstants.HOME_SEARCH_PLACEHOLDER));
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
-        searchField.addClassName("deck-toolbar__search");
+        searchField.addClassName(DeckConstants.DECK_TOOLBAR_SEARCH_CLASS);
     }
 
     /**
@@ -51,10 +51,10 @@ public final class DeckToolbar extends HorizontalLayout {
      * Defers translation and configuration to avoid this-escape in constructor.
      */
     private void configureAddButton() {
-        addButton.setText(getTranslation("home.addDeck"));
+        addButton.setText(getTranslation(DeckConstants.HOME_ADD_DECK));
         addButton.setIcon(VaadinIcon.PLUS.create());
         addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        addButton.addClassName("deck-toolbar__add-button");
+        addButton.addClassName(DeckConstants.DECK_TOOLBAR_ADD_BUTTON_CLASS);
     }
 
     /**

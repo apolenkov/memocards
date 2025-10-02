@@ -57,6 +57,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
+    @SuppressWarnings("unused")
     private void init() {
         getContent().setWidthFull();
         getContent().setPadding(true);
@@ -119,7 +120,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
                 VaadinIcon.ARROW_LEFT,
                 e -> NavigationHelper.navigateToDecks(),
                 ButtonVariant.LUMO_TERTIARY);
-        backButton.setText(getTranslation("deckCreate.back"));
+        backButton.setText(getTranslation(DeckConstants.DECK_CREATE_BACK));
         return backButton;
     }
 
@@ -129,7 +130,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured title component
      */
     private H2 createTitle() {
-        return new H2(getTranslation("deckCreate.title"));
+        return new H2(getTranslation(DeckConstants.DECK_CREATE_TITLE));
     }
 
     /**
@@ -181,7 +182,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured form title
      */
     private H3 createFormTitle() {
-        return new H3(getTranslation("deckCreate.section"));
+        return new H3(getTranslation(DeckConstants.DECK_CREATE_SECTION));
     }
 
     /**
@@ -190,8 +191,8 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured title field
      */
     private TextField createTitleField() {
-        TextField titleField = new TextField(getTranslation("deckCreate.name"));
-        titleField.setPlaceholder(getTranslation("deckCreate.name.placeholder"));
+        TextField titleField = new TextField(getTranslation(DeckConstants.DECK_CREATE_NAME));
+        titleField.setPlaceholder(getTranslation(DeckConstants.DECK_CREATE_NAME_PLACEHOLDER));
         titleField.setRequiredIndicatorVisible(true);
         titleField.setWidthFull();
         return titleField;
@@ -203,8 +204,8 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured description area
      */
     private TextArea createDescriptionArea() {
-        TextArea descriptionArea = new TextArea(getTranslation("deckCreate.description"));
-        descriptionArea.setPlaceholder(getTranslation("deckCreate.description.placeholder"));
+        TextArea descriptionArea = new TextArea(getTranslation(DeckConstants.DECK_CREATE_DESCRIPTION));
+        descriptionArea.setPlaceholder(getTranslation(DeckConstants.DECK_CREATE_DESCRIPTION_PLACEHOLDER));
         descriptionArea.setClearButtonVisible(true);
         descriptionArea.setWidthFull();
         descriptionArea.addClassName(DeckConstants.TEXT_AREA_MD_CLASS);
@@ -256,7 +257,8 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured save button
      */
     private Button createSaveButton() {
-        Button saveButton = ButtonHelper.createPrimaryButton(getTranslation("deckCreate.create"), e -> saveDeck());
+        Button saveButton =
+                ButtonHelper.createPrimaryButton(getTranslation(DeckConstants.DECK_CREATE_CREATE), e -> saveDeck());
         saveButton.setIcon(VaadinIcon.CHECK.create());
         return saveButton;
     }
@@ -268,7 +270,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      */
     private Button createCancelButton() {
         Button cancelButton = ButtonHelper.createTertiaryButton(
-                getTranslation("deckCreate.cancel"), e -> NavigationHelper.navigateToDecks());
+                getTranslation(DeckConstants.DECK_CREATE_CANCEL), e -> NavigationHelper.navigateToDecks());
         cancelButton.setIcon(VaadinIcon.CLOSE.create());
         return cancelButton;
     }
@@ -284,12 +286,13 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
             newDeck.setUserId(userUseCase.getCurrentUser().getId());
             binder.writeBean(newDeck);
             Deck savedDeck = deckUseCase.saveDeck(newDeck);
-            NotificationHelper.showSuccessBottom(getTranslation("deckCreate.created", savedDeck.getTitle()));
+            NotificationHelper.showSuccessBottom(
+                    getTranslation(DeckConstants.DECK_CREATE_CREATED, savedDeck.getTitle()));
             NavigationHelper.navigateToDeck(savedDeck.getId());
         } catch (ValidationException vex) {
             NotificationHelper.showError(getTranslation("dialog.fillRequired"));
         } catch (Exception e) {
-            NotificationHelper.showError(getTranslation("deckCreate.error", e.getMessage()));
+            NotificationHelper.showError(getTranslation(DeckConstants.DECK_CREATE_ERROR, e.getMessage()));
         }
     }
 
@@ -302,6 +305,6 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("deckCreate.title");
+        return getTranslation(DeckConstants.DECK_CREATE_TITLE);
     }
 }

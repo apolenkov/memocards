@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
@@ -119,7 +120,7 @@ public final class DeckSimpleDeleteDialog extends Dialog {
     private Div createIcon() {
         Div icon = new Div();
         icon.add(VaadinIcon.INFO_CIRCLE.create());
-        icon.addClassName("deck-delete-dialog__icon");
+        icon.addClassName(DeckConstants.DECK_DELETE_DIALOG_ICON_CLASS);
         return icon;
     }
 
@@ -129,8 +130,8 @@ public final class DeckSimpleDeleteDialog extends Dialog {
      * @return configured H3 title
      */
     private H3 createTitle() {
-        H3 title = new H3(getTranslation("deck.delete.simpleTitle"));
-        title.addClassName("deck-delete-dialog__title");
+        H3 title = new H3(getTranslation(DeckConstants.DECK_DELETE_SIMPLE_TITLE));
+        title.addClassName(DeckConstants.DECK_DELETE_DIALOG_TITLE_CLASS);
         return title;
     }
 
@@ -141,8 +142,8 @@ public final class DeckSimpleDeleteDialog extends Dialog {
      */
     private Span createDescription() {
         String deckTitle = currentDeck.getTitle();
-        Span description = new Span(getTranslation("deck.delete.simpleDescription", deckTitle));
-        description.addClassName("deck-delete-dialog__description");
+        Span description = new Span(getTranslation(DeckConstants.DECK_DELETE_SIMPLE_DESCRIPTION, deckTitle));
+        description.addClassName(DeckConstants.DECK_DELETE_DIALOG_DESCRIPTION_CLASS);
         return description;
     }
 
@@ -182,7 +183,7 @@ public final class DeckSimpleDeleteDialog extends Dialog {
      */
     private Button createConfirmButton() {
         return ButtonHelper.createButton(
-                getTranslation("deck.delete.simpleConfirm"),
+                getTranslation(DeckConstants.DECK_DELETE_SIMPLE_CONFIRM),
                 VaadinIcon.TRASH,
                 e -> handleDeletion(),
                 ButtonVariant.LUMO_PRIMARY,
@@ -195,7 +196,8 @@ public final class DeckSimpleDeleteDialog extends Dialog {
      * @return configured Button
      */
     private Button createCancelButton() {
-        return ButtonHelper.createButton(getTranslation("common.cancel"), e -> close(), ButtonVariant.LUMO_TERTIARY);
+        return ButtonHelper.createButton(
+                getTranslation(DeckConstants.COMMON_CANCEL), e -> close(), ButtonVariant.LUMO_TERTIARY);
     }
 
     /**
@@ -212,7 +214,7 @@ public final class DeckSimpleDeleteDialog extends Dialog {
                     currentDeck.getId());
 
             close();
-            NotificationHelper.showSuccessBottom(getTranslation("deck.delete.success"));
+            NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_DELETE_SUCCESS));
             NavigationHelper.navigateToDecks();
             notifyDeckDeleted();
         } catch (Exception ex) {

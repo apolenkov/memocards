@@ -10,6 +10,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public final class DeckFlashcardDeleteDialog extends Dialog {
             return;
         }
 
-        addClassName("dialog-sm");
+        addClassName(DeckConstants.DIALOG_SM_CLASS);
         VerticalLayout layout = createDialogLayout();
         add(layout);
         open();
@@ -89,7 +90,7 @@ public final class DeckFlashcardDeleteDialog extends Dialog {
      * @return configured H3 title
      */
     private H3 createDialogTitle() {
-        return new H3(getTranslation("deck.card.deleteTitle"));
+        return new H3(getTranslation(DeckConstants.DECK_CARD_DELETE_TITLE));
     }
 
     /**
@@ -98,7 +99,7 @@ public final class DeckFlashcardDeleteDialog extends Dialog {
      * @return configured Span description
      */
     private Span createDialogDescription() {
-        return new Span(getTranslation("deck.card.deleteDescription"));
+        return new Span(getTranslation(DeckConstants.DECK_CARD_DELETE_DESCRIPTION));
     }
 
     /**
@@ -137,7 +138,7 @@ public final class DeckFlashcardDeleteDialog extends Dialog {
      */
     private Button createConfirmButton() {
         return ButtonHelper.createConfirmButton(
-                getTranslation("deck.card.deleteConfirm"), e -> handleFlashcardDeletion());
+                getTranslation(DeckConstants.DECK_CARD_DELETE_CONFIRM), e -> handleFlashcardDeletion());
     }
 
     /**
@@ -146,7 +147,7 @@ public final class DeckFlashcardDeleteDialog extends Dialog {
      * @return configured Button
      */
     private Button createCancelButton() {
-        return ButtonHelper.createCancelButton(getTranslation("common.cancel"), e -> close());
+        return ButtonHelper.createCancelButton(getTranslation(DeckConstants.COMMON_CANCEL), e -> close());
     }
 
     /**
@@ -165,7 +166,7 @@ public final class DeckFlashcardDeleteDialog extends Dialog {
 
             notifyFlashcardDeleted();
             close();
-            NotificationHelper.showSuccessBottom(getTranslation("deck.card.deleted"));
+            NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_CARD_DELETED));
             LOGGER.info("Flashcard {} deleted successfully", flashcard.getId());
         } catch (Exception ex) {
             handleDeletionError(ex);
