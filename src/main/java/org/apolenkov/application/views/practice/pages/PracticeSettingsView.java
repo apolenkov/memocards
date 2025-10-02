@@ -11,10 +11,10 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.practice.components.PracticeConstants;
+import org.apolenkov.application.views.practice.components.PracticeSettingsComponents;
 import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
@@ -29,6 +29,7 @@ import org.apolenkov.application.views.shared.utils.NotificationHelper;
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class PracticeSettingsView extends BaseView {
 
+    // Dependencies
     private final transient PracticeSettingsService practiceSettingsService;
 
     /**
@@ -65,55 +66,15 @@ public class PracticeSettingsView extends BaseView {
      * Adds all settings components to the view.
      */
     private void addSettingsComponents() {
-        Select<Integer> countSelect = createCountSelect();
-        RadioButtonGroup<String> modeGroup = createModeGroup();
-        RadioButtonGroup<String> dirGroup = createDirectionGroup();
+        Select<Integer> countSelect =
+                PracticeSettingsComponents.createCountSelect(practiceSettingsService, this::getTranslation);
+        RadioButtonGroup<String> modeGroup =
+                PracticeSettingsComponents.createModeGroup(practiceSettingsService, this::getTranslation);
+        RadioButtonGroup<String> dirGroup =
+                PracticeSettingsComponents.createDirectionGroup(practiceSettingsService, this::getTranslation);
         HorizontalLayout actions = createActionButtons(countSelect, modeGroup, dirGroup);
 
         add(countSelect, modeGroup, dirGroup, actions);
-    }
-
-    /**
-     * Creates the card count selection component.
-     *
-     * @return configured count select component
-     */
-    private Select<Integer> createCountSelect() {
-        Select<Integer> countSelect = new Select<>();
-        countSelect.setLabel(getTranslation(PracticeConstants.SETTINGS_COUNT_KEY));
-        countSelect.setItems(5, 10, 15, 20, 25, 30);
-        countSelect.setValue(practiceSettingsService.getDefaultCount());
-        return countSelect;
-    }
-
-    /**
-     * Creates the practice mode selection component.
-     *
-     * @return configured mode radio button group
-     */
-    private RadioButtonGroup<String> createModeGroup() {
-        RadioButtonGroup<String> modeGroup = new RadioButtonGroup<>();
-        modeGroup.setLabel(getTranslation(PracticeConstants.SETTINGS_MODE_KEY));
-        String random = getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY);
-        String seq = getTranslation(PracticeConstants.SETTINGS_MODE_SEQUENTIAL_KEY);
-        modeGroup.setItems(random, seq);
-        modeGroup.setValue(practiceSettingsService.isDefaultRandomOrder() ? random : seq);
-        return modeGroup;
-    }
-
-    /**
-     * Creates the practice direction selection component.
-     *
-     * @return configured direction radio button group
-     */
-    private RadioButtonGroup<String> createDirectionGroup() {
-        RadioButtonGroup<String> dirGroup = new RadioButtonGroup<>();
-        dirGroup.setLabel(getTranslation(PracticeConstants.SETTINGS_DIRECTION_KEY));
-        String f2b = getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY);
-        String b2f = getTranslation(PracticeConstants.SETTINGS_DIRECTION_B2F_KEY);
-        dirGroup.setItems(f2b, b2f);
-        dirGroup.setValue(practiceSettingsService.getDefaultDirection() == PracticeDirection.FRONT_TO_BACK ? f2b : b2f);
-        return dirGroup;
     }
 
     /**
@@ -178,14 +139,8 @@ public class PracticeSettingsView extends BaseView {
             final RadioButtonGroup<String> modeGroup,
             final RadioButtonGroup<String> dirGroup) {
 
-        practiceSettingsService.setDefaultCount(countSelect.getValue());
-        practiceSettingsService.setDefaultRandomOrder(
-                modeGroup.getValue().equals(getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY)));
-        practiceSettingsService.setDefaultDirection(
-                dirGroup.getValue().equals(getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY))
-                        ? PracticeDirection.FRONT_TO_BACK
-                        : PracticeDirection.BACK_TO_FRONT);
-
+        PracticeSettingsComponents.saveSettings(
+                practiceSettingsService, countSelect, modeGroup, dirGroup, this::getTranslation);
         NotificationHelper.showSuccess(getTranslation(PracticeConstants.SETTINGS_SAVED_KEY));
     }
 

@@ -1,0 +1,204 @@
+package org.apolenkov.application.views.practice.business;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import org.apolenkov.application.domain.dto.SessionStatsDto;
+import org.apolenkov.application.model.Deck;
+import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.model.PracticeDirection;
+import org.apolenkov.application.service.PracticeSettingsService;
+import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.usecase.DeckUseCase;
+import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.springframework.stereotype.Component;
+
+/**
+ * Service for managing practice session preparation and configuration.
+ * Handles deck loading, card filtering, and session initialization.
+ */
+@Component
+public final class PracticeSessionService {
+
+    // Dependencies
+    private final DeckUseCase deckUseCase;
+    private final FlashcardUseCase flashcardUseCase;
+    private final StatsService statsService;
+    private final PracticeSettingsService practiceSettingsService;
+
+    /**
+     * Creates a new PracticeSessionService with required dependencies.
+     *
+     * @param useCase service for deck operations (non-null)
+     * @param flashcardUseCaseValue service for flashcard operations (non-null)
+     * @param stats service for statistics recording (non-null)
+     * @param practiceSettings service for practice configuration (non-null)
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    public PracticeSessionService(
+            final DeckUseCase useCase,
+            final FlashcardUseCase flashcardUseCaseValue,
+            final StatsService stats,
+            final PracticeSettingsService practiceSettings) {
+
+        if (useCase == null) {
+            throw new IllegalArgumentException("DeckUseCase cannot be null");
+        }
+        if (flashcardUseCaseValue == null) {
+            throw new IllegalArgumentException("FlashcardUseCase cannot be null");
+        }
+        if (stats == null) {
+            throw new IllegalArgumentException("StatsService cannot be null");
+        }
+        if (practiceSettings == null) {
+            throw new IllegalArgumentException("PracticeSettingsService cannot be null");
+        }
+
+        this.deckUseCase = useCase;
+        this.flashcardUseCase = flashcardUseCaseValue;
+        this.statsService = stats;
+        this.practiceSettingsService = practiceSettings;
+    }
+
+    /**
+     * Loads a deck by its ID.
+     *
+     * @param deckId the ID of the deck to load (must be positive)
+     * @return an Optional containing the deck if found, empty otherwise, never null
+     * @throws IllegalArgumentException if deckId is not positive
+     */
+    public Optional<Deck> loadDeck(final long deckId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
+        return deckUseCase.getDeckById(deckId);
+    }
+
+    /**
+     * Gets cards that are not yet marked as known in a deck.
+     *
+     * @param deckId the ID of the deck to check (must be positive)
+     * @return a list of flashcards not yet known by the user, never null (maybe empty)
+     * @throws IllegalArgumentException if deckId is not positive
+     */
+    public List<Flashcard> getNotKnownCards(final long deckId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
+        List<Flashcard> all = flashcardUseCase.getFlashcardsByDeckId(deckId);
+        Set<Long> known = statsService.getKnownCardIds(deckId);
+        return all.stream().filter(fc -> !known.contains(fc.getId())).toList();
+    }
+
+    /**
+     * Determines the default number of cards for a practice session.
+     *
+     * @param deckId the ID of the deck to calculate count for (must be positive)
+     * @return the number of cards to include in the practice session (1 to configured default)
+     * @throws IllegalArgumentException if deckId is not positive
+     */
+    public int resolveDefaultCount(final long deckId) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
+        int configured = practiceSettingsService.getDefaultCount();
+        int notKnown = getNotKnownCards(deckId).size();
+        return Math.clamp(notKnown, 1, configured);
+    }
+
+    /**
+     * Determines if practice sessions should use random card order.
+     *
+     * @return true if random ordering is enabled, false for sequential ordering
+     */
+    public boolean isRandom() {
+        return practiceSettingsService.isDefaultRandomOrder();
+    }
+
+    /**
+     * Gets the default practice direction for sessions.
+     *
+     * @return the default practice direction, never null
+     */
+    public PracticeDirection defaultDirection() {
+        return Optional.ofNullable(practiceSettingsService.getDefaultDirection())
+                .orElse(PracticeDirection.FRONT_TO_BACK);
+    }
+
+    /**
+     * Prepares a practice session with the specified number of cards.
+     * Creates a practice session by filtering unknown cards and optionally
+     * randomizing their order, limited to available unknown cards or requested count.
+     *
+     * @param deckId the ID of the deck to practice
+     * @param count the desired number of cards in the session
+     * @param random whether to randomize the card order
+     * @return a list of flashcards prepared for the practice session
+     */
+    public List<Flashcard> prepareSession(final long deckId, final int count, final boolean random) {
+        // Filter to only unknown cards for focused practice
+        List<Flashcard> filtered = new ArrayList<>(getNotKnownCards(deckId));
+        if (filtered.isEmpty()) {
+            return filtered;
+        }
+
+        // Randomize card order if requested for varied practice experience
+        if (random) {
+            Collections.shuffle(filtered);
+        }
+
+        // Limit session size to requested count or available cards
+        if (count < filtered.size()) {
+            return new ArrayList<>(filtered.subList(0, count));
+        }
+        return filtered;
+    }
+
+    /**
+     * Records completed practice session with performance metrics and knowledge status changes.
+     *
+     * @param deckId the ID of the deck that was practiced
+     * @param totalViewed the total number of cards viewed in the session
+     * @param correct the number of cards answered correctly
+     * @param hard the number of cards marked as difficult
+     * @param sessionDuration the total duration of the practice session
+     * @param totalAnswerDelayMs the total time spent thinking before answering
+     * @param knownCardIdsDelta the collection of card IDs that changed knowledge status
+     */
+    public void recordSession(
+            final long deckId,
+            final int totalViewed,
+            final int correct,
+            final int hard,
+            final Duration sessionDuration,
+            final long totalAnswerDelayMs,
+            final List<Long> knownCardIdsDelta) {
+        SessionStatsDto sessionData = SessionStatsDto.builder()
+                .deckId(deckId)
+                .viewed(totalViewed)
+                .correct(correct)
+                .hard(hard)
+                .sessionDurationMs(sessionDuration.toMillis())
+                .totalAnswerDelayMs(totalAnswerDelayMs)
+                .knownCardIdsDelta(knownCardIdsDelta)
+                .build();
+        statsService.recordSession(sessionData);
+    }
+
+    /**
+     * Starts a new practice session.
+     * Creates and initializes a new practice session with the specified parameters.
+     *
+     * @param deckId the ID of the deck to practice
+     * @param count the number of cards to include in the session
+     * @param random whether to randomize the card order
+     * @return a new Session instance ready for practice
+     */
+    public PracticeSession startSession(final long deckId, final int count, final boolean random) {
+        List<Flashcard> cards = prepareSession(deckId, count, random);
+        return PracticeSession.create(deckId, cards);
+    }
+}

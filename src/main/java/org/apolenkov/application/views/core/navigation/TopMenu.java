@@ -45,6 +45,11 @@ public class TopMenu extends HorizontalLayout {
     // Styles
     private static final String DATA_TEST_ID_ATTRIBUTE = "data-test-id";
 
+    // Logout button constants
+    private static final String LOGOUT_ROUTE = RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE;
+    private static final String LOGOUT_TEST_ID = "nav-logout";
+    private static final boolean LOGOUT_ALWAYS_VISIBLE = false;
+
     private final List<MenuButton> menuButtons = new ArrayList<>();
     private Anchor title;
 
@@ -117,20 +122,8 @@ public class TopMenu extends HorizontalLayout {
                 "nav-admin-content",
                 false,
                 SecurityConstants.ROLE_ADMIN));
-        menuButtons.add(createLogoutButton());
-    }
-
-    /**
-     * Creates a logout button with predefined configuration.
-     *
-     * @return configured logout menu button
-     */
-    private MenuButton createLogoutButton() {
-        return new MenuButton(
-                getTranslation("main.logout"),
-                RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE,
-                "nav-logout",
-                false);
+        menuButtons.add(
+                new MenuButton(getTranslation("main.logout"), LOGOUT_ROUTE, LOGOUT_TEST_ID, LOGOUT_ALWAYS_VISIBLE));
     }
 
     /**
@@ -211,7 +204,7 @@ public class TopMenu extends HorizontalLayout {
             return true;
         }
 
-        if (menuButton.getRoute().equals(RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE)) {
+        if (menuButton.getRoute().equals(LOGOUT_ROUTE)) {
             return isAuthenticated;
         }
 
@@ -246,7 +239,7 @@ public class TopMenu extends HorizontalLayout {
         Button button;
 
         switch (menuButton.getRoute()) {
-            case RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE -> {
+            case LOGOUT_ROUTE -> {
                 button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> openLogoutDialog());
                 button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
             }

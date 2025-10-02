@@ -9,13 +9,14 @@ public final class PracticeConstants {
 
     // Translation Keys
     public static final String PRACTICE_TITLE_KEY = "practice.title";
-    public static final String PRACTICE_BACK_KEY = "practice.back";
     public static final String PRACTICE_GET_READY_KEY = "practice.getReady";
     public static final String PRACTICE_LOADING_CARDS_KEY = "practice.loadingCards";
     public static final String PRACTICE_SHOW_ANSWER_KEY = "practice.showAnswer";
     public static final String PRACTICE_KNOW_KEY = "practice.know";
     public static final String PRACTICE_HARD_KEY = "practice.hard";
-    public static final String PRACTICE_ALL_KNOWN_KEY = "practice.allKnown";
+    public static final String PRACTICE_ALL_KNOWN_TITLE_KEY = "practice.allKnown.title";
+    public static final String PRACTICE_ALL_KNOWN_MESSAGE_KEY = "practice.allKnown.message";
+    public static final String PRACTICE_HOME_KEY = "practice.home";
     public static final String PRACTICE_PROGRESS_LINE_KEY = "practice.progressLine";
     public static final String PRACTICE_EXAMPLE_PREFIX_KEY = "practice.example.prefix";
     public static final String PRACTICE_SESSION_COMPLETE_KEY = "practice.sessionComplete";
@@ -55,6 +56,13 @@ public final class PracticeConstants {
     // Button Variants
     public static final String KNOW_LABEL = "know";
     public static final String HARD_LABEL = "hard";
+
+    // Session Constants
+    public static final int MIN_SESSION_MINUTES = 1;
+    public static final double MIN_TOTAL_VIEWED = 1.0;
+    public static final long MIN_AVERAGE_SECONDS = 1L;
+    public static final int MAX_SESSION_MINUTES = Integer.MAX_VALUE;
+    public static final double MAX_TOTAL_VIEWED = Double.MAX_VALUE;
 
     // Private constructor to prevent instantiation
     private PracticeConstants() {

@@ -13,7 +13,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
-import jakarta.annotation.PostConstruct;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
@@ -80,17 +79,6 @@ public final class DeckFlashcardDialog extends Dialog {
     }
 
     /**
-     * Initializes the dialog components after dependency injection is complete.
-     * This method is called after the constructor and ensures that all
-     * dependencies are properly injected before UI initialization.
-     */
-    @PostConstruct
-    public void init() {
-        createDialog();
-        // Form creation moved to openDialog() to ensure proper initialization order
-    }
-
-    /**
      * Opens the dialog for creating a new flashcard.
      */
     public void openForCreate() {
@@ -104,13 +92,6 @@ public final class DeckFlashcardDialog extends Dialog {
      */
     public void openForEdit(final Flashcard flashcard) {
         openDialog(flashcard);
-    }
-
-    /**
-     * Creates the main dialog component.
-     */
-    private void createDialog() {
-        // Dialog is already created in constructor
     }
 
     /**
