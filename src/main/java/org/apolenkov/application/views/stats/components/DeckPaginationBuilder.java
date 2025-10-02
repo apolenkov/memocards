@@ -1,5 +1,7 @@
 package org.apolenkov.application.views.stats.components;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
@@ -12,35 +14,36 @@ import java.util.List;
 import java.util.Map;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.views.shared.interfaces.TranslationProvider;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 
 /**
  * Builder for creating deck pagination components.
  * Handles creation of paginated deck statistics with navigation controls.
+ * Extends Composite to access getTranslation() method.
  */
-public final class DeckPaginationBuilder {
+public final class DeckPaginationBuilder extends Composite<Component> {
 
-    private final TranslationProvider translationProvider;
+    // Dependencies
     private final StatsCardBuilder cardBuilder;
-    private final List<Deck> decks;
-    private final Map<Long, StatsRepository.DeckAggregate> aggregates;
+
+    // Data
+    private final transient List<Deck> decks;
+    private final transient Map<Long, StatsRepository.DeckAggregate> aggregates;
+
+    // State
     private int currentDeckIndex = 0;
 
     /**
      * Creates a new DeckPaginationBuilder with required dependencies.
      *
-     * @param translationProviderParam provider for translations
      * @param cardBuilderParam builder for creating cards
      * @param decksParam list of user's decks
      * @param aggregatesParam aggregated statistics for all decks
      */
     public DeckPaginationBuilder(
-            final TranslationProvider translationProviderParam,
             final StatsCardBuilder cardBuilderParam,
             final List<Deck> decksParam,
             final Map<Long, StatsRepository.DeckAggregate> aggregatesParam) {
-        this.translationProvider = translationProviderParam;
         this.cardBuilder = cardBuilderParam;
         this.decks = decksParam;
         this.aggregates = aggregatesParam;
@@ -82,17 +85,13 @@ public final class DeckPaginationBuilder {
                 VaadinIcon.CHEVRON_LEFT, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
         prevButton
                 .getElement()
-                .setAttribute(
-                        StatsConstants.TITLE_ATTRIBUTE,
-                        translationProvider.getTranslation(StatsConstants.STATS_PREVIOUS_DECK_KEY));
+                .setAttribute(StatsConstants.TITLE_ATTRIBUTE, getTranslation(StatsConstants.STATS_PREVIOUS_DECK_KEY));
 
         Button nextButton = ButtonHelper.createIconButton(
                 VaadinIcon.CHEVRON_RIGHT, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_LARGE);
         nextButton
                 .getElement()
-                .setAttribute(
-                        StatsConstants.TITLE_ATTRIBUTE,
-                        translationProvider.getTranslation(StatsConstants.STATS_NEXT_DECK_KEY));
+                .setAttribute(StatsConstants.TITLE_ATTRIBUTE, getTranslation(StatsConstants.STATS_NEXT_DECK_KEY));
 
         Span pageIndicator = new Span();
         pageIndicator.addClassName(StatsConstants.STATS_PAGINATION_INDICATOR_CLASS);
@@ -179,7 +178,7 @@ public final class DeckPaginationBuilder {
 
         if (decks.isEmpty()) {
             container.removeAll();
-            container.add(new Span(translationProvider.getTranslation(StatsConstants.STATS_NO_DECKS_KEY)));
+            container.add(new Span(getTranslation(StatsConstants.STATS_NO_DECKS_KEY)));
             if (pageIndicator != null) {
                 pageIndicator.setText("");
             }
@@ -200,8 +199,8 @@ public final class DeckPaginationBuilder {
 
         // Update page indicator
         if (pageIndicator != null) {
-            pageIndicator.setText(translationProvider.getTranslation(
-                    StatsConstants.STATS_DECK_PAGE_KEY, currentDeckIndex + 1, decks.size()));
+            pageIndicator.setText(
+                    getTranslation(StatsConstants.STATS_DECK_PAGE_KEY, currentDeckIndex + 1, decks.size()));
         }
 
         // Update button states

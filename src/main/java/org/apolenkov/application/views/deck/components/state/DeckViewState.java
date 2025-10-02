@@ -14,13 +14,13 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.deck.components.layout.DeckViewLayout;
-import org.apolenkov.application.views.shared.interfaces.TranslationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * State management component for DeckView.
  * Handles loading states, data updates, and deck information management.
+ * Extends Composite to access getTranslation() method directly.
  *
  * <p>Features:
  * <ul>
@@ -30,18 +30,17 @@ import org.slf4j.LoggerFactory;
  *   <li>Deck information updates</li>
  * </ul>
  */
-public final class DeckViewState {
+public final class DeckViewState extends Composite<VerticalLayout> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckViewState.class);
 
     // Dependencies
-    private final DeckUseCase deckUseCase;
-    private final FlashcardUseCase flashcardUseCase;
+    private final transient DeckUseCase deckUseCase;
+    private final transient FlashcardUseCase flashcardUseCase;
 
     // State
-    private Deck currentDeck;
-    private DeckViewLayout deckViewLayout;
-    private Composite<VerticalLayout> parentContent;
+    private transient Deck currentDeck;
+    private transient DeckViewLayout deckViewLayout;
 
     /**
      * Creates a new DeckViewState with required dependencies.
@@ -52,15 +51,6 @@ public final class DeckViewState {
     public DeckViewState(final DeckUseCase deckUseCaseParam, final FlashcardUseCase flashcardUseCaseParam) {
         this.deckUseCase = deckUseCaseParam;
         this.flashcardUseCase = flashcardUseCaseParam;
-    }
-
-    /**
-     * Sets the parent content container for state management.
-     *
-     * @param parentContentParam the parent content container
-     */
-    public void setParentContent(final Composite<VerticalLayout> parentContentParam) {
-        this.parentContent = parentContentParam;
     }
 
     /**
@@ -76,18 +66,13 @@ public final class DeckViewState {
      * Shows loading state while deck is being loaded.
      */
     public void showLoadingState() {
-        if (parentContent == null) {
-            LOGGER.warn("Cannot show loading state: parentContent is null");
-            return;
-        }
-
-        parentContent.getContent().removeAll();
+        getContent().removeAll();
 
         VerticalLayout loadingContainer = createLoadingContainer();
         VerticalLayout loadingSection = createLoadingSection();
 
         loadingContainer.add(loadingSection);
-        parentContent.getContent().add(loadingContainer);
+        getContent().add(loadingContainer);
     }
 
     /**
@@ -129,10 +114,9 @@ public final class DeckViewState {
      * Loads a deck by ID and initializes the state.
      *
      * @param deckId the ID of the deck to load
-     * @param translationProvider the translation provider for error messages
      * @throws EntityNotFoundException if deck is not found
      */
-    public void loadDeck(final long deckId, final TranslationProvider translationProvider) {
+    public void loadDeck(final long deckId) {
         Optional<Deck> deckOpt = deckUseCase.getDeckById(deckId);
         if (deckOpt.isPresent()) {
             setCurrentDeck(deckOpt.get());
@@ -141,30 +125,26 @@ public final class DeckViewState {
             LOGGER.warn("Deck not found with ID: {}", deckId);
             // Just throw the exception - it will be caught by EntityNotFoundErrorHandler
             throw new EntityNotFoundException(
-                    String.valueOf(deckId),
-                    RouteConstants.DECKS_ROUTE,
-                    translationProvider.getTranslation(DeckConstants.DECK_NOT_FOUND));
+                    String.valueOf(deckId), RouteConstants.DECKS_ROUTE, getTranslation(DeckConstants.DECK_NOT_FOUND));
         }
     }
 
     /**
      * Updates the display of deck information (title, stats, description).
-     *
-     * @param translationProvider the translation provider for localized text
      */
-    public void updateDeckInfo(final TranslationProvider translationProvider) {
+    public void updateDeckInfo() {
         if (currentDeck != null && deckViewLayout != null) {
             if (deckViewLayout.getDeckHeader() != null) {
                 deckViewLayout.getDeckHeader().setDeckTitle(currentDeck.getTitle());
                 deckViewLayout
                         .getDeckHeader()
-                        .setDeckStats(translationProvider.getTranslation(
+                        .setDeckStats(getTranslation(
                                 DeckConstants.DECK_COUNT, flashcardUseCase.countByDeckId(currentDeck.getId())));
             }
             if (deckViewLayout.getDeckInfo() != null) {
                 String description = Optional.ofNullable(currentDeck.getDescription())
                         .filter(desc -> !desc.trim().isEmpty())
-                        .orElse(translationProvider.getTranslation(DeckConstants.DECK_DESCRIPTION_EMPTY));
+                        .orElse(getTranslation(DeckConstants.DECK_DESCRIPTION_EMPTY));
                 deckViewLayout.getDeckInfo().setDescription(description);
             }
         }
