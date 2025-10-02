@@ -21,6 +21,7 @@ import org.apolenkov.application.views.shared.utils.NotificationHelper;
  */
 public class PracticeSettingsDialog extends Dialog {
 
+    // Dependencies
     private final transient PracticeSettingsService practiceSettingsService;
 
     /**
@@ -51,9 +52,12 @@ public class PracticeSettingsDialog extends Dialog {
         addClassName(PracticeConstants.DIALOG_MD_CLASS);
 
         VerticalLayout layout = createMainLayout();
-        Select<Integer> countSelect = createCountSelect();
-        RadioButtonGroup<String> modeGroup = createModeGroup();
-        RadioButtonGroup<String> dirGroup = createDirectionGroup();
+        Select<Integer> countSelect =
+                PracticeSettingsComponents.createCountSelect(practiceSettingsService, this::getTranslation);
+        RadioButtonGroup<String> modeGroup =
+                PracticeSettingsComponents.createModeGroup(practiceSettingsService, this::getTranslation);
+        RadioButtonGroup<String> dirGroup =
+                PracticeSettingsComponents.createDirectionGroup(practiceSettingsService, this::getTranslation);
         HorizontalLayout buttons = createButtonLayout(countSelect, modeGroup, dirGroup);
 
         layout.add(countSelect, modeGroup, dirGroup, buttons);
@@ -71,53 +75,6 @@ public class PracticeSettingsDialog extends Dialog {
         layout.setSpacing(true);
         layout.add(new H3(getTranslation(PracticeConstants.SETTINGS_TITLE_KEY)));
         return layout;
-    }
-
-    /**
-     * Creates the card count selection component.
-     *
-     * @return configured count select component
-     */
-    private Select<Integer> createCountSelect() {
-        Select<Integer> countSelect = new Select<>();
-        countSelect.setLabel(getTranslation(PracticeConstants.SETTINGS_COUNT_KEY));
-        countSelect.setItems(5, 10, 15, 20, 25, 30);
-        countSelect.setValue(practiceSettingsService.getDefaultCount());
-        return countSelect;
-    }
-
-    /**
-     * Creates the practice mode selection component.
-     *
-     * @return configured mode radio button group
-     */
-    private RadioButtonGroup<String> createModeGroup() {
-        RadioButtonGroup<String> modeGroup = new RadioButtonGroup<>();
-        modeGroup.setLabel(getTranslation(PracticeConstants.SETTINGS_MODE_KEY));
-        String random = getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY);
-        String seq = getTranslation(PracticeConstants.SETTINGS_MODE_SEQUENTIAL_KEY);
-        modeGroup.setItems(random, seq);
-        modeGroup.setValue(practiceSettingsService.isDefaultRandomOrder() ? random : seq);
-        return modeGroup;
-    }
-
-    /**
-     * Creates the practice direction selection component.
-     *
-     * @return configured direction radio button group
-     */
-    private RadioButtonGroup<String> createDirectionGroup() {
-        RadioButtonGroup<String> dirGroup = new RadioButtonGroup<>();
-        dirGroup.setLabel(getTranslation(PracticeConstants.SETTINGS_DIRECTION_KEY));
-        String f2b = getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY);
-        String b2f = getTranslation(PracticeConstants.SETTINGS_DIRECTION_B2F_KEY);
-        dirGroup.setItems(f2b, b2f);
-        dirGroup.setValue(
-                practiceSettingsService.getDefaultDirection()
-                                == org.apolenkov.application.model.PracticeDirection.FRONT_TO_BACK
-                        ? f2b
-                        : b2f);
-        return dirGroup;
     }
 
     /**
@@ -187,14 +144,8 @@ public class PracticeSettingsDialog extends Dialog {
             final RadioButtonGroup<String> modeGroup,
             final RadioButtonGroup<String> dirGroup) {
 
-        practiceSettingsService.setDefaultCount(countSelect.getValue());
-        practiceSettingsService.setDefaultRandomOrder(
-                modeGroup.getValue().equals(getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY)));
-        practiceSettingsService.setDefaultDirection(
-                dirGroup.getValue().equals(getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY))
-                        ? org.apolenkov.application.model.PracticeDirection.FRONT_TO_BACK
-                        : org.apolenkov.application.model.PracticeDirection.BACK_TO_FRONT);
-
+        PracticeSettingsComponents.saveSettings(
+                practiceSettingsService, countSelect, modeGroup, dirGroup, this::getTranslation);
         NotificationHelper.showSuccessBottom(getTranslation(PracticeConstants.SETTINGS_SAVED_KEY));
         close();
     }

@@ -5,14 +5,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.service.PracticeSettingsService;
-import org.apolenkov.application.service.StatsService;
-import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.practice.business.PracticePresenter;
+import org.apolenkov.application.views.practice.business.PracticeSessionManager;
+import org.apolenkov.application.views.practice.business.PracticeSessionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,16 +22,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PracticePresenterTest {
 
     @Mock
-    private DeckUseCase deckUseCase;
+    private PracticeSessionService practiceSessionService;
 
     @Mock
-    private FlashcardUseCase flashcardUseCase;
-
-    @Mock
-    private StatsService statsService;
-
-    @Mock
-    private PracticeSettingsService practiceSettingsService;
+    private PracticeSessionManager practiceSessionManager;
 
     private PracticePresenter practicePresenter;
 
@@ -42,8 +33,9 @@ class PracticePresenterTest {
     private List<Flashcard> testFlashcards;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
-        practicePresenter = new PracticePresenter(deckUseCase, flashcardUseCase, statsService, practiceSettingsService);
+        practicePresenter = new PracticePresenter(practiceSessionService, practiceSessionManager);
 
         testDeck = new Deck(1L, 1L, "Test Deck", "Test Description");
 
@@ -55,7 +47,7 @@ class PracticePresenterTest {
     @Test
     @DisplayName("Should load deck by ID")
     void shouldLoadDeckById() {
-        when(deckUseCase.getDeckById(1L)).thenReturn(Optional.of(testDeck));
+        when(practiceSessionService.loadDeck(1L)).thenReturn(Optional.of(testDeck));
 
         Optional<Deck> result = practicePresenter.loadDeck(1L);
 
@@ -65,7 +57,7 @@ class PracticePresenterTest {
     @Test
     @DisplayName("Should return empty for non-existent deck")
     void shouldReturnEmptyForNonExistentDeck() {
-        when(deckUseCase.getDeckById(999L)).thenReturn(Optional.empty());
+        when(practiceSessionService.loadDeck(999L)).thenReturn(Optional.empty());
 
         Optional<Deck> result = practicePresenter.loadDeck(999L);
 
@@ -75,8 +67,7 @@ class PracticePresenterTest {
     @Test
     @DisplayName("Should get not known cards")
     void shouldGetNotKnownCards() {
-        when(flashcardUseCase.getFlashcardsByDeckId(1L)).thenReturn(testFlashcards);
-        when(statsService.getKnownCardIds(1L)).thenReturn(Set.of());
+        when(practiceSessionService.getNotKnownCards(1L)).thenReturn(testFlashcards);
 
         List<Flashcard> result = practicePresenter.getNotKnownCards(1L);
 
@@ -86,8 +77,8 @@ class PracticePresenterTest {
     @Test
     @DisplayName("Should filter out known cards")
     void shouldFilterOutKnownCards() {
-        when(flashcardUseCase.getFlashcardsByDeckId(1L)).thenReturn(testFlashcards);
-        when(statsService.getKnownCardIds(1L)).thenReturn(Set.of(1L));
+        List<Flashcard> filteredCards = List.of(testFlashcards.get(1));
+        when(practiceSessionService.getNotKnownCards(1L)).thenReturn(filteredCards);
 
         List<Flashcard> result = practicePresenter.getNotKnownCards(1L);
 
@@ -97,8 +88,7 @@ class PracticePresenterTest {
     @Test
     @DisplayName("Should handle empty deck")
     void shouldHandleEmptyDeck() {
-        when(flashcardUseCase.getFlashcardsByDeckId(1L)).thenReturn(List.of());
-        when(statsService.getKnownCardIds(1L)).thenReturn(Set.of());
+        when(practiceSessionService.getNotKnownCards(1L)).thenReturn(List.of());
 
         List<Flashcard> result = practicePresenter.getNotKnownCards(1L);
 
