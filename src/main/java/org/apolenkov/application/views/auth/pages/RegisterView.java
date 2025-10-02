@@ -71,6 +71,7 @@ public class RegisterView extends BaseView {
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
+    @SuppressWarnings("unused")
     private void init() {
         VerticalLayout wrapper = createCenteredVerticalLayout();
 
@@ -265,14 +266,14 @@ public class RegisterView extends BaseView {
      * Validates the password field according to security policy.
      * Ensures the password meets the application's security requirements
      * including minimum length, character type requirements, etc. Uses the
-     * {@link #isPasswordValid(String)} helper method for validation logic.
+     * {@link #isPasswordInvalid(String)} helper method for validation logic.
      *
      * @return true if password is valid, false otherwise
      */
     private boolean validatePassword() {
         String vPwd = password.getValue() == null ? "" : password.getValue();
 
-        if (!isPasswordValid(vPwd)) {
+        if (isPasswordInvalid(vPwd)) {
             String pwdPolicy = getTranslation("auth.validation.passwordPolicy");
             password.setErrorMessage(pwdPolicy);
             password.setInvalid(true);
@@ -283,17 +284,17 @@ public class RegisterView extends BaseView {
     }
 
     /**
-     * Checks if a password meets the application's security requirements.
+     * Checks if a password violates the application's security requirements.
      * Validates that the password has at least 8 characters, contains
      * both letters and digits. This method encapsulates the password
      * policy rules in one place for consistency.
      *
      * @param pwd the password string to validate
-     * @return true if password meets all security requirements, false otherwise
+     * @return true if password violates security requirements, false otherwise
      */
-    private boolean isPasswordValid(final String pwd) {
+    private boolean isPasswordInvalid(final String pwd) {
         if (pwd.length() < 8) {
-            return false;
+            return true;
         }
 
         boolean hasLetter = false;
@@ -311,7 +312,7 @@ public class RegisterView extends BaseView {
             }
         }
 
-        return hasLetter && hasDigit;
+        return !hasLetter || !hasDigit;
     }
 
     /**

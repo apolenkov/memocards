@@ -141,8 +141,8 @@ public class StatsView extends BaseView {
      */
     private void initializeBuilders() {
         statsCalculator = new StatsCalculator(aggregates);
-        cardBuilder = new StatsCardBuilder(this::getTranslation);
-        sectionBuilder = new CollapsibleSectionBuilder(this::getTranslation);
+        cardBuilder = new StatsCardBuilder();
+        sectionBuilder = new CollapsibleSectionBuilder();
     }
 
     /**
@@ -188,8 +188,7 @@ public class StatsView extends BaseView {
         if (decks.isEmpty()) {
             contentContainer.add(new Span(getTranslation(StatsConstants.STATS_NO_DECKS_KEY)));
         } else {
-            DeckPaginationBuilder paginationBuilder =
-                    new DeckPaginationBuilder(this::getTranslation, cardBuilder, decks, aggregates);
+            DeckPaginationBuilder paginationBuilder = new DeckPaginationBuilder(cardBuilder, decks, aggregates);
             contentContainer.add(paginationBuilder.createDeckPagination());
         }
 

@@ -1,5 +1,7 @@
 package org.apolenkov.application.views.stats.components;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H3;
@@ -7,24 +9,21 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import org.apolenkov.application.views.shared.interfaces.TranslationProvider;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 
 /**
  * Builder for creating collapsible statistics sections.
  * Handles creation of section headers with toggle functionality.
+ * Extends Composite to access getTranslation() method.
  */
-public final class CollapsibleSectionBuilder {
-
-    private final TranslationProvider translationProvider;
+public final class CollapsibleSectionBuilder extends Composite<Component> {
 
     /**
-     * Creates a new CollapsibleSectionBuilder with translation provider.
-     *
-     * @param translationProviderParam provider for translations
+     * Creates a new CollapsibleSectionBuilder.
+     * No parameters needed as getTranslation() is inherited from Component.
      */
-    public CollapsibleSectionBuilder(final TranslationProvider translationProviderParam) {
-        this.translationProvider = translationProviderParam;
+    public CollapsibleSectionBuilder() {
+        // Intentionally empty - getTranslation() is available from Composite
     }
 
     /**
@@ -73,7 +72,7 @@ public final class CollapsibleSectionBuilder {
         headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         headerLayout.addClassName(StatsConstants.STATS_SECTION_HEADER_CLASS);
 
-        H3 sectionTitle = new H3(translationProvider.getTranslation(titleKey));
+        H3 sectionTitle = new H3(getTranslation(titleKey));
         sectionTitle.addClassName(StatsConstants.STATS_SECTION_TITLE_CLASS);
         sectionTitle.addClassName(StatsConstants.CLICKABLE_TITLE_CLASS);
 
@@ -83,7 +82,7 @@ public final class CollapsibleSectionBuilder {
                 .getElement()
                 .setAttribute(
                         StatsConstants.TITLE_ATTRIBUTE,
-                        translationProvider.getTranslation(
+                        getTranslation(
                                 openByDefault ? StatsConstants.STATS_COLLAPSE_KEY : StatsConstants.STATS_EXPAND_KEY));
 
         headerLayout.add(sectionTitle, toggleButton);
@@ -124,7 +123,7 @@ public final class CollapsibleSectionBuilder {
                     .getElement()
                     .setAttribute(
                             StatsConstants.TITLE_ATTRIBUTE,
-                            translationProvider.getTranslation(
+                            getTranslation(
                                     isVisible ? StatsConstants.STATS_EXPAND_KEY : StatsConstants.STATS_COLLAPSE_KEY));
         };
 

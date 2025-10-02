@@ -83,7 +83,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         // Initialize state management
         deckViewState = new DeckViewState(deckUseCase, flashcardUseCase);
-        deckViewState.setParentContent(this);
 
         // Show loading state initially
         deckViewState.showLoadingState();
@@ -253,7 +252,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param deckId the ID of the deck to load
      */
     private void loadDeck(final long deckId) {
-        deckViewState.loadDeck(deckId, this::getTranslation);
+        deckViewState.loadDeck(deckId);
         createDeckContent();
         deckViewState.loadFlashcards();
     }
@@ -262,7 +261,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * Updates the display of deck information (title, stats, description).
      */
     private void updateDeckInfo() {
-        deckViewState.updateDeckInfo(this::getTranslation);
+        deckViewState.updateDeckInfo();
     }
 
     /**

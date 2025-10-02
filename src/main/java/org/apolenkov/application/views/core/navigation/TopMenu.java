@@ -68,6 +68,7 @@ public class TopMenu extends HorizontalLayout {
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
+    @SuppressWarnings("unused")
     private void init() {
         setWidthFull();
         setPadding(true);
@@ -116,11 +117,20 @@ public class TopMenu extends HorizontalLayout {
                 "nav-admin-content",
                 false,
                 SecurityConstants.ROLE_ADMIN));
-        menuButtons.add(new MenuButton(
+        menuButtons.add(createLogoutButton());
+    }
+
+    /**
+     * Creates a logout button with predefined configuration.
+     *
+     * @return configured logout menu button
+     */
+    private MenuButton createLogoutButton() {
+        return new MenuButton(
                 getTranslation("main.logout"),
                 RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE,
                 "nav-logout",
-                false));
+                false);
     }
 
     /**

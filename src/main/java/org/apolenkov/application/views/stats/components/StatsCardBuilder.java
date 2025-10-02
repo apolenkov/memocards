@@ -1,28 +1,27 @@
 package org.apolenkov.application.views.stats.components;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.views.shared.interfaces.TranslationProvider;
 
 /**
  * Builder for creating statistics card components.
  * Handles creation of various types of statistics cards with consistent styling.
+ * Extends Composite to access getTranslation() method.
  */
-public final class StatsCardBuilder {
-
-    private final TranslationProvider translationProvider;
+public final class StatsCardBuilder extends Composite<Component> {
 
     /**
-     * Creates a new StatsCardBuilder with translation provider.
-     *
-     * @param translationProviderParam provider for translations
+     * Creates a new StatsCardBuilder.
+     * No parameters needed as getTranslation() is inherited from Component.
      */
-    public StatsCardBuilder(final TranslationProvider translationProviderParam) {
-        this.translationProvider = translationProviderParam;
+    public StatsCardBuilder() {
+        // Intentionally empty - getTranslation() is available from Composite
     }
 
     /**
@@ -43,7 +42,7 @@ public final class StatsCardBuilder {
 
         Div labelDiv = new Div();
         labelDiv.addClassName(StatsConstants.STATS_CARD_LABEL_CLASS);
-        labelDiv.setText(translationProvider.getTranslation(labelKey));
+        labelDiv.setText(getTranslation(labelKey));
 
         card.add(valueDiv, labelDiv);
         return card;
@@ -109,7 +108,7 @@ public final class StatsCardBuilder {
 
         Div labelDiv = new Div();
         labelDiv.addClassName(StatsConstants.STATS_DECK_ITEM_LABEL_CLASS);
-        labelDiv.setText(translationProvider.getTranslation(labelKey));
+        labelDiv.setText(getTranslation(labelKey));
 
         item.add(totalDiv, todayDiv, labelDiv);
         return item;
