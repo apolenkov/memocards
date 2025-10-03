@@ -9,16 +9,11 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.exceptions.EntityNotFoundException;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.core.layout.PublicLayout;
@@ -30,6 +25,8 @@ import org.apolenkov.application.views.practice.components.PracticeCard;
 import org.apolenkov.application.views.practice.components.PracticeConstants;
 import org.apolenkov.application.views.practice.components.PracticeHeader;
 import org.apolenkov.application.views.practice.components.PracticeProgress;
+import org.apolenkov.application.views.practice.controllers.PracticeCompletionFlow;
+import org.apolenkov.application.views.practice.controllers.PracticeSessionFlow;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 
 /**
@@ -45,12 +42,13 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private final transient FlashcardUseCase flashcardUseCase;
     private final transient PracticePresenter presenter;
 
+    // Controllers
+    private transient PracticeSessionFlow sessionFlow;
+    private transient PracticeCompletionFlow completionFlow;
+
     // Data
     private transient Deck currentDeck;
     private transient PracticeSession session;
-
-    // State
-    private PracticeDirection sessionDirection = PracticeDirection.FRONT_TO_BACK;
 
     // UI Components
     private PracticeHeader practiceHeader;
@@ -131,6 +129,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         pageSection.addClassName(PracticeConstants.CONTAINER_MD_CLASS);
 
         initializeComponents();
+        initializeControllers();
         setupActionHandlers();
 
         pageSection.add(practiceHeader, practiceProgress, practiceCard, practiceActions);
@@ -145,6 +144,14 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         practiceProgress = new PracticeProgress();
         practiceCard = new PracticeCard();
         practiceActions = new PracticeActions();
+    }
+
+    /**
+     * Initializes controllers with components.
+     */
+    private void initializeControllers() {
+        sessionFlow = new PracticeSessionFlow(presenter, practiceCard, practiceProgress, practiceActions);
+        completionFlow = new PracticeCompletionFlow(presenter, flashcardUseCase, practiceCard, practiceActions);
     }
 
     /**
@@ -202,20 +209,14 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         return Long.parseLong(parameter);
     }
 
+    /**
+     * Starts default practice session.
+     */
     private void startDefaultPractice() {
-        List<Flashcard> notKnownCards = presenter.getNotKnownCards(currentDeck.getId());
-        if (notKnownCards.isEmpty()) {
-            showNoCardsOnce();
-            return;
+        session = sessionFlow.startDefaultPractice(currentDeck, PracticeDirection.FRONT_TO_BACK);
+        if (session == null) {
+            showAllKnownLayout();
         }
-        int defaultCount = presenter.resolveDefaultCount(currentDeck.getId());
-        boolean random = presenter.isRandom();
-        sessionDirection = presenter.defaultDirection();
-        startPractice(defaultCount, random);
-    }
-
-    private void showNoCardsOnce() {
-        showAllKnownLayout();
     }
 
     /**
@@ -230,6 +231,11 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         getContent().add(allKnownView);
     }
 
+    /**
+     * Loads the deck by ID.
+     *
+     * @param deckId the deck ID to load
+     */
     private void loadDeck(final long deckId) {
         Optional<Deck> deckOpt = presenter.loadDeck(deckId);
         if (deckOpt.isPresent()) {
@@ -243,181 +249,44 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         }
     }
 
-    private void startPractice(final int count, final boolean random) {
-        if (currentDeck == null) {
-            return;
-        }
-        List<Flashcard> filtered = presenter.getNotKnownCards(currentDeck.getId());
-        if (filtered.isEmpty()) {
-            showNoCardsOnce();
-            return;
-        }
-        session = presenter.startSession(currentDeck.getId(), count, random);
-        showCurrentCard();
-    }
-
-    private void updateProgress() {
-        if (session == null || session.getCards() == null || session.getCards().isEmpty()) {
-            return;
-        }
-        var progress = presenter.progress(session);
-        practiceProgress.updateProgress(progress);
-    }
-
-    private void showCurrentCard() {
-        if (session == null || presenter.isComplete(session)) {
-            showPracticeComplete();
-            return;
-        }
-
-        updateProgress();
-        Flashcard currentCard = presenter.currentCard(session);
-        session = presenter.startQuestion(session);
-
-        practiceCard.displayQuestionCard(currentCard, sessionDirection);
-        practiceActions.showQuestionState();
-    }
-
+    /**
+     * Shows the answer for the current card.
+     */
     private void showAnswer() {
-        if (session == null || presenter.isComplete(session)) {
-            return;
-        }
-
-        Flashcard currentCard = presenter.currentCard(session);
-        session = presenter.reveal(session);
-
-        practiceCard.displayAnswerCard(currentCard, sessionDirection);
-        practiceActions.showAnswerState();
+        session = sessionFlow.showAnswer(session, PracticeDirection.FRONT_TO_BACK);
     }
 
+    /**
+     * Marks the current card with the specified label.
+     *
+     * @param label the label to apply (know or hard)
+     */
     private void markLabeled(final String label) {
-        if (!isValidSession()) {
-            return;
-        }
-
-        processCardLabel(label);
-        updateProgress();
-        practiceActions.hideActionButtons();
-        nextCard();
-    }
-
-    /**
-     * Checks if the current session is valid for marking.
-     *
-     * @return true if session is valid and showing answer
-     */
-    private boolean isValidSession() {
-        return session != null && session.isShowingAnswer();
-    }
-
-    /**
-     * Processes the card label (know or hard) through the presenter.
-     *
-     * @param label the label to process
-     */
-    private void processCardLabel(final String label) {
-        if (PracticeConstants.KNOW_LABEL.equals(label)) {
-            session = presenter.markKnow(session);
-        } else {
-            session = presenter.markHard(session);
-        }
-    }
-
-    private void nextCard() {
+        session = sessionFlow.markLabeled(session, label, PracticeDirection.FRONT_TO_BACK);
         if (presenter.isComplete(session)) {
-            showPracticeComplete();
-        } else {
-            showCurrentCard();
+            handlePracticeComplete();
         }
     }
 
-    private void showPracticeComplete() {
-        presenter.recordAndPersist(session);
-        createCompletionDisplay();
-        createCompletionButtons();
-    }
-
     /**
-     * Creates the completion display with session results and statistics.
+     * Handles practice session completion.
      */
-    private void createCompletionDisplay() {
-        int total = calculateTotalCards();
-        long sessionMinutes = session.getSessionStart().getEpochSecond();
-        sessionMinutes = (java.time.Instant.now().getEpochSecond() - sessionMinutes) / 60; // Convert to minutes
-        sessionMinutes = Math.clamp(
-                sessionMinutes, PracticeConstants.MIN_SESSION_MINUTES, PracticeConstants.MAX_SESSION_MINUTES);
-
-        double denom = Math.clamp(
-                session.getTotalViewed(), PracticeConstants.MIN_TOTAL_VIEWED, PracticeConstants.MAX_TOTAL_VIEWED);
-        long avgSec = Math.round((session.getTotalAnswerDelayMs() / denom) / 1000.0);
-        avgSec = Math.clamp(avgSec, PracticeConstants.MIN_AVERAGE_SECONDS, Long.MAX_VALUE);
-
-        practiceCard.displayCompletion(
-                currentDeck.getTitle(),
-                session.getCorrectCount(),
-                total,
-                session.getHardCount(),
-                sessionMinutes,
-                avgSec);
-    }
-
-    /**
-     * Calculates the total number of cards in the session.
-     *
-     * @return total number of cards
-     */
-    private int calculateTotalCards() {
-        assert session != null;
-        return (session.getCards() != null) ? session.getCards().size() : session.getTotalViewed();
-    }
-
-    /**
-     * Creates completion action buttons for session end.
-     */
-    private void createCompletionButtons() {
-        practiceActions.showCompletionButtons(
-                this::handleRepeatPractice,
-                () -> NavigationHelper.navigateToDeck(currentDeck.getId()),
-                NavigationHelper::navigateToDecks);
+    private void handlePracticeComplete() {
+        session = completionFlow.showPracticeComplete(session, currentDeck);
+        // Session completed - no additional action needed
     }
 
     /**
      * Handles repeat practice for failed cards.
      */
+    @SuppressWarnings("unused")
     private void handleRepeatPractice() {
-        List<Flashcard> failed = getFailedCards();
-        practiceActions.resetToPracticeButtons();
-        if (failed.isEmpty()) {
+        session = completionFlow.handleRepeatPractice(currentDeck);
+        if (session == null) {
             startDefaultPractice();
-            return;
+        } else {
+            sessionFlow.showCurrentCard(session, PracticeDirection.FRONT_TO_BACK);
         }
-        startFailedCardsPractice(failed);
-    }
-
-    /**
-     * Gets list of failed cards that are still not known.
-     *
-     * @return list of failed cards
-     */
-    private List<Flashcard> getFailedCards() {
-        return flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId()).stream()
-                .filter(fc -> session.getFailedCardIds().contains(fc.getId()))
-                .filter(fc -> presenter.getNotKnownCards(currentDeck.getId()).stream()
-                        .map(Flashcard::getId)
-                        .collect(Collectors.toSet())
-                        .contains(fc.getId()))
-                .toList();
-    }
-
-    /**
-     * Starts practice session with failed cards.
-     *
-     * @param failedCards list of failed cards to practice
-     */
-    private void startFailedCardsPractice(final List<Flashcard> failedCards) {
-        session = PracticeSession.create(currentDeck.getId(), new ArrayList<>(failedCards));
-        Collections.shuffle(session.getCards());
-        showCurrentCard();
     }
 
     /**
