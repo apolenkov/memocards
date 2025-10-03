@@ -21,6 +21,21 @@ import org.springframework.context.annotation.Configuration;
 public class VaadinApplicationShell implements AppShellConfigurator {
 
     /**
+     * Static resource paths for icons and assets.
+     * These paths are used throughout the application for consistency.
+     */
+    public static final class ResourcePaths {
+        private ResourcePaths() {
+            // Utility class - prevent instantiation
+        }
+
+        public static final String PIXEL_ICON = "icons/pixel-icon.svg";
+        public static final String PIXEL_ICON_NAME = "pixel-icon.svg";
+        public static final String FAVICON_ICO = "icons/favicon.ico";
+        public static final String FAVICON_SVG = "icons/favicon.svg";
+    }
+
+    /**
      * Configures global page settings including favicon, meta tags, and security headers.
      *
      * <p>This method is called during application startup to configure
@@ -31,9 +46,9 @@ public class VaadinApplicationShell implements AppShellConfigurator {
     @Override
     public void configurePage(final AppShellSettings settings) {
         // Configure favicon for different devices and sizes
-        settings.addFavIcon("icon", "icons/favicon.ico", "any");
-        settings.addFavIcon("icon", "icons/favicon.svg", "image/svg+xml");
-        settings.addFavIcon("apple-touch-icon", "icons/pixel-icon.svg", "180x180");
+        settings.addFavIcon("icon", ResourcePaths.FAVICON_ICO, "any");
+        settings.addFavIcon("icon", ResourcePaths.FAVICON_SVG, "image/svg+xml");
+        settings.addFavIcon("apple-touch-icon", ResourcePaths.PIXEL_ICON, "180x180");
 
         // Add meta tags for better SEO and mobile experience
         settings.addMetaTag("description", "Memocards - Smart flashcards for effective learning");

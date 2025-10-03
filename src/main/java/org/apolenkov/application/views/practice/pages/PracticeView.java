@@ -368,9 +368,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      */
     private int calculateTotalCards() {
         assert session != null;
-        return (session.getCards() != null)
-                ? session.getCards().size()
-                : session.getTotalViewed();
+        return (session.getCards() != null) ? session.getCards().size() : session.getTotalViewed();
     }
 
     /**
