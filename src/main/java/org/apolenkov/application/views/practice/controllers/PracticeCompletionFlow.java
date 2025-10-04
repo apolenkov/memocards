@@ -89,17 +89,16 @@ public final class PracticeCompletionFlow {
      * Handles repeat practice for failed cards.
      *
      * @param deck the current deck
-     * @return new session with failed cards or null for default practice
      */
-    public PracticeSession handleRepeatPractice(final Deck deck) {
+    public void handleRepeatPractice(final Deck deck) {
         List<Flashcard> failed = getFailedCards(deck);
         practiceActions.resetToPracticeButtons();
 
         if (failed.isEmpty()) {
-            return null; // Trigger default practice
+            return; // Trigger default practice
         }
 
-        return startFailedCardsPractice(failed, deck);
+        startFailedCardsPractice(failed, deck);
     }
 
     /**
@@ -118,13 +117,11 @@ public final class PracticeCompletionFlow {
      * Starts practice session with failed cards.
      *
      * @param failedCards list of failed cards to practice
-     * @param deck the current deck
-     * @return new session with failed cards
+     * @param deck        the current deck
      */
-    public PracticeSession startFailedCardsPractice(final List<Flashcard> failedCards, final Deck deck) {
+    public void startFailedCardsPractice(final List<Flashcard> failedCards, final Deck deck) {
         PracticeSession session = PracticeSession.create(deck.getId(), new ArrayList<>(failedCards));
         Collections.shuffle(session.getCards());
-        return session;
     }
 
     /**

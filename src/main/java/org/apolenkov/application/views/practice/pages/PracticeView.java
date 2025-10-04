@@ -273,20 +273,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      */
     private void handlePracticeComplete() {
         session = completionFlow.showPracticeComplete(session, currentDeck);
-        // Session completed - no additional action needed
-    }
-
-    /**
-     * Handles repeat practice for failed cards.
-     */
-    @SuppressWarnings("unused")
-    private void handleRepeatPractice() {
-        session = completionFlow.handleRepeatPractice(currentDeck);
-        if (session == null) {
-            startDefaultPractice();
-        } else {
-            sessionFlow.showCurrentCard(session, PracticeDirection.FRONT_TO_BACK);
-        }
     }
 
     /**
