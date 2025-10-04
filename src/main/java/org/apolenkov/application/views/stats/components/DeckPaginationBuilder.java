@@ -19,7 +19,6 @@ import org.apolenkov.application.views.shared.utils.ButtonHelper;
 /**
  * Builder for creating deck pagination components.
  * Handles creation of paginated deck statistics with navigation controls.
- * Extends Composite to access getTranslation() method.
  */
 public final class DeckPaginationBuilder extends Composite<Component> {
 

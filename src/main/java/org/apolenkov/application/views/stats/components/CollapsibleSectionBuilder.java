@@ -14,16 +14,14 @@ import org.apolenkov.application.views.shared.utils.ButtonHelper;
 /**
  * Builder for creating collapsible statistics sections.
  * Handles creation of section headers with toggle functionality.
- * Extends Composite to access getTranslation() method.
  */
 public final class CollapsibleSectionBuilder extends Composite<Component> {
 
     /**
      * Creates a new CollapsibleSectionBuilder.
-     * No parameters needed as getTranslation() is inherited from Component.
      */
     public CollapsibleSectionBuilder() {
-        // Intentionally empty - getTranslation() is available from Composite
+        // Intentionally empty
     }
 
     /**

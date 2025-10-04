@@ -12,16 +12,14 @@ import org.apolenkov.application.model.Deck;
 /**
  * Builder for creating statistics card components.
  * Handles creation of various types of statistics cards with consistent styling.
- * Extends Composite to access getTranslation() method.
  */
 public final class StatsCardBuilder extends Composite<Component> {
 
     /**
      * Creates a new StatsCardBuilder.
-     * No parameters needed as getTranslation() is inherited from Component.
      */
     public StatsCardBuilder() {
-        // Intentionally empty - getTranslation() is available from Composite
+        // Intentionally empty
     }
 
     /**
