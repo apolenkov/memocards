@@ -83,3 +83,25 @@
 .admin-view__add-button {
     margin-bottom: var(--lumo-space-l);
 }
+
+/* Dialog confirmation styles */
+.admin-dialog-confirm__title {
+    font-weight: bold;
+}
+
+/* Utility classes for styling */
+.text-muted {
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-s);
+}
+
+.text-muted-small {
+    color: var(--lumo-tertiary-text-color);
+    font-size: var(--lumo-font-size-s);
+}
+
+.text-content {
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-s);
+    line-height: 1.4;
+}
