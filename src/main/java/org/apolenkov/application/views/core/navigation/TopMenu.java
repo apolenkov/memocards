@@ -16,6 +16,8 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.config.vaadin.VaadinApplicationShell;
@@ -25,8 +27,13 @@ import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.apolenkov.application.views.practice.components.PracticeSettingsDialog;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Component;
@@ -40,10 +47,20 @@ import org.springframework.stereotype.Component;
 @UIScope
 public class TopMenu extends HorizontalLayout {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TopMenu.class);
+
     // Logout button constants
     private static final String LOGOUT_ROUTE = RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE;
+
+    // Navigation test IDs
+    private static final String NAV_DECKS_TEST_ID = "nav-decks";
+    private static final String NAV_STATS_TEST_ID = "nav-stats";
+    private static final String NAV_SETTINGS_TEST_ID = "nav-settings";
+    private static final String NAV_ADMIN_CONTENT_TEST_ID = "nav-admin-content";
     private static final String LOGOUT_TEST_ID = "nav-logout";
-    private static final boolean LOGOUT_ALWAYS_VISIBLE = false;
+
+    // UI constants
+    private static final String EMPTY_STRING = "";
 
     private final List<MenuButton> menuButtons = new ArrayList<>();
     private Anchor title;
@@ -76,7 +93,7 @@ public class TopMenu extends HorizontalLayout {
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.BETWEEN);
 
-        title = new Anchor(RouteConstants.ROOT_PATH, "");
+        title = new Anchor(RouteConstants.ROOT_PATH, EMPTY_STRING);
 
         Image navIcon = new Image(
                 new StreamResource(VaadinApplicationShell.ResourcePaths.LOGO_ICON_NAME, () -> getClass()
@@ -94,31 +111,31 @@ public class TopMenu extends HorizontalLayout {
      */
     private void initializeMenuButtons() {
         menuButtons.add(new MenuButton(
-                getTranslation("main.decks"),
+                getTranslation(CoreConstants.MAIN_DECKS_KEY),
                 RouteConstants.ROOT_PATH + RouteConstants.DECKS_ROUTE,
-                "nav-decks",
+                NAV_DECKS_TEST_ID,
                 false,
                 SecurityConstants.ROLE_USER));
         menuButtons.add(new MenuButton(
-                getTranslation("main.stats"),
+                getTranslation(CoreConstants.MAIN_STATS_KEY),
                 RouteConstants.ROOT_PATH + RouteConstants.STATS_ROUTE,
-                "nav-stats",
+                NAV_STATS_TEST_ID,
                 false,
                 SecurityConstants.ROLE_USER));
         menuButtons.add(new MenuButton(
-                getTranslation("main.settings"),
+                getTranslation(CoreConstants.MAIN_SETTINGS_KEY),
                 RouteConstants.ROOT_PATH + RouteConstants.SETTINGS_ROUTE,
-                "nav-settings",
+                NAV_SETTINGS_TEST_ID,
                 false,
                 SecurityConstants.ROLE_USER));
         menuButtons.add(new MenuButton(
-                getTranslation("admin.content.page.title"),
+                getTranslation(CoreConstants.ADMIN_CONTENT_TITLE_KEY),
                 RouteConstants.ROOT_PATH + RouteConstants.ADMIN_CONTENT_ROUTE,
-                "nav-admin-content",
+                NAV_ADMIN_CONTENT_TEST_ID,
                 false,
                 SecurityConstants.ROLE_ADMIN));
         menuButtons.add(
-                new MenuButton(getTranslation("main.logout"), LOGOUT_ROUTE, LOGOUT_TEST_ID, LOGOUT_ALWAYS_VISIBLE));
+                new MenuButton(getTranslation(CoreConstants.MAIN_LOGOUT_KEY), LOGOUT_ROUTE, LOGOUT_TEST_ID, false));
     }
 
     /**
@@ -127,15 +144,14 @@ public class TopMenu extends HorizontalLayout {
      * then creates and configures each button with appropriate styling and
      * click handlers.
      *
+     * @param auth the cached authentication context
+     * @param isAuthenticated the cached authentication status
      * @return a horizontal layout containing the filtered menu buttons
      */
-    private HorizontalLayout createMenuButtonsLayout() {
+    private HorizontalLayout createMenuButtonsLayout(final Authentication auth, final boolean isAuthenticated) {
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSpacing(true);
         buttonsLayout.setAlignItems(Alignment.CENTER);
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAuthenticated = auth != null && !(auth instanceof AnonymousAuthenticationToken);
 
         for (MenuButton menuButton : menuButtons) {
             if (shouldShowButton(menuButton, auth, isAuthenticated)) {
@@ -156,31 +172,95 @@ public class TopMenu extends HorizontalLayout {
     public void refreshMenu() {
         removeAll();
 
+        // Cache authentication context to avoid multiple calls
+        Authentication auth = getCurrentAuthentication();
+        boolean isAuthenticated = isAuthenticated(auth);
+
+        HorizontalLayout leftSection = createLeftSection(auth, isAuthenticated);
+        HorizontalLayout buttonsSection = createMenuButtonsLayout(auth, isAuthenticated);
+
+        add(leftSection);
+        add(buttonsSection);
+    }
+
+    /**
+     * Creates the left section of the menu containing title and user greeting.
+     *
+     * @param auth the cached authentication context
+     * @param isAuthenticated the cached authentication status
+     * @return the configured left section layout
+     */
+    private HorizontalLayout createLeftSection(final Authentication auth, final boolean isAuthenticated) {
         HorizontalLayout left = new HorizontalLayout();
         left.setAlignItems(Alignment.CENTER);
         left.setSpacing(true);
         left.add(title);
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && !(auth instanceof AnonymousAuthenticationToken)) {
-            String displayName;
-            String authName = auth.getName();
-            try {
-                displayName = userUseCase.getCurrentUser().getName();
-                if (displayName == null || displayName.isBlank()) {
-                    displayName = authName;
-                }
-            } catch (Exception e) {
-                displayName = authName;
-            }
-            Div greeting = new Div();
-            greeting.setText(getTranslation(CoreConstants.MAIN_GREETING_KEY, displayName));
-            greeting.addClassName(CoreConstants.TOP_MENU_GREETING_CLASS);
+        if (isAuthenticated) {
+            Div greeting = createUserGreeting(auth);
             left.add(greeting);
         }
 
-        add(left);
-        add(createMenuButtonsLayout());
+        return left;
+    }
+
+    /**
+     * Gets the current authentication context.
+     *
+     * @return the current authentication or null
+     */
+    private Authentication getCurrentAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    /**
+     * Checks if the user is authenticated.
+     *
+     * @param auth the authentication context
+     * @return true if user is authenticated
+     */
+    private boolean isAuthenticated(final Authentication auth) {
+        return auth != null && !(auth instanceof AnonymousAuthenticationToken);
+    }
+
+    /**
+     * Creates the user greeting component.
+     *
+     * @param auth the authentication context
+     * @return the configured greeting div
+     */
+    private Div createUserGreeting(final Authentication auth) {
+        String displayName = getUserDisplayName(auth);
+
+        Div greeting = new Div();
+        greeting.setText(getTranslation(CoreConstants.MAIN_GREETING_KEY, displayName));
+        greeting.addClassName(CoreConstants.TOP_MENU_GREETING_CLASS);
+
+        return greeting;
+    }
+
+    /**
+     * Gets the user's display name, falling back to authentication name if needed.
+     *
+     * @param auth the authentication context
+     * @return the user's display name
+     */
+    private String getUserDisplayName(final Authentication auth) {
+        String authName = auth.getName();
+
+        try {
+            String displayName = userUseCase.getCurrentUser().getName();
+            return (displayName == null || displayName.isBlank()) ? authName : displayName;
+        } catch (AuthenticationException e) {
+            LOGGER.warn("Failed to get user display name due to authentication issue: {}", e.getMessage());
+            return authName;
+        } catch (DataAccessException e) {
+            LOGGER.warn("Failed to get user display name due to database issue: {}", e.getMessage());
+            return authName;
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error getting user display name for user: {}", authName, e);
+            return authName;
+        }
     }
 
     /**
@@ -195,30 +275,60 @@ public class TopMenu extends HorizontalLayout {
      */
     private boolean shouldShowButton(
             final MenuButton menuButton, final Authentication auth, final boolean isAuthenticated) {
+
         if (menuButton.isAlwaysVisible()) {
             return true;
         }
 
-        if (menuButton.getRoute().equals(LOGOUT_ROUTE)) {
+        if (isLogoutButton(menuButton)) {
             return isAuthenticated;
         }
 
-        if (menuButton.getRequiredRoles() != null
-                && !menuButton.getRequiredRoles().isEmpty()) {
-            if (!isAuthenticated) {
-                return false;
-            }
-
-            for (String requiredRole : menuButton.getRequiredRoles()) {
-                if (auth != null
-                        && auth.getAuthorities().stream().anyMatch(a -> requiredRole.equals(a.getAuthority()))) {
-                    return true;
-                }
-            }
-            return false;
+        if (hasRoleRestrictions(menuButton)) {
+            return isAuthenticated && hasRequiredRole(menuButton, auth);
         }
 
         return false;
+    }
+
+    /**
+     * Checks if the menu button is the logout button.
+     *
+     * @param menuButton the menu button to check
+     * @return true if it's the logout button
+     */
+    private boolean isLogoutButton(final MenuButton menuButton) {
+        return LOGOUT_ROUTE.equals(menuButton.getRoute());
+    }
+
+    /**
+     * Checks if the menu button has role restrictions.
+     *
+     * @param menuButton the menu button to check
+     * @return true if it has role restrictions
+     */
+    private boolean hasRoleRestrictions(final MenuButton menuButton) {
+        return menuButton.getRequiredRoles() != null
+                && !menuButton.getRequiredRoles().isEmpty();
+    }
+
+    /**
+     * Checks if the user has any of the required roles for the menu button.
+     *
+     * @param menuButton the menu button with role requirements
+     * @param auth the current authentication context
+     * @return true if user has required role
+     */
+    private boolean hasRequiredRole(final MenuButton menuButton, final Authentication auth) {
+        if (auth == null) {
+            return false;
+        }
+
+        Set<String> userAuthorities = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+
+        return menuButton.getRequiredRoles().stream().anyMatch(userAuthorities::contains);
     }
 
     /**
@@ -231,28 +341,64 @@ public class TopMenu extends HorizontalLayout {
      * @return a configured Button component ready for use
      */
     private Button createButton(final MenuButton menuButton) {
-        Button button;
+        Button button = createButtonByRoute(menuButton);
+        button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
+        return button;
+    }
 
-        switch (menuButton.getRoute()) {
-            case LOGOUT_ROUTE -> {
-                button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> openLogoutDialog());
-                button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
-            }
-            case RouteConstants.ROOT_PATH + RouteConstants.SETTINGS_ROUTE -> {
-                button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> {
-                    PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService);
-                    dialog.open();
-                });
-                button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
-            }
-            default -> {
-                button = ButtonHelper.createTertiaryButton(
-                        menuButton.getText(), e -> NavigationHelper.navigateTo(menuButton.getRoute()));
-                button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
-            }
+    /**
+     * Creates a button based on the menu button route.
+     *
+     * @param menuButton the menu button configuration
+     * @return a configured button with appropriate click handler
+     */
+    private Button createButtonByRoute(final MenuButton menuButton) {
+        String route = menuButton.getRoute();
+
+        if (LOGOUT_ROUTE.equals(route)) {
+            return createLogoutButton(menuButton);
         }
 
-        return button;
+        if ((RouteConstants.ROOT_PATH + RouteConstants.SETTINGS_ROUTE).equals(route)) {
+            return createSettingsButton(menuButton);
+        }
+
+        return createNavigationButton(menuButton);
+    }
+
+    /**
+     * Creates a logout button with confirmation dialog.
+     *
+     * @param menuButton the menu button configuration
+     * @return a configured logout button
+     */
+    private Button createLogoutButton(final MenuButton menuButton) {
+        return ButtonHelper.createTertiaryButton(menuButton.getText(), e -> openLogoutDialog());
+    }
+
+    /**
+     * Creates a settings button with practice settings dialog.
+     *
+     * @param menuButton the menu button configuration
+     * @return a configured settings button
+     */
+    private Button createSettingsButton(final MenuButton menuButton) {
+        return ButtonHelper.createTertiaryButton(menuButton.getText(), e -> {
+            PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService);
+            getUI().ifPresent(ui -> ui.add(dialog));
+            dialog.open();
+        });
+    }
+
+    /**
+     * Creates a navigation button for regular menu items.
+     *
+     * @param menuButton the menu button configuration
+     * @return a configured navigation button
+     */
+    private Button createNavigationButton(final MenuButton menuButton) {
+        return ButtonHelper.createTertiaryButton(
+                menuButton.getText(), e -> NavigationHelper.navigateTo(menuButton.getRoute()));
     }
 
     /**
@@ -262,40 +408,116 @@ public class TopMenu extends HorizontalLayout {
      * logout handler and redirects to the home page.
      */
     private void openLogoutDialog() {
+        Dialog dialog = createLogoutDialog();
+        getUI().ifPresent(ui -> ui.add(dialog));
+        dialog.open();
+    }
+
+    /**
+     * Creates the logout confirmation dialog with title, message, and action buttons.
+     *
+     * @return the configured logout dialog
+     */
+    private Dialog createLogoutDialog() {
         Dialog dialog = new Dialog();
         dialog.addClassName(CoreConstants.DIALOG_SM_CLASS);
 
-        VerticalLayout layout = new VerticalLayout();
-        layout.add(new H3(getTranslation(CoreConstants.AUTH_LOGOUT_CONFIRM_KEY)));
-        layout.add(new Span(getTranslation(CoreConstants.AUTH_LOGOUT_CONFIRM_KEY)));
+        VerticalLayout layout = createDialogLayout(dialog);
+        dialog.add(layout);
 
+        configureDialogBehavior(dialog);
+        return dialog;
+    }
+
+    /**
+     * Creates the main layout for the logout dialog.
+     *
+     * @param dialog the dialog instance for cancel button reference
+     * @return the configured vertical layout
+     */
+    private VerticalLayout createDialogLayout(final Dialog dialog) {
+        VerticalLayout layout = new VerticalLayout();
+
+        String confirmMessage = getTranslation(CoreConstants.AUTH_LOGOUT_CONFIRM_KEY);
+        layout.add(new H3(confirmMessage));
+        layout.add(new Span(confirmMessage));
+
+        HorizontalLayout buttonsLayout = createButtonsLayout(dialog);
+        layout.add(buttonsLayout);
+
+        return layout;
+    }
+
+    /**
+     * Creates the buttons layout for the logout dialog.
+     *
+     * @param dialog the dialog instance for cancel button reference
+     * @return the configured horizontal layout with buttons
+     */
+    private HorizontalLayout createButtonsLayout(final Dialog dialog) {
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidthFull();
 
-        Button confirmButton = ButtonHelper.createConfirmButton(getTranslation(CoreConstants.DIALOG_CONFIRM_KEY), e -> {
-            try {
-                var req = VaadinServletRequest.getCurrent().getHttpServletRequest();
-                new SecurityContextLogoutHandler().logout(req, null, null);
-                getUI().ifPresent(ui -> ui.getPage()
-                        .setLocation(RouteConstants.ROOT_PATH)); // Keep setLocation for logout (server redirect)
-            } catch (Exception ignored) {
-                NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
-            }
-            dialog.close();
-        });
-
-        Button cancelButton =
-                ButtonHelper.createCancelButton(getTranslation(CoreConstants.DIALOG_CANCEL_KEY), e -> dialog.close());
+        Button confirmButton = createConfirmButton();
+        Button cancelButton = createCancelButton(dialog);
 
         buttons.add(confirmButton, cancelButton);
-        layout.add(buttons);
-        dialog.add(layout);
+        return buttons;
+    }
+
+    /**
+     * Creates the confirm button for logout action.
+     *
+     * @return the configured confirm button
+     */
+    private Button createConfirmButton() {
+        return ButtonHelper.createConfirmButton(getTranslation(CoreConstants.DIALOG_CONFIRM_KEY), e -> performLogout());
+    }
+
+    /**
+     * Creates the cancel button for dialog closure.
+     *
+     * @param dialog the dialog instance to close
+     * @return the configured cancel button
+     */
+    private Button createCancelButton(final Dialog dialog) {
+        return ButtonHelper.createCancelButton(getTranslation(CoreConstants.DIALOG_CANCEL_KEY), e -> dialog.close());
+    }
+
+    /**
+     * Performs the actual logout operation.
+     */
+    private void performLogout() {
+        try {
+            VaadinServletRequest request = VaadinServletRequest.getCurrent();
+            if (request == null) {
+                LOGGER.warn("Cannot perform logout: VaadinServletRequest is null");
+                NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
+                return;
+            }
+
+            new SecurityContextLogoutHandler().logout(request.getHttpServletRequest(), null, null);
+            getUI().ifPresent(ui -> ui.getPage().setLocation(RouteConstants.ROOT_PATH));
+        } catch (AuthenticationException e) {
+            LOGGER.warn("Authentication error during logout: {}", e.getMessage());
+            NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error during logout", e);
+            NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
+        }
+    }
+
+    /**
+     * Configures dialog behavior for closing.
+     *
+     * @param dialog the dialog to configure
+     */
+    private void configureDialogBehavior(final Dialog dialog) {
         dialog.setCloseOnEsc(true);
         dialog.setCloseOnOutsideClick(true);
-        dialog.open();
     }
 
     /**
