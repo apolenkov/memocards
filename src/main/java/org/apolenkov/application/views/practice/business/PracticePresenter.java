@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.model.PracticeDirection;
 import org.springframework.stereotype.Component;
 
 /**
@@ -82,15 +81,6 @@ public final class PracticePresenter {
     }
 
     /**
-     * Gets the default practice direction for sessions.
-     *
-     * @return the default practice direction, never null
-     */
-    public PracticeDirection defaultDirection() {
-        return sessionService.defaultDirection();
-    }
-
-    /**
      * Starts a new practice session.
      *
      * @param deckId the ID of the deck to practice
@@ -126,10 +116,9 @@ public final class PracticePresenter {
      * Starts a new question in the practice session.
      *
      * @param session the session to start the question for
-     * @return updated session with new question state
      */
-    public PracticeSession startQuestion(final PracticeSession session) {
-        return sessionManager.startQuestion(session);
+    public void startQuestion(final PracticeSession session) {
+        sessionManager.startQuestion(session);
     }
 
     /**
