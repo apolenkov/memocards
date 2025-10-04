@@ -18,6 +18,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.views.auth.constants.AuthConstants;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
@@ -84,17 +85,17 @@ public class LoginView extends BaseView implements BeforeEnterObserver {
 
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
-        formContainer.addClassName("login-form");
-        formContainer.addClassName("auth-form");
-        formContainer.addClassName("surface-panel");
+        formContainer.addClassName(AuthConstants.LOGIN_FORM_CLASS);
+        formContainer.addClassName(AuthConstants.AUTH_FORM_CLASS);
+        formContainer.addClassName(AuthConstants.SURFACE_PANEL_CLASS);
 
         // Create form title
         Div titleDiv = new Div();
-        titleDiv.addClassName("login-form__title-container");
+        titleDiv.addClassName(AuthConstants.LOGIN_FORM_TITLE_CONTAINER_CLASS);
 
         Div title = new Div();
         title.setText(getTranslation("auth.login"));
-        title.addClassName("login-form__title");
+        title.addClassName(AuthConstants.LOGIN_FORM_TITLE_CLASS);
         titleDiv.add(title);
 
         // Create form fields container

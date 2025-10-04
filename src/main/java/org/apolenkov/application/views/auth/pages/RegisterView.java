@@ -13,6 +13,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.user.RegistrationService;
+import org.apolenkov.application.views.auth.constants.AuthConstants;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
@@ -76,16 +77,16 @@ public class RegisterView extends BaseView {
         VerticalLayout wrapper = createCenteredVerticalLayout();
 
         Div formContainer = new Div();
-        formContainer.addClassName("register-form");
-        formContainer.addClassName("auth-form");
-        formContainer.addClassName("surface-panel");
+        formContainer.addClassName(AuthConstants.REGISTER_FORM_CLASS);
+        formContainer.addClassName(AuthConstants.AUTH_FORM_CLASS);
+        formContainer.addClassName(AuthConstants.SURFACE_PANEL_CLASS);
 
         Div titleDiv = new Div();
-        titleDiv.addClassName("register-form__title-container");
+        titleDiv.addClassName(AuthConstants.REGISTER_FORM_TITLE_CONTAINER_CLASS);
 
         Div title = new Div();
         title.setText(getTranslation("auth.register.title"));
-        title.addClassName("register-form__title");
+        title.addClassName(AuthConstants.REGISTER_FORM_TITLE_CLASS);
         titleDiv.add(title);
 
         FormLayout form = createForm();
@@ -94,7 +95,7 @@ public class RegisterView extends BaseView {
 
         // Add spacing between form and submit button
         Div spacing = new Div();
-        spacing.addClassName("form-spacing");
+        spacing.addClassName(AuthConstants.FORM_SPACING_CLASS);
 
         formContainer.add(titleDiv, form, spacing, submit, backToHome);
         wrapper.add(formContainer);

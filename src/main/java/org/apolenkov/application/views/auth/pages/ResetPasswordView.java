@@ -17,6 +17,7 @@ import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.exceptions.EntityNotFoundException;
 import org.apolenkov.application.service.PasswordResetService;
+import org.apolenkov.application.views.auth.constants.AuthConstants;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
@@ -57,13 +58,13 @@ public class ResetPasswordView extends BaseView implements HasUrlParameter<Strin
 
         // Create a beautiful Lumo-styled form container
         Div formContainer = new Div();
-        formContainer.addClassName("reset-password-form");
-        formContainer.addClassName("auth-form");
-        formContainer.addClassName("surface-panel");
+        formContainer.addClassName(AuthConstants.RESET_PASSWORD_FORM_CLASS);
+        formContainer.addClassName(AuthConstants.AUTH_FORM_CLASS);
+        formContainer.addClassName(AuthConstants.SURFACE_PANEL_CLASS);
 
         // Create form title
         H2 title = new H2(getTranslation("auth.resetPassword.title"));
-        title.addClassName("reset-password-form__title");
+        title.addClassName(AuthConstants.RESET_PASSWORD_FORM_TITLE_CLASS);
 
         // Create form fields container
         VerticalLayout formFields = new VerticalLayout();
