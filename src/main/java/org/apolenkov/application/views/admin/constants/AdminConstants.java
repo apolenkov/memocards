@@ -6,7 +6,9 @@ package org.apolenkov.application.views.admin.constants;
  */
 public final class AdminConstants {
 
-    private AdminConstants() {}
+    private AdminConstants() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
     // CSS Classes
     public static final String ADMIN_CONTENT_VIEW_CLASS = "admin-content-view";

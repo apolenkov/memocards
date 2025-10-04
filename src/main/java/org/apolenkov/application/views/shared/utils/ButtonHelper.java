@@ -13,7 +13,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 public final class ButtonHelper {
 
     private ButtonHelper() {
-        // Utility class - prevent instantiation
+        throw new UnsupportedOperationException("Utility class");
     }
 
     /**

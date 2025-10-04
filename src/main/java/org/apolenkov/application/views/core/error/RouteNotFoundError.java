@@ -17,6 +17,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
@@ -32,14 +33,6 @@ import org.slf4j.LoggerFactory;
 public class RouteNotFoundError extends VerticalLayout implements HasErrorParameter<NotFoundException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RouteNotFoundError.class);
-
-    // Translation keys
-    private static final String ERROR_404_KEY = "error.404";
-    private static final String ERROR_404_TITLE_KEY = "error.404.title";
-    private static final String ERROR_404_DESCRIPTION_KEY = "error.404.description";
-    private static final String ERROR_404_SUGGESTION_KEY = "error.404.suggestion";
-    private static final String ERROR_404_GO_HOME_KEY = "error.404.goHome";
-    private static final String MAIN_GO_HOME_KEY = "main.gohome";
 
     /**
      * Creates a new RouteNotFoundError view.
@@ -87,41 +80,41 @@ public class RouteNotFoundError extends VerticalLayout implements HasErrorParame
      */
     private void createErrorContent() {
         Div errorContainer = new Div();
-        errorContainer.addClassName("not-found-container");
-        errorContainer.addClassName("surface-panel");
-        errorContainer.addClassName("text-center");
+        errorContainer.addClassName(CoreConstants.NOT_FOUND_CONTAINER_CLASS);
+        errorContainer.addClassName(CoreConstants.SURFACE_PANEL_CLASS);
+        errorContainer.addClassName(CoreConstants.TEXT_CENTER_CLASS);
 
         // Error code (404)
         H1 errorCode = new H1();
-        errorCode.addClassName("not-found__code");
-        errorCode.setText(getTranslation(ERROR_404_KEY));
+        errorCode.addClassName(CoreConstants.NOT_FOUND_CODE_CLASS);
+        errorCode.setText(getTranslation(CoreConstants.ERROR_404_KEY));
 
         // Error title
         H2 errorTitle = new H2();
-        errorTitle.addClassName("not-found__title");
-        errorTitle.setText(getTranslation(ERROR_404_TITLE_KEY));
+        errorTitle.addClassName(CoreConstants.NOT_FOUND_TITLE_CLASS);
+        errorTitle.setText(getTranslation(CoreConstants.ERROR_404_TITLE_KEY));
 
         // Error description
         Paragraph errorDescription = new Paragraph();
-        errorDescription.addClassName("not-found__description");
-        errorDescription.setText(getTranslation(ERROR_404_DESCRIPTION_KEY));
+        errorDescription.addClassName(CoreConstants.NOT_FOUND_DESCRIPTION_CLASS);
+        errorDescription.setText(getTranslation(CoreConstants.ERROR_404_DESCRIPTION_KEY));
 
         // Error suggestion
         Paragraph errorSuggestion = new Paragraph();
-        errorSuggestion.addClassName("not-found__suggestion");
-        errorSuggestion.setText(getTranslation(ERROR_404_SUGGESTION_KEY));
+        errorSuggestion.addClassName(CoreConstants.NOT_FOUND_SUGGESTION_CLASS);
+        errorSuggestion.setText(getTranslation(CoreConstants.ERROR_404_SUGGESTION_KEY));
 
         // Additional suggestion
         Paragraph goHomeSuggestion = new Paragraph();
-        goHomeSuggestion.addClassName("not-found__go-home-suggestion");
-        goHomeSuggestion.setText(getTranslation(ERROR_404_GO_HOME_KEY));
+        goHomeSuggestion.addClassName(CoreConstants.NOT_FOUND_GO_HOME_SUGGESTION_CLASS);
+        goHomeSuggestion.setText(getTranslation(CoreConstants.ERROR_404_GO_HOME_KEY));
 
         // Navigation buttons
         Button goHomeButton = ButtonHelper.createButton(
-                getTranslation(MAIN_GO_HOME_KEY), e -> navigateToHome(), ButtonVariant.LUMO_PRIMARY);
+                getTranslation(CoreConstants.MAIN_GO_HOME_KEY), e -> navigateToHome(), ButtonVariant.LUMO_PRIMARY);
 
-        Button goBackButton =
-                ButtonHelper.createButton(getTranslation("common.back"), e -> goBack(), ButtonVariant.LUMO_TERTIARY);
+        Button goBackButton = ButtonHelper.createButton(
+                getTranslation(CoreConstants.COMMON_BACK_KEY), e -> goBack(), ButtonVariant.LUMO_TERTIARY);
 
         HorizontalLayout buttonLayout = new HorizontalLayout(goHomeButton, goBackButton);
         buttonLayout.setSpacing(true);

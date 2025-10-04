@@ -19,6 +19,7 @@ import org.apolenkov.application.config.constants.LocaleConstants;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.UserSettingsService;
 import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.springframework.stereotype.Component;
 
 /**
@@ -58,14 +59,14 @@ public class LanguageSwitcher extends HorizontalLayout {
         setPadding(false);
         setAlignItems(Alignment.CENTER);
 
-        Span label = new Span(getTranslation("language.label"));
-        label.addClassName("language-switcher__label");
+        Span label = new Span(getTranslation(CoreConstants.LANGUAGE_LABEL_KEY));
+        label.addClassName(CoreConstants.LANGUAGE_SWITCHER_LABEL_CLASS);
 
         ComboBox<String> combo = new ComboBox<>();
 
-        String en = getTranslation("language.en");
-        String ru = getTranslation("language.ru");
-        String es = getTranslation("language.es");
+        String en = getTranslation(CoreConstants.LANGUAGE_EN_KEY);
+        String ru = getTranslation(CoreConstants.LANGUAGE_RU_KEY);
+        String es = getTranslation(CoreConstants.LANGUAGE_ES_KEY);
         combo.setItems(en, ru, es);
 
         Locale current = getCurrentLocale();
@@ -73,8 +74,9 @@ public class LanguageSwitcher extends HorizontalLayout {
         combo.setValue(selectedValue);
 
         combo.addThemeVariants(ComboBoxVariant.LUMO_SMALL);
-        combo.addClassName("language-switcher__combo");
-        combo.getElement().setAttribute("aria-label", getTranslation("language.label"));
+        combo.addClassName(CoreConstants.LANGUAGE_SWITCHER_COMBO_CLASS);
+        combo.getElement()
+                .setAttribute(CoreConstants.ARIA_LABEL_ATTRIBUTE, getTranslation(CoreConstants.LANGUAGE_LABEL_KEY));
 
         combo.addValueChangeListener(e -> {
             if (e.getValue() == null) {
@@ -82,11 +84,11 @@ public class LanguageSwitcher extends HorizontalLayout {
             }
             Locale newLocale;
             if (e.getValue().equalsIgnoreCase(ru)) {
-                newLocale = Locale.forLanguageTag("ru");
+                newLocale = Locale.forLanguageTag(CoreConstants.RU_LOCALE);
             } else if (e.getValue().equalsIgnoreCase(es)) {
-                newLocale = Locale.forLanguageTag("es");
+                newLocale = Locale.forLanguageTag(CoreConstants.ES_LOCALE);
             } else {
-                newLocale = Locale.ENGLISH;
+                newLocale = Locale.forLanguageTag(CoreConstants.EN_LOCALE);
             }
             VaadinSession.getCurrent().setAttribute(SESSION_LOCALE_KEY, newLocale.toLanguageTag());
             persistPreferredLocaleCookie(newLocale);
@@ -112,8 +114,8 @@ public class LanguageSwitcher extends HorizontalLayout {
      */
     private String getSelectedValueForLocale(final Locale current, final String en, final String ru, final String es) {
         return switch (current.getLanguage().toLowerCase()) {
-            case "ru" -> ru;
-            case "es" -> es;
+            case CoreConstants.RU_LOCALE -> ru;
+            case CoreConstants.ES_LOCALE -> es;
             default -> en;
         };
     }
@@ -137,7 +139,7 @@ public class LanguageSwitcher extends HorizontalLayout {
             getUI().ifPresent(ui -> ui.setLocale(fromCookie));
             return fromCookie;
         }
-        return getUI().map(UI::getLocale).orElse(Locale.ENGLISH);
+        return getUI().map(UI::getLocale).orElse(Locale.forLanguageTag(CoreConstants.EN_LOCALE));
     }
 
     /**
