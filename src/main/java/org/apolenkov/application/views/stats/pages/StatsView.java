@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 public class StatsView extends BaseView {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsView.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Services
     private final transient DeckUseCase deckUseCase;
@@ -73,6 +74,9 @@ public class StatsView extends BaseView {
     @PostConstruct
     @SuppressWarnings("unused")
     private void initializeUI() {
+        LOGGER.debug("Initializing stats view UI");
+        AUDIT_LOGGER.info("User accessed statistics page");
+
         setSpacing(true);
         setAlignItems(FlexComponent.Alignment.CENTER);
         setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);

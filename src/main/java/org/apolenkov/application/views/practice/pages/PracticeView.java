@@ -28,6 +28,8 @@ import org.apolenkov.application.views.practice.components.PracticeProgress;
 import org.apolenkov.application.views.practice.controllers.PracticeCompletionFlow;
 import org.apolenkov.application.views.practice.controllers.PracticeSessionFlow;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Interactive flashcard practice session view.
@@ -37,6 +39,9 @@ import org.apolenkov.application.views.shared.utils.NavigationHelper;
 @Route(value = RouteConstants.PRACTICE_ROUTE, layout = PublicLayout.class)
 @RolesAllowed(SecurityConstants.ROLE_USER)
 public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PracticeView.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Dependencies
     private final transient FlashcardUseCase flashcardUseCase;
@@ -187,12 +192,20 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     @Override
     public void setParameter(final BeforeEvent event, final String parameter) {
         try {
+            LOGGER.debug("Initializing practice session for deck ID: {}", parameter);
+
             long deckId = parseDeckId(parameter);
             loadDeck(deckId);
             if (currentDeck != null) {
+                AUDIT_LOGGER.info(
+                        "User started practice session for deck '{}' (ID: {})",
+                        currentDeck.getTitle(),
+                        currentDeck.getId());
                 startDefaultPractice();
+                LOGGER.debug("Practice session initialized successfully for deck: {}", currentDeck.getTitle());
             }
         } catch (NumberFormatException e) {
+            LOGGER.error("Invalid deck ID format: {}", parameter, e);
             throw new EntityNotFoundException(
                     parameter, RouteConstants.DECKS_ROUTE, getTranslation(PracticeConstants.PRACTICE_INVALID_ID_KEY));
         }
@@ -241,7 +254,9 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         if (deckOpt.isPresent()) {
             currentDeck = deckOpt.get();
             practiceHeader.setDeckTitle(getTranslation(PracticeConstants.PRACTICE_TITLE_KEY, currentDeck.getTitle()));
+            LOGGER.debug("Deck loaded successfully: {} (ID: {})", currentDeck.getTitle(), currentDeck.getId());
         } else {
+            LOGGER.warn("Deck not found for ID: {}", deckId);
             throw new EntityNotFoundException(
                     String.valueOf(deckId),
                     RouteConstants.DECKS_ROUTE,
@@ -272,6 +287,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * Handles practice session completion.
      */
     private void handlePracticeComplete() {
+        AUDIT_LOGGER.info(
+                "User completed practice session for deck '{}' (ID: {})", currentDeck.getTitle(), currentDeck.getId());
         session = completionFlow.showPracticeComplete(session, currentDeck);
     }
 
