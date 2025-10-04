@@ -1,22 +1,5 @@
 package org.apolenkov.application.views.core.navigation;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.config.vaadin.VaadinApplicationShell;
-import org.apolenkov.application.service.PracticeSettingsService;
-import org.apolenkov.application.usecase.UserUseCase;
-import org.apolenkov.application.views.practice.components.PracticeSettingsDialog;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.NavigationHelper;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.stereotype.Component;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
@@ -30,8 +13,22 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.spring.annotation.UIScope;
-
 import jakarta.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
+import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.config.vaadin.VaadinApplicationShell;
+import org.apolenkov.application.service.PracticeSettingsService;
+import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.views.practice.components.PracticeSettingsDialog;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.NavigationHelper;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.stereotype.Component;
 
 /**
  * Top navigation menu component for the application.

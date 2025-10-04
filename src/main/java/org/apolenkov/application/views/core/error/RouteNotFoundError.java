@@ -8,7 +8,6 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.HasErrorParameter;
@@ -90,7 +89,7 @@ public class RouteNotFoundError extends VerticalLayout implements HasErrorParame
         Div errorContainer = new Div();
         errorContainer.addClassName("not-found-container");
         errorContainer.addClassName("surface-panel");
-        errorContainer.getStyle().setTextAlign(Style.TextAlign.CENTER);
+        errorContainer.addClassName("text-center");
 
         // Error code (404)
         H1 errorCode = new H1();
