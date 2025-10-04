@@ -11,7 +11,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 public final class LayoutHelper {
 
     private LayoutHelper() {
-        // Utility class - prevent instantiation
+        throw new UnsupportedOperationException("Utility class");
     }
 
     /**

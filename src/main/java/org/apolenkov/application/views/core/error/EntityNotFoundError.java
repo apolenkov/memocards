@@ -7,6 +7,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.slf4j.Logger;
@@ -19,17 +20,6 @@ import org.slf4j.LoggerFactory;
 public class EntityNotFoundError extends VerticalLayout {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityNotFoundError.class);
-
-    // CSS classes
-    private static final String SURFACE_PANEL_CLASS = "surface-panel";
-    private static final String CONTAINER_MD_CLASS = "container-md";
-    private static final String ENTITY_ERROR_SECTION_CLASS = "entity-error__section";
-    private static final String ENTITY_ERROR_TITLE_CLASS = "entity-error__title";
-    private static final String ENTITY_ERROR_DESCRIPTION_CLASS = "entity-error__description";
-    private static final String ENTITY_ERROR_SUGGESTION_CLASS = "entity-error__suggestion";
-
-    // Translation keys
-    private static final String MAIN_GO_HOME_KEY = "main.gohome";
 
     private final String entityId;
     private final String backRoute;
@@ -97,43 +87,45 @@ public class EntityNotFoundError extends VerticalLayout {
         VerticalLayout errorContainer = new VerticalLayout();
         errorContainer.setSpacing(true);
         errorContainer.setWidthFull();
-        errorContainer.addClassName(CONTAINER_MD_CLASS);
+        errorContainer.addClassName(CoreConstants.CONTAINER_MD_CLASS);
         errorContainer.setAlignItems(Alignment.CENTER);
 
         VerticalLayout errorSection = new VerticalLayout();
         errorSection.setSpacing(true);
         errorSection.setPadding(true);
         errorSection.setWidthFull();
-        errorSection.addClassName(ENTITY_ERROR_SECTION_CLASS);
-        errorSection.addClassName(SURFACE_PANEL_CLASS);
-        errorSection.addClassName(CONTAINER_MD_CLASS);
+        errorSection.addClassName(CoreConstants.ENTITY_ERROR_SECTION_CLASS);
+        errorSection.addClassName(CoreConstants.SURFACE_PANEL_CLASS);
+        errorSection.addClassName(CoreConstants.CONTAINER_MD_CLASS);
 
         // Error title
-        H2 errorTitle = new H2(getTranslation("entity.notFound.title"));
-        errorTitle.addClassName(ENTITY_ERROR_TITLE_CLASS);
+        H2 errorTitle = new H2(getTranslation(CoreConstants.ENTITY_NOT_FOUND_TITLE_KEY));
+        errorTitle.addClassName(CoreConstants.ENTITY_ERROR_TITLE_CLASS);
 
         // Error description
         Paragraph errorDescription = new Paragraph();
-        errorDescription.addClassName(ENTITY_ERROR_DESCRIPTION_CLASS);
+        errorDescription.addClassName(CoreConstants.ENTITY_ERROR_DESCRIPTION_CLASS);
         if (customMessage != null && !customMessage.trim().isEmpty()) {
             // Show custom message if provided
             errorDescription.setText(customMessage);
         } else {
             // Show default message
-            errorDescription.setText(getTranslation("entity.notFound.description", entityId));
+            errorDescription.setText(getTranslation(CoreConstants.ENTITY_NOT_FOUND_DESCRIPTION_KEY, entityId));
         }
 
         // Error suggestion
         Paragraph errorSuggestion = new Paragraph();
-        errorSuggestion.addClassName(ENTITY_ERROR_SUGGESTION_CLASS);
-        errorSuggestion.setText(getTranslation("entity.notFound.suggestion"));
+        errorSuggestion.addClassName(CoreConstants.ENTITY_ERROR_SUGGESTION_CLASS);
+        errorSuggestion.setText(getTranslation(CoreConstants.ENTITY_NOT_FOUND_SUGGESTION_KEY));
 
         // Navigation buttons
         Button goBackButton = ButtonHelper.createButton(
-                getTranslation("entity.notFound.goBack"), e -> handleBackAction(), ButtonVariant.LUMO_PRIMARY);
+                getTranslation(CoreConstants.ENTITY_NOT_FOUND_GO_BACK_KEY),
+                e -> handleBackAction(),
+                ButtonVariant.LUMO_PRIMARY);
 
         Button goHomeButton = ButtonHelper.createButton(
-                getTranslation(MAIN_GO_HOME_KEY), e -> navigateToHome(), ButtonVariant.LUMO_TERTIARY);
+                getTranslation(CoreConstants.MAIN_GO_HOME_KEY), e -> navigateToHome(), ButtonVariant.LUMO_TERTIARY);
 
         HorizontalLayout buttonLayout = new HorizontalLayout();
         buttonLayout.setSpacing(true);

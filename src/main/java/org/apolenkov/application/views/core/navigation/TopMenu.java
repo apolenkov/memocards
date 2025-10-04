@@ -21,6 +21,7 @@ import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.config.vaadin.VaadinApplicationShell;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.apolenkov.application.views.practice.components.PracticeSettingsDialog;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
@@ -38,13 +39,6 @@ import org.springframework.stereotype.Component;
 @Component
 @UIScope
 public class TopMenu extends HorizontalLayout {
-
-    // Roles - using SecurityConstants
-
-    // Routes - using RouteConstants
-
-    // Styles
-    private static final String DATA_TEST_ID_ATTRIBUTE = "data-test-id";
 
     // Logout button constants
     private static final String LOGOUT_ROUTE = RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE;
@@ -87,7 +81,7 @@ public class TopMenu extends HorizontalLayout {
         Image navIcon = new Image(
                 new StreamResource(VaadinApplicationShell.ResourcePaths.LOGO_ICON_NAME, () -> getClass()
                         .getResourceAsStream(VaadinApplicationShell.ResourcePaths.LOGO_ICON_FULL_PATH)),
-                getTranslation("app.title"));
+                getTranslation(CoreConstants.APP_TITLE_KEY));
         title.add(navIcon);
 
         initializeMenuButtons();
@@ -180,8 +174,8 @@ public class TopMenu extends HorizontalLayout {
                 displayName = authName;
             }
             Div greeting = new Div();
-            greeting.setText(getTranslation("main.greeting", displayName));
-            greeting.addClassName("top-menu__greeting");
+            greeting.setText(getTranslation(CoreConstants.MAIN_GREETING_KEY, displayName));
+            greeting.addClassName(CoreConstants.TOP_MENU_GREETING_CLASS);
             left.add(greeting);
         }
 
@@ -242,19 +236,19 @@ public class TopMenu extends HorizontalLayout {
         switch (menuButton.getRoute()) {
             case LOGOUT_ROUTE -> {
                 button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> openLogoutDialog());
-                button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
+                button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
             }
             case RouteConstants.ROOT_PATH + RouteConstants.SETTINGS_ROUTE -> {
                 button = ButtonHelper.createTertiaryButton(menuButton.getText(), e -> {
                     PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService);
                     dialog.open();
                 });
-                button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
+                button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
             }
             default -> {
                 button = ButtonHelper.createTertiaryButton(
                         menuButton.getText(), e -> NavigationHelper.navigateTo(menuButton.getRoute()));
-                button.getElement().setAttribute(DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
+                button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
             }
         }
 
@@ -269,11 +263,11 @@ public class TopMenu extends HorizontalLayout {
      */
     private void openLogoutDialog() {
         Dialog dialog = new Dialog();
-        dialog.addClassName("dialog-sm");
+        dialog.addClassName(CoreConstants.DIALOG_SM_CLASS);
 
         VerticalLayout layout = new VerticalLayout();
-        layout.add(new H3(getTranslation("auth.logout.confirm")));
-        layout.add(new Span(getTranslation("auth.logout.confirm")));
+        layout.add(new H3(getTranslation(CoreConstants.AUTH_LOGOUT_CONFIRM_KEY)));
+        layout.add(new Span(getTranslation(CoreConstants.AUTH_LOGOUT_CONFIRM_KEY)));
 
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
@@ -281,7 +275,7 @@ public class TopMenu extends HorizontalLayout {
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidthFull();
 
-        Button confirmButton = ButtonHelper.createConfirmButton(getTranslation("dialog.confirm"), e -> {
+        Button confirmButton = ButtonHelper.createConfirmButton(getTranslation(CoreConstants.DIALOG_CONFIRM_KEY), e -> {
             try {
                 var req = VaadinServletRequest.getCurrent().getHttpServletRequest();
                 new SecurityContextLogoutHandler().logout(req, null, null);
@@ -293,7 +287,8 @@ public class TopMenu extends HorizontalLayout {
             dialog.close();
         });
 
-        Button cancelButton = ButtonHelper.createCancelButton(getTranslation("dialog.cancel"), e -> dialog.close());
+        Button cancelButton =
+                ButtonHelper.createCancelButton(getTranslation(CoreConstants.DIALOG_CANCEL_KEY), e -> dialog.close());
 
         buttons.add(confirmButton, cancelButton);
         layout.add(buttons);

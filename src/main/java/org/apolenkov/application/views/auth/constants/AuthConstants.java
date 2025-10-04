@@ -6,8 +6,6 @@ package org.apolenkov.application.views.auth.constants;
  */
 public final class AuthConstants {
 
-    private AuthConstants() {}
-
     // CSS Classes
     public static final String AUTH_FORM_CLASS = "auth-form";
     public static final String SURFACE_PANEL_CLASS = "surface-panel";
@@ -27,4 +25,8 @@ public final class AuthConstants {
 
     public static final String RESET_PASSWORD_FORM_CLASS = "reset-password-form";
     public static final String RESET_PASSWORD_FORM_TITLE_CLASS = "reset-password-form__title";
+
+    private AuthConstants() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 }

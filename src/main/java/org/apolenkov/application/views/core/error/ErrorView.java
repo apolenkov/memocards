@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
@@ -38,7 +39,6 @@ import org.springframework.core.env.Environment;
 public final class ErrorView extends VerticalLayout implements HasDynamicTitle, BeforeEnterObserver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ErrorView.class);
-    private static final String ERROR_TRY_AGAIN_KEY = "error.tryAgain";
     private final transient Environment environment;
 
     // Params routing
@@ -59,9 +59,6 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
     private Span errorMessageSpan;
     private Span currentRoute;
     private Span timestamp;
-
-    // Detales
-    private static final String ERROR_500_KEY = "error.500";
 
     /**
      * Creates a new error view.
@@ -126,16 +123,16 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
 
     private void createErrorContainer() {
         errorContainer = new VerticalLayout();
-        errorContainer.addClassName("error-container");
-        errorContainer.addClassName("surface-panel");
+        errorContainer.addClassName(CoreConstants.ERROR_CONTAINER_CLASS);
+        errorContainer.addClassName(CoreConstants.SURFACE_PANEL_CLASS);
         errorContainer.setSpacing(true);
         errorContainer.setAlignItems(Alignment.CENTER);
 
         title = new H2();
-        title.addClassName("error-view__title");
+        title.addClassName(CoreConstants.ERROR_VIEW_TITLE_CLASS);
 
         description = new Span();
-        description.addClassName("error-view__description");
+        description.addClassName(CoreConstants.ERROR_VIEW_DESCRIPTION_CLASS);
 
         errorContainer.add(title, description);
         add(errorContainer);
@@ -143,10 +140,12 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
 
     private void createNavigationButtons() {
         goHome = ButtonHelper.createButton(
-                getTranslation("error.goHome"), e -> NavigationHelper.navigateToHome(), ButtonVariant.LUMO_PRIMARY);
+                getTranslation(CoreConstants.ERROR_GO_HOME_KEY),
+                e -> NavigationHelper.navigateToHome(),
+                ButtonVariant.LUMO_PRIMARY);
 
         tryAgain = ButtonHelper.createButton(
-                getTranslation(ERROR_TRY_AGAIN_KEY),
+                getTranslation(CoreConstants.ERROR_TRY_AGAIN_KEY),
                 e -> NavigationHelper.navigateTo(fromRoute),
                 ButtonVariant.LUMO_TERTIARY);
 
@@ -160,28 +159,28 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
 
     private void createDevInfoContainer() {
         devContainer = new VerticalLayout();
-        devContainer.addClassName("error-dev__container");
-        devContainer.addClassName("surface-panel");
+        devContainer.addClassName(CoreConstants.ERROR_DEV_CONTAINER_CLASS);
+        devContainer.addClassName(CoreConstants.SURFACE_PANEL_CLASS);
         devContainer.setSpacing(true);
         devContainer.setVisible(false); // Hidden by default
 
         devTitle = new H3();
-        devTitle.addClassName("error-dev__title");
+        devTitle.addClassName(CoreConstants.ERROR_DEV_TITLE_CLASS);
 
         Div errorDetails = new Div();
-        errorDetails.addClassName("error-dev__details");
+        errorDetails.addClassName(CoreConstants.ERROR_DEV_DETAILS_CLASS);
 
         errorTypeSpan = new Span();
-        errorTypeSpan.addClassName("error-dev__type");
+        errorTypeSpan.addClassName(CoreConstants.ERROR_DEV_TYPE_CLASS);
 
         errorMessageSpan = new Span();
-        errorMessageSpan.addClassName("error-dev__message");
+        errorMessageSpan.addClassName(CoreConstants.ERROR_DEV_MESSAGE_CLASS);
 
         currentRoute = new Span();
-        currentRoute.addClassName("error-dev__route");
+        currentRoute.addClassName(CoreConstants.ERROR_DEV_ROUTE_CLASS);
 
         timestamp = new Span();
-        timestamp.addClassName("error-dev__timestamp");
+        timestamp.addClassName(CoreConstants.ERROR_DEV_TIMESTAMP_CLASS);
 
         errorDetails.add(errorTypeSpan, errorMessageSpan, currentRoute);
         devContainer.add(devTitle, errorDetails, timestamp);
@@ -192,13 +191,22 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
         Location location = event.getLocation();
         QueryParameters queryParams = location.getQueryParameters();
 
-        fromRoute =
-                queryParams.getParameters().getOrDefault("from", List.of("")).getFirst();
-        errorType =
-                queryParams.getParameters().getOrDefault("error", List.of("")).getFirst();
-        errorMessage =
-                queryParams.getParameters().getOrDefault("message", List.of("")).getFirst();
-        errorId = queryParams.getParameters().getOrDefault("id", List.of("")).getFirst();
+        fromRoute = queryParams
+                .getParameters()
+                .getOrDefault(CoreConstants.FROM_PARAM, List.of(""))
+                .getFirst();
+        errorType = queryParams
+                .getParameters()
+                .getOrDefault(CoreConstants.ERROR_PARAM, List.of(""))
+                .getFirst();
+        errorMessage = queryParams
+                .getParameters()
+                .getOrDefault(CoreConstants.MESSAGE_PARAM, List.of(""))
+                .getFirst();
+        errorId = queryParams
+                .getParameters()
+                .getOrDefault(CoreConstants.ID_PARAM, List.of(""))
+                .getFirst();
     }
 
     private boolean shouldRedirectToHome() {
@@ -209,40 +217,40 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
     }
 
     private void updateUIWithErrorDetails() {
-        title.setText(getTranslation(ERROR_500_KEY));
-        description.setText(getTranslation("error.500.description"));
-        goHome.setText(getTranslation("main.gohome"));
-        tryAgain.setText(getTranslation(ERROR_TRY_AGAIN_KEY));
+        title.setText(getTranslation(CoreConstants.ERROR_500_KEY));
+        description.setText(getTranslation(CoreConstants.ERROR_500_DESCRIPTION_KEY));
+        goHome.setText(getTranslation(CoreConstants.MAIN_GO_HOME_KEY));
+        tryAgain.setText(getTranslation(CoreConstants.ERROR_TRY_AGAIN_KEY));
     }
 
     private void updateUIWithGenericError() {
-        title.setText(getTranslation(ERROR_500_KEY));
-        description.setText(getTranslation("error.500.description"));
-        goHome.setText(getTranslation("main.gohome"));
-        tryAgain.setText(getTranslation(ERROR_TRY_AGAIN_KEY));
+        title.setText(getTranslation(CoreConstants.ERROR_500_KEY));
+        description.setText(getTranslation(CoreConstants.ERROR_500_DESCRIPTION_KEY));
+        goHome.setText(getTranslation(CoreConstants.MAIN_GO_HOME_KEY));
+        tryAgain.setText(getTranslation(CoreConstants.ERROR_TRY_AGAIN_KEY));
         // Hide dev container in production
         devContainer.setVisible(false);
     }
 
     private void showDevInfo() {
-        devTitle.setText(getTranslation("error.dev.title"));
+        devTitle.setText(getTranslation(CoreConstants.ERROR_DEV_TITLE_KEY));
 
         // Sanitize error details for security
         String safeErrorType = sanitizeErrorDetail(errorType);
         String safeErrorMessage = sanitizeErrorDetail(errorMessage);
         String safeErrorId = sanitizeErrorDetail(errorId);
 
-        errorTypeSpan.setText(getTranslation("error.type") + ": " + safeErrorType);
-        errorMessageSpan.setText(getTranslation("error.message") + ": " + safeErrorMessage);
-        currentRoute.setText(getTranslation("error.current.route") + ": " + fromRoute);
-        timestamp.setText(getTranslation("error.timestamp") + " "
-                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        errorTypeSpan.setText(getTranslation(CoreConstants.ERROR_TYPE_KEY) + ": " + safeErrorType);
+        errorMessageSpan.setText(getTranslation(CoreConstants.ERROR_MESSAGE_KEY) + ": " + safeErrorMessage);
+        currentRoute.setText(getTranslation(CoreConstants.ERROR_CURRENT_ROUTE_KEY) + ": " + fromRoute);
+        timestamp.setText(getTranslation(CoreConstants.ERROR_TIMESTAMP_KEY) + " "
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern(CoreConstants.DATETIME_PATTERN)));
 
         // Add error ID to dev info if available
         if (safeErrorId != null && !safeErrorId.isEmpty()) {
             Span errorIdSpan = new Span();
-            errorIdSpan.setText(getTranslation("error.id") + ": " + safeErrorId);
-            errorIdSpan.addClassName("error-dev__id");
+            errorIdSpan.setText(getTranslation(CoreConstants.ERROR_ID_KEY) + ": " + safeErrorId);
+            errorIdSpan.addClassName(CoreConstants.ERROR_DEV_ID_CLASS);
             devContainer.add(errorIdSpan);
         }
 
@@ -267,20 +275,20 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
                 errorDetail.replaceAll("[<>\"'&]", "").replaceAll("\\s+", " ").trim();
 
         // Limit length to prevent information leakage
-        if (sanitized.length() > 200) {
-            sanitized = sanitized.substring(0, 200) + "...";
+        if (sanitized.length() > CoreConstants.MAX_ERROR_DETAIL_LENGTH) {
+            sanitized = sanitized.substring(0, CoreConstants.MAX_ERROR_DETAIL_LENGTH) + CoreConstants.TRUNCATION_SUFFIX;
         }
 
-        return sanitized.isEmpty() ? getTranslation("error.unknown") : sanitized;
+        return sanitized.isEmpty() ? getTranslation(CoreConstants.ERROR_UNKNOWN_KEY) : sanitized;
     }
 
     private boolean isDevProfile() {
         String[] activeProfiles = environment.getActiveProfiles();
-        return Arrays.asList(activeProfiles).contains("dev");
+        return Arrays.asList(activeProfiles).contains(CoreConstants.DEV_PROFILE);
     }
 
     @Override
     public String getPageTitle() {
-        return getTranslation(ERROR_500_KEY);
+        return getTranslation(CoreConstants.ERROR_500_KEY);
     }
 }

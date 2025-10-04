@@ -9,7 +9,7 @@ import org.apolenkov.application.config.vaadin.VaadinApplicationShell;
 public final class LandingConstants {
 
     private LandingConstants() {
-        // Utility class - prevent instantiation
+        throw new UnsupportedOperationException("Utility class");
     }
 
     // Translation Keys

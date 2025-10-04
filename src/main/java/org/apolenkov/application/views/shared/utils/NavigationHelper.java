@@ -14,7 +14,7 @@ import org.apolenkov.application.views.landing.pages.LandingView;
 public final class NavigationHelper {
 
     private NavigationHelper() {
-        // Utility class - prevent instantiation
+        throw new UnsupportedOperationException("Utility class");
     }
 
     /**

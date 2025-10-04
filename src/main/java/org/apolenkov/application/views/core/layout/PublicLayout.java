@@ -6,6 +6,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
+import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.apolenkov.application.views.core.navigation.LanguageSwitcher;
 import org.apolenkov.application.views.core.navigation.TopMenu;
 
@@ -48,22 +49,22 @@ public class PublicLayout extends AppLayout {
      */
     private void addHeaderContent() {
         HorizontalLayout bar = new HorizontalLayout();
-        bar.addClassName("main-layout__navbar");
-        bar.addClassName("surface-panel");
+        bar.addClassName(CoreConstants.MAIN_LAYOUT_NAVBAR_CLASS);
+        bar.addClassName(CoreConstants.SURFACE_PANEL_CLASS);
         bar.setWidthFull();
         bar.setAlignItems(Alignment.CENTER);
         bar.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         HorizontalLayout right = new HorizontalLayout();
-        right.addClassName("main-layout__right");
-        right.addClassName("surface-panel");
+        right.addClassName(CoreConstants.MAIN_LAYOUT_RIGHT_CLASS);
+        right.addClassName(CoreConstants.SURFACE_PANEL_CLASS);
         right.setAlignItems(Alignment.CENTER);
         right.add(languageSwitcher);
 
         bar.add(topMenu, right);
         addToNavbar(true, bar);
 
-        addClassName("public-layout");
+        addClassName(CoreConstants.PUBLIC_LAYOUT_CLASS);
     }
 
     /**
@@ -79,7 +80,7 @@ public class PublicLayout extends AppLayout {
     protected void afterNavigation() {
         super.afterNavigation();
         if (getContent() != null) {
-            getContent().addClassName("app-content");
+            getContent().addClassName(CoreConstants.APP_CONTENT_CLASS);
         }
         // Refresh header menu (greeting, buttons) after route changes, including login/logout
         if (topMenu != null) {

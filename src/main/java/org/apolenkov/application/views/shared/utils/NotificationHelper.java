@@ -19,7 +19,7 @@ public final class NotificationHelper {
     private static final Notification.Position BOTTOM_POSITION = Notification.Position.BOTTOM_START;
 
     private NotificationHelper() {
-        // Utility class - prevent instantiation
+        throw new UnsupportedOperationException("Utility class");
     }
 
     /**
