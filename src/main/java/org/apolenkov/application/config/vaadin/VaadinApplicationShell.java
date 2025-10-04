@@ -29,10 +29,20 @@ public class VaadinApplicationShell implements AppShellConfigurator {
             // Utility class - prevent instantiation
         }
 
+        // Base resource path
+        public static final String META_INF_RESOURCES = "/META-INF/resources/";
+
+        // Icon paths (relative to META_INF_RESOURCES)
         public static final String PIXEL_ICON = "icons/pixel-icon.svg";
         public static final String PIXEL_ICON_NAME = "pixel-icon.svg";
         public static final String FAVICON_ICO = "icons/favicon.ico";
         public static final String FAVICON_SVG = "icons/favicon.svg";
+        public static final String LOGO_ICON = "icons/logo.svg";
+        public static final String LOGO_ICON_NAME = "logo.svg";
+
+        // Full paths (for resource streams)
+        public static final String PIXEL_ICON_FULL_PATH = META_INF_RESOURCES + PIXEL_ICON;
+        public static final String LOGO_ICON_FULL_PATH = META_INF_RESOURCES + LOGO_ICON;
     }
 
     /**

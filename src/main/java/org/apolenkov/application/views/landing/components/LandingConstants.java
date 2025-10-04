@@ -38,7 +38,6 @@ public final class LandingConstants {
     public static final String LANDING_NEWS_CARD_ACCENT_CLASS = "landing-news__card-accent";
 
     // Resource Paths
-    public static final String PIXEL_ICON_PATH =
-            "/META-INF/resources/" + VaadinApplicationShell.ResourcePaths.PIXEL_ICON;
+    public static final String PIXEL_ICON_PATH = VaadinApplicationShell.ResourcePaths.PIXEL_ICON_FULL_PATH;
     public static final String PIXEL_ICON_NAME = VaadinApplicationShell.ResourcePaths.PIXEL_ICON_NAME;
 }
