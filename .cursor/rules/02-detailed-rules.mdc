@@ -116,6 +116,7 @@ alwaysApply: true
 - ❌ Primitives in nullable fields → use wrapper types
 - ❌ SQL string concatenation → only parameterized queries
 - ❌ Log sensitive information → passwords, tokens, PII
+- ❌ Full class names (FCL) → always add proper imports
 - ❌ Leave dead code → remove unused methods, classes, variables
 - ❌ Leave commented code → delete or implement properly
 - ❌ Leave unreachable code → remove or fix logic
@@ -240,6 +241,7 @@ Now you have **3 key files** instead of 17:
 - ❌ Primitives in nullable fields → use wrapper types
 - ❌ SQL string concatenation → only parameterized queries
 - ❌ Log sensitive information → passwords, tokens, PII
+- ❌ Full class names (FCL) → always add proper imports
 
 ## 🎯 Result
 
@@ -377,6 +379,7 @@ Now you have **3 key files** instead of 17:
 - ❌ Primitives in nullable fields → use wrapper types
 - ❌ SQL string concatenation → only parameterized queries
 - ❌ Log sensitive information → passwords, tokens, PII
+- ❌ Full class names (FCL) → always add proper imports
 - ❌ Leave dead code → remove unused methods, classes, variables
 - ❌ Leave commented code → delete or implement properly
 - ❌ Leave unreachable code → remove or fix logic
@@ -501,6 +504,7 @@ Now you have **3 key files** instead of 17:
 - ❌ Primitives in nullable fields → use wrapper types
 - ❌ SQL string concatenation → only parameterized queries
 - ❌ Log sensitive information → passwords, tokens, PII
+- ❌ Full class names (FCL) → always add proper imports
 
 ## 🎯 Result
 

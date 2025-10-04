@@ -290,6 +290,7 @@ alwaysApply: true
 
 - ❌ **NEVER System.out.println** → use SLF4J/Logback
 - ❌ **NEVER FQN in code** → always add imports
+- ❌ **NEVER use full class names (FCL)** → always add proper imports
 - ❌ **NEVER hardcoded strings in UI** → use getTranslation()
 - ❌ **NEVER @Autowired on fields** → only constructor injection
 - ❌ **NEVER primitives in nullable fields** → use wrapper types
@@ -612,6 +613,7 @@ Now I am **SUPER-OPTIMIZED** and apply **ALL rules automatically**:
 
 - ❌ **NEVER System.out.println** → use SLF4J/Logback
 - ❌ **NEVER FQN in code** → always add imports
+- ❌ **NEVER use full class names (FCL)** → always add proper imports
 - ❌ **NEVER hardcoded strings in UI** → use getTranslation()
 - ❌ **NEVER @Autowired on fields** → only constructor injection
 - ❌ **NEVER primitives in nullable fields** → use wrapper types
