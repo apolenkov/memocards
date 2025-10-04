@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 /**
  * State management component for DeckView.
  * Handles loading states, data updates, and deck information management.
- * Extends Composite to access getTranslation() method directly.
  *
  * <p>Features:
  * <ul>
