@@ -1,5 +1,21 @@
 package org.apolenkov.application.views.admin.pages;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.model.News;
+import org.apolenkov.application.service.NewsService;
+import org.apolenkov.application.views.admin.constants.AdminConstants;
+import org.apolenkov.application.views.core.layout.PublicLayout;
+import org.apolenkov.application.views.shared.base.BaseView;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.LayoutHelper;
+import org.apolenkov.application.views.shared.utils.NotificationHelper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,21 +33,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.model.News;
-import org.apolenkov.application.service.NewsService;
-import org.apolenkov.application.views.core.layout.PublicLayout;
-import org.apolenkov.application.views.shared.base.BaseView;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.LayoutHelper;
-import org.apolenkov.application.views.shared.utils.NotificationHelper;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Administrative interface for managing news articles.
@@ -40,10 +44,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @RouteAlias(value = RouteConstants.ADMIN_CONTENT_ROUTE, layout = PublicLayout.class)
 @RolesAllowed(SecurityConstants.ROLE_ADMIN)
 public class AdminNewsView extends BaseView {
-
-    private static final String COLOR_STYLE = "color";
-    private static final String FONT_SIZE_STYLE = "font-size";
-    private static final String LUMO_FONT_SIZE_S = "var(--lumo-font-size-s)";
 
     private final transient NewsService newsService;
     private VerticalLayout newsList;
@@ -68,23 +68,24 @@ public class AdminNewsView extends BaseView {
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
+    @SuppressWarnings("unused")
     private void init() {
         setPadding(false);
         setSpacing(false);
-        addClassName("admin-content-view");
+        addClassName(AdminConstants.ADMIN_CONTENT_VIEW_CLASS);
 
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         content.setPadding(true);
         content.setSpacing(true);
         content.setAlignItems(Alignment.CENTER);
-        content.addClassName("admin-content-view__content");
+        content.addClassName(AdminConstants.ADMIN_CONTENT_VIEW_CONTENT_CLASS);
 
-        H2 title = new H2(getTranslation("admin.content.page.title"));
-        title.addClassName("admin-content-view__title");
+        H2 title = new H2(getTranslation(AdminConstants.ADMIN_CONTENT_PAGE_TITLE_KEY));
+        title.addClassName(AdminConstants.ADMIN_CONTENT_VIEW_TITLE_CLASS);
 
         TextField search = new TextField();
-        search.setPlaceholder(getTranslation("admin.content.search.placeholder"));
+        search.setPlaceholder(getTranslation(AdminConstants.ADMIN_CONTENT_SEARCH_PLACEHOLDER_KEY));
         search.setClearButtonVisible(true);
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPrefixComponent(VaadinIcon.SEARCH.create());
@@ -92,10 +93,10 @@ public class AdminNewsView extends BaseView {
 
         Button addNewsBtn = ButtonHelper.createButton(
                 getTranslation("common.add"), VaadinIcon.PLUS, e -> showNewsDialog(null), ButtonVariant.LUMO_PRIMARY);
-        addNewsBtn.setText(getTranslation("admin.news.add"));
+        addNewsBtn.setText(getTranslation(AdminConstants.ADMIN_NEWS_ADD_KEY));
 
         HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addNewsBtn);
-        toolbar.addClassName("admin-content-toolbar");
+        toolbar.addClassName(AdminConstants.ADMIN_CONTENT_TOOLBAR_CLASS);
 
         newsList = new VerticalLayout();
         newsList.setPadding(false);
@@ -107,9 +108,9 @@ public class AdminNewsView extends BaseView {
         newsContainer.setSpacing(true);
         newsContainer.setAlignItems(Alignment.CENTER);
         newsContainer.setWidthFull();
-        newsContainer.addClassName("container-md");
-        newsContainer.addClassName("admin-content-section");
-        newsContainer.addClassName("surface-panel");
+        newsContainer.addClassName(AdminConstants.CONTAINER_MD_CLASS);
+        newsContainer.addClassName(AdminConstants.ADMIN_CONTENT_SECTION_CLASS);
+        newsContainer.addClassName(AdminConstants.SURFACE_PANEL_CLASS);
 
         newsContainer.add(title, toolbar, newsList);
 
@@ -126,29 +127,30 @@ public class AdminNewsView extends BaseView {
      */
     private void showNewsDialog(final News news) {
         Dialog dialog = new Dialog();
-        dialog.addClassName("dialog-md");
+        dialog.addClassName(AdminConstants.DIALOG_MD_CLASS);
 
         VerticalLayout content = new VerticalLayout();
         content.setSpacing(true);
         content.setPadding(true);
 
-        H3 dialogTitle = new H3(news == null ? getTranslation("admin.news.add") : getTranslation("dialog.edit"));
+        H3 dialogTitle = new H3(
+                news == null ? getTranslation(AdminConstants.ADMIN_NEWS_ADD_KEY) : getTranslation("dialog.edit"));
         content.add(dialogTitle);
 
-        TextField titleField = new TextField(getTranslation("admin.news.title"));
+        TextField titleField = new TextField(getTranslation(AdminConstants.ADMIN_NEWS_TITLE_KEY));
         titleField.setWidthFull();
         if (news != null) {
             titleField.setValue(news.getTitle());
         }
 
-        TextArea contentField = new TextArea(getTranslation("admin.news.content"));
+        TextArea contentField = new TextArea(getTranslation(AdminConstants.ADMIN_NEWS_CONTENT_KEY));
         contentField.setWidthFull();
-        contentField.addClassName("admin-news__content-area");
+        contentField.addClassName(AdminConstants.ADMIN_NEWS_CONTENT_AREA_CLASS);
         if (news != null) {
             contentField.setValue(news.getContent());
         }
 
-        TextField authorField = new TextField(getTranslation("admin.news.author"));
+        TextField authorField = new TextField(getTranslation(AdminConstants.ADMIN_NEWS_AUTHOR_KEY));
         authorField.setWidthFull();
         if (news != null) {
             authorField.setValue(news.getAuthor());
@@ -201,8 +203,9 @@ public class AdminNewsView extends BaseView {
     private void createNews(final String title, final String content, final String author) {
         try {
             newsService.createNews(title, content, author);
+            NotificationHelper.showSuccess(getTranslation(AdminConstants.ADMIN_NEWS_CREATED_KEY));
         } catch (Exception e) {
-            NotificationHelper.showError(getTranslation("admin.news.error.create", e.getMessage()));
+            NotificationHelper.showError(getTranslation(AdminConstants.ADMIN_NEWS_ERROR_CREATE_KEY, e.getMessage()));
         }
     }
 
@@ -217,8 +220,9 @@ public class AdminNewsView extends BaseView {
     private void updateNews(final long id, final String title, final String content, final String author) {
         try {
             newsService.updateNews(id, title, content, author);
+            NotificationHelper.showSuccess(getTranslation(AdminConstants.ADMIN_NEWS_UPDATED_KEY));
         } catch (Exception e) {
-            NotificationHelper.showError(getTranslation("admin.news.error.update", e.getMessage()));
+            NotificationHelper.showError(getTranslation(AdminConstants.ADMIN_NEWS_ERROR_UPDATE_KEY, e.getMessage()));
         }
     }
 
@@ -229,21 +233,21 @@ public class AdminNewsView extends BaseView {
      */
     private void deleteNews(final News news) {
         Dialog confirmDialog = new Dialog();
-        confirmDialog.addClassName("dialog-sm");
+        confirmDialog.addClassName(AdminConstants.DIALOG_SM_CLASS);
 
         VerticalLayout layout = new VerticalLayout();
-        layout.add(new H3(getTranslation("admin.news.confirm.delete.title")));
+        layout.add(new H3(getTranslation(AdminConstants.ADMIN_NEWS_CONFIRM_DELETE_TITLE_KEY)));
 
         // Create message using native Vaadin DSL components
         Div messageContainer = new Div();
-        messageContainer.addClassName("text-center");
+        messageContainer.addClassName(AdminConstants.TEXT_CENTER_CLASS);
         messageContainer.setWidthFull();
 
         // Use native Vaadin components instead of HTML manipulation
-        Span prefixSpan = new Span(getTranslation("admin.news.confirm.delete.prefix") + " ");
+        Span prefixSpan = new Span(getTranslation(AdminConstants.ADMIN_NEWS_CONFIRM_DELETE_PREFIX_KEY) + " ");
         Span titleSpan = new Span(news.getTitle());
-        titleSpan.getElement().getStyle().set("font-weight", "bold");
-        Span suffixSpan = new Span(getTranslation("admin.news.confirm.delete.suffix"));
+        titleSpan.addClassName(AdminConstants.ADMIN_DIALOG_CONFIRM_TITLE_CLASS);
+        Span suffixSpan = new Span(getTranslation(AdminConstants.ADMIN_NEWS_CONFIRM_DELETE_SUFFIX_KEY));
 
         messageContainer.add(prefixSpan, titleSpan, suffixSpan);
         layout.add(messageContainer);
@@ -258,9 +262,10 @@ public class AdminNewsView extends BaseView {
             try {
                 newsService.deleteNews(news.getId());
                 refreshNews("");
-                NotificationHelper.showSuccess(getTranslation("admin.news.deleted"));
+                NotificationHelper.showSuccess(getTranslation(AdminConstants.ADMIN_NEWS_DELETED_KEY));
             } catch (Exception ex) {
-                NotificationHelper.showError(getTranslation("admin.news.error.delete", ex.getMessage()));
+                NotificationHelper.showError(
+                        getTranslation(AdminConstants.ADMIN_NEWS_ERROR_DELETE_KEY, ex.getMessage()));
             }
             confirmDialog.close();
         });
@@ -308,8 +313,8 @@ public class AdminNewsView extends BaseView {
                 .toList();
 
         if (filteredNews.isEmpty()) {
-            Span empty = new Span(getTranslation("admin.content.search.noResults"));
-            empty.addClassName("admin-content-empty-message");
+            Span empty = new Span(getTranslation(AdminConstants.ADMIN_CONTENT_SEARCH_NO_RESULTS_KEY));
+            empty.addClassName(AdminConstants.ADMIN_CONTENT_EMPTY_MESSAGE_CLASS);
             newsList.add(empty);
             return;
         }
@@ -334,39 +339,35 @@ public class AdminNewsView extends BaseView {
         card.setPadding(true);
         card.setSpacing(true);
         card.setWidthFull();
-        card.setMaxWidth("700px");
-        card.addClassName("news-card");
+        card.addClassName(AdminConstants.NEWS_CARD_CLASS);
 
         // Title
         H3 title = new H3(news.getTitle());
-        title.addClassName("news-card__title");
-        title.getStyle().set("margin", "0");
+        title.addClassName(AdminConstants.NEWS_CARD_TITLE_CLASS);
 
         // Content preview (first 150 characters)
         String contentPreview = news.getContent();
-        if (contentPreview.length() > 150) {
-            contentPreview = contentPreview.substring(0, 150) + "...";
+        if (contentPreview.length() > AdminConstants.CONTENT_PREVIEW_LENGTH) {
+            contentPreview = contentPreview.substring(0, AdminConstants.CONTENT_PREVIEW_LENGTH)
+                    + AdminConstants.CONTENT_PREVIEW_SUFFIX;
         }
         Span content = new Span(contentPreview);
-        content.addClassName("news-card__content");
-        content.getStyle().set(COLOR_STYLE, "var(--lumo-secondary-text-color)");
-        content.getStyle().set(FONT_SIZE_STYLE, LUMO_FONT_SIZE_S);
-        content.getStyle().set("line-height", "1.4");
+        content.addClassName(AdminConstants.NEWS_CARD_CONTENT_CLASS);
+        content.addClassName(AdminConstants.TEXT_CONTENT_CLASS);
 
         // Author and date
         HorizontalLayout metaInfo = new HorizontalLayout();
         metaInfo.setSpacing(true);
         metaInfo.setAlignItems(Alignment.CENTER);
 
-        Span author = new Span(getTranslation("admin.news.author") + ": " + news.getAuthor());
-        author.addClassName("news-card__author");
-        author.getStyle().set(COLOR_STYLE, "var(--lumo-secondary-text-color)");
-        author.getStyle().set(FONT_SIZE_STYLE, LUMO_FONT_SIZE_S);
+        Span author = new Span(getTranslation(AdminConstants.ADMIN_NEWS_AUTHOR_KEY) + ": " + news.getAuthor());
+        author.addClassName(AdminConstants.NEWS_CARD_AUTHOR_CLASS);
+        author.addClassName(AdminConstants.TEXT_MUTED_CLASS);
 
-        Span createdAt = new Span(news.getCreatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
-        createdAt.addClassName("news-card__date");
-        createdAt.getStyle().set(COLOR_STYLE, "var(--lumo-tertiary-text-color)");
-        createdAt.getStyle().set(FONT_SIZE_STYLE, LUMO_FONT_SIZE_S);
+        Span createdAt =
+                new Span(news.getCreatedAt().format(DateTimeFormatter.ofPattern(AdminConstants.DATE_TIME_PATTERN)));
+        createdAt.addClassName(AdminConstants.NEWS_CARD_DATE_CLASS);
+        createdAt.addClassName(AdminConstants.TEXT_MUTED_SMALL_CLASS);
 
         metaInfo.add(author, createdAt);
 
@@ -402,6 +403,6 @@ public class AdminNewsView extends BaseView {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("admin.content.page.title");
+        return getTranslation(AdminConstants.ADMIN_CONTENT_PAGE_TITLE_KEY);
     }
 }
