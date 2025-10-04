@@ -91,6 +91,13 @@ public final class CoreConstants {
     public static final String MAIN_GREETING_KEY = "main.greeting";
     public static final String APP_TITLE_KEY = "app.title";
 
+    // Navigation Translation Keys
+    public static final String MAIN_DECKS_KEY = "main.decks";
+    public static final String MAIN_STATS_KEY = "main.stats";
+    public static final String MAIN_SETTINGS_KEY = "main.settings";
+    public static final String MAIN_LOGOUT_KEY = "main.logout";
+    public static final String ADMIN_CONTENT_TITLE_KEY = "admin.content.page.title";
+
     // Query Parameter Names
     public static final String FROM_PARAM = "from";
     public static final String ERROR_PARAM = "error";
