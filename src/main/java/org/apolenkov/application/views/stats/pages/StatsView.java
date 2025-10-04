@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Simplified statistics view with integrated components.
  * Displays user learning progress with collapsible sections for better organization.
- * Uses modern Vaadin DSL and follows KISS principle.
  */
 @Route(value = RouteConstants.STATS_ROUTE, layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
