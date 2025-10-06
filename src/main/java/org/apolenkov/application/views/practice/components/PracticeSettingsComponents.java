@@ -2,7 +2,6 @@ package org.apolenkov.application.views.practice.components;
 
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
-import java.util.function.UnaryOperator;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.service.PracticeSettingsService;
 
@@ -16,13 +15,13 @@ public final class PracticeSettingsComponents {
      * Creates a card count selection component.
      *
      * @param practiceSettingsService the settings service for default values
-     * @param translationProvider function to provide translations
+     * @param countLabel the translated label for the count select
      * @return configured count select component
      */
     public static Select<Integer> createCountSelect(
-            final PracticeSettingsService practiceSettingsService, final UnaryOperator<String> translationProvider) {
+            final PracticeSettingsService practiceSettingsService, final String countLabel) {
         Select<Integer> countSelect = new Select<>();
-        countSelect.setLabel(translationProvider.apply(PracticeConstants.SETTINGS_COUNT_KEY));
+        countSelect.setLabel(countLabel);
         countSelect.setItems(5, 10, 15, 20, 25, 30);
         countSelect.setValue(practiceSettingsService.getDefaultCount());
         return countSelect;
@@ -32,17 +31,20 @@ public final class PracticeSettingsComponents {
      * Creates a practice mode selection component.
      *
      * @param practiceSettingsService the settings service for default values
-     * @param translationProvider function to provide translations
+     * @param modeLabel the translated label for the mode group
+     * @param randomText the translated text for random mode
+     * @param sequentialText the translated text for sequential mode
      * @return configured mode radio button group
      */
     public static RadioButtonGroup<String> createModeGroup(
-            final PracticeSettingsService practiceSettingsService, final UnaryOperator<String> translationProvider) {
+            final PracticeSettingsService practiceSettingsService,
+            final String modeLabel,
+            final String randomText,
+            final String sequentialText) {
         RadioButtonGroup<String> modeGroup = new RadioButtonGroup<>();
-        modeGroup.setLabel(translationProvider.apply(PracticeConstants.SETTINGS_MODE_KEY));
-        String random = translationProvider.apply(PracticeConstants.SETTINGS_MODE_RANDOM_KEY);
-        String seq = translationProvider.apply(PracticeConstants.SETTINGS_MODE_SEQUENTIAL_KEY);
-        modeGroup.setItems(random, seq);
-        modeGroup.setValue(practiceSettingsService.isDefaultRandomOrder() ? random : seq);
+        modeGroup.setLabel(modeLabel);
+        modeGroup.setItems(randomText, sequentialText);
+        modeGroup.setValue(practiceSettingsService.isDefaultRandomOrder() ? randomText : sequentialText);
         return modeGroup;
     }
 
@@ -50,17 +52,23 @@ public final class PracticeSettingsComponents {
      * Creates a practice direction selection component.
      *
      * @param practiceSettingsService the settings service for default values
-     * @param translationProvider function to provide translations
+     * @param directionLabel the translated label for the direction group
+     * @param frontToBackText the translated text for front to back direction
+     * @param backToFrontText the translated text for back to front direction
      * @return configured direction radio button group
      */
     public static RadioButtonGroup<String> createDirectionGroup(
-            final PracticeSettingsService practiceSettingsService, final UnaryOperator<String> translationProvider) {
+            final PracticeSettingsService practiceSettingsService,
+            final String directionLabel,
+            final String frontToBackText,
+            final String backToFrontText) {
         RadioButtonGroup<String> dirGroup = new RadioButtonGroup<>();
-        dirGroup.setLabel(translationProvider.apply(PracticeConstants.SETTINGS_DIRECTION_KEY));
-        String f2b = translationProvider.apply(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY);
-        String b2f = translationProvider.apply(PracticeConstants.SETTINGS_DIRECTION_B2F_KEY);
-        dirGroup.setItems(f2b, b2f);
-        dirGroup.setValue(practiceSettingsService.getDefaultDirection() == PracticeDirection.FRONT_TO_BACK ? f2b : b2f);
+        dirGroup.setLabel(directionLabel);
+        dirGroup.setItems(frontToBackText, backToFrontText);
+        dirGroup.setValue(
+                practiceSettingsService.getDefaultDirection() == PracticeDirection.FRONT_TO_BACK
+                        ? frontToBackText
+                        : backToFrontText);
         return dirGroup;
     }
 
@@ -71,20 +79,21 @@ public final class PracticeSettingsComponents {
      * @param countSelect the count selection component
      * @param modeGroup the mode selection component
      * @param dirGroup the direction selection component
-     * @param translationProvider function to provide translations
+     * @param randomText the translated text for random mode (for comparison)
+     * @param frontToBackText the translated text for front to back direction (for comparison)
      */
     public static void saveSettings(
             final PracticeSettingsService practiceSettingsService,
             final Select<Integer> countSelect,
             final RadioButtonGroup<String> modeGroup,
             final RadioButtonGroup<String> dirGroup,
-            final UnaryOperator<String> translationProvider) {
+            final String randomText,
+            final String frontToBackText) {
 
         practiceSettingsService.setDefaultCount(countSelect.getValue());
-        practiceSettingsService.setDefaultRandomOrder(
-                modeGroup.getValue().equals(translationProvider.apply(PracticeConstants.SETTINGS_MODE_RANDOM_KEY)));
+        practiceSettingsService.setDefaultRandomOrder(modeGroup.getValue().equals(randomText));
         practiceSettingsService.setDefaultDirection(
-                dirGroup.getValue().equals(translationProvider.apply(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY))
+                dirGroup.getValue().equals(frontToBackText)
                         ? PracticeDirection.FRONT_TO_BACK
                         : PracticeDirection.BACK_TO_FRONT);
     }
