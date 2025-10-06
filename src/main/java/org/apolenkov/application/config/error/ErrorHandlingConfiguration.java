@@ -4,6 +4,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.server.ErrorEvent;
 import com.vaadin.flow.server.VaadinSession;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import org.apolenkov.application.config.constants.RouteConstants;
@@ -175,6 +176,6 @@ public class ErrorHandlingConfiguration {
      */
     private boolean isDevProfile() {
         String[] activeProfiles = environment.getActiveProfiles();
-        return java.util.Arrays.asList(activeProfiles).contains("dev");
+        return Arrays.asList(activeProfiles).contains("dev");
     }
 }
