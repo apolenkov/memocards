@@ -166,7 +166,6 @@ public class TopMenuAuthService {
             }
 
             new SecurityContextLogoutHandler().logout(request.getHttpServletRequest(), null, null);
-            // Navigation will be handled by the calling component
         } catch (AuthenticationException e) {
             LOGGER.warn("Authentication error during logout: {}", e.getMessage());
             NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
