@@ -9,8 +9,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.UnaryOperator;
-import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -22,16 +20,6 @@ import org.springframework.stereotype.Component;
 @Component
 @UIScope
 public class TopMenuLayoutService {
-
-    // Logout button constants
-    private static final String LOGOUT_ROUTE = RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE;
-
-    // Navigation test IDs
-    private static final String NAV_DECKS_TEST_ID = "nav-decks";
-    private static final String NAV_STATS_TEST_ID = "nav-stats";
-    private static final String NAV_SETTINGS_TEST_ID = "nav-settings";
-    private static final String NAV_ADMIN_CONTENT_TEST_ID = "nav-admin-content";
-    private static final String LOGOUT_TEST_ID = "nav-logout";
 
     private final TopMenuAuthService authService;
     private final TopMenuButtonFactory buttonFactory;
@@ -58,32 +46,11 @@ public class TopMenuLayoutService {
      */
     public void initializeMenuButtons(final UnaryOperator<String> translationProvider) {
         menuButtons.clear();
-        menuButtons.add(new MenuButton(
-                translationProvider.apply(CoreConstants.MAIN_DECKS_KEY),
-                RouteConstants.ROOT_PATH + RouteConstants.DECKS_ROUTE,
-                NAV_DECKS_TEST_ID,
-                false,
-                SecurityConstants.ROLE_USER));
-        menuButtons.add(new MenuButton(
-                translationProvider.apply(CoreConstants.MAIN_STATS_KEY),
-                RouteConstants.ROOT_PATH + RouteConstants.STATS_ROUTE,
-                NAV_STATS_TEST_ID,
-                false,
-                SecurityConstants.ROLE_USER));
-        menuButtons.add(new MenuButton(
-                translationProvider.apply(CoreConstants.MAIN_SETTINGS_KEY),
-                RouteConstants.ROOT_PATH + RouteConstants.SETTINGS_ROUTE,
-                NAV_SETTINGS_TEST_ID,
-                false,
-                SecurityConstants.ROLE_USER));
-        menuButtons.add(new MenuButton(
-                translationProvider.apply(CoreConstants.ADMIN_CONTENT_TITLE_KEY),
-                RouteConstants.ROOT_PATH + RouteConstants.ADMIN_CONTENT_ROUTE,
-                NAV_ADMIN_CONTENT_TEST_ID,
-                false,
-                SecurityConstants.ROLE_ADMIN));
-        menuButtons.add(new MenuButton(
-                translationProvider.apply(CoreConstants.MAIN_LOGOUT_KEY), LOGOUT_ROUTE, LOGOUT_TEST_ID, false));
+        menuButtons.add(MenuButtonFactory.createDecksButton(translationProvider));
+        menuButtons.add(MenuButtonFactory.createStatsButton(translationProvider));
+        menuButtons.add(MenuButtonFactory.createSettingsButton(translationProvider));
+        menuButtons.add(MenuButtonFactory.createAdminContentButton(translationProvider));
+        menuButtons.add(MenuButtonFactory.createLogoutButton(translationProvider));
     }
 
     /**

@@ -34,6 +34,12 @@ public class LanguageSwitcher extends HorizontalLayout {
     public static final String SESSION_LOCALE_KEY = LocaleConstants.SESSION_LOCALE_KEY;
     private static final String COOKIE_LOCALE_KEY = LocaleConstants.COOKIE_LOCALE_KEY;
 
+    // Language display names for combo box matching
+    private static final String RUSSIAN_DISPLAY_NAME = "русский";
+    private static final String RUSSIAN_DISPLAY_NAME_EN = "russian";
+    private static final String SPANISH_DISPLAY_NAME = "español";
+    private static final String SPANISH_DISPLAY_NAME_EN = "spanish";
+
     private final transient UserUseCase userUseCase;
     private final transient UserSettingsService userSettingsService;
 
@@ -78,28 +84,46 @@ public class LanguageSwitcher extends HorizontalLayout {
         combo.getElement()
                 .setAttribute(CoreConstants.ARIA_LABEL_ATTRIBUTE, getTranslation(CoreConstants.LANGUAGE_LABEL_KEY));
 
-        combo.addValueChangeListener(e -> {
-            if (e.getValue() == null) {
-                return;
+        combo.addValueChangeListener(event -> {
+            String value = event.getValue();
+            if (value != null) {
+                Locale locale = mapSelectedValueToLocale(value);
+                applyLocaleToApplication(locale);
             }
-            Locale newLocale;
-            if (e.getValue().equalsIgnoreCase(ru)) {
-                newLocale = Locale.forLanguageTag(CoreConstants.RU_LOCALE);
-            } else if (e.getValue().equalsIgnoreCase(es)) {
-                newLocale = Locale.forLanguageTag(CoreConstants.ES_LOCALE);
-            } else {
-                newLocale = Locale.forLanguageTag(CoreConstants.EN_LOCALE);
-            }
-            VaadinSession.getCurrent().setAttribute(SESSION_LOCALE_KEY, newLocale.toLanguageTag());
-            persistPreferredLocaleCookie(newLocale);
-            persistIfLoggedIn(newLocale);
-            getUI().ifPresent(ui -> {
-                ui.setLocale(newLocale);
-                ui.getPage().reload();
-            });
         });
 
         add(label, combo);
+    }
+
+    /**
+     * Maps the selected combo box value to a Locale object.
+     *
+     * @param selectedValue the selected value from the combo box
+     * @return the corresponding locale
+     */
+    private Locale mapSelectedValueToLocale(final String selectedValue) {
+        String lowerValue = selectedValue.toLowerCase();
+        return switch (lowerValue) {
+            case RUSSIAN_DISPLAY_NAME, RUSSIAN_DISPLAY_NAME_EN -> Locale.forLanguageTag(CoreConstants.RU_LOCALE);
+            case SPANISH_DISPLAY_NAME, SPANISH_DISPLAY_NAME_EN -> Locale.forLanguageTag(CoreConstants.ES_LOCALE);
+            default -> Locale.forLanguageTag(CoreConstants.EN_LOCALE);
+        };
+    }
+
+    /**
+     * Applies the new locale to the application and persists the preference.
+     *
+     * @param newLocale the locale to apply
+     */
+    private void applyLocaleToApplication(final Locale newLocale) {
+        VaadinSession.getCurrent().setAttribute(SESSION_LOCALE_KEY, newLocale.toLanguageTag());
+        persistPreferredLocaleCookie(newLocale);
+        persistIfLoggedIn(newLocale);
+
+        getUI().ifPresent(ui -> {
+            ui.setLocale(newLocale);
+            ui.getPage().reload();
+        });
     }
 
     /**
