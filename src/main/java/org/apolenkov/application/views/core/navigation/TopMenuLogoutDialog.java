@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.core.navigation;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
@@ -42,7 +43,7 @@ public class TopMenuLogoutDialog {
      */
     public void openLogoutDialog(final UnaryOperator<String> translationProvider) {
         Dialog dialog = createLogoutDialog(translationProvider);
-        // UI context will be handled by the calling component
+        UI.getCurrent().add(dialog);
         dialog.open();
     }
 

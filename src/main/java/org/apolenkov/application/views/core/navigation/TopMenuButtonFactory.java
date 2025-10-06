@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.core.navigation;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.function.UnaryOperator;
@@ -96,7 +97,7 @@ public class TopMenuButtonFactory {
     private Button createSettingsButton(final MenuButton menuButton) {
         return ButtonHelper.createTertiaryButton(menuButton.getText(), e -> {
             PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService);
-            // UI context will be handled by the dialog itself
+            UI.getCurrent().add(dialog);
             dialog.open();
         });
     }
