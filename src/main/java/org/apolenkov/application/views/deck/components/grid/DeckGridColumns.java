@@ -14,6 +14,7 @@ import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.StatsService;
 import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.TextFormattingUtils;
 
 /**
  * Utility class for creating grid columns in the flashcard grid.
@@ -42,21 +43,9 @@ public final class DeckGridColumns {
      * @param grid the grid to add column to
      */
     public static void addExampleColumn(final Grid<Flashcard> grid) {
-        grid.addColumn(DeckGridColumns::formatExample)
+        grid.addColumn(flashcard -> TextFormattingUtils.formatPlaceholder(flashcard.getExample()))
                 .setHeader(grid.getTranslation(DeckConstants.DECK_COL_EXAMPLE))
                 .setFlexGrow(2);
-    }
-
-    /**
-     * Formats the example text for display in the grid.
-     * Returns "-" if the example is null or empty.
-     *
-     * @param flashcard the flashcard to format
-     * @return formatted example text or "-" if empty
-     */
-    private static String formatExample(final Flashcard flashcard) {
-        String example = flashcard.getExample();
-        return example != null && !example.trim().isEmpty() ? example : "-";
     }
 
     /**
