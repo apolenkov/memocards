@@ -98,18 +98,22 @@ public class TopMenuAuthService {
     public boolean shouldShowButton(
             final MenuButton menuButton, final Authentication auth, final boolean isAuthenticated) {
 
+        // Guard clause: always visible buttons
         if (menuButton.isAlwaysVisible()) {
             return true;
         }
 
+        // Guard clause: logout button for authenticated users only
         if (isLogoutButton(menuButton)) {
             return isAuthenticated;
         }
 
+        // Guard clause: role-restricted buttons require authentication and proper role
         if (hasRoleRestrictions(menuButton)) {
             return isAuthenticated && hasRequiredRole(menuButton, auth);
         }
 
+        // Default: button not visible
         return false;
     }
 

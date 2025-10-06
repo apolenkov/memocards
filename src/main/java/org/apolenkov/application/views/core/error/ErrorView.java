@@ -91,34 +91,14 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
         LOGGER.debug("Processing beforeEnter event for ErrorView");
 
         extractErrorParameters(event);
-        LOGGER.info(
-                "Extracted parameters: fromRoute={}, errorType={}, errorMessage={}, errorId={}",
-                fromRoute,
-                errorType,
-                errorMessage,
-                errorId);
+        logExtractedParameters();
 
         if (shouldRedirectToHome()) {
-            LOGGER.info("No valid error parameters found, redirecting to home page");
-            NavigationHelper.forwardToHome(event);
+            handleRedirectToHome(event);
             return;
         }
 
-        // Security: Only log error details, never expose in UI for production
-        if (isDevProfile()) {
-            LOGGER.info(
-                    "Processing error in dev mode: fromRoute={}, errorType={}, errorMessage={}, errorId={}",
-                    fromRoute,
-                    errorType,
-                    errorMessage,
-                    errorId);
-            updateUIWithErrorDetails();
-            showDevInfo();
-        } else {
-            // Production: Generic error message only
-            LOGGER.warn("Error occurred: fromRoute={}, errorType={}, errorId={}", fromRoute, errorType, errorId);
-            updateUIWithGenericError();
-        }
+        processErrorBasedOnProfile();
     }
 
     private void createErrorContainer() {
@@ -207,6 +187,61 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
                 .getParameters()
                 .getOrDefault(CoreConstants.ID_PARAM, List.of(""))
                 .getFirst();
+    }
+
+    /**
+     * Logs the extracted error parameters for debugging purposes.
+     */
+    private void logExtractedParameters() {
+        LOGGER.info(
+                "Extracted parameters: fromRoute={}, errorType={}, errorMessage={}, errorId={}",
+                fromRoute,
+                errorType,
+                errorMessage,
+                errorId);
+    }
+
+    /**
+     * Handles redirect to home page when no valid error parameters are found.
+     *
+     * @param event the before enter event for redirection
+     */
+    private void handleRedirectToHome(final BeforeEnterEvent event) {
+        LOGGER.info("No valid error parameters found, redirecting to home page");
+        NavigationHelper.forwardToHome(event);
+    }
+
+    /**
+     * Processes error display based on the current profile (dev vs production).
+     */
+    private void processErrorBasedOnProfile() {
+        if (isDevProfile()) {
+            processDevProfileError();
+        } else {
+            processProductionError();
+        }
+    }
+
+    /**
+     * Processes error in development profile with detailed information.
+     */
+    private void processDevProfileError() {
+        LOGGER.info(
+                "Processing error in dev mode: fromRoute={}, errorType={}, errorMessage={}, errorId={}",
+                fromRoute,
+                errorType,
+                errorMessage,
+                errorId);
+        updateUIWithErrorDetails();
+        showDevInfo();
+    }
+
+    /**
+     * Processes error in production profile with generic information only.
+     */
+    private void processProductionError() {
+        LOGGER.warn("Error occurred: fromRoute={}, errorType={}, errorId={}", fromRoute, errorType, errorId);
+        updateUIWithGenericError();
     }
 
     private boolean shouldRedirectToHome() {
