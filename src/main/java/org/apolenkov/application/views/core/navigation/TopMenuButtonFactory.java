@@ -20,9 +20,6 @@ import org.springframework.stereotype.Component;
 @UIScope
 public class TopMenuButtonFactory {
 
-    // Logout button constants
-    private static final String LOGOUT_ROUTE = RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE;
-
     private final PracticeSettingsService practiceSettingsService;
     private final TopMenuLogoutDialog logoutDialog;
 
@@ -39,72 +36,69 @@ public class TopMenuButtonFactory {
     }
 
     /**
-     * Creates a configured button for the specified menu button configuration.
-     * Creates buttons with appropriate styling and click handlers based on the
-     * menu button type. Special handling is provided for logout and settings buttons
-     * to ensure proper functionality.
+     * Creates a decks navigation button.
      *
-     * @param menuButton the menu button configuration to create a button for
-     * @return a configured Button component ready for use
+     * @param text the button text
+     * @return configured button with navigation handler
      */
-    public Button createButton(final MenuButton menuButton) {
-        Button button = createButtonByRoute(menuButton);
-        button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
+    public Button createDecksButton(final String text) {
+        Button button = ButtonHelper.createTertiaryButton(
+                text, e -> NavigationHelper.navigateTo(RouteConstants.ROOT_PATH + RouteConstants.DECKS_ROUTE));
+        button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, CoreConstants.NAV_DECKS_TEST_ID);
         return button;
     }
 
     /**
-     * Creates a button based on the menu button route.
+     * Creates a stats navigation button.
      *
-     * @param menuButton the menu button configuration
-     * @return a configured button with appropriate click handler
+     * @param text the button text
+     * @return configured button with navigation handler
      */
-    private Button createButtonByRoute(final MenuButton menuButton) {
-        String route = menuButton.getRoute();
-
-        if (LOGOUT_ROUTE.equals(route)) {
-            return createLogoutButton(menuButton);
-        }
-
-        if ((RouteConstants.ROOT_PATH + RouteConstants.SETTINGS_ROUTE).equals(route)) {
-            return createSettingsButton(menuButton);
-        }
-
-        return createNavigationButton(menuButton);
-    }
-
-    /**
-     * Creates a logout button with confirmation dialog.
-     *
-     * @param menuButton the menu button configuration
-     * @return a configured logout button
-     */
-    private Button createLogoutButton(final MenuButton menuButton) {
-        return ButtonHelper.createTertiaryButton(menuButton.getText(), e -> logoutDialog.openLogoutDialog());
+    public Button createStatsButton(final String text) {
+        Button button = ButtonHelper.createTertiaryButton(
+                text, e -> NavigationHelper.navigateTo(RouteConstants.ROOT_PATH + RouteConstants.STATS_ROUTE));
+        button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, CoreConstants.NAV_STATS_TEST_ID);
+        return button;
     }
 
     /**
      * Creates a settings button with practice settings dialog.
      *
-     * @param menuButton the menu button configuration
-     * @return a configured settings button
+     * @param text the button text
+     * @return configured button with dialog handler
      */
-    private Button createSettingsButton(final MenuButton menuButton) {
-        return ButtonHelper.createTertiaryButton(menuButton.getText(), e -> {
+    public Button createSettingsButton(final String text) {
+        Button button = ButtonHelper.createTertiaryButton(text, e -> {
             PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService);
             UI.getCurrent().add(dialog);
             dialog.open();
         });
+        button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, CoreConstants.NAV_SETTINGS_TEST_ID);
+        return button;
     }
 
     /**
-     * Creates a navigation button for regular menu items.
+     * Creates an admin content navigation button.
      *
-     * @param menuButton the menu button configuration
-     * @return a configured navigation button
+     * @param text the button text
+     * @return configured button with navigation handler
      */
-    private Button createNavigationButton(final MenuButton menuButton) {
-        return ButtonHelper.createTertiaryButton(
-                menuButton.getText(), e -> NavigationHelper.navigateTo(menuButton.getRoute()));
+    public Button createAdminContentButton(final String text) {
+        Button button = ButtonHelper.createTertiaryButton(
+                text, e -> NavigationHelper.navigateTo(RouteConstants.ROOT_PATH + RouteConstants.ADMIN_CONTENT_ROUTE));
+        button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, CoreConstants.NAV_ADMIN_CONTENT_TEST_ID);
+        return button;
+    }
+
+    /**
+     * Creates a logout button with confirmation dialog.
+     *
+     * @param text the button text
+     * @return configured button with logout handler
+     */
+    public Button createLogoutButton(final String text) {
+        Button button = ButtonHelper.createTertiaryButton(text, e -> logoutDialog.openLogoutDialog());
+        button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, CoreConstants.NAV_LOGOUT_TEST_ID);
+        return button;
     }
 }

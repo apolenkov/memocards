@@ -1,13 +1,10 @@
 package org.apolenkov.application.views.core.navigation;
 
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.UIScope;
-import java.util.ArrayList;
-import java.util.List;
 import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -23,8 +20,6 @@ public class TopMenuLayoutService {
     private final TopMenuAuthService authService;
     private final TopMenuButtonFactory buttonFactory;
 
-    private final List<MenuButton> menuButtons = new ArrayList<>();
-
     /**
      * Creates a new TopMenuLayoutService with required dependencies.
      *
@@ -35,30 +30,6 @@ public class TopMenuLayoutService {
             final TopMenuAuthService authenticationService, final TopMenuButtonFactory buttonFactoryService) {
         this.authService = authenticationService;
         this.buttonFactory = buttonFactoryService;
-    }
-
-    /**
-     * Initializes the menu button configuration for different user roles.
-     * Creates menu buttons with appropriate role requirements and navigation targets.
-     *
-     * @param decksText the translated text for decks button
-     * @param statsText the translated text for stats button
-     * @param settingsText the translated text for settings button
-     * @param adminContentText the translated text for admin content button
-     * @param logoutText the translated text for logout button
-     */
-    public void initializeMenuButtons(
-            final String decksText,
-            final String statsText,
-            final String settingsText,
-            final String adminContentText,
-            final String logoutText) {
-        menuButtons.clear();
-        menuButtons.add(MenuButtonFactory.createDecksButton(decksText));
-        menuButtons.add(MenuButtonFactory.createStatsButton(statsText));
-        menuButtons.add(MenuButtonFactory.createSettingsButton(settingsText));
-        menuButtons.add(MenuButtonFactory.createAdminContentButton(adminContentText));
-        menuButtons.add(MenuButtonFactory.createLogoutButton(logoutText));
     }
 
     /**
@@ -87,24 +58,34 @@ public class TopMenuLayoutService {
 
     /**
      * Creates the horizontal layout containing all visible menu buttons.
-     * Filters buttons based on user authentication and role requirements,
-     * then creates and configures each button with appropriate styling and
-     * click handlers.
+     * Creates buttons directly based on user authentication and role requirements.
      *
      * @param auth the cached authentication context
      * @param isAuthenticated the cached authentication status
+     * @param texts translated texts for menu buttons
      * @return a horizontal layout containing the filtered menu buttons
      */
-    public HorizontalLayout createMenuButtonsLayout(final Authentication auth, final boolean isAuthenticated) {
+    public HorizontalLayout createMenuButtonsLayout(
+            final Authentication auth, final boolean isAuthenticated, final MenuButtonTexts texts) {
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSpacing(true);
         buttonsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        for (MenuButton menuButton : menuButtons) {
-            if (authService.shouldShowButton(menuButton, auth, isAuthenticated)) {
-                Button button = buttonFactory.createButton(menuButton);
-                buttonsLayout.add(button);
+        if (isAuthenticated) {
+            // Add buttons if user has required roles
+            if (authService.hasUserRole(auth)) {
+                buttonsLayout.add(buttonFactory.createDecksButton(texts.decks()));
+                buttonsLayout.add(buttonFactory.createStatsButton(texts.stats()));
+                buttonsLayout.add(buttonFactory.createSettingsButton(texts.settings()));
             }
+
+            // Admin button - only for admins
+            if (authService.hasAdminRole(auth)) {
+                buttonsLayout.add(buttonFactory.createAdminContentButton(texts.adminContent()));
+            }
+
+            // Logout - for all authenticated users
+            buttonsLayout.add(buttonFactory.createLogoutButton(texts.logout()));
         }
 
         return buttonsLayout;

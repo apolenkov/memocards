@@ -2,9 +2,8 @@ package org.apolenkov.application.views.core.navigation;
 
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.spring.annotation.UIScope;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.slf4j.Logger;
@@ -27,9 +26,6 @@ import org.springframework.stereotype.Component;
 public class TopMenuAuthService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TopMenuAuthService.class);
-
-    // Logout button constants
-    private static final String LOGOUT_ROUTE = RouteConstants.ROOT_PATH + RouteConstants.LOGOUT_ROUTE;
 
     private final UserUseCase userUseCase;
 
@@ -86,75 +82,33 @@ public class TopMenuAuthService {
     }
 
     /**
-     * Determines whether a menu button should be visible based on authentication and role requirements.
-     * Always visible buttons shown regardless of authentication state. Logout button only for authenticated users.
-     * Role-restricted buttons require both authentication and appropriate role assignment.
+     * Checks if user has USER role.
      *
-     * @param menuButton the menu button to evaluate for visibility
-     * @param auth the current authentication context
-     * @param isAuthenticated whether the user is currently authenticated
-     * @return true if the button should be visible, false otherwise
+     * @param auth the authentication context
+     * @return true if user has USER role
      */
-    public boolean shouldShowButton(
-            final MenuButton menuButton, final Authentication auth, final boolean isAuthenticated) {
-
-        // Guard clause: always visible buttons
-        if (menuButton.isAlwaysVisible()) {
-            return true;
-        }
-
-        // Guard clause: logout button for authenticated users only
-        if (isLogoutButton(menuButton)) {
-            return isAuthenticated;
-        }
-
-        // Guard clause: role-restricted buttons require authentication and proper role
-        if (hasRoleRestrictions(menuButton)) {
-            return isAuthenticated && hasRequiredRole(menuButton, auth);
-        }
-
-        // Default: button not visible
-        return false;
-    }
-
-    /**
-     * Checks if the menu button is the logout button.
-     *
-     * @param menuButton the menu button to check
-     * @return true if it's the logout button
-     */
-    public boolean isLogoutButton(final MenuButton menuButton) {
-        return LOGOUT_ROUTE.equals(menuButton.getRoute());
-    }
-
-    /**
-     * Checks if the menu button has role restrictions.
-     *
-     * @param menuButton the menu button to check
-     * @return true if it has role restrictions
-     */
-    public boolean hasRoleRestrictions(final MenuButton menuButton) {
-        return menuButton.getRequiredRoles() != null
-                && !menuButton.getRequiredRoles().isEmpty();
-    }
-
-    /**
-     * Checks if the user has any of the required roles for the menu button.
-     *
-     * @param menuButton the menu button with role requirements
-     * @param auth the current authentication context
-     * @return true if user has required role
-     */
-    public boolean hasRequiredRole(final MenuButton menuButton, final Authentication auth) {
+    public boolean hasUserRole(final Authentication auth) {
         if (auth == null) {
             return false;
         }
-
-        Set<String> userAuthorities = auth.getAuthorities().stream()
+        return auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet());
+                .anyMatch(SecurityConstants.ROLE_USER::equals);
+    }
 
-        return menuButton.getRequiredRoles().stream().anyMatch(userAuthorities::contains);
+    /**
+     * Checks if user has ADMIN role.
+     *
+     * @param auth the authentication context
+     * @return true if user has ADMIN role
+     */
+    public boolean hasAdminRole(final Authentication auth) {
+        if (auth == null) {
+            return false;
+        }
+        return auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(SecurityConstants.ROLE_ADMIN::equals);
     }
 
     /**
