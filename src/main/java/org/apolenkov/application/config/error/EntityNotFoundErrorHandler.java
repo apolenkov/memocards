@@ -50,7 +50,6 @@ public class EntityNotFoundErrorHandler extends VerticalLayout implements HasErr
         // Create and display the error component
         EntityNotFoundError errorComponent =
                 new EntityNotFoundError(exception.getEntityId(), exception.getBackRoute(), exception.getMessage());
-        errorComponent.initialize();
 
         // Clear existing content and add error component
         removeAll();

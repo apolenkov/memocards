@@ -3,6 +3,7 @@ package org.apolenkov.application.views.core.error;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
@@ -14,8 +15,6 @@ import org.apolenkov.application.views.shared.utils.NavigationHelper;
  */
 public final class ErrorNavigationButtons extends Composite<HorizontalLayout> {
 
-    private final Button goHomeButton;
-    private final Button tryAgainButton;
     private final String fromRoute;
 
     /**
@@ -25,8 +24,20 @@ public final class ErrorNavigationButtons extends Composite<HorizontalLayout> {
      */
     public ErrorNavigationButtons(final String fromRouteParam) {
         this.fromRoute = fromRouteParam;
-        this.goHomeButton = createGoHomeButton();
-        this.tryAgainButton = createTryAgainButton();
+    }
+
+    @Override
+    protected HorizontalLayout initContent() {
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setSpacing(true);
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
+        Button goHomeButton = createGoHomeButton();
+        Button tryAgainButton = createTryAgainButton();
+
+        layout.add(goHomeButton, tryAgainButton);
+        return layout;
     }
 
     /**
@@ -51,14 +62,5 @@ public final class ErrorNavigationButtons extends Composite<HorizontalLayout> {
                 getTranslation(CoreConstants.ERROR_TRY_AGAIN_KEY),
                 e -> NavigationHelper.navigateTo(fromRoute),
                 ButtonVariant.LUMO_TERTIARY);
-    }
-
-    @Override
-    protected HorizontalLayout initContent() {
-        HorizontalLayout layout = new HorizontalLayout(goHomeButton, tryAgainButton);
-        layout.setSpacing(true);
-        layout.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
-        layout.setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
-        return layout;
     }
 }

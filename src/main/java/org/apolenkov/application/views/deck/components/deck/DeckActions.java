@@ -1,11 +1,12 @@
 package org.apolenkov.application.views.deck.components.deck;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.shared.Registration;
 import org.apolenkov.application.views.deck.components.DeckConstants;
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * Provides a consistent layout for action buttons with proper styling
  * and follows the component pattern established in the refactoring.
  */
-public final class DeckActions extends HorizontalLayout {
+public final class DeckActions extends Composite<HorizontalLayout> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckActions.class);
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
@@ -37,14 +38,19 @@ public final class DeckActions extends HorizontalLayout {
         this.deleteDeckButton = new Button();
     }
 
-    /**
-     * Configures the actions layout with proper styling.
-     * Sets up the horizontal layout with full width and centered alignment.
-     */
-    private void configureLayout() {
-        setWidthFull();
-        setJustifyContentMode(com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
-        setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+    @Override
+    protected HorizontalLayout initContent() {
+        HorizontalLayout actions = new HorizontalLayout();
+        actions.setWidthFull();
+        actions.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        actions.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        configurePracticeButton();
+        configureEditDeckButton();
+        configureDeleteDeckButton();
+
+        actions.add(practiceButton, editDeckButton, deleteDeckButton);
+        return actions;
     }
 
     /**
@@ -79,14 +85,6 @@ public final class DeckActions extends HorizontalLayout {
         deleteDeckButton.setText(getTranslation(DeckConstants.COMMON_DELETE));
         deleteDeckButton.setIcon(VaadinIcon.TRASH.create());
         deleteDeckButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
-    }
-
-    /**
-     * Adds all buttons to the layout.
-     * Arranges buttons in proper order.
-     */
-    private void addComponents() {
-        add(practiceButton, editDeckButton, deleteDeckButton);
     }
 
     /**
@@ -126,22 +124,6 @@ public final class DeckActions extends HorizontalLayout {
             logDeleteAction();
             listener.onComponentEvent(e);
         });
-    }
-
-    /**
-     * Initializes the component when attached to the UI.
-     * Configures layout and components to avoid this-escape warnings.
-     *
-     * @param attachEvent the attachment event
-     */
-    @Override
-    protected void onAttach(final AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        configureLayout();
-        configurePracticeButton();
-        configureEditDeckButton();
-        configureDeleteDeckButton();
-        addComponents();
     }
 
     /**

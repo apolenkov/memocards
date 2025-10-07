@@ -1,6 +1,6 @@
 package org.apolenkov.application.views.deck.components.grid;
 
-import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * Component for search and filter controls in the deck grid.
  * Provides search field, hide known checkbox, and reset progress button.
  */
-public final class DeckSearchControls extends HorizontalLayout {
+public final class DeckSearchControls extends Composite<HorizontalLayout> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckSearchControls.class);
 
@@ -42,18 +42,16 @@ public final class DeckSearchControls extends HorizontalLayout {
         this.resetProgressButton = new Button();
     }
 
-    /**
-     * Initializes the component when attached to the UI.
-     *
-     * @param attachEvent the attachment event
-     */
     @Override
-    protected void onAttach(final AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
+    protected HorizontalLayout initContent() {
+        HorizontalLayout controls = new HorizontalLayout();
+
         configureSearchField();
         configureHideKnownCheckbox();
         configureResetProgressButton();
-        createLayout();
+        createLayout(controls);
+
+        return controls;
     }
 
     /**
@@ -103,24 +101,26 @@ public final class DeckSearchControls extends HorizontalLayout {
     /**
      * Creates the search controls layout.
      * Groups search and filters in a compact, centered layout.
+     *
+     * @param container the container to configure and populate
      */
-    private void createLayout() {
+    private void createLayout(final HorizontalLayout container) {
         // Create compact horizontal layout
-        setWidthFull();
-        setAlignItems(FlexComponent.Alignment.CENTER);
-        setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        setSpacing(true);
+        container.setWidthFull();
+        container.setAlignItems(FlexComponent.Alignment.CENTER);
+        container.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        container.setSpacing(true);
 
         // Add search field with fixed width
         searchField.setWidth("250px");
-        add(searchField);
+        container.add(searchField);
 
         // Add compact filter controls
         HorizontalLayout filters = new HorizontalLayout();
         filters.setSpacing(true);
         filters.setAlignItems(FlexComponent.Alignment.CENTER);
         filters.add(hideKnownCheckbox, resetProgressButton);
-        add(filters);
+        container.add(filters);
     }
 
     /**

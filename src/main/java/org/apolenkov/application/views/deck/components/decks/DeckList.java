@@ -1,7 +1,8 @@
 package org.apolenkov.application.views.deck.components.decks;
 
-import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.List;
 import org.apolenkov.application.views.deck.business.DeckCardViewModel;
@@ -12,32 +13,17 @@ import org.apolenkov.application.views.deck.components.DeckConstants;
  * Handles deck display, empty state management, and provides
  * clean separation between data and presentation logic.
  */
-public final class DeckList extends VerticalLayout {
-
-    /**
-     * Creates a new DeckList with default configuration.
-     * Initialization is deferred to onAttach to avoid this-escape warnings.
-     */
-    public DeckList() {
-        // Intentionally left blank
-    }
-
-    /**
-     * Configures the deck list layout with proper styling.
-     * Sets up consistent spacing, alignment, and CSS classes.
-     */
-    private void configureLayout() {
-        setPadding(false);
-        setSpacing(true);
-        setWidthFull();
-        setAlignItems(Alignment.CENTER);
-        addClassName(DeckConstants.DECK_LIST_CLASS);
-    }
+public final class DeckList extends Composite<VerticalLayout> {
 
     @Override
-    protected void onAttach(final AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        configureLayout();
+    protected VerticalLayout initContent() {
+        VerticalLayout deckList = new VerticalLayout();
+        deckList.setPadding(false);
+        deckList.setSpacing(true);
+        deckList.setWidthFull();
+        deckList.setAlignItems(FlexComponent.Alignment.CENTER);
+        deckList.addClassName(DeckConstants.DECK_LIST_CLASS);
+        return deckList;
     }
 
     /**
@@ -47,7 +33,7 @@ public final class DeckList extends VerticalLayout {
      * @param decks the list of deck view models to display
      */
     public void refreshDecks(final List<DeckCardViewModel> decks) {
-        removeAll();
+        getContent().removeAll();
 
         if (decks == null || decks.isEmpty()) {
             showEmptyState();
@@ -64,7 +50,7 @@ public final class DeckList extends VerticalLayout {
     private void showEmptyState() {
         Span emptyMessage = new Span(getTranslation(DeckConstants.HOME_SEARCH_NO_RESULTS));
         emptyMessage.addClassName(DeckConstants.DECKS_EMPTY_MESSAGE_CLASS);
-        add(emptyMessage);
+        getContent().add(emptyMessage);
     }
 
     /**
@@ -74,6 +60,6 @@ public final class DeckList extends VerticalLayout {
      * @param decks the list of deck view models to display
      */
     private void addDeckCards(final List<DeckCardViewModel> decks) {
-        decks.stream().map(DeckCard::new).forEach(this::add);
+        decks.stream().map(DeckCard::new).forEach(card -> getContent().add(card));
     }
 }

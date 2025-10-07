@@ -1,7 +1,6 @@
 package org.apolenkov.application.views.deck.components.decks;
 
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
@@ -21,7 +20,7 @@ import org.apolenkov.application.views.shared.utils.NavigationHelper;
  * Renders a clickable card showing comprehensive deck details including title,
  * description, card count, progress indicators, and navigation controls.
  */
-public class DeckCard extends Div {
+public final class DeckCard extends Composite<Div> {
 
     private final transient DeckCardViewModel viewModel;
 
@@ -34,18 +33,14 @@ public class DeckCard extends Div {
         this.viewModel = model;
     }
 
-    /**
-     * Initializes the card components when the component is attached to the UI.
-     * This method is called by Vaadin when the component is added to the component tree.
-     *
-     * @param attachEvent the attaching event
-     */
     @Override
-    protected void onAttach(final AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-
-        add(buildContent());
-        addClickListener(e -> navigateToDeck());
+    protected Div initContent() {
+        Div card = new Div();
+        card.addClassName(DeckConstants.DECK_CARD_CLASS);
+        card.setWidthFull();
+        card.add(buildContent());
+        card.addClickListener(e -> navigateToDeck());
+        return card;
     }
 
     /**
@@ -55,15 +50,11 @@ public class DeckCard extends Div {
      *
      * @return the main content component containing all card elements
      */
-    private Component buildContent() {
+    private VerticalLayout buildContent() {
         // Create main card layout with no padding or spacing for tight design
         VerticalLayout cardContent = new VerticalLayout();
         cardContent.setPadding(false);
         cardContent.setSpacing(false);
-
-        // Apply consistent styling via theme CSS classes
-        addClassName(DeckConstants.DECK_CARD_CLASS);
-        setWidthFull();
 
         // Create horizontal layout for title and icon with proper alignment
         HorizontalLayout titleLayout = new HorizontalLayout();
