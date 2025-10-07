@@ -1,106 +1,54 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "1.0.0"
-tags: ["java21", "spring3", "vaadin24", "postgresql"]
+version: "2.0.0"
 ---
 
-# PROJECT RULES - Java 21 + Spring Boot 3 + Vaadin 24 + PostgreSQL
+# Java 21 + Spring Boot 3 + Vaadin 24 + PostgreSQL
 
 ## STACK
-Java 21 | Spring Boot 3.x | Vaadin 24 | PostgreSQL | Lombok | SLF4J/Logback
+Java 21 | Spring Boot 3 | Vaadin 24 | PostgreSQL | Spring Data JDBC | Lombok
 
 ## ARCHITECTURE
-- **Principles**: SOLID, DRY, KISS, YAGNI
-- **Layers**: Domain > Application > Infrastructure > UI (Clean Architecture)
-- **Injection**: Constructor only (NO @Autowired fields)
-- **Limits**: Class <300 lines | Method <50 lines | Params <5 | Nesting <3
+SOLID | DRY | KISS | Clean Arch (Domain→App→Infra→UI) | Constructor injection ONLY
+
+**Limits**: Class <200-300 | Method <50 | Params <5 | Complexity <5-10 | Nesting <3
 
 ## LAYERS
 
-### Entity
-- @Entity + @Data (Lombok) + @Id @GeneratedValue(IDENTITY)
-- FetchType.LAZY for relationships
-- Validation: @Size, @NotEmpty, @Email
+**Domain**: Records (immutable) or @Data | PostgreSQL SERIAL/IDENTITY | Aggregates (NO lazy)
 
-### Repository
-- @Repository + interface only + extends JpaRepository<Entity, ID>
-- JPQL for @Query | @EntityGraph for relations (avoid N+1)
-- DTOs for multi-join queries
+**Repository**: See @jdbc-best-practices | Port (interface) + Adapter (JdbcAdapter) | DTOs (Records) | SQL in *SqlQueries
 
-### Service  
-- Interface + @Service on implementation
-- Constructor injection | Return DTOs (not entities)
-- .orElseThrow() for checks | @Transactional for multi-ops
+**Service**: Interface + @Service | Constructor injection | Return DTOs | @Transactional
 
-### Controller
-- @RestController + @RequestMapping (class-level)
-- RESTful: GET/POST/PUT/DELETE /{id}
-- Constructor injection | Try-catch all | GlobalExceptionHandler
+**Controller**: @RestController | @RequestMapping | REST (GET/POST/PUT/DELETE) | Try-catch + GlobalExceptionHandler
 
-## PERFORMANCE
-Virtual Threads (I/O) | Caching | Async (CompletableFuture) | HikariCP pooling
+## CRITICAL ❌
 
-## TESTING
-Pyramid: 70% unit | 20% integration | 10% e2e | Coverage 80%+ | AssertJ | TestContainers
-
-## UI/UX
-**See @vaadin-best-practices for detailed Vaadin rules**
-- i18n: getTranslation() only (NO hardcoded strings)
-- Lumo theme tokens (NO hardcoded styles)
-- Accessibility + Responsive (mobile-first)
-
-## PROHIBITIONS
-- ❌ System.out.println → SLF4J/Logback
-- ❌ @Autowired fields → constructor injection
-- ❌ Hardcoded UI strings → getTranslation()
-- ❌ Nullable primitives → wrapper types
-- ❌ SQL concatenation → parameterized queries
-- ❌ Dead/commented code → remove
-- ❌ Code duplication → extract
+- System.out → SLF4J
+- @Autowired fields → constructor
+- Hardcoded UI strings → getTranslation()
+- SQL concat → parameterized (SQL injection!)
+- FQN → imports (java/org, blank, com.*)
+- SQL in methods → *SqlQueries class
+- Instance RowMapper → static final
+- Dead/commented code → remove
 
 ## STANDARDS
-- **Locale**: ru-RU (Russian chat | English code)
-- **JavaDoc**: Concise, substantive
-- **Logging**: Structured with context
-- **KISS > Complex**: Simple solutions always
-- **SRP**: Single responsibility per class
-- **Constants**: test-ids, CSS, routes (NOT log messages)
 
-## 📏 LIMITS & TRIGGERS
+**Locale**: ru-RU chat | EN code | **i18n**: getTranslation() | **Logging**: SLF4J structured | **Imports**: java/org→blank→com (NO FQN)
 
-### Size Limits
-Class: <300 lines | Method: <50 lines, <15 complexity | Params: <5 | Nesting: <3
+## PERFORMANCE & TESTING
 
-### Auto-Refactor When
-Class >300 → Extract | Method >15 complexity → Split | Params >5 → Builder/DTO
+**Perf**: Virtual Threads | Caching | Async | HikariCP
+**Test**: 70% unit | 20% integration | 10% e2e | 80%+ coverage | AssertJ | TestContainers
 
-### Strategies
-Extract Method/Class/Interface | Builder/Strategy/Factory patterns
+## VAADIN & JDBC
 
-## 🔥 AUTO-ACTIONS
+**Vaadin**: @vaadin-best-practices | Composite<T> | Lifecycle | Memory cleanup | Lumo tokens
+**JDBC**: @jdbc-best-practices | Adapter | Text Blocks | RETURNING | ON CONFLICT | Records
 
-For any file mentioned, automatically:
-1. Apply all rules | 2. Check quality | 3. Fix issues
-4. Suggest improvements | 5. Add tests | 6. Implement i18n
-7. Setup logging | 8. Check security | 9. Optimize performance | 10. Add docs
+## AUTO
 
-## 🏷️ TAGS
-
-**#java #spring**: SOLID | Clean Arch | Constructor Injection | Java 21 (Virtual Threads, Records, Pattern Matching) | Spring Boot 3.x (Jakarta EE 10, AOT)
-
-**#security**: OWASP Top 10 | Input Validation | SQL/XSS Prevention | OAuth2/JWT/MFA
-
-**#performance**: Virtual Threads | Caching | Async | DB Optimization | PostgreSQL tuning
-
-**#testing**: Pyramid (70/20/10) | 80% Coverage | AAA | TestContainers | AssertJ
-
-**#vaadin**: See @vaadin-best-practices | DSL | Lumo | i18n | Accessibility | PWA
-
-**#database**: JPA | Repository | DTOs | PostgreSQL (JSONB, arrays, full-text) | Migrations
-
-## 🎯 RESULT
-
-**SUPER-OPTIMIZED AI** - automatically applies ALL rules at SENIOR+ level:
-✅ Auto-apply rules | ✅ Fix issues proactively | ✅ Suggest improvements
-✅ Enterprise standards | ✅ Maximum efficiency
+Apply rules | Fix issues | Add tests | i18n | Security | Performance | Docs

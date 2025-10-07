@@ -1,0 +1,87 @@
+---
+alwaysApply: true
+autoFix: true
+version: "2.0.0"
+---
+
+# JDBC - Spring Data JDBC + PostgreSQL + Java 21
+
+## STACK
+Spring Data JDBC (NOT JPA/Hibernate!) | JdbcTemplate | PostgreSQL | Records
+
+## ARCHITECTURE
+- Adapter: `*JdbcAdapter implements *Repository`
+- Aggregates (NO lazy loading)
+- Immutability: Records for DTOs
+- Layers: adapter/dto/sql/exception/model
+
+## ADAPTER PATTERN
+```java
+@Profile({"dev","prod","test"}) @Repository
+public class UserJdbcAdapter implements UserRepository {
+    private static final RowMapper<UserDto> MAPPER = (rs,n)->/*...*/;
+    private final JdbcTemplate jdbc;
+    public UserJdbcAdapter(JdbcTemplate j){jdbc=j;}
+}
+```
+
+## CRITICAL RULES ✅
+
+**Structure**:
+- Static final RowMapper (thread-safe)
+- Constructor injection (validate null)
+- Private toModel() conversion
+- SLF4J logging
+
+**SQL**:
+- Text Blocks (Java 21)
+- Parameterized queries (?)
+- Separate *SqlQueries class
+- PostgreSQL RETURNING id
+
+**DTOs**:
+- Records (immutable)
+- Compact constructor validation
+- Static factory (forNew*, forExisting*)
+- Nested records for groups
+
+**Exceptions**:
+- Catch DataAccessException
+- Wrap in domain (*Persistence, *Retrieval)
+- Context in error msg
+- Optional<T> for single results
+
+**PostgreSQL**:
+- RETURNING id (NOT LASTVAL())
+- ON CONFLICT (upsert)
+- JSONB, arrays, text blocks
+
+**Validation**:
+- Input checks before queries
+- IllegalArgumentException
+- ID >0, non-null/empty strings
+
+## ANTIPATTERNS ❌
+1. SQL injection → always parameterized (?)
+2. Instance RowMapper → static final
+3. SQL in methods → *SqlQueries class
+4. Raw exceptions → domain exceptions
+5. No validation → validate first
+6. String concat → text blocks
+7. LASTVAL() → RETURNING id
+8. @Autowired fields → constructor
+
+## CHECKLIST
+- [ ] @Profile + @Repository
+- [ ] Static final RowMapper
+- [ ] Constructor injection
+- [ ] SQL in *SqlQueries
+- [ ] Text blocks
+- [ ] Parameterized (?)
+- [ ] DTO records
+- [ ] Domain exceptions
+- [ ] Input validation
+- [ ] Optional<T> returns
+
+## JAVA 21
+Text blocks | Records | getFirst() | Pattern matching
