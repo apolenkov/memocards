@@ -129,7 +129,7 @@ public final class PracticeSessionFlow {
      */
     public PracticeSession markLabeled(
             final PracticeSession session, final String label, final PracticeDirection sessionDirection) {
-        if (!isValidSession(session)) {
+        if (isInvalidSession(session)) {
             return session;
         }
 
@@ -154,13 +154,13 @@ public final class PracticeSessionFlow {
     }
 
     /**
-     * Checks if the session is valid for marking.
+     * Checks if the session is invalid for marking.
      *
      * @param session the current session
-     * @return true if valid for marking
+     * @return true if invalid for marking
      */
-    private boolean isValidSession(final PracticeSession session) {
-        return session != null && session.isShowingAnswer();
+    private boolean isInvalidSession(final PracticeSession session) {
+        return session == null || !session.isShowingAnswer();
     }
 
     /**
