@@ -34,6 +34,8 @@ SOLID | DRY | KISS | Clean Arch (Domain→App→Infra→UI) | Constructor inject
 - SQL in methods → *SqlQueries class
 - Instance RowMapper → static final
 - Dead/commented code → remove
+- @UIScope without @Lazy injection → scope conflict
+- @Lazy for regular @Component dependencies → unnecessary overhead
 
 ## STANDARDS
 
@@ -48,6 +50,12 @@ SOLID | DRY | KISS | Clean Arch (Domain→App→Infra→UI) | Constructor inject
 
 **Vaadin**: @vaadin-best-practices | Composite<T> | Lifecycle | Memory cleanup | Lumo tokens
 **JDBC**: @jdbc-best-practices | Adapter | Text Blocks | RETURNING | ON CONFLICT | Records
+
+## SPRING DEPENDENCY INJECTION
+
+**@Lazy**: Use for @UIScope dependencies | Avoid for regular @Component | Solve scope conflicts
+**Constructor Injection**: Always prefer over @Autowired fields | Validate null parameters
+**Scope Management**: @Component (singleton) | @UIScope (per UI) | @Lazy for cross-scope injection
 
 ## AUTO
 

@@ -65,6 +65,26 @@ public class SomeService {
 }
 ```
 
+## @Lazy (Spring Dependency Injection)
+
+**What is @Lazy:**
+- Delays bean creation until first access
+- Solves scope conflicts (@Component → @UIScope)
+- Prevents circular dependencies
+- Optimizes performance for heavy resources
+
+**Use @Lazy when [OK]:**
+- @Component injecting @UIScope beans
+- Circular dependencies (A → B → A)
+- Heavy resources not always needed
+- Conditional bean creation
+
+**Don't use @Lazy when [BAD]:**
+- Regular @Component → @Component dependencies
+- Always-needed beans (adds overhead)
+- Performance-critical paths
+- Simple, lightweight dependencies
+
 ## CRITICAL ANTIPATTERNS [BAD]
 1. getTranslation() in constructor → NPE
 2. Listeners without cleanup → memory leak
@@ -72,6 +92,8 @@ public class SomeService {
 4. Component in final field → memory leak
 5. grid.setItems(all) for >100 → OOM (use lazy)
 6. Forget super.onDetach(e)
+7. @UIScope without @Lazy injection → scope conflict
+8. @Lazy for regular @Component dependencies → unnecessary overhead
 
 ## PUSH
 @Push + save UI ref: `UI ui=UI.getCurrent(); thread(()->ui.access(()->...))`
@@ -84,3 +106,5 @@ public class SomeService {
 - [ ] Server validation
 - [ ] Lazy loading if >100 items
 - [ ] Lumo tokens (no hardcode)
+- [ ] @Lazy for @UIScope dependencies
+- [ ] No @Lazy for regular @Component dependencies
