@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.stats.pages;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -21,8 +22,8 @@ import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.stats.components.CollapsibleSectionBuilder;
 import org.apolenkov.application.views.stats.components.DeckPaginationBuilder;
+import org.apolenkov.application.views.stats.components.StatCard;
 import org.apolenkov.application.views.stats.components.StatsCalculator;
-import org.apolenkov.application.views.stats.components.StatsCardBuilder;
 import org.apolenkov.application.views.stats.components.StatsConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,10 +48,8 @@ public class StatsView extends BaseView {
     private transient List<Deck> decks;
     private transient Map<Long, StatsRepository.DeckAggregate> aggregates;
 
-    // Builders
+    // Helpers
     private transient StatsCalculator statsCalculator;
-    private transient StatsCardBuilder cardBuilder;
-    private transient CollapsibleSectionBuilder sectionBuilder;
 
     /**
      * Creates a new StatsView with required dependencies.
@@ -140,12 +139,10 @@ public class StatsView extends BaseView {
     }
 
     /**
-     * Initializes all builder components.
+     * Initializes all helper components.
      */
     private void initializeBuilders() {
         statsCalculator = new StatsCalculator(aggregates);
-        cardBuilder = new StatsCardBuilder();
-        sectionBuilder = new CollapsibleSectionBuilder();
     }
 
     /**
@@ -153,14 +150,12 @@ public class StatsView extends BaseView {
      *
      * @return configured collapsible section
      */
-    private VerticalLayout createTodayStatsSection() {
+    private Component createTodayStatsSection() {
         VerticalLayout contentContainer = new VerticalLayout();
         contentContainer.setSpacing(true);
         contentContainer.add(createStatsGrid(false)); // today's stats
 
-        return sectionBuilder.createCollapsibleSection(
-                StatsConstants.STATS_TODAY_KEY, contentContainer, true // open by default
-                );
+        return new CollapsibleSectionBuilder(StatsConstants.STATS_TODAY_KEY, contentContainer, true); // open by default
     }
 
     /**
@@ -168,14 +163,13 @@ public class StatsView extends BaseView {
      *
      * @return configured collapsible section
      */
-    private VerticalLayout createOverallStatsSection() {
+    private Component createOverallStatsSection() {
         VerticalLayout contentContainer = new VerticalLayout();
         contentContainer.setSpacing(true);
         contentContainer.add(createStatsGrid(true)); // overall stats
 
-        return sectionBuilder.createCollapsibleSection(
-                StatsConstants.STATS_OVERALL_KEY, contentContainer, false // closed by default
-                );
+        return new CollapsibleSectionBuilder(
+                StatsConstants.STATS_OVERALL_KEY, contentContainer, false); // closed by default
     }
 
     /**
@@ -183,7 +177,7 @@ public class StatsView extends BaseView {
      *
      * @return configured collapsible section
      */
-    private VerticalLayout createDeckStatsSection() {
+    private Component createDeckStatsSection() {
         VerticalLayout contentContainer = new VerticalLayout();
         contentContainer.setSpacing(true);
         contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -191,11 +185,11 @@ public class StatsView extends BaseView {
         if (decks.isEmpty()) {
             contentContainer.add(new Span(getTranslation(StatsConstants.STATS_NO_DECKS_KEY)));
         } else {
-            DeckPaginationBuilder paginationBuilder = new DeckPaginationBuilder(cardBuilder, decks, aggregates);
-            contentContainer.add(paginationBuilder.createDeckPagination());
+            DeckPaginationBuilder paginationBuilder = new DeckPaginationBuilder(decks, aggregates);
+            contentContainer.add(paginationBuilder);
         }
 
-        return sectionBuilder.createCollapsibleSection(StatsConstants.STATS_BY_DECK_KEY, contentContainer, false);
+        return new CollapsibleSectionBuilder(StatsConstants.STATS_BY_DECK_KEY, contentContainer, false);
     }
 
     /**
@@ -217,10 +211,10 @@ public class StatsView extends BaseView {
 
         // Add statistics cards
         statsGrid.add(
-                cardBuilder.createStatCard(StatsConstants.STATS_SESSIONS_KEY, stats.sessions()),
-                cardBuilder.createStatCard(StatsConstants.STATS_VIEWED_KEY, stats.viewed()),
-                cardBuilder.createStatCard(StatsConstants.STATS_CORRECT_KEY, stats.correct()),
-                cardBuilder.createStatCard(StatsConstants.STATS_HARD_KEY, stats.hard()));
+                new StatCard(StatsConstants.STATS_SESSIONS_KEY, stats.sessions()),
+                new StatCard(StatsConstants.STATS_VIEWED_KEY, stats.viewed()),
+                new StatCard(StatsConstants.STATS_CORRECT_KEY, stats.correct()),
+                new StatCard(StatsConstants.STATS_HARD_KEY, stats.hard()));
 
         return statsGrid;
     }

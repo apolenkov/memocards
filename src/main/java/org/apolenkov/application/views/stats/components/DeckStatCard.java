@@ -1,6 +1,5 @@
 package org.apolenkov.application.views.stats.components;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
@@ -10,50 +9,27 @@ import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.model.Deck;
 
 /**
- * Builder for creating statistics card components.
- * Handles creation of various types of statistics cards with consistent styling.
+ * UI component for displaying comprehensive deck statistics.
+ * Shows deck title and multiple stat metrics (sessions, viewed, correct, hard).
  */
-public final class StatsCardBuilder extends Composite<Component> {
+public final class DeckStatCard extends Composite<Div> {
+
+    private final transient Deck deck;
+    private final transient StatsRepository.DeckAggregate stats;
 
     /**
-     * Creates a new StatsCardBuilder.
+     * Creates a new deck statistics card.
+     *
+     * @param deckParam the deck to display statistics for
+     * @param statsParam aggregated statistics for the deck
      */
-    public StatsCardBuilder() {
-        // Intentionally empty
+    public DeckStatCard(final Deck deckParam, final StatsRepository.DeckAggregate statsParam) {
+        this.deck = deckParam;
+        this.stats = statsParam;
     }
 
-    /**
-     * Creates a single statistics card.
-     *
-     * @param labelKey translation key for the label
-     * @param value numeric value to display
-     * @return configured statistics card component
-     */
-    public Div createStatCard(final String labelKey, final int value) {
-        Div card = new Div();
-        card.addClassName(StatsConstants.STATS_CARD_CLASS);
-        card.addClassName(StatsConstants.SURFACE_CARD_CLASS);
-
-        Div valueDiv = new Div();
-        valueDiv.addClassName(StatsConstants.STATS_CARD_VALUE_CLASS);
-        valueDiv.setText(String.valueOf(value));
-
-        Div labelDiv = new Div();
-        labelDiv.addClassName(StatsConstants.STATS_CARD_LABEL_CLASS);
-        labelDiv.setText(getTranslation(labelKey));
-
-        card.add(valueDiv, labelDiv);
-        return card;
-    }
-
-    /**
-     * Creates a deck statistics card with comprehensive stats display.
-     *
-     * @param deck the deck to display statistics for
-     * @param stats aggregated statistics for the deck
-     * @return configured deck statistics card component
-     */
-    public Div createDeckStatCard(final Deck deck, final StatsRepository.DeckAggregate stats) {
+    @Override
+    protected Div initContent() {
         Div card = new Div();
         card.addClassName(StatsConstants.DECK_STATS_CARD_CLASS);
         card.addClassName(StatsConstants.SURFACE_CARD_CLASS);
@@ -91,7 +67,7 @@ public final class StatsCardBuilder extends Composite<Component> {
      * @param today today's value
      * @return configured deck statistics item component
      */
-    public Div createDeckStatItem(final String labelKey, final int total, final int today) {
+    private Div createDeckStatItem(final String labelKey, final int total, final int today) {
         Div item = new Div();
         item.addClassName(StatsConstants.STATS_DECK_ITEM_CLASS);
         item.addClassName(StatsConstants.SURFACE_CARD_CLASS);
