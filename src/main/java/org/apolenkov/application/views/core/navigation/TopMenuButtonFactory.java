@@ -3,7 +3,6 @@ package org.apolenkov.application.views.core.navigation;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.spring.annotation.UIScope;
-import java.util.function.UnaryOperator;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.views.core.constants.CoreConstants;
@@ -46,11 +45,10 @@ public class TopMenuButtonFactory {
      * to ensure proper functionality.
      *
      * @param menuButton the menu button configuration to create a button for
-     * @param translationProvider function to get translations for button text
      * @return a configured Button component ready for use
      */
-    public Button createButton(final MenuButton menuButton, final UnaryOperator<String> translationProvider) {
-        Button button = createButtonByRoute(menuButton, translationProvider);
+    public Button createButton(final MenuButton menuButton) {
+        Button button = createButtonByRoute(menuButton);
         button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, menuButton.getTestId());
         return button;
     }
@@ -59,14 +57,13 @@ public class TopMenuButtonFactory {
      * Creates a button based on the menu button route.
      *
      * @param menuButton the menu button configuration
-     * @param translationProvider function to get translations for button text
      * @return a configured button with appropriate click handler
      */
-    private Button createButtonByRoute(final MenuButton menuButton, final UnaryOperator<String> translationProvider) {
+    private Button createButtonByRoute(final MenuButton menuButton) {
         String route = menuButton.getRoute();
 
         if (LOGOUT_ROUTE.equals(route)) {
-            return createLogoutButton(menuButton, translationProvider);
+            return createLogoutButton(menuButton);
         }
 
         if ((RouteConstants.ROOT_PATH + RouteConstants.SETTINGS_ROUTE).equals(route)) {
@@ -80,12 +77,10 @@ public class TopMenuButtonFactory {
      * Creates a logout button with confirmation dialog.
      *
      * @param menuButton the menu button configuration
-     * @param translationProvider function to get translations for button text
      * @return a configured logout button
      */
-    private Button createLogoutButton(final MenuButton menuButton, final UnaryOperator<String> translationProvider) {
-        return ButtonHelper.createTertiaryButton(
-                menuButton.getText(), e -> logoutDialog.openLogoutDialog(translationProvider));
+    private Button createLogoutButton(final MenuButton menuButton) {
+        return ButtonHelper.createTertiaryButton(menuButton.getText(), e -> logoutDialog.openLogoutDialog());
     }
 
     /**

@@ -76,7 +76,12 @@ public class TopMenu extends HorizontalLayout {
      * Initializes the layout service with menu buttons.
      */
     private void initializeServices() {
-        layoutService.initializeMenuButtons(this::getTranslation);
+        layoutService.initializeMenuButtons(
+                getTranslation(CoreConstants.MAIN_DECKS_KEY),
+                getTranslation(CoreConstants.MAIN_STATS_KEY),
+                getTranslation(CoreConstants.MAIN_SETTINGS_KEY),
+                getTranslation(CoreConstants.ADMIN_CONTENT_TITLE_KEY),
+                getTranslation(CoreConstants.MAIN_LOGOUT_KEY));
     }
 
     /**
@@ -91,10 +96,9 @@ public class TopMenu extends HorizontalLayout {
         Authentication auth = authService.getCurrentAuthentication();
         boolean isAuthenticated = authService.isAuthenticated(auth);
 
-        HorizontalLayout leftSection =
-                layoutService.createLeftSection(title, auth, isAuthenticated, this::getTranslation);
-        HorizontalLayout buttonsSection =
-                layoutService.createMenuButtonsLayout(auth, isAuthenticated, this::getTranslation);
+        HorizontalLayout leftSection = layoutService.createLeftSection(
+                title, auth, isAuthenticated, getTranslation(CoreConstants.MAIN_GREETING_KEY));
+        HorizontalLayout buttonsSection = layoutService.createMenuButtonsLayout(auth, isAuthenticated);
 
         add(leftSection);
         add(buttonsSection);

@@ -8,7 +8,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.spring.annotation.UIScope;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.UnaryOperator;
 import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -42,15 +41,24 @@ public class TopMenuLayoutService {
      * Initializes the menu button configuration for different user roles.
      * Creates menu buttons with appropriate role requirements and navigation targets.
      *
-     * @param translationProvider function to get translations for button text
+     * @param decksText the translated text for decks button
+     * @param statsText the translated text for stats button
+     * @param settingsText the translated text for settings button
+     * @param adminContentText the translated text for admin content button
+     * @param logoutText the translated text for logout button
      */
-    public void initializeMenuButtons(final UnaryOperator<String> translationProvider) {
+    public void initializeMenuButtons(
+            final String decksText,
+            final String statsText,
+            final String settingsText,
+            final String adminContentText,
+            final String logoutText) {
         menuButtons.clear();
-        menuButtons.add(MenuButtonFactory.createDecksButton(translationProvider));
-        menuButtons.add(MenuButtonFactory.createStatsButton(translationProvider));
-        menuButtons.add(MenuButtonFactory.createSettingsButton(translationProvider));
-        menuButtons.add(MenuButtonFactory.createAdminContentButton(translationProvider));
-        menuButtons.add(MenuButtonFactory.createLogoutButton(translationProvider));
+        menuButtons.add(MenuButtonFactory.createDecksButton(decksText));
+        menuButtons.add(MenuButtonFactory.createStatsButton(statsText));
+        menuButtons.add(MenuButtonFactory.createSettingsButton(settingsText));
+        menuButtons.add(MenuButtonFactory.createAdminContentButton(adminContentText));
+        menuButtons.add(MenuButtonFactory.createLogoutButton(logoutText));
     }
 
     /**
@@ -59,21 +67,18 @@ public class TopMenuLayoutService {
      * @param title the title anchor component
      * @param auth the cached authentication context
      * @param isAuthenticated the cached authentication status
-     * @param translationProvider function to get translations for greeting text
+     * @param greetingText the translated greeting text
      * @return the configured left section layout
      */
     public HorizontalLayout createLeftSection(
-            final Anchor title,
-            final Authentication auth,
-            final boolean isAuthenticated,
-            final UnaryOperator<String> translationProvider) {
+            final Anchor title, final Authentication auth, final boolean isAuthenticated, final String greetingText) {
         HorizontalLayout left = new HorizontalLayout();
         left.setAlignItems(FlexComponent.Alignment.CENTER);
         left.setSpacing(true);
         left.add(title);
 
         if (isAuthenticated) {
-            Div greeting = createUserGreeting(auth, translationProvider);
+            Div greeting = createUserGreeting(auth, greetingText);
             left.add(greeting);
         }
 
@@ -88,18 +93,16 @@ public class TopMenuLayoutService {
      *
      * @param auth the cached authentication context
      * @param isAuthenticated the cached authentication status
-     * @param translationProvider function to get translations for button text
      * @return a horizontal layout containing the filtered menu buttons
      */
-    public HorizontalLayout createMenuButtonsLayout(
-            final Authentication auth, final boolean isAuthenticated, final UnaryOperator<String> translationProvider) {
+    public HorizontalLayout createMenuButtonsLayout(final Authentication auth, final boolean isAuthenticated) {
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSpacing(true);
         buttonsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         for (MenuButton menuButton : menuButtons) {
             if (authService.shouldShowButton(menuButton, auth, isAuthenticated)) {
-                Button button = buttonFactory.createButton(menuButton, translationProvider);
+                Button button = buttonFactory.createButton(menuButton);
                 buttonsLayout.add(button);
             }
         }
@@ -111,15 +114,14 @@ public class TopMenuLayoutService {
      * Creates the user greeting component.
      *
      * @param auth the authentication context
-     * @param translationProvider function to get translations for greeting text
+     * @param greetingText the translated greeting text
      * @return the configured greeting div
      */
-    private Div createUserGreeting(final Authentication auth, final UnaryOperator<String> translationProvider) {
+    private Div createUserGreeting(final Authentication auth, final String greetingText) {
         String displayName = authService.getUserDisplayName(auth);
 
         Div greeting = new Div();
-        greeting.setText(
-                translationProvider.apply(CoreConstants.MAIN_GREETING_KEY).replace("{0}", displayName));
+        greeting.setText(greetingText.replace("{0}", displayName));
         greeting.addClassName(CoreConstants.TOP_MENU_GREETING_CLASS);
 
         return greeting;
