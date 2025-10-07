@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.core.navigation;
 
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.ComboBoxVariant;
@@ -9,6 +10,7 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
@@ -34,14 +36,15 @@ public class LanguageSwitcher extends HorizontalLayout {
     public static final String SESSION_LOCALE_KEY = LocaleConstants.SESSION_LOCALE_KEY;
     private static final String COOKIE_LOCALE_KEY = LocaleConstants.COOKIE_LOCALE_KEY;
 
-    // Language display names for combo box matching
-    private static final String RUSSIAN_DISPLAY_NAME = "русский";
-    private static final String RUSSIAN_DISPLAY_NAME_EN = "russian";
-    private static final String SPANISH_DISPLAY_NAME = "español";
-    private static final String SPANISH_DISPLAY_NAME_EN = "spanish";
+    // Locale code constants for ComboBox values (matching translation keys)
+    private static final String LOCALE_CODE_RU = "RU";
+    private static final String LOCALE_CODE_ES = "ES";
 
     private final transient UserUseCase userUseCase;
     private final transient UserSettingsService userSettingsService;
+
+    // Event Registrations
+    private Registration localeChangeListenerRegistration;
 
     /**
      * Creates a new LanguageSwitcher with required dependencies.
@@ -84,7 +87,7 @@ public class LanguageSwitcher extends HorizontalLayout {
         combo.getElement()
                 .setAttribute(CoreConstants.ARIA_LABEL_ATTRIBUTE, getTranslation(CoreConstants.LANGUAGE_LABEL_KEY));
 
-        combo.addValueChangeListener(event -> {
+        localeChangeListenerRegistration = combo.addValueChangeListener(event -> {
             String value = event.getValue();
             if (value != null) {
                 Locale locale = mapSelectedValueToLocale(value);
@@ -96,16 +99,36 @@ public class LanguageSwitcher extends HorizontalLayout {
     }
 
     /**
+     * Cleans up event listeners when the component is detached.
+     * Prevents memory leaks by removing event listener registrations.
+     *
+     * @param detachEvent the detach event
+     */
+    @Override
+    protected void onDetach(final DetachEvent detachEvent) {
+        if (localeChangeListenerRegistration != null) {
+            localeChangeListenerRegistration.remove();
+            localeChangeListenerRegistration = null;
+        }
+        super.onDetach(detachEvent);
+    }
+
+    /**
      * Maps the selected combo box value to a Locale object.
+     * ComboBox values are locale codes: "EN", "RU", "ES" (from translations).
      *
      * @param selectedValue the selected value from the combo box
      * @return the corresponding locale
      */
     private Locale mapSelectedValueToLocale(final String selectedValue) {
-        String lowerValue = selectedValue.toLowerCase();
-        return switch (lowerValue) {
-            case RUSSIAN_DISPLAY_NAME, RUSSIAN_DISPLAY_NAME_EN -> Locale.forLanguageTag(CoreConstants.RU_LOCALE);
-            case SPANISH_DISPLAY_NAME, SPANISH_DISPLAY_NAME_EN -> Locale.forLanguageTag(CoreConstants.ES_LOCALE);
+        if (selectedValue == null) {
+            return Locale.forLanguageTag(CoreConstants.EN_LOCALE);
+        }
+
+        String upperValue = selectedValue.toUpperCase();
+        return switch (upperValue) {
+            case LOCALE_CODE_RU -> Locale.forLanguageTag(CoreConstants.RU_LOCALE);
+            case LOCALE_CODE_ES -> Locale.forLanguageTag(CoreConstants.ES_LOCALE);
             default -> Locale.forLanguageTag(CoreConstants.EN_LOCALE);
         };
     }

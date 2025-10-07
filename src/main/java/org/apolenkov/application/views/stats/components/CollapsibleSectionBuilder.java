@@ -1,6 +1,7 @@
 package org.apolenkov.application.views.stats.components;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H3;
@@ -8,6 +9,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.shared.Registration;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 
 /**
@@ -19,6 +21,10 @@ public final class CollapsibleSectionBuilder extends Composite<VerticalLayout> {
     private final String titleKey;
     private final transient VerticalLayout content;
     private final boolean openByDefault;
+
+    // Event Registrations
+    private Registration toggleButtonListenerRegistration;
+    private Registration titleClickListenerRegistration;
 
     /**
      * Creates a new collapsible section builder.
@@ -134,9 +140,28 @@ public final class CollapsibleSectionBuilder extends Composite<VerticalLayout> {
         };
 
         // Add click listeners
-        toggleButton.addClickListener(e -> toggleAction.run());
+        toggleButtonListenerRegistration = toggleButton.addClickListener(e -> toggleAction.run());
         if (sectionTitle != null) {
-            sectionTitle.addClickListener(e -> toggleAction.run());
+            titleClickListenerRegistration = sectionTitle.addClickListener(e -> toggleAction.run());
         }
+    }
+
+    /**
+     * Cleans up event listeners when the component is detached.
+     * Prevents memory leaks by removing event listener registrations.
+     *
+     * @param detachEvent the detach event
+     */
+    @Override
+    protected void onDetach(final DetachEvent detachEvent) {
+        if (toggleButtonListenerRegistration != null) {
+            toggleButtonListenerRegistration.remove();
+            toggleButtonListenerRegistration = null;
+        }
+        if (titleClickListenerRegistration != null) {
+            titleClickListenerRegistration.remove();
+            titleClickListenerRegistration = null;
+        }
+        super.onDetach(detachEvent);
     }
 }

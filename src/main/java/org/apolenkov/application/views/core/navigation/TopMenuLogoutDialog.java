@@ -9,7 +9,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.spring.annotation.UIScope;
 import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Component;
  * Handles dialog creation, layout, and user interaction for logout operations.
  */
 @Component
-@UIScope
 public class TopMenuLogoutDialog extends Composite<Dialog> {
 
     private final transient TopMenuAuthService authService;

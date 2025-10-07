@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.admin.pages;
 
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import java.time.format.DateTimeFormatter;
@@ -44,6 +46,9 @@ public class AdminNewsView extends BaseView {
 
     private final transient NewsService newsService;
     private VerticalLayout newsList;
+
+    // Event Registrations
+    private Registration searchListenerRegistration;
 
     /**
      * Creates news management interface.
@@ -86,11 +91,13 @@ public class AdminNewsView extends BaseView {
         search.setClearButtonVisible(true);
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setPrefixComponent(VaadinIcon.SEARCH.create());
-        search.addValueChangeListener(e -> refreshNews(e.getValue()));
+        searchListenerRegistration = search.addValueChangeListener(e -> refreshNews(e.getValue()));
 
         Button addNewsBtn = ButtonHelper.createButton(
-                getTranslation("common.add"), VaadinIcon.PLUS, e -> showNewsDialog(null), ButtonVariant.LUMO_PRIMARY);
-        addNewsBtn.setText(getTranslation(AdminConstants.ADMIN_NEWS_ADD_KEY));
+                getTranslation(AdminConstants.ADMIN_NEWS_ADD_KEY),
+                VaadinIcon.PLUS,
+                e -> showNewsDialog(null),
+                ButtonVariant.LUMO_PRIMARY);
 
         HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addNewsBtn);
         toolbar.addClassName(AdminConstants.ADMIN_CONTENT_TOOLBAR_CLASS);
@@ -131,7 +138,9 @@ public class AdminNewsView extends BaseView {
         content.setPadding(true);
 
         H3 dialogTitle = new H3(
-                news == null ? getTranslation(AdminConstants.ADMIN_NEWS_ADD_KEY) : getTranslation("dialog.edit"));
+                news == null
+                        ? getTranslation(AdminConstants.ADMIN_NEWS_ADD_KEY)
+                        : getTranslation(AdminConstants.DIALOG_EDIT_KEY));
         content.add(dialogTitle);
 
         TextField titleField = new TextField(getTranslation(AdminConstants.ADMIN_NEWS_TITLE_KEY));
@@ -300,27 +309,61 @@ public class AdminNewsView extends BaseView {
     private void refreshNews(final String query) {
         newsList.removeAll();
         List<News> allNews = newsService.getAllNews();
-
-        List<News> filteredNews = allNews.stream()
-                .filter(news -> query == null
-                        || query.isEmpty()
-                        || news.getTitle().toLowerCase().contains(query.toLowerCase())
-                        || news.getContent().toLowerCase().contains(query.toLowerCase())
-                        || news.getAuthor().toLowerCase().contains(query.toLowerCase()))
-                .toList();
+        List<News> filteredNews = filterNews(allNews, query);
 
         if (filteredNews.isEmpty()) {
-            Span empty = new Span(getTranslation(AdminConstants.ADMIN_CONTENT_SEARCH_NO_RESULTS_KEY));
-            empty.addClassName(AdminConstants.ADMIN_CONTENT_EMPTY_MESSAGE_CLASS);
-            newsList.add(empty);
+            displayEmptyState();
             return;
         }
 
-        // Create news cards similar to deck cards
-        filteredNews.forEach(news -> {
-            VerticalLayout newsCard = createNewsCard(news);
-            newsList.add(newsCard);
-        });
+        displayNewsCards(filteredNews);
+    }
+
+    /**
+     * Filters news based on search query.
+     *
+     * @param allNews all available news
+     * @param query search query
+     * @return filtered news list
+     */
+    private List<News> filterNews(final List<News> allNews, final String query) {
+        if (query == null || query.isEmpty()) {
+            return allNews;
+        }
+
+        String lowerQuery = query.toLowerCase();
+        return allNews.stream().filter(news -> matchesQuery(news, lowerQuery)).toList();
+    }
+
+    /**
+     * Checks if news matches search query.
+     *
+     * @param news the news to check
+     * @param lowerQuery lowercase search query
+     * @return true if matches
+     */
+    private boolean matchesQuery(final News news, final String lowerQuery) {
+        return news.getTitle().toLowerCase().contains(lowerQuery)
+                || news.getContent().toLowerCase().contains(lowerQuery)
+                || news.getAuthor().toLowerCase().contains(lowerQuery);
+    }
+
+    /**
+     * Displays empty state when no news found.
+     */
+    private void displayEmptyState() {
+        Span empty = new Span(getTranslation(AdminConstants.ADMIN_CONTENT_SEARCH_NO_RESULTS_KEY));
+        empty.addClassName(AdminConstants.ADMIN_CONTENT_EMPTY_MESSAGE_CLASS);
+        newsList.add(empty);
+    }
+
+    /**
+     * Displays news cards for filtered news.
+     *
+     * @param filteredNews the news to display
+     */
+    private void displayNewsCards(final List<News> filteredNews) {
+        filteredNews.forEach(news -> newsList.add(createNewsCard(news)));
     }
 
     /**
@@ -374,14 +417,14 @@ public class AdminNewsView extends BaseView {
         actions.setAlignItems(Alignment.CENTER);
 
         Button editBtn = ButtonHelper.createButton(
-                getTranslation("common.edit"),
+                getTranslation(AdminConstants.COMMON_EDIT_KEY),
                 VaadinIcon.EDIT,
                 e -> showNewsDialog(news),
                 ButtonVariant.LUMO_TERTIARY,
                 ButtonVariant.LUMO_SMALL);
 
         Button deleteBtn = ButtonHelper.createButton(
-                getTranslation("common.delete"),
+                getTranslation(AdminConstants.COMMON_DELETE_KEY),
                 VaadinIcon.TRASH,
                 e -> deleteNews(news),
                 ButtonVariant.LUMO_ERROR,
@@ -401,5 +444,20 @@ public class AdminNewsView extends BaseView {
     @Override
     public String getPageTitle() {
         return getTranslation(AdminConstants.ADMIN_CONTENT_PAGE_TITLE_KEY);
+    }
+
+    /**
+     * Cleans up event listeners when the component is detached.
+     * Prevents memory leaks by removing event listener registrations.
+     *
+     * @param detachEvent the detach event
+     */
+    @Override
+    protected void onDetach(final DetachEvent detachEvent) {
+        if (searchListenerRegistration != null) {
+            searchListenerRegistration.remove();
+            searchListenerRegistration = null;
+        }
+        super.onDetach(detachEvent);
     }
 }

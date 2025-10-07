@@ -1,6 +1,7 @@
 package org.apolenkov.application.views.stats.components;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
@@ -9,6 +10,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.shared.Registration;
 import java.util.List;
 import java.util.Map;
 import org.apolenkov.application.domain.port.StatsRepository;
@@ -27,6 +29,10 @@ public final class DeckPaginationBuilder extends Composite<VerticalLayout> {
 
     // State
     private int currentDeckIndex = 0;
+
+    // Event Registrations
+    private Registration prevButtonListenerRegistration;
+    private Registration nextButtonListenerRegistration;
 
     /**
      * Creates a new DeckPaginationBuilder with required dependencies.
@@ -140,7 +146,7 @@ public final class DeckPaginationBuilder extends Composite<VerticalLayout> {
 
         // Button click handlers
         if (prevButton != null) {
-            prevButton.addClickListener(e -> {
+            prevButtonListenerRegistration = prevButton.addClickListener(e -> {
                 if (currentDeckIndex > 0) {
                     currentDeckIndex--;
                     updateDisplay.run();
@@ -149,7 +155,7 @@ public final class DeckPaginationBuilder extends Composite<VerticalLayout> {
         }
 
         if (nextButton != null) {
-            nextButton.addClickListener(e -> {
+            nextButtonListenerRegistration = nextButton.addClickListener(e -> {
                 if (currentDeckIndex < decks.size() - 1) {
                     currentDeckIndex++;
                     updateDisplay.run();
@@ -159,6 +165,25 @@ public final class DeckPaginationBuilder extends Composite<VerticalLayout> {
 
         // Initial display
         updateDisplay.run();
+    }
+
+    /**
+     * Cleans up event listeners when the component is detached.
+     * Prevents memory leaks by removing event listener registrations.
+     *
+     * @param detachEvent the detach event
+     */
+    @Override
+    protected void onDetach(final DetachEvent detachEvent) {
+        if (prevButtonListenerRegistration != null) {
+            prevButtonListenerRegistration.remove();
+            prevButtonListenerRegistration = null;
+        }
+        if (nextButtonListenerRegistration != null) {
+            nextButtonListenerRegistration.remove();
+            nextButtonListenerRegistration = null;
+        }
+        super.onDetach(detachEvent);
     }
 
     /**

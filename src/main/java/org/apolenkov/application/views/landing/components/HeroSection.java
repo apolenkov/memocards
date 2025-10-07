@@ -1,6 +1,7 @@
 package org.apolenkov.application.views.landing.components;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -8,6 +9,8 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.shared.Registration;
+import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -21,6 +24,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public final class HeroSection extends Composite<Div> {
 
     private final transient Authentication auth;
+
+    // Event Registrations
+    private Registration heroImageClickListenerRegistration;
 
     /**
      * Creates a new HeroSection component.
@@ -61,7 +67,7 @@ public final class HeroSection extends Composite<Div> {
                 getTranslation(LandingConstants.LANDING_HERO_ALT_KEY));
 
         hero.addClassName(LandingConstants.LANDING_HERO_IMAGE_CLASS);
-        hero.addClickListener(e -> handleHeroClick());
+        heroImageClickListenerRegistration = hero.addClickListener(e -> handleHeroClick());
 
         heroIcon.add(hero);
         return heroIcon;
@@ -166,7 +172,8 @@ public final class HeroSection extends Composite<Div> {
      * @return true if user has USER role, false otherwise
      */
     private boolean hasUserRole(final Authentication authentication) {
-        return authentication.getAuthorities().stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority()));
+        return authentication.getAuthorities().stream()
+                .anyMatch(a -> SecurityConstants.ROLE_USER.equals(a.getAuthority()));
     }
 
     /**
@@ -177,5 +184,20 @@ public final class HeroSection extends Composite<Div> {
      */
     private Authentication getCurrentAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    /**
+     * Cleans up event listeners when the component is detached.
+     * Prevents memory leaks by removing event listener registrations.
+     *
+     * @param detachEvent the detach event
+     */
+    @Override
+    protected void onDetach(final DetachEvent detachEvent) {
+        if (heroImageClickListenerRegistration != null) {
+            heroImageClickListenerRegistration.remove();
+            heroImageClickListenerRegistration = null;
+        }
+        super.onDetach(detachEvent);
     }
 }
