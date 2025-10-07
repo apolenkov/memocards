@@ -14,6 +14,7 @@ import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.user.RegistrationService;
 import org.apolenkov.application.views.auth.constants.AuthConstants;
+import org.apolenkov.application.views.auth.utils.PasswordValidator;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
@@ -266,15 +267,14 @@ public class RegisterView extends BaseView {
     /**
      * Validates the password field according to security policy.
      * Ensures the password meets the application's security requirements
-     * including minimum length, character type requirements, etc. Uses the
-     * {@link #isPasswordInvalid(String)} helper method for validation logic.
+     * including minimum length, character type requirements, etc.
      *
      * @return true if password is valid, false otherwise
      */
     private boolean validatePassword() {
         String vPwd = password.getValue() == null ? "" : password.getValue();
 
-        if (isPasswordInvalid(vPwd)) {
+        if (PasswordValidator.isInvalid(vPwd)) {
             String pwdPolicy = getTranslation("auth.validation.passwordPolicy");
             password.setErrorMessage(pwdPolicy);
             password.setInvalid(true);
@@ -282,38 +282,6 @@ public class RegisterView extends BaseView {
         }
 
         return true;
-    }
-
-    /**
-     * Checks if a password violates the application's security requirements.
-     * Validates that the password has at least 8 characters, contains
-     * both letters and digits. This method encapsulates the password
-     * policy rules in one place for consistency.
-     *
-     * @param pwd the password string to validate
-     * @return true if password violates security requirements, false otherwise
-     */
-    private boolean isPasswordInvalid(final String pwd) {
-        if (pwd.length() < 8) {
-            return true;
-        }
-
-        boolean hasLetter = false;
-        boolean hasDigit = false;
-
-        for (char c : pwd.toCharArray()) {
-            if (Character.isLetter(c)) {
-                hasLetter = true;
-            } else if (Character.isDigit(c)) {
-                hasDigit = true;
-            }
-
-            if (hasLetter && hasDigit) {
-                break;
-            }
-        }
-
-        return !hasLetter || !hasDigit;
     }
 
     /**
@@ -379,29 +347,7 @@ public class RegisterView extends BaseView {
      * @throws IllegalArgumentException if password does not meet security requirements
      */
     private void registerUser(final String username, final String rawPassword) {
-        if (rawPassword == null || rawPassword.length() < 8) {
-            throw new IllegalArgumentException("Password must be at least 8 characters and contain letters and digits");
-        }
-
-        boolean hasLetter = false;
-        boolean hasDigit = false;
-
-        for (char c : rawPassword.toCharArray()) {
-            if (Character.isLetter(c)) {
-                hasLetter = true;
-            } else if (Character.isDigit(c)) {
-                hasDigit = true;
-            }
-
-            if (hasLetter && hasDigit) {
-                break;
-            }
-        }
-
-        if (!hasLetter || !hasDigit) {
-            throw new IllegalArgumentException("Password must be at least 8 characters and contain letters and digits");
-        }
-
+        PasswordValidator.validateOrThrow(rawPassword);
         registrationService.register(username, username, rawPassword);
     }
 }
