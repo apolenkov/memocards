@@ -24,7 +24,7 @@ SOLID | DRY | KISS | Clean Arch (Domain→App→Infra→UI) | Constructor inject
 
 **Controller**: @RestController | @RequestMapping | REST (GET/POST/PUT/DELETE) | Try-catch + GlobalExceptionHandler
 
-## CRITICAL ❌
+## CRITICAL [BAD]
 
 - System.out → SLF4J
 - @Autowired fields → constructor

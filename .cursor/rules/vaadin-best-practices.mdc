@@ -15,7 +15,7 @@ Composite<T> + initContent() | Builder | Factory
 3. onAttach → register listeners
 4. onDetach → Registration.remove() MANDATORY
 
-## MEMORY ❌
+## MEMORY [CRITICAL]
 - onDetach: `if(reg!=null) reg.remove()` + `super.onDetach(e)`
 - Fields: IDs only (NO collections/objects)
 
@@ -31,14 +31,41 @@ Composite<T> + initContent() | Builder | Factory
 
 ## i18n
 - UI: `getTranslation("key")` directly
-- ❌ Hardcoded strings → NPE in constructor
+- [BAD] Hardcoded strings → NPE in constructor
 
 ## SECURITY
 - Server validation + Binder
 - CSRF enabled
-- ❌ Client-only validation
+- [BAD] Client-only validation
 
-## CRITICAL ANTIPATTERNS ❌
+## @UIScope (Spring)
+
+**Use when [OK]:**
+- @Component + Reused across @Route views + Needs UI.getCurrent()
+- @Lazy for @UIScope injection into @Component
+- LocaleChangeObserver: only with @UIScope WITHOUT page.reload()
+
+**Don't use [BAD]:**
+- @Route views (created by Vaadin)
+- Dialogs (short lifecycle)
+- Reusable Components (created in View)
+- Stateless Services (singleton sufficient)
+
+```java
+@Component @UIScope
+public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
+    @Override
+    public void localeChange(LocaleChangeEvent e) { refreshMenu(); }
+}
+
+@Component
+public class SomeService {
+    // [OK] @Lazy for @UIScope dependency
+    public SomeService(@Lazy TopMenu menu) { this.menu = menu; }
+}
+```
+
+## CRITICAL ANTIPATTERNS [BAD]
 1. getTranslation() in constructor → NPE
 2. Listeners without cleanup → memory leak
 3. UI.getCurrent() in thread → NPE (save UI ref first)
