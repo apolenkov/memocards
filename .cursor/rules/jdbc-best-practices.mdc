@@ -25,7 +25,7 @@ public class UserJdbcAdapter implements UserRepository {
 }
 ```
 
-## CRITICAL RULES ✅
+## CRITICAL RULES [OK]
 
 **Structure**:
 - Static final RowMapper (thread-safe)
@@ -61,7 +61,7 @@ public class UserJdbcAdapter implements UserRepository {
 - IllegalArgumentException
 - ID >0, non-null/empty strings
 
-## ANTIPATTERNS ❌
+## ANTIPATTERNS [BAD]
 1. SQL injection → always parameterized (?)
 2. Instance RowMapper → static final
 3. SQL in methods → *SqlQueries class
