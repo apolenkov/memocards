@@ -8,6 +8,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.PracticeSettingsService;
 import org.apolenkov.application.views.core.constants.CoreConstants;
+import org.apolenkov.application.views.practice.components.PracticeSettingsComponents;
 import org.apolenkov.application.views.practice.components.PracticeSettingsDialog;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
@@ -25,17 +26,22 @@ public class TopMenuButtonFactory implements LocaleChangeObserver {
 
     private final transient PracticeSettingsService practiceSettingsService;
     private final transient TopMenuLogoutDialog logoutDialog;
+    private final transient PracticeSettingsComponents settingsComponents;
 
     /**
      * Creates a new TopMenuButtonFactory with required dependencies.
      *
      * @param settingsService service for practice session configuration
      * @param logoutDialogService service for logout dialog operations
+     * @param settingsComponentsService components factory for creating settings UI elements
      */
     public TopMenuButtonFactory(
-            final PracticeSettingsService settingsService, final TopMenuLogoutDialog logoutDialogService) {
+            final PracticeSettingsService settingsService,
+            final TopMenuLogoutDialog logoutDialogService,
+            final PracticeSettingsComponents settingsComponentsService) {
         this.practiceSettingsService = settingsService;
         this.logoutDialog = logoutDialogService;
+        this.settingsComponents = settingsComponentsService;
     }
 
     /**
@@ -71,7 +77,7 @@ public class TopMenuButtonFactory implements LocaleChangeObserver {
      */
     public Button createSettingsButton() {
         Button button = ButtonHelper.createTertiaryButton(getTranslation(CoreConstants.MAIN_SETTINGS_KEY), e -> {
-            PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService);
+            PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService, settingsComponents);
             UI.getCurrent().add(dialog);
             dialog.open();
         });

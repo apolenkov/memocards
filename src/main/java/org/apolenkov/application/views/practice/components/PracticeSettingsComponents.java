@@ -1,27 +1,33 @@
 package org.apolenkov.application.views.practice.components;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.i18n.LocaleChangeEvent;
+import com.vaadin.flow.i18n.LocaleChangeObserver;
+import com.vaadin.flow.spring.annotation.UIScope;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.service.PracticeSettingsService;
+import org.springframework.stereotype.Component;
 
 /**
  * Reusable components for practice settings configuration.
  * Provides common UI components for practice settings dialogs and views.
+ * Uses @UIScope to access Vaadin I18N provider for translations.
  */
-public final class PracticeSettingsComponents {
+@Component
+@UIScope
+public final class PracticeSettingsComponents implements LocaleChangeObserver {
 
     /**
      * Creates a card count selection component.
      *
      * @param practiceSettingsService the settings service for default values
-     * @param countLabel the translated label for the count select
      * @return configured count select component
      */
-    public static Select<Integer> createCountSelect(
-            final PracticeSettingsService practiceSettingsService, final String countLabel) {
+    public Select<Integer> createCountSelect(final PracticeSettingsService practiceSettingsService) {
         Select<Integer> countSelect = new Select<>();
-        countSelect.setLabel(countLabel);
+        countSelect.setLabel(getTranslation(PracticeConstants.SETTINGS_COUNT_KEY));
         countSelect.setItems(5, 10, 15, 20, 25, 30);
         countSelect.setValue(practiceSettingsService.getDefaultCount());
         return countSelect;
@@ -31,18 +37,14 @@ public final class PracticeSettingsComponents {
      * Creates a practice mode selection component.
      *
      * @param practiceSettingsService the settings service for default values
-     * @param modeLabel the translated label for the mode group
-     * @param randomText the translated text for random mode
-     * @param sequentialText the translated text for sequential mode
      * @return configured mode radio button group
      */
-    public static RadioButtonGroup<String> createModeGroup(
-            final PracticeSettingsService practiceSettingsService,
-            final String modeLabel,
-            final String randomText,
-            final String sequentialText) {
+    public RadioButtonGroup<String> createModeGroup(final PracticeSettingsService practiceSettingsService) {
+        String randomText = getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY);
+        String sequentialText = getTranslation(PracticeConstants.SETTINGS_MODE_SEQUENTIAL_KEY);
+
         RadioButtonGroup<String> modeGroup = new RadioButtonGroup<>();
-        modeGroup.setLabel(modeLabel);
+        modeGroup.setLabel(getTranslation(PracticeConstants.SETTINGS_MODE_KEY));
         modeGroup.setItems(randomText, sequentialText);
         modeGroup.setValue(practiceSettingsService.isDefaultRandomOrder() ? randomText : sequentialText);
         return modeGroup;
@@ -52,18 +54,14 @@ public final class PracticeSettingsComponents {
      * Creates a practice direction selection component.
      *
      * @param practiceSettingsService the settings service for default values
-     * @param directionLabel the translated label for the direction group
-     * @param frontToBackText the translated text for front to back direction
-     * @param backToFrontText the translated text for back to front direction
      * @return configured direction radio button group
      */
-    public static RadioButtonGroup<String> createDirectionGroup(
-            final PracticeSettingsService practiceSettingsService,
-            final String directionLabel,
-            final String frontToBackText,
-            final String backToFrontText) {
+    public RadioButtonGroup<String> createDirectionGroup(final PracticeSettingsService practiceSettingsService) {
+        String frontToBackText = getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY);
+        String backToFrontText = getTranslation(PracticeConstants.SETTINGS_DIRECTION_B2F_KEY);
+
         RadioButtonGroup<String> dirGroup = new RadioButtonGroup<>();
-        dirGroup.setLabel(directionLabel);
+        dirGroup.setLabel(getTranslation(PracticeConstants.SETTINGS_DIRECTION_KEY));
         dirGroup.setItems(frontToBackText, backToFrontText);
         dirGroup.setValue(
                 practiceSettingsService.getDefaultDirection() == PracticeDirection.FRONT_TO_BACK
@@ -79,16 +77,15 @@ public final class PracticeSettingsComponents {
      * @param countSelect the count selection component
      * @param modeGroup the mode selection component
      * @param dirGroup the direction selection component
-     * @param randomText the translated text for random mode (for comparison)
-     * @param frontToBackText the translated text for front to back direction (for comparison)
      */
-    public static void saveSettings(
+    public void saveSettings(
             final PracticeSettingsService practiceSettingsService,
             final Select<Integer> countSelect,
             final RadioButtonGroup<String> modeGroup,
-            final RadioButtonGroup<String> dirGroup,
-            final String randomText,
-            final String frontToBackText) {
+            final RadioButtonGroup<String> dirGroup) {
+
+        String randomText = getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY);
+        String frontToBackText = getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY);
 
         practiceSettingsService.setDefaultCount(countSelect.getValue());
         practiceSettingsService.setDefaultRandomOrder(modeGroup.getValue().equals(randomText));
@@ -98,8 +95,19 @@ public final class PracticeSettingsComponents {
                         : PracticeDirection.BACK_TO_FRONT);
     }
 
-    // Private constructor to prevent instantiation
-    private PracticeSettingsComponents() {
-        throw new UnsupportedOperationException("Utility class");
+    /**
+     * Gets translation for the specified key using current UI locale.
+     *
+     * @param key the translation key
+     * @param params optional parameters
+     * @return translated text
+     */
+    private String getTranslation(final String key, final Object... params) {
+        return UI.getCurrent().getTranslation(key, params);
+    }
+
+    @Override
+    public void localeChange(final LocaleChangeEvent event) {
+        // Handle locale changes if needed in the future
     }
 }
