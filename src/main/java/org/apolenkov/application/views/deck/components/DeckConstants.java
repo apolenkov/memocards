@@ -175,6 +175,17 @@ public final class DeckConstants {
     // HTML attributes
     public static final String TITLE_PROPERTY = "title";
 
+    // Grid action keys
+    public static final String ACTIONS_COLUMN_KEY = "actions";
+
+    // Tooltips for grid actions
+    public static final String GRID_EDIT_TOOLTIP = "deck.grid.edit.tooltip";
+    public static final String GRID_TOGGLE_TOOLTIP = "deck.grid.toggle.tooltip";
+    public static final String GRID_DELETE_TOOLTIP = "deck.grid.delete.tooltip";
+
+    // Loading states
+    public static final String DECK_LOADING_STATE = "deck.loading.state";
+
     // Private constructor to prevent instantiation
     private DeckConstants() {
         throw new UnsupportedOperationException("Utility class");

@@ -96,9 +96,9 @@ public final class DeckGridColumns {
             final Consumer<Flashcard> editCallback,
             final Consumer<Flashcard> toggleCallback,
             final Consumer<Flashcard> deleteCallback) {
-        grid.addComponentColumn(
-                        flashcard -> createActionsComponent(flashcard, editCallback, toggleCallback, deleteCallback))
-                .setKey("actions")
+        grid.addComponentColumn(flashcard ->
+                        createActionsComponent(flashcard, editCallback, toggleCallback, deleteCallback, grid))
+                .setKey(DeckConstants.ACTIONS_COLUMN_KEY)
                 .setHeader(grid.getTranslation(DeckConstants.DECK_COL_ACTIONS))
                 .setFlexGrow(0)
                 .setTextAlign(ColumnTextAlign.CENTER)
@@ -112,13 +112,15 @@ public final class DeckGridColumns {
      * @param editCallback callback for edit action
      * @param toggleCallback callback for toggle known action
      * @param deleteCallback callback for delete action
+     * @param grid the grid instance for translations
      * @return the actions component
      */
     private static HorizontalLayout createActionsComponent(
             final Flashcard flashcard,
             final Consumer<Flashcard> editCallback,
             final Consumer<Flashcard> toggleCallback,
-            final Consumer<Flashcard> deleteCallback) {
+            final Consumer<Flashcard> deleteCallback,
+            final Grid<Flashcard> grid) {
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(false);
         actions.setPadding(false);
@@ -131,14 +133,18 @@ public final class DeckGridColumns {
                 e -> Optional.ofNullable(editCallback).ifPresent(cb -> cb.accept(flashcard)),
                 ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_TERTIARY);
-        editButton.getElement().setProperty(DeckConstants.TITLE_PROPERTY, "Edit");
+        editButton
+                .getElement()
+                .setProperty(DeckConstants.TITLE_PROPERTY, grid.getTranslation(DeckConstants.GRID_EDIT_TOOLTIP));
 
         Button toggleKnown = ButtonHelper.createIconButton(
                 VaadinIcon.CHECK,
                 e -> Optional.ofNullable(toggleCallback).ifPresent(cb -> cb.accept(flashcard)),
                 ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_SUCCESS);
-        toggleKnown.getElement().setProperty(DeckConstants.TITLE_PROPERTY, "Toggle Known");
+        toggleKnown
+                .getElement()
+                .setProperty(DeckConstants.TITLE_PROPERTY, grid.getTranslation(DeckConstants.GRID_TOGGLE_TOOLTIP));
 
         Button deleteButton = ButtonHelper.createIconButton(
                 VaadinIcon.TRASH,
@@ -146,7 +152,9 @@ public final class DeckGridColumns {
                 ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_TERTIARY,
                 ButtonVariant.LUMO_ERROR);
-        deleteButton.getElement().setProperty(DeckConstants.TITLE_PROPERTY, "Delete");
+        deleteButton
+                .getElement()
+                .setProperty(DeckConstants.TITLE_PROPERTY, grid.getTranslation(DeckConstants.GRID_DELETE_TOOLTIP));
 
         actions.add(editButton, toggleKnown, deleteButton);
         return actions;
