@@ -121,6 +121,13 @@ public final class CoreConstants {
     // Profiles
     public static final String DEV_PROFILE = "dev";
 
+    // Test IDs for navigation buttons
+    public static final String NAV_DECKS_TEST_ID = "nav-decks";
+    public static final String NAV_STATS_TEST_ID = "nav-stats";
+    public static final String NAV_SETTINGS_TEST_ID = "nav-settings";
+    public static final String NAV_ADMIN_CONTENT_TEST_ID = "nav-admin-content";
+    public static final String NAV_LOGOUT_TEST_ID = "nav-logout";
+
     // Private constructor to prevent instantiation
     private CoreConstants() {
         throw new UnsupportedOperationException("Utility class");

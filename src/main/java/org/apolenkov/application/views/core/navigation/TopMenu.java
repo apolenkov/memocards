@@ -55,7 +55,6 @@ public class TopMenu extends HorizontalLayout {
         setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         setupTitle();
-        initializeServices();
         refreshMenu();
     }
 
@@ -73,18 +72,6 @@ public class TopMenu extends HorizontalLayout {
     }
 
     /**
-     * Initializes the layout service with menu buttons.
-     */
-    private void initializeServices() {
-        layoutService.initializeMenuButtons(
-                getTranslation(CoreConstants.MAIN_DECKS_KEY),
-                getTranslation(CoreConstants.MAIN_STATS_KEY),
-                getTranslation(CoreConstants.MAIN_SETTINGS_KEY),
-                getTranslation(CoreConstants.ADMIN_CONTENT_TITLE_KEY),
-                getTranslation(CoreConstants.MAIN_LOGOUT_KEY));
-    }
-
-    /**
      * Refreshes the entire menu content based on current authentication state.
      * This method is called after route changes to ensure the menu accurately
      * reflects the user's current authentication status. Delegates to layout service
@@ -98,7 +85,15 @@ public class TopMenu extends HorizontalLayout {
 
         HorizontalLayout leftSection = layoutService.createLeftSection(
                 title, auth, isAuthenticated, getTranslation(CoreConstants.MAIN_GREETING_KEY));
-        HorizontalLayout buttonsSection = layoutService.createMenuButtonsLayout(auth, isAuthenticated);
+
+        MenuButtonTexts buttonTexts = new MenuButtonTexts(
+                getTranslation(CoreConstants.MAIN_DECKS_KEY),
+                getTranslation(CoreConstants.MAIN_STATS_KEY),
+                getTranslation(CoreConstants.MAIN_SETTINGS_KEY),
+                getTranslation(CoreConstants.ADMIN_CONTENT_TITLE_KEY),
+                getTranslation(CoreConstants.MAIN_LOGOUT_KEY));
+
+        HorizontalLayout buttonsSection = layoutService.createMenuButtonsLayout(auth, isAuthenticated, buttonTexts);
 
         add(leftSection);
         add(buttonsSection);
