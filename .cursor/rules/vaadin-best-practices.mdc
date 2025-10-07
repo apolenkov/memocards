@@ -1,0 +1,193 @@
+---
+alwaysApply: true
+autoFix: true
+version: "1.0.0"
+tags: ["vaadin24", "ui", "frontend", "lumo"]
+---
+
+# VAADIN 24+ BEST PRACTICES
+
+## 🏗️ ARCHITECTURE
+
+### Patterns
+- **Composite**: `extends Composite<T> + initContent()` for reusable components
+- **Builder**: Fluent API for complex UI
+- **Factory**: Centralized creation (`ButtonHelper.createPrimary()`)
+
+### ❌ NEVER
+- Direct inheritance from `Div/VerticalLayout` instead of `Composite<T>`
+- Component in static/final field without cleanup
+
+## 🔄 LIFECYCLE
+
+### Order (critical!)
+1. **Constructor** → data only, NO UI logic
+2. **@PostConstruct** → Spring DI ready, `getTranslation()` works
+3. **onAttach** → register listeners, component in DOM
+4. **onDetach** → MANDATORY `Registration.remove()`
+
+### Decision Tree
+- Non-Spring → `Composite<T>` + `initContent()`
+- Spring @Route → `@PostConstruct`
+- Listeners → `onAttach()` + cleanup in `onDetach()`
+
+### ❌ NEVER
+- `getTranslation()` in Spring View constructor → NPE
+- Listeners without `Registration.remove()` → memory leak
+- Forget `super.onDetach(e)`
+
+## 🧠 MEMORY
+
+### ✅ ALWAYS
+```java
+private Registration reg;
+@Override protected void onAttach(AttachEvent e) {
+    super.onAttach(e);
+    reg = broadcaster.register(this::update);
+}
+@Override protected void onDetach(DetachEvent e) {
+    if (reg != null) reg.remove(); // CRITICAL!
+    super.onDetach(e);
+}
+```
+
+### State Management
+- ✅ Only IDs in fields (`Long userId`)
+- ❌ Collections/objects in session (`List<User> all`)
+
+## ⚡ PERFORMANCE
+
+### ✅ ALWAYS
+- **Lazy Loading**: `grid.setItems(query -> service.findAll(PageRequest...))`
+- **Virtual Scrolling**: `grid.setPageSize(50)`
+- **Flat Hierarchy**: max 3 nesting levels
+
+### ❌ NEVER
+- `grid.setItems(service.findAll())` for > 100 items
+- `for(Item i : items) layout.add(new Card(i))` → thousands of divs in DOM
+- Unnecessary wrapper layouts
+
+## 🎨 UI/UX
+
+### ✅ ALWAYS
+- **Lumo Tokens**: `var(--lumo-space-m)`, `var(--lumo-primary-color)`
+- **Factory Pattern**: `ButtonHelper.createPrimary(text, listener)`
+- **Responsive**: mobile-first, CSS Grid/Flexbox
+
+### ❌ NEVER
+- Hardcoded styles: `"16px"`, `"#333"`, `"bold"`
+- Duplicate component creation code
+
+## 🌍 i18n
+
+### ✅ ALWAYS
+- UI: `getTranslation("key")` directly
+- Non-UI: accepts ready `String text`
+
+### ❌ NEVER
+- Hardcoded strings in UI: `new H1("Users")`
+- `UnaryOperator<String> translationProvider` pattern
+
+## 🔒 SECURITY
+
+### ✅ ALWAYS
+- Server-side validation (+ client-side optional)
+- `Binder` with validators for forms
+- CSRF enabled (don't disable!)
+
+### ❌ NEVER
+- Client-side validation only
+- `security.csrf().disable()`
+- XSS via `new Html(userInput)` without sanitization
+
+## 📊 DATA BINDING
+
+### Forms
+```java
+Binder<User> binder = new Binder<>(User.class);
+binder.forField(field)
+    .asRequired("Required")
+    .withValidator(new EmailValidator("Invalid"))
+    .bind(User::getEmail, User::setEmail);
+```
+
+### Navigation
+```java
+// ✅ Type-safe
+@Route("user/:id")
+class UserView implements HasUrlParameter<Long> { }
+UI.getCurrent().navigate(UserView.class, 123L);
+
+// ❌ Strings
+UI.getCurrent().navigate("user?id=123");
+```
+
+## 🚀 PUSH
+
+### ✅ ALWAYS
+```java
+@Push @Route("chat")
+class ChatView extends VerticalLayout {
+    void onMessage(String msg) {
+        getUI().ifPresent(ui -> ui.access(() -> {
+            messages.add(msg);
+            ui.push();
+        }));
+    }
+}
+```
+
+### ❌ NEVER
+```java
+new Thread(() -> {
+    UI.getCurrent().access(...); // NPE! UI.getCurrent() = null in thread
+}).start();
+
+// ✅ Save UI reference
+UI ui = UI.getCurrent();
+new Thread(() -> ui.access(() -> {})).start();
+```
+
+## 🔧 ERROR HANDLING
+
+```java
+VaadinSession.getCurrent().setErrorHandler(event -> {
+    LOGGER.error("Error", event.getThrowable());
+    Notification.show(getTranslation("error.generic"));
+});
+```
+
+## ⚠️ CRITICAL ANTIPATTERNS
+
+1. **UI.getCurrent() in thread** → NPE (save UI before thread)
+2. **getTranslation() in constructor** → NPE (use @PostConstruct)
+3. **Listeners without cleanup** → memory leak (`onDetach()` mandatory)
+4. **Component in final field** → memory leak (create locally)
+5. **Loop in listener** → stack overflow (`button.click()` in `addClickListener`)
+6. **grid.setItems(all)** → OOM (use lazy loading)
+
+## ✅ CHECKLIST
+
+Every component:
+- [ ] `Composite<T>` (reusable) or extends for views
+- [ ] `@PostConstruct` (Spring) or `initContent()` (non-Spring)
+- [ ] `onDetach()` + `Registration.remove()` if has listeners
+- [ ] `getTranslation()` for all strings
+- [ ] Server-side validation
+- [ ] Lazy loading if > 100 items
+- [ ] Lumo tokens (no hardcode)
+- [ ] `UI.access()` for threads
+- [ ] Minimum server-side state
+- [ ] Factory/Helper for repetitions
+
+## 🎯 AUTO-FIX
+
+For Vaadin component:
+1. Check pattern (Composite/Builder/Factory)
+2. Check lifecycle (Constructor→@PostConstruct→onAttach→onDetach)
+3. Check cleanup (Registration.remove in onDetach)
+4. Check i18n (getTranslation for strings)
+5. Check performance (lazy loading)
+6. Check memory leaks
+7. Apply Lumo tokens
+8. Add JavaDoc
