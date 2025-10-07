@@ -1,8 +1,8 @@
 package org.apolenkov.application.views.deck.components.decks;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -19,7 +19,7 @@ import org.apolenkov.application.views.shared.utils.LayoutHelper;
  * Provides search functionality and deck creation button with consistent styling
  * and event handling for deck listing views.
  */
-public final class DeckToolbar extends HorizontalLayout {
+public final class DeckToolbar extends Composite<HorizontalLayout> {
 
     // UI Components
     private final TextField searchField;
@@ -32,6 +32,20 @@ public final class DeckToolbar extends HorizontalLayout {
     public DeckToolbar() {
         this.searchField = new TextField();
         this.addButton = new Button();
+    }
+
+    @Override
+    protected HorizontalLayout initContent() {
+        HorizontalLayout toolbar = new HorizontalLayout();
+        toolbar.setWidthFull();
+        toolbar.addClassName(DeckConstants.DECK_TOOLBAR_CLASS);
+
+        configureSearchField();
+        configureAddButton();
+
+        HorizontalLayout searchRow = LayoutHelper.createSearchRow(searchField, addButton);
+        toolbar.add(searchRow);
+        return toolbar;
     }
 
     /**
@@ -55,33 +69,6 @@ public final class DeckToolbar extends HorizontalLayout {
         addButton.setIcon(VaadinIcon.PLUS.create());
         addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addButton.addClassName(DeckConstants.DECK_TOOLBAR_ADD_BUTTON_CLASS);
-    }
-
-    /**
-     * Configures the toolbar layout with proper styling.
-     * Applies consistent spacing, alignment, and CSS classes.
-     */
-    private void configureLayout() {
-        setWidthFull();
-        addClassName(DeckConstants.DECK_TOOLBAR_CLASS);
-    }
-
-    /**
-     * Adds components to the toolbar layout.
-     * Uses LayoutHelper for consistent search row creation.
-     */
-    private void addComponents() {
-        HorizontalLayout searchRow = LayoutHelper.createSearchRow(searchField, addButton);
-        add(searchRow);
-    }
-
-    @Override
-    protected void onAttach(final AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        configureLayout();
-        configureSearchField();
-        configureAddButton();
-        addComponents();
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.core.error;
 
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H2;
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * Universal component for displaying "Entity Not Found" errors.
  * Can be used for any entity type (decks, cards, users, etc.).
  */
-public class EntityNotFoundError extends VerticalLayout {
+public final class EntityNotFoundError extends Composite<VerticalLayout> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityNotFoundError.class);
 
@@ -46,14 +47,6 @@ public class EntityNotFoundError extends VerticalLayout {
     }
 
     /**
-     * Initializes the UI after construction.
-     * This method should be called after the constructor to avoid this-escape warnings.
-     */
-    public void initialize() {
-        initializeUI();
-    }
-
-    /**
      * Creates a new EntityNotFoundError component with default back action.
      *
      * @param entityIdParam the ID of the entity that was not found
@@ -65,30 +58,32 @@ public class EntityNotFoundError extends VerticalLayout {
         this(entityIdParam, backRouteParam, customMessageParam, null);
     }
 
-    /**
-     * Initializes the UI components.
-     */
-    private void initializeUI() {
+    @Override
+    protected VerticalLayout initContent() {
         LOGGER.debug("Creating EntityNotFoundError for entity with ID: {}", entityId);
 
-        setSizeFull();
-        setAlignItems(Alignment.CENTER);
-        setJustifyContentMode(JustifyContentMode.CENTER);
-        setPadding(true);
-        setSpacing(true);
+        VerticalLayout error = new VerticalLayout();
+        error.setSizeFull();
+        error.setAlignItems(FlexComponent.Alignment.CENTER);
+        error.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        error.setPadding(true);
+        error.setSpacing(true);
 
-        createErrorContent();
+        error.add(createErrorContent());
+        return error;
     }
 
     /**
      * Creates the main error content section.
+     *
+     * @return the error content container
      */
-    private void createErrorContent() {
+    private VerticalLayout createErrorContent() {
         VerticalLayout errorContainer = new VerticalLayout();
         errorContainer.setSpacing(true);
         errorContainer.setWidthFull();
         errorContainer.addClassName(CoreConstants.CONTAINER_MD_CLASS);
-        errorContainer.setAlignItems(Alignment.CENTER);
+        errorContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
         VerticalLayout errorSection = new VerticalLayout();
         errorSection.setSpacing(true);
@@ -136,7 +131,7 @@ public class EntityNotFoundError extends VerticalLayout {
 
         errorSection.add(errorTitle, errorDescription, errorSuggestion, buttonLayout);
         errorContainer.add(errorSection);
-        add(errorContainer);
+        return errorContainer;
     }
 
     /**

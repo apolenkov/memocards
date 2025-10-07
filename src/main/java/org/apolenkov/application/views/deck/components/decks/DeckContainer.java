@@ -1,7 +1,8 @@
 package org.apolenkov.application.views.deck.components.decks;
 
-import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.List;
 import org.apolenkov.application.views.deck.business.DeckCardViewModel;
@@ -12,7 +13,7 @@ import org.apolenkov.application.views.deck.components.DeckConstants;
  * Provides consistent layout, styling, and structure for deck-related content
  * including title, toolbar, and deck list components.
  */
-public final class DeckContainer extends VerticalLayout {
+public final class DeckContainer extends Composite<VerticalLayout> {
 
     // UI Components
     private final H2 title;
@@ -29,37 +30,22 @@ public final class DeckContainer extends VerticalLayout {
         this.deckList = new DeckList();
     }
 
-    // Title content is set in onAttach to avoid using getTranslation in constructor
-
-    /**
-     * Configures the container layout with proper styling.
-     * Applies consistent spacing, alignment, and CSS classes.
-     */
-    private void configureLayout() {
-        setSpacing(true);
-        setAlignItems(Alignment.CENTER);
-        setWidthFull();
-        addClassName(DeckConstants.CONTAINER_MD_CLASS);
-        addClassName(DeckConstants.DECKS_SECTION_CLASS);
-        addClassName(DeckConstants.SURFACE_PANEL_CLASS);
-    }
-
-    /**
-     * Adds all components to the container layout.
-     * Arranges title, toolbar, and deck list in proper order.
-     */
-    private void addComponents() {
-        add(title, toolbar, deckList);
-    }
-
     @Override
-    protected void onAttach(final AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        // Initialize title content now to avoid using getTranslation in constructor
+    protected VerticalLayout initContent() {
+        VerticalLayout container = new VerticalLayout();
+        container.setSpacing(true);
+        container.setAlignItems(FlexComponent.Alignment.CENTER);
+        container.setWidthFull();
+        container.addClassName(DeckConstants.CONTAINER_MD_CLASS);
+        container.addClassName(DeckConstants.DECKS_SECTION_CLASS);
+        container.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
+
+        // Initialize title content
         title.setText(getTranslation(DeckConstants.DECKS_TITLE_KEY));
         title.addClassName(DeckConstants.DECKS_VIEW_TITLE_CLASS);
-        configureLayout();
-        addComponents();
+
+        container.add(title, toolbar, deckList);
+        return container;
     }
 
     /**

@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.apolenkov.application.views.core.constants.CoreConstants;
 
@@ -35,7 +36,7 @@ public final class ErrorViewLayout extends Composite<VerticalLayout> {
         errorContainer.addClassName(CoreConstants.ERROR_CONTAINER_CLASS);
         errorContainer.addClassName(CoreConstants.SURFACE_PANEL_CLASS);
         errorContainer.setSpacing(true);
-        errorContainer.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+        errorContainer.setAlignItems(FlexComponent.Alignment.CENTER);
         errorContainer.add(title, description);
         return errorContainer;
     }

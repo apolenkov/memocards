@@ -1,6 +1,6 @@
 package org.apolenkov.application.views.deck.components.deck;
 
-import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H2;
@@ -17,7 +17,7 @@ import org.apolenkov.application.views.shared.utils.NavigationHelper;
  * and statistics information. Follows the component pattern established in the
  * refactoring of DecksView.
  */
-public final class DeckHeader extends HorizontalLayout {
+public final class DeckHeader extends Composite<HorizontalLayout> {
 
     // UI Components
     private final Button backButton;
@@ -34,14 +34,12 @@ public final class DeckHeader extends HorizontalLayout {
         this.deckStats = new Span();
     }
 
-    /**
-     * Configures the header layout and components.
-     * Sets up the horizontal layout with proper alignment and spacing.
-     */
-    private void configureLayout() {
-        setWidthFull();
-        setAlignItems(FlexComponent.Alignment.CENTER);
-        setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+    @Override
+    protected HorizontalLayout initContent() {
+        HorizontalLayout header = new HorizontalLayout();
+        header.setWidthFull();
+        header.setAlignItems(FlexComponent.Alignment.CENTER);
+        header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -51,7 +49,8 @@ public final class DeckHeader extends HorizontalLayout {
         configureStats();
 
         leftSection.add(backButton, deckTitle, deckStats);
-        add(leftSection);
+        header.add(leftSection);
+        return header;
     }
 
     /**
@@ -99,17 +98,5 @@ public final class DeckHeader extends HorizontalLayout {
      */
     public void setDeckStats(final String stats) {
         deckStats.setText(stats);
-    }
-
-    /**
-     * Initializes the component when attached to the UI.
-     * Configures layout and components to avoid this-escape warnings.
-     *
-     * @param attachEvent the attachment event
-     */
-    @Override
-    protected void onAttach(final AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        configureLayout();
     }
 }

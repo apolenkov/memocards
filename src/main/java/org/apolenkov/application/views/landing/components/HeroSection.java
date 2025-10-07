@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.landing.components;
 
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -17,23 +18,32 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Hero section component for the landing page.
  * Displays the main title, subtitle, hero image, and action buttons.
  */
-public final class HeroSection extends Div {
+public final class HeroSection extends Composite<Div> {
+
+    private final transient Authentication auth;
 
     /**
      * Creates a new HeroSection component.
      *
-     * @param auth the current authentication context
+     * @param authParam the current authentication context
      */
-    public HeroSection(final Authentication auth) {
-        addClassName(LandingConstants.SURFACE_PANEL_CLASS);
-        addClassName(LandingConstants.LANDING_HERO_SECTION_CLASS);
+    public HeroSection(final Authentication authParam) {
+        this.auth = authParam;
+    }
+
+    @Override
+    protected Div initContent() {
+        Div content = new Div();
+        content.addClassName(LandingConstants.SURFACE_PANEL_CLASS);
+        content.addClassName(LandingConstants.LANDING_HERO_SECTION_CLASS);
 
         Div heroIcon = createHeroIcon();
         H1 title = createTitle();
         Paragraph subtitle = createSubtitle();
         HorizontalLayout actions = createActionButtons(auth);
 
-        add(heroIcon, title, subtitle, actions);
+        content.add(heroIcon, title, subtitle, actions);
+        return content;
     }
 
     /**
@@ -61,8 +71,8 @@ public final class HeroSection extends Div {
      * Handles hero image click based on authentication status.
      */
     private void handleHeroClick() {
-        Authentication auth = getCurrentAuthentication();
-        if (isAuthenticated(auth)) {
+        Authentication currentAuth = getCurrentAuthentication();
+        if (isAuthenticated(currentAuth)) {
             NavigationHelper.navigateToDecks();
         } else {
             NavigationHelper.navigateToLogin();
@@ -94,15 +104,15 @@ public final class HeroSection extends Div {
     /**
      * Creates action buttons based on authentication status.
      *
-     * @param auth the current authentication context
+     * @param authentication the current authentication context
      * @return HorizontalLayout containing action buttons
      */
-    private HorizontalLayout createActionButtons(final Authentication auth) {
+    private HorizontalLayout createActionButtons(final Authentication authentication) {
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(true);
 
-        if (isAuthenticated(auth)) {
-            addAuthenticatedButtons(actions, auth);
+        if (isAuthenticated(authentication)) {
+            addAuthenticatedButtons(actions, authentication);
         } else {
             addUnauthenticatedButtons(actions);
         }
@@ -114,10 +124,10 @@ public final class HeroSection extends Div {
      * Adds buttons for authenticated users.
      *
      * @param actions the layout to add buttons to
-     * @param auth the authentication context
+     * @param authentication the authentication context
      */
-    private void addAuthenticatedButtons(final HorizontalLayout actions, final Authentication auth) {
-        if (hasUserRole(auth)) {
+    private void addAuthenticatedButtons(final HorizontalLayout actions, final Authentication authentication) {
+        if (hasUserRole(authentication)) {
             Button goToDecks = ButtonHelper.createPrimaryButton(
                     getTranslation(LandingConstants.LANDING_GO_TO_DECKS_KEY), e -> NavigationHelper.navigateToDecks());
             actions.add(goToDecks);
@@ -142,21 +152,21 @@ public final class HeroSection extends Div {
     /**
      * Checks if the user is authenticated.
      *
-     * @param auth the authentication context
+     * @param authentication the authentication context
      * @return true if user is authenticated, false otherwise
      */
-    private boolean isAuthenticated(final Authentication auth) {
-        return auth != null && !(auth instanceof AnonymousAuthenticationToken);
+    private boolean isAuthenticated(final Authentication authentication) {
+        return authentication != null && !(authentication instanceof AnonymousAuthenticationToken);
     }
 
     /**
      * Checks if the user has USER role.
      *
-     * @param auth the authentication context
+     * @param authentication the authentication context
      * @return true if user has USER role, false otherwise
      */
-    private boolean hasUserRole(final Authentication auth) {
-        return auth.getAuthorities().stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority()));
+    private boolean hasUserRole(final Authentication authentication) {
+        return authentication.getAuthorities().stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority()));
     }
 
     /**

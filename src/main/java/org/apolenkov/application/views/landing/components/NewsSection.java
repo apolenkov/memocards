@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.landing.components;
 
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
@@ -10,7 +11,7 @@ import org.apolenkov.application.service.NewsService;
  * News section component for the landing page.
  * Displays news title and list of news cards.
  */
-public final class NewsSection extends Div {
+public final class NewsSection extends Composite<Div> {
 
     private final transient NewsService newsService;
 
@@ -21,14 +22,19 @@ public final class NewsSection extends Div {
      */
     public NewsSection(final NewsService service) {
         this.newsService = service;
+    }
 
-        addClassName(LandingConstants.SURFACE_PANEL_CLASS);
-        addClassName(LandingConstants.LANDING_NEWS_SECTION_CLASS);
+    @Override
+    protected Div initContent() {
+        Div content = new Div();
+        content.addClassName(LandingConstants.SURFACE_PANEL_CLASS);
+        content.addClassName(LandingConstants.LANDING_NEWS_SECTION_CLASS);
 
         H3 newsTitle = createNewsTitle();
         Div newsList = createNewsList();
 
-        add(newsTitle, newsList);
+        content.add(newsTitle, newsList);
+        return content;
     }
 
     /**

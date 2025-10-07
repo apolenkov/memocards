@@ -1,6 +1,6 @@
 package org.apolenkov.application.views.deck.components.deck;
 
-import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -11,7 +11,7 @@ import org.apolenkov.application.views.deck.components.DeckConstants;
  * Provides a consistent layout for deck details with proper styling
  * and follows the component pattern established in the refactoring.
  */
-public final class DeckInfo extends VerticalLayout {
+public final class DeckInfo extends Composite<VerticalLayout> {
 
     // UI Components
     private final Div infoSection;
@@ -26,11 +26,10 @@ public final class DeckInfo extends VerticalLayout {
         this.description = new Span();
     }
 
-    /**
-     * Configures the info section layout and styling.
-     * Sets up the container with proper CSS classes and structure.
-     */
-    private void configureLayout() {
+    @Override
+    protected VerticalLayout initContent() {
+        VerticalLayout info = new VerticalLayout();
+
         infoSection.addClassName(DeckConstants.DECK_VIEW_INFO_SECTION_CLASS);
         infoSection.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
 
@@ -38,7 +37,8 @@ public final class DeckInfo extends VerticalLayout {
         description.setText(getTranslation(DeckConstants.DECK_DESCRIPTION_LOADING));
 
         infoSection.add(description);
-        add(infoSection);
+        info.add(infoSection);
+        return info;
     }
 
     /**
@@ -48,17 +48,5 @@ public final class DeckInfo extends VerticalLayout {
      */
     public void setDescription(final String descriptionText) {
         description.setText(descriptionText);
-    }
-
-    /**
-     * Initializes the component when attached to the UI.
-     * Configures layout and components to avoid this-escape warnings.
-     *
-     * @param attachEvent the attachment event
-     */
-    @Override
-    protected void onAttach(final AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        configureLayout();
     }
 }

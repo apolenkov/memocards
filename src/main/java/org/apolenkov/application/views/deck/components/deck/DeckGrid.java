@@ -1,11 +1,13 @@
 package org.apolenkov.application.views.deck.components.deck;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
@@ -25,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * Component for displaying flashcards in a grid with search and filtering capabilities.
  * Coordinates search controls and flashcard grid components.
  */
-public final class DeckGrid extends VerticalLayout {
+public final class DeckGrid extends Composite<VerticalLayout> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckGrid.class);
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
@@ -58,18 +60,16 @@ public final class DeckGrid extends VerticalLayout {
         this.allFlashcards = new ArrayList<>();
     }
 
-    /**
-     * Initializes the component when attached to the UI.
-     *
-     * @param attachEvent the attachment event
-     */
     @Override
-    protected void onAttach(final AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
+    protected VerticalLayout initContent() {
+        VerticalLayout grid = new VerticalLayout();
+
         createAddFlashcardButton();
         setupCallbacks();
-        createLayout();
+        createLayout(grid);
         applyFilter();
+
+        return grid;
     }
 
     /**
@@ -252,14 +252,15 @@ public final class DeckGrid extends VerticalLayout {
     /**
      * Creates the layout with add button, search controls, and flashcard grid.
      * Groups buttons logically: Add card (separate row), Search/Filters (separate row).
+     *
+     * @param container the container to add components to
      */
-    private void createLayout() {
+    private void createLayout(final VerticalLayout container) {
         // Row 1: Add card button (centered)
         HorizontalLayout addCardRow = new HorizontalLayout();
         addCardRow.setWidthFull();
-        addCardRow.setJustifyContentMode(
-                com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
-        addCardRow.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+        addCardRow.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        addCardRow.setAlignItems(FlexComponent.Alignment.CENTER);
 
         addFlashcardButton.setWidth("auto");
         addCardRow.add(addFlashcardButton);
@@ -267,14 +268,13 @@ public final class DeckGrid extends VerticalLayout {
         // Row 2: Search and filter controls
         HorizontalLayout searchRow = new HorizontalLayout();
         searchRow.setWidthFull();
-        searchRow.setJustifyContentMode(
-                com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER);
-        searchRow.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+        searchRow.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        searchRow.setAlignItems(FlexComponent.Alignment.CENTER);
         searchRow.setSpacing(true);
         searchRow.add(searchControls);
 
         // Add all rows
-        add(addCardRow, searchRow, flashcardGrid);
+        container.add(addCardRow, searchRow, flashcardGrid);
     }
 
     /**
@@ -289,5 +289,20 @@ public final class DeckGrid extends VerticalLayout {
         }
         addFlashcardClickListenerRegistration = addFlashcardButton.addClickListener(listener);
         return addFlashcardClickListenerRegistration;
+    }
+
+    /**
+     * Cleans up event listeners when the component is detached.
+     * Prevents memory leaks by removing event listener registrations.
+     *
+     * @param detachEvent the detach event
+     */
+    @Override
+    protected void onDetach(final DetachEvent detachEvent) {
+        if (addFlashcardClickListenerRegistration != null) {
+            addFlashcardClickListenerRegistration.remove();
+            addFlashcardClickListenerRegistration = null;
+        }
+        super.onDetach(detachEvent);
     }
 }
