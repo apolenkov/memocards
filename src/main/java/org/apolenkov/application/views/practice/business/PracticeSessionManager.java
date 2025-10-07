@@ -6,7 +6,6 @@ import java.util.Objects;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.views.practice.business.PracticeSessionRecords.SessionData;
 import org.apolenkov.application.views.practice.business.PracticeSessionRecords.SessionState;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -22,7 +21,6 @@ public final class PracticeSessionManager {
     /**
      * Creates a new PracticeSessionManager with system clock.
      */
-    @Autowired
     public PracticeSessionManager() {
         this(Clock.systemUTC());
     }

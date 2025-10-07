@@ -75,7 +75,7 @@ public final class DeckGridColumns {
             final Flashcard flashcard, final StatsService statsService, final Long currentDeckId) {
         boolean known = currentDeckId != null && statsService.isCardKnown(currentDeckId, flashcard.getId());
         if (known) {
-            Span statusSpan = new Span("✓"); // Simple checkmark instead of translation
+            Span statusSpan = new Span("✓");
             statusSpan.addClassName(DeckConstants.KNOWN_STATUS_CLASS);
             return statusSpan;
         } else {

@@ -26,6 +26,14 @@ public final class AuthConstants {
     public static final String RESET_PASSWORD_FORM_CLASS = "reset-password-form";
     public static final String RESET_PASSWORD_FORM_TITLE_CLASS = "reset-password-form__title";
 
+    // Validation keys
+    public static final String VALIDATION_NAME_REQUIRED_KEY = "auth.validation.nameRequired";
+    public static final String VALIDATION_NAME_MIN2_KEY = "auth.validation.nameMin2";
+    public static final String VALIDATION_EMAIL_REQUIRED_KEY = "auth.validation.emailRequired";
+    public static final String VALIDATION_EMAIL_INVALID_KEY = "auth.validation.invalidEmail";
+    public static final String VALIDATION_PASSWORD_POLICY_KEY = "auth.validation.passwordPolicy";
+    public static final String VALIDATION_PASSWORDS_MISMATCH_KEY = "auth.validation.passwordsMismatch";
+
     private AuthConstants() {
         throw new UnsupportedOperationException("Utility class");
     }

@@ -62,6 +62,12 @@ public class ErrorHandlingConfiguration {
 
         LOGGER.error("UI error [uiId={}, route={}]", ui.getUIId(), currentRoute, error);
 
+        // Skip if session is invalid (shutdown scenario)
+        if (session == null || !isSessionValid(session)) {
+            LOGGER.debug("Session invalid or null, skipping error navigation [uiId={}]", ui.getUIId());
+            return;
+        }
+
         if (shouldSkipNavigation(session, currentRoute)) {
             return;
         }
@@ -85,6 +91,23 @@ public class ErrorHandlingConfiguration {
     }
 
     /**
+     * Checks if session is valid and can be safely accessed.
+     *
+     * @param session the Vaadin session to check
+     * @return true if session is valid, false otherwise
+     */
+    private boolean isSessionValid(final VaadinSession session) {
+        try {
+            // Try to access session - will fail if invalidated
+            session.hasLock();
+            return true;
+        } catch (Exception e) {
+            LOGGER.trace("Session validation failed", e);
+            return false;
+        }
+    }
+
+    /**
      * Determines if error navigation should be skipped to prevent cycles.
      *
      * @param session the Vaadin session to check navigation state
@@ -92,20 +115,26 @@ public class ErrorHandlingConfiguration {
      * @return true if navigation should be skipped, false otherwise
      */
     private boolean shouldSkipNavigation(final VaadinSession session, final String currentRoute) {
-        boolean navigationInProgress = Boolean.TRUE.equals(session.getAttribute(ATTR_ERROR_NAV_GUARD));
-        boolean onErrorView = RouteConstants.ERROR_ROUTE.equals(currentRoute);
+        try {
+            boolean navigationInProgress = Boolean.TRUE.equals(session.getAttribute(ATTR_ERROR_NAV_GUARD));
+            boolean onErrorView = RouteConstants.ERROR_ROUTE.equals(currentRoute);
 
-        if (navigationInProgress) {
-            LOGGER.warn("Skipping error navigation - already in progress");
+            if (navigationInProgress) {
+                LOGGER.warn("Skipping error navigation - already in progress");
+                return true;
+            }
+
+            if (onErrorView) {
+                LOGGER.warn("Error on error page - avoiding cycle");
+                return true;
+            }
+
+            return false;
+        } catch (IllegalStateException e) {
+            // Session invalidated during check
+            LOGGER.debug("Session invalidated during navigation check", e);
             return true;
         }
-
-        if (onErrorView) {
-            LOGGER.warn("Error on error page - avoiding cycle");
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -118,7 +147,13 @@ public class ErrorHandlingConfiguration {
      */
     private void navigateToErrorPage(
             final UI ui, final VaadinSession session, final String currentRoute, final Throwable error) {
-        session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.TRUE);
+        try {
+            session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.TRUE);
+        } catch (IllegalStateException e) {
+            LOGGER.debug("Cannot set navigation guard - session invalidated [uiId={}]", ui.getUIId());
+            return;
+        }
+
         String errorId = UUID.randomUUID().toString();
 
         try {
@@ -128,12 +163,20 @@ public class ErrorHandlingConfiguration {
                     NavigationHelper.navigateToError(RouteConstants.ERROR_ROUTE, params);
                     LOGGER.debug("Navigated to error page [uiId={}, errorId={}]", ui.getUIId(), errorId);
                 } finally {
-                    session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);
+                    try {
+                        session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);
+                    } catch (IllegalStateException e) {
+                        LOGGER.trace("Cannot clear navigation guard - session invalidated", e);
+                    }
                 }
             });
         } catch (Exception e) {
             LOGGER.warn("Failed to navigate to error page [uiId={}]", ui.getUIId(), e);
-            session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);
+            try {
+                session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);
+            } catch (IllegalStateException ex) {
+                LOGGER.trace("Cannot clear navigation guard - session invalidated", ex);
+            }
         }
     }
 

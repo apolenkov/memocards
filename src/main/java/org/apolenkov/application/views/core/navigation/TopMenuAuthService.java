@@ -1,7 +1,6 @@
 package org.apolenkov.application.views.core.navigation;
 
 import com.vaadin.flow.server.VaadinServletRequest;
-import com.vaadin.flow.spring.annotation.UIScope;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.usecase.UserUseCase;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Component;
  * Handles user authentication status, role checks, and logout operations.
  */
 @Component
-@UIScope
 public class TopMenuAuthService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TopMenuAuthService.class);

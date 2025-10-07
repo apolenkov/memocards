@@ -1,5 +1,15 @@
 package org.apolenkov.application.views.auth.pages;
 
+import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.service.user.RegistrationService;
+import org.apolenkov.application.views.auth.constants.AuthConstants;
+import org.apolenkov.application.views.auth.utils.PasswordValidator;
+import org.apolenkov.application.views.core.layout.PublicLayout;
+import org.apolenkov.application.views.shared.base.BaseView;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.NavigationHelper;
+import org.apolenkov.application.views.shared.utils.NotificationHelper;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -10,16 +20,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+
 import jakarta.annotation.PostConstruct;
-import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.service.user.RegistrationService;
-import org.apolenkov.application.views.auth.constants.AuthConstants;
-import org.apolenkov.application.views.auth.utils.PasswordValidator;
-import org.apolenkov.application.views.core.layout.PublicLayout;
-import org.apolenkov.application.views.shared.base.BaseView;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.NavigationHelper;
-import org.apolenkov.application.views.shared.utils.NotificationHelper;
 
 /**
  * User registration view with comprehensive form validation, security measures, and automatic login.
@@ -32,11 +34,6 @@ public class RegisterView extends BaseView {
      * Registration service for handling user registration operations.
      */
     private final transient RegistrationService registrationService;
-
-    /**
-     * Email validator instance for validating email field format.
-     */
-    private final EmailValidator emailValidator = new EmailValidator("invalid");
 
     /**
      * Text field for user's full name input.
@@ -221,17 +218,15 @@ public class RegisterView extends BaseView {
      * @return true if name is valid, false otherwise
      */
     private boolean validateName() {
-        String vName = name.getValue() == null ? "" : name.getValue().trim();
+        String vName = getTrimmedValue(name);
 
         if (vName.isEmpty()) {
-            name.setErrorMessage(getTranslation("auth.validation.nameRequired"));
-            name.setInvalid(true);
+            setFieldError(name, AuthConstants.VALIDATION_NAME_REQUIRED_KEY);
             return false;
         }
 
         if (vName.length() < 2) {
-            name.setErrorMessage(getTranslation("auth.validation.nameMin2"));
-            name.setInvalid(true);
+            setFieldError(name, AuthConstants.VALIDATION_NAME_MIN2_KEY);
             return false;
         }
 
@@ -241,23 +236,22 @@ public class RegisterView extends BaseView {
     /**
      * Validates the email field for required value and format.
      * Checks that the email field is not empty and contains a valid
-     * email format using the configured email validator. Sets appropriate
+     * email format using email validator. Sets appropriate
      * error messages for different validation failures.
      *
      * @return true if email is valid, false otherwise
      */
     private boolean validateEmail() {
-        String vEmail = email.getValue() == null ? "" : email.getValue().trim();
+        String vEmail = getTrimmedValue(email);
 
         if (vEmail.isEmpty()) {
-            email.setErrorMessage(getTranslation("auth.validation.emailRequired"));
-            email.setInvalid(true);
+            setFieldError(email, AuthConstants.VALIDATION_EMAIL_REQUIRED_KEY);
             return false;
         }
 
-        if (emailValidator.apply(vEmail, null).isError()) {
-            email.setErrorMessage(getTranslation("auth.validation.invalidEmail"));
-            email.setInvalid(true);
+        EmailValidator validator = new EmailValidator(getTranslation(AuthConstants.VALIDATION_EMAIL_INVALID_KEY));
+        if (validator.apply(vEmail, null).isError()) {
+            setFieldError(email, AuthConstants.VALIDATION_EMAIL_INVALID_KEY);
             return false;
         }
 
@@ -275,9 +269,7 @@ public class RegisterView extends BaseView {
         String vPwd = password.getValue() == null ? "" : password.getValue();
 
         if (PasswordValidator.isInvalid(vPwd)) {
-            String pwdPolicy = getTranslation("auth.validation.passwordPolicy");
-            password.setErrorMessage(pwdPolicy);
-            password.setInvalid(true);
+            setFieldError(password, AuthConstants.VALIDATION_PASSWORD_POLICY_KEY);
             return false;
         }
 
@@ -297,12 +289,32 @@ public class RegisterView extends BaseView {
         String vConfirm = confirm.getValue() == null ? "" : confirm.getValue();
 
         if (!vPwd.equals(vConfirm)) {
-            confirm.setErrorMessage(getTranslation("auth.validation.passwordsMismatch"));
-            confirm.setInvalid(true);
+            setFieldError(confirm, AuthConstants.VALIDATION_PASSWORDS_MISMATCH_KEY);
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Gets trimmed value from any field with value.
+     *
+     * @param field the field with getValue() method
+     * @return trimmed value or empty string
+     */
+    private String getTrimmedValue(final com.vaadin.flow.component.AbstractField<?, String> field) {
+        return field.getValue() == null ? "" : field.getValue().trim();
+    }
+
+    /**
+     * Sets field error message and invalid state.
+     *
+     * @param field the field to mark as invalid
+     * @param errorMessageKey the translation key for error message
+     */
+    private void setFieldError(final com.vaadin.flow.component.HasValidation field, final String errorMessageKey) {
+        field.setErrorMessage(getTranslation(errorMessageKey));
+        field.setInvalid(true);
     }
 
     /**

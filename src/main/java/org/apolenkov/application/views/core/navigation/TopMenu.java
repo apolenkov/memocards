@@ -21,9 +21,6 @@ import org.springframework.stereotype.Component;
 @UIScope
 public class TopMenu extends HorizontalLayout {
 
-    // UI constants
-    private static final String EMPTY_STRING = "";
-
     private Anchor title;
 
     private final transient TopMenuAuthService authService;
@@ -62,7 +59,7 @@ public class TopMenu extends HorizontalLayout {
      * Sets up the title anchor with logo icon.
      */
     private void setupTitle() {
-        title = new Anchor(RouteConstants.ROOT_PATH, EMPTY_STRING);
+        title = new Anchor(RouteConstants.ROOT_PATH, "");
 
         Image navIcon = new Image(
                 new StreamResource(VaadinApplicationShell.ResourcePaths.LOGO_ICON_NAME, () -> getClass()
@@ -86,14 +83,7 @@ public class TopMenu extends HorizontalLayout {
         HorizontalLayout leftSection = layoutService.createLeftSection(
                 title, auth, isAuthenticated, getTranslation(CoreConstants.MAIN_GREETING_KEY));
 
-        MenuButtonTexts buttonTexts = new MenuButtonTexts(
-                getTranslation(CoreConstants.MAIN_DECKS_KEY),
-                getTranslation(CoreConstants.MAIN_STATS_KEY),
-                getTranslation(CoreConstants.MAIN_SETTINGS_KEY),
-                getTranslation(CoreConstants.ADMIN_CONTENT_TITLE_KEY),
-                getTranslation(CoreConstants.MAIN_LOGOUT_KEY));
-
-        HorizontalLayout buttonsSection = layoutService.createMenuButtonsLayout(auth, isAuthenticated, buttonTexts);
+        HorizontalLayout buttonsSection = layoutService.createMenuButtonsLayout(auth, isAuthenticated);
 
         add(leftSection);
         add(buttonsSection);

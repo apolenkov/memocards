@@ -47,6 +47,7 @@ public class RouteNotFoundError extends VerticalLayout implements HasErrorParame
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
+    @SuppressWarnings("unused")
     private void initializeUI() {
         LOGGER.debug("Initializing RouteNotFoundError UI components");
 

@@ -3,6 +3,7 @@ package org.apolenkov.application.views.practice.controllers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
@@ -49,12 +50,14 @@ public final class PracticeCompletionFlow {
      *
      * @param session the completed session
      * @param deck the current deck
+     * @param onRepeatCallback callback to handle repeat with new session
      * @return new session for failed cards or null
      */
-    public PracticeSession showPracticeComplete(final PracticeSession session, final Deck deck) {
+    public PracticeSession showPracticeComplete(
+            final PracticeSession session, final Deck deck, final Consumer<PracticeSession> onRepeatCallback) {
         presenter.recordAndPersist(session);
         createCompletionDisplay(session, deck);
-        createCompletionButtons(deck);
+        createCompletionButtons(deck, onRepeatCallback);
         return null; // Session completed
     }
 
@@ -77,28 +80,40 @@ public final class PracticeCompletionFlow {
      * Creates completion action buttons.
      *
      * @param deck the current deck
+     * @param onRepeatCallback callback to handle repeat with new session
      */
-    public void createCompletionButtons(final Deck deck) {
+    public void createCompletionButtons(final Deck deck, final Consumer<PracticeSession> onRepeatCallback) {
+        // Check if there are failed cards to practice
+        List<Flashcard> failedCards = getFailedCards(deck);
+
+        Runnable repeatHandler = failedCards.isEmpty()
+                ? null
+                : () -> {
+                    PracticeSession newSession = handleRepeatPractice(deck);
+                    if (newSession != null && onRepeatCallback != null) {
+                        onRepeatCallback.accept(newSession);
+                    }
+                };
+
         practiceActions.showCompletionButtons(
-                () -> handleRepeatPractice(deck),
-                () -> NavigationHelper.navigateToDeck(deck.getId()),
-                NavigationHelper::navigateToDecks);
+                repeatHandler, () -> NavigationHelper.navigateToDeck(deck.getId()), NavigationHelper::navigateToDecks);
     }
 
     /**
      * Handles repeat practice for failed cards.
      *
      * @param deck the current deck
+     * @return new session for failed cards or null if no failed cards
      */
-    public void handleRepeatPractice(final Deck deck) {
+    public PracticeSession handleRepeatPractice(final Deck deck) {
         List<Flashcard> failed = getFailedCards(deck);
         practiceActions.resetToPracticeButtons();
 
         if (failed.isEmpty()) {
-            return; // Trigger default practice
+            return null; // No failed cards to practice
         }
 
-        startFailedCardsPractice(failed, deck);
+        return startFailedCardsPractice(failed, deck);
     }
 
     /**
@@ -118,10 +133,12 @@ public final class PracticeCompletionFlow {
      *
      * @param failedCards list of failed cards to practice
      * @param deck        the current deck
+     * @return new practice session with failed cards
      */
-    public void startFailedCardsPractice(final List<Flashcard> failedCards, final Deck deck) {
-        PracticeSession session = PracticeSession.create(deck.getId(), new ArrayList<>(failedCards));
-        Collections.shuffle(session.getCards());
+    public PracticeSession startFailedCardsPractice(final List<Flashcard> failedCards, final Deck deck) {
+        List<Flashcard> cards = new ArrayList<>(failedCards);
+        Collections.shuffle(cards);
+        return PracticeSession.create(deck.getId(), cards);
     }
 
     /**

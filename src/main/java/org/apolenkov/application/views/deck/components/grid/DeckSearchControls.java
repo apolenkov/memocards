@@ -1,6 +1,7 @@
 package org.apolenkov.application.views.deck.components.grid;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -9,6 +10,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.shared.Registration;
 import java.util.function.Consumer;
 import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
@@ -32,6 +34,11 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
     private transient Consumer<String> searchCallback;
     private transient Consumer<Boolean> filterCallback;
     private transient Runnable resetCallback;
+
+    // Event Registrations
+    private Registration searchFieldListenerRegistration;
+    private Registration hideKnownCheckboxListenerRegistration;
+    private Registration resetProgressButtonListenerRegistration;
 
     /**
      * Creates a new DeckSearchControls component.
@@ -62,7 +69,7 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
-        searchField.addValueChangeListener(e -> {
+        searchFieldListenerRegistration = searchField.addValueChangeListener(e -> {
             if (searchCallback != null) {
                 searchCallback.accept(e.getValue());
             }
@@ -75,7 +82,7 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
     private void configureHideKnownCheckbox() {
         hideKnownCheckbox.setLabel(getTranslation(DeckConstants.DECK_HIDE_KNOWN));
         hideKnownCheckbox.setValue(true);
-        hideKnownCheckbox.addValueChangeListener(e -> {
+        hideKnownCheckboxListenerRegistration = hideKnownCheckbox.addValueChangeListener(e -> {
             if (filterCallback != null) {
                 filterCallback.accept(e.getValue());
             }
@@ -89,7 +96,7 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
         resetProgressButton.setText(getTranslation(DeckConstants.DECK_RESET_PROGRESS));
         resetProgressButton.setIcon(VaadinIcon.ROTATE_LEFT.create());
         resetProgressButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
-        resetProgressButton.addClickListener(e -> {
+        resetProgressButtonListenerRegistration = resetProgressButton.addClickListener(e -> {
             LOGGER.info("Reset progress button clicked");
             NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_PROGRESS_RESET));
             if (resetCallback != null) {
@@ -168,5 +175,28 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
      */
     public boolean isHideKnown() {
         return Boolean.TRUE.equals(hideKnownCheckbox.getValue());
+    }
+
+    /**
+     * Cleans up event listeners when the component is detached.
+     * Prevents memory leaks by removing event listener registrations.
+     *
+     * @param detachEvent the detach event
+     */
+    @Override
+    protected void onDetach(final DetachEvent detachEvent) {
+        if (searchFieldListenerRegistration != null) {
+            searchFieldListenerRegistration.remove();
+            searchFieldListenerRegistration = null;
+        }
+        if (hideKnownCheckboxListenerRegistration != null) {
+            hideKnownCheckboxListenerRegistration.remove();
+            hideKnownCheckboxListenerRegistration = null;
+        }
+        if (resetProgressButtonListenerRegistration != null) {
+            resetProgressButtonListenerRegistration.remove();
+            resetProgressButtonListenerRegistration = null;
+        }
+        super.onDetach(detachEvent);
     }
 }

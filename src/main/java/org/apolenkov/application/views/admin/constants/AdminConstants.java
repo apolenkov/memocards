@@ -63,4 +63,9 @@ public final class AdminConstants {
     public static final String ADMIN_NEWS_CONFIRM_DELETE_TITLE_KEY = "admin.news.confirm.delete.title";
     public static final String ADMIN_NEWS_CONFIRM_DELETE_PREFIX_KEY = "admin.news.confirm.delete.prefix";
     public static final String ADMIN_NEWS_CONFIRM_DELETE_SUFFIX_KEY = "admin.news.confirm.delete.suffix";
+
+    // Common action keys
+    public static final String COMMON_EDIT_KEY = "common.edit";
+    public static final String COMMON_DELETE_KEY = "common.delete";
+    public static final String DIALOG_EDIT_KEY = "dialog.edit";
 }

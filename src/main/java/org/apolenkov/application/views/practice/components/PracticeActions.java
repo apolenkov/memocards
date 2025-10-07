@@ -131,19 +131,16 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
     }
 
     /**
-     * Shows completion buttons (repeat, back to deck, home).
+     * Shows completion buttons (optional repeat, back to deck, home).
      *
-     * @param repeatHandler handler for repeat button
+     * @param repeatHandler handler for repeat button (null if no failed cards)
      * @param backToDeckHandler handler for back to deck button
      * @param homeHandler handler for home button
-     * @throws IllegalArgumentException if any handler is null
+     * @throws IllegalArgumentException if backToDeckHandler or homeHandler is null
      */
     public void showCompletionButtons(
             final Runnable repeatHandler, final Runnable backToDeckHandler, final Runnable homeHandler) {
 
-        if (repeatHandler == null) {
-            throw new IllegalArgumentException("Repeat handler cannot be null");
-        }
         if (backToDeckHandler == null) {
             throw new IllegalArgumentException("Back to deck handler cannot be null");
         }
@@ -153,11 +150,15 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
 
         actionButtons.removeAll();
 
-        Button repeatButton = ButtonHelper.createButton(
-                getTranslation(PracticeConstants.PRACTICE_REPEAT_HARD_KEY),
-                e -> repeatHandler.run(),
-                ButtonVariant.LUMO_ERROR,
-                ButtonVariant.LUMO_LARGE);
+        // Show repeat button only if there are failed cards to practice
+        if (repeatHandler != null) {
+            Button repeatButton = ButtonHelper.createButton(
+                    getTranslation(PracticeConstants.PRACTICE_REPEAT_HARD_KEY),
+                    e -> repeatHandler.run(),
+                    ButtonVariant.LUMO_ERROR,
+                    ButtonVariant.LUMO_LARGE);
+            actionButtons.add(repeatButton);
+        }
 
         Button backToDeckButton = ButtonHelper.createButton(
                 getTranslation(PracticeConstants.PRACTICE_BACK_TO_DECK_KEY), e -> backToDeckHandler.run());
@@ -165,7 +166,7 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
         Button homeButton = ButtonHelper.createButton(
                 getTranslation(PracticeConstants.PRACTICE_BACK_TO_DECKS_KEY), e -> homeHandler.run());
 
-        actionButtons.add(repeatButton, backToDeckButton, homeButton);
+        actionButtons.add(backToDeckButton, homeButton);
     }
 
     /**
