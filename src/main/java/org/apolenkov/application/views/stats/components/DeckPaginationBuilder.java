@@ -1,6 +1,5 @@
 package org.apolenkov.application.views.stats.components;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,13 +16,10 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 
 /**
- * Builder for creating deck pagination components.
- * Handles creation of paginated deck statistics with navigation controls.
+ * UI component for creating deck pagination with navigation controls.
+ * Extends Composite to access translation methods directly.
  */
-public final class DeckPaginationBuilder extends Composite<Component> {
-
-    // Dependencies
-    private final StatsCardBuilder cardBuilder;
+public final class DeckPaginationBuilder extends Composite<VerticalLayout> {
 
     // Data
     private final transient List<Deck> decks;
@@ -35,17 +31,18 @@ public final class DeckPaginationBuilder extends Composite<Component> {
     /**
      * Creates a new DeckPaginationBuilder with required dependencies.
      *
-     * @param cardBuilderParam builder for creating cards
      * @param decksParam list of user's decks
      * @param aggregatesParam aggregated statistics for all decks
      */
     public DeckPaginationBuilder(
-            final StatsCardBuilder cardBuilderParam,
-            final List<Deck> decksParam,
-            final Map<Long, StatsRepository.DeckAggregate> aggregatesParam) {
-        this.cardBuilder = cardBuilderParam;
+            final List<Deck> decksParam, final Map<Long, StatsRepository.DeckAggregate> aggregatesParam) {
         this.decks = decksParam;
         this.aggregates = aggregatesParam;
+    }
+
+    @Override
+    protected VerticalLayout initContent() {
+        return createDeckPagination();
     }
 
     /**
@@ -53,7 +50,7 @@ public final class DeckPaginationBuilder extends Composite<Component> {
      *
      * @return configured vertical layout with pagination
      */
-    public VerticalLayout createDeckPagination() {
+    private VerticalLayout createDeckPagination() {
         VerticalLayout paginationContainer = new VerticalLayout();
         paginationContainer.setSpacing(true);
         paginationContainer.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -194,7 +191,7 @@ public final class DeckPaginationBuilder extends Composite<Component> {
         Deck currentDeck = decks.get(currentDeckIndex);
         var stats =
                 aggregates.getOrDefault(currentDeck.getId(), new StatsRepository.DeckAggregate(0, 0, 0, 0, 0, 0, 0, 0));
-        container.add(cardBuilder.createDeckStatCard(currentDeck, stats));
+        container.add(new DeckStatCard(currentDeck, stats));
 
         // Update page indicator
         if (pageIndicator != null) {

@@ -1,6 +1,5 @@
 package org.apolenkov.application.views.stats.components;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -12,28 +11,40 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 
 /**
- * Builder for creating collapsible statistics sections.
- * Handles creation of section headers with toggle functionality.
+ * UI component for creating collapsible statistics sections.
+ * Extends Composite to access translation methods directly.
  */
-public final class CollapsibleSectionBuilder extends Composite<Component> {
+public final class CollapsibleSectionBuilder extends Composite<VerticalLayout> {
+
+    private final String titleKey;
+    private final transient VerticalLayout content;
+    private final boolean openByDefault;
 
     /**
-     * Creates a new CollapsibleSectionBuilder.
+     * Creates a new collapsible section builder.
+     *
+     * @param titleKeyParam translation key for section title
+     * @param contentParam the content to be collapsed/expanded
+     * @param openByDefaultParam whether section should be open by default
      */
-    public CollapsibleSectionBuilder() {
-        // Intentionally empty
+    public CollapsibleSectionBuilder(
+            final String titleKeyParam, final VerticalLayout contentParam, final boolean openByDefaultParam) {
+        this.titleKey = titleKeyParam;
+        this.content = contentParam;
+        this.openByDefault = openByDefaultParam;
+    }
+
+    @Override
+    protected VerticalLayout initContent() {
+        return createCollapsibleSection();
     }
 
     /**
      * Creates a collapsible statistics section.
      *
-     * @param titleKey translation key for section title
-     * @param content the content to be collapsed/expanded
-     * @param openByDefault whether section should be open by default
      * @return configured collapsible section
      */
-    public VerticalLayout createCollapsibleSection(
-            final String titleKey, final VerticalLayout content, final boolean openByDefault) {
+    private VerticalLayout createCollapsibleSection() {
 
         VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
@@ -43,11 +54,11 @@ public final class CollapsibleSectionBuilder extends Composite<Component> {
         section.addClassName(StatsConstants.SURFACE_PANEL_CLASS);
 
         // Create header
-        HorizontalLayout headerLayout = createSectionHeader(titleKey, openByDefault);
+        HorizontalLayout headerLayout = createSectionHeader();
         section.add(headerLayout);
 
         // Setup toggle functionality
-        setupToggleFunctionality(headerLayout, content);
+        setupToggleFunctionality(headerLayout);
 
         // Add content
         content.setVisible(openByDefault);
@@ -59,11 +70,9 @@ public final class CollapsibleSectionBuilder extends Composite<Component> {
     /**
      * Creates section header with title and toggle button.
      *
-     * @param titleKey translation key for section title
-     * @param openByDefault whether section should be open by default
      * @return configured header layout
      */
-    private HorizontalLayout createSectionHeader(final String titleKey, final boolean openByDefault) {
+    private HorizontalLayout createSectionHeader() {
         HorizontalLayout headerLayout = new HorizontalLayout();
         headerLayout.setWidthFull();
         headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -91,9 +100,8 @@ public final class CollapsibleSectionBuilder extends Composite<Component> {
      * Sets up toggle functionality for collapsible section.
      *
      * @param headerLayout layout containing title and toggle button
-     * @param content the content to be toggled
      */
-    private void setupToggleFunctionality(final HorizontalLayout headerLayout, final VerticalLayout content) {
+    private void setupToggleFunctionality(final HorizontalLayout headerLayout) {
 
         // Find components
         H3 sectionTitle = (H3) headerLayout
