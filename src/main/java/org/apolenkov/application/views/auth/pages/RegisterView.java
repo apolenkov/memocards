@@ -1,15 +1,5 @@
 package org.apolenkov.application.views.auth.pages;
 
-import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.service.user.RegistrationService;
-import org.apolenkov.application.views.auth.constants.AuthConstants;
-import org.apolenkov.application.views.auth.utils.PasswordValidator;
-import org.apolenkov.application.views.core.layout.PublicLayout;
-import org.apolenkov.application.views.shared.base.BaseView;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.NavigationHelper;
-import org.apolenkov.application.views.shared.utils.NotificationHelper;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -20,8 +10,16 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-
 import jakarta.annotation.PostConstruct;
+import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.service.user.RegistrationService;
+import org.apolenkov.application.views.auth.constants.AuthConstants;
+import org.apolenkov.application.views.auth.utils.PasswordValidator;
+import org.apolenkov.application.views.core.layout.PublicLayout;
+import org.apolenkov.application.views.shared.base.BaseView;
+import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.NavigationHelper;
+import org.apolenkov.application.views.shared.utils.NotificationHelper;
 
 /**
  * User registration view with comprehensive form validation, security measures, and automatic login.

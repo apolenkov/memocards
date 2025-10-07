@@ -31,14 +31,17 @@ public class PracticeSettingsView extends BaseView {
 
     // Dependencies
     private final transient PracticeSettingsService practiceSettingsService;
+    private final transient PracticeSettingsComponents settingsComponents;
 
     /**
      * Creates a new practice settings view.
      *
      * @param service service for managing practice settings
+     * @param components components factory for creating settings UI elements
      */
-    public PracticeSettingsView(final PracticeSettingsService service) {
+    public PracticeSettingsView(final PracticeSettingsService service, final PracticeSettingsComponents components) {
         this.practiceSettingsService = service;
+        this.settingsComponents = components;
     }
 
     /**
@@ -66,21 +69,10 @@ public class PracticeSettingsView extends BaseView {
      * Adds all settings components to the view.
      */
     private void addSettingsComponents() {
-        // Get translated texts
-        String countLabel = getTranslation(PracticeConstants.SETTINGS_COUNT_KEY);
-        String modeLabel = getTranslation(PracticeConstants.SETTINGS_MODE_KEY);
-        String randomText = getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY);
-        String sequentialText = getTranslation(PracticeConstants.SETTINGS_MODE_SEQUENTIAL_KEY);
-        String directionLabel = getTranslation(PracticeConstants.SETTINGS_DIRECTION_KEY);
-        String frontToBackText = getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY);
-        String backToFrontText = getTranslation(PracticeConstants.SETTINGS_DIRECTION_B2F_KEY);
-
-        Select<Integer> countSelect = PracticeSettingsComponents.createCountSelect(practiceSettingsService, countLabel);
-        RadioButtonGroup<String> modeGroup = PracticeSettingsComponents.createModeGroup(
-                practiceSettingsService, modeLabel, randomText, sequentialText);
-        RadioButtonGroup<String> dirGroup = PracticeSettingsComponents.createDirectionGroup(
-                practiceSettingsService, directionLabel, frontToBackText, backToFrontText);
-        HorizontalLayout actions = createActionButtons(countSelect, modeGroup, dirGroup, randomText, frontToBackText);
+        Select<Integer> countSelect = settingsComponents.createCountSelect(practiceSettingsService);
+        RadioButtonGroup<String> modeGroup = settingsComponents.createModeGroup(practiceSettingsService);
+        RadioButtonGroup<String> dirGroup = settingsComponents.createDirectionGroup(practiceSettingsService);
+        HorizontalLayout actions = createActionButtons(countSelect, modeGroup, dirGroup);
 
         add(countSelect, modeGroup, dirGroup, actions);
     }
@@ -91,18 +83,14 @@ public class PracticeSettingsView extends BaseView {
      * @param countSelect the count selection component
      * @param modeGroup the mode selection component
      * @param dirGroup the direction selection component
-     * @param randomText the translated text for random mode
-     * @param frontToBackText the translated text for front to back direction
      * @return configured action buttons layout
      */
     private HorizontalLayout createActionButtons(
             final Select<Integer> countSelect,
             final RadioButtonGroup<String> modeGroup,
-            final RadioButtonGroup<String> dirGroup,
-            final String randomText,
-            final String frontToBackText) {
+            final RadioButtonGroup<String> dirGroup) {
 
-        Button save = createSaveButton(countSelect, modeGroup, dirGroup, randomText, frontToBackText);
+        Button save = createSaveButton(countSelect, modeGroup, dirGroup);
         Button cancel = createCancelButton();
 
         return new HorizontalLayout(save, cancel);
@@ -114,20 +102,16 @@ public class PracticeSettingsView extends BaseView {
      * @param countSelect the count selection component
      * @param modeGroup the mode selection component
      * @param dirGroup the direction selection component
-     * @param randomText the translated text for random mode
-     * @param frontToBackText the translated text for front to back direction
      * @return configured save button
      */
     private Button createSaveButton(
             final Select<Integer> countSelect,
             final RadioButtonGroup<String> modeGroup,
-            final RadioButtonGroup<String> dirGroup,
-            final String randomText,
-            final String frontToBackText) {
+            final RadioButtonGroup<String> dirGroup) {
 
         return ButtonHelper.createButton(
                 getTranslation(PracticeConstants.SETTINGS_SAVE_KEY),
-                e -> saveSettings(countSelect, modeGroup, dirGroup, randomText, frontToBackText),
+                e -> saveSettings(countSelect, modeGroup, dirGroup),
                 ButtonVariant.LUMO_PRIMARY);
     }
 
@@ -149,18 +133,13 @@ public class PracticeSettingsView extends BaseView {
      * @param countSelect the count selection component
      * @param modeGroup the mode selection component
      * @param dirGroup the direction selection component
-     * @param randomText the translated text for random mode
-     * @param frontToBackText the translated text for front to back direction
      */
     private void saveSettings(
             final Select<Integer> countSelect,
             final RadioButtonGroup<String> modeGroup,
-            final RadioButtonGroup<String> dirGroup,
-            final String randomText,
-            final String frontToBackText) {
+            final RadioButtonGroup<String> dirGroup) {
 
-        PracticeSettingsComponents.saveSettings(
-                practiceSettingsService, countSelect, modeGroup, dirGroup, randomText, frontToBackText);
+        settingsComponents.saveSettings(practiceSettingsService, countSelect, modeGroup, dirGroup);
         NotificationHelper.showSuccess(getTranslation(PracticeConstants.SETTINGS_SAVED_KEY));
     }
 
