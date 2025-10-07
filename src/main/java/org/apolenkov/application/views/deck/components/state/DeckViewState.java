@@ -102,7 +102,7 @@ public final class DeckViewState extends Composite<VerticalLayout> {
         loadingSection.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
         loadingSection.addClassName(DeckConstants.CONTAINER_MD_CLASS);
 
-        H2 loadingTitle = new H2("Loading...");
+        H2 loadingTitle = new H2(getTranslation(DeckConstants.DECK_LOADING_STATE));
         loadingTitle.addClassName(DeckConstants.DECK_VIEW_TITLE_CLASS);
 
         loadingSection.add(loadingTitle);
