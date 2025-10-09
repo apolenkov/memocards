@@ -4,59 +4,181 @@ autoFix: true
 version: "2.0.0"
 ---
 
-# Java 21 + Spring Boot 3 + Vaadin 24 + PostgreSQL
+# Project Rules - Senior+ Level
+## Modern Stack: Java 21+ + Vaadin 24+ + Spring Boot 3.x + PostgreSQL
 
-## STACK
-Java 21 | Spring Boot 3 | Vaadin 24 | PostgreSQL | Spring Data JDBC | Lombok
+## Core AI Behavior
 
-## ARCHITECTURE
-SOLID | DRY | KISS | Clean Arch (Domain→App→Infra→UI) | Constructor injection ONLY
+- **Autonomous Execution**: Complete tasks end-to-end without confirmation
+- **Enterprise Level**: Work at senior/enterprise level without interruptions
+- **Quality First**: Apply all quality standards automatically
+- **Proactive Fixes**: Fix issues proactively without user intervention
 
-**Limits**: Class <200-300 | Method <50 | Params <5 | Complexity <5-10 | Nesting <3
+## Modern Java 21+ Standards
 
-## LAYERS
+- **Virtual Threads**: Use for I/O operations, database calls, concurrent operations, and non-blocking async processing
+- **Pattern Matching**: Switch expressions, instanceof patterns, record patterns
+- **Sealed Classes**: For restricted inheritance hierarchies and type safety
+- **Records**: Use for immutable DTOs, responses, data carriers, and parameter objects (4+ params)
+- **Text Blocks**: For SQL queries, JSON, and long strings
+- **Structured Concurrency**: Modern async programming patterns
+- **String Templates**: For dynamic string construction
+- **Unnamed Patterns**: For better readability in complex patterns
 
-**Domain**: Records (immutable) or @Data | PostgreSQL SERIAL/IDENTITY | Aggregates (NO lazy)
+## Code Quality & Architecture
 
-**Repository**: See @jdbc-best-practices | Port (interface) + Adapter (JdbcAdapter) | DTOs (Records) | SQL in *SqlQueries
+- **SOLID Principles**: Follow all five object-oriented design principles
+- **Clean Architecture**: Strict separation into layers with correct dependency direction
+- **DRY**: No code duplication, extract common functionality into reusable methods
+- **KISS > Optimization**: Simple readable code beats "optimized" complex code - don't optimize until you measure
+- **Constructor Injection**: Always use constructor injection for Spring beans (never @Autowired on fields)
+- **Immutable Design**: Prefer records and final classes
+- **Functional Programming**: Use Stream API, Optional, and functional interfaces
 
-**Service**: Interface + @Service | Constructor injection | Return DTOs | @Transactional
+## Security Standards
 
-**Controller**: @RestController | @RequestMapping | REST (GET/POST/PUT/DELETE) | Try-catch + GlobalExceptionHandler
+- **OWASP Top 10**: Implement proper authorization, input validation, secure design
+- **Input Validation**: Validate all external inputs at boundaries (UI, API, database)
+- **SQL Injection Prevention**: Use parameterized queries for all database operations
+- **XSS Prevention**: Encode all user-generated content before rendering
+- **Secure by Default**: Fail securely, deny by default
 
-## CRITICAL [BAD]
+## Performance & Monitoring
 
-- System.out → SLF4J
-- @Autowired fields → constructor
-- Hardcoded UI strings → getTranslation()
-- SQL concat → parameterized (SQL injection!)
-- FQN → imports (java/org, blank, com.*)
-- SQL in methods → *SqlQueries class
-- Instance RowMapper → static final
-- Dead/commented code → remove
-- @UIScope without @Lazy injection → scope conflict
-- @Lazy for regular @Component dependencies → unnecessary overhead
+- **Caching Strategy**: Implement appropriate caching layers
+- **Async Processing**: Use non-blocking operations where possible
+- **Database Optimization**: Optimize queries, use connection pooling (HikariCP), batch operations
+- **APM**: Implement distributed tracing, monitor response times and throughput
+- **Memory Management**: Avoid memory leaks, use object pooling for expensive objects
 
-## STANDARDS
+## Modern Testing Strategy
 
-**Locale**: ru-RU chat | EN code | **i18n**: getTranslation() | **Logging**: SLF4J structured | **Imports**: java/org→blank→com (NO FQN)
+- **Testing Pyramid**: 70% Unit Tests, 20% Integration Tests, 10% E2E Tests
+- **Coverage**: Minimum 80% for business logic, 70% branch coverage
+- **Test Data Builders**: Use builders for consistent test data
+- **Mocking Strategy**: Mock external dependencies, not internal logic
+- **Test Containers**: Real PostgreSQL for integration tests
+- **Virtual Threads Testing**: Test concurrent operations
+- **Mutation Testing**: Use PIT for code quality validation
+- **Performance Testing**: Load, stress, and endurance testing
 
-## PERFORMANCE & TESTING
+## Vaadin 24+ UI/UX Standards
 
-**Perf**: Virtual Threads | Caching | Async | HikariCP
-**Test**: 70% unit | 20% integration | 10% e2e | 80%+ coverage | AssertJ | TestContainers
+- **Vaadin 24+ DSL**: Prefer native Vaadin DSL over JavaScript
+- **TypeScript Support**: For custom components and type safety
+- **Component Pattern**: Use `extends Composite<Component>` for custom UI components
+- **i18n**: Never use hardcoded strings - always use getTranslation()
+- **Lumo Theme**: Use Lumo theme tokens for all styling
+- **Progressive Web App**: PWA features for mobile experience
+- **Virtual Scrolling**: For large datasets and better performance
+- **Modern Components**: Use latest Vaadin component patterns
+- **Accessibility**: Implement proper ARIA labels and contrast
+- **Responsive Design**: Mobile-first approach with CSS Grid and Flexbox
 
-## VAADIN & JDBC
+## Spring Boot 3.x + Spring Data JDBC
 
-**Vaadin**: @vaadin-best-practices | Composite<T> | Lifecycle | Memory cleanup | Lumo tokens
-**JDBC**: @jdbc-best-practices | Adapter | Text Blocks | RETURNING | ON CONFLICT | Records
+- **Spring Boot 3.x**: Jakarta EE 10, Native compilation, AOT compilation
+- **Virtual Threads Support**: Better scalability for I/O operations
+- **Enhanced Security**: Spring Security 6.x with modern authentication
+- **Spring Data JDBC**: NOT JPA/Hibernate - use JdbcTemplate and RowMapper
+- **Adapter Pattern**: `*JdbcAdapter implements *Repository` with @Profile
+- **DTOs**: Records (immutable) with static factory methods (forNew*, forExisting*)
+- **SQL**: Text blocks in separate *SqlQueries classes, parameterized queries only
+- **Exceptions**: Catch DataAccessException, wrap in domain exceptions
+- **PostgreSQL**: Use RETURNING id, ON CONFLICT, JSONB, arrays
+- **Detail**: See @jdbc-best-practices for complete JDBC rules
 
-## SPRING DEPENDENCY INJECTION
+## PostgreSQL & Database Optimization
 
-**@Lazy**: Use for @UIScope dependencies | Avoid for regular @Component | Solve scope conflicts
-**Constructor Injection**: Always prefer over @Autowired fields | Validate null parameters
-**Scope Management**: @Component (singleton) | @UIScope (per UI) | @Lazy for cross-scope injection
+- **PostgreSQL Features**: JSONB, arrays, full-text search, partitioning
+- **Advanced Indexing**: B-tree, GIN, GiST, BRIN for different query types
+- **Materialized Views**: For complex aggregations and reports
+- **Foreign Data Wrappers**: For external data integration
+- **Connection Pooling**: HikariCP with optimal configuration
+- **Database Migrations**: Flyway for schema versioning
+- **Virtual Threads**: For database operations and better concurrency
 
-## AUTO
+## JavaDoc & Comments
 
-Apply rules | Fix issues | Add tests | i18n | Security | Performance | Docs
+**Purpose**: Document contract (WHAT), not implementation (HOW)
+
+**DO:**
+
+- Brief & substantive: focus on purpose, behavior, constraints
+- Parameters: describe meaning and valid values
+- Returns: describe what is returned
+- Exceptions: when and why thrown
+- Examples: only if complex behavior needs clarification
+- Inline comments: explain context/purpose when code intent isn't obvious
+
+**DON'T:**
+
+- Implementation details ("uses single stream pass", "optimized for performance")
+- Refactoring history ("follows pattern established in refactoring")
+- Obvious descriptions ("sets the value" for setter)
+- Principles/patterns ("DRY principle", "eliminates code duplication")
+- Performance claims ("optimal", "fast", "efficient")
+- Technology mentions ("uses reduce instead of multiple streams")
+
+## Communication Standards
+
+- **English Code**: All code must use English language for names, comments, messages
+- **Russian Chat**: Always respond in Russian for chat communication
+- **Professional Tone**: Maintain professional tone in all communications
+
+## Critical Prohibitions
+
+- **NEVER use System.out.println** - use SLF4J/Logback
+- **NEVER use FQN** - always add proper imports
+- **NEVER use hardcoded strings in UI** - always use getTranslation()
+- **NEVER use @Autowired on fields** - only constructor injection
+- **NEVER use primitive types in nullable fields** - use wrapper types
+- **NEVER leave dead code** - remove unused methods, classes, variables
+- **NEVER leave commented code** - delete or implement properly
+- **NEVER leave unreachable code** - remove or fix logic
+- **NEVER duplicate code** - extract common functionality, follow DRY principle
+- **NEVER copy-paste code** - create reusable methods and utilities
+- **NEVER use magic strings** - ALL strings in constants (roles, test IDs, CSS classes)
+- **NEVER create redundant wrappers** - remove methods that just call other methods
+- **NEVER create unnecessary abstractions** - no DTOs used only once, no empty factories
+
+## Error Handling
+
+- **Fail Fast**: Detect and handle errors early
+- **Fail Gracefully**: Provide meaningful error messages
+- **Fail Securely**: Don't expose sensitive information
+- **Centralized Handling**: Use @ControllerAdvice for REST APIs
+- **Business Exceptions**: Domain-specific exceptions with meaningful error codes
+
+## TranslationProvider Pattern
+
+- **UI Components**: Use `getTranslation()` directly (extends Component or Composite)
+- **Non-UI Classes**: Accept pre-translated `String` parameters (no `UnaryOperator<String>`)
+
+## Result
+
+With these instructions, I will:
+
+- **Automatically apply** all rules without reminders
+- **Fix all issues** proactively
+- **Suggest improvements** constantly
+- **Follow enterprise standards** always
+- **Work at senior+ level** continuously
+- **Maintain maximum efficiency** in chat
+- **Use modern Java 21+ features** appropriately
+- **Implement Vaadin 24+ best practices** automatically
+- **Optimize PostgreSQL queries** and performance
+- **Apply Spring Boot 3.x patterns** correctly
+
+## Quick Commands
+
+- **"Apply all rules"** - automatic rule application
+- **"Check quality"** - comprehensive quality check
+- **"Optimize performance"** - performance optimization
+- **"Add tests"** - complete test coverage
+- **"Fix all issues"** - proactive issue resolution
+- **"Simplify code"** - remove over-engineering
+- **"Java 21+ features"** - modern Java patterns check
+- **"Vaadin standards"** - Vaadin 24+ best practices validation
+- **"PostgreSQL optimization"** - database performance check
+- **"Virtual threads"** - virtual threads implementation check

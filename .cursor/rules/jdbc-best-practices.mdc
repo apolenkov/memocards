@@ -16,14 +16,11 @@ Spring Data JDBC (NOT JPA/Hibernate!) | JdbcTemplate | PostgreSQL | Records
 - Layers: adapter/dto/sql/exception/model
 
 ## ADAPTER PATTERN
-```java
-@Profile({"dev","prod","test"}) @Repository
-public class UserJdbcAdapter implements UserRepository {
-    private static final RowMapper<UserDto> MAPPER = (rs,n)->/*...*/;
-    private final JdbcTemplate jdbc;
-    public UserJdbcAdapter(JdbcTemplate j){jdbc=j;}
-}
-```
+
+- @Profile({"dev","prod","test"}) + @Repository
+- Static final RowMapper (thread-safe)
+- Constructor injection with JdbcTemplate
+- Implements domain repository interface
 
 ## CRITICAL RULES [OK]
 
