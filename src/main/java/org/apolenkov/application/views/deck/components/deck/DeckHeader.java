@@ -14,8 +14,7 @@ import org.apolenkov.application.views.shared.utils.NavigationHelper;
 /**
  * Header component for deck view containing navigation, title and statistics.
  * Provides a consistent header layout with back navigation, deck title display,
- * and statistics information. Follows the component pattern established in the
- * refactoring of DecksView.
+ * and statistics information.
  */
 public final class DeckHeader extends Composite<HorizontalLayout> {
 

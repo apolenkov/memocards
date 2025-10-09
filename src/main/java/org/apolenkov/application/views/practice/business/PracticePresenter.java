@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.model.PracticeDirection;
 import org.springframework.stereotype.Component;
 
 /**
@@ -78,6 +79,15 @@ public final class PracticePresenter {
      */
     public boolean isRandom() {
         return sessionService.isRandom();
+    }
+
+    /**
+     * Gets the default practice direction for sessions.
+     *
+     * @return the default practice direction, never null
+     */
+    public PracticeDirection defaultDirection() {
+        return sessionService.defaultDirection();
     }
 
     /**

@@ -169,13 +169,13 @@ public class AdminNewsView extends BaseView {
 
         content.add(titleField, contentField, authorField);
 
-        Button saveBtn = ButtonHelper.createPrimaryButton(getTranslation("dialog.save"), e -> {
+        Button saveBtn = ButtonHelper.createPrimaryButton(getTranslation(AdminConstants.DIALOG_SAVE_KEY), e -> {
             String t = safeTrim(titleField.getValue());
             String c = safeTrim(contentField.getValue());
-            if (validateRequired(titleField, t, "admin.news.validation.titleRequired")) {
+            if (validateRequired(titleField, t, AdminConstants.ADMIN_NEWS_VALIDATION_TITLE_REQUIRED_KEY)) {
                 return;
             }
-            if (validateRequired(contentField, c, "admin.news.validation.contentRequired")) {
+            if (validateRequired(contentField, c, AdminConstants.ADMIN_NEWS_VALIDATION_CONTENT_REQUIRED_KEY)) {
                 return;
             }
 
@@ -188,7 +188,8 @@ public class AdminNewsView extends BaseView {
             refreshNews("");
         });
 
-        Button cancelBtn = ButtonHelper.createTertiaryButton(getTranslation("common.cancel"), e -> dialog.close());
+        Button cancelBtn = ButtonHelper.createTertiaryButton(
+                getTranslation(AdminConstants.COMMON_CANCEL_KEY), e -> dialog.close());
         HorizontalLayout buttonRow = new HorizontalLayout();
         buttonRow.setSpacing(true);
         buttonRow.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -264,20 +265,21 @@ public class AdminNewsView extends BaseView {
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidthFull();
 
-        Button confirmButton = ButtonHelper.createConfirmButton(getTranslation("dialog.confirm"), e -> {
-            try {
-                newsService.deleteNews(news.getId());
-                refreshNews("");
-                NotificationHelper.showSuccess(getTranslation(AdminConstants.ADMIN_NEWS_DELETED_KEY));
-            } catch (Exception ex) {
-                NotificationHelper.showError(
-                        getTranslation(AdminConstants.ADMIN_NEWS_ERROR_DELETE_KEY, ex.getMessage()));
-            }
-            confirmDialog.close();
-        });
+        Button confirmButton =
+                ButtonHelper.createConfirmButton(getTranslation(AdminConstants.DIALOG_CONFIRM_KEY), e -> {
+                    try {
+                        newsService.deleteNews(news.getId());
+                        refreshNews("");
+                        NotificationHelper.showSuccess(getTranslation(AdminConstants.ADMIN_NEWS_DELETED_KEY));
+                    } catch (Exception ex) {
+                        NotificationHelper.showError(
+                                getTranslation(AdminConstants.ADMIN_NEWS_ERROR_DELETE_KEY, ex.getMessage()));
+                    }
+                    confirmDialog.close();
+                });
 
-        Button cancelButton =
-                ButtonHelper.createCancelButton(getTranslation("dialog.cancel"), e -> confirmDialog.close());
+        Button cancelButton = ButtonHelper.createCancelButton(
+                getTranslation(AdminConstants.DIALOG_CANCEL_KEY), e -> confirmDialog.close());
 
         buttons.add(confirmButton, cancelButton);
         layout.add(buttons);

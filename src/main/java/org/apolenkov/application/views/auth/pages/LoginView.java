@@ -6,7 +6,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
@@ -39,30 +38,6 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 @AnonymousAllowed
 public class LoginView extends BaseView implements BeforeEnterObserver {
 
-    /**
-     * Internal data model for the login form.
-     */
-    private static final class LoginModel {
-        private String email;
-        private String password;
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(final String emailValue) {
-            this.email = emailValue;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(final String passwordValue) {
-            this.password = passwordValue;
-        }
-    }
-
     private final transient AuthenticationConfiguration authenticationConfiguration;
 
     /**
@@ -80,6 +55,7 @@ public class LoginView extends BaseView implements BeforeEnterObserver {
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
+    @SuppressWarnings("unused")
     private void init() {
         VerticalLayout wrapper = createCenteredVerticalLayout();
 
@@ -94,7 +70,7 @@ public class LoginView extends BaseView implements BeforeEnterObserver {
         titleDiv.addClassName(AuthConstants.LOGIN_FORM_TITLE_CONTAINER_CLASS);
 
         Div title = new Div();
-        title.setText(getTranslation("auth.login"));
+        title.setText(getTranslation(AuthConstants.AUTH_LOGIN_KEY));
         title.addClassName(AuthConstants.LOGIN_FORM_TITLE_CLASS);
         titleDiv.add(title);
 
@@ -103,52 +79,50 @@ public class LoginView extends BaseView implements BeforeEnterObserver {
         formFields.setSpacing(true);
         formFields.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Create binder and model first
-        Binder<LoginModel> binder = new Binder<>(LoginModel.class);
-        LoginModel model = new LoginModel();
-        binder.setBean(model);
-
-        TextField email = new TextField(getTranslation("auth.email"));
-        email.setPlaceholder(getTranslation("auth.email.placeholder"));
+        TextField email = new TextField(getTranslation(AuthConstants.AUTH_EMAIL_KEY));
+        email.setPlaceholder(getTranslation(AuthConstants.AUTH_EMAIL_PLACEHOLDER_KEY));
         email.setRequiredIndicatorVisible(true);
         email.setWidthFull();
 
-        PasswordField password = new PasswordField(getTranslation("auth.login.password"));
-        password.setPlaceholder(getTranslation("auth.password.placeholder"));
+        PasswordField password = new PasswordField(getTranslation(AuthConstants.AUTH_LOGIN_PASSWORD_KEY));
+        password.setPlaceholder(getTranslation(AuthConstants.AUTH_PASSWORD_PLACEHOLDER_KEY));
         password.setWidthFull();
         password.setRequiredIndicatorVisible(true);
 
-        Button submit = ButtonHelper.createPrimaryButton(getTranslation("auth.login.submit"), e -> {
-            if (binder.validate().isOk()) {
-                try {
-                    authenticateAndPersist(model.getEmail(), model.getPassword());
-                    NavigationHelper.navigateToHome();
-                } catch (IllegalArgumentException ex) {
-                    // Validation error - show specific message
-                    NotificationHelper.showError(ex.getMessage());
-                } catch (Exception ex) {
-                    // Generic error - show generic message
-                    NotificationHelper.showError(getTranslation("auth.login.errorMessage"));
-                }
+        Button submit = ButtonHelper.createPrimaryButton(getTranslation(AuthConstants.AUTH_LOGIN_SUBMIT_KEY), e -> {
+            String emailValue = email.getValue();
+            String passwordValue = password.getValue();
+
+            if (emailValue == null || emailValue.trim().isEmpty()) {
+                email.setInvalid(true);
+                email.setErrorMessage(getTranslation(AuthConstants.VAADIN_VALIDATION_EMAIL_REQUIRED_KEY));
+                return;
+            }
+            if (passwordValue == null || passwordValue.isEmpty()) {
+                password.setInvalid(true);
+                password.setErrorMessage(getTranslation(AuthConstants.VAADIN_VALIDATION_PASSWORD_REQUIRED_KEY));
+                return;
+            }
+
+            try {
+                authenticateAndPersist(emailValue, passwordValue);
+                NavigationHelper.navigateToHome();
+            } catch (IllegalArgumentException ex) {
+                NotificationHelper.showError(ex.getMessage());
+            } catch (Exception ex) {
+                NotificationHelper.showError(getTranslation(AuthConstants.AUTH_LOGIN_ERROR_MESSAGE_KEY));
             }
         });
         submit.setWidthFull();
 
         Button forgot = ButtonHelper.createTertiaryButton(
-                getTranslation("auth.login.forgotPassword"), e -> NavigationHelper.navigateToForgotPassword());
+                getTranslation(AuthConstants.AUTH_LOGIN_FORGOT_PASSWORD_KEY),
+                e -> NavigationHelper.navigateToForgotPassword());
         forgot.setWidthFull();
 
         Button backToHome = ButtonHelper.createTertiaryButton(
-                getTranslation("common.backToHome"), e -> NavigationHelper.navigateToHome());
+                getTranslation(AuthConstants.COMMON_BACK_TO_HOME_KEY), e -> NavigationHelper.navigateToHome());
         backToHome.setWidthFull();
-
-        // Bind fields to model
-        binder.forField(email)
-                .asRequired(getTranslation("vaadin.validation.email.required"))
-                .bind(LoginModel::getEmail, LoginModel::setEmail);
-        binder.forField(password)
-                .asRequired(getTranslation("vaadin.validation.password.required"))
-                .bind(LoginModel::getPassword, LoginModel::setPassword);
 
         formFields.add(email, password, submit, forgot, backToHome);
 
@@ -176,7 +150,7 @@ public class LoginView extends BaseView implements BeforeEnterObserver {
         boolean hasError =
                 event.getLocation().getQueryParameters().getParameters().containsKey("error");
         if (hasError) {
-            NotificationHelper.showError(getTranslation("auth.login.errorMessage"));
+            NotificationHelper.showError(getTranslation(AuthConstants.AUTH_LOGIN_ERROR_MESSAGE_KEY));
         }
     }
 
@@ -189,7 +163,7 @@ public class LoginView extends BaseView implements BeforeEnterObserver {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("auth.login");
+        return getTranslation(AuthConstants.AUTH_LOGIN_KEY);
     }
 
     /**

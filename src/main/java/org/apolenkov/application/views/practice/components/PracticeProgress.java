@@ -12,27 +12,26 @@ import org.apolenkov.application.views.practice.business.PracticeSessionManager;
 public final class PracticeProgress extends Composite<Div> {
 
     // UI Components
-    private final Span statsSpan;
+    private Span statsSpan;
 
     /**
      * Creates a new PracticeProgress component.
      */
     public PracticeProgress() {
-        this.statsSpan = new Span();
-        setupLayout();
+        // Constructor - data only
     }
 
-    /**
-     * Sets up the progress layout.
-     */
-    private void setupLayout() {
-        Div progressSection = getContent();
+    @Override
+    protected Div initContent() {
+        Div progressSection = new Div();
         progressSection.addClassName(PracticeConstants.PRACTICE_PROGRESS_CLASS);
 
+        statsSpan = new Span();
         statsSpan.addClassName(PracticeConstants.PRACTICE_PROGRESS_TEXT_CLASS);
         statsSpan.setText(getTranslation(PracticeConstants.PRACTICE_GET_READY_KEY));
 
         progressSection.add(statsSpan);
+        return progressSection;
     }
 
     /**

@@ -6,7 +6,6 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.BeforeEvent;
@@ -53,6 +52,7 @@ public class ResetPasswordView extends BaseView implements HasUrlParameter<Strin
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
+    @SuppressWarnings("unused")
     private void init() {
         VerticalLayout wrapper = createCenteredVerticalLayout();
 
@@ -63,7 +63,7 @@ public class ResetPasswordView extends BaseView implements HasUrlParameter<Strin
         formContainer.addClassName(AuthConstants.SURFACE_PANEL_CLASS);
 
         // Create form title
-        H2 title = new H2(getTranslation("auth.resetPassword.title"));
+        H2 title = new H2(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_TITLE_KEY));
         title.addClassName(AuthConstants.RESET_PASSWORD_FORM_TITLE_CLASS);
 
         // Create form fields container
@@ -71,42 +71,29 @@ public class ResetPasswordView extends BaseView implements HasUrlParameter<Strin
         formFields.setSpacing(true);
         formFields.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Create binder and model
-        Binder<ResetPasswordModel> binder = new Binder<>(ResetPasswordModel.class);
-        ResetPasswordModel model = new ResetPasswordModel();
-        binder.setBean(model);
-
-        PasswordField password = new PasswordField(getTranslation("auth.password"));
-        password.setPlaceholder(getTranslation("auth.password.placeholder"));
+        PasswordField password = new PasswordField(getTranslation(AuthConstants.AUTH_PASSWORD_KEY));
+        password.setPlaceholder(getTranslation(AuthConstants.AUTH_PASSWORD_PLACEHOLDER_KEY));
         password.setWidthFull();
         password.setRequiredIndicatorVisible(true);
 
-        PasswordField confirmPassword = new PasswordField(getTranslation("auth.password.confirm"));
-        confirmPassword.setPlaceholder(getTranslation("auth.password.confirm.placeholder"));
+        PasswordField confirmPassword = new PasswordField(getTranslation(AuthConstants.AUTH_PASSWORD_CONFIRM_KEY));
+        confirmPassword.setPlaceholder(getTranslation(AuthConstants.AUTH_PASSWORD_CONFIRM_PLACEHOLDER_KEY));
         confirmPassword.setWidthFull();
         confirmPassword.setRequiredIndicatorVisible(true);
 
         Button submit = ButtonHelper.createPrimaryButton(
-                getTranslation("auth.resetPassword.submit"),
-                e -> handleSubmit(model.getPassword(), model.getConfirmPassword()));
+                getTranslation(AuthConstants.AUTH_RESET_PASSWORD_SUBMIT_KEY),
+                e -> handleSubmit(password.getValue(), confirmPassword.getValue()));
         submit.setWidthFull();
 
         Button backToLogin = ButtonHelper.createTertiaryButton(
-                getTranslation("auth.resetPassword.backToLogin"), e -> NavigationHelper.navigateToLogin());
+                getTranslation(AuthConstants.AUTH_RESET_PASSWORD_BACK_TO_LOGIN_KEY),
+                e -> NavigationHelper.navigateToLogin());
         backToLogin.setWidthFull();
 
         Button backToHome = ButtonHelper.createTertiaryButton(
-                getTranslation("common.backToHome"), e -> NavigationHelper.navigateToHome());
+                getTranslation(AuthConstants.COMMON_BACK_TO_HOME_KEY), e -> NavigationHelper.navigateToHome());
         backToHome.setWidthFull();
-
-        // Bind fields to model
-        binder.forField(password)
-                .asRequired(getTranslation("vaadin.validation.password.required"))
-                .bind(ResetPasswordModel::getPassword, ResetPasswordModel::setPassword);
-
-        binder.forField(confirmPassword)
-                .asRequired(getTranslation("vaadin.validation.password.confirm.required"))
-                .bind(ResetPasswordModel::getConfirmPassword, ResetPasswordModel::setConfirmPassword);
 
         formFields.add(password, confirmPassword, submit, backToLogin, backToHome);
 
@@ -132,36 +119,38 @@ public class ResetPasswordView extends BaseView implements HasUrlParameter<Strin
         if (!passwordResetService.isTokenValid(token)) {
             // Throw exception for invalid token - will be caught by EntityNotFoundErrorHandler
             throw new EntityNotFoundException(
-                    parameter, RouteConstants.LOGIN_ROUTE, getTranslation("auth.resetPassword.invalidToken"));
+                    parameter,
+                    RouteConstants.LOGIN_ROUTE,
+                    getTranslation(AuthConstants.AUTH_RESET_PASSWORD_INVALID_TOKEN_KEY));
         }
     }
 
     private void handleSubmit(final String password, final String confirmPassword) {
         if (password == null || password.trim().isEmpty()) {
-            NotificationHelper.showError(getTranslation("auth.resetPassword.passwordRequired"));
+            NotificationHelper.showError(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_PASSWORD_REQUIRED_KEY));
             return;
         }
 
         if (!password.equals(confirmPassword)) {
-            NotificationHelper.showError(getTranslation("auth.resetPassword.passwordMismatch"));
+            NotificationHelper.showError(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_PASSWORD_MISMATCH_KEY));
             return;
         }
 
         if (password.length() < 8) {
-            NotificationHelper.showError(getTranslation("auth.resetPassword.passwordTooShort"));
+            NotificationHelper.showError(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_PASSWORD_TOO_SHORT_KEY));
             return;
         }
 
         try {
             boolean success = passwordResetService.resetPassword(token, password);
             if (success) {
-                NotificationHelper.showSuccess(getTranslation("auth.resetPassword.success"));
+                NotificationHelper.showSuccess(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_SUCCESS_KEY));
                 NavigationHelper.navigateToLogin();
             } else {
-                NotificationHelper.showError(getTranslation("auth.resetPassword.failed"));
+                NotificationHelper.showError(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_FAILED_KEY));
             }
         } catch (Exception ex) {
-            NotificationHelper.showError(getTranslation("auth.resetPassword.error"));
+            NotificationHelper.showError(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_ERROR_KEY));
         }
     }
 
@@ -188,27 +177,6 @@ public class ResetPasswordView extends BaseView implements HasUrlParameter<Strin
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("auth.resetPassword.title");
-    }
-
-    private static final class ResetPasswordModel {
-        private String password;
-        private String confirmPassword;
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(final String passwordValue) {
-            this.password = passwordValue;
-        }
-
-        public String getConfirmPassword() {
-            return confirmPassword;
-        }
-
-        public void setConfirmPassword(final String confirmPasswordValue) {
-            this.confirmPassword = confirmPasswordValue;
-        }
+        return getTranslation(AuthConstants.AUTH_RESET_PASSWORD_TITLE_KEY);
     }
 }

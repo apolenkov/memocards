@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.views.practice.business.PracticeSessionRecords.SessionData;
 import org.apolenkov.application.views.practice.business.PracticeSessionRecords.SessionState;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,6 +32,7 @@ public final class PracticeSessionManager {
      * @param clockValue the clock to use for time operations
      * @throws IllegalArgumentException if clock is null
      */
+    @Autowired
     public PracticeSessionManager(final Clock clockValue) {
         if (clockValue == null) {
             throw new IllegalArgumentException("Clock cannot be null");

@@ -81,7 +81,7 @@ public class RegisterView extends BaseView {
         titleDiv.addClassName(AuthConstants.REGISTER_FORM_TITLE_CONTAINER_CLASS);
 
         Div title = new Div();
-        title.setText(getTranslation("auth.register.title"));
+        title.setText(getTranslation(AuthConstants.AUTH_REGISTER_TITLE_KEY));
         title.addClassName(AuthConstants.REGISTER_FORM_TITLE_CLASS);
         titleDiv.add(title);
 
@@ -107,23 +107,23 @@ public class RegisterView extends BaseView {
         FormLayout form = new FormLayout();
         form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("600px", 2));
 
-        name = new TextField(getTranslation("auth.name"));
-        name.setPlaceholder(getTranslation("auth.name.placeholder"));
+        name = new TextField(getTranslation(AuthConstants.AUTH_NAME_KEY));
+        name.setPlaceholder(getTranslation(AuthConstants.AUTH_NAME_PLACEHOLDER_KEY));
         name.setWidthFull();
         name.setRequiredIndicatorVisible(true);
 
-        email = new EmailField(getTranslation("auth.email"));
-        email.setPlaceholder(getTranslation("auth.email.placeholder"));
+        email = new EmailField(getTranslation(AuthConstants.AUTH_EMAIL_KEY));
+        email.setPlaceholder(getTranslation(AuthConstants.AUTH_EMAIL_PLACEHOLDER_KEY));
         email.setWidthFull();
         email.setRequiredIndicatorVisible(true);
 
-        password = new PasswordField(getTranslation("auth.password"));
-        password.setPlaceholder(getTranslation("auth.password.placeholder"));
+        password = new PasswordField(getTranslation(AuthConstants.AUTH_PASSWORD_KEY));
+        password.setPlaceholder(getTranslation(AuthConstants.AUTH_PASSWORD_PLACEHOLDER_KEY));
         password.setWidthFull();
         password.setRequiredIndicatorVisible(true);
 
-        confirm = new PasswordField(getTranslation("auth.password.confirm"));
-        confirm.setPlaceholder(getTranslation("auth.password.confirm.placeholder"));
+        confirm = new PasswordField(getTranslation(AuthConstants.AUTH_PASSWORD_CONFIRM_KEY));
+        confirm.setPlaceholder(getTranslation(AuthConstants.AUTH_PASSWORD_CONFIRM_PLACEHOLDER_KEY));
         confirm.setWidthFull();
         confirm.setRequiredIndicatorVisible(true);
 
@@ -140,7 +140,8 @@ public class RegisterView extends BaseView {
      * @return configured submit Button with registration event handler
      */
     private Button createSubmitButton() {
-        Button submit = ButtonHelper.createPrimaryButton(getTranslation("auth.register"), e -> handleRegistration());
+        Button submit = ButtonHelper.createPrimaryButton(
+                getTranslation(AuthConstants.AUTH_REGISTER_KEY), e -> handleRegistration());
         submit.setWidthFull();
         return submit;
     }
@@ -155,7 +156,7 @@ public class RegisterView extends BaseView {
      */
     private Button createBackToHomeButton() {
         Button backToHome = ButtonHelper.createTertiaryButton(
-                getTranslation("common.backToHome"), e -> NavigationHelper.navigateToHome());
+                getTranslation(AuthConstants.COMMON_BACK_TO_HOME_KEY), e -> NavigationHelper.navigateToHome());
         backToHome.setWidthFull();
         return backToHome;
     }
@@ -170,7 +171,7 @@ public class RegisterView extends BaseView {
         clearValidationErrors();
 
         if (!validateForm()) {
-            NotificationHelper.showError(getTranslation("auth.validation.fixErrors"));
+            NotificationHelper.showError(getTranslation(AuthConstants.VALIDATION_FIX_ERRORS_KEY));
             return;
         }
 
@@ -328,10 +329,10 @@ public class RegisterView extends BaseView {
 
         try {
             registerUser(vEmail, vPwd);
-            NotificationHelper.showSuccess(getTranslation("auth.register.success"));
+            NotificationHelper.showSuccess(getTranslation(AuthConstants.AUTH_REGISTER_SUCCESS_KEY));
             NavigationHelper.navigateToLogin();
         } catch (Exception ex) {
-            NotificationHelper.showError(getTranslation("auth.register.error"));
+            NotificationHelper.showError(getTranslation(AuthConstants.AUTH_REGISTER_ERROR_KEY));
         }
     }
 
@@ -344,7 +345,7 @@ public class RegisterView extends BaseView {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("auth.register");
+        return getTranslation(AuthConstants.AUTH_REGISTER_KEY);
     }
 
     /**

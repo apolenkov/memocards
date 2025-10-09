@@ -6,7 +6,6 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
@@ -27,18 +26,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @AnonymousAllowed
 public final class ForgotPasswordView extends BaseView implements BeforeEnterObserver {
 
-    private static final class ForgotPasswordModel {
-        private String email;
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(final String emailValue) {
-            this.email = emailValue;
-        }
-    }
-
     private final transient PasswordResetService passwordResetService;
 
     /**
@@ -58,43 +45,32 @@ public final class ForgotPasswordView extends BaseView implements BeforeEnterObs
         formContainer.addClassName(AuthConstants.SURFACE_PANEL_CLASS);
 
         // Create form title
-        H2 title = new H2(getTranslation("auth.forgotPassword.title"));
+        H2 title = new H2(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_TITLE_KEY));
         title.addClassName(AuthConstants.FORGOT_PASSWORD_FORM_TITLE_CLASS);
 
-        // Create form fields container with proper spacing and alignment
+        // Create form fields container
         VerticalLayout formFields = new VerticalLayout();
         formFields.setSpacing(true);
         formFields.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Create binder and model for form validation
-        Binder<ForgotPasswordModel> binder = new Binder<>(ForgotPasswordModel.class);
-        ForgotPasswordModel model = new ForgotPasswordModel();
-        binder.setBean(model);
-
-        // Create form fields with proper validation
-        TextField email = new TextField(getTranslation("auth.email"));
-        email.setPlaceholder(getTranslation("auth.email.placeholder"));
+        TextField email = new TextField(getTranslation(AuthConstants.AUTH_EMAIL_KEY));
+        email.setPlaceholder(getTranslation(AuthConstants.AUTH_EMAIL_PLACEHOLDER_KEY));
         email.setRequiredIndicatorVisible(true);
         email.setWidthFull();
 
         // Submit button triggers password reset process
         Button submit = ButtonHelper.createPrimaryButton(
-                getTranslation("auth.forgotPassword.submit"), e -> handleSubmit(model.getEmail()));
+                getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_SUBMIT_KEY), e -> handleSubmit(email.getValue()));
         submit.setWidthFull();
 
-        // Navigation buttons for better UX
         Button backToLogin = ButtonHelper.createTertiaryButton(
-                getTranslation("auth.forgotPassword.backToLogin"), e -> NavigationHelper.navigateToLogin());
+                getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_BACK_TO_LOGIN_KEY),
+                e -> NavigationHelper.navigateToLogin());
         backToLogin.setWidthFull();
 
         Button backToHome = ButtonHelper.createTertiaryButton(
-                getTranslation("common.backToHome"), e -> NavigationHelper.navigateToHome());
+                getTranslation(AuthConstants.COMMON_BACK_TO_HOME_KEY), e -> NavigationHelper.navigateToHome());
         backToHome.setWidthFull();
-
-        // Bind fields to model with validation messages
-        binder.forField(email)
-                .asRequired(getTranslation("vaadin.validation.email.required"))
-                .bind(ForgotPasswordModel::getEmail, ForgotPasswordModel::setEmail);
 
         formFields.add(email, submit, backToLogin, backToHome);
 
@@ -111,7 +87,7 @@ public final class ForgotPasswordView extends BaseView implements BeforeEnterObs
      */
     private void handleSubmit(final String email) {
         if (email == null || email.trim().isEmpty()) {
-            NotificationHelper.showError(getTranslation("auth.forgotPassword.emailRequired"));
+            NotificationHelper.showError(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_EMAIL_REQUIRED_KEY));
             return;
         }
 
@@ -122,17 +98,17 @@ public final class ForgotPasswordView extends BaseView implements BeforeEnterObs
                 // For now, we'll show it in a notification (this is just for demo)
                 String token = tokenOpt.get();
 
-                NotificationHelper.showSuccess(getTranslation("auth.forgotPassword.tokenCreated"));
+                NotificationHelper.showSuccess(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_TOKEN_CREATED_KEY));
 
                 // Navigate to reset password page with the generated token
                 NavigationHelper.navigateToResetPassword(token);
             } else {
                 // Don't reveal if email exists for security reasons
-                NotificationHelper.showInfo(getTranslation("auth.forgotPassword.emailNotFound"));
+                NotificationHelper.showInfo(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_EMAIL_NOT_FOUND_KEY));
             }
         } catch (Exception ex) {
             // Generic error message to avoid information leakage
-            NotificationHelper.showError(getTranslation("auth.forgotPassword.error"));
+            NotificationHelper.showError(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_ERROR_KEY));
         }
     }
 
@@ -151,6 +127,6 @@ public final class ForgotPasswordView extends BaseView implements BeforeEnterObs
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("auth.forgotPassword.title");
+        return getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_TITLE_KEY);
     }
 }

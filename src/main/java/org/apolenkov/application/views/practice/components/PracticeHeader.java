@@ -24,25 +24,24 @@ public final class PracticeHeader extends Composite<HorizontalLayout> {
      */
     public PracticeHeader() {
         this.deckTitle = new H2();
-        setupLayout();
     }
 
-    /**
-     * Sets up the header layout with back button and title.
-     */
-    private void setupLayout() {
-        HorizontalLayout headerLayout = getContent();
+    @Override
+    protected HorizontalLayout initContent() {
+        HorizontalLayout headerLayout = new HorizontalLayout();
         headerLayout.setWidthFull();
         headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        Button backBtn = createBackButton();
+        backButton = createBackButton();
         deckTitle.addClassName(PracticeConstants.PRACTICE_VIEW_DECK_TITLE_CLASS);
 
-        leftSection.add(backBtn, deckTitle);
+        leftSection.add(backButton, deckTitle);
         headerLayout.add(leftSection);
+
+        return headerLayout;
     }
 
     /**
@@ -51,7 +50,7 @@ public final class PracticeHeader extends Composite<HorizontalLayout> {
      * @return configured back button
      */
     private Button createBackButton() {
-        this.backButton = ButtonHelper.createButton(
+        return ButtonHelper.createButton(
                 getTranslation(PracticeConstants.COMMON_BACK_KEY),
                 VaadinIcon.ARROW_LEFT,
                 e -> {
@@ -59,7 +58,6 @@ public final class PracticeHeader extends Composite<HorizontalLayout> {
                     // This is a placeholder for now
                 },
                 ButtonVariant.LUMO_TERTIARY);
-        return backButton;
     }
 
     /**
@@ -85,20 +83,8 @@ public final class PracticeHeader extends Composite<HorizontalLayout> {
         if (clickHandler == null) {
             throw new IllegalArgumentException("Click handler cannot be null");
         }
-        // Recreate button with new handler
-        backButton = ButtonHelper.createButton(
-                getTranslation(PracticeConstants.COMMON_BACK_KEY),
-                VaadinIcon.ARROW_LEFT,
-                e -> clickHandler.run(),
-                ButtonVariant.LUMO_TERTIARY);
-
-        // Update the layout
-        HorizontalLayout headerLayout = getContent();
-        headerLayout.removeAll();
-
-        HorizontalLayout leftSection = new HorizontalLayout();
-        leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
-        leftSection.add(backButton, deckTitle);
-        headerLayout.add(leftSection);
+        if (backButton != null) {
+            backButton.addClickListener(e -> clickHandler.run());
+        }
     }
 }

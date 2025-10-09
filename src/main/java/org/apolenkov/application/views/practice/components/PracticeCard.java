@@ -20,27 +20,26 @@ import org.apolenkov.application.model.PracticeDirection;
 public final class PracticeCard extends Composite<Div> {
 
     // UI Components
-    private final Div cardContent;
+    private Div cardContent;
 
     /**
      * Creates a new PracticeCard component.
      */
     public PracticeCard() {
-        this.cardContent = new Div();
-        setupLayout();
+        // Constructor - data only
     }
 
-    /**
-     * Sets up the card layout.
-     */
-    private void setupLayout() {
-        Div cardContainer = getContent();
+    @Override
+    protected Div initContent() {
+        Div cardContainer = new Div();
         cardContainer.addClassName(PracticeConstants.PRACTICE_CARD_CONTAINER_CLASS);
 
+        cardContent = new Div();
         cardContent.addClassName(PracticeConstants.PRACTICE_CARD_CONTENT_CLASS);
         cardContent.add(new Span(getTranslation(PracticeConstants.PRACTICE_LOADING_CARDS_KEY)));
 
         cardContainer.add(cardContent);
+        return cardContainer;
     }
 
     /**

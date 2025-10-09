@@ -12,8 +12,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.PostConstruct;
@@ -38,7 +36,9 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
 
     private final transient DeckUseCase deckUseCase;
     private final transient UserUseCase userUseCase;
-    private BeanValidationBinder<Deck> binder;
+
+    private TextField titleField;
+    private TextArea descriptionArea;
 
     /**
      * Creates a new deck creation view.
@@ -168,9 +168,9 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         formLayout.addClassName(DeckConstants.DECK_CREATE_FORM_LAYOUT_CLASS);
 
         H3 formTitle = createFormTitle();
-        TextField titleField = createTitleField();
-        TextArea descriptionArea = createDescriptionArea();
-        HorizontalLayout buttonsLayout = createButtonsLayout(titleField, descriptionArea);
+        titleField = createTitleField();
+        descriptionArea = createDescriptionArea();
+        HorizontalLayout buttonsLayout = createButtonsLayout();
 
         formLayout.add(formTitle, titleField, descriptionArea, buttonsLayout);
         return formLayout;
@@ -191,11 +191,11 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured title field
      */
     private TextField createTitleField() {
-        TextField titleField = new TextField(getTranslation(DeckConstants.DECK_CREATE_NAME));
-        titleField.setPlaceholder(getTranslation(DeckConstants.DECK_CREATE_NAME_PLACEHOLDER));
-        titleField.setRequiredIndicatorVisible(true);
-        titleField.setWidthFull();
-        return titleField;
+        TextField field = new TextField(getTranslation(DeckConstants.DECK_CREATE_NAME));
+        field.setPlaceholder(getTranslation(DeckConstants.DECK_CREATE_NAME_PLACEHOLDER));
+        field.setRequiredIndicatorVisible(true);
+        field.setWidthFull();
+        return field;
     }
 
     /**
@@ -204,93 +204,67 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured description area
      */
     private TextArea createDescriptionArea() {
-        TextArea descriptionArea = new TextArea(getTranslation(DeckConstants.DECK_CREATE_DESCRIPTION));
-        descriptionArea.setPlaceholder(getTranslation(DeckConstants.DECK_CREATE_DESCRIPTION_PLACEHOLDER));
-        descriptionArea.setClearButtonVisible(true);
-        descriptionArea.setWidthFull();
-        descriptionArea.addClassName(DeckConstants.TEXT_AREA_MD_CLASS);
-        return descriptionArea;
+        TextArea area = new TextArea(getTranslation(DeckConstants.DECK_CREATE_DESCRIPTION));
+        area.setPlaceholder(getTranslation(DeckConstants.DECK_CREATE_DESCRIPTION_PLACEHOLDER));
+        area.setClearButtonVisible(true);
+        area.setWidthFull();
+        area.addClassName(DeckConstants.TEXT_AREA_MD_CLASS);
+        return area;
     }
 
     /**
      * Creates the buttons layout with save and cancel buttons.
      *
-     * @param titleField the title field for validation
-     * @param descriptionArea the description area for validation
      * @return configured buttons layout
      */
-    private HorizontalLayout createButtonsLayout(final TextField titleField, final TextArea descriptionArea) {
+    private HorizontalLayout createButtonsLayout() {
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSpacing(true);
         buttonsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttonsLayout.setWidthFull();
 
-        binder = createBinder(titleField, descriptionArea);
-        Button saveButton = createSaveButton();
-        Button cancelButton = createCancelButton();
+        Button saveButton = ButtonHelper.createButton(
+                getTranslation(DeckConstants.DECK_CREATE_CREATE),
+                VaadinIcon.CHECK,
+                e -> saveDeck(),
+                ButtonVariant.LUMO_PRIMARY);
+
+        Button cancelButton = ButtonHelper.createButton(
+                getTranslation(DeckConstants.DECK_CREATE_CANCEL),
+                VaadinIcon.CLOSE,
+                e -> NavigationHelper.navigateToDecks(),
+                ButtonVariant.LUMO_TERTIARY);
 
         buttonsLayout.add(saveButton, cancelButton);
         return buttonsLayout;
     }
 
     /**
-     * Creates the validation binder for form fields.
-     *
-     * @param titleField the title field to bind
-     * @param descriptionArea the description area to bind
-     * @return configured validation binder
-     */
-    private BeanValidationBinder<Deck> createBinder(final TextField titleField, final TextArea descriptionArea) {
-        BeanValidationBinder<Deck> validationBinder = new BeanValidationBinder<>(Deck.class);
-        validationBinder
-                .forField(titleField)
-                .asRequired(getTranslation(DeckConstants.DECK_CREATE_ENTER_TITLE))
-                .bind(Deck::getTitle, Deck::setTitle);
-        validationBinder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
-        return validationBinder;
-    }
-
-    /**
-     * Creates the save button.
-     *
-     * @return configured save button
-     */
-    private Button createSaveButton() {
-        Button saveButton =
-                ButtonHelper.createPrimaryButton(getTranslation(DeckConstants.DECK_CREATE_CREATE), e -> saveDeck());
-        saveButton.setIcon(VaadinIcon.CHECK.create());
-        return saveButton;
-    }
-
-    /**
-     * Creates the cancel button.
-     *
-     * @return configured cancel button
-     */
-    private Button createCancelButton() {
-        Button cancelButton = ButtonHelper.createTertiaryButton(
-                getTranslation(DeckConstants.DECK_CREATE_CANCEL), e -> NavigationHelper.navigateToDecks());
-        cancelButton.setIcon(VaadinIcon.CLOSE.create());
-        return cancelButton;
-    }
-
-    /**
      * Saves the new deck to the system.
-     * Handles the deck creation process including validation,
-     * saving, and navigation to the new deck.
      */
     private void saveDeck() {
+        String title = titleField.getValue();
+        String description = descriptionArea.getValue();
+
+        // Simple validation
+        if (title == null || title.trim().isEmpty()) {
+            titleField.setInvalid(true);
+            titleField.setErrorMessage(getTranslation(DeckConstants.DECK_CREATE_ENTER_TITLE));
+            return;
+        }
+
         try {
-            Deck newDeck = new Deck();
-            newDeck.setUserId(userUseCase.getCurrentUser().getId());
-            binder.writeBean(newDeck);
-            Deck savedDeck = deckUseCase.saveDeck(newDeck);
+            Deck deck = new Deck();
+            deck.setUserId(userUseCase.getCurrentUser().getId());
+            deck.setTitle(title.trim());
+            deck.setDescription(description != null ? description.trim() : null);
+
+            Deck savedDeck = deckUseCase.saveDeck(deck);
+
             NotificationHelper.showSuccessBottom(
                     getTranslation(DeckConstants.DECK_CREATE_CREATED, savedDeck.getTitle()));
             NavigationHelper.navigateToDeck(savedDeck.getId());
-        } catch (ValidationException vex) {
-            NotificationHelper.showError(getTranslation(DeckConstants.FILL_REQUIRED_KEY));
         } catch (Exception e) {
             NotificationHelper.showError(getTranslation(DeckConstants.DECK_CREATE_ERROR, e.getMessage()));
         }

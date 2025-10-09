@@ -14,7 +14,6 @@ import org.apolenkov.application.views.shared.utils.ButtonHelper;
 public final class PracticeActions extends Composite<HorizontalLayout> {
 
     // UI Components
-    private final HorizontalLayout actionButtons;
     private Button showAnswerButton;
     private Button knowButton;
     private Button hardButton;
@@ -23,25 +22,27 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
      * Creates a new PracticeActions component.
      */
     public PracticeActions() {
-        this.actionButtons = getContent();
-        setupLayout();
-        createActionButtons();
+        // Constructor - data only
     }
 
-    /**
-     * Sets up the actions layout.
-     */
-    private void setupLayout() {
+    @Override
+    protected HorizontalLayout initContent() {
+        HorizontalLayout actionButtons = new HorizontalLayout();
         actionButtons.setSpacing(true);
         actionButtons.setWidthFull();
         actionButtons.setAlignItems(FlexComponent.Alignment.CENTER);
         actionButtons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
+        createActionButtons(actionButtons);
+        return actionButtons;
     }
 
     /**
      * Creates the main action buttons for practice.
+     *
+     * @param container the container to add buttons to
      */
-    private void createActionButtons() {
+    private void createActionButtons(final HorizontalLayout container) {
         showAnswerButton = ButtonHelper.createButton(
                 getTranslation(PracticeConstants.PRACTICE_SHOW_ANSWER_KEY),
                 e -> {}, // Placeholder click handler
@@ -62,7 +63,7 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
                 ButtonVariant.LUMO_LARGE);
         hardButton.setVisible(false);
 
-        actionButtons.add(showAnswerButton, knowButton, hardButton);
+        container.add(showAnswerButton, knowButton, hardButton);
     }
 
     /**
@@ -148,7 +149,7 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
             throw new IllegalArgumentException("Home handler cannot be null");
         }
 
-        actionButtons.removeAll();
+        getContent().removeAll();
 
         // Show repeat button only if there are failed cards to practice
         if (repeatHandler != null) {
@@ -157,7 +158,7 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
                     e -> repeatHandler.run(),
                     ButtonVariant.LUMO_ERROR,
                     ButtonVariant.LUMO_LARGE);
-            actionButtons.add(repeatButton);
+            getContent().add(repeatButton);
         }
 
         Button backToDeckButton = ButtonHelper.createButton(
@@ -166,15 +167,15 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
         Button homeButton = ButtonHelper.createButton(
                 getTranslation(PracticeConstants.PRACTICE_BACK_TO_DECKS_KEY), e -> homeHandler.run());
 
-        actionButtons.add(backToDeckButton, homeButton);
+        getContent().add(backToDeckButton, homeButton);
     }
 
     /**
      * Resets to practice buttons state.
      */
     public void resetToPracticeButtons() {
-        actionButtons.removeAll();
-        actionButtons.add(showAnswerButton, knowButton, hardButton);
+        getContent().removeAll();
+        getContent().add(showAnswerButton, knowButton, hardButton);
         showQuestionState();
     }
 }

@@ -4,7 +4,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.function.Consumer;
@@ -12,6 +11,7 @@ import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.DialogHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,26 +108,12 @@ public final class DeckFlashcardDeleteDialog extends Dialog {
      * @return configured HorizontalLayout with buttons
      */
     private HorizontalLayout createButtonLayout() {
-        HorizontalLayout buttons = createBaseButtonLayout();
+        HorizontalLayout buttons = DialogHelper.createButtonLayout();
 
         Button confirmButton = createConfirmButton();
         Button cancelButton = createCancelButton();
 
         buttons.add(confirmButton, cancelButton);
-        return buttons;
-    }
-
-    /**
-     * Creates base button layout with common styling.
-     *
-     * @return configured HorizontalLayout
-     */
-    private HorizontalLayout createBaseButtonLayout() {
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSpacing(true);
-        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        buttons.setWidthFull();
         return buttons;
     }
 

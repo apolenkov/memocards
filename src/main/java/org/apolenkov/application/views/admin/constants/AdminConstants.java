@@ -64,8 +64,18 @@ public final class AdminConstants {
     public static final String ADMIN_NEWS_CONFIRM_DELETE_PREFIX_KEY = "admin.news.confirm.delete.prefix";
     public static final String ADMIN_NEWS_CONFIRM_DELETE_SUFFIX_KEY = "admin.news.confirm.delete.suffix";
 
+    // Validation keys
+    public static final String ADMIN_NEWS_VALIDATION_TITLE_REQUIRED_KEY = "admin.news.validation.titleRequired";
+    public static final String ADMIN_NEWS_VALIDATION_CONTENT_REQUIRED_KEY = "admin.news.validation.contentRequired";
+
     // Common action keys
     public static final String COMMON_EDIT_KEY = "common.edit";
     public static final String COMMON_DELETE_KEY = "common.delete";
+    public static final String COMMON_CANCEL_KEY = "common.cancel";
+
+    // Dialog keys
     public static final String DIALOG_EDIT_KEY = "dialog.edit";
+    public static final String DIALOG_SAVE_KEY = "dialog.save";
+    public static final String DIALOG_CONFIRM_KEY = "dialog.confirm";
+    public static final String DIALOG_CANCEL_KEY = "dialog.cancel";
 }
