@@ -18,6 +18,7 @@ import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.DialogHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
+import org.apolenkov.application.views.shared.utils.ValidationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -175,18 +176,15 @@ public final class DeckFlashcardDialog extends Dialog {
      * Handles saving the flashcard after form validation.
      */
     private void handleSave() {
-        String frontText = frontTextField.getValue();
-        String backText = backTextField.getValue();
+        String frontText = ValidationHelper.safeTrimToEmpty(frontTextField.getValue());
+        String backText = ValidationHelper.safeTrimToEmpty(backTextField.getValue());
 
-        // Simple validation
-        if (frontText == null || frontText.trim().isEmpty()) {
-            frontTextField.setInvalid(true);
-            frontTextField.setErrorMessage(getTranslation(DeckConstants.FILL_REQUIRED_KEY));
+        if (ValidationHelper.validateRequiredSimple(
+                frontTextField, frontText, getTranslation(DeckConstants.FILL_REQUIRED_KEY))) {
             return;
         }
-        if (backText == null || backText.trim().isEmpty()) {
-            backTextField.setInvalid(true);
-            backTextField.setErrorMessage(getTranslation(DeckConstants.FILL_REQUIRED_KEY));
+        if (ValidationHelper.validateRequiredSimple(
+                backTextField, backText, getTranslation(DeckConstants.FILL_REQUIRED_KEY))) {
             return;
         }
 
@@ -204,9 +202,10 @@ public final class DeckFlashcardDialog extends Dialog {
 
     /**
      * Prepares flashcard entity with form values.
+     * Values are already trimmed by caller.
      *
-     * @param frontText front text value
-     * @param backText back text value
+     * @param frontText front text value (already trimmed)
+     * @param backText back text value (already trimmed)
      * @return prepared flashcard
      */
     private Flashcard prepareFlashcard(final String frontText, final String backText) {
@@ -216,12 +215,10 @@ public final class DeckFlashcardDialog extends Dialog {
             flashcard.setDeckId(currentDeck.getId());
         }
 
-        flashcard.setFrontText(frontText.trim());
-        flashcard.setBackText(backText.trim());
-        flashcard.setExample(
-                exampleArea.getValue() != null ? exampleArea.getValue().trim() : null);
-        flashcard.setImageUrl(
-                imageUrlField.getValue() != null ? imageUrlField.getValue().trim() : null);
+        flashcard.setFrontText(frontText);
+        flashcard.setBackText(backText);
+        flashcard.setExample(ValidationHelper.safeTrim(exampleArea.getValue())); // Nullable field
+        flashcard.setImageUrl(ValidationHelper.safeTrim(imageUrlField.getValue())); // Nullable field
 
         return flashcard;
     }

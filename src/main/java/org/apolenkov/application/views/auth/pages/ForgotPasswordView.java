@@ -10,17 +10,16 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.PasswordResetService;
 import org.apolenkov.application.views.auth.constants.AuthConstants;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
+import org.apolenkov.application.views.shared.utils.AuthRedirectHelper;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @Route(value = RouteConstants.FORGOT_PASSWORD_ROUTE, layout = PublicLayout.class)
 @AnonymousAllowed
@@ -35,7 +34,16 @@ public final class ForgotPasswordView extends BaseView implements BeforeEnterObs
      */
     public ForgotPasswordView(final PasswordResetService service) {
         this.passwordResetService = service;
+    }
 
+    /**
+     * Initializes the view components after dependency injection is complete.
+     * This method is called after the constructor and ensures that all
+     * dependencies are properly injected before UI initialization.
+     */
+    @PostConstruct
+    @SuppressWarnings("unused")
+    private void init() {
         VerticalLayout wrapper = createCenteredVerticalLayout();
 
         // Create a beautiful Lumo-styled form container
@@ -94,30 +102,22 @@ public final class ForgotPasswordView extends BaseView implements BeforeEnterObs
         try {
             var tokenOpt = passwordResetService.createPasswordResetToken(email.trim());
             if (tokenOpt.isPresent()) {
-                // In a real application, you would send this token via email
-                // For now, we'll show it in a notification (this is just for demo)
                 String token = tokenOpt.get();
-
                 NotificationHelper.showSuccess(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_TOKEN_CREATED_KEY));
 
-                // Navigate to reset password page with the generated token
+                // Direct navigation for demo; production would send email with token link
                 NavigationHelper.navigateToResetPassword(token);
             } else {
-                // Don't reveal if email exists for security reasons
                 NotificationHelper.showInfo(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_EMAIL_NOT_FOUND_KEY));
             }
         } catch (Exception ex) {
-            // Generic error message to avoid information leakage
             NotificationHelper.showError(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_ERROR_KEY));
         }
     }
 
     @Override
     public void beforeEnter(final BeforeEnterEvent event) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            NavigationHelper.forwardToHome(event);
-        }
+        AuthRedirectHelper.redirectAuthenticatedToHome(event);
     }
 
     /**

@@ -79,9 +79,7 @@ public final class PracticeSessionManager {
 
     /**
      * Reveals the answer for the current card.
-     * Calculates and records the time spent thinking about the current card
-     * before revealing the answer. This timing information is used for
-     * performance analytics and difficulty assessment.
+     * Records the time spent before revealing the answer.
      *
      * @param session the session containing the current card
      * @return updated session with answer revealed
@@ -161,7 +159,6 @@ public final class PracticeSessionManager {
 
     /**
      * Calculates current progress information for a practice session.
-     * Computes comprehensive progress metrics including current position, completion percentage, and performance statistics.
      *
      * @param session the session to calculate progress for
      * @return a Progress record with current session metrics
@@ -182,8 +179,6 @@ public final class PracticeSessionManager {
 
     /**
      * Records and persists a completed practice session.
-     * Calculates the total session duration and delegates to the recordSession
-     * method to persist all session statistics and performance metrics.
      *
      * @param session the completed session to record
      * @param sessionService the service for recording session data

@@ -9,27 +9,17 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.server.VaadinServletRequest;
-import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.service.auth.AuthService;
 import org.apolenkov.application.views.auth.constants.AuthConstants;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
+import org.apolenkov.application.views.shared.utils.AuthRedirectHelper;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 /**
  * User authentication view with secure login interface, form validation, and navigation options.
@@ -38,15 +28,15 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 @AnonymousAllowed
 public class LoginView extends BaseView implements BeforeEnterObserver {
 
-    private final transient AuthenticationConfiguration authenticationConfiguration;
+    private final transient AuthService authService;
 
     /**
-     * Creates a new LoginView with authentication configuration dependency.
+     * Creates a new LoginView with authentication service dependency.
      *
-     * @param authenticationConfigurationParam Spring Security authentication configuration
+     * @param authServiceParam service for handling authentication operations
      */
-    public LoginView(final AuthenticationConfiguration authenticationConfigurationParam) {
-        this.authenticationConfiguration = authenticationConfigurationParam;
+    public LoginView(final AuthService authServiceParam) {
+        this.authService = authServiceParam;
     }
 
     /**
@@ -105,7 +95,7 @@ public class LoginView extends BaseView implements BeforeEnterObserver {
             }
 
             try {
-                authenticateAndPersist(emailValue, passwordValue);
+                authService.authenticateAndPersist(emailValue, passwordValue);
                 NavigationHelper.navigateToHome();
             } catch (IllegalArgumentException ex) {
                 NotificationHelper.showError(ex.getMessage());
@@ -142,9 +132,7 @@ public class LoginView extends BaseView implements BeforeEnterObserver {
      */
     @Override
     public void beforeEnter(final BeforeEnterEvent event) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            NavigationHelper.forwardToHome(event);
+        if (AuthRedirectHelper.redirectAuthenticatedToHome(event)) {
             return;
         }
         boolean hasError =
@@ -164,44 +152,5 @@ public class LoginView extends BaseView implements BeforeEnterObserver {
     @Override
     public String getPageTitle() {
         return getTranslation(AuthConstants.AUTH_LOGIN_KEY);
-    }
-
-    /**
-     * Authenticates user and persists authentication session.
-     * Performs user authentication using Spring Security's authentication manager
-     * and persists authentication context to HTTP session for subsequent requests.
-     *
-     * @param username email address of user to authenticate
-     * @param rawPassword plain text password for authentication
-     * @throws IllegalArgumentException if authentication fails due to invalid credentials
-     */
-    private void authenticateAndPersist(final String username, final String rawPassword) {
-        if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be null or empty");
-        }
-        if (rawPassword == null) {
-            throw new IllegalArgumentException("Password cannot be null");
-        }
-
-        UsernamePasswordAuthenticationToken authRequest =
-                new UsernamePasswordAuthenticationToken(username, rawPassword);
-        Authentication auth;
-        try {
-            auth = authenticationConfiguration.getAuthenticationManager().authenticate(authRequest);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Authentication failed", e);
-        }
-
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(auth);
-        SecurityContextHolder.setContext(context);
-
-        VaadinServletRequest vsr = (VaadinServletRequest) VaadinService.getCurrentRequest();
-        VaadinServletResponse vsp = (VaadinServletResponse) VaadinService.getCurrentResponse();
-        if (vsr != null && vsp != null) {
-            HttpServletRequest req = vsr.getHttpServletRequest();
-            HttpServletResponse resp = vsp.getHttpServletResponse();
-            new HttpSessionSecurityContextRepository().saveContext(context, req, resp);
-        }
     }
 }

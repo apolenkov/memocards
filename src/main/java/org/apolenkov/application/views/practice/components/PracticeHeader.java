@@ -46,6 +46,7 @@ public final class PracticeHeader extends Composite<HorizontalLayout> {
 
     /**
      * Creates the back button with navigation logic.
+     * Click handler will be set via setBackButtonHandler().
      *
      * @return configured back button
      */
@@ -54,8 +55,7 @@ public final class PracticeHeader extends Composite<HorizontalLayout> {
                 getTranslation(PracticeConstants.COMMON_BACK_KEY),
                 VaadinIcon.ARROW_LEFT,
                 e -> {
-                    // Navigation logic will be handled by parent component
-                    // This is a placeholder for now
+                    /* Handler set via setBackButtonHandler() */
                 },
                 ButtonVariant.LUMO_TERTIARY);
     }
