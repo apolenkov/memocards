@@ -1,19 +1,14 @@
 package org.apolenkov.application.views.admin.pages;
 
 import com.vaadin.flow.component.DetachEvent;
-import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
@@ -27,14 +22,14 @@ import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.News;
 import org.apolenkov.application.service.NewsService;
+import org.apolenkov.application.views.admin.components.AdminNewsDeleteDialog;
+import org.apolenkov.application.views.admin.components.AdminNewsDialog;
 import org.apolenkov.application.views.admin.constants.AdminConstants;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.LayoutHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Administrative interface for managing news articles.
@@ -130,73 +125,14 @@ public class AdminNewsView extends BaseView {
      * @param news the news item to edit, or null for creating new news
      */
     private void showNewsDialog(final News news) {
-        Dialog dialog = new Dialog();
-        dialog.addClassName(AdminConstants.DIALOG_MD_CLASS);
-
-        VerticalLayout content = new VerticalLayout();
-        content.setSpacing(true);
-        content.setPadding(true);
-
-        H3 dialogTitle = new H3(
-                news == null
-                        ? getTranslation(AdminConstants.ADMIN_NEWS_ADD_KEY)
-                        : getTranslation(AdminConstants.DIALOG_EDIT_KEY));
-        content.add(dialogTitle);
-
-        TextField titleField = new TextField(getTranslation(AdminConstants.ADMIN_NEWS_TITLE_KEY));
-        titleField.setWidthFull();
-        if (news != null) {
-            titleField.setValue(news.getTitle());
-        }
-
-        TextArea contentField = new TextArea(getTranslation(AdminConstants.ADMIN_NEWS_CONTENT_KEY));
-        contentField.setWidthFull();
-        contentField.addClassName(AdminConstants.ADMIN_NEWS_CONTENT_AREA_CLASS);
-        if (news != null) {
-            contentField.setValue(news.getContent());
-        }
-
-        TextField authorField = new TextField(getTranslation(AdminConstants.ADMIN_NEWS_AUTHOR_KEY));
-        authorField.setWidthFull();
-        if (news != null) {
-            authorField.setValue(news.getAuthor());
-        } else {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.isAuthenticated()) {
-                authorField.setValue(auth.getName());
-            }
-        }
-
-        content.add(titleField, contentField, authorField);
-
-        Button saveBtn = ButtonHelper.createPrimaryButton(getTranslation(AdminConstants.DIALOG_SAVE_KEY), e -> {
-            String t = safeTrim(titleField.getValue());
-            String c = safeTrim(contentField.getValue());
-            if (validateRequired(titleField, t, AdminConstants.ADMIN_NEWS_VALIDATION_TITLE_REQUIRED_KEY)) {
-                return;
-            }
-            if (validateRequired(contentField, c, AdminConstants.ADMIN_NEWS_VALIDATION_CONTENT_REQUIRED_KEY)) {
-                return;
-            }
-
-            if (news == null) {
-                createNews(t, c, authorField.getValue());
+        AdminNewsDialog dialog = new AdminNewsDialog(news, formData -> {
+            if (formData.id() == null) {
+                createNews(formData.title(), formData.content(), formData.author());
             } else {
-                updateNews(news.getId(), t, c, authorField.getValue());
+                updateNews(formData.id(), formData.title(), formData.content(), formData.author());
             }
-            dialog.close();
             refreshNews("");
         });
-
-        Button cancelBtn = ButtonHelper.createTertiaryButton(
-                getTranslation(AdminConstants.COMMON_CANCEL_KEY), e -> dialog.close());
-        HorizontalLayout buttonRow = new HorizontalLayout();
-        buttonRow.setSpacing(true);
-        buttonRow.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-        buttonRow.add(saveBtn, cancelBtn);
-        content.add(buttonRow);
-
-        dialog.add(content);
         dialog.open();
     }
 
@@ -239,65 +175,17 @@ public class AdminNewsView extends BaseView {
      * @param news the news article to delete
      */
     private void deleteNews(final News news) {
-        Dialog confirmDialog = new Dialog();
-        confirmDialog.addClassName(AdminConstants.DIALOG_SM_CLASS);
-
-        VerticalLayout layout = new VerticalLayout();
-        layout.add(new H3(getTranslation(AdminConstants.ADMIN_NEWS_CONFIRM_DELETE_TITLE_KEY)));
-
-        // Create message using native Vaadin DSL components
-        Div messageContainer = new Div();
-        messageContainer.addClassName(AdminConstants.TEXT_CENTER_CLASS);
-        messageContainer.setWidthFull();
-
-        // Use native Vaadin components instead of HTML manipulation
-        Span prefixSpan = new Span(getTranslation(AdminConstants.ADMIN_NEWS_CONFIRM_DELETE_PREFIX_KEY) + " ");
-        Span titleSpan = new Span(news.getTitle());
-        titleSpan.addClassName(AdminConstants.ADMIN_DIALOG_CONFIRM_TITLE_CLASS);
-        Span suffixSpan = new Span(getTranslation(AdminConstants.ADMIN_NEWS_CONFIRM_DELETE_SUFFIX_KEY));
-
-        messageContainer.add(prefixSpan, titleSpan, suffixSpan);
-        layout.add(messageContainer);
-
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSpacing(true);
-        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        buttons.setWidthFull();
-
-        Button confirmButton =
-                ButtonHelper.createConfirmButton(getTranslation(AdminConstants.DIALOG_CONFIRM_KEY), e -> {
-                    try {
-                        newsService.deleteNews(news.getId());
-                        refreshNews("");
-                        NotificationHelper.showSuccess(getTranslation(AdminConstants.ADMIN_NEWS_DELETED_KEY));
-                    } catch (Exception ex) {
-                        NotificationHelper.showError(
-                                getTranslation(AdminConstants.ADMIN_NEWS_ERROR_DELETE_KEY, ex.getMessage()));
-                    }
-                    confirmDialog.close();
-                });
-
-        Button cancelButton = ButtonHelper.createCancelButton(
-                getTranslation(AdminConstants.DIALOG_CANCEL_KEY), e -> confirmDialog.close());
-
-        buttons.add(confirmButton, cancelButton);
-        layout.add(buttons);
-        confirmDialog.add(layout);
-        confirmDialog.open();
-    }
-
-    private static String safeTrim(final String value) {
-        return value == null ? "" : value.trim();
-    }
-
-    private boolean validateRequired(final HasValidation field, final String value, final String i18nKey) {
-        if (value == null || value.isBlank()) {
-            field.setErrorMessage(getTranslation(i18nKey));
-            field.setInvalid(true);
-            return true;
-        }
-        return false;
+        AdminNewsDeleteDialog dialog = new AdminNewsDeleteDialog(news, () -> {
+            try {
+                newsService.deleteNews(news.getId());
+                refreshNews("");
+                NotificationHelper.showSuccess(getTranslation(AdminConstants.ADMIN_NEWS_DELETED_KEY));
+            } catch (Exception ex) {
+                NotificationHelper.showError(
+                        getTranslation(AdminConstants.ADMIN_NEWS_ERROR_DELETE_KEY, ex.getMessage()));
+            }
+        });
+        dialog.open();
     }
 
     /**

@@ -179,15 +179,13 @@ public final class PracticeCompletionFlow {
     private record SessionMetrics(int totalCards, long sessionMinutes, long avgSeconds) {}
 
     /**
-     * Checks if a card is failed and still not known.
+     * Checks if a card is not yet known by the user.
      *
      * @param flashcard the card to check
      * @param deck the current deck
-     * @return true if the card is failed and not known
+     * @return true if the card is not known
      */
     private boolean isCardFailed(final Flashcard flashcard, final Deck deck) {
-        // This would need access to the current session's failed cards
-        // For now, we'll use a simplified approach
         return presenter.getNotKnownCards(deck.getId()).stream()
                 .map(Flashcard::getId)
                 .collect(Collectors.toSet())

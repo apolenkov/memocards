@@ -158,14 +158,14 @@ public final class PracticeSessionService {
     }
 
     /**
-     * Records completed practice session with performance metrics and knowledge status changes.
+     * Records completed practice session.
      *
      * @param deckId the ID of the deck that was practiced
      * @param totalViewed the total number of cards viewed in the session
      * @param correct the number of cards answered correctly
      * @param hard the number of cards marked as difficult
      * @param sessionDuration the total duration of the practice session
-     * @param totalAnswerDelayMs the total time spent thinking before answering
+     * @param totalAnswerDelayMs the total time spent before answering
      * @param knownCardIdsDelta the collection of card IDs that changed knowledge status
      */
     public void recordSession(

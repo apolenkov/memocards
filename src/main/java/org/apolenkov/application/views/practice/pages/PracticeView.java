@@ -1,11 +1,6 @@
 package org.apolenkov.application.views.practice.pages;
 
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
@@ -25,6 +20,7 @@ import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.practice.business.PracticePresenter;
 import org.apolenkov.application.views.practice.business.PracticeSession;
 import org.apolenkov.application.views.practice.components.PracticeActions;
+import org.apolenkov.application.views.practice.components.PracticeAllKnownDialog;
 import org.apolenkov.application.views.practice.components.PracticeCard;
 import org.apolenkov.application.views.practice.components.PracticeConstants;
 import org.apolenkov.application.views.practice.components.PracticeHeader;
@@ -256,30 +252,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             practiceActions.setVisible(false);
         }
 
-        Dialog dialog = new Dialog();
-        dialog.setCloseOnEsc(false);
-        dialog.setCloseOnOutsideClick(false);
-        dialog.setModal(true);
-        dialog.setDraggable(false);
-        dialog.setResizable(false);
-
-        H3 title = new H3(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_TITLE_KEY));
-        Paragraph message =
-                new Paragraph(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_MESSAGE_KEY, currentDeck.getTitle()));
-
-        Button backToDeckButton = new Button(getTranslation(PracticeConstants.PRACTICE_BACK_TO_DECK_KEY), e -> {
-            dialog.close();
-            NavigationHelper.navigateToDeck(currentDeck.getId());
-        });
-        backToDeckButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        backToDeckButton.focus();
-
-        VerticalLayout dialogLayout = new VerticalLayout(title, message, backToDeckButton);
-        dialogLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        dialogLayout.setSpacing(true);
-        dialogLayout.setPadding(true);
-
-        dialog.add(dialogLayout);
+        PracticeAllKnownDialog dialog = new PracticeAllKnownDialog(
+                currentDeck.getTitle(), () -> NavigationHelper.navigateToDeck(currentDeck.getId()));
         dialog.open();
 
         LOGGER.debug("All cards known for deck '{}', showing dialog and will redirect to deck", currentDeck.getTitle());

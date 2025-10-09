@@ -16,6 +16,7 @@ import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.DialogHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
+import org.apolenkov.application.views.shared.utils.ValidationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,13 +152,11 @@ public class DeckEditDialog extends Dialog {
      * @param descriptionArea the description area
      */
     private void handleSaveAction(final TextField titleField, final TextArea descriptionArea) {
-        String title = titleField.getValue();
-        String description = descriptionArea.getValue();
+        String title = ValidationHelper.safeTrimToEmpty(titleField.getValue());
+        String description = ValidationHelper.safeTrim(descriptionArea.getValue()); // Nullable field
 
-        // Simple validation
-        if (title == null || title.trim().isEmpty()) {
-            titleField.setInvalid(true);
-            titleField.setErrorMessage(getTranslation(DeckConstants.DECK_CREATE_ENTER_TITLE));
+        if (ValidationHelper.validateRequiredSimple(
+                titleField, title, getTranslation(DeckConstants.DECK_CREATE_ENTER_TITLE))) {
             return;
         }
 
@@ -166,8 +165,8 @@ public class DeckEditDialog extends Dialog {
             int originalDescLength =
                     deck.getDescription() != null ? deck.getDescription().length() : 0;
 
-            deck.setTitle(title.trim());
-            deck.setDescription(description != null ? description.trim() : null);
+            deck.setTitle(title);
+            deck.setDescription(description);
 
             Deck saved = deckUseCase.saveDeck(deck);
 

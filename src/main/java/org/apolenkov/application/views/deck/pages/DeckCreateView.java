@@ -24,6 +24,7 @@ import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
+import org.apolenkov.application.views.shared.utils.ValidationHelper;
 
 /**
  * View for creating new flashcard decks.
@@ -244,21 +245,19 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * Saves the new deck to the system.
      */
     private void saveDeck() {
-        String title = titleField.getValue();
-        String description = descriptionArea.getValue();
+        String title = ValidationHelper.safeTrimToEmpty(titleField.getValue());
+        String description = ValidationHelper.safeTrim(descriptionArea.getValue()); // Nullable field
 
-        // Simple validation
-        if (title == null || title.trim().isEmpty()) {
-            titleField.setInvalid(true);
-            titleField.setErrorMessage(getTranslation(DeckConstants.DECK_CREATE_ENTER_TITLE));
+        if (ValidationHelper.validateRequiredSimple(
+                titleField, title, getTranslation(DeckConstants.DECK_CREATE_ENTER_TITLE))) {
             return;
         }
 
         try {
             Deck deck = new Deck();
             deck.setUserId(userUseCase.getCurrentUser().getId());
-            deck.setTitle(title.trim());
-            deck.setDescription(description != null ? description.trim() : null);
+            deck.setTitle(title);
+            deck.setDescription(description);
 
             Deck savedDeck = deckUseCase.saveDeck(deck);
 

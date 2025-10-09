@@ -20,6 +20,7 @@ import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
+import org.apolenkov.application.views.shared.utils.ValidationHelper;
 
 /**
  * User registration view with comprehensive form validation, security measures, and automatic login.
@@ -185,10 +186,7 @@ public class RegisterView extends BaseView {
      * validation errors don't persist inappropriately.
      */
     private void clearValidationErrors() {
-        name.setInvalid(false);
-        email.setInvalid(false);
-        password.setInvalid(false);
-        confirm.setInvalid(false);
+        ValidationHelper.clearValidationErrors(name, email, password, confirm);
     }
 
     /**
@@ -217,15 +215,15 @@ public class RegisterView extends BaseView {
      * @return true if name is valid, false otherwise
      */
     private boolean validateName() {
-        String vName = getTrimmedValue(name);
+        String vName = ValidationHelper.getTrimmedValue(name);
 
         if (vName.isEmpty()) {
-            setFieldError(name, AuthConstants.VALIDATION_NAME_REQUIRED_KEY);
+            ValidationHelper.setFieldError(name, AuthConstants.VALIDATION_NAME_REQUIRED_KEY, this::getTranslation);
             return false;
         }
 
         if (vName.length() < 2) {
-            setFieldError(name, AuthConstants.VALIDATION_NAME_MIN2_KEY);
+            ValidationHelper.setFieldError(name, AuthConstants.VALIDATION_NAME_MIN2_KEY, this::getTranslation);
             return false;
         }
 
@@ -241,16 +239,16 @@ public class RegisterView extends BaseView {
      * @return true if email is valid, false otherwise
      */
     private boolean validateEmail() {
-        String vEmail = getTrimmedValue(email);
+        String vEmail = ValidationHelper.getTrimmedValue(email);
 
         if (vEmail.isEmpty()) {
-            setFieldError(email, AuthConstants.VALIDATION_EMAIL_REQUIRED_KEY);
+            ValidationHelper.setFieldError(email, AuthConstants.VALIDATION_EMAIL_REQUIRED_KEY, this::getTranslation);
             return false;
         }
 
         EmailValidator validator = new EmailValidator(getTranslation(AuthConstants.VALIDATION_EMAIL_INVALID_KEY));
         if (validator.apply(vEmail, null).isError()) {
-            setFieldError(email, AuthConstants.VALIDATION_EMAIL_INVALID_KEY);
+            ValidationHelper.setFieldError(email, AuthConstants.VALIDATION_EMAIL_INVALID_KEY, this::getTranslation);
             return false;
         }
 
@@ -268,7 +266,8 @@ public class RegisterView extends BaseView {
         String vPwd = password.getValue() == null ? "" : password.getValue();
 
         if (PasswordValidator.isInvalid(vPwd)) {
-            setFieldError(password, AuthConstants.VALIDATION_PASSWORD_POLICY_KEY);
+            ValidationHelper.setFieldError(
+                    password, AuthConstants.VALIDATION_PASSWORD_POLICY_KEY, this::getTranslation);
             return false;
         }
 
@@ -288,32 +287,12 @@ public class RegisterView extends BaseView {
         String vConfirm = confirm.getValue() == null ? "" : confirm.getValue();
 
         if (!vPwd.equals(vConfirm)) {
-            setFieldError(confirm, AuthConstants.VALIDATION_PASSWORDS_MISMATCH_KEY);
+            ValidationHelper.setFieldError(
+                    confirm, AuthConstants.VALIDATION_PASSWORDS_MISMATCH_KEY, this::getTranslation);
             return false;
         }
 
         return true;
-    }
-
-    /**
-     * Gets trimmed value from any field with value.
-     *
-     * @param field the field with getValue() method
-     * @return trimmed value or empty string
-     */
-    private String getTrimmedValue(final com.vaadin.flow.component.AbstractField<?, String> field) {
-        return field.getValue() == null ? "" : field.getValue().trim();
-    }
-
-    /**
-     * Sets field error message and invalid state.
-     *
-     * @param field the field to mark as invalid
-     * @param errorMessageKey the translation key for error message
-     */
-    private void setFieldError(final com.vaadin.flow.component.HasValidation field, final String errorMessageKey) {
-        field.setErrorMessage(getTranslation(errorMessageKey));
-        field.setInvalid(true);
     }
 
     /**

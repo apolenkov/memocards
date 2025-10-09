@@ -17,14 +17,13 @@ import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.exceptions.EntityNotFoundException;
 import org.apolenkov.application.service.PasswordResetService;
 import org.apolenkov.application.views.auth.constants.AuthConstants;
+import org.apolenkov.application.views.auth.utils.PasswordValidator;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
+import org.apolenkov.application.views.shared.utils.AuthRedirectHelper;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Password reset form view for completing password reset process.
@@ -126,17 +125,20 @@ public class ResetPasswordView extends BaseView implements HasUrlParameter<Strin
     }
 
     private void handleSubmit(final String password, final String confirmPassword) {
+        // Validate password not empty
         if (password == null || password.trim().isEmpty()) {
             NotificationHelper.showError(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_PASSWORD_REQUIRED_KEY));
             return;
         }
 
+        // Validate passwords match
         if (!password.equals(confirmPassword)) {
             NotificationHelper.showError(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_PASSWORD_MISMATCH_KEY));
             return;
         }
 
-        if (password.length() < 8) {
+        // Validate password policy using centralized validator
+        if (PasswordValidator.isInvalid(password)) {
             NotificationHelper.showError(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_PASSWORD_TOO_SHORT_KEY));
             return;
         }
@@ -156,18 +158,13 @@ public class ResetPasswordView extends BaseView implements HasUrlParameter<Strin
 
     /**
      * Handles the before enter event for this view.
-     * This method is called before the view is entered and can be used to perform
-     * pre-navigation checks or redirects. In this case, it checks if the user
-     * is already authenticated and redirects them to the home page if so.
+     * Redirects authenticated users to home page.
      *
      * @param event the before enter event containing navigation context
      */
     @Override
     public void beforeEnter(final BeforeEnterEvent event) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            NavigationHelper.forwardToHome(event);
-        }
+        AuthRedirectHelper.redirectAuthenticatedToHome(event);
     }
 
     /**
