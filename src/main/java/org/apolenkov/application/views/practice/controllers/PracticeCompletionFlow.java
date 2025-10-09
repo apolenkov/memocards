@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.practice.controllers;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -68,12 +69,15 @@ public final class PracticeCompletionFlow {
      * @param deck the current deck
      */
     public void createCompletionDisplay(final PracticeSession session, final Deck deck) {
-        int total = calculateTotalCards(session);
-        long sessionMinutes = calculateSessionMinutes(session);
-        long avgSec = calculateAverageSeconds(session);
+        SessionMetrics metrics = calculateSessionMetrics(session);
 
         practiceCard.displayCompletion(
-                deck.getTitle(), session.getCorrectCount(), total, session.getHardCount(), sessionMinutes, avgSec);
+                deck.getTitle(),
+                session.getCorrectCount(),
+                metrics.totalCards(),
+                session.getHardCount(),
+                metrics.sessionMinutes(),
+                metrics.avgSeconds());
     }
 
     /**
@@ -142,39 +146,37 @@ public final class PracticeCompletionFlow {
     }
 
     /**
-     * Calculates the total number of cards in the session.
+     * Calculates session metrics including duration and timing statistics.
      *
      * @param session the current session
-     * @return total number of cards
+     * @return session metrics with calculated values
      */
-    private int calculateTotalCards(final PracticeSession session) {
-        return (session.getCards() != null) ? session.getCards().size() : session.getTotalViewed();
-    }
+    private SessionMetrics calculateSessionMetrics(final PracticeSession session) {
+        int totalCards = (session.getCards() != null) ? session.getCards().size() : session.getTotalViewed();
 
-    /**
-     * Calculates session duration in minutes.
-     *
-     * @param session the current session
-     * @return session duration in minutes
-     */
-    private long calculateSessionMinutes(final PracticeSession session) {
-        long sessionMinutes = session.getSessionStart().getEpochSecond();
-        sessionMinutes = (java.time.Instant.now().getEpochSecond() - sessionMinutes) / 60;
-        return Math.clamp(sessionMinutes, PracticeConstants.MIN_SESSION_MINUTES, PracticeConstants.MAX_SESSION_MINUTES);
-    }
+        long sessionDurationSec =
+                Instant.now().getEpochSecond() - session.getSessionStart().getEpochSecond();
+        long sessionMinutes = Math.clamp(
+                sessionDurationSec / 60, PracticeConstants.MIN_SESSION_MINUTES, PracticeConstants.MAX_SESSION_MINUTES);
 
-    /**
-     * Calculates average answer time in seconds.
-     *
-     * @param session the current session
-     * @return average answer time in seconds
-     */
-    private long calculateAverageSeconds(final PracticeSession session) {
         double denom = Math.clamp(
                 session.getTotalViewed(), PracticeConstants.MIN_TOTAL_VIEWED, PracticeConstants.MAX_TOTAL_VIEWED);
-        long avgSec = Math.round((session.getTotalAnswerDelayMs() / denom) / 1000.0);
-        return Math.clamp(avgSec, PracticeConstants.MIN_AVERAGE_SECONDS, Long.MAX_VALUE);
+        long avgSeconds = Math.clamp(
+                Math.round((session.getTotalAnswerDelayMs() / denom) / 1000.0),
+                PracticeConstants.MIN_AVERAGE_SECONDS,
+                Long.MAX_VALUE);
+
+        return new SessionMetrics(totalCards, sessionMinutes, avgSeconds);
     }
+
+    /**
+     * Record for session metrics calculations.
+     *
+     * @param totalCards total number of cards
+     * @param sessionMinutes session duration in minutes
+     * @param avgSeconds average answer time in seconds
+     */
+    private record SessionMetrics(int totalCards, long sessionMinutes, long avgSeconds) {}
 
     /**
      * Checks if a card is failed and still not known.

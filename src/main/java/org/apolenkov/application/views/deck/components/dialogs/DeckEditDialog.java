@@ -5,18 +5,16 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.ValidationException;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.DialogHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,161 +130,65 @@ public class DeckEditDialog extends Dialog {
      * @return configured button layout
      */
     private HorizontalLayout createButtonLayout(final TextField titleField, final TextArea descriptionArea) {
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSpacing(true);
-        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        buttons.setWidthFull();
+        HorizontalLayout buttons = DialogHelper.createButtonLayout();
 
-        BeanValidationBinder<Deck> binder = createBinder(titleField, descriptionArea);
-        Button save = createSaveButton(binder);
-        Button cancel = createCancelButton();
+        Button save = ButtonHelper.createButton(
+                getTranslation(DeckConstants.DECK_EDIT_SAVE),
+                e -> handleSaveAction(titleField, descriptionArea),
+                ButtonVariant.LUMO_PRIMARY);
+
+        Button cancel = ButtonHelper.createButton(
+                getTranslation(DeckConstants.COMMON_CANCEL), e -> close(), ButtonVariant.LUMO_TERTIARY);
 
         buttons.add(save, cancel);
         return buttons;
     }
 
     /**
-     * Creates the validation binder for form fields.
-     *
-     * @param titleField the title field to bind
-     * @param descriptionArea the description area to bind
-     * @return configured validation binder
-     */
-    private BeanValidationBinder<Deck> createBinder(final TextField titleField, final TextArea descriptionArea) {
-        BeanValidationBinder<Deck> binder = new BeanValidationBinder<>(Deck.class);
-        binder.forField(titleField)
-                .asRequired(getTranslation(DeckConstants.DECK_CREATE_ENTER_TITLE))
-                .bind(Deck::getTitle, Deck::setTitle);
-        binder.forField(descriptionArea).bind(Deck::getDescription, Deck::setDescription);
-        return binder;
-    }
-
-    /**
-     * Creates the save button with action handler.
-     *
-     * @param binder the validation binder
-     * @return configured save button
-     */
-    private Button createSaveButton(final BeanValidationBinder<Deck> binder) {
-        return ButtonHelper.createButton(
-                getTranslation(DeckConstants.DECK_EDIT_SAVE),
-                e -> handleSaveAction(binder),
-                ButtonVariant.LUMO_PRIMARY);
-    }
-
-    /**
-     * Creates the cancel button.
-     *
-     * @return configured cancel button
-     */
-    private Button createCancelButton() {
-        return ButtonHelper.createButton(
-                getTranslation(DeckConstants.COMMON_CANCEL), e -> close(), ButtonVariant.LUMO_TERTIARY);
-    }
-
-    /**
      * Handles the save action with validation and business logic.
      *
-     * @param binder the validation binder
+     * @param titleField the title field
+     * @param descriptionArea the description area
      */
-    private void handleSaveAction(final BeanValidationBinder<Deck> binder) {
+    private void handleSaveAction(final TextField titleField, final TextArea descriptionArea) {
+        String title = titleField.getValue();
+        String description = descriptionArea.getValue();
+
+        // Simple validation
+        if (title == null || title.trim().isEmpty()) {
+            titleField.setInvalid(true);
+            titleField.setErrorMessage(getTranslation(DeckConstants.DECK_CREATE_ENTER_TITLE));
+            return;
+        }
+
         try {
-            DeckEditData editData = prepareEditData();
-            Deck saved = performSave(binder);
-            logEditAction(editData, saved);
-            handleSuccessfulSave(saved);
-        } catch (ValidationException vex) {
-            handleValidationError();
+            String originalTitle = deck.getTitle();
+            int originalDescLength =
+                    deck.getDescription() != null ? deck.getDescription().length() : 0;
+
+            deck.setTitle(title.trim());
+            deck.setDescription(description != null ? description.trim() : null);
+
+            Deck saved = deckUseCase.saveDeck(deck);
+
+            AUDIT_LOGGER.info(
+                    "User edited deck '{}' (ID: {}) - Title changed: '{}' -> '{}', Description length: {} -> {}",
+                    saved.getTitle(),
+                    saved.getId(),
+                    originalTitle,
+                    saved.getTitle(),
+                    originalDescLength,
+                    saved.getDescription() != null ? saved.getDescription().length() : 0);
+
+            NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_EDIT_SUCCESS));
+            close();
+
+            if (onSaved != null) {
+                onSaved.accept(saved);
+            }
         } catch (Exception ex) {
-            handleSaveError(ex);
-        }
-    }
-
-    /**
-     * Prepares data for editing operation.
-     *
-     * @return edit data with original values
-     */
-    private DeckEditData prepareEditData() {
-        return new DeckEditData(deck.getTitle(), deck.getDescription());
-    }
-
-    /**
-     * Performs the save operation.
-     *
-     * @param binder validation binder
-     * @return saved deck
-     * @throws ValidationException if validation fails
-     */
-    private Deck performSave(final BeanValidationBinder<Deck> binder) throws ValidationException {
-        binder.writeBean(deck);
-        return deckUseCase.saveDeck(deck);
-    }
-
-    /**
-     * Logs the edit action with audit information.
-     *
-     * @param editData original data
-     * @param saved saved deck
-     */
-    private void logEditAction(final DeckEditData editData, final Deck saved) {
-        AUDIT_LOGGER.info(
-                "User edited deck '{}' (ID: {}) - Title changed: '{}' -> '{}', Description length: {} -> {}",
-                saved.getTitle(),
-                saved.getId(),
-                editData.originalTitle(),
-                saved.getTitle(),
-                editData.originalDescriptionLength(),
-                saved.getDescription() != null ? saved.getDescription().length() : 0);
-    }
-
-    /**
-     * Handles successful save operation.
-     *
-     * @param saved saved deck
-     */
-    private void handleSuccessfulSave(final Deck saved) {
-        NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_EDIT_SUCCESS));
-        close();
-
-        if (onSaved != null) {
-            onSaved.accept(saved);
-        }
-    }
-
-    /**
-     * Handles validation errors.
-     */
-    private void handleValidationError() {
-        LOGGER.warn("Deck editing failed due to validation error for deck ID: {}", deck.getId());
-        NotificationHelper.showError(getTranslation(DeckConstants.FILL_REQUIRED_KEY));
-    }
-
-    /**
-     * Handles general save errors.
-     *
-     * @param ex exception that occurred
-     */
-    private void handleSaveError(final Exception ex) {
-        LOGGER.error("Error editing deck ID {}: {}", deck.getId(), ex.getMessage(), ex);
-        NotificationHelper.showError(ex.getMessage());
-    }
-
-    /**
-     * Record for storing original edit data.
-     *
-     * @param originalTitle original title
-     * @param originalDescription original description
-     */
-    private record DeckEditData(String originalTitle, String originalDescription) {
-        /**
-         * Gets original description length.
-         *
-         * @return description length or 0 if null
-         */
-        public int originalDescriptionLength() {
-            return originalDescription != null ? originalDescription.length() : 0;
+            LOGGER.error("Error editing deck ID {}: {}", deck.getId(), ex.getMessage(), ex);
+            NotificationHelper.showError(ex.getMessage());
         }
     }
 }

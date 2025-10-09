@@ -58,6 +58,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     // Data
     private transient Deck currentDeck;
     private transient PracticeSession session;
+    private transient PracticeDirection sessionDirection;
 
     // UI Components
     private PracticeHeader practiceHeader;
@@ -139,9 +140,13 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
         initializeComponents();
         initializeControllers();
+
+        // Add components to layout first - this triggers initContent() for Composite components
+        pageSection.add(practiceHeader, practiceProgress, practiceCard, practiceActions);
+
+        // Setup handlers AFTER components are added and initialized
         setupActionHandlers();
 
-        pageSection.add(practiceHeader, practiceProgress, practiceCard, practiceActions);
         return pageSection;
     }
 
@@ -153,6 +158,9 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         practiceProgress = new PracticeProgress();
         practiceCard = new PracticeCard();
         practiceActions = new PracticeActions();
+
+        // Load practice direction from user settings
+        sessionDirection = presenter.defaultDirection();
     }
 
     /**
@@ -230,7 +238,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * Starts default practice session.
      */
     private void startDefaultPractice() {
-        session = sessionFlow.startDefaultPractice(currentDeck, PracticeDirection.FRONT_TO_BACK);
+        session = sessionFlow.startDefaultPractice(currentDeck, sessionDirection);
         if (session == null) {
             showAllKnownDialogAndRedirect();
         }
@@ -301,7 +309,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * Shows the answer for the current card.
      */
     private void showAnswer() {
-        session = sessionFlow.showAnswer(session, PracticeDirection.FRONT_TO_BACK);
+        session = sessionFlow.showAnswer(session, sessionDirection);
     }
 
     /**
@@ -310,7 +318,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * @param label the label to apply (know or hard)
      */
     private void markLabeled(final String label) {
-        session = sessionFlow.markLabeled(session, label, PracticeDirection.FRONT_TO_BACK);
+        session = sessionFlow.markLabeled(session, label, sessionDirection);
         if (presenter.isComplete(session)) {
             handlePracticeComplete();
         }
@@ -332,7 +340,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      */
     private void handleRepeatSession(final PracticeSession newSession) {
         session = newSession;
-        sessionFlow.showCurrentCard(session, PracticeDirection.FRONT_TO_BACK);
+        sessionFlow.showCurrentCard(session, sessionDirection);
     }
 
     /**

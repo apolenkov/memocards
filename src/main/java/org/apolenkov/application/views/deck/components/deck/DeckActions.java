@@ -15,8 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Component for deck action buttons including practice, add, edit and delete.
- * Provides a consistent layout for action buttons with proper styling
- * and follows the component pattern established in the refactoring.
+ * Provides a consistent layout for action buttons with proper styling.
  */
 public final class DeckActions extends Composite<HorizontalLayout> {
 

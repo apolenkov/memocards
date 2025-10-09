@@ -6,19 +6,17 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.ValidationException;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.DialogHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,13 +50,10 @@ public final class DeckFlashcardDialog extends Dialog {
 
     // UI Components
     private FormLayout formLayout;
-    private BeanValidationBinder<Flashcard> binder;
     private TextField frontTextField;
     private TextField backTextField;
     private TextArea exampleArea;
     private TextField imageUrlField;
-    private Button saveButton;
-    private Button cancelButton;
 
     /**
      * Creates a new DeckFlashcardDialog with required dependencies.
@@ -119,44 +114,6 @@ public final class DeckFlashcardDialog extends Dialog {
     }
 
     /**
-     * Creates the validation binder for form data.
-     */
-    private void createBinder() {
-        binder = new BeanValidationBinder<>(Flashcard.class);
-
-        binder.forField(frontTextField)
-                .asRequired(getTranslation(DeckConstants.FILL_REQUIRED_KEY))
-                .bind(Flashcard::getFrontText, Flashcard::setFrontText);
-        binder.forField(backTextField)
-                .asRequired(getTranslation(DeckConstants.FILL_REQUIRED_KEY))
-                .bind(Flashcard::getBackText, Flashcard::setBackText);
-        binder.forField(exampleArea).bind(Flashcard::getExample, Flashcard::setExample);
-        binder.forField(imageUrlField).bind(Flashcard::getImageUrl, Flashcard::setImageUrl);
-    }
-
-    /**
-     * Creates dialog buttons for save and cancel actions.
-     */
-    private void createButtons() {
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.setWidthFull();
-        buttonsLayout.setSpacing(true);
-        buttonsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-
-        saveButton = ButtonHelper.createButton(
-                getTranslation(DeckConstants.DIALOG_SAVE),
-                VaadinIcon.CHECK,
-                e -> handleSave(),
-                ButtonVariant.LUMO_PRIMARY);
-
-        cancelButton = ButtonHelper.createButton(
-                getTranslation(DeckConstants.COMMON_CANCEL), e -> handleCancel(), ButtonVariant.LUMO_TERTIARY);
-
-        buttonsLayout.add(saveButton, cancelButton);
-    }
-
-    /**
      * Opens the dialog with the specified flashcard data.
      *
      * @param flashcard the flashcard to edit, or null for creating new
@@ -168,8 +125,6 @@ public final class DeckFlashcardDialog extends Dialog {
         // Ensure form is created before using it
         if (formLayout == null) {
             createForm();
-            createBinder();
-            createButtons();
         }
 
         // Set dialog title
@@ -183,7 +138,7 @@ public final class DeckFlashcardDialog extends Dialog {
 
         // Create dialog layout
         VerticalLayout dialogLayout = new VerticalLayout();
-        dialogLayout.add(title, formLayout, getButtonsLayout());
+        dialogLayout.add(title, formLayout, createButtonsLayout());
 
         removeAll();
         add(dialogLayout);
@@ -220,58 +175,54 @@ public final class DeckFlashcardDialog extends Dialog {
      * Handles saving the flashcard after form validation.
      */
     private void handleSave() {
+        String frontText = frontTextField.getValue();
+        String backText = backTextField.getValue();
+
+        // Simple validation
+        if (frontText == null || frontText.trim().isEmpty()) {
+            frontTextField.setInvalid(true);
+            frontTextField.setErrorMessage(getTranslation(DeckConstants.FILL_REQUIRED_KEY));
+            return;
+        }
+        if (backText == null || backText.trim().isEmpty()) {
+            backTextField.setInvalid(true);
+            backTextField.setErrorMessage(getTranslation(DeckConstants.FILL_REQUIRED_KEY));
+            return;
+        }
+
         try {
-            Flashcard flashcard = prepareFlashcard();
+            Flashcard flashcard = prepareFlashcard(frontText, backText);
             flashcardUseCase.saveFlashcard(flashcard);
 
             logFlashcardAction(flashcard);
             notifyParentAndClose(flashcard);
 
-        } catch (ValidationException vex) {
-            handleValidationError();
         } catch (Exception ex) {
             handleSaveError(ex);
         }
     }
 
     /**
-     * Prepares flashcard for saving (create or edit).
+     * Prepares flashcard entity with form values.
      *
+     * @param frontText front text value
+     * @param backText back text value
      * @return prepared flashcard
-     * @throws ValidationException if validation fails
      */
-    private Flashcard prepareFlashcard() throws ValidationException {
-        boolean isEditing = editingFlashcard != null;
+    private Flashcard prepareFlashcard(final String frontText, final String backText) {
+        Flashcard flashcard = editingFlashcard != null ? editingFlashcard : new Flashcard();
 
-        if (isEditing) {
-            return prepareEditingFlashcard();
-        } else {
-            return prepareNewFlashcard();
+        if (editingFlashcard == null) {
+            flashcard.setDeckId(currentDeck.getId());
         }
-    }
 
-    /**
-     * Prepares existing flashcard for editing.
-     *
-     * @return prepared flashcard
-     * @throws ValidationException if validation fails
-     */
-    private Flashcard prepareEditingFlashcard() throws ValidationException {
-        Flashcard flashcard = editingFlashcard;
-        binder.writeBean(flashcard);
-        return flashcard;
-    }
+        flashcard.setFrontText(frontText.trim());
+        flashcard.setBackText(backText.trim());
+        flashcard.setExample(
+                exampleArea.getValue() != null ? exampleArea.getValue().trim() : null);
+        flashcard.setImageUrl(
+                imageUrlField.getValue() != null ? imageUrlField.getValue().trim() : null);
 
-    /**
-     * Prepares new flashcard for creation.
-     *
-     * @return prepared flashcard
-     * @throws ValidationException if validation fails
-     */
-    private Flashcard prepareNewFlashcard() throws ValidationException {
-        Flashcard flashcard = new Flashcard();
-        flashcard.setDeckId(currentDeck.getId());
-        binder.writeBean(flashcard);
         return flashcard;
     }
 
@@ -319,14 +270,6 @@ public final class DeckFlashcardDialog extends Dialog {
     }
 
     /**
-     * Handles validation errors.
-     */
-    private void handleValidationError() {
-        LOGGER.warn("Flashcard save failed due to validation error");
-        NotificationHelper.showError(getTranslation(DeckConstants.FILL_REQUIRED_KEY));
-    }
-
-    /**
      * Handles general save errors.
      *
      * @param ex exception that occurred
@@ -337,23 +280,22 @@ public final class DeckFlashcardDialog extends Dialog {
     }
 
     /**
-     * Handles canceling the dialog.
-     */
-    private void handleCancel() {
-        close();
-    }
-
-    /**
-     * Gets the buttons layout for the dialog.
+     * Creates the buttons layout for the dialog.
      *
      * @return the horizontal layout containing buttons
      */
-    private HorizontalLayout getButtonsLayout() {
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
-        buttonsLayout.setWidthFull();
-        buttonsLayout.setSpacing(true);
-        buttonsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+    private HorizontalLayout createButtonsLayout() {
+        HorizontalLayout buttonsLayout = DialogHelper.createButtonLayout();
+
+        Button saveButton = ButtonHelper.createButton(
+                getTranslation(DeckConstants.DIALOG_SAVE),
+                VaadinIcon.CHECK,
+                e -> handleSave(),
+                ButtonVariant.LUMO_PRIMARY);
+
+        Button cancelButton = ButtonHelper.createButton(
+                getTranslation(DeckConstants.COMMON_CANCEL), e -> close(), ButtonVariant.LUMO_TERTIARY);
+
         buttonsLayout.add(saveButton, cancelButton);
         return buttonsLayout;
     }

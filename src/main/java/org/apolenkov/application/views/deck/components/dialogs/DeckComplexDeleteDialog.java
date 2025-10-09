@@ -17,6 +17,7 @@ import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.shared.utils.DialogHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
 import org.slf4j.Logger;
@@ -202,7 +203,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured HorizontalLayout with buttons
      */
     private HorizontalLayout createButtons(final TextField confirmInput) {
-        HorizontalLayout buttons = createBaseButtonLayout();
+        HorizontalLayout buttons = DialogHelper.createButtonLayout();
 
         Button confirmButton = createConfirmButton();
         Button cancelButton = createCancelButton();
@@ -211,20 +212,6 @@ public final class DeckComplexDeleteDialog extends Dialog {
         setupDeletionHandler(confirmButton);
 
         buttons.add(confirmButton, cancelButton);
-        return buttons;
-    }
-
-    /**
-     * Creates base button layout with common styling.
-     *
-     * @return configured HorizontalLayout
-     */
-    private HorizontalLayout createBaseButtonLayout() {
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSpacing(true);
-        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        buttons.setWidthFull();
         return buttons;
     }
 

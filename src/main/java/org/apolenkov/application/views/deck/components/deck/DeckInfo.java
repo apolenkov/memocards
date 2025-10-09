@@ -8,8 +8,7 @@ import org.apolenkov.application.views.deck.components.DeckConstants;
 
 /**
  * Component for displaying deck information including description.
- * Provides a consistent layout for deck details with proper styling
- * and follows the component pattern established in the refactoring.
+ * Provides a consistent layout for deck details with proper styling.
  */
 public final class DeckInfo extends Composite<VerticalLayout> {
 
