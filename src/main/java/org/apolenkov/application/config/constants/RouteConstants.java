@@ -94,6 +94,10 @@ public final class RouteConstants {
 
     public static final String ACTUATOR_INFO = "/actuator/info";
 
+    public static final String ACTUATOR_METRICS = "/actuator/metrics";
+
+    public static final String ACTUATOR_ENV = "/actuator/env";
+
     /**
      * Actuator base path for authenticated endpoints.
      */

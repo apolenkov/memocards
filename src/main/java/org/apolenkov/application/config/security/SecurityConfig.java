@@ -40,10 +40,16 @@ public class SecurityConfig extends VaadinWebSecurity {
     protected void configure(final HttpSecurity http) throws Exception {
         setLoginView(http, RouteConstants.ROOT_PATH + RouteConstants.LOGIN_ROUTE);
 
-        // Require authentication for all actuator endpoints
+        // Configure actuator endpoints: health, info, metrics, env are public, others require authentication
         // This must be configured BEFORE calling super.configure()
-        http.authorizeHttpRequests(
-                auth -> auth.requestMatchers(RouteConstants.ACTUATOR_BASE_PATH).authenticated());
+        http.authorizeHttpRequests(auth -> auth.requestMatchers(
+                        RouteConstants.ACTUATOR_HEALTH,
+                        RouteConstants.ACTUATOR_INFO,
+                        RouteConstants.ACTUATOR_METRICS,
+                        RouteConstants.ACTUATOR_ENV)
+                .permitAll()
+                .requestMatchers(RouteConstants.ACTUATOR_BASE_PATH)
+                .authenticated());
 
         // Call parent configuration which will add .anyRequest().authenticated()
         super.configure(http);
