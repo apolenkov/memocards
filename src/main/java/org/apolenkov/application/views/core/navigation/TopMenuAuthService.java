@@ -3,7 +3,7 @@ package org.apolenkov.application.views.core.navigation;
 import com.vaadin.flow.server.VaadinServletRequest;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

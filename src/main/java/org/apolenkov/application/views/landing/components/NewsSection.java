@@ -5,7 +5,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import org.apolenkov.application.model.News;
-import org.apolenkov.application.service.NewsService;
+import org.apolenkov.application.service.news.NewsService;
 import org.apolenkov.application.views.landing.constants.LandingConstants;
 
 /**

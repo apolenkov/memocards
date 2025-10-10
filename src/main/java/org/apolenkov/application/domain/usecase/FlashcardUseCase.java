@@ -1,4 +1,4 @@
-package org.apolenkov.application.usecase;
+package org.apolenkov.application.domain.usecase;
 
 import java.util.List;
 import org.apolenkov.application.model.Flashcard;

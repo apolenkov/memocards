@@ -1,5 +1,6 @@
-package org.apolenkov.application.service;
+package org.apolenkov.application.service.seed;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class DataSeedService {
     private final StatsRepository statsRepository;
     private final NewsRepository newsRepository;
     private final PasswordEncoder passwordEncoder;
-    private final java.security.SecureRandom random = new java.security.SecureRandom();
+    private final SecureRandom random = new SecureRandom();
 
     private static final String[] USER_NAMES = {"Alex", "Maria", "John", "Anna", "David", "Elena", "Michael", "Sophia"};
     private static final String[] LAST_NAMES = {
@@ -316,14 +317,7 @@ public class DataSeedService {
         long duration = viewed * 30000L;
         long delay = viewed * 3000L;
 
-        return SessionStatsDto.builder()
-                .deckId(deck.getId())
-                .viewed(viewed)
-                .correct(correct)
-                .hard(hard)
-                .sessionDurationMs(duration)
-                .totalAnswerDelayMs(delay)
-                .build();
+        return SessionStatsDto.of(deck.getId(), viewed, correct, hard, duration, delay, null);
     }
 
     /**

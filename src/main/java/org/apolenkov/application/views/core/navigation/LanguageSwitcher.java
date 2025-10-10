@@ -19,8 +19,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Locale;
 import org.apolenkov.application.config.constants.LocaleConstants;
 import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.service.UserSettingsService;
-import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.domain.usecase.UserUseCase;
+import org.apolenkov.application.service.settings.UserSettingsService;
 import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.springframework.stereotype.Component;
 

@@ -1,10 +1,11 @@
-package org.apolenkov.application.service;
+package org.apolenkov.application.service.security;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.apolenkov.application.domain.port.PasswordResetTokenRepository;
 import org.apolenkov.application.domain.port.UserRepository;
+import org.apolenkov.application.domain.usecase.PasswordResetUseCase;
 import org.apolenkov.application.model.PasswordResetToken;
 import org.apolenkov.application.model.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,11 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service for managing password reset functionality in the application.
- * Provides secure password reset with time-limited, single-use tokens.
+ * Service implementation for password reset use cases.
  */
 @Service
-public class PasswordResetService {
+public class PasswordResetService implements PasswordResetUseCase {
 
     private final PasswordResetTokenRepository tokenRepository;
     private final UserRepository userRepository;
@@ -64,6 +64,7 @@ public class PasswordResetService {
      * @throws IllegalArgumentException if email is null or empty
      * @throws RuntimeException if database operation fails
      */
+    @Override
     @Transactional
     public Optional<String> createPasswordResetToken(final String email) {
         if (email == null || email.trim().isEmpty()) {
@@ -103,6 +104,7 @@ public class PasswordResetService {
      * @throws IllegalArgumentException if token or newPassword is null or empty
      * @throws RuntimeException if database operation fails
      */
+    @Override
     @Transactional
     public boolean resetPassword(final String token, final String newPassword) {
         if (token == null || token.trim().isEmpty()) {
@@ -149,6 +151,7 @@ public class PasswordResetService {
      * @return true if token is valid and can be used
      * @throws IllegalArgumentException if token is null or empty
      */
+    @Override
     public boolean isTokenValid(final String token) {
         if (token == null || token.trim().isEmpty()) {
             throw new IllegalArgumentException("Token cannot be null or empty");

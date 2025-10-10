@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 /**
  * Service responsible for creating and managing UI layouts for the top menu.
  * Handles the creation of menu sections, user greetings, and menu button layouts.
- * Uses @Lazy injection for @UIScope TopMenuButtonFactory to avoid scope conflicts.
  */
 @Component
 public class TopMenuLayoutService {
@@ -52,7 +51,7 @@ public class TopMenuLayoutService {
         if (isAuthenticated) {
             String displayName = authService.getUserDisplayName(auth);
             Div greeting = new Div();
-            greeting.setText(greetingText.replace("{0}", displayName));
+            greeting.setText(greetingText.replace(CoreConstants.PLACEHOLDER_0, displayName));
             greeting.addClassName(CoreConstants.TOP_MENU_GREETING_CLASS);
             left.add(greeting);
         }

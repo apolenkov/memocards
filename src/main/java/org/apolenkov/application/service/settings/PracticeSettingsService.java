@@ -1,4 +1,4 @@
-package org.apolenkov.application.service;
+package org.apolenkov.application.service.settings;
 
 import org.apolenkov.application.model.PracticeDirection;
 import org.springframework.stereotype.Service;

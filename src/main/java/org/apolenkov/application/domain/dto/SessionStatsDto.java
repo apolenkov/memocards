@@ -3,14 +3,12 @@ package org.apolenkov.application.domain.dto;
 import java.util.Collection;
 
 /**
- * Data Transfer Object for session statistics parameters.
- * Encapsulates all parameters needed for recording a study session.
- * Can be used for both recording sessions and accumulating statistics.
+ * Session statistics for practice tracking.
+ * Immutable domain object with validation in compact constructor.
  *
  * @param deckId deck identifier (must be positive)
  * @param viewed number of cards viewed (must be positive)
  * @param correct number of correct answers (must be non-negative)
- *
  * @param hard number of cards marked as hard (must be non-negative)
  * @param sessionDurationMs session duration in milliseconds (must be non-negative)
  * @param totalAnswerDelayMs total answer delay in milliseconds (must be non-negative)
@@ -26,141 +24,52 @@ public record SessionStatsDto(
         Collection<Long> knownCardIdsDelta) {
 
     /**
-     * Builder class for SessionStatsDto to avoid too many parameters.
+     * Compact constructor with validation.
+     *
+     * @throws IllegalArgumentException if any parameter violates constraints
      */
-    public static final class Builder {
-        private long deckId;
-        private int viewed;
-        private int correct;
-
-        private int hard;
-        private long sessionDurationMs;
-        private long totalAnswerDelayMs;
-        private Collection<Long> knownCardIdsDelta;
-
-        /**
-         * Sets the deck identifier.
-         *
-         * @param deckIdValue deck identifier
-         * @return this builder instance
-         */
-        public Builder deckId(final long deckIdValue) {
-            this.deckId = deckIdValue;
-            return this;
+    public SessionStatsDto {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
-
-        /**
-         * Sets the number of cards viewed.
-         *
-         * @param viewedValue number of cards viewed
-         * @return this builder instance
-         */
-        public Builder viewed(final int viewedValue) {
-            this.viewed = viewedValue;
-            return this;
+        if (viewed <= 0) {
+            throw new IllegalArgumentException("Viewed count must be positive, got: " + viewed);
         }
-
-        /**
-         * Sets the number of correct answers.
-         *
-         * @param correctValue number of correct answers
-         * @return this builder instance
-         */
-        public Builder correct(final int correctValue) {
-            this.correct = correctValue;
-            return this;
+        if (correct < 0) {
+            throw new IllegalArgumentException("Correct count cannot be negative, got: " + correct);
         }
-
-        /**
-         * Sets the number of cards marked as hard.
-         *
-         * @param hardValue number of cards marked as hard
-         * @return this builder instance
-         */
-        public Builder hard(final int hardValue) {
-            this.hard = hardValue;
-            return this;
+        if (hard < 0) {
+            throw new IllegalArgumentException("Hard count cannot be negative, got: " + hard);
         }
-
-        /**
-         * Sets the session duration in milliseconds.
-         *
-         * @param sessionDurationMsValue session duration in milliseconds
-         * @return this builder instance
-         */
-        public Builder sessionDurationMs(final long sessionDurationMsValue) {
-            this.sessionDurationMs = sessionDurationMsValue;
-            return this;
+        if (sessionDurationMs < 0) {
+            throw new IllegalArgumentException("Session duration cannot be negative, got: " + sessionDurationMs);
         }
-
-        /**
-         * Sets the total answer delay in milliseconds.
-         *
-         * @param totalAnswerDelayMsValue total answer delay in milliseconds
-         * @return this builder instance
-         */
-        public Builder totalAnswerDelayMs(final long totalAnswerDelayMsValue) {
-            this.totalAnswerDelayMs = totalAnswerDelayMsValue;
-            return this;
-        }
-
-        /**
-         * Sets the collection of card IDs whose knowledge status changed.
-         *
-         * @param knownCardIdsDeltaValue collection of card IDs whose knowledge status changed
-         * @return this builder instance
-         */
-        public Builder knownCardIdsDelta(final Collection<Long> knownCardIdsDeltaValue) {
-            this.knownCardIdsDelta = knownCardIdsDeltaValue;
-            return this;
-        }
-
-        /**
-         * Builds and returns a new SessionStatsDto instance.
-         *
-         * @return new SessionStatsDto instance
-         * @throws IllegalArgumentException if any parameter violates constraints
-         */
-        public SessionStatsDto build() {
-            validateParameters();
-            return new SessionStatsDto(
-                    deckId, viewed, correct, hard, sessionDurationMs, totalAnswerDelayMs, knownCardIdsDelta);
-        }
-
-        /**
-         * Validates all parameters for session statistics.
-         *
-         * @throws IllegalArgumentException if any parameter violates constraints
-         */
-        private void validateParameters() {
-            if (deckId <= 0) {
-                throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
-            }
-            if (viewed <= 0) {
-                throw new IllegalArgumentException("Viewed count must be positive, got: " + viewed);
-            }
-            if (correct < 0) {
-                throw new IllegalArgumentException("Correct count cannot be negative, got: " + correct);
-            }
-
-            if (hard < 0) {
-                throw new IllegalArgumentException("Hard count cannot be negative, got: " + hard);
-            }
-            if (sessionDurationMs < 0) {
-                throw new IllegalArgumentException("Session duration cannot be negative, got: " + sessionDurationMs);
-            }
-            if (totalAnswerDelayMs < 0) {
-                throw new IllegalArgumentException("Total answer delay cannot be negative, got: " + totalAnswerDelayMs);
-            }
+        if (totalAnswerDelayMs < 0) {
+            throw new IllegalArgumentException("Total answer delay cannot be negative, got: " + totalAnswerDelayMs);
         }
     }
 
     /**
-     * Creates a new builder instance.
+     * Creates SessionStatsDto with required statistics.
      *
-     * @return new builder instance
+     * @param deckId deck identifier
+     * @param viewed number of cards viewed
+     * @param correct number of correct answers
+     * @param hard number of cards marked as hard
+     * @param sessionDurationMs session duration in milliseconds
+     * @param totalAnswerDelayMs total answer delay in milliseconds
+     * @param knownCardIdsDelta collection of card IDs whose knowledge status changed
+     * @return new SessionStatsDto instance
      */
-    public static Builder builder() {
-        return new Builder();
+    public static SessionStatsDto of(
+            final long deckId,
+            final int viewed,
+            final int correct,
+            final int hard,
+            final long sessionDurationMs,
+            final long totalAnswerDelayMs,
+            final Collection<Long> knownCardIdsDelta) {
+        return new SessionStatsDto(
+                deckId, viewed, correct, hard, sessionDurationMs, totalAnswerDelayMs, knownCardIdsDelta);
     }
 }

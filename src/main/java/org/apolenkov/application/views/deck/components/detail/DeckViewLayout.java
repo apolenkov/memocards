@@ -4,7 +4,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.service.stats.StatsService;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 
 /**

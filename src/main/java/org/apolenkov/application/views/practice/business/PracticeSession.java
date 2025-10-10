@@ -20,10 +20,11 @@ public record PracticeSession(SessionData data, SessionState state) {
      *
      * @param deckId the ID of the deck being practiced
      * @param cards the list of flashcards for this session
+     * @param sessionStart the session start time
      * @return a new PracticeSession instance
      * @throws IllegalArgumentException if deckId is invalid or cards is null/empty
      */
-    public static PracticeSession create(final long deckId, final List<Flashcard> cards) {
+    public static PracticeSession create(final long deckId, final List<Flashcard> cards, final Instant sessionStart) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive");
         }
@@ -34,7 +35,7 @@ public record PracticeSession(SessionData data, SessionState state) {
             throw new IllegalArgumentException("Cards list cannot be empty");
         }
 
-        SessionData sessionData = SessionData.create(deckId, cards);
+        SessionData sessionData = SessionData.create(deckId, cards, sessionStart);
         SessionState sessionState = SessionState.initial();
 
         return new PracticeSession(sessionData, sessionState);

@@ -3,11 +3,11 @@ package org.apolenkov.application.views.deck.business;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import org.apolenkov.application.domain.usecase.DeckUseCase;
+import org.apolenkov.application.domain.usecase.FlashcardUseCase;
+import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.service.StatsService;
-import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.usecase.FlashcardUseCase;
-import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.service.stats.StatsService;
 import org.springframework.stereotype.Component;
 
 /**

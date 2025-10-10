@@ -14,7 +14,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 /**
  * Spring Security configuration for the application.
- * Uses VaadinWebSecurity with modern security practices for Vaadin 24.x.
+ * Provides authentication, authorization, and security headers.
  */
 @Configuration(proxyBeanMethods = false)
 public class SecurityConfig extends VaadinWebSecurity {
@@ -31,7 +31,7 @@ public class SecurityConfig extends VaadinWebSecurity {
     }
 
     /**
-     * Uses VaadinWebSecurity with enhanced CSRF protection and security headers.
+     * Configures HTTP security including CSRF protection and security headers.
      *
      * @param http the HttpSecurity builder
      * @throws Exception if configuration fails

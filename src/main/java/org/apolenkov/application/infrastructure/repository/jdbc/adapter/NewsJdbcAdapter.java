@@ -1,5 +1,7 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.domain.port.NewsRepository;
@@ -36,8 +38,8 @@ public class NewsJdbcAdapter implements NewsRepository {
         String title = rs.getString("title");
         String content = rs.getString("content");
         String author = rs.getString("author");
-        java.sql.Timestamp createdAt = rs.getTimestamp("created_at");
-        java.sql.Timestamp updatedAt = rs.getTimestamp("updated_at");
+        Timestamp createdAt = rs.getTimestamp("created_at");
+        Timestamp updatedAt = rs.getTimestamp("updated_at");
 
         return NewsDto.forExistingNews(
                 id,
@@ -164,17 +166,15 @@ public class NewsJdbcAdapter implements NewsRepository {
     private void createNews(final News news) {
         NewsDto newsDto = NewsDto.forNewNews(news.getTitle(), news.getContent(), news.getAuthor());
 
-        // Insert news
-        jdbcTemplate.update(
-                NewsSqlQueries.INSERT_NEWS,
+        // Insert news and get generated ID using RETURNING clause
+        Long generatedId = jdbcTemplate.queryForObject(
+                NewsSqlQueries.INSERT_NEWS_RETURNING_ID,
+                Long.class,
                 newsDto.title(),
                 newsDto.content(),
                 newsDto.author(),
                 newsDto.createdAt(),
                 newsDto.updatedAt());
-
-        // Get generated ID
-        Long generatedId = jdbcTemplate.queryForObject("SELECT LASTVAL()", Long.class);
 
         // Return created news
         NewsDto createdDto = NewsDto.forExistingNews(
@@ -200,7 +200,7 @@ public class NewsJdbcAdapter implements NewsRepository {
                 news.getTitle(),
                 news.getContent(),
                 news.getAuthor(),
-                java.time.LocalDateTime.now(), // Update timestamp
+                LocalDateTime.now(), // Update timestamp
                 news.getId());
     }
 }

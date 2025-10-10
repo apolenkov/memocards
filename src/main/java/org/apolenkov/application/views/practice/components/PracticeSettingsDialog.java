@@ -10,7 +10,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
-import org.apolenkov.application.service.PracticeSettingsService;
+import org.apolenkov.application.service.settings.PracticeSettingsService;
 import org.apolenkov.application.views.practice.constants.PracticeConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;

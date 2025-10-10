@@ -1,6 +1,5 @@
 package org.apolenkov.application.views.core.navigation;
 
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -14,13 +13,14 @@ import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.springframework.stereotype.Component;
 
 /**
- * UI component responsible for managing logout confirmation dialog.
- * Handles dialog creation, layout, and user interaction for logout operations.
+ * Factory for creating logout confirmation dialogs.
+ * Creates new dialog instances to avoid component reuse between different UI trees.
+ * Uses singleton scope as it only provides factory methods without storing component state.
  */
 @Component
-public class TopMenuLogoutDialog extends Composite<Dialog> {
+public class TopMenuLogoutDialog {
 
-    private final transient TopMenuAuthService authService;
+    private final TopMenuAuthService authService;
 
     /**
      * Creates a new TopMenuLogoutDialog with required dependencies.
@@ -32,18 +32,28 @@ public class TopMenuLogoutDialog extends Composite<Dialog> {
     }
 
     /**
-     * Initializes and configures the content of the logout dialog.
-     * Creates a new Dialog instance, applies styling, sets up the layout,
-     * and configures the dialog's behavior before returning it.
-     *
-     * @return the configured Dialog instance ready for display
+     * Opens a confirmation dialog for user logout.
+     * Creates and displays a NEW dialog instance to prevent accidental logouts.
+     * Upon confirmation, performs the logout operation using the authentication service
+     * and redirects to the home page.
      */
-    @Override
-    protected Dialog initContent() {
+    public void openLogoutDialog() {
+        Dialog dialog = createLogoutDialog();
+        UI.getCurrent().add(dialog);
+        dialog.open();
+    }
+
+    /**
+     * Creates a new logout confirmation dialog.
+     * Each invocation creates a fresh dialog instance to avoid component reuse issues.
+     *
+     * @return new configured Dialog instance
+     */
+    private Dialog createLogoutDialog() {
         Dialog dialog = new Dialog();
         dialog.addClassName(CoreConstants.DIALOG_SM_CLASS);
 
-        VerticalLayout layout = createDialogLayout();
+        VerticalLayout layout = createDialogLayout(dialog);
         dialog.add(layout);
 
         configureDialogBehavior(dialog);
@@ -51,29 +61,19 @@ public class TopMenuLogoutDialog extends Composite<Dialog> {
     }
 
     /**
-     * Opens a confirmation dialog for user logout.
-     * Creates and displays a confirmation dialog to prevent accidental logouts.
-     * Upon confirmation, performs the logout operation using the authentication service
-     * and redirects to the home page.
-     */
-    public void openLogoutDialog() {
-        UI.getCurrent().add(this);
-        getContent().open();
-    }
-
-    /**
      * Creates the main layout for the logout dialog.
      *
+     * @param dialog the dialog instance for button handlers
      * @return the configured vertical layout
      */
-    private VerticalLayout createDialogLayout() {
+    private VerticalLayout createDialogLayout(final Dialog dialog) {
         VerticalLayout layout = new VerticalLayout();
 
         String confirmMessage = getTranslation(CoreConstants.AUTH_LOGOUT_CONFIRM_KEY);
         layout.add(new H3(confirmMessage));
         layout.add(new Span(confirmMessage));
 
-        HorizontalLayout buttonsLayout = createButtonsLayout();
+        HorizontalLayout buttonsLayout = createButtonsLayout(dialog);
         layout.add(buttonsLayout);
 
         return layout;
@@ -82,17 +82,18 @@ public class TopMenuLogoutDialog extends Composite<Dialog> {
     /**
      * Creates the buttons layout for the logout dialog.
      *
+     * @param dialog the dialog instance for button handlers
      * @return the configured horizontal layout with buttons
      */
-    private HorizontalLayout createButtonsLayout() {
+    private HorizontalLayout createButtonsLayout(final Dialog dialog) {
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidthFull();
 
-        Button confirmButton = createConfirmButton();
-        Button cancelButton = createCancelButton();
+        Button confirmButton = createConfirmButton(dialog);
+        Button cancelButton = createCancelButton(dialog);
 
         buttons.add(confirmButton, cancelButton);
         return buttons;
@@ -101,12 +102,13 @@ public class TopMenuLogoutDialog extends Composite<Dialog> {
     /**
      * Creates the confirm button for logout action.
      *
+     * @param dialog the dialog instance to close after confirmation
      * @return the configured confirm button
      */
-    private Button createConfirmButton() {
+    private Button createConfirmButton(final Dialog dialog) {
         return ButtonHelper.createConfirmButton(getTranslation(CoreConstants.DIALOG_CONFIRM_KEY), e -> {
             authService.performLogout();
-            getContent().close();
+            dialog.close();
             // Navigation to home page will be handled by the auth service
         });
     }
@@ -114,11 +116,11 @@ public class TopMenuLogoutDialog extends Composite<Dialog> {
     /**
      * Creates the cancel button for dialog closure.
      *
+     * @param dialog the dialog instance to close
      * @return the configured cancel button
      */
-    private Button createCancelButton() {
-        return ButtonHelper.createCancelButton(getTranslation(CoreConstants.DIALOG_CANCEL_KEY), e -> getContent()
-                .close());
+    private Button createCancelButton(final Dialog dialog) {
+        return ButtonHelper.createCancelButton(getTranslation(CoreConstants.DIALOG_CANCEL_KEY), e -> dialog.close());
     }
 
     /**
@@ -129,5 +131,16 @@ public class TopMenuLogoutDialog extends Composite<Dialog> {
     private void configureDialogBehavior(final Dialog dialog) {
         dialog.setCloseOnEsc(true);
         dialog.setCloseOnOutsideClick(true);
+    }
+
+    /**
+     * Gets translation for the specified key using current UI locale.
+     *
+     * @param key the translation key
+     * @param params optional parameters
+     * @return translated text
+     */
+    private String getTranslation(final String key, final Object... params) {
+        return UI.getCurrent().getTranslation(key, params);
     }
 }

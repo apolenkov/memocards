@@ -1,21 +1,20 @@
-package org.apolenkov.application.service;
+package org.apolenkov.application.service.news;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.domain.port.NewsRepository;
+import org.apolenkov.application.domain.usecase.NewsUseCase;
 import org.apolenkov.application.model.News;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service for managing news and announcements in the application.
- * Provides CRUD operations for news items including creation, updates, deletion, and retrieval.
- * Handles validation of news content and automatically manages timestamps for tracking.
+ * Service implementation for news use cases and business operations.
  */
 @Service
 @Transactional
-public class NewsService {
+public class NewsService implements NewsUseCase {
 
     private final NewsRepository newsRepository;
 
@@ -33,6 +32,7 @@ public class NewsService {
      *
      * @return list of all news items, ordered by creation date descending
      */
+    @Override
     public List<News> getAllNews() {
         return newsRepository.findAllOrderByCreatedDesc();
     }
@@ -45,6 +45,7 @@ public class NewsService {
      * @param author name of the person who wrote the news
      * @throws IllegalArgumentException if title or content is null or empty
      */
+    @Override
     public void createNews(final String title, final String content, final String author) {
         validate(title, content);
         News news = new News(null, title, content, author, LocalDateTime.now());
@@ -60,6 +61,7 @@ public class NewsService {
      * @param author new author name for news item
      * @throws IllegalArgumentException if title or content is null or empty, or if news item not found
      */
+    @Override
     public void updateNews(final long id, final String title, final String content, final String author) {
         Optional<News> existingOpt = newsRepository.findById(id);
         if (existingOpt.isEmpty()) {
@@ -81,6 +83,7 @@ public class NewsService {
      *
      * @param id unique identifier of news item to delete
      */
+    @Override
     public void deleteNews(final long id) {
         newsRepository.deleteById(id);
     }

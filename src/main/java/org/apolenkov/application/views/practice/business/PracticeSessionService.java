@@ -1,19 +1,20 @@
 package org.apolenkov.application.views.practice.business;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
+import org.apolenkov.application.domain.usecase.DeckUseCase;
+import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
-import org.apolenkov.application.service.PracticeSettingsService;
-import org.apolenkov.application.service.StatsService;
-import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.apolenkov.application.service.settings.PracticeSettingsService;
+import org.apolenkov.application.service.stats.StatsService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -176,15 +177,8 @@ public final class PracticeSessionService {
             final Duration sessionDuration,
             final long totalAnswerDelayMs,
             final List<Long> knownCardIdsDelta) {
-        SessionStatsDto sessionData = SessionStatsDto.builder()
-                .deckId(deckId)
-                .viewed(totalViewed)
-                .correct(correct)
-                .hard(hard)
-                .sessionDurationMs(sessionDuration.toMillis())
-                .totalAnswerDelayMs(totalAnswerDelayMs)
-                .knownCardIdsDelta(knownCardIdsDelta)
-                .build();
+        SessionStatsDto sessionData = SessionStatsDto.of(
+                deckId, totalViewed, correct, hard, sessionDuration.toMillis(), totalAnswerDelayMs, knownCardIdsDelta);
         statsService.recordSession(sessionData);
     }
 
@@ -199,6 +193,6 @@ public final class PracticeSessionService {
      */
     public PracticeSession startSession(final long deckId, final int count, final boolean random) {
         List<Flashcard> cards = prepareSession(deckId, count, random);
-        return PracticeSession.create(deckId, cards);
+        return PracticeSession.create(deckId, cards, Instant.now());
     }
 }

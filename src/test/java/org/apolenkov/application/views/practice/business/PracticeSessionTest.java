@@ -3,6 +3,7 @@ package org.apolenkov.application.views.practice.business;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.time.Instant;
 import java.util.List;
 import org.apolenkov.application.model.Flashcard;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +17,7 @@ class PracticeSessionTest {
     void shouldCreatePracticeSessionWithValidParameters() {
         List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession session = PracticeSession.create(1L, cards);
+        PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
 
         assertThat(session.getDeckId()).isEqualTo(1L);
         assertThat(session.getCards()).hasSize(1);
@@ -36,8 +37,9 @@ class PracticeSessionTest {
     @DisplayName("Should throw exception for invalid deck ID")
     void shouldThrowExceptionForInvalidDeckId() {
         List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        Instant now = Instant.now();
 
-        assertThatThrownBy(() -> PracticeSession.create(0L, cards))
+        assertThatThrownBy(() -> PracticeSession.create(0L, cards, now))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Deck ID must be positive");
     }
@@ -45,7 +47,9 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should throw exception for null cards")
     void shouldThrowExceptionForNullCards() {
-        assertThatThrownBy(() -> PracticeSession.create(1L, null))
+        Instant now = Instant.now();
+
+        assertThatThrownBy(() -> PracticeSession.create(1L, null, now))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Cards list cannot be null");
     }
@@ -54,7 +58,9 @@ class PracticeSessionTest {
     @DisplayName("Should throw exception for empty cards")
     void shouldThrowExceptionForEmptyCards() {
         List<Flashcard> emptyCards = List.of();
-        assertThatThrownBy(() -> PracticeSession.create(1L, emptyCards))
+        Instant now = Instant.now();
+
+        assertThatThrownBy(() -> PracticeSession.create(1L, emptyCards, now))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Cards list cannot be empty");
     }
@@ -64,7 +70,7 @@ class PracticeSessionTest {
     void shouldUpdateSessionWithNewState() {
         List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession session = PracticeSession.create(1L, cards);
+        PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
         PracticeSessionRecords.SessionState newState = PracticeSessionRecords.SessionState.initial()
                 .withIndex(1)
                 .withShowingAnswer(true)
@@ -83,9 +89,9 @@ class PracticeSessionTest {
     void shouldUpdateSessionWithNewData() {
         List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession session = PracticeSession.create(1L, cards);
-        PracticeSessionRecords.SessionData newData =
-                PracticeSessionRecords.SessionData.create(2L, cards).addKnownCard(1L);
+        PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
+        PracticeSessionRecords.SessionData newData = PracticeSessionRecords.SessionData.create(2L, cards, Instant.now())
+                .addKnownCard(1L);
 
         PracticeSession updated = session.withData(newData);
 
@@ -100,7 +106,7 @@ class PracticeSessionTest {
     void shouldThrowExceptionForNullState() {
         List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession session = PracticeSession.create(1L, cards);
+        PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
 
         assertThatThrownBy(() -> session.withState(null))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -113,7 +119,7 @@ class PracticeSessionTest {
     void shouldThrowExceptionForNullData() {
         List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession session = PracticeSession.create(1L, cards);
+        PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
 
         assertThatThrownBy(() -> session.withData(null))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -125,7 +131,7 @@ class PracticeSessionTest {
     void shouldAccessNestedDataThroughConvenienceMethods() {
         List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession session = PracticeSession.create(1L, cards);
+        PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
 
         // Test data access
         assertThat(session.getDeckId()).isEqualTo(session.data().deckId());
@@ -149,7 +155,7 @@ class PracticeSessionTest {
     void shouldMaintainImmutability() {
         List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession original = PracticeSession.create(1L, cards);
+        PracticeSession original = PracticeSession.create(1L, cards, Instant.now());
         PracticeSession updated =
                 original.withState(original.state().withIndex(1).withCorrectCount(1));
 

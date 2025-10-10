@@ -1,9 +1,9 @@
 package org.apolenkov.application.views.deck.components.dialogs;
 
 import java.util.function.Consumer;
+import org.apolenkov.application.domain.usecase.DeckUseCase;
+import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.usecase.FlashcardUseCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

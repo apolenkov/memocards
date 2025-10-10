@@ -1,4 +1,4 @@
-package org.apolenkov.application.service;
+package org.apolenkov.application.service.stats;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -6,15 +6,15 @@ import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.StatsRepository;
+import org.apolenkov.application.domain.usecase.StatsUseCase;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service for managing statistics and progress tracking.
- * Handles session recording, daily statistics aggregation, and card knowledge management.
+ * Service implementation for statistics use cases and business operations.
  */
 @Service
-public class StatsService {
+public class StatsService implements StatsUseCase {
 
     private final StatsRepository statsRepository;
 
@@ -33,6 +33,7 @@ public class StatsService {
      * @param sessionData session data containing all required parameters
      * @throws IllegalArgumentException if any parameter violates constraints
      */
+    @Override
     @Transactional
     public void recordSession(final SessionStatsDto sessionData) {
         // Early return if no cards were viewed (including negative values)
@@ -51,6 +52,7 @@ public class StatsService {
      * @param deckSize total number of cards in deck
      * @return progress percentage (0-100), or 0 if deck size is invalid
      */
+    @Override
     @Transactional(readOnly = true)
     public int getDeckProgressPercent(final long deckId, final int deckSize) {
         // Handle edge case: invalid deck size
@@ -79,6 +81,7 @@ public class StatsService {
      * @param cardId ID of card to check
      * @return true if card is marked as known
      */
+    @Override
     @Transactional(readOnly = true)
     public boolean isCardKnown(final long deckId, final long cardId) {
         return statsRepository.getKnownCardIds(deckId).contains(cardId);
@@ -90,6 +93,7 @@ public class StatsService {
      * @param deckId ID of deck to retrieve known cards for
      * @return set of card IDs marked as known
      */
+    @Override
     @Transactional(readOnly = true)
     public Set<Long> getKnownCardIds(final long deckId) {
         return statsRepository.getKnownCardIds(deckId);
@@ -104,6 +108,7 @@ public class StatsService {
      * @param cardId ID of card to update
      * @param known true to mark card as known, false to mark as unknown
      */
+    @Override
     @Transactional
     public void setCardKnown(final long deckId, final long cardId, final boolean known) {
         statsRepository.setCardKnown(deckId, cardId, known);
@@ -115,6 +120,7 @@ public class StatsService {
      *
      * @param deckId ID of deck to reset progress for
      */
+    @Override
     @Transactional
     public void resetDeckProgress(final long deckId) {
         statsRepository.resetDeckProgress(deckId);
@@ -127,6 +133,7 @@ public class StatsService {
      * @param deckIds list of deck IDs to aggregate statistics for
      * @return map of deck ID to aggregated statistics, never null
      */
+    @Override
     @Transactional(readOnly = true)
     public Map<Long, StatsRepository.DeckAggregate> getDeckAggregates(final List<Long> deckIds) {
         if (deckIds == null || deckIds.isEmpty()) {
