@@ -39,7 +39,8 @@ Spring Data JDBC (NOT JPA/Hibernate!) | JdbcTemplate | PostgreSQL | Records
 **DTOs**:
 - Records (immutable)
 - Compact constructor validation
-- Static factory (forNew*, forExisting*)
+- **Builder for 5+ params** (readability, self-documenting)
+- **Static factory for 2-4 params** (forNew*, forExisting*)
 - Nested records for groups
 
 **Exceptions**:
@@ -79,6 +80,43 @@ Spring Data JDBC (NOT JPA/Hibernate!) | JdbcTemplate | PostgreSQL | Records
 - [ ] Domain exceptions
 - [ ] Input validation
 - [ ] Optional<T> returns
+
+## BUILDER vs STATIC FACTORY
+
+**Use Builder when [OK]:**
+- **5+ parameters** (improves readability)
+- **Similar types** (easy to mix up: `long duration, long delay`)
+- **Optional parameters** (partial initialization)
+- **Self-documenting code** preferred
+
+```java
+// ✅ 7 params - Builder is better!
+SessionStatsDto.builder()
+    .deckId(deckId)
+    .viewed(totalViewed)
+    .correct(correct)
+    .hard(hard)
+    .sessionDurationMs(sessionDuration.toMillis())
+    .totalAnswerDelayMs(totalAnswerDelayMs)
+    .knownCardIdsDelta(knownCardIdsDelta)
+    .build()
+```
+
+**Use Static Factory when [OK]:**
+- **2-4 parameters** (compact, clear)
+- **Different types** (hard to confuse)
+- **All required** (no optionals)
+
+```java
+// ✅ 3 params - static factory is fine
+UserDto.forNew("email@example.com", "John Doe", "hashedPassword")
+UserDto.forExisting(1L, "email@example.com", "John Doe")
+```
+
+**Guideline**:
+- 2-3 params → static factory `of()` or `forNew*()` / `forExisting*()`
+- 4 params → your choice (consider similarity of types)
+- **5+ params → Builder** (readability wins!)
 
 ## JAVA 21
 Text blocks | Records | getFirst() | Pattern matching
