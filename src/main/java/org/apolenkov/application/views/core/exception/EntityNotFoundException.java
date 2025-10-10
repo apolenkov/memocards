@@ -1,4 +1,4 @@
-package org.apolenkov.application.exceptions;
+package org.apolenkov.application.views.core.exception;
 
 /**
  * Exception thrown when an entity is not found.

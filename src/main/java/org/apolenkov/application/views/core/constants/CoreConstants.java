@@ -121,6 +121,13 @@ public final class CoreConstants {
     // Profiles
     public static final String DEV_PROFILE = "dev";
 
+    // Text Separators
+    public static final String SEPARATOR_COLON_SPACE = ": ";
+    public static final String SEPARATOR_SPACE = " ";
+
+    // Template Placeholders
+    public static final String PLACEHOLDER_0 = "{0}";
+
     // Test IDs for navigation buttons
     public static final String NAV_DECKS_TEST_ID = "nav-decks";
     public static final String NAV_STATS_TEST_ID = "nav-stats";

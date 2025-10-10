@@ -1,5 +1,7 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.domain.port.FlashcardRepository;
@@ -38,8 +40,8 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
         String backText = rs.getString("back_text");
         String example = rs.getString("example");
         String imageUrl = rs.getString("image_url");
-        java.sql.Timestamp createdAt = rs.getTimestamp("created_at");
-        java.sql.Timestamp updatedAt = rs.getTimestamp("updated_at");
+        Timestamp createdAt = rs.getTimestamp("created_at");
+        Timestamp updatedAt = rs.getTimestamp("updated_at");
 
         return FlashcardDto.forExistingFlashcard(
                 id,
@@ -269,7 +271,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 flashcard.getBackText(),
                 flashcard.getExample(),
                 flashcard.getImageUrl(),
-                java.time.LocalDateTime.now(), // Update timestamp
+                LocalDateTime.now(), // Update timestamp
                 flashcard.getId());
     }
 }

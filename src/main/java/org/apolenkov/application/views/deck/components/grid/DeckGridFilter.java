@@ -2,7 +2,7 @@ package org.apolenkov.application.views.deck.components.grid;
 
 import java.util.List;
 import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.service.stats.StatsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,7 @@
 package org.apolenkov.application.views.practice.controllers;
 
 import java.util.List;
+import java.util.Optional;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
@@ -46,12 +47,12 @@ public final class PracticeSessionFlow {
      *
      * @param deck the current deck
      * @param sessionDirection the practice direction
-     * @return the created session or null if no cards available
+     * @return Optional containing the created session, empty if no cards available
      */
-    public PracticeSession startDefaultPractice(final Deck deck, final PracticeDirection sessionDirection) {
+    public Optional<PracticeSession> startDefaultPractice(final Deck deck, final PracticeDirection sessionDirection) {
         List<Flashcard> notKnownCards = presenter.getNotKnownCards(deck.getId());
         if (notKnownCards.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
         int defaultCount = presenter.resolveDefaultCount(deck.getId());
@@ -66,18 +67,18 @@ public final class PracticeSessionFlow {
      * @param count number of cards to practice
      * @param random whether to randomize card order
      * @param sessionDirection the practice direction
-     * @return the created session or null if no cards available
+     * @return Optional containing the created session, empty if no cards available
      */
-    public PracticeSession startPractice(
+    public Optional<PracticeSession> startPractice(
             final Deck deck, final int count, final boolean random, final PracticeDirection sessionDirection) {
         List<Flashcard> filtered = presenter.getNotKnownCards(deck.getId());
         if (filtered.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
         PracticeSession session = presenter.startSession(deck.getId(), count, random);
         showCurrentCard(session, sessionDirection);
-        return session;
+        return Optional.of(session);
     }
 
     /**

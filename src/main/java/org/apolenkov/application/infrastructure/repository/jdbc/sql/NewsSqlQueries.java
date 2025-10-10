@@ -42,6 +42,16 @@ public final class NewsSqlQueries {
             """;
 
     /**
+     * SQL query to insert new news article and return generated ID.
+     */
+    public static final String INSERT_NEWS_RETURNING_ID =
+            """
+            INSERT INTO news (title, content, author, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            RETURNING id
+            """;
+
+    /**
      * SQL query to update existing news article.
      */
     public static final String UPDATE_NEWS =

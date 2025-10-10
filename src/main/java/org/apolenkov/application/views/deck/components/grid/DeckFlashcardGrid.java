@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.service.stats.StatsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

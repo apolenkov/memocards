@@ -12,10 +12,10 @@ import jakarta.annotation.security.RolesAllowed;
 import java.util.Optional;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.exceptions.EntityNotFoundException;
+import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.PracticeDirection;
-import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.apolenkov.application.views.core.exception.EntityNotFoundException;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.practice.business.PracticePresenter;
 import org.apolenkov.application.views.practice.business.PracticeSession;
@@ -234,7 +234,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * Starts default practice session.
      */
     private void startDefaultPractice() {
-        session = sessionFlow.startDefaultPractice(currentDeck, sessionDirection);
+        session =
+                sessionFlow.startDefaultPractice(currentDeck, sessionDirection).orElse(null);
         if (session == null) {
             showAllKnownDialogAndRedirect();
         }
@@ -304,7 +305,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private void handlePracticeComplete() {
         AUDIT_LOGGER.info(
                 "User completed practice session for deck '{}' (ID: {})", currentDeck.getTitle(), currentDeck.getId());
-        session = completionFlow.showPracticeComplete(session, currentDeck, this::handleRepeatSession);
+        completionFlow.showPracticeComplete(session, currentDeck, this::handleRepeatSession);
+        session = null; // Mark session as completed
     }
 
     /**

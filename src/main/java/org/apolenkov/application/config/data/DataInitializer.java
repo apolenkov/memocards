@@ -1,5 +1,6 @@
 package org.apolenkov.application.config.data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -12,7 +13,7 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.News;
 import org.apolenkov.application.model.User;
-import org.apolenkov.application.service.DataSeedService;
+import org.apolenkov.application.service.seed.DataSeedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -129,7 +130,7 @@ public class DataInitializer {
      * @return demo user or null if not found
      */
     private User findDemoUser(final UserRepository users) {
-        final java.util.Optional<User> opt = users.findByEmail(USER_EMAIL);
+        final Optional<User> opt = users.findByEmail(USER_EMAIL);
         if (opt.isEmpty()) {
             LOGGER.info("ℹ️ Demo user not found, skipping demo data creation");
             return null;
@@ -248,14 +249,14 @@ public class DataInitializer {
                 "Our app helps you efficiently learn new words and phrases. "
                         + "Create decks, practice, and track your progress.",
                 ADMIN_EMAIL,
-                java.time.LocalDateTime.now()));
+                LocalDateTime.now()));
 
         news.save(new News(
                 null,
                 "New features in the application",
                 "We have added statistics tracking, practice settings, and much more. " + "Stay tuned for updates!",
                 ADMIN_EMAIL,
-                java.time.LocalDateTime.now()));
+                LocalDateTime.now()));
     }
 
     /**

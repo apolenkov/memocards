@@ -4,7 +4,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.service.NewsService;
+import org.apolenkov.application.service.news.NewsService;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.landing.components.HeroSection;
 import org.apolenkov.application.views.landing.components.NewsSection;

@@ -76,6 +76,8 @@ extensions.configure<DependencyManagementExtension> {
 }
 
 dependencies {
+    implementation("me.paulschwarz:spring-dotenv:$springDotenv")
+
     // Utilities
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.google.guava:guava")
@@ -101,7 +103,6 @@ dependencies {
 
     // Dev tools
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    implementation("me.paulschwarz:spring-dotenv:$springDotenv")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")

@@ -4,8 +4,9 @@ import jakarta.validation.Validator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apolenkov.application.domain.port.FlashcardRepository;
+import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.usecase.FlashcardUseCase;
+import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +54,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
         var violations = validator.validate(flashcard);
         if (!violations.isEmpty()) {
             String message = violations.stream()
-                    .map(v -> v.getPropertyPath() + " " + v.getMessage())
+                    .map(v -> v.getPropertyPath() + CoreConstants.SEPARATOR_SPACE + v.getMessage())
                     .collect(Collectors.joining(", "));
             throw new IllegalArgumentException("Validation failed: " + message);
         }

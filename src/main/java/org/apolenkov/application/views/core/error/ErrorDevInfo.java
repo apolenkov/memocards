@@ -148,10 +148,16 @@ public final class ErrorDevInfo extends Composite<Component> {
         String safeErrorMessage = SanitizationUtils.sanitizeErrorDetail(state.getErrorMessage(), unknownText);
         String safeErrorId = SanitizationUtils.sanitizeErrorDetail(state.getErrorId(), unknownText);
 
-        errorTypeSpan.setText(getTranslation(CoreConstants.ERROR_TYPE_KEY) + ": " + safeErrorType);
-        errorMessageSpan.setText(getTranslation(CoreConstants.ERROR_MESSAGE_KEY) + ": " + safeErrorMessage);
-        currentRouteSpan.setText(getTranslation(CoreConstants.ERROR_CURRENT_ROUTE_KEY) + ": " + state.getFromRoute());
-        timestampSpan.setText(getTranslation(CoreConstants.ERROR_TIMESTAMP_KEY) + " "
+        errorTypeSpan.setText(
+                getTranslation(CoreConstants.ERROR_TYPE_KEY) + CoreConstants.SEPARATOR_COLON_SPACE + safeErrorType);
+        errorMessageSpan.setText(getTranslation(CoreConstants.ERROR_MESSAGE_KEY)
+                + CoreConstants.SEPARATOR_COLON_SPACE
+                + safeErrorMessage);
+        currentRouteSpan.setText(getTranslation(CoreConstants.ERROR_CURRENT_ROUTE_KEY)
+                + CoreConstants.SEPARATOR_COLON_SPACE
+                + state.getFromRoute());
+        timestampSpan.setText(getTranslation(CoreConstants.ERROR_TIMESTAMP_KEY)
+                + CoreConstants.SEPARATOR_SPACE
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern(CoreConstants.DATETIME_PATTERN)));
 
         // Add error ID to dev info if available
@@ -169,7 +175,8 @@ public final class ErrorDevInfo extends Composite<Component> {
      */
     private void addErrorIdSpan(final String safeErrorId) {
         Span errorIdSpan = new Span();
-        errorIdSpan.setText(getTranslation(CoreConstants.ERROR_ID_KEY) + ": " + safeErrorId);
+        errorIdSpan.setText(
+                getTranslation(CoreConstants.ERROR_ID_KEY) + CoreConstants.SEPARATOR_COLON_SPACE + safeErrorId);
         errorIdSpan.addClassName(CoreConstants.ERROR_DEV_ID_CLASS);
         devContainer.add(errorIdSpan);
     }

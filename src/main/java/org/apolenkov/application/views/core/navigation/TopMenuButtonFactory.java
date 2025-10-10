@@ -6,7 +6,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.apolenkov.application.config.constants.RouteConstants;
-import org.apolenkov.application.service.PracticeSettingsService;
+import org.apolenkov.application.service.settings.PracticeSettingsService;
 import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.apolenkov.application.views.practice.components.PracticeSettingsComponents;
 import org.apolenkov.application.views.practice.components.PracticeSettingsDialog;

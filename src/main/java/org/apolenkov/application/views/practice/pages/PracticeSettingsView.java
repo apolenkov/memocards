@@ -11,7 +11,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.service.PracticeSettingsService;
+import org.apolenkov.application.service.settings.PracticeSettingsService;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.practice.components.PracticeSettingsComponents;
 import org.apolenkov.application.views.practice.constants.PracticeConstants;

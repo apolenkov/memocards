@@ -7,10 +7,11 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+import java.util.List;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.usecase.DeckUseCase;
-import org.apolenkov.application.usecase.UserUseCase;
+import org.apolenkov.application.domain.usecase.DeckUseCase;
+import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.deck.business.DeckCardViewModel;
 import org.apolenkov.application.views.deck.business.DeckListPresenter;
@@ -103,7 +104,7 @@ public final class DecksView extends BaseView {
      * @param query the search query to filter decks by title or description
      */
     private void refreshDecks(final String query) {
-        final java.util.List<DeckCardViewModel> decks = deckListPresenter.listDecksForCurrentUser(query);
+        final List<DeckCardViewModel> decks = deckListPresenter.listDecksForCurrentUser(query);
         deckContainer.refreshDecks(decks);
     }
 

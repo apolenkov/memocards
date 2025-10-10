@@ -1,6 +1,7 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
 import org.apolenkov.application.domain.port.UserSettingsRepository;
+import org.apolenkov.application.infrastructure.repository.jdbc.sql.UserSettingsSqlQueries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -37,13 +38,6 @@ public class UserSettingsJdbcAdapter implements UserSettingsRepository {
     @Override
     public void savePreferredLocaleCode(final long userId, final String localeCode) {
         LOGGER.debug("Saving preferred locale code '{}' for user ID: {}", localeCode, userId);
-        String sql =
-                """
-            INSERT INTO user_settings (user_id, preferred_locale_code)
-            VALUES (?, ?)
-            ON CONFLICT (user_id)
-            DO UPDATE SET preferred_locale_code = ?
-            """;
-        jdbcTemplate.update(sql, userId, localeCode, localeCode);
+        jdbcTemplate.update(UserSettingsSqlQueries.UPSERT_PREFERRED_LOCALE, userId, localeCode, localeCode);
     }
 }

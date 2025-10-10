@@ -1,5 +1,6 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +39,7 @@ public class UserJdbcAdapter implements UserRepository {
         String email = rs.getString("email");
         String passwordHash = rs.getString("password_hash");
         String name = rs.getString("name");
-        java.sql.Timestamp createdAt = rs.getTimestamp("created_at");
+        Timestamp createdAt = rs.getTimestamp("created_at");
 
         return UserDto.forExistingUser(
                 id,

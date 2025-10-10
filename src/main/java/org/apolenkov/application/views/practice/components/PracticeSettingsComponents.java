@@ -7,7 +7,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.apolenkov.application.model.PracticeDirection;
-import org.apolenkov.application.service.PracticeSettingsService;
+import org.apolenkov.application.service.settings.PracticeSettingsService;
 import org.apolenkov.application.views.practice.constants.PracticeConstants;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,7 @@
 package org.apolenkov.application.views.practice.business;
 
-import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import org.apolenkov.application.model.Flashcard;
 
@@ -166,10 +166,12 @@ public final class PracticeSessionRecords {
          *
          * @param deckIdValue the deck ID
          * @param cardsValue the list of flashcards
+         * @param sessionStart the session start time
          * @return initial session data
          * @throws IllegalArgumentException if deckId is invalid or cards is null/empty
          */
-        public static SessionData create(final long deckIdValue, final List<Flashcard> cardsValue) {
+        public static SessionData create(
+                final long deckIdValue, final List<Flashcard> cardsValue, final Instant sessionStart) {
             if (deckIdValue <= 0) {
                 throw new IllegalArgumentException("Deck ID must be positive");
             }
@@ -179,12 +181,10 @@ public final class PracticeSessionRecords {
             if (cardsValue.isEmpty()) {
                 throw new IllegalArgumentException("Cards list cannot be empty");
             }
-            return new SessionData(
-                    deckIdValue,
-                    cardsValue,
-                    Clock.systemUTC().instant(),
-                    new java.util.ArrayList<>(),
-                    new java.util.ArrayList<>());
+            if (sessionStart == null) {
+                throw new IllegalArgumentException("Session start time cannot be null");
+            }
+            return new SessionData(deckIdValue, cardsValue, sessionStart, new ArrayList<>(), new ArrayList<>());
         }
 
         /**
@@ -194,7 +194,7 @@ public final class PracticeSessionRecords {
          * @return updated session data
          */
         public SessionData addKnownCard(final long cardId) {
-            List<Long> newKnown = new java.util.ArrayList<>(knownCardIdsDelta);
+            List<Long> newKnown = new ArrayList<>(knownCardIdsDelta);
             newKnown.add(cardId);
             return new SessionData(deckId, cards, sessionStart, newKnown, failedCardIds);
         }
@@ -206,7 +206,7 @@ public final class PracticeSessionRecords {
          * @return updated session data
          */
         public SessionData addFailedCard(final long cardId) {
-            List<Long> newFailed = new java.util.ArrayList<>(failedCardIds);
+            List<Long> newFailed = new ArrayList<>(failedCardIds);
             newFailed.add(cardId);
             return new SessionData(deckId, cards, sessionStart, knownCardIdsDelta, newFailed);
         }

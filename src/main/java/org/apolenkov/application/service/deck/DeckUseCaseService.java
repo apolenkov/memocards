@@ -6,8 +6,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.domain.port.FlashcardRepository;
+import org.apolenkov.application.domain.usecase.DeckUseCase;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.usecase.DeckUseCase;
+import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -123,7 +124,7 @@ public class DeckUseCaseService implements DeckUseCase {
         var violations = validator.validate(deck);
         if (!violations.isEmpty()) {
             String message = violations.stream()
-                    .map(v -> v.getPropertyPath() + " " + v.getMessage())
+                    .map(v -> v.getPropertyPath() + CoreConstants.SEPARATOR_SPACE + v.getMessage())
                     .collect(Collectors.joining(", "));
             LOGGER.warn("Deck validation failed: {}", message);
             throw new IllegalArgumentException("Validation failed: " + message);

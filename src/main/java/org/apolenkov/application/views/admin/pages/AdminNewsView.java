@@ -21,10 +21,11 @@ import java.util.List;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.model.News;
-import org.apolenkov.application.service.NewsService;
+import org.apolenkov.application.service.news.NewsService;
 import org.apolenkov.application.views.admin.components.AdminNewsDeleteDialog;
 import org.apolenkov.application.views.admin.components.AdminNewsDialog;
 import org.apolenkov.application.views.admin.constants.AdminConstants;
+import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
@@ -290,7 +291,9 @@ public class AdminNewsView extends BaseView {
         metaInfo.setSpacing(true);
         metaInfo.setAlignItems(Alignment.CENTER);
 
-        Span author = new Span(getTranslation(AdminConstants.ADMIN_NEWS_AUTHOR_KEY) + ": " + news.getAuthor());
+        Span author = new Span(getTranslation(AdminConstants.ADMIN_NEWS_AUTHOR_KEY)
+                + CoreConstants.SEPARATOR_COLON_SPACE
+                + news.getAuthor());
         author.addClassName(AdminConstants.NEWS_CARD_AUTHOR_CLASS);
         author.addClassName(AdminConstants.TEXT_MUTED_CLASS);
 

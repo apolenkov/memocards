@@ -17,7 +17,8 @@ class PracticeSessionRecordsTest {
     void shouldCreateSessionDataWithValidParameters() {
         List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSessionRecords.SessionData sessionData = PracticeSessionRecords.SessionData.create(1L, cards);
+        PracticeSessionRecords.SessionData sessionData =
+                PracticeSessionRecords.SessionData.create(1L, cards, Instant.now());
 
         assertThat(sessionData.deckId()).isEqualTo(1L);
         assertThat(sessionData.cards()).hasSize(1);
@@ -30,8 +31,9 @@ class PracticeSessionRecordsTest {
     @DisplayName("Should throw exception for invalid deck ID")
     void shouldThrowExceptionForInvalidDeckId() {
         List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        Instant now = Instant.now();
 
-        assertThatThrownBy(() -> PracticeSessionRecords.SessionData.create(0L, cards))
+        assertThatThrownBy(() -> PracticeSessionRecords.SessionData.create(0L, cards, now))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Deck ID must be positive");
     }
@@ -39,7 +41,9 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should throw exception for null cards")
     void shouldThrowExceptionForNullCards() {
-        assertThatThrownBy(() -> PracticeSessionRecords.SessionData.create(1L, null))
+        Instant now = Instant.now();
+
+        assertThatThrownBy(() -> PracticeSessionRecords.SessionData.create(1L, null, now))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Cards list cannot be null");
     }
@@ -48,7 +52,9 @@ class PracticeSessionRecordsTest {
     @DisplayName("Should throw exception for empty cards")
     void shouldThrowExceptionForEmptyCards() {
         List<Flashcard> emptyCards = List.of();
-        assertThatThrownBy(() -> PracticeSessionRecords.SessionData.create(1L, emptyCards))
+        Instant now = Instant.now();
+
+        assertThatThrownBy(() -> PracticeSessionRecords.SessionData.create(1L, emptyCards, now))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Cards list cannot be empty");
     }
@@ -58,7 +64,8 @@ class PracticeSessionRecordsTest {
     void shouldAddKnownCardToSessionData() {
         List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSessionRecords.SessionData sessionData = PracticeSessionRecords.SessionData.create(1L, cards);
+        PracticeSessionRecords.SessionData sessionData =
+                PracticeSessionRecords.SessionData.create(1L, cards, Instant.now());
 
         PracticeSessionRecords.SessionData updated = sessionData.addKnownCard(1L);
 
@@ -71,7 +78,8 @@ class PracticeSessionRecordsTest {
     void shouldAddFailedCardToSessionData() {
         List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSessionRecords.SessionData sessionData = PracticeSessionRecords.SessionData.create(1L, cards);
+        PracticeSessionRecords.SessionData sessionData =
+                PracticeSessionRecords.SessionData.create(1L, cards, Instant.now());
 
         PracticeSessionRecords.SessionData updated = sessionData.addFailedCard(1L);
 

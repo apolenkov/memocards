@@ -1,4 +1,4 @@
-package org.apolenkov.application.service;
+package org.apolenkov.application.service.settings;
 
 import java.util.Locale;
 import org.apolenkov.application.domain.port.UserSettingsRepository;

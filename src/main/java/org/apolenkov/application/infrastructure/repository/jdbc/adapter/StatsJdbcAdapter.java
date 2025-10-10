@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.StatsRepository;
+import org.apolenkov.application.infrastructure.repository.jdbc.sql.StatsSqlQueries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -46,22 +47,8 @@ public class StatsJdbcAdapter implements StatsRepository {
         LOGGER.debug("Appending session stats for deck ID: {} on date: {}", sessionStats.deckId(), date);
 
         // Update or insert daily stats
-        String upsertSql =
-                """
-            INSERT INTO deck_daily_stats (deck_id, date, sessions, viewed, correct, hard, total_duration_ms, total_delay_ms)
-            VALUES (?, ?, 1, ?, ?, ?, ?, ?)
-            ON CONFLICT (deck_id, date)
-            DO UPDATE SET
-                sessions = deck_daily_stats.sessions + 1,
-                viewed = deck_daily_stats.viewed + ?,
-                correct = deck_daily_stats.correct + ?,
-                hard = deck_daily_stats.hard + ?,
-                total_duration_ms = deck_daily_stats.total_duration_ms + ?,
-                total_delay_ms = deck_daily_stats.total_delay_ms + ?
-            """;
-
         jdbcTemplate.update(
-                upsertSql,
+                StatsSqlQueries.UPSERT_DAILY_STATS,
                 sessionStats.deckId(),
                 date,
                 sessionStats.viewed(),
@@ -78,16 +65,12 @@ public class StatsJdbcAdapter implements StatsRepository {
         // Update known cards if provided
         if (sessionStats.knownCardIdsDelta() != null) {
             for (Long cardId : sessionStats.knownCardIdsDelta()) {
-                String knownCardSql =
-                        """
-                    INSERT INTO known_cards (deck_id, card_id)
-                    SELECT ?, ?
-                    WHERE NOT EXISTS (
-                        SELECT 1 FROM known_cards
-                        WHERE deck_id = ? AND card_id = ?
-                    )
-                    """;
-                jdbcTemplate.update(knownCardSql, sessionStats.deckId(), cardId, sessionStats.deckId(), cardId);
+                jdbcTemplate.update(
+                        StatsSqlQueries.INSERT_KNOWN_CARD_IF_NOT_EXISTS,
+                        sessionStats.deckId(),
+                        cardId,
+                        sessionStats.deckId(),
+                        cardId);
             }
         }
     }
@@ -102,15 +85,7 @@ public class StatsJdbcAdapter implements StatsRepository {
     @Override
     public Set<Long> getKnownCardIds(final long deckId) {
         LOGGER.debug("Getting known card IDs for deck ID: {}", deckId);
-        String sql =
-                """
-            SELECT kc.card_id
-            FROM known_cards kc
-            JOIN flashcards f ON kc.card_id = f.id
-            WHERE f.deck_id = ?
-            """;
-
-        return new HashSet<>(jdbcTemplate.queryForList(sql, Long.class, deckId));
+        return new HashSet<>(jdbcTemplate.queryForList(StatsSqlQueries.SELECT_KNOWN_CARD_IDS, Long.class, deckId));
     }
 
     /**
@@ -126,23 +101,9 @@ public class StatsJdbcAdapter implements StatsRepository {
         LOGGER.debug("Setting card {} as {} for deck ID: {}", cardId, known ? "known" : "unknown", deckId);
 
         if (known) {
-            String insertSql =
-                    """
-                INSERT INTO known_cards (deck_id, card_id)
-                SELECT ?, ?
-                WHERE NOT EXISTS (
-                    SELECT 1 FROM known_cards
-                    WHERE deck_id = ? AND card_id = ?
-                )
-                """;
-            jdbcTemplate.update(insertSql, deckId, cardId, deckId, cardId);
+            jdbcTemplate.update(StatsSqlQueries.INSERT_KNOWN_CARD_IF_NOT_EXISTS, deckId, cardId, deckId, cardId);
         } else {
-            String deleteSql =
-                    """
-                DELETE FROM known_cards
-                WHERE deck_id = ? AND card_id = ?
-                """;
-            jdbcTemplate.update(deleteSql, deckId, cardId);
+            jdbcTemplate.update(StatsSqlQueries.DELETE_KNOWN_CARD, deckId, cardId);
         }
     }
 
@@ -157,15 +118,10 @@ public class StatsJdbcAdapter implements StatsRepository {
         LOGGER.debug("Resetting progress for deck ID: {}", deckId);
 
         // Delete daily stats
-        jdbcTemplate.update("DELETE FROM deck_daily_stats WHERE deck_id = ?", deckId);
+        jdbcTemplate.update(StatsSqlQueries.DELETE_DAILY_STATS_BY_DECK, deckId);
 
         // Delete known cards
-        String deleteKnownCardsSql =
-                """
-            DELETE FROM known_cards
-            WHERE deck_id = ?
-            """;
-        jdbcTemplate.update(deleteKnownCardsSql, deckId);
+        jdbcTemplate.update(StatsSqlQueries.DELETE_KNOWN_CARDS_BY_DECK, deckId);
     }
 
     /**
@@ -187,25 +143,7 @@ public class StatsJdbcAdapter implements StatsRepository {
         String placeholders =
                 deckIds.stream().map(id -> "?").reduce((a, b) -> a + "," + b).orElse("");
 
-        String sql = String.format(
-                """
-            SELECT d.id as deck_id,
-                   COALESCE(SUM(dds.sessions), 0) as sessions_all,
-                   COALESCE(SUM(dds.viewed), 0) as viewed_all,
-                   COALESCE(SUM(dds.correct), 0) as correct_all,
-
-                   COALESCE(SUM(dds.hard), 0) as hard_all,
-                   COALESCE(SUM(CASE WHEN dds.date = ? THEN dds.sessions ELSE 0 END), 0) as sessions_today,
-                   COALESCE(SUM(CASE WHEN dds.date = ? THEN dds.viewed ELSE 0 END), 0) as viewed_today,
-                   COALESCE(SUM(CASE WHEN dds.date = ? THEN dds.correct ELSE 0 END), 0) as correct_today,
-
-                   COALESCE(SUM(CASE WHEN dds.date = ? THEN dds.hard ELSE 0 END), 0) as hard_today
-            FROM decks d
-            LEFT JOIN deck_daily_stats dds ON d.id = dds.deck_id
-            WHERE d.id IN (%s)
-            GROUP BY d.id
-            """,
-                placeholders);
+        String sql = String.format(StatsSqlQueries.SELECT_AGGREGATES_FOR_DECKS_TEMPLATE, placeholders);
 
         Object[] params = new Object[deckIds.size() + 4];
         params[0] = today;

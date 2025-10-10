@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.service.StatsService;
+import org.apolenkov.application.service.stats.StatsService;
 import org.apolenkov.application.views.deck.components.grid.DeckFlashcardGrid;
 import org.apolenkov.application.views.deck.components.grid.DeckGridFilter;
 import org.apolenkov.application.views.deck.components.grid.DeckSearchControls;

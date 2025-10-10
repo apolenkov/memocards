@@ -14,15 +14,7 @@ class SessionStatsDtoTest {
     @Test
     @DisplayName("Should create valid session stats")
     void shouldCreateValidSessionStats() {
-        SessionStatsDto stats = SessionStatsDto.builder()
-                .deckId(1L)
-                .viewed(10)
-                .correct(8)
-                .hard(1)
-                .sessionDurationMs(60000L)
-                .totalAnswerDelayMs(15000L)
-                .knownCardIdsDelta(List.of(1L, 2L))
-                .build();
+        SessionStatsDto stats = SessionStatsDto.of(1L, 10, 8, 1, 60000L, 15000L, List.of(1L, 2L));
 
         assertThat(stats.deckId()).isEqualTo(1L);
         assertThat(stats.viewed()).isEqualTo(10);
@@ -39,15 +31,7 @@ class SessionStatsDtoTest {
     }
 
     private void createInvalidSessionStatsWithZeroValues() {
-        SessionStatsDto.builder()
-                .deckId(1L)
-                .viewed(0)
-                .correct(0)
-                .hard(0)
-                .sessionDurationMs(0L)
-                .totalAnswerDelayMs(0L)
-                .knownCardIdsDelta(Set.of())
-                .build();
+        SessionStatsDto.of(1L, 0, 0, 0, 0L, 0L, Set.of());
     }
 
     @Test
@@ -57,21 +41,13 @@ class SessionStatsDtoTest {
     }
 
     private void createInvalidSessionStatsWithZeroDeckId() {
-        SessionStatsDto.builder().deckId(0L).viewed(10).correct(8).build();
+        SessionStatsDto.of(0L, 10, 8, 0, 0L, 0L, null);
     }
 
     @Test
     @DisplayName("Should handle null known card ids delta")
     void shouldHandleNullKnownCardIdsDelta() {
-        SessionStatsDto stats = SessionStatsDto.builder()
-                .deckId(1L)
-                .viewed(10)
-                .correct(8)
-                .hard(0)
-                .sessionDurationMs(60000L)
-                .totalAnswerDelayMs(15000L)
-                .knownCardIdsDelta(null)
-                .build();
+        SessionStatsDto stats = SessionStatsDto.of(1L, 10, 8, 0, 60000L, 15000L, null);
 
         assertThat(stats.knownCardIdsDelta()).isNull();
     }
