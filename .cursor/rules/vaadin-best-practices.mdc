@@ -94,9 +94,64 @@ public class SomeService {
 6. Forget super.onDetach(e)
 7. @UIScope without @Lazy injection → scope conflict
 8. @Lazy for regular @Component dependencies → unnecessary overhead
+9. **@Component + extends Dialog** → singleton Dialog, state tree corruption
+10. **removeAll() + add(sameComponent)** → component reuse, memory leak
+11. **UI.getCurrent().add(this) in @Component** → state tree corruption
+12. **Component field in singleton** → component reuse across UI sessions
 
 ## PUSH
 @Push + save UI ref: `UI ui=UI.getCurrent(); thread(()->ui.access(()->...))`
+
+## DIALOG PATTERN [OK]
+
+**Factory Pattern** (для Dialog в @Component):
+```java
+@Component
+public class MyDialogFactory {
+    public void openDialog() {
+        Dialog dialog = new Dialog(); // ✅ Новый каждый раз!
+        UI.getCurrent().add(dialog);
+        dialog.open();
+    }
+}
+```
+
+**Direct Creation** (в @Route views):
+```java
+public class MyView extends VerticalLayout {
+    private void showDialog() {
+        MyDialog dialog = new MyDialog(...); // ✅ Новый каждый раз!
+        dialog.open();
+    }
+}
+```
+
+**[BAD] Singleton Dialog**:
+```java
+@Component
+public class MyDialog extends Dialog { } // ❌ ПЛОХО! State tree corruption!
+```
+
+## COMPONENT REUSE [BAD]
+
+**NEVER reuse components**:
+```java
+private Button myButton = new Button();
+layout.removeAll();
+layout.add(myButton); // ❌ Component reuse!
+```
+
+**DO: Use setVisible() or recreate**:
+```java
+// Option 1: Visibility
+myButton.setVisible(false); // ✅ Скрыть
+myButton.setVisible(true);  // ✅ Показать
+
+// Option 2: Recreate
+layout.removeAll();
+Button newButton = new Button(); // ✅ Новый компонент!
+layout.add(newButton);
+```
 
 ## CHECKLIST
 - [ ] Composite<T> (reusable) or extends for @Route views
@@ -108,3 +163,6 @@ public class SomeService {
 - [ ] Lumo tokens (no hardcode)
 - [ ] @Lazy for @UIScope dependencies
 - [ ] No @Lazy for regular @Component dependencies
+- [ ] No @Component + extends Dialog
+- [ ] No removeAll() + add(sameComponent)
+- [ ] Dialog created via new each time

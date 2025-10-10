@@ -19,7 +19,9 @@ version: "2.0.0"
 - **Virtual Threads**: Use for I/O operations, database calls, concurrent operations, and non-blocking async processing
 - **Pattern Matching**: Switch expressions, instanceof patterns, record patterns
 - **Sealed Classes**: For restricted inheritance hierarchies and type safety
-- **Records**: Use for immutable DTOs, responses, data carriers, and parameter objects (4+ params)
+- **Records**: Use for immutable DTOs, responses, data carriers
+  - **Builder for 5+ params** (readability, self-documenting)
+  - **Static factory for 2-4 params** (compact, clear)
 - **Text Blocks**: For SQL queries, JSON, and long strings
 - **Structured Concurrency**: Modern async programming patterns
 - **String Templates**: For dynamic string construction
@@ -141,6 +143,9 @@ version: "2.0.0"
 - **NEVER use magic strings** - ALL strings in constants (roles, test IDs, CSS classes)
 - **NEVER create redundant wrappers** - remove methods that just call other methods
 - **NEVER create unnecessary abstractions** - no DTOs used only once, no empty factories
+- **NEVER create @Component + extends Dialog** - singleton Dialog causes state tree corruption
+- **NEVER reuse UI components** - removeAll() + add(sameComponent) causes memory leaks
+- **NEVER store Vaadin Components in singleton fields** - component reuse across UI sessions
 
 ## Error Handling
 
