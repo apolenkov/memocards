@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import org.apolenkov.application.views.practice.business.PracticeSessionManager;
+import org.apolenkov.application.views.practice.constants.PracticeConstants;
 
 /**
  * Progress component for practice view.

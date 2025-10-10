@@ -2,6 +2,7 @@ package org.apolenkov.application.views.stats.components;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Div;
+import org.apolenkov.application.views.stats.constants.StatsConstants;
 
 /**
  * UI component for displaying a single statistic card.

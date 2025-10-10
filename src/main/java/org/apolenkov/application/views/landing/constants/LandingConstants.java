@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.landing.components;
+package org.apolenkov.application.views.landing.constants;
 
 import org.apolenkov.application.config.vaadin.VaadinApplicationShell;
 

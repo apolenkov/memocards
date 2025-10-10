@@ -7,8 +7,8 @@ import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.service.NewsService;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.landing.components.HeroSection;
-import org.apolenkov.application.views.landing.components.LandingConstants;
 import org.apolenkov.application.views.landing.components.NewsSection;
+import org.apolenkov.application.views.landing.constants.LandingConstants;
 import org.apolenkov.application.views.shared.base.BaseView;
 import org.springframework.security.core.context.SecurityContextHolder;
 

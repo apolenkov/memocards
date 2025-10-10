@@ -1,10 +1,10 @@
-package org.apolenkov.application.views.deck.components.deck;
+package org.apolenkov.application.views.deck.components.detail;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import org.apolenkov.application.views.deck.components.DeckConstants;
+import org.apolenkov.application.views.deck.constants.DeckConstants;
 
 /**
  * Component for displaying deck information including description.

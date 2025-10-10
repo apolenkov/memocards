@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deck.components.deck;
+package org.apolenkov.application.views.deck.components.detail;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.StatsService;
-import org.apolenkov.application.views.deck.components.DeckConstants;
 import org.apolenkov.application.views.deck.components.grid.DeckFlashcardGrid;
 import org.apolenkov.application.views.deck.components.grid.DeckGridFilter;
 import org.apolenkov.application.views.deck.components.grid.DeckSearchControls;
+import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

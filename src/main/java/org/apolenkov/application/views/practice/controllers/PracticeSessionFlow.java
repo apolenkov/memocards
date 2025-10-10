@@ -8,8 +8,8 @@ import org.apolenkov.application.views.practice.business.PracticePresenter;
 import org.apolenkov.application.views.practice.business.PracticeSession;
 import org.apolenkov.application.views.practice.components.PracticeActions;
 import org.apolenkov.application.views.practice.components.PracticeCard;
-import org.apolenkov.application.views.practice.components.PracticeConstants;
 import org.apolenkov.application.views.practice.components.PracticeProgress;
+import org.apolenkov.application.views.practice.constants.PracticeConstants;
 
 /**
  * Controller for managing practice session flow.

@@ -16,6 +16,7 @@ import java.util.Map;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.stats.constants.StatsConstants;
 
 /**
  * UI component for creating deck pagination with navigation controls.

@@ -48,3 +48,8 @@ src/main/frontend/generated
 # Project
 logs/
 changelogs/
+.refactoring/
+
+# Environment variables
+.env
+.env.local

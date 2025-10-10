@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.practice.components;
+package org.apolenkov.application.views.practice.constants;
 
 /**
  * Constants for the practice module.

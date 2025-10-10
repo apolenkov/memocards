@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deck.components.decks;
+package org.apolenkov.application.views.deck.components.list;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Span;
@@ -6,7 +6,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.List;
 import org.apolenkov.application.views.deck.business.DeckCardViewModel;
-import org.apolenkov.application.views.deck.components.DeckConstants;
+import org.apolenkov.application.views.deck.constants.DeckConstants;
 
 /**
  * Reusable component for displaying a list of deck cards.

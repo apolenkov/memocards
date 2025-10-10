@@ -1,14 +1,16 @@
 package org.apolenkov.application.views.practice.components;
 
+import org.apolenkov.application.model.PracticeDirection;
+import org.apolenkov.application.service.PracticeSettingsService;
+import org.apolenkov.application.views.practice.constants.PracticeConstants;
+import org.springframework.stereotype.Component;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.apolenkov.application.model.PracticeDirection;
-import org.apolenkov.application.service.PracticeSettingsService;
-import org.springframework.stereotype.Component;
 
 /**
  * Reusable components for practice settings configuration.

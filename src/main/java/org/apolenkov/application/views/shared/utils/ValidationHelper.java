@@ -52,30 +52,6 @@ public final class ValidationHelper {
     }
 
     /**
-     * Validates that a field has required value (not null and not blank).
-     * Sets field as invalid with translated error message if validation fails.
-     *
-     * @param field the field to validate
-     * @param value the trimmed value to check
-     * @param errorKey the translation key for error message
-     * @param translator function to translate error key
-     * @return true if validation failed (field is invalid), false if valid
-     */
-    public static boolean validateRequired(
-            final HasValidation field,
-            final String value,
-            final String errorKey,
-            final UnaryOperator<String> translator) {
-        if (value == null || value.isBlank()) {
-            field.setErrorMessage(translator.apply(errorKey));
-            field.setInvalid(true);
-            return true; // validation failed
-        }
-        field.setInvalid(false);
-        return false; // validation passed
-    }
-
-    /**
      * Sets error message and invalid state on a field.
      *
      * @param field the field to mark as invalid
@@ -97,16 +73,6 @@ public final class ValidationHelper {
         for (HasValidation field : fields) {
             field.setInvalid(false);
         }
-    }
-
-    /**
-     * Validates that a string value is not null and not empty after trimming.
-     *
-     * @param value the value to check
-     * @return true if value is valid (not null, not blank)
-     */
-    public static boolean isNotBlank(final String value) {
-        return value != null && !value.trim().isEmpty();
     }
 
     /**

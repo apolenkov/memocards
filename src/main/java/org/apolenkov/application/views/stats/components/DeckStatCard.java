@@ -7,6 +7,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.model.Deck;
+import org.apolenkov.application.views.stats.constants.StatsConstants;
 
 /**
  * UI component for displaying comprehensive deck statistics.

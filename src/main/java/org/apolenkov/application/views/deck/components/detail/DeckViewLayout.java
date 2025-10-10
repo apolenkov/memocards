@@ -1,15 +1,11 @@
-package org.apolenkov.application.views.deck.components.layout;
+package org.apolenkov.application.views.deck.components.detail;
 
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.StatsService;
-import org.apolenkov.application.views.deck.components.DeckConstants;
-import org.apolenkov.application.views.deck.components.deck.DeckActions;
-import org.apolenkov.application.views.deck.components.deck.DeckGrid;
-import org.apolenkov.application.views.deck.components.deck.DeckHeader;
-import org.apolenkov.application.views.deck.components.deck.DeckInfo;
+import org.apolenkov.application.views.deck.constants.DeckConstants;
 
 /**
  * Layout component for DeckView page structure.

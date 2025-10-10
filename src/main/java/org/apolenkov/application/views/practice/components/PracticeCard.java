@@ -12,6 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.Optional;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
+import org.apolenkov.application.views.practice.constants.PracticeConstants;
 
 /**
  * Card component for practice view.

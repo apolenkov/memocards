@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.stats.components;
+package org.apolenkov.application.views.stats.constants;
 
 /**
  * Constants used across statistics components.

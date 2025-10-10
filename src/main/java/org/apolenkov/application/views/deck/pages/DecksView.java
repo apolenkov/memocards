@@ -14,9 +14,9 @@ import org.apolenkov.application.usecase.UserUseCase;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.deck.business.DeckCardViewModel;
 import org.apolenkov.application.views.deck.business.DeckListPresenter;
-import org.apolenkov.application.views.deck.components.DeckConstants;
-import org.apolenkov.application.views.deck.components.decks.DeckContainer;
 import org.apolenkov.application.views.deck.components.dialogs.CreateDeckDialog;
+import org.apolenkov.application.views.deck.components.list.DeckContainer;
+import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.base.BaseView;
 
 /**
