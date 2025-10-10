@@ -9,8 +9,8 @@ val lineAwesome: String by project
 val assertj: String by project
 val mockito: String by project
 val webdrivermanager: String by project
+val springDotenv: String by project
 val testcontainersVersion: String by project
-val assertjCoreVersion: String by project
 
 plugins {
     idea
@@ -101,6 +101,7 @@ dependencies {
 
     // Dev tools
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation("me.paulschwarz:spring-dotenv:$springDotenv")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")

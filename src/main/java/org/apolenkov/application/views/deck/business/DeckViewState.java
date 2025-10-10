@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deck.components.state;
+package org.apolenkov.application.views.deck.business;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.H2;
@@ -12,8 +12,8 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.usecase.DeckUseCase;
 import org.apolenkov.application.usecase.FlashcardUseCase;
-import org.apolenkov.application.views.deck.components.DeckConstants;
-import org.apolenkov.application.views.deck.components.layout.DeckViewLayout;
+import org.apolenkov.application.views.deck.components.detail.DeckViewLayout;
+import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

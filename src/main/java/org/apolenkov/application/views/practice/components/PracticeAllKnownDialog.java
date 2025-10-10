@@ -8,6 +8,7 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import org.apolenkov.application.views.practice.constants.PracticeConstants;
 
 /**
  * Dialog component for displaying "All Cards Known" message.

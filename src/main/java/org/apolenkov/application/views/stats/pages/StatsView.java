@@ -24,7 +24,7 @@ import org.apolenkov.application.views.stats.components.CollapsibleSectionBuilde
 import org.apolenkov.application.views.stats.components.DeckPaginationBuilder;
 import org.apolenkov.application.views.stats.components.StatCard;
 import org.apolenkov.application.views.stats.components.StatsCalculator;
-import org.apolenkov.application.views.stats.components.StatsConstants;
+import org.apolenkov.application.views.stats.constants.StatsConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

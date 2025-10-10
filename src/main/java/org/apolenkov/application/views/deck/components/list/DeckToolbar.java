@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deck.components.decks;
+package org.apolenkov.application.views.deck.components.list;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -11,7 +11,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.shared.Registration;
 import java.util.function.Consumer;
-import org.apolenkov.application.views.deck.components.DeckConstants;
+import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.utils.LayoutHelper;
 
 /**

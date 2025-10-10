@@ -12,7 +12,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.shared.Registration;
 import java.util.function.Consumer;
-import org.apolenkov.application.views.deck.components.DeckConstants;
+import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

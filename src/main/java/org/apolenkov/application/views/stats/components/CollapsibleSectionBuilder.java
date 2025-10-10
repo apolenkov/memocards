@@ -11,6 +11,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
+import org.apolenkov.application.views.stats.constants.StatsConstants;
 
 /**
  * UI component for creating collapsible statistics sections.

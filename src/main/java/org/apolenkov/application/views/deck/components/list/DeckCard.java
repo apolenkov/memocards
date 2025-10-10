@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deck.components.decks;
+package org.apolenkov.application.views.deck.components.list;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
@@ -11,7 +11,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import org.apolenkov.application.views.deck.business.DeckCardViewModel;
-import org.apolenkov.application.views.deck.components.DeckConstants;
+import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 

@@ -1,4 +1,4 @@
-package org.apolenkov.application.views.deck.components.deck;
+package org.apolenkov.application.views.deck.components.detail;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
@@ -8,7 +8,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import org.apolenkov.application.views.deck.components.DeckConstants;
+import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 
 /**
