@@ -3,6 +3,8 @@ package org.apolenkov.application.views.deck.business;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import org.apolenkov.application.domain.usecase.DeckUseCase;
 import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.domain.usecase.UserUseCase;
@@ -79,22 +81,39 @@ public class DeckListPresenter {
                 .sorted(Comparator.comparing(Deck::getTitle, Comparator.nullsLast(String::compareToIgnoreCase)))
                 .toList();
 
-        return decks.stream().map(this::toViewModel).toList();
+        // Step 1: Batch load flashcard counts for all decks in single query
+        List<Long> deckIds = decks.stream().map(Deck::getId).toList();
+        Map<Long, Long> deckSizes = flashcardUseCase.countByDeckIds(deckIds);
+
+        // Step 2: Batch load known card IDs for all decks in single query
+        Map<Long, Set<Long>> knownCardsByDeck = statsService.getKnownCardIdsBatch(deckIds);
+
+        return decks.stream()
+                .map(deck -> toViewModel(deck, deckSizes, knownCardsByDeck))
+                .toList();
     }
 
     /**
      * Converts a deck entity to a view model for UI display.
+     * Uses pre-loaded data maps to avoid repeated database queries.
      *
      * @param deck the deck entity to convert
+     * @param deckSizes pre-loaded map of deck ID to flashcard count
+     * @param knownCardsByDeck pre-loaded map of deck ID to known card IDs
      * @return a DeckCardViewModel with deck data and progress statistics
      */
-    private DeckCardViewModel toViewModel(final Deck deck) {
-        // Calculate deck size by counting flashcards
-        int deckSize = (int) flashcardUseCase.countByDeckId(deck.getId());
-        // Count cards marked as known by the user
-        int known = statsService.getKnownCardIds(deck.getId()).size();
-        // Calculate progress percentage based on known cards vs. total
-        int percent = statsService.getDeckProgressPercent(deck.getId(), deckSize);
+    private DeckCardViewModel toViewModel(
+            final Deck deck, final Map<Long, Long> deckSizes, final Map<Long, Set<Long>> knownCardsByDeck) {
+        // Get deck size from pre-loaded map (no database query)
+        int deckSize = deckSizes.getOrDefault(deck.getId(), 0L).intValue();
+
+        // Get known cards count from pre-loaded map (no database query)
+        Set<Long> knownCards = knownCardsByDeck.getOrDefault(deck.getId(), Set.of());
+        int known = knownCards.size();
+
+        // Calculate progress percentage inline (no additional query)
+        int percent = deckSize > 0 ? (int) Math.round(100.0 * known / deckSize) : 0;
+        percent = Math.clamp(percent, 0, 100);
 
         return new DeckCardViewModel(deck.getId(), deck.getTitle(), deck.getDescription(), deckSize, known, percent);
     }

@@ -33,15 +33,6 @@ public final class NewsSqlQueries {
             """;
 
     /**
-     * SQL query to insert new news article.
-     */
-    public static final String INSERT_NEWS =
-            """
-            INSERT INTO news (title, content, author, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
-            """;
-
-    /**
      * SQL query to insert new news article and return generated ID.
      */
     public static final String INSERT_NEWS_RETURNING_ID =
@@ -49,6 +40,15 @@ public final class NewsSqlQueries {
             INSERT INTO news (title, content, author, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?)
             RETURNING id
+            """;
+
+    /**
+     * SQL query to insert new news article for batch operations.
+     */
+    public static final String INSERT_NEWS =
+            """
+            INSERT INTO news (title, content, author, created_at)
+            VALUES (?, ?, ?, ?)
             """;
 
     /**

@@ -11,13 +11,19 @@ import org.apolenkov.application.views.shared.utils.ButtonHelper;
 /**
  * Actions component for practice view.
  * Manages practice action buttons (show answer, know, hard) and completion buttons.
+ * Uses visibility management to avoid component reuse issues.
  */
 public final class PracticeActions extends Composite<HorizontalLayout> {
 
-    // UI Components
+    // UI Components - Practice buttons
     private Button showAnswerButton;
     private Button knowButton;
     private Button hardButton;
+
+    // UI Components - Completion buttons (created dynamically)
+    private Button repeatButton;
+    private Button backToDeckButton;
+    private Button homeButton;
 
     /**
      * Creates a new PracticeActions component.
@@ -40,6 +46,7 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
 
     /**
      * Creates the main action buttons for practice.
+     * All buttons are added to the container immediately to avoid component reuse.
      *
      * @param container the container to add buttons to
      */
@@ -134,6 +141,7 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
 
     /**
      * Shows completion buttons (optional repeat, back to deck, home).
+     * Hides practice buttons and shows completion buttons without removing from DOM.
      *
      * @param repeatHandler handler for repeat button (null if no failed cards)
      * @param backToDeckHandler handler for back to deck button
@@ -150,11 +158,50 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
             throw new IllegalArgumentException("Home handler cannot be null");
         }
 
-        getContent().removeAll();
+        // Hide practice buttons instead of removing
+        hidePracticeButtons();
 
-        // Show repeat button only if there are failed cards to practice
+        // Remove old completion buttons if they exist
+        removeCompletionButtons();
+
+        // Create and show new completion buttons
+        createCompletionButtons(repeatHandler, backToDeckHandler, homeHandler);
+    }
+
+    /**
+     * Resets to practice buttons state.
+     * Hides completion buttons and shows practice buttons without component reuse.
+     */
+    public void resetToPracticeButtons() {
+        // Remove completion buttons from DOM
+        removeCompletionButtons();
+
+        // Show practice buttons again
+        showQuestionState();
+    }
+
+    /**
+     * Hides all practice buttons (show answer, know, hard).
+     */
+    private void hidePracticeButtons() {
+        showAnswerButton.setVisible(false);
+        knowButton.setVisible(false);
+        hardButton.setVisible(false);
+    }
+
+    /**
+     * Creates and adds completion buttons to the layout.
+     *
+     * @param repeatHandler handler for repeat button (null if no failed cards)
+     * @param backToDeckHandler handler for back to deck button
+     * @param homeHandler handler for home button
+     */
+    private void createCompletionButtons(
+            final Runnable repeatHandler, final Runnable backToDeckHandler, final Runnable homeHandler) {
+
+        // Create repeat button only if there are failed cards to practice
         if (repeatHandler != null) {
-            Button repeatButton = ButtonHelper.createButton(
+            repeatButton = ButtonHelper.createButton(
                     getTranslation(PracticeConstants.PRACTICE_REPEAT_HARD_KEY),
                     e -> repeatHandler.run(),
                     ButtonVariant.LUMO_ERROR,
@@ -162,21 +209,30 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
             getContent().add(repeatButton);
         }
 
-        Button backToDeckButton = ButtonHelper.createButton(
+        backToDeckButton = ButtonHelper.createButton(
                 getTranslation(PracticeConstants.PRACTICE_BACK_TO_DECK_KEY), e -> backToDeckHandler.run());
 
-        Button homeButton = ButtonHelper.createButton(
+        homeButton = ButtonHelper.createButton(
                 getTranslation(PracticeConstants.PRACTICE_BACK_TO_DECKS_KEY), e -> homeHandler.run());
 
         getContent().add(backToDeckButton, homeButton);
     }
 
     /**
-     * Resets to practice buttons state.
+     * Removes completion buttons from the layout if they exist.
      */
-    public void resetToPracticeButtons() {
-        getContent().removeAll();
-        getContent().add(showAnswerButton, knowButton, hardButton);
-        showQuestionState();
+    private void removeCompletionButtons() {
+        if (repeatButton != null) {
+            getContent().remove(repeatButton);
+            repeatButton = null;
+        }
+        if (backToDeckButton != null) {
+            getContent().remove(backToDeckButton);
+            backToDeckButton = null;
+        }
+        if (homeButton != null) {
+            getContent().remove(homeButton);
+            homeButton = null;
+        }
     }
 }

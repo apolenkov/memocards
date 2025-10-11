@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 public final class DeckFlashcardDialog extends Dialog {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckFlashcardDialog.class);
-    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Dependencies
     private final transient FlashcardUseCase flashcardUseCase;
@@ -116,6 +115,7 @@ public final class DeckFlashcardDialog extends Dialog {
 
     /**
      * Opens the dialog with the specified flashcard data.
+     * Creates fresh form components each time to avoid component reuse issues.
      *
      * @param flashcard the flashcard to edit, or null for creating new
      */
@@ -123,10 +123,8 @@ public final class DeckFlashcardDialog extends Dialog {
         // Store the editing flashcard
         this.editingFlashcard = flashcard;
 
-        // Ensure form is created before using it
-        if (formLayout == null) {
-            createForm();
-        }
+        // Create fresh form components each time
+        createForm();
 
         // Set dialog title
         H3 title = new H3(
@@ -141,7 +139,7 @@ public final class DeckFlashcardDialog extends Dialog {
         VerticalLayout dialogLayout = new VerticalLayout();
         dialogLayout.add(title, formLayout, createButtonsLayout());
 
-        removeAll();
+        // No removeAll() needed - dialog is fresh from constructor
         add(dialogLayout);
         open();
     }
@@ -192,7 +190,6 @@ public final class DeckFlashcardDialog extends Dialog {
             Flashcard flashcard = prepareFlashcard(frontText, backText);
             flashcardUseCase.saveFlashcard(flashcard);
 
-            logFlashcardAction(flashcard);
             notifyParentAndClose(flashcard);
 
         } catch (Exception ex) {
@@ -221,24 +218,6 @@ public final class DeckFlashcardDialog extends Dialog {
         flashcard.setImageUrl(ValidationHelper.safeTrim(imageUrlField.getValue())); // Nullable field
 
         return flashcard;
-    }
-
-    /**
-     * Logs flashcard action (create or edit).
-     *
-     * @param flashcard the flashcard being saved
-     */
-    private void logFlashcardAction(final Flashcard flashcard) {
-        boolean isEditing = editingFlashcard != null;
-        String action = isEditing ? "edited" : "created";
-
-        AUDIT_LOGGER.info(
-                "User {} flashcard '{}' (ID: {}) in deck '{}' (ID: {})",
-                action,
-                flashcard.getFrontText(),
-                flashcard.getId(),
-                currentDeck.getTitle(),
-                currentDeck.getId());
     }
 
     /**

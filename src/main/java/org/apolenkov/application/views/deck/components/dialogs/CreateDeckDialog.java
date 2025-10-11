@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 public class CreateDeckDialog extends Dialog {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateDeckDialog.class);
-    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Dependencies
     private final transient DeckUseCase deckUseCase;
@@ -169,11 +168,7 @@ public class CreateDeckDialog extends Dialog {
 
             Deck saved = deckUseCase.saveDeck(deck);
 
-            AUDIT_LOGGER.info(
-                    "User created new deck '{}' with {} characters description - Deck ID: {}",
-                    saved.getTitle(),
-                    saved.getDescription() != null ? saved.getDescription().length() : 0,
-                    saved.getId());
+            LOGGER.debug("Deck created successfully: id={}, title='{}'", saved.getId(), saved.getTitle());
 
             NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.HOME_DECK_CREATED));
             close();

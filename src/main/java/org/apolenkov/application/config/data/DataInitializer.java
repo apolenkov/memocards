@@ -35,11 +35,17 @@ public class DataInitializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataInitializer.class);
 
-    @Value("${demo.admin.password:admin}")
+    @Value("${app.seed.demo.admin-password:admin}")
     private String demoAdminPassword;
 
-    @Value("${demo.user.password:user}")
+    @Value("${app.seed.demo.user-password:user}")
     private String demoUserPassword;
+
+    @Value("${app.seed.demo.enabled:true}")
+    private boolean seedDemoDataEnabled;
+
+    @Value("${app.seed.test.enabled:false}")
+    private boolean generateTestDataEnabled;
 
     /**
      * Demo user configuration constants.
@@ -81,7 +87,7 @@ public class DataInitializer {
                     ADMIN_NAME,
                     Set.of(SecurityConstants.ROLE_ADMIN));
 
-            LOGGER.info("✅ Domain users ensured");
+            LOGGER.info("Domain users ensured");
         };
     }
 
@@ -132,7 +138,7 @@ public class DataInitializer {
     private User findDemoUser(final UserRepository users) {
         final Optional<User> opt = users.findByEmail(USER_EMAIL);
         if (opt.isEmpty()) {
-            LOGGER.info("ℹ️ Demo user not found, skipping demo data creation");
+            LOGGER.info("Demo user not found, skipping demo data creation");
             return null;
         }
         return opt.get();
@@ -148,15 +154,20 @@ public class DataInitializer {
      */
     private void createDemoDataIfNeeded(
             final User user, final DeckRepository decks, final FlashcardRepository cards, final NewsRepository news) {
-        if (!decks.findByUserId(user.getId()).isEmpty()) {
-            LOGGER.info("ℹ️ Demo data already exists, skipping demo data creation");
+        if (!seedDemoDataEnabled) {
+            LOGGER.info("Demo data creation disabled (app.seed.demo.enabled=false)");
             return;
         }
 
-        LOGGER.info("🌱 Creating demo data...");
+        if (!decks.findByUserId(user.getId()).isEmpty()) {
+            LOGGER.info("Demo data already exists, skipping demo data creation");
+            return;
+        }
+
+        LOGGER.info("Creating demo data...");
         createDemoDecks(user, decks, cards);
         createWelcomeNews(news);
-        LOGGER.info("✅ Demo data creation completed");
+        LOGGER.info("Demo data creation completed");
     }
 
     /**
@@ -265,20 +276,17 @@ public class DataInitializer {
      * @param dataSeedService service for generating test data
      */
     private void generateTestDataIfEnabled(final DataSeedService dataSeedService) {
-        final String generateTestData =
-                System.getProperty("generate.test.data", System.getenv().getOrDefault("GENERATE_TEST_DATA", "false"));
-
-        if (!"true".equalsIgnoreCase(generateTestData)) {
-            LOGGER.info("ℹ️ Test data generation skipped (set -D generate.test.data=true to enable)");
+        if (!generateTestDataEnabled) {
+            LOGGER.info("Test data generation skipped (set app.seed.test.enabled=true to enable)");
             return;
         }
 
-        LOGGER.info("🌱 Generating test data for load testing...");
+        LOGGER.info("Generating test data for load testing...");
         try {
             dataSeedService.generateTestData();
-            LOGGER.info("✅ Test data generation completed successfully!");
+            LOGGER.info("Test data generation completed successfully");
         } catch (Exception e) {
-            LOGGER.error("❌ Failed to generate test data: {}", e.getMessage(), e);
+            LOGGER.error("Failed to generate test data: {}", e.getMessage(), e);
         }
     }
 

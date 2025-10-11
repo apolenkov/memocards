@@ -230,7 +230,7 @@ class FlashcardTest {
     @Test
     @DisplayName("Should handle unicode characters in text")
     void shouldHandleUnicodeCharactersInText() {
-        String unicodeText = "Текст с русскими символами";
+        String unicodeText = "Text with unicode characters: 你好世界";
         testFlashcard.setFrontText(unicodeText);
 
         assertThat(testFlashcard.getFrontText()).isEqualTo(unicodeText);

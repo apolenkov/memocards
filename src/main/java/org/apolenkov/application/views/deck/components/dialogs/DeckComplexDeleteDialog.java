@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 public final class DeckComplexDeleteDialog extends Dialog {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckComplexDeleteDialog.class);
-    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Dependencies
     private final transient DeckUseCase deckUseCase;
@@ -276,7 +275,6 @@ public final class DeckComplexDeleteDialog extends Dialog {
     private void handleDeletion() {
         try {
             performDeletion();
-            logDeletionSuccess();
             handleSuccessfulDeletion();
         } catch (IllegalArgumentException ex) {
             handleValidationError();
@@ -290,18 +288,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      */
     private void performDeletion() {
         deckUseCase.deleteDeck(currentDeck.getId());
-    }
-
-    /**
-     * Logs successful deletion with audit information.
-     */
-    private void logDeletionSuccess() {
-        long cardCount = flashcardUseCase.countByDeckId(currentDeck.getId());
-        AUDIT_LOGGER.info(
-                "User deleted deck '{}' (ID: {}) with {} cards - Complex deletion (confirmed)",
-                currentDeck.getTitle(),
-                currentDeck.getId(),
-                cardCount);
+        LOGGER.debug("Deck deleted successfully: id={}, title='{}'", currentDeck.getId(), currentDeck.getTitle());
     }
 
     /**

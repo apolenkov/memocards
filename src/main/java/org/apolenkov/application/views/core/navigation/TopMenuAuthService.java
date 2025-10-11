@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 public class TopMenuAuthService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TopMenuAuthService.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     private final UserUseCase userUseCase;
 
@@ -113,6 +114,11 @@ public class TopMenuAuthService {
      * Performs the actual logout operation.
      */
     public void performLogout() {
+        Authentication auth = getCurrentAuthentication();
+        String username = auth != null ? auth.getName() : "unknown";
+
+        LOGGER.debug("Processing logout request for user: {}", username);
+
         try {
             VaadinServletRequest request = VaadinServletRequest.getCurrent();
             if (request == null) {
@@ -122,10 +128,15 @@ public class TopMenuAuthService {
             }
 
             new SecurityContextLogoutHandler().logout(request.getHttpServletRequest(), null, null);
+
+            AUDIT_LOGGER.info("User logged out successfully: {}", username);
+            LOGGER.info("Logout successful for user: {}", username);
         } catch (AuthenticationException e) {
+            AUDIT_LOGGER.warn("Logout failed for user: {} - Authentication error: {}", username, e.getMessage());
             LOGGER.warn("Authentication error during logout: {}", e.getMessage());
             NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
         } catch (Exception e) {
+            AUDIT_LOGGER.error("Logout failed for user: {} - Unexpected error", username, e);
             LOGGER.error("Unexpected error during logout", e);
             NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
         }

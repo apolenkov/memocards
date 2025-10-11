@@ -214,7 +214,7 @@ class UserTest {
     @Test
     @DisplayName("Should handle user with unicode characters")
     void shouldHandleUserWithUnicodeCharacters() {
-        String unicodeName = "Пользователь с русскими символами";
+        String unicodeName = "User with unicode characters: 你好世界";
         testUser.setName(unicodeName);
 
         assertThat(testUser.getName()).isEqualTo(unicodeName);

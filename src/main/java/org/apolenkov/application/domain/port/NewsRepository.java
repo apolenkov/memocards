@@ -1,5 +1,6 @@
 package org.apolenkov.application.domain.port;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.model.News;
@@ -33,6 +34,14 @@ public interface NewsRepository {
      * @param item news item to save
      */
     void save(News item);
+
+    /**
+     * Saves multiple news items in batch operation.
+     * More efficient than calling save() multiple times.
+     *
+     * @param items collection of news items to save
+     */
+    void saveAll(Collection<News> items);
 
     /**
      * Deletes news item by identifier.

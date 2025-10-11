@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import org.apolenkov.application.config.cache.RequestScopedUserCache;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,11 +22,14 @@ class UserUseCaseServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private RequestScopedUserCache userCache;
+
     private UserUseCaseService userUseCaseService;
 
     @BeforeEach
     void setUp() {
-        userUseCaseService = new UserUseCaseService(userRepository);
+        userUseCaseService = new UserUseCaseService(userRepository, userCache);
     }
 
     @Test

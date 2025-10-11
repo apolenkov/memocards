@@ -2,6 +2,8 @@ package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.domain.port.NewsRepository;
@@ -128,13 +130,16 @@ public class NewsJdbcAdapter implements NewsRepository {
             throw new IllegalArgumentException("News cannot be null");
         }
 
-        LOGGER.debug("Saving news: {}", news.getTitle());
+        boolean isNew = news.getId() == null;
+        LOGGER.debug("Saving news: title='{}', isNew={}", news.getTitle(), isNew);
+
         try {
-            if (news.getId() == null) {
+            if (isNew) {
                 createNews(news);
             } else {
                 updateNews(news);
             }
+            LOGGER.debug("News saved: id={}, title='{}', isNew={}", news.getId(), news.getTitle(), isNew);
         } catch (DataAccessException e) {
             throw new NewsPersistenceException("Failed to save news: " + news.getTitle(), e);
         }
@@ -152,6 +157,8 @@ public class NewsJdbcAdapter implements NewsRepository {
             int deleted = jdbcTemplate.update(NewsSqlQueries.DELETE_NEWS, id);
             if (deleted == 0) {
                 LOGGER.warn("No news found with ID: {}", id);
+            } else {
+                LOGGER.debug("News deleted from database: id={}", id);
             }
         } catch (DataAccessException e) {
             throw new NewsPersistenceException("Failed to delete news by ID: " + id, e);
@@ -202,5 +209,54 @@ public class NewsJdbcAdapter implements NewsRepository {
                 news.getAuthor(),
                 LocalDateTime.now(), // Update timestamp
                 news.getId());
+    }
+
+    /**
+     * Saves multiple news items in batch operation.
+     *
+     * @param items collection of news items to save
+     */
+    @Override
+    public void saveAll(final Collection<News> items) {
+        if (items == null || items.isEmpty()) {
+            return;
+        }
+
+        LOGGER.debug("Batch saving {} news items", items.size());
+
+        try {
+            LocalDateTime now = LocalDateTime.now();
+
+            // Batch insert new items
+            List<News> newItems = items.stream().filter(n -> n.getId() == null).toList();
+
+            if (!newItems.isEmpty()) {
+                List<Object[]> batchArgs = new ArrayList<>(newItems.size());
+                for (News news : newItems) {
+                    batchArgs.add(
+                            new Object[] {news.getTitle(), news.getContent(), news.getAuthor(), Timestamp.valueOf(now)
+                            });
+                }
+                jdbcTemplate.batchUpdate(NewsSqlQueries.INSERT_NEWS, batchArgs);
+            }
+
+            // Batch update existing items (rare case)
+            List<News> existingItems =
+                    items.stream().filter(n -> n.getId() != null).toList();
+
+            if (!existingItems.isEmpty()) {
+                List<Object[]> batchArgs = new ArrayList<>(existingItems.size());
+                for (News news : existingItems) {
+                    batchArgs.add(new Object[] {
+                        news.getTitle(), news.getContent(), news.getAuthor(), Timestamp.valueOf(now), news.getId()
+                    });
+                }
+                jdbcTemplate.batchUpdate(NewsSqlQueries.UPDATE_NEWS, batchArgs);
+            }
+
+            LOGGER.debug("Batch saved {} news items successfully", items.size());
+        } catch (DataAccessException e) {
+            throw new NewsPersistenceException("Failed to batch save news items", e);
+        }
     }
 }

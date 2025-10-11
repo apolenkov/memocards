@@ -21,8 +21,6 @@ import org.springframework.stereotype.Component;
 @UIScope
 public class TopMenu extends HorizontalLayout {
 
-    private Anchor title;
-
     private final transient TopMenuAuthService authService;
     private final transient TopMenuLayoutService layoutService;
 
@@ -51,21 +49,24 @@ public class TopMenu extends HorizontalLayout {
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.BETWEEN);
 
-        setupTitle();
         refreshMenu();
     }
 
     /**
-     * Sets up the title anchor with logo icon.
+     * Creates a new title anchor with logo icon.
+     * Each call creates a fresh instance to avoid component reuse.
+     *
+     * @return new Anchor instance with logo
      */
-    private void setupTitle() {
-        title = new Anchor(RouteConstants.ROOT_PATH, "");
+    private Anchor createTitle() {
+        Anchor anchor = new Anchor(RouteConstants.ROOT_PATH, "");
 
         Image navIcon = new Image(
                 new StreamResource(VaadinApplicationShell.ResourcePaths.LOGO_ICON_NAME, () -> getClass()
                         .getResourceAsStream(VaadinApplicationShell.ResourcePaths.LOGO_ICON_FULL_PATH)),
                 getTranslation(CoreConstants.APP_TITLE_KEY));
-        title.add(navIcon);
+        anchor.add(navIcon);
+        return anchor;
     }
 
     /**
@@ -73,6 +74,7 @@ public class TopMenu extends HorizontalLayout {
      * This method is called after route changes to ensure the menu accurately
      * reflects the user's current authentication status. Delegates to layout service
      * for UI component creation and coordination.
+     * Creates fresh component instances to avoid state tree corruption.
      */
     public void refreshMenu() {
         removeAll();
@@ -80,8 +82,11 @@ public class TopMenu extends HorizontalLayout {
         Authentication auth = authService.getCurrentAuthentication();
         boolean isAuthenticated = authService.isAuthenticated(auth);
 
+        // Create fresh title anchor each time to avoid component reuse
+        Anchor freshTitle = createTitle();
+
         HorizontalLayout leftSection = layoutService.createLeftSection(
-                title, auth, isAuthenticated, getTranslation(CoreConstants.MAIN_GREETING_KEY));
+                freshTitle, auth, isAuthenticated, getTranslation(CoreConstants.MAIN_GREETING_KEY));
 
         HorizontalLayout buttonsSection = layoutService.createMenuButtonsLayout(auth, isAuthenticated);
 

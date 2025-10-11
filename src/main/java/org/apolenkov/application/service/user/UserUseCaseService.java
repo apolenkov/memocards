@@ -2,6 +2,7 @@ package org.apolenkov.application.service.user;
 
 import java.util.List;
 import java.util.Optional;
+import org.apolenkov.application.config.cache.RequestScopedUserCache;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.model.User;
@@ -21,36 +22,42 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserUseCaseService implements UserUseCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserUseCaseService.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     private final UserRepository userRepository;
+    private final RequestScopedUserCache userCache;
 
     /**
-     * Creates a new UserUseCaseService with the required repository dependency.
+     * Creates a new UserUseCaseService with the required dependencies.
      *
      * @param userRepositoryValue the repository for user persistence operations (non-null)
-     * @throws IllegalArgumentException if userRepository is null
+     * @param userCacheValue request-scoped cache for current user (non-null)
+     * @throws IllegalArgumentException if any dependency is null
      */
-    public UserUseCaseService(final UserRepository userRepositoryValue) {
+    public UserUseCaseService(final UserRepository userRepositoryValue, final RequestScopedUserCache userCacheValue) {
         if (userRepositoryValue == null) {
             throw new IllegalArgumentException("UserRepository cannot be null");
         }
+        if (userCacheValue == null) {
+            throw new IllegalArgumentException("RequestScopedUserCache cannot be null");
+        }
         this.userRepository = userRepositoryValue;
+        this.userCache = userCacheValue;
     }
 
     /**
-     * Gets all users in the system with caching.
+     * Gets all users in the system.
      *
      * @return a list of all users in the system, never null (maybe empty)
      */
     @Override
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
-        LOGGER.debug("Retrieving all users from database");
         return userRepository.findAll();
     }
 
     /**
-     * Gets a specific user by their unique identifier with caching.
+     * Gets a specific user by their unique identifier.
      *
      * @param id the unique identifier of the user to retrieve
      * @return an Optional containing the user if found, empty otherwise
@@ -58,7 +65,6 @@ public class UserUseCaseService implements UserUseCase {
     @Override
     @Transactional(readOnly = true)
     public Optional<User> getUserById(final long id) {
-        LOGGER.debug("Retrieving user by ID: {}", id);
         return userRepository.findById(id);
     }
 
@@ -72,23 +78,46 @@ public class UserUseCaseService implements UserUseCase {
      */
     @Override
     @Transactional(readOnly = true)
+    @SuppressWarnings("java:S2139") // Security audit requires logging before rethrow (OWASP compliance)
     public User getCurrentUser() {
+        User cachedUser = userCache.get();
+        if (cachedUser != null) {
+            return cachedUser;
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
+            AUDIT_LOGGER.warn("Unauthenticated access attempt to getCurrentUser()");
+            LOGGER.warn("Attempted to get current user without authentication");
             throw new IllegalStateException("Unauthenticated");
         }
 
         Object principal = authentication.getPrincipal();
         if (principal == null) {
+            AUDIT_LOGGER.error("Authenticated principal is null");
+            LOGGER.error("Authentication principal is null");
             throw new IllegalStateException("Authenticated principal is null");
         }
 
         String username = getUsername(principal);
 
-        return userRepository
-                .findByEmail(username)
-                .orElseThrow(
-                        () -> new IllegalStateException("Authenticated principal has no domain user: " + username));
+        try {
+            User user = userRepository.findByEmail(username).orElseThrow(() -> {
+                AUDIT_LOGGER.error("Authenticated principal has no domain user: username={}", username);
+                LOGGER.error("Domain user not found for authenticated principal: {}", username);
+                return new IllegalStateException("Authenticated principal has no domain user: " + username);
+            });
+
+            // Cache for current request to avoid repeated database calls
+            userCache.set(user);
+
+            LOGGER.debug("Current user retrieved from database: userId={}, email={}", user.getId(), user.getEmail());
+            return user;
+        } catch (Exception e) {
+            // S2139: Intentionally logging before rethrow for security audit trail (OWASP compliance)
+            LOGGER.error("Error retrieving current user: username={}", username, e);
+            throw e;
+        }
     }
 
     private String getUsername(final Object principal) {

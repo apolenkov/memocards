@@ -31,6 +31,14 @@ public interface StatsRepository {
     Set<Long> getKnownCardIds(long deckId);
 
     /**
+     * Gets known card IDs for multiple decks in single query.
+     *
+     * @param deckIds collection of deck identifiers (non-null, may be empty)
+     * @return map of deck ID to set of known card IDs (decks with no known cards may be absent)
+     */
+    Map<Long, Set<Long>> getKnownCardIdsBatch(Collection<Long> deckIds);
+
+    /**
      * Marks card as known or unknown for deck.
      *
      * @param deckId deck identifier

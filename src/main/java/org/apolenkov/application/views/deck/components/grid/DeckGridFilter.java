@@ -1,6 +1,7 @@
 package org.apolenkov.application.views.deck.components.grid;
 
 import java.util.List;
+import java.util.Set;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.stats.StatsService;
 import org.slf4j.Logger;
@@ -48,14 +49,13 @@ public final class DeckGridFilter {
                 hideKnown,
                 flashcards.size());
 
+        Set<Long> knownCardIds = hideKnown ? statsService.getKnownCardIds(currentDeckId) : Set.of();
+
         List<Flashcard> filtered = flashcards.stream()
                 .filter(card -> searchQuery.isEmpty()
                         || card.getFrontText().toLowerCase().contains(searchQuery)
                         || card.getBackText().toLowerCase().contains(searchQuery))
-                .filter(card -> {
-                    boolean isKnown = statsService.isCardKnown(currentDeckId, card.getId());
-                    return !hideKnown || !isKnown;
-                })
+                .filter(card -> !hideKnown || !knownCardIds.contains(card.getId()))
                 .toList();
 
         LOGGER.debug("Filter applied: {} cards visible out of {}", filtered.size(), flashcards.size());

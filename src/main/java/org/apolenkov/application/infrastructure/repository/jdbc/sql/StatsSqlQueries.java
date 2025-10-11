@@ -54,6 +54,19 @@ public final class StatsSqlQueries {
             """;
 
     /**
+     * SQL query to select known card IDs for multiple decks in single query.
+     * Returns both deck_id and card_id for grouping by deck.
+     * Note: Requires dynamic SQL for IN clause (deckIds parameter).
+     */
+    public static final String SELECT_KNOWN_CARD_IDS_BATCH_TEMPLATE =
+            """
+            SELECT f.deck_id, kc.card_id
+            FROM known_cards kc
+            JOIN flashcards f ON kc.card_id = f.id
+            WHERE f.deck_id IN (%s)
+            """;
+
+    /**
      * SQL query to delete known card.
      */
     public static final String DELETE_KNOWN_CARD =

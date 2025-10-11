@@ -1,7 +1,7 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "2.0.0"
+version: "2.1.0"
 ---
 
 # Project Rules - Senior+ Level
@@ -131,6 +131,7 @@ version: "2.0.0"
 ## Critical Prohibitions
 
 - **NEVER use System.out.println** - use SLF4J/Logback
+- **NEVER use System.getenv() directly** - use @Value with Spring properties (see @env-config)
 - **NEVER use FQN** - always add proper imports
 - **NEVER use hardcoded strings in UI** - always use getTranslation()
 - **NEVER use @Autowired on fields** - only constructor injection

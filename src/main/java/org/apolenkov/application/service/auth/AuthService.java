@@ -5,6 +5,8 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
@@ -19,6 +21,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class AuthService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthService.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     private final AuthenticationConfiguration authenticationConfiguration;
 
@@ -44,11 +49,24 @@ public class AuthService {
      * @param rawPassword plain text password for authentication
      * @throws IllegalArgumentException if authentication fails due to invalid credentials or invalid parameters
      */
+    @SuppressWarnings("java:S2139") // Security audit requires logging before rethrow (OWASP compliance)
     public void authenticateAndPersist(final String username, final String rawPassword) {
         validateCredentials(username, rawPassword);
 
-        Authentication auth = performAuthentication(username, rawPassword);
-        persistAuthenticationContext(auth);
+        LOGGER.debug("Attempting authentication for user: {}", username);
+
+        try {
+            Authentication auth = performAuthentication(username, rawPassword);
+            persistAuthenticationContext(auth);
+
+            AUDIT_LOGGER.info("User logged in successfully: {}", username);
+            LOGGER.info("Authentication successful for user: {}", username);
+        } catch (IllegalArgumentException e) {
+            // S2139: Intentionally logging before rethrow for security audit trail (OWASP compliance)
+            AUDIT_LOGGER.warn("Failed login attempt for user: {} - Reason: {}", username, e.getMessage());
+            LOGGER.warn("Authentication failed for user: {}", username);
+            throw e;
+        }
     }
 
     /**

@@ -8,6 +8,24 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+# Data seeding configuration for tests
+app:
+  seed:
+    demo:
+      enabled: false
+      admin-password: admin
+      user-password: user
+    test:
+      enabled: false
+      test-user-password: testPassword123
+      batch:
+        users: 10
+      limits:
+        users: 10
+        decks-per-user: 2
+        cards-per-deck: 5
+        news: 5
+
 logging:
   level:
     org.apolenkov.application: DEBUG
