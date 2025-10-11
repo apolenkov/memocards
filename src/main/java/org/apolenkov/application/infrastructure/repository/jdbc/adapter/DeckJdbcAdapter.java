@@ -1,13 +1,10 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.infrastructure.repository.jdbc.dto.DeckDto;
 import org.apolenkov.application.infrastructure.repository.jdbc.exception.DeckPersistenceException;
@@ -20,8 +17,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -241,81 +236,5 @@ public class DeckJdbcAdapter implements DeckRepository {
                 deck.getId());
 
         return deck;
-    }
-
-    /**
-     * Saves multiple decks in batch operation for better performance.
-     * Uses batch insert for new decks only.
-     *
-     * @param decks collection of decks to save
-     * @return list of saved decks with generated IDs
-     */
-    @Override
-    public List<Deck> saveAll(final Collection<Deck> decks) {
-        if (decks == null || decks.isEmpty()) {
-            return List.of();
-        }
-
-        LOGGER.debug("Batch saving {} decks", decks.size());
-        List<Deck> savedDecks = new ArrayList<>(decks.size());
-
-        try {
-            // Process only new decks for batch insert
-            List<Deck> newDecks = decks.stream().filter(d -> d.getId() == null).toList();
-
-            if (!newDecks.isEmpty()) {
-                savedDecks.addAll(batchInsertDecks(newDecks));
-            }
-
-            // Update existing decks one by one (rare case in seed data)
-            for (Deck deck : decks) {
-                if (deck.getId() != null) {
-                    savedDecks.add(updateDeck(deck));
-                }
-            }
-
-            LOGGER.debug("Batch saved {} decks successfully", savedDecks.size());
-            return savedDecks;
-        } catch (DataAccessException e) {
-            throw new DeckPersistenceException("Failed to batch save decks", e);
-        }
-    }
-
-    /**
-     * Batch inserts new decks into database.
-     *
-     * @param newDecks list of new decks without IDs
-     * @return list of created decks with generated IDs
-     */
-    private List<Deck> batchInsertDecks(final List<Deck> newDecks) {
-        LocalDateTime now = LocalDateTime.now();
-        List<Deck> result = new ArrayList<>(newDecks.size());
-
-        // Insert each deck and collect generated IDs
-        for (Deck deck : newDecks) {
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-
-            jdbcTemplate.update(
-                    connection -> {
-                        PreparedStatement ps = connection.prepareStatement(
-                                DeckSqlQueries.INSERT_DECK_RETURNING_ID, Statement.RETURN_GENERATED_KEYS);
-                        ps.setLong(1, deck.getUserId());
-                        ps.setString(2, deck.getTitle());
-                        ps.setString(3, deck.getDescription());
-                        ps.setTimestamp(4, Timestamp.valueOf(now));
-                        ps.setTimestamp(5, Timestamp.valueOf(now));
-                        return ps;
-                    },
-                    keyHolder);
-
-            Number key = keyHolder.getKey();
-            if (key != null) {
-                Long generatedId = key.longValue();
-                Deck savedDeck = new Deck(generatedId, deck.getUserId(), deck.getTitle(), deck.getDescription());
-                result.add(savedDeck);
-            }
-        }
-
-        return result;
     }
 }

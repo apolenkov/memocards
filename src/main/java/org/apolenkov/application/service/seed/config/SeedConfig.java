@@ -1,10 +1,10 @@
-package org.apolenkov.application.service.seed;
+package org.apolenkov.application.service.seed.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Configuration properties for test data generation.
- * Groups all seed-related configuration values under app.seed.test prefix.
+ * Groups all seed-related configuration values under app.seed prefix.
  *
  * @param test test data generation configuration
  */
