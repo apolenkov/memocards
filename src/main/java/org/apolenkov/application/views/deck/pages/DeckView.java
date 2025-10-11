@@ -4,6 +4,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
@@ -13,6 +14,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+import java.util.List;
+import java.util.Optional;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.domain.usecase.DeckUseCase;
@@ -22,7 +25,6 @@ import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.stats.StatsService;
 import org.apolenkov.application.views.core.exception.EntityNotFoundException;
 import org.apolenkov.application.views.core.layout.PublicLayout;
-import org.apolenkov.application.views.deck.business.DeckViewState;
 import org.apolenkov.application.views.deck.components.detail.DeckViewLayout;
 import org.apolenkov.application.views.deck.components.dialogs.DeckDeleteDialog;
 import org.apolenkov.application.views.deck.components.dialogs.DeckEditDialog;
@@ -45,7 +47,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private final transient StatsService statsService;
 
     // State and Layout
-    private transient DeckViewState deckViewState;
+    private transient Deck currentDeck;
     private transient DeckViewLayout deckViewLayout;
 
     // Event Registrations
@@ -82,11 +84,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         getContent().setSpacing(true);
         getContent().setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Initialize state management
-        deckViewState = new DeckViewState(deckUseCase, flashcardUseCase);
-
         // Show loading state initially
-        deckViewState.showLoadingState();
+        showLoadingState();
     }
 
     /**
@@ -166,7 +165,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private void setupPracticeButtonListener() {
         if (practiceClickListenerRegistration == null) {
             practiceClickListenerRegistration = deckViewLayout.getDeckActions().addPracticeClickListener(e -> {
-                Deck currentDeck = deckViewState.getCurrentDeck();
                 if (currentDeck != null) {
                     NavigationHelper.navigateToPractice(currentDeck.getId());
                 }
@@ -190,7 +188,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private void setupEditDeckButtonListener() {
         if (editDeckClickListenerRegistration == null) {
             editDeckClickListenerRegistration = deckViewLayout.getDeckActions().addEditDeckClickListener(e -> {
-                Deck currentDeck = deckViewState.getCurrentDeck();
                 if (currentDeck != null) {
                     new DeckEditDialog(deckUseCase, currentDeck, updated -> updateDeckInfo()).open();
                 }
@@ -228,6 +225,34 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     }
 
     /**
+     * Shows loading state while deck is being loaded.
+     */
+    private void showLoadingState() {
+        getContent().removeAll();
+
+        VerticalLayout loadingContainer = new VerticalLayout();
+        loadingContainer.setSpacing(true);
+        loadingContainer.setWidthFull();
+        loadingContainer.addClassName(DeckConstants.CONTAINER_MD_CLASS);
+        loadingContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        VerticalLayout loadingSection = new VerticalLayout();
+        loadingSection.setSpacing(true);
+        loadingSection.setPadding(true);
+        loadingSection.setWidthFull();
+        loadingSection.addClassName(DeckConstants.DECK_VIEW_SECTION_CLASS);
+        loadingSection.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
+        loadingSection.addClassName(DeckConstants.CONTAINER_MD_CLASS);
+
+        H2 loadingTitle = new H2(getTranslation(DeckConstants.DECK_LOADING_STATE));
+        loadingTitle.addClassName(DeckConstants.DECK_VIEW_TITLE_CLASS);
+
+        loadingSection.add(loadingTitle);
+        loadingContainer.add(loadingSection);
+        getContent().add(loadingContainer);
+    }
+
+    /**
      * Creates the main deck content after successful deck loading.
      */
     private void createDeckContent() {
@@ -240,9 +265,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         deckViewLayout.setEditFlashcardCallback(this::openFlashcardDialog);
         deckViewLayout.setDeleteFlashcardCallback(this::deleteFlashcard);
 
-        // Set layout in state management
-        deckViewState.setDeckViewLayout(deckViewLayout);
-
         // Create and add content
         VerticalLayout contentContainer = deckViewLayout.createDeckContent();
         getContent().add(contentContainer);
@@ -252,25 +274,54 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * Loads a deck by ID and initializes the view.
      *
      * @param deckId the ID of the deck to load
+     * @throws EntityNotFoundException if deck is not found
      */
     private void loadDeck(final long deckId) {
-        deckViewState.loadDeck(deckId);
+        Optional<Deck> deckOpt = deckUseCase.getDeckById(deckId);
+        if (deckOpt.isPresent()) {
+            currentDeck = deckOpt.get();
+            LOGGER.info("Deck loaded successfully: {}", currentDeck.getTitle());
+        } else {
+            LOGGER.warn("Deck not found with ID: {}", deckId);
+            throw new EntityNotFoundException(
+                    String.valueOf(deckId), RouteConstants.DECKS_ROUTE, getTranslation(DeckConstants.DECK_NOT_FOUND));
+        }
+
         createDeckContent();
-        deckViewState.loadFlashcards();
+        loadFlashcards();
     }
 
     /**
      * Updates the display of deck information (title, stats, description).
      */
     private void updateDeckInfo() {
-        deckViewState.updateDeckInfo();
+        if (currentDeck != null && deckViewLayout != null) {
+            if (deckViewLayout.getDeckHeader() != null) {
+                deckViewLayout.getDeckHeader().setDeckTitle(currentDeck.getTitle());
+                deckViewLayout
+                        .getDeckHeader()
+                        .setDeckStats(getTranslation(
+                                DeckConstants.DECK_COUNT, flashcardUseCase.countByDeckId(currentDeck.getId())));
+            }
+            if (deckViewLayout.getDeckInfo() != null) {
+                String description = Optional.ofNullable(currentDeck.getDescription())
+                        .filter(desc -> !desc.trim().isEmpty())
+                        .orElse(getTranslation(DeckConstants.DECK_DESCRIPTION_EMPTY));
+                deckViewLayout.getDeckInfo().setDescription(description);
+            }
+        }
     }
 
     /**
      * Loads flashcards for the current deck and updates the grid.
      */
     private void loadFlashcards() {
-        deckViewState.loadFlashcards();
+        if (currentDeck != null && deckViewLayout != null && deckViewLayout.getDeckGrid() != null) {
+            List<Flashcard> flashcards = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId());
+            deckViewLayout.getDeckGrid().setCurrentDeckId(currentDeck.getId());
+            deckViewLayout.getDeckGrid().setFlashcards(flashcards);
+            LOGGER.info("Loaded {} flashcards for deck: {}", flashcards.size(), currentDeck.getTitle());
+        }
     }
 
     /**
@@ -279,7 +330,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param flashcard the flashcard to edit, or null for creating new
      */
     private void openFlashcardDialog(final Flashcard flashcard) {
-        Deck currentDeck = deckViewState.getCurrentDeck();
         DeckFlashcardDialog dialog = new DeckFlashcardDialog(flashcardUseCase, currentDeck, savedFlashcard -> {
             if (flashcard == null) {
                 // New flashcard - reload all data
@@ -325,7 +375,6 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * Shows simple dialog for empty decks, complex dialog for decks with cards.
      */
     private void deleteDeck() {
-        Deck currentDeck = deckViewState.getCurrentDeck();
         if (currentDeck == null) {
             return;
         }

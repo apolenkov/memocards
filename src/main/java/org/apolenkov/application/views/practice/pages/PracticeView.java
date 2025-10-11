@@ -9,24 +9,24 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
-import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.model.Deck;
+import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.views.core.exception.EntityNotFoundException;
 import org.apolenkov.application.views.core.layout.PublicLayout;
-import org.apolenkov.application.views.practice.business.PracticePresenter;
 import org.apolenkov.application.views.practice.business.PracticeSession;
+import org.apolenkov.application.views.practice.business.PracticeSessionManager;
+import org.apolenkov.application.views.practice.business.PracticeSessionService;
 import org.apolenkov.application.views.practice.components.PracticeActions;
 import org.apolenkov.application.views.practice.components.PracticeAllKnownDialog;
 import org.apolenkov.application.views.practice.components.PracticeCard;
 import org.apolenkov.application.views.practice.components.PracticeHeader;
 import org.apolenkov.application.views.practice.components.PracticeProgress;
 import org.apolenkov.application.views.practice.constants.PracticeConstants;
-import org.apolenkov.application.views.practice.controllers.PracticeCompletionFlow;
-import org.apolenkov.application.views.practice.controllers.PracticeSessionFlow;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,15 +41,10 @@ import org.slf4j.LoggerFactory;
 public class PracticeView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PracticeView.class);
-    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Dependencies
-    private final transient FlashcardUseCase flashcardUseCase;
-    private final transient PracticePresenter presenter;
-
-    // Controllers
-    private transient PracticeSessionFlow sessionFlow;
-    private transient PracticeCompletionFlow completionFlow;
+    private final transient PracticeSessionService sessionService;
+    private final transient PracticeSessionManager sessionManager;
 
     // Data
     private transient Deck currentDeck;
@@ -65,12 +60,13 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     /**
      * Creates a new PracticeView with required dependencies.
      *
-     * @param useCase service for flashcard operations
-     * @param practicePresenter presenter for managing practice session logic
+     * @param sessionServiceParam service for session preparation and configuration
+     * @param sessionManagerParam manager for active session operations
      */
-    public PracticeView(final FlashcardUseCase useCase, final PracticePresenter practicePresenter) {
-        this.flashcardUseCase = useCase;
-        this.presenter = practicePresenter;
+    public PracticeView(
+            final PracticeSessionService sessionServiceParam, final PracticeSessionManager sessionManagerParam) {
+        this.sessionService = sessionServiceParam;
+        this.sessionManager = sessionManagerParam;
     }
 
     /**
@@ -81,51 +77,20 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     @PostConstruct
     @SuppressWarnings("unused")
     private void init() {
-        setupMainLayout();
-        createPracticeInterface();
-    }
-
-    /**
-     * Sets up the main layout properties.
-     */
-    private void setupMainLayout() {
+        // Main layout setup
         getContent().setWidthFull();
         getContent().setPadding(true);
         getContent().setSpacing(true);
         getContent().setAlignItems(FlexComponent.Alignment.CENTER);
-    }
 
-    /**
-     * Creates the complete practice interface.
-     */
-    private void createPracticeInterface() {
-        VerticalLayout contentContainer = createContentContainer();
-        VerticalLayout pageSection = createPageSection();
-
-        contentContainer.add(pageSection);
-        getContent().add(contentContainer);
-    }
-
-    /**
-     * Creates the main content container.
-     *
-     * @return configured content container
-     */
-    private VerticalLayout createContentContainer() {
+        // Content container
         VerticalLayout contentContainer = new VerticalLayout();
         contentContainer.setSpacing(true);
         contentContainer.setWidthFull();
         contentContainer.addClassName(PracticeConstants.CONTAINER_MD_CLASS);
         contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
-        return contentContainer;
-    }
 
-    /**
-     * Creates the main page section with all practice components.
-     *
-     * @return configured page section
-     */
-    private VerticalLayout createPageSection() {
+        // Page section
         VerticalLayout pageSection = new VerticalLayout();
         pageSection.setSpacing(true);
         pageSection.setPadding(true);
@@ -134,16 +99,13 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         pageSection.addClassName(PracticeConstants.SURFACE_PANEL_CLASS);
         pageSection.addClassName(PracticeConstants.CONTAINER_MD_CLASS);
 
+        // Initialize components
         initializeComponents();
-        initializeControllers();
-
-        // Add components to layout first - this triggers initContent() for Composite components
         pageSection.add(practiceHeader, practiceProgress, practiceCard, practiceActions);
-
-        // Setup handlers AFTER components are added and initialized
         setupActionHandlers();
 
-        return pageSection;
+        contentContainer.add(pageSection);
+        getContent().add(contentContainer);
     }
 
     /**
@@ -156,15 +118,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         practiceActions = new PracticeActions();
 
         // Load practice direction from user settings
-        sessionDirection = presenter.defaultDirection();
-    }
-
-    /**
-     * Initializes controllers with components.
-     */
-    private void initializeControllers() {
-        sessionFlow = new PracticeSessionFlow(presenter, practiceCard, practiceProgress, practiceActions);
-        completionFlow = new PracticeCompletionFlow(presenter, flashcardUseCase, practiceCard, practiceActions);
+        sessionDirection = sessionService.defaultDirection();
     }
 
     /**
@@ -200,17 +154,16 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     @Override
     public void setParameter(final BeforeEvent event, final String parameter) {
         try {
-            LOGGER.debug("Initializing practice session for deck ID: {}", parameter);
+            long deckId = Long.parseLong(parameter);
+            LOGGER.debug("Initializing practice session for deck ID: {}", deckId);
 
-            long deckId = parseDeckId(parameter);
             loadDeck(deckId);
             if (currentDeck != null) {
-                AUDIT_LOGGER.info(
-                        "User started practice session for deck '{}' (ID: {})",
+                LOGGER.debug(
+                        "Starting practice session for deck '{}' (ID: {})",
                         currentDeck.getTitle(),
                         currentDeck.getId());
                 startDefaultPractice();
-                LOGGER.debug("Practice session initialized successfully for deck: {}", currentDeck.getTitle());
             }
         } catch (NumberFormatException e) {
             LOGGER.error("Invalid deck ID format: {}", parameter, e);
@@ -220,25 +173,19 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     /**
-     * Parses the deck ID from the URL parameter.
-     *
-     * @param parameter the deck ID as a string from the URL
-     * @return parsed deck ID as long
-     * @throws NumberFormatException if the parameter is not a valid number
-     */
-    private long parseDeckId(final String parameter) throws NumberFormatException {
-        return Long.parseLong(parameter);
-    }
-
-    /**
      * Starts default practice session.
      */
     private void startDefaultPractice() {
-        session =
-                sessionFlow.startDefaultPractice(currentDeck, sessionDirection).orElse(null);
-        if (session == null) {
+        List<Flashcard> notKnownCards = sessionService.getNotKnownCards(currentDeck.getId());
+        if (notKnownCards.isEmpty()) {
             showAllKnownDialogAndRedirect();
+            return;
         }
+
+        int defaultCount = sessionService.resolveDefaultCount(currentDeck.getId());
+        boolean random = sessionService.isRandom();
+        session = sessionService.startSession(currentDeck.getId(), defaultCount, random);
+        showCurrentCard();
     }
 
     /**
@@ -266,7 +213,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * @param deckId the deck ID to load
      */
     private void loadDeck(final long deckId) {
-        Optional<Deck> deckOpt = presenter.loadDeck(deckId);
+        Optional<Deck> deckOpt = sessionService.loadDeck(deckId);
         if (deckOpt.isPresent()) {
             currentDeck = deckOpt.get();
             practiceHeader.setDeckTitle(getTranslation(PracticeConstants.PRACTICE_TITLE_KEY, currentDeck.getTitle()));
@@ -281,10 +228,34 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     }
 
     /**
+     * Shows the current card in question state.
+     */
+    private void showCurrentCard() {
+        if (session == null || sessionManager.isComplete(session)) {
+            return;
+        }
+
+        updateProgress();
+        Flashcard currentCard = sessionManager.currentCard(session);
+        sessionManager.startQuestion(session);
+
+        practiceCard.displayQuestionCard(currentCard, sessionDirection);
+        practiceActions.showQuestionState();
+    }
+
+    /**
      * Shows the answer for the current card.
      */
     private void showAnswer() {
-        session = sessionFlow.showAnswer(session, sessionDirection);
+        if (session == null || sessionManager.isComplete(session)) {
+            return;
+        }
+
+        Flashcard currentCard = sessionManager.currentCard(session);
+        session = sessionManager.reveal(session);
+
+        practiceCard.displayAnswerCard(currentCard, sessionDirection);
+        practiceActions.showAnswerState();
     }
 
     /**
@@ -293,30 +264,105 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * @param label the label to apply (know or hard)
      */
     private void markLabeled(final String label) {
-        session = sessionFlow.markLabeled(session, label, sessionDirection);
-        if (presenter.isComplete(session)) {
+        if (session == null || !session.isShowingAnswer()) {
+            return;
+        }
+
+        session = processCardLabel(label);
+        updateProgress();
+        practiceActions.hideActionButtons();
+        nextCard();
+
+        if (sessionManager.isComplete(session)) {
             handlePracticeComplete();
         }
+    }
+
+    /**
+     * Processes the card label.
+     *
+     * @param label the label to process
+     * @return updated session
+     */
+    private PracticeSession processCardLabel(final String label) {
+        if (PracticeConstants.KNOW_LABEL.equals(label)) {
+            return sessionManager.markKnow(session);
+        } else {
+            return sessionManager.markHard(session);
+        }
+    }
+
+    /**
+     * Moves to the next card or completes the session.
+     */
+    private void nextCard() {
+        if (sessionManager.isComplete(session)) {
+            return;
+        }
+        showCurrentCard();
+    }
+
+    /**
+     * Updates the progress display.
+     */
+    private void updateProgress() {
+        if (session == null || session.getCards() == null || session.getCards().isEmpty()) {
+            return;
+        }
+        PracticeSessionManager.Progress progress = sessionManager.progress(session);
+        practiceProgress.updateProgress(progress);
     }
 
     /**
      * Handles practice session completion.
      */
     private void handlePracticeComplete() {
-        AUDIT_LOGGER.info(
-                "User completed practice session for deck '{}' (ID: {})", currentDeck.getTitle(), currentDeck.getId());
-        completionFlow.showPracticeComplete(session, currentDeck, this::handleRepeatSession);
-        session = null; // Mark session as completed
+        LOGGER.debug("Completing practice session for deck '{}' (ID: {})", currentDeck.getTitle(), currentDeck.getId());
+
+        sessionManager.recordAndPersist(session, sessionService);
+        showCompletionDisplay();
+        showCompletionButtons();
+        session = null;
+    }
+
+    /**
+     * Shows completion display with session statistics.
+     */
+    private void showCompletionDisplay() {
+        PracticeSessionService.SessionCompletionMetrics metrics = sessionService.calculateCompletionMetrics(session);
+
+        practiceCard.displayCompletion(
+                currentDeck.getTitle(),
+                session.getCorrectCount(),
+                metrics.totalCards(),
+                session.getHardCount(),
+                metrics.sessionMinutes(),
+                metrics.avgSeconds());
+    }
+
+    /**
+     * Shows completion action buttons.
+     */
+    private void showCompletionButtons() {
+        List<Flashcard> failedCards = sessionService.getFailedCards(currentDeck.getId(), session.getFailedCardIds());
+
+        Runnable repeatHandler = failedCards.isEmpty() ? null : () -> handleRepeatPractice(failedCards);
+
+        practiceActions.showCompletionButtons(
+                repeatHandler,
+                () -> NavigationHelper.navigateToDeck(currentDeck.getId()),
+                NavigationHelper::navigateToDecks);
     }
 
     /**
      * Handles repeat practice with new session.
      *
-     * @param newSession the new session with failed cards
+     * @param failedCards list of failed cards to practice
      */
-    private void handleRepeatSession(final PracticeSession newSession) {
-        session = newSession;
-        sessionFlow.showCurrentCard(session, sessionDirection);
+    private void handleRepeatPractice(final List<Flashcard> failedCards) {
+        practiceActions.resetToPracticeButtons();
+        session = sessionService.startRepeatSession(currentDeck.getId(), failedCards);
+        showCurrentCard();
     }
 
     /**

@@ -80,4 +80,17 @@ public final class FlashcardSqlQueries {
             FROM flashcards
             WHERE deck_id = ?
             """;
+
+    /**
+     * SQL query to count flashcards for multiple decks in single query.
+     * Returns only decks that have flashcards (decks with 0 flashcards are excluded).
+     * Note: Requires dynamic SQL for IN clause (deckIds parameter).
+     */
+    public static final String COUNT_FLASHCARDS_BY_DECK_IDS_TEMPLATE =
+            """
+            SELECT deck_id, COUNT(*) as count
+            FROM flashcards
+            WHERE deck_id IN (%s)
+            GROUP BY deck_id
+            """;
 }

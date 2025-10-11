@@ -1,12 +1,15 @@
 package org.apolenkov.application.service.stats;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.domain.usecase.StatsUseCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class StatsService implements StatsUseCase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatsService.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     private final StatsRepository statsRepository;
 
@@ -36,13 +42,32 @@ public class StatsService implements StatsUseCase {
     @Override
     @Transactional
     public void recordSession(final SessionStatsDto sessionData) {
+        LOGGER.debug(
+                "Recording session: deckId={}, viewed={}, correct={}, hard={}",
+                sessionData.deckId(),
+                sessionData.viewed(),
+                sessionData.correct(),
+                sessionData.hard());
+
         // Early return if no cards were viewed (including negative values)
         if (sessionData.viewed() <= 0) {
+            LOGGER.warn("Skipped recording session with invalid viewed count: {}", sessionData.viewed());
             return;
         }
 
         LocalDate today = LocalDate.now();
         statsRepository.appendSession(sessionData, today);
+
+        LOGGER.info(
+                "Session recorded: deckId={}, viewed={}, correct={}, hard={}, durationMs={}, knownDelta={}",
+                sessionData.deckId(),
+                sessionData.viewed(),
+                sessionData.correct(),
+                sessionData.hard(),
+                sessionData.sessionDurationMs(),
+                sessionData.knownCardIdsDelta() != null
+                        ? sessionData.knownCardIdsDelta().size()
+                        : 0);
     }
 
     /**
@@ -100,6 +125,27 @@ public class StatsService implements StatsUseCase {
     }
 
     /**
+     * Retrieves known card IDs for multiple decks in single database query.
+     *
+     * @param deckIds collection of deck IDs to retrieve known cards for
+     * @return map of deck ID to set of known card IDs (empty map if deckIds is empty)
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Map<Long, Set<Long>> getKnownCardIdsBatch(final Collection<Long> deckIds) {
+        if (deckIds == null || deckIds.isEmpty()) {
+            LOGGER.debug("getKnownCardIdsBatch called with empty collection, returning empty map");
+            return Map.of();
+        }
+
+        LOGGER.debug("Batch retrieving known cards for {} decks", deckIds.size());
+        Map<Long, Set<Long>> result = statsRepository.getKnownCardIdsBatch(deckIds);
+        LOGGER.debug("Batch retrieval completed: {} decks have known cards", result.size());
+
+        return result;
+    }
+
+    /**
      * Sets knowledge status of specific card in deck.
      * Updates knowledge status of card, marking it as either known or unknown
      * based on user's performance and feedback.
@@ -111,7 +157,11 @@ public class StatsService implements StatsUseCase {
     @Override
     @Transactional
     public void setCardKnown(final long deckId, final long cardId, final boolean known) {
+        LOGGER.debug("Setting card {} as {} for deck {}", cardId, known ? "KNOWN" : "UNKNOWN", deckId);
+
         statsRepository.setCardKnown(deckId, cardId, known);
+
+        LOGGER.info("Card marked as {} in deck {}: cardId={}", known ? "known" : "unknown", deckId, cardId);
     }
 
     /**
@@ -123,7 +173,14 @@ public class StatsService implements StatsUseCase {
     @Override
     @Transactional
     public void resetDeckProgress(final long deckId) {
+        LOGGER.debug("Resetting progress for deck: {}", deckId);
+
+        int knownCardsBefore = statsRepository.getKnownCardIds(deckId).size();
+
         statsRepository.resetDeckProgress(deckId);
+
+        AUDIT_LOGGER.warn("Deck progress reset: deckId={}, knownCardsCleared={}", deckId, knownCardsBefore);
+        LOGGER.info("Deck progress reset successfully: deckId={}, cleared {} known cards", deckId, knownCardsBefore);
     }
 
     /**

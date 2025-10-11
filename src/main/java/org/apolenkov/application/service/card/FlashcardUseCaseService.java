@@ -1,12 +1,16 @@
 package org.apolenkov.application.service.card;
 
 import jakarta.validation.Validator;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.views.core.constants.CoreConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class FlashcardUseCaseService implements FlashcardUseCase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlashcardUseCaseService.class);
 
     private final FlashcardRepository flashcardRepository;
     private final Validator validator;
@@ -51,15 +57,26 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     @Override
     @Transactional
     public void saveFlashcard(final Flashcard flashcard) {
+        LOGGER.debug("Saving flashcard: frontText='{}', deckId={}", flashcard.getFrontText(), flashcard.getDeckId());
+
         var violations = validator.validate(flashcard);
         if (!violations.isEmpty()) {
             String message = violations.stream()
                     .map(v -> v.getPropertyPath() + CoreConstants.SEPARATOR_SPACE + v.getMessage())
                     .collect(Collectors.joining(", "));
+            LOGGER.warn("Flashcard validation failed: {}", message);
             throw new IllegalArgumentException("Validation failed: " + message);
         }
 
+        boolean isNew = flashcard.getId() == null;
         flashcardRepository.save(flashcard);
+
+        LOGGER.info(
+                "Flashcard saved: id={}, frontText='{}', deckId={}, isNew={}",
+                flashcard.getId(),
+                flashcard.getFrontText(),
+                flashcard.getDeckId(),
+                isNew);
     }
 
     /**
@@ -70,7 +87,11 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     @Override
     @Transactional
     public void deleteFlashcard(final long id) {
+        LOGGER.debug("Deleting flashcard with ID: {}", id);
+
         flashcardRepository.deleteById(id);
+
+        LOGGER.info("Flashcard deleted successfully: id={}", id);
     }
 
     /**
@@ -83,5 +104,26 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     @Transactional(readOnly = true)
     public long countByDeckId(final long deckId) {
         return flashcardRepository.countByDeckId(deckId);
+    }
+
+    /**
+     * Returns flashcard counts for multiple decks in single database query.
+     *
+     * @param deckIds collection of deck IDs to count flashcards for
+     * @return map of deck ID to flashcard count (empty map if deckIds is empty)
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Map<Long, Long> countByDeckIds(final Collection<Long> deckIds) {
+        if (deckIds == null || deckIds.isEmpty()) {
+            LOGGER.debug("countByDeckIds called with empty collection, returning empty map");
+            return Map.of();
+        }
+
+        LOGGER.debug("Batch counting flashcards for {} decks", deckIds.size());
+        Map<Long, Long> counts = flashcardRepository.countByDeckIds(deckIds);
+        LOGGER.debug("Batch count completed: {} decks have flashcards", counts.size());
+
+        return counts;
     }
 }

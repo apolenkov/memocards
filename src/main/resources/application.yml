@@ -47,6 +47,12 @@ management:
       show-details: when-authorized
       show-components: when-authorized
 
+app:
+  cache:
+    user:
+      ttl-minutes: ${CACHE_USER_TTL:30}
+      max-size: ${CACHE_USER_MAX_SIZE:1000}
+
 ---
 # Development Profile
 spring:
@@ -54,12 +60,23 @@ spring:
     activate:
       on-profile: dev
 
-# Demo user configuration
-demo:
-  admin:
-    password: ${DEMO_ADMIN_PASSWORD}
-  user:
-    password: ${DEMO_USER_PASSWORD}
+# Data seeding configuration (dev profile only)
+app:
+  seed:
+    demo:
+      enabled: ${SEED_DEMO_DATA:true}
+      admin-password: ${DEMO_ADMIN_PASSWORD:admin}
+      user-password: ${DEMO_USER_PASSWORD:user}
+    test:
+      enabled: ${GENERATE_TEST_DATA:false}
+      test-user-password: ${TEST_USER_PASSWORD:testPassword123}
+      batch:
+        users: ${BATCH_SIZE_USERS:100}
+      limits:
+        users: ${LIMIT_USERS:100}
+        decks-per-user: ${LIMIT_DECKS:10}
+        cards-per-deck: ${LIMIT_CARDS:50}
+        news: ${LIMIT_NEWS:50}
 
 vaadin:
   launch-browser: true
@@ -78,6 +95,39 @@ management:
   endpoint:
     health:
       show-details: always
+
+---
+# Test Profile
+spring:
+  config:
+    activate:
+      on-profile: test
+
+# Data seeding configuration (test profile)
+app:
+  seed:
+    demo:
+      enabled: ${SEED_DEMO_DATA:false}
+      admin-password: ${DEMO_ADMIN_PASSWORD:admin}
+      user-password: ${DEMO_USER_PASSWORD:user}
+    test:
+      enabled: ${GENERATE_TEST_DATA:false}
+      test-user-password: ${TEST_USER_PASSWORD:testPassword123}
+      batch:
+        users: ${BATCH_SIZE_USERS:50}
+      limits:
+        users: ${LIMIT_USERS:50}
+        decks-per-user: ${LIMIT_DECKS:5}
+        cards-per-deck: ${LIMIT_CARDS:20}
+        news: ${LIMIT_NEWS:10}
+
+vaadin:
+  launch-browser: false
+
+logging:
+  level:
+    org.springframework.jdbc.core: INFO
+    org.apolenkov.application: INFO
 
 ---
 # Production Profile

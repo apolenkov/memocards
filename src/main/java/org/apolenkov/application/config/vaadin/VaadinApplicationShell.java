@@ -65,10 +65,5 @@ public class VaadinApplicationShell implements AppShellConfigurator {
         settings.addMetaTag("keywords", "flashcards, learning, education, memorization");
         settings.addMetaTag("author", "Memocards Team");
         settings.addMetaTag("viewport", "width=device-width, initial-scale=1.0");
-
-        // PWA support
-        settings.addMetaTag("theme-color", "#1976d2");
-        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
-        settings.addMetaTag("apple-mobile-web-app-status-bar-style", "default");
     }
 }

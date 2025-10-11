@@ -6,6 +6,7 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.stats.StatsService;
@@ -30,6 +31,7 @@ public final class DeckFlashcardGrid extends Grid<Flashcard> {
 
     // Logic
     private transient Long currentDeckId;
+    private transient Set<Long> cachedKnownCardIds;
 
     /**
      * Creates a new DeckFlashcardGrid component.
@@ -63,12 +65,26 @@ public final class DeckFlashcardGrid extends Grid<Flashcard> {
 
     /**
      * Adds all necessary columns to the flashcard grid.
+     * Uses supplier pattern to load known card IDs only once per grid render.
      */
     private void addColumns() {
         DeckGridColumns.addFrontColumn(this);
         DeckGridColumns.addExampleColumn(this);
-        DeckGridColumns.addStatusColumn(this, statsService, currentDeckId);
+        // Supplier pattern: known IDs are loaded once per render, cached, and reused
+        DeckGridColumns.addStatusColumn(this, this::getCachedKnownCardIds);
         DeckGridColumns.addActionsColumn(this, editFlashcardCallback, toggleKnownCallback, deleteFlashcardCallback);
+    }
+
+    /**
+     * Gets cached known card IDs, loading them if not yet cached.
+     *
+     * @return set of known card IDs
+     */
+    private Set<Long> getCachedKnownCardIds() {
+        if (cachedKnownCardIds == null && currentDeckId != null) {
+            cachedKnownCardIds = statsService.getKnownCardIds(currentDeckId);
+        }
+        return cachedKnownCardIds != null ? cachedKnownCardIds : Set.of();
     }
 
     /**
@@ -110,10 +126,14 @@ public final class DeckFlashcardGrid extends Grid<Flashcard> {
 
     /**
      * Updates the grid data provider with filtered flashcards.
+     * Invalidates cache to force reload of known card IDs on next render.
      *
      * @param filteredFlashcards the filtered flashcards to display
      */
     public void updateData(final List<Flashcard> filteredFlashcards) {
+        // Invalidate cache to ensure fresh data on next render
+        cachedKnownCardIds = null;
+
         // Data
         ListDataProvider<Flashcard> flashcardsDataProvider =
                 new ListDataProvider<>(new ArrayList<>(filteredFlashcards));

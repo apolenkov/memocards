@@ -235,8 +235,8 @@ class DeckTest {
     @Test
     @DisplayName("Should handle deck with unicode characters")
     void shouldHandleDeckWithUnicodeCharacters() {
-        String unicodeTitle = "Колода с русскими символами";
-        Deck deck = Deck.create(1L, unicodeTitle, "Описание");
+        String unicodeTitle = "Deck with unicode characters: 你好世界";
+        Deck deck = Deck.create(1L, unicodeTitle, "Test description");
 
         assertThat(deck.getTitle()).isEqualTo(unicodeTitle);
     }

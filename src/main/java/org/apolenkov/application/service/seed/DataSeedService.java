@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.domain.port.FlashcardRepository;
@@ -18,14 +21,20 @@ import org.apolenkov.application.model.News;
 import org.apolenkov.application.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import jakarta.annotation.PostConstruct;
 
 /**
- * Simple service for generating test data.
+ * Optimized service for generating test data using batch operations and virtual threads.
+ * Only active in dev and test profiles for safety.
  */
 @Service
+@Profile({"dev", "test"})
 public class DataSeedService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSeedService.class);
@@ -36,7 +45,22 @@ public class DataSeedService {
     private final StatsRepository statsRepository;
     private final NewsRepository newsRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TransactionTemplate transactionTemplate;
     private final SecureRandom random = new SecureRandom();
+
+    private String cachedPasswordHash;
+
+    // Configurable batch sizes via environment variables
+    private final int batchSizeUsers;
+
+    // Configurable generation limits via environment variables
+    private final int limitUsers;
+    private final int limitDecksPerUser;
+    private final int limitCardsPerDeck;
+    private final int limitNews;
+
+    // Test user password from configuration
+    private final String testUserPassword;
 
     private static final String[] USER_NAMES = {"Alex", "Maria", "John", "Anna", "David", "Elena", "Michael", "Sophia"};
     private static final String[] LAST_NAMES = {
@@ -62,75 +86,218 @@ public class DataSeedService {
         "NullPointerException, IndexOutOfBounds, StackOverflow",
         "Unit tests, Integration tests, E2E testing"
     };
-    private static final String DEFAULT_TEST_PASSWORD = "testPassword123";
-    private static final String TEST_PASSWORD_PROPERTY = "seed.test.password";
+
+    // Batch processing configuration
+    private static final int STATS_DAYS_TO_GENERATE = 90;
+    private static final double STATS_PROBABILITY = 0.7;
 
     /**
-     * Constructs DataSeedService with required dependencies.
+     * Constructs DataSeedService with required dependencies and configuration.
      *
-     * @param userRepositoryValue repository for user operations
-     * @param deckRepositoryValue repository for deck operations
-     * @param flashcardRepositoryValue repository for flashcard operations
-     * @param statsRepositoryValue repository for statistics operations
-     * @param newsRepositoryValue repository for news operations
+     * @param repositories grouped repository dependencies
      * @param passwordEncoderValue encoder for password hashing
+     * @param transactionManager transaction manager for manual TX control
+     * @param config seed configuration with batch sizes and generation limits
      */
     public DataSeedService(
-            final UserRepository userRepositoryValue,
-            final DeckRepository deckRepositoryValue,
-            final FlashcardRepository flashcardRepositoryValue,
-            final StatsRepository statsRepositoryValue,
-            final NewsRepository newsRepositoryValue,
-            final PasswordEncoder passwordEncoderValue) {
-        this.userRepository = userRepositoryValue;
-        this.deckRepository = deckRepositoryValue;
-        this.flashcardRepository = flashcardRepositoryValue;
-        this.statsRepository = statsRepositoryValue;
-        this.newsRepository = newsRepositoryValue;
+            final DataSeedRepositories repositories,
+            final PasswordEncoder passwordEncoderValue,
+            final PlatformTransactionManager transactionManager,
+            final SeedConfig config) {
+        this.userRepository = repositories.userRepository();
+        this.deckRepository = repositories.deckRepository();
+        this.flashcardRepository = repositories.flashcardRepository();
+        this.statsRepository = repositories.statsRepository();
+        this.newsRepository = repositories.newsRepository();
         this.passwordEncoder = passwordEncoderValue;
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
+
+        // Batch size
+        this.batchSizeUsers = config.test().batch().users();
+
+        // Generation limits
+        this.limitUsers = config.test().limits().users();
+        this.limitDecksPerUser = config.test().limits().decksPerUser();
+        this.limitCardsPerDeck = config.test().limits().cardsPerDeck();
+        this.limitNews = config.test().limits().news();
+
+        // Test user password
+        this.testUserPassword = config.test().testUserPassword();
+
+        LOGGER.info(
+                "DataSeedService initialized with batch size: users={}",
+                config.test().batch().users());
+        LOGGER.info(
+                "Generation limits: {} users, {} decks/user, {} cards/deck, {} news",
+                config.test().limits().users(),
+                config.test().limits().decksPerUser(),
+                config.test().limits().cardsPerDeck(),
+                config.test().limits().news());
     }
 
     /**
-     * Generates test data for load testing.
-     * Delegates to specialized methods to reduce cognitive complexity.
+     * Initializes cached password hash after bean construction.
+     * Avoids expensive password encoding in loops.
      */
-    @Transactional
+    @PostConstruct
+    void initPasswordCache() {
+        LOGGER.debug("Caching password hash for test data generation...");
+        this.cachedPasswordHash = passwordEncoder.encode(testUserPassword);
+        LOGGER.debug("Password hash cached successfully");
+    }
+
+    /**
+     * Generates test data for load testing using batch operations and virtual threads.
+     * Use LIMIT_* environment variables to control data volume.
+     */
     public void generateTestData() {
-        LOGGER.info("=== Starting test data generation ===");
+        LOGGER.info("=== Starting OPTIMIZED test data generation ===");
         long startTime = System.currentTimeMillis();
 
-        // Generate all test data using specialized methods
-        List<User> users = generateTestUsers();
-        int[] deckAndCardCounts = generateDecksAndCards(users);
-        int statsGenerated = generateStatistics(users);
-        generateNewsArticles();
+        // Step 1: Generate users in batches
+        List<User> users = generateTestUsersBatch();
+
+        // Step 2: Generate decks and flashcards using Virtual Threads for parallelization
+        int[] deckAndCardCounts = generateDecksAndCardsParallel(users);
+
+        // Step 3: Generate statistics and news in parallel (non-blocking)
+        CompletableFuture<Integer> statsFuture = CompletableFuture.supplyAsync(() -> generateStatistics(users));
+        CompletableFuture<Integer> newsFuture = CompletableFuture.supplyAsync(this::generateNewsArticlesBatch);
+
+        // Wait for parallel operations to complete
+        int statsGenerated = statsFuture.join();
+        int newsGenerated = newsFuture.join();
 
         // Log completion summary
-        logGenerationSummary(startTime, users.size(), deckAndCardCounts[0], deckAndCardCounts[1], statsGenerated);
+        logGenerationSummary(
+                startTime, users.size(), deckAndCardCounts[0], deckAndCardCounts[1], statsGenerated, newsGenerated);
     }
 
     /**
-     * Generates test users for load testing.
+     * Generates test users in batches for better performance.
+     * Uses configured LIMIT_USERS for total count.
      *
      * @return list of generated users
      */
-    private List<User> generateTestUsers() {
-        LOGGER.info("Generating 1000 test users...");
-        List<User> users = new ArrayList<>();
+    private List<User> generateTestUsersBatch() {
+        LOGGER.info("Generating {} test users in batches of {}...", limitUsers, batchSizeUsers);
+        List<User> allUsers = new ArrayList<>();
 
-        for (int i = 0; i < 1000; i++) {
-            logProgress(i, 20, "Generated {} users so far...", i);
+        for (int i = 0; i < limitUsers; i += batchSizeUsers) {
+            int end = Math.min(i + batchSizeUsers, limitUsers);
+            int currentBatch = i;
 
-            User user = createTestUser(i);
-            users.add(userRepository.save(user));
+            // Create batch in separate transaction to reduce lock time
+            List<User> batch = transactionTemplate.execute(status -> {
+                List<User> users = new ArrayList<>(batchSizeUsers);
+                for (int j = currentBatch; j < end; j++) {
+                    users.add(createTestUser(j));
+                }
+                return userRepository.saveAll(users);
+            });
+
+            assert batch != null;
+            allUsers.addAll(batch);
+
+            if ((i / batchSizeUsers) % 5 == 0) {
+                LOGGER.info("Generated {}/{} users", allUsers.size(), limitUsers);
+            }
         }
 
-        LOGGER.info("Successfully generated {} users", users.size());
-        return users;
+        LOGGER.info("Successfully generated {} users", allUsers.size());
+        return allUsers;
+    }
+
+    /**
+     * Generates decks and flashcards using Virtual Threads for parallel processing.
+     * Uses configured LIMIT_DECKS and LIMIT_CARDS for quantities.
+     *
+     * @param users list of users to generate data for
+     * @return array with [totalDecks, totalCards] counts
+     */
+    @SuppressWarnings("java:S2139") // Security audit requires logging before rethrow (OWASP compliance)
+    private int[] generateDecksAndCardsParallel(final List<User> users) {
+        LOGGER.info("Generating decks and flashcards using Virtual Threads...");
+
+        int totalDecks = 0;
+        int totalCards = 0;
+
+        LOGGER.info(
+                "Using generation limits: {} decks per user, {} cards per deck", limitDecksPerUser, limitCardsPerDeck);
+
+        // Process users in chunks with Virtual Threads
+        int chunkSize = batchSizeUsers;
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<java.util.concurrent.Future<int[]>> futures = new ArrayList<>();
+
+            for (int i = 0; i < users.size(); i += chunkSize) {
+                int endIdx = Math.min(i + chunkSize, users.size());
+                List<User> userChunk = users.subList(i, endIdx);
+
+                futures.add(executor.submit(() -> processUserChunk(userChunk, limitDecksPerUser, limitCardsPerDeck)));
+            }
+
+            // Collect results
+            for (var future : futures) {
+                int[] counts = future.get();
+                totalDecks += counts[0];
+                totalCards += counts[1];
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.error("Thread interrupted during parallel processing", e);
+            throw new DataGenerationException("Failed to generate decks and cards - interrupted", e);
+        } catch (Exception e) {
+            LOGGER.error("Error in parallel processing", e);
+            throw new DataGenerationException("Failed to generate decks and cards", e);
+        }
+
+        LOGGER.info("Successfully generated {} decks and {} flashcards", totalDecks, totalCards);
+        return new int[] {totalDecks, totalCards};
+    }
+
+    /**
+     * Processes a chunk of users to generate their decks and flashcards.
+     *
+     * @param userChunk chunk of users to process
+     * @param deckCount number of decks per user
+     * @param cardCount number of cards per deck
+     * @return array with [decks, cards] counts
+     */
+    private int[] processUserChunk(final List<User> userChunk, final int deckCount, final int cardCount) {
+        return transactionTemplate.execute(status -> {
+            int decks = 0;
+            int cards = 0;
+
+            for (User user : userChunk) {
+                // Generate decks for this user in batch
+                List<Deck> userDecks = new ArrayList<>(deckCount);
+                for (int i = 0; i < deckCount; i++) {
+                    userDecks.add(createTestDeck(user, i));
+                }
+
+                List<Deck> savedDecks = deckRepository.saveAll(userDecks);
+                decks += savedDecks.size();
+
+                // Generate flashcards for all decks in batch
+                List<Flashcard> allCards = new ArrayList<>(deckCount * cardCount);
+                for (Deck deck : savedDecks) {
+                    for (int j = 0; j < cardCount; j++) {
+                        allCards.add(createTestCard(deck, j));
+                    }
+                }
+
+                flashcardRepository.saveAll(allCards);
+                cards += allCards.size();
+            }
+
+            return new int[] {decks, cards};
+        });
     }
 
     /**
      * Creates a single test user with random data.
+     * Uses cached password hash for performance.
      *
      * @param index user index for unique email generation
      * @return configured test user
@@ -144,57 +311,10 @@ public class DataSeedService {
         User user = new User();
         user.setEmail(email);
         user.setName(name);
-        user.setPasswordHash(passwordEncoder.encode(getTestPassword()));
+        user.setPasswordHash(cachedPasswordHash); // Use cached hash instead of encoding each time
         user.setRoles(Set.of("USER"));
 
         return user;
-    }
-
-    /**
-     * Generates decks and flashcards for all users.
-     *
-     * @param users list of users to generate data for
-     * @return array with [totalDecks, totalCards] counts
-     */
-    private int[] generateDecksAndCards(final List<User> users) {
-        LOGGER.info("Generating decks and flashcards...");
-        int totalDecks = 0;
-        int totalCards = 0;
-        int userCount = 0;
-
-        for (User user : users) {
-            userCount++;
-            logProgress(userCount, 10, "Processing user {} of {}...", userCount, users.size());
-
-            int[] userCounts = generateUserDecksAndCards(user);
-            totalDecks += userCounts[0];
-            totalCards += userCounts[1];
-        }
-
-        LOGGER.info("Successfully generated {} decks and {} flashcards", totalDecks, totalCards);
-        return new int[] {totalDecks, totalCards};
-    }
-
-    /**
-     * Generates decks and cards for a single user.
-     *
-     * @param user the user to generate data for
-     * @return array with [decks, cards] counts for this user
-     */
-    private int[] generateUserDecksAndCards(final User user) {
-        int userDecks = 0;
-        int userCards = 0;
-
-        for (int i = 0; i < 10; i++) {
-            Deck deck = createTestDeck(user, i);
-            deck = deckRepository.save(deck);
-            userDecks++;
-
-            int cardsInDeck = generateDeckCards(deck);
-            userCards += cardsInDeck;
-        }
-
-        return new int[] {userDecks, userCards};
     }
 
     /**
@@ -207,24 +327,6 @@ public class DataSeedService {
     private Deck createTestDeck(final User user, final int index) {
         String title = DECK_TITLES[random.nextInt(DECK_TITLES.length)] + " " + (index + 1);
         return new Deck(null, user.getId(), title, "Test deck for load testing");
-    }
-
-    /**
-     * Generates flashcards for a deck.
-     *
-     * @param deck the deck to generate cards for
-     * @return number of cards generated
-     */
-    private int generateDeckCards(final Deck deck) {
-        int cardsGenerated = 0;
-
-        for (int j = 0; j < 50; j++) {
-            Flashcard card = createTestCard(deck, j);
-            flashcardRepository.save(card);
-            cardsGenerated++;
-        }
-
-        return cardsGenerated;
     }
 
     /**
@@ -284,7 +386,7 @@ public class DataSeedService {
     private int generateDeckStatistics(final Deck deck) {
         int statsGenerated = 0;
 
-        for (int day = 0; day < 90; day++) {
+        for (int day = 0; day < STATS_DAYS_TO_GENERATE; day++) {
             if (shouldGenerateStatsForDay()) {
                 SessionStatsDto stats = createSessionStats(deck);
                 statsRepository.appendSession(stats, LocalDate.now().minusDays(day));
@@ -298,10 +400,10 @@ public class DataSeedService {
     /**
      * Determines if statistics should be generated for a specific day.
      *
-     * @return true if stats should be generated (70% probability)
+     * @return true if stats should be generated based on probability
      */
     private boolean shouldGenerateStatsForDay() {
-        return random.nextDouble() < 0.7;
+        return random.nextDouble() < STATS_PROBABILITY;
     }
 
     /**
@@ -317,21 +419,38 @@ public class DataSeedService {
         long duration = viewed * 30000L;
         long delay = viewed * 3000L;
 
-        return SessionStatsDto.of(deck.getId(), viewed, correct, hard, duration, delay, null);
+        return SessionStatsDto.builder()
+                .deckId(deck.getId())
+                .viewed(viewed)
+                .correct(correct)
+                .hard(hard)
+                .sessionDurationMs(duration)
+                .totalAnswerDelayMs(delay)
+                .knownCardIdsDelta(null)
+                .build();
     }
 
     /**
-     * Generates news articles for testing.
+     * Generates news articles in batch for testing.
+     * Uses configured LIMIT_NEWS for count.
+     *
+     * @return number of news articles generated
      */
-    private void generateNewsArticles() {
-        LOGGER.info("Generating news articles...");
+    private int generateNewsArticlesBatch() {
+        LOGGER.info("Generating {} news articles in batch...", limitNews);
 
-        for (int i = 0; i < 50; i++) {
-            News news = createTestNews(i);
-            newsRepository.save(news);
+        List<News> newsList = new ArrayList<>(limitNews);
+        for (int i = 0; i < limitNews; i++) {
+            newsList.add(createTestNews(i));
         }
 
-        LOGGER.info("Successfully generated 50 news articles");
+        transactionTemplate.execute(status -> {
+            newsRepository.saveAll(newsList);
+            return null;
+        });
+
+        LOGGER.info("Successfully generated {} news articles", limitNews);
+        return limitNews;
     }
 
     /**
@@ -350,20 +469,6 @@ public class DataSeedService {
     }
 
     /**
-     * Logs generation progress at specified intervals.
-     *
-     * @param current current progress
-     * @param interval logging interval
-     * @param message log message template
-     * @param args message arguments
-     */
-    private void logProgress(final int current, final int interval, final String message, final Object... args) {
-        if (current % interval == 0) {
-            LOGGER.debug(message, args);
-        }
-    }
-
-    /**
      * Logs final generation summary.
      *
      * @param startTime generation start time
@@ -371,28 +476,28 @@ public class DataSeedService {
      * @param deckCount number of decks generated
      * @param cardCount number of cards generated
      * @param statsCount number of statistics records generated
+     * @param newsCount number of news articles generated
      */
     private void logGenerationSummary(
-            final long startTime, final int userCount, final int deckCount, final int cardCount, final int statsCount) {
+            final long startTime,
+            final int userCount,
+            final int deckCount,
+            final int cardCount,
+            final int statsCount,
+            final int newsCount) {
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
+        long seconds = duration / 1000;
+        long minutes = seconds / 60;
 
-        LOGGER.info("=== Test data generation completed in {} ms ===", duration);
+        LOGGER.info("=== Test data generation completed in {} ms ({} min {} sec) ===", duration, minutes, seconds % 60);
         LOGGER.info(
-                "Summary: {} users, {} decks, {} flashcards, {} statistics, 50 news",
+                "Summary: {} users, {} decks, {} flashcards, {} statistics, {} news",
                 userCount,
                 deckCount,
                 cardCount,
-                statsCount);
-    }
-
-    /**
-     * Gets test password from system property or uses default.
-     * This method centralizes password handling to avoid hardcoded values.
-     *
-     * @return test password for generated users
-     */
-    private String getTestPassword() {
-        return System.getProperty(TEST_PASSWORD_PROPERTY, DEFAULT_TEST_PASSWORD);
+                statsCount,
+                newsCount);
+        LOGGER.info("Average speed: {} flashcards/sec", cardCount / Math.max(1, seconds));
     }
 }

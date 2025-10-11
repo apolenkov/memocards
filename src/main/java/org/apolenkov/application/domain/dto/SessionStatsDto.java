@@ -50,26 +50,117 @@ public record SessionStatsDto(
     }
 
     /**
-     * Creates SessionStatsDto with required statistics.
+     * Creates a new builder for SessionStatsDto.
      *
-     * @param deckId deck identifier
-     * @param viewed number of cards viewed
-     * @param correct number of correct answers
-     * @param hard number of cards marked as hard
-     * @param sessionDurationMs session duration in milliseconds
-     * @param totalAnswerDelayMs total answer delay in milliseconds
-     * @param knownCardIdsDelta collection of card IDs whose knowledge status changed
-     * @return new SessionStatsDto instance
+     * @return new Builder instance
      */
-    public static SessionStatsDto of(
-            final long deckId,
-            final int viewed,
-            final int correct,
-            final int hard,
-            final long sessionDurationMs,
-            final long totalAnswerDelayMs,
-            final Collection<Long> knownCardIdsDelta) {
-        return new SessionStatsDto(
-                deckId, viewed, correct, hard, sessionDurationMs, totalAnswerDelayMs, knownCardIdsDelta);
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder for SessionStatsDto with fluent API.
+     * Provides readable, self-documenting construction for 7 parameters.
+     */
+    public static final class Builder {
+        private long deckId;
+        private int viewed;
+        private int correct;
+        private int hard;
+        private long sessionDurationMs;
+        private long totalAnswerDelayMs;
+        private Collection<Long> knownCardIdsDelta;
+
+        private Builder() {
+            // Private constructor - use builder() factory method
+        }
+
+        /**
+         * Sets the deck ID.
+         *
+         * @param deckIdValue deck identifier
+         * @return this builder instance
+         */
+        public Builder deckId(final long deckIdValue) {
+            this.deckId = deckIdValue;
+            return this;
+        }
+
+        /**
+         * Sets the viewed count.
+         *
+         * @param viewedValue number of cards viewed
+         * @return this builder instance
+         */
+        public Builder viewed(final int viewedValue) {
+            this.viewed = viewedValue;
+            return this;
+        }
+
+        /**
+         * Sets the correct count.
+         *
+         * @param correctValue number of correct answers
+         * @return this builder instance
+         */
+        public Builder correct(final int correctValue) {
+            this.correct = correctValue;
+            return this;
+        }
+
+        /**
+         * Sets the hard count.
+         *
+         * @param hardValue number of cards marked as hard
+         * @return this builder instance
+         */
+        public Builder hard(final int hardValue) {
+            this.hard = hardValue;
+            return this;
+        }
+
+        /**
+         * Sets the session duration.
+         *
+         * @param sessionDurationMsValue session duration in milliseconds
+         * @return this builder instance
+         */
+        public Builder sessionDurationMs(final long sessionDurationMsValue) {
+            this.sessionDurationMs = sessionDurationMsValue;
+            return this;
+        }
+
+        /**
+         * Sets the total answer delay.
+         *
+         * @param totalAnswerDelayMsValue total answer delay in milliseconds
+         * @return this builder instance
+         */
+        public Builder totalAnswerDelayMs(final long totalAnswerDelayMsValue) {
+            this.totalAnswerDelayMs = totalAnswerDelayMsValue;
+            return this;
+        }
+
+        /**
+         * Sets the known card IDs delta.
+         *
+         * @param knownCardIdsDeltaValue collection of card IDs whose knowledge status changed
+         * @return this builder instance
+         */
+        public Builder knownCardIdsDelta(final Collection<Long> knownCardIdsDeltaValue) {
+            this.knownCardIdsDelta = knownCardIdsDeltaValue;
+            return this;
+        }
+
+        /**
+         * Builds SessionStatsDto with validation.
+         *
+         * @return new SessionStatsDto instance
+         * @throws IllegalArgumentException if any parameter violates constraints
+         */
+        public SessionStatsDto build() {
+            return new SessionStatsDto(
+                    deckId, viewed, correct, hard, sessionDurationMs, totalAnswerDelayMs, knownCardIdsDelta);
+        }
     }
 }

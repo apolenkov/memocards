@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.apolenkov.application.domain.port.NewsRepository;
 import org.apolenkov.application.domain.usecase.NewsUseCase;
 import org.apolenkov.application.model.News;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class NewsService implements NewsUseCase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NewsService.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     private final NewsRepository newsRepository;
 
@@ -47,9 +52,15 @@ public class NewsService implements NewsUseCase {
      */
     @Override
     public void createNews(final String title, final String content, final String author) {
+        LOGGER.debug("Creating news: title='{}', author={}", title, author);
+
         validate(title, content);
+
         News news = new News(null, title, content, author, LocalDateTime.now());
         newsRepository.save(news);
+
+        AUDIT_LOGGER.info("News created: title='{}', author={}, contentLength={}", title, author, content.length());
+        LOGGER.info("News created successfully: title='{}', author={}", title, author);
     }
 
     /**
@@ -63,19 +74,28 @@ public class NewsService implements NewsUseCase {
      */
     @Override
     public void updateNews(final long id, final String title, final String content, final String author) {
+        LOGGER.debug("Updating news: id={}, title='{}'", id, title);
+
         Optional<News> existingOpt = newsRepository.findById(id);
         if (existingOpt.isEmpty()) {
+            LOGGER.warn("Attempted to update non-existent news: id={}", id);
             throw new IllegalArgumentException("News not found with id: " + id);
         }
+
         validate(title, content);
 
         News existing = existingOpt.get();
+        String oldTitle = existing.getTitle();
+
         existing.setTitle(title);
         existing.setContent(content);
         existing.setAuthor(author);
         existing.setUpdatedAt(LocalDateTime.now());
 
         newsRepository.save(existing);
+
+        AUDIT_LOGGER.info("News updated: id={}, titleChanged='{}' -> '{}', author={}", id, oldTitle, title, author);
+        LOGGER.info("News updated successfully: id={}, title='{}'", id, title);
     }
 
     /**
@@ -85,7 +105,19 @@ public class NewsService implements NewsUseCase {
      */
     @Override
     public void deleteNews(final long id) {
+        LOGGER.debug("Deleting news: id={}", id);
+
+        Optional<News> newsOpt = newsRepository.findById(id);
+        if (newsOpt.isEmpty()) {
+            LOGGER.warn("Attempted to delete non-existent news: id={}", id);
+            return;
+        }
+
+        News news = newsOpt.get();
         newsRepository.deleteById(id);
+
+        AUDIT_LOGGER.warn("News deleted: id={}, title='{}', author={}", id, news.getTitle(), news.getAuthor());
+        LOGGER.info("News deleted successfully: id={}, title='{}'", id, news.getTitle());
     }
 
     /**

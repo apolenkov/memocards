@@ -132,9 +132,9 @@ public final class ErrorDevInfo extends Composite<Component> {
     /**
      * Updates the development info with error details and shows it if in dev profile.
      *
-     * @param state the error view state containing error information
+     * @param state the error state containing error information
      */
-    public void updateDevInfo(final ErrorViewState state) {
+    public void updateDevInfo(final ErrorView.ErrorState state) {
         if (!isDevProfile()) {
             devContainer.setVisible(false);
             return;
@@ -144,9 +144,9 @@ public final class ErrorDevInfo extends Composite<Component> {
 
         // Sanitize error details for security
         String unknownText = getTranslation(CoreConstants.ERROR_UNKNOWN_KEY);
-        String safeErrorType = SanitizationUtils.sanitizeErrorDetail(state.getErrorType(), unknownText);
-        String safeErrorMessage = SanitizationUtils.sanitizeErrorDetail(state.getErrorMessage(), unknownText);
-        String safeErrorId = SanitizationUtils.sanitizeErrorDetail(state.getErrorId(), unknownText);
+        String safeErrorType = SanitizationUtils.sanitizeErrorDetail(state.errorType(), unknownText);
+        String safeErrorMessage = SanitizationUtils.sanitizeErrorDetail(state.errorMessage(), unknownText);
+        String safeErrorId = SanitizationUtils.sanitizeErrorDetail(state.errorId(), unknownText);
 
         errorTypeSpan.setText(
                 getTranslation(CoreConstants.ERROR_TYPE_KEY) + CoreConstants.SEPARATOR_COLON_SPACE + safeErrorType);
@@ -155,7 +155,7 @@ public final class ErrorDevInfo extends Composite<Component> {
                 + safeErrorMessage);
         currentRouteSpan.setText(getTranslation(CoreConstants.ERROR_CURRENT_ROUTE_KEY)
                 + CoreConstants.SEPARATOR_COLON_SPACE
-                + state.getFromRoute());
+                + state.fromRoute());
         timestampSpan.setText(getTranslation(CoreConstants.ERROR_TIMESTAMP_KEY)
                 + CoreConstants.SEPARATOR_SPACE
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern(CoreConstants.DATETIME_PATTERN)));

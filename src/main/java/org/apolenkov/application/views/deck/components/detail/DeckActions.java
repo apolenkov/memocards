@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 public final class DeckActions extends Composite<HorizontalLayout> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckActions.class);
-    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // UI Components
     private final Button practiceButton;
@@ -94,7 +93,7 @@ public final class DeckActions extends Composite<HorizontalLayout> {
      */
     public Registration addPracticeClickListener(final ComponentEventListener<ClickEvent<Button>> listener) {
         return practiceButton.addClickListener(e -> {
-            logPracticeAction();
+            LOGGER.debug("Practice button clicked");
             listener.onComponentEvent(e);
         });
     }
@@ -107,7 +106,7 @@ public final class DeckActions extends Composite<HorizontalLayout> {
      */
     public Registration addEditDeckClickListener(final ComponentEventListener<ClickEvent<Button>> listener) {
         return editDeckButton.addClickListener(e -> {
-            logEditAction();
+            LOGGER.debug("Edit deck button clicked");
             listener.onComponentEvent(e);
         });
     }
@@ -120,32 +119,8 @@ public final class DeckActions extends Composite<HorizontalLayout> {
      */
     public Registration addDeleteDeckClickListener(final ComponentEventListener<ClickEvent<Button>> listener) {
         return deleteDeckButton.addClickListener(e -> {
-            logDeleteAction();
+            LOGGER.debug("Delete deck button clicked");
             listener.onComponentEvent(e);
         });
-    }
-
-    /**
-     * Logs practice action for audit purposes.
-     */
-    private void logPracticeAction() {
-        AUDIT_LOGGER.info("User clicked PRACTICE button - starting practice session");
-        LOGGER.debug("Practice button clicked");
-    }
-
-    /**
-     * Logs edit action for audit purposes.
-     */
-    private void logEditAction() {
-        AUDIT_LOGGER.info("User clicked EDIT button - opening deck edit dialog");
-        LOGGER.debug("Edit deck button clicked");
-    }
-
-    /**
-     * Logs delete action for audit purposes.
-     */
-    private void logDeleteAction() {
-        AUDIT_LOGGER.info("User clicked DELETE button - initiating deck deletion process");
-        LOGGER.debug("Delete deck button clicked");
     }
 }

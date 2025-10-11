@@ -22,6 +22,7 @@ import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.service.settings.UserSettingsService;
 import org.apolenkov.application.views.core.constants.CoreConstants;
+import org.apolenkov.application.views.shared.utils.AuthRedirectHelper;
 import org.springframework.stereotype.Component;
 
 /**
@@ -63,6 +64,7 @@ public class LanguageSwitcher extends HorizontalLayout {
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
+    @SuppressWarnings("unused")
     private void init() {
         setSpacing(true);
         setPadding(false);
@@ -202,12 +204,16 @@ public class LanguageSwitcher extends HorizontalLayout {
         if (userUseCase == null || userSettingsService == null) {
             return;
         }
+        // Skip for anonymous users
+        if (!AuthRedirectHelper.isAuthenticated()) {
+            return;
+        }
         try {
             long userId = userUseCase.getCurrentUser().getId();
             userSettingsService.setPreferredLocale(userId, locale);
         } catch (Exception ex) {
-            // Intentionally ignoring exceptions for anonymous users or when user service is unavailable
-            // This allows the language switcher to work without authentication
+            // Intentionally ignoring exceptions when user service is unavailable
+            // This allows the language switcher to work without database access
         }
     }
 

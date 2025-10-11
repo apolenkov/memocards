@@ -1,0 +1,106 @@
+---
+alwaysApply: true
+autoFix: true
+version: "1.1.0"
+---
+
+# ENV-BASED CONFIGURATION
+
+## STACK
+Spring Boot Profiles | application-{profile}.yml | Environment Variables | @Value
+
+## RULES [OK]
+
+**Structure**:
+- application.yml (defaults)
+- application-{profile}.yml (env-specific)
+- @Profile for conditional beans
+- @Value with defaults: `@Value("${key:defaultValue}")`
+
+**Profiles**:
+- dev (local development)
+- test (integration tests)
+- prod (production)
+
+**Environment Variables**:
+- Override via `ENV_VAR_NAME`
+- Spring Boot auto-mapping
+- Docker/K8s friendly
+
+**Secrets**:
+- NO hardcoded passwords/keys
+- Environment variables for secrets
+- Spring Cloud Config/Vault for production
+
+**Database**:
+- Profile-specific datasource
+- Connection pooling per env
+- Migration per profile
+
+**Logging**:
+- logback-spring.xml with `<springProfile>`
+- Log levels per environment
+- File/console output per env
+
+**Configuration Reading**:
+- NEVER use `System.getenv()` directly
+- ALWAYS use `@Value("${property:default}")`
+- Spring auto-maps environment variables to properties
+- Testable, mockable, IDE/Docker/K8s compatible
+
+## ANTIPATTERNS [BAD]
+1. Hardcoded values → externalize
+2. Secrets in code/git → env vars
+3. Single config for all envs → profiles
+4. No defaults → always provide fallback
+5. Magic values → named properties
+6. **System.getenv() directly** → use @Value with Spring properties
+
+## EXAMPLE: Environment Variables
+
+**❌ BAD - Direct System.getenv():**
+```java
+private void loadConfig() {
+    String flag = System.getenv().getOrDefault("GENERATE_TEST_DATA", "false");
+    if ("true".equalsIgnoreCase(flag)) {
+        // ...
+    }
+}
+```
+
+**✅ GOOD - Spring @Value:**
+```java
+@Value("${app.seed.test.enabled:false}")
+private boolean generateTestDataEnabled;
+
+private void loadConfig() {
+    if (generateTestDataEnabled) {
+        // ...
+    }
+}
+```
+
+**application.yml:**
+```yaml
+app:
+  seed:
+    test:
+      enabled: ${GENERATE_TEST_DATA:false}  # Env var with fallback
+```
+
+**Why @Value is better:**
+- ✅ Works in IDE, Docker, K8s, command-line equally
+- ✅ Testable with `@TestPropertySource`
+- ✅ Type-safe (boolean, int, Duration, etc.)
+- ✅ Centralized configuration
+- ✅ Profile-specific overrides
+- ❌ System.getenv() bypasses Spring, hard to test, IDE-unfriendly
+
+## CHECKLIST
+- [ ] application-{profile}.yml for each env
+- [ ] @Profile for conditional beans
+- [ ] @Value with defaults
+- [ ] NO secrets in code
+- [ ] Environment variable overrides
+- [ ] Profile-specific logging
+- [ ] NO System.getenv() - use @Value

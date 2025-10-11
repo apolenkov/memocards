@@ -56,13 +56,6 @@ public final class PracticeConstants {
     public static final String KNOW_LABEL = "know";
     public static final String HARD_LABEL = "hard";
 
-    // Session Constants
-    public static final int MIN_SESSION_MINUTES = 1;
-    public static final double MIN_TOTAL_VIEWED = 1.0;
-    public static final long MIN_AVERAGE_SECONDS = 1L;
-    public static final int MAX_SESSION_MINUTES = Integer.MAX_VALUE;
-    public static final double MAX_TOTAL_VIEWED = Double.MAX_VALUE;
-
     // Private constructor to prevent instantiation
     private PracticeConstants() {
         throw new UnsupportedOperationException("Utility class");

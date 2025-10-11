@@ -177,8 +177,15 @@ public final class PracticeSessionService {
             final Duration sessionDuration,
             final long totalAnswerDelayMs,
             final List<Long> knownCardIdsDelta) {
-        SessionStatsDto sessionData = SessionStatsDto.of(
-                deckId, totalViewed, correct, hard, sessionDuration.toMillis(), totalAnswerDelayMs, knownCardIdsDelta);
+        SessionStatsDto sessionData = SessionStatsDto.builder()
+                .deckId(deckId)
+                .viewed(totalViewed)
+                .correct(correct)
+                .hard(hard)
+                .sessionDurationMs(sessionDuration.toMillis())
+                .totalAnswerDelayMs(totalAnswerDelayMs)
+                .knownCardIdsDelta(knownCardIdsDelta)
+                .build();
         statsService.recordSession(sessionData);
     }
 
@@ -195,4 +202,63 @@ public final class PracticeSessionService {
         List<Flashcard> cards = prepareSession(deckId, count, random);
         return PracticeSession.create(deckId, cards, Instant.now());
     }
+
+    /**
+     * Calculates session completion metrics.
+     *
+     * @param session the completed session
+     * @return completion metrics record
+     */
+    public SessionCompletionMetrics calculateCompletionMetrics(final PracticeSession session) {
+        int totalCards = (session.getCards() != null) ? session.getCards().size() : session.getTotalViewed();
+        long sessionDurationSec =
+                Instant.now().getEpochSecond() - session.getSessionStart().getEpochSecond();
+        long sessionMinutes = Math.clamp(sessionDurationSec / 60, 1L, Integer.MAX_VALUE);
+
+        double denom = Math.clamp(session.getTotalViewed(), 1.0, Double.MAX_VALUE);
+        long avgSeconds =
+                Math.clamp(Math.round((session.getTotalAnswerDelayMs() / denom) / 1000.0), 1L, Long.MAX_VALUE);
+
+        return new SessionCompletionMetrics(totalCards, sessionMinutes, avgSeconds);
+    }
+
+    /**
+     * Gets list of failed cards that are still not known.
+     *
+     * @param deckId the deck ID
+     * @param failedCardIds list of failed card IDs from session
+     * @return list of failed flashcards
+     */
+    public List<Flashcard> getFailedCards(final long deckId, final List<Long> failedCardIds) {
+        if (failedCardIds == null || failedCardIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Flashcard> notKnownCards = getNotKnownCards(deckId);
+        return notKnownCards.stream()
+                .filter(fc -> failedCardIds.contains(fc.getId()))
+                .toList();
+    }
+
+    /**
+     * Starts a new practice session with failed cards.
+     *
+     * @param deckId the deck ID
+     * @param failedCards list of failed cards to practice
+     * @return new practice session
+     */
+    public PracticeSession startRepeatSession(final long deckId, final List<Flashcard> failedCards) {
+        List<Flashcard> cards = new ArrayList<>(failedCards);
+        Collections.shuffle(cards);
+        return PracticeSession.create(deckId, cards, Instant.now());
+    }
+
+    /**
+     * Session completion metrics record.
+     *
+     * @param totalCards total number of cards in session
+     * @param sessionMinutes session duration in minutes
+     * @param avgSeconds average answer time in seconds
+     */
+    public record SessionCompletionMetrics(int totalCards, long sessionMinutes, long avgSeconds) {}
 }

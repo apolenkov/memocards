@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 public final class DeckSimpleDeleteDialog extends Dialog {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckSimpleDeleteDialog.class);
-    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Dependencies
     private final transient DeckUseCase deckUseCase;
@@ -194,11 +193,7 @@ public final class DeckSimpleDeleteDialog extends Dialog {
         try {
             deckUseCase.deleteDeck(currentDeck.getId());
 
-            // Audit log for simple deck deletion
-            AUDIT_LOGGER.info(
-                    "User deleted empty deck '{}' (ID: {}) - Simple deletion (no cards)",
-                    currentDeck.getTitle(),
-                    currentDeck.getId());
+            LOGGER.debug("Deck deleted successfully: id={}, title='{}'", currentDeck.getId(), currentDeck.getTitle());
 
             close();
             NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_DELETE_SUCCESS));

@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 public final class DeckGrid extends Composite<VerticalLayout> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckGrid.class);
-    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Dependencies
     private final transient StatsService statsService;
@@ -115,21 +114,6 @@ public final class DeckGrid extends Composite<VerticalLayout> {
             boolean known = statsService.isCardKnown(currentDeckId, flashcard.getId());
             LOGGER.debug("Toggling known status for card {}: {} -> {}", flashcard.getId(), known, !known);
 
-            // Audit log for learning progress
-            if (!known) {
-                AUDIT_LOGGER.info(
-                        "Card {} marked as KNOWN in deck {} - User learned: '{}'",
-                        flashcard.getId(),
-                        currentDeckId,
-                        flashcard.getFrontText());
-            } else {
-                AUDIT_LOGGER.info(
-                        "Card {} marked as UNKNOWN in deck {} - User forgot: '{}'",
-                        flashcard.getId(),
-                        currentDeckId,
-                        flashcard.getFrontText());
-            }
-
             statsService.setCardKnown(currentDeckId, flashcard.getId(), !known);
             applyFilter();
         }
@@ -140,13 +124,7 @@ public final class DeckGrid extends Composite<VerticalLayout> {
      */
     private void handleResetProgress() {
         if (currentDeckId != null) {
-            LOGGER.info("Resetting progress for deck {}", currentDeckId);
-
-            // Audit log for progress reset
-            AUDIT_LOGGER.info(
-                    "User reset ALL progress for deck {} - {} cards marked as unknown",
-                    currentDeckId,
-                    allFlashcards != null ? allFlashcards.size() : 0);
+            LOGGER.debug("Resetting progress for deck {}", currentDeckId);
 
             statsService.resetDeckProgress(currentDeckId);
             applyFilter();

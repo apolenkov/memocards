@@ -9,9 +9,10 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import org.apolenkov.application.model.Flashcard;
-import org.apolenkov.application.service.stats.StatsService;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.TextFormattingUtils;
@@ -52,12 +53,10 @@ public final class DeckGridColumns {
      * Adds the status column to the grid.
      *
      * @param grid the grid to add column to
-     * @param statsService service for statistics tracking
-     * @param currentDeckId current deck ID
+     * @param knownCardIdsSupplier supplier for known card IDs (called once per render)
      */
-    public static void addStatusColumn(
-            final Grid<Flashcard> grid, final StatsService statsService, final Long currentDeckId) {
-        grid.addComponentColumn(flashcard -> createStatusComponent(flashcard, statsService, currentDeckId))
+    public static void addStatusColumn(final Grid<Flashcard> grid, final Supplier<Set<Long>> knownCardIdsSupplier) {
+        grid.addComponentColumn(flashcard -> createStatusComponent(flashcard, knownCardIdsSupplier))
                 .setHeader(grid.getTranslation(DeckConstants.DECK_COL_STATUS))
                 .setTextAlign(ColumnTextAlign.CENTER)
                 .setFlexGrow(1);
@@ -65,15 +64,16 @@ public final class DeckGridColumns {
 
     /**
      * Creates a status component for a flashcard.
+     * Checks if card is known using pre-loaded Set to avoid database queries.
      *
      * @param flashcard the flashcard to create status for
-     * @param statsService service for statistics tracking
-     * @param currentDeckId current deck ID
+     * @param knownCardIdsSupplier supplier for known card IDs
      * @return the status component
      */
     private static Span createStatusComponent(
-            final Flashcard flashcard, final StatsService statsService, final Long currentDeckId) {
-        boolean known = currentDeckId != null && statsService.isCardKnown(currentDeckId, flashcard.getId());
+            final Flashcard flashcard, final Supplier<Set<Long>> knownCardIdsSupplier) {
+        Set<Long> knownCardIds = knownCardIdsSupplier.get();
+        boolean known = knownCardIds.contains(flashcard.getId());
         if (known) {
             Span statusSpan = new Span("✓");
             statusSpan.addClassName(DeckConstants.KNOWN_STATUS_CLASS);

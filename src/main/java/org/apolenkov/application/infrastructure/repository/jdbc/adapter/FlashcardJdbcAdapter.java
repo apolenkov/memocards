@@ -2,9 +2,12 @@ package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.apolenkov.application.domain.port.FlashcardRepository;
+import org.apolenkov.application.infrastructure.repository.jdbc.batch.FlashcardBatchOperations;
 import org.apolenkov.application.infrastructure.repository.jdbc.dto.FlashcardDto;
 import org.apolenkov.application.infrastructure.repository.jdbc.exception.FlashcardPersistenceException;
 import org.apolenkov.application.infrastructure.repository.jdbc.exception.FlashcardRetrievalException;
@@ -30,6 +33,7 @@ import org.springframework.stereotype.Repository;
 public class FlashcardJdbcAdapter implements FlashcardRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlashcardJdbcAdapter.class);
+
     /**
      * RowMapper for FlashcardDto.
      */
@@ -56,18 +60,25 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
     };
 
     private final JdbcTemplate jdbcTemplate;
+    private final FlashcardBatchOperations batchOperations;
 
     /**
      * Creates adapter with JdbcTemplate dependency.
      *
      * @param jdbcTemplateValue the JdbcTemplate for database operations
+     * @param batchOperationsValue helper for batch operations
      * @throws IllegalArgumentException if jdbcTemplate is null
      */
-    public FlashcardJdbcAdapter(final JdbcTemplate jdbcTemplateValue) {
+    public FlashcardJdbcAdapter(
+            final JdbcTemplate jdbcTemplateValue, final FlashcardBatchOperations batchOperationsValue) {
         if (jdbcTemplateValue == null) {
             throw new IllegalArgumentException("JdbcTemplate cannot be null");
         }
+        if (batchOperationsValue == null) {
+            throw new IllegalArgumentException("BatchOperations cannot be null");
+        }
         this.jdbcTemplate = jdbcTemplateValue;
+        this.batchOperations = batchOperationsValue;
     }
 
     /**
@@ -143,13 +154,20 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
             throw new IllegalArgumentException("Flashcard cannot be null");
         }
 
-        LOGGER.debug("Saving flashcard: {}", flashcard.getFrontText());
+        boolean isNew = flashcard.getId() == null;
+        LOGGER.debug("Saving flashcard: frontText='{}', isNew={}", flashcard.getFrontText(), isNew);
+
         try {
-            if (flashcard.getId() == null) {
+            if (isNew) {
                 createFlashcard(flashcard);
             } else {
                 updateFlashcard(flashcard);
             }
+            LOGGER.debug(
+                    "Flashcard saved: id={}, frontText='{}', isNew={}",
+                    flashcard.getId(),
+                    flashcard.getFrontText(),
+                    isNew);
         } catch (DataAccessException e) {
             throw new FlashcardPersistenceException("Failed to save flashcard: " + flashcard.getFrontText(), e);
         }
@@ -167,6 +185,8 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
             int deleted = jdbcTemplate.update(FlashcardSqlQueries.DELETE_FLASHCARD, id);
             if (deleted == 0) {
                 LOGGER.warn("No flashcard found with ID: {}", id);
+            } else {
+                LOGGER.debug("Flashcard deleted from database: id={}", id);
             }
         } catch (DataAccessException e) {
             throw new FlashcardPersistenceException("Failed to delete flashcard by ID: " + id, e);
@@ -195,6 +215,37 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                     .orElse(0L);
         } catch (DataAccessException e) {
             throw new FlashcardRetrievalException("Failed to count flashcards for deck ID: " + deckId, e);
+        }
+    }
+
+    /**
+     * Counts flashcards for multiple decks in single query.
+     * Performance optimization using GROUP BY to avoid N+1 queries.
+     *
+     * @param deckIds collection of deck identifiers
+     * @return map of deck ID to flashcard count (only decks with flashcards are included)
+     */
+    @Override
+    public Map<Long, Long> countByDeckIds(final Collection<Long> deckIds) {
+        if (deckIds == null || deckIds.isEmpty()) {
+            return Map.of();
+        }
+
+        LOGGER.debug("Batch counting flashcards for {} decks using single query", deckIds.size());
+        try {
+            String sql = buildInClauseSql(deckIds.size());
+            Map<Long, Long> counts =
+                    jdbcTemplate.query(sql, ps -> setLongParameters(ps, deckIds), this::extractCountsByDeck);
+
+            Map<Long, Long> safeCounts = (counts != null) ? counts : Map.of();
+            LOGGER.debug(
+                    "Batch count completed: {} decks have flashcards (out of {} requested)",
+                    safeCounts.size(),
+                    deckIds.size());
+            return safeCounts;
+
+        } catch (DataAccessException e) {
+            throw new FlashcardRetrievalException("Failed to count flashcards for deck IDs: " + deckIds, e);
         }
     }
 
@@ -273,5 +324,61 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 flashcard.getImageUrl(),
                 LocalDateTime.now(), // Update timestamp
                 flashcard.getId());
+    }
+
+    /**
+     * Builds SQL with IN clause placeholders.
+     *
+     * @param paramCount number of parameters for IN clause
+     * @return SQL with placeholders
+     */
+    private String buildInClauseSql(final int paramCount) {
+        String placeholders = "?,".repeat(Math.max(0, paramCount - 1)) + "?";
+        return String.format(FlashcardSqlQueries.COUNT_FLASHCARDS_BY_DECK_IDS_TEMPLATE, placeholders);
+    }
+
+    /**
+     * Sets long parameters in PreparedStatement.
+     *
+     * @param ps PreparedStatement to set parameters in
+     * @param values collection of long values
+     */
+    private void setLongParameters(final java.sql.PreparedStatement ps, final Collection<Long> values)
+            throws java.sql.SQLException {
+        int index = 1;
+        for (Long value : values) {
+            ps.setLong(index++, value);
+        }
+    }
+
+    /**
+     * Extracts flashcard counts by deck from ResultSet.
+     *
+     * @param rs ResultSet to extract from
+     * @return map of deck ID to flashcard count
+     */
+    private Map<Long, Long> extractCountsByDeck(final java.sql.ResultSet rs) throws java.sql.SQLException {
+        Map<Long, Long> results = new java.util.HashMap<>();
+        while (rs.next()) {
+            Long deckId = rs.getLong("deck_id");
+            Long count = rs.getLong("count");
+            results.put(deckId, count);
+        }
+        return results;
+    }
+
+    /**
+     * Saves multiple flashcards in batch operation for better performance.
+     * Delegates to batch operations helper for clean separation of concerns.
+     *
+     * @param flashcards collection of flashcards to save
+     */
+    @Override
+    public void saveAll(final Collection<Flashcard> flashcards) {
+        try {
+            batchOperations.saveAll(jdbcTemplate, flashcards);
+        } catch (DataAccessException e) {
+            throw new FlashcardPersistenceException("Failed to batch save flashcards", e);
+        }
     }
 }

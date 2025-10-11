@@ -1,6 +1,8 @@
 package org.apolenkov.application.domain.port;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.apolenkov.application.model.Flashcard;
 
@@ -36,6 +38,14 @@ public interface FlashcardRepository {
     void save(Flashcard flashcard);
 
     /**
+     * Saves multiple flashcards in batch operation.
+     * More efficient than calling save() multiple times.
+     *
+     * @param flashcards collection of flashcards to save
+     */
+    void saveAll(Collection<Flashcard> flashcards);
+
+    /**
      * Deletes flashcard by identifier.
      *
      * @param id flashcard identifier to delete
@@ -49,6 +59,14 @@ public interface FlashcardRepository {
      * @return total number of flashcards in deck
      */
     long countByDeckId(long deckId);
+
+    /**
+     * Counts flashcards for multiple decks in single query.
+     *
+     * @param deckIds collection of deck identifiers (non-null, may be empty)
+     * @return map of deck ID to flashcard count (non-null, contains only decks with flashcards)
+     */
+    Map<Long, Long> countByDeckIds(Collection<Long> deckIds);
 
     /**
      * Deletes all flashcards in specific deck.

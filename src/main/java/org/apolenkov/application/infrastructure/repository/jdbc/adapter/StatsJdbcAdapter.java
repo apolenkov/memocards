@@ -8,10 +8,12 @@ import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.StatsRepository;
+import org.apolenkov.application.infrastructure.repository.jdbc.exception.StatsRetrievalException;
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.StatsSqlQueries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -63,6 +65,7 @@ public class StatsJdbcAdapter implements StatsRepository {
                 sessionStats.totalAnswerDelayMs());
 
         // Update known cards if provided
+        int knownCardsUpdated = 0;
         if (sessionStats.knownCardIdsDelta() != null) {
             for (Long cardId : sessionStats.knownCardIdsDelta()) {
                 jdbcTemplate.update(
@@ -71,8 +74,17 @@ public class StatsJdbcAdapter implements StatsRepository {
                         cardId,
                         sessionStats.deckId(),
                         cardId);
+                knownCardsUpdated++;
             }
         }
+
+        LOGGER.debug(
+                "Session stats appended: deckId={}, date={}, viewed={}, correct={}, knownCardsUpdated={}",
+                sessionStats.deckId(),
+                date,
+                sessionStats.viewed(),
+                sessionStats.correct(),
+                knownCardsUpdated);
     }
 
     /**
@@ -86,6 +98,36 @@ public class StatsJdbcAdapter implements StatsRepository {
     public Set<Long> getKnownCardIds(final long deckId) {
         LOGGER.debug("Getting known card IDs for deck ID: {}", deckId);
         return new HashSet<>(jdbcTemplate.queryForList(StatsSqlQueries.SELECT_KNOWN_CARD_IDS, Long.class, deckId));
+    }
+
+    /**
+     * Gets known card IDs for multiple decks in single query.
+     *
+     * @param deckIds collection of deck identifiers
+     * @return map of deck ID to set of known card IDs
+     */
+    @Override
+    public Map<Long, Set<Long>> getKnownCardIdsBatch(final Collection<Long> deckIds) {
+        if (deckIds == null || deckIds.isEmpty()) {
+            return Map.of();
+        }
+
+        LOGGER.debug("Batch getting known card IDs for {} decks using single query", deckIds.size());
+        try {
+            String sql = buildInClauseSql(StatsSqlQueries.SELECT_KNOWN_CARD_IDS_BATCH_TEMPLATE, deckIds.size());
+            Map<Long, Set<Long>> result =
+                    jdbcTemplate.query(sql, ps -> setLongParameters(ps, deckIds), this::extractKnownCardsByDeck);
+
+            Map<Long, Set<Long>> safeResult = (result != null) ? result : Map.of();
+            LOGGER.debug(
+                    "Batch known cards completed: {} decks have known cards (out of {} requested)",
+                    safeResult.size(),
+                    deckIds.size());
+            return safeResult;
+
+        } catch (DataAccessException e) {
+            throw new StatsRetrievalException("Failed to get known card IDs for deck IDs: " + deckIds, e);
+        }
     }
 
     /**
@@ -105,6 +147,7 @@ public class StatsJdbcAdapter implements StatsRepository {
         } else {
             jdbcTemplate.update(StatsSqlQueries.DELETE_KNOWN_CARD, deckId, cardId);
         }
+        LOGGER.debug("Card {} marked as {} in deck {}", cardId, known ? "known" : "unknown", deckId);
     }
 
     /**
@@ -118,10 +161,16 @@ public class StatsJdbcAdapter implements StatsRepository {
         LOGGER.debug("Resetting progress for deck ID: {}", deckId);
 
         // Delete daily stats
-        jdbcTemplate.update(StatsSqlQueries.DELETE_DAILY_STATS_BY_DECK, deckId);
+        int statsDeleted = jdbcTemplate.update(StatsSqlQueries.DELETE_DAILY_STATS_BY_DECK, deckId);
 
         // Delete known cards
-        jdbcTemplate.update(StatsSqlQueries.DELETE_KNOWN_CARDS_BY_DECK, deckId);
+        int knownCardsDeleted = jdbcTemplate.update(StatsSqlQueries.DELETE_KNOWN_CARDS_BY_DECK, deckId);
+
+        LOGGER.debug(
+                "Deck progress reset: deckId={}, statsDeleted={}, knownCardsDeleted={}",
+                deckId,
+                statsDeleted,
+                knownCardsDeleted);
     }
 
     /**
@@ -140,40 +189,99 @@ public class StatsJdbcAdapter implements StatsRepository {
             return new HashMap<>();
         }
 
-        String placeholders =
-                deckIds.stream().map(id -> "?").reduce((a, b) -> a + "," + b).orElse("");
+        String sql = buildInClauseSql(StatsSqlQueries.SELECT_AGGREGATES_FOR_DECKS_TEMPLATE, deckIds.size());
+        Object[] params = buildAggregateParams(today, deckIds);
 
-        String sql = String.format(StatsSqlQueries.SELECT_AGGREGATES_FOR_DECKS_TEMPLATE, placeholders);
+        Map<Long, DeckAggregate> result = new HashMap<>();
+        jdbcTemplate.query(
+                sql,
+                rs -> {
+                    Long deckId = rs.getLong("deck_id");
+                    DeckAggregate aggregate = mapToDeckAggregate(rs);
+                    result.put(deckId, aggregate);
+                },
+                params);
 
+        return result;
+    }
+
+    /**
+     * Builds SQL with IN clause placeholders.
+     *
+     * @param sqlTemplate SQL template with placeholder for IN clause
+     * @param paramCount number of parameters for IN clause
+     * @return SQL with placeholders
+     */
+    private String buildInClauseSql(final String sqlTemplate, final int paramCount) {
+        String placeholders = "?,".repeat(Math.max(0, paramCount - 1)) + "?";
+        return String.format(sqlTemplate, placeholders);
+    }
+
+    /**
+     * Sets long parameters in PreparedStatement.
+     *
+     * @param ps PreparedStatement to set parameters in
+     * @param values collection of long values
+     */
+    private void setLongParameters(final java.sql.PreparedStatement ps, final Collection<Long> values)
+            throws java.sql.SQLException {
+        int index = 1;
+        for (Long value : values) {
+            ps.setLong(index++, value);
+        }
+    }
+
+    /**
+     * Extracts known cards by deck from ResultSet.
+     *
+     * @param rs ResultSet to extract from
+     * @return map of deck ID to set of known card IDs
+     */
+    private Map<Long, Set<Long>> extractKnownCardsByDeck(final java.sql.ResultSet rs) throws java.sql.SQLException {
+        Map<Long, Set<Long>> knownCardsByDeck = new HashMap<>();
+        while (rs.next()) {
+            Long deckId = rs.getLong("deck_id");
+            Long cardId = rs.getLong("card_id");
+            knownCardsByDeck.computeIfAbsent(deckId, k -> new HashSet<>()).add(cardId);
+        }
+        return knownCardsByDeck;
+    }
+
+    /**
+     * Builds parameters array for aggregate query.
+     *
+     * @param today date for today's statistics
+     * @param deckIds collection of deck IDs
+     * @return parameters array
+     */
+    private Object[] buildAggregateParams(final LocalDate today, final Collection<Long> deckIds) {
         Object[] params = new Object[deckIds.size() + 4];
         params[0] = today;
         params[1] = today;
         params[2] = today;
         params[3] = today;
-        int i = 4;
+        int index = 4;
         for (Long deckId : deckIds) {
-            params[i++] = deckId;
+            params[index++] = deckId;
         }
+        return params;
+    }
 
-        Map<Long, DeckAggregate> result = new HashMap<>();
-        jdbcTemplate.query(
-                sql,
-                (rs, rowNum) -> {
-                    Long deckId = rs.getLong("deck_id");
-                    DeckAggregate aggregate = new DeckAggregate(
-                            rs.getInt("sessions_all"),
-                            rs.getInt("viewed_all"),
-                            rs.getInt("correct_all"),
-                            rs.getInt("hard_all"),
-                            rs.getInt("sessions_today"),
-                            rs.getInt("viewed_today"),
-                            rs.getInt("correct_today"),
-                            rs.getInt("hard_today"));
-                    result.put(deckId, aggregate);
-                    return null;
-                },
-                params);
-
-        return result;
+    /**
+     * Maps ResultSet row to DeckAggregate.
+     *
+     * @param rs ResultSet positioned at current row
+     * @return DeckAggregate from current row
+     */
+    private DeckAggregate mapToDeckAggregate(final java.sql.ResultSet rs) throws java.sql.SQLException {
+        return new DeckAggregate(
+                rs.getInt("sessions_all"),
+                rs.getInt("viewed_all"),
+                rs.getInt("correct_all"),
+                rs.getInt("hard_all"),
+                rs.getInt("sessions_today"),
+                rs.getInt("viewed_today"),
+                rs.getInt("correct_today"),
+                rs.getInt("hard_today"));
     }
 }

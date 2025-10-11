@@ -14,7 +14,15 @@ class StatsServiceTest {
     @Test
     @DisplayName("Should create valid session stats")
     void shouldCreateValidSessionStats() {
-        SessionStatsDto stats = SessionStatsDto.of(1L, 10, 8, 1, 60000L, 15000L, null);
+        SessionStatsDto stats = SessionStatsDto.builder()
+                .deckId(1L)
+                .viewed(10)
+                .correct(8)
+                .hard(1)
+                .sessionDurationMs(60000L)
+                .totalAnswerDelayMs(15000L)
+                .knownCardIdsDelta(null)
+                .build();
 
         assertThat(stats.deckId()).isEqualTo(1L);
         assertThat(stats.viewed()).isEqualTo(10);
@@ -30,7 +38,15 @@ class StatsServiceTest {
     }
 
     private void createInvalidSessionStatsWithZeroValues() {
-        SessionStatsDto.of(1L, 0, 0, 0, 0L, 0L, Set.of());
+        SessionStatsDto.builder()
+                .deckId(1L)
+                .viewed(0)
+                .correct(0)
+                .hard(0)
+                .sessionDurationMs(0L)
+                .totalAnswerDelayMs(0L)
+                .knownCardIdsDelta(Set.of())
+                .build();
     }
 
     @Test
@@ -40,6 +56,14 @@ class StatsServiceTest {
     }
 
     private void createInvalidSessionStatsWithZeroDeckId() {
-        SessionStatsDto.of(0L, 10, 8, 0, 0L, 0L, null);
+        SessionStatsDto.builder()
+                .deckId(0L)
+                .viewed(10)
+                .correct(8)
+                .hard(0)
+                .sessionDurationMs(0L)
+                .totalAnswerDelayMs(0L)
+                .knownCardIdsDelta(null)
+                .build();
     }
 }

@@ -1,5 +1,6 @@
 package org.apolenkov.application.domain.usecase;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +44,14 @@ public interface StatsUseCase {
      * @return set of card IDs marked as known
      */
     Set<Long> getKnownCardIds(long deckId);
+
+    /**
+     * Retrieves known card IDs for multiple decks in single operation.
+     *
+     * @param deckIds collection of deck IDs to retrieve known cards for
+     * @return map of deck ID to set of known card IDs (decks with no known cards may be absent)
+     */
+    Map<Long, Set<Long>> getKnownCardIdsBatch(Collection<Long> deckIds);
 
     /**
      * Sets knowledge status of specific card in deck.

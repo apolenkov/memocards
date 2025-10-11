@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeckUseCaseService implements DeckUseCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckUseCaseService.class);
-    private static final Logger AUDIT_LOG = LoggerFactory.getLogger("org.apolenkov.application.audit");
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     private final DeckRepository deckRepository;
     private final FlashcardRepository flashcardRepository;
@@ -62,10 +62,7 @@ public class DeckUseCaseService implements DeckUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<Deck> getAllDecks() {
-        LOGGER.debug("Retrieving all decks");
-        List<Deck> decks = deckRepository.findAll();
-        LOGGER.info("Retrieved {} decks from database", decks.size());
-        return decks;
+        return deckRepository.findAll();
     }
 
     /**
@@ -78,10 +75,7 @@ public class DeckUseCaseService implements DeckUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<Deck> getDecksByUserId(final long userId) {
-        LOGGER.debug("Retrieving decks for user {}", userId);
-        List<Deck> decks = deckRepository.findByUserId(userId);
-        LOGGER.info("Retrieved {} decks for user {}", decks.size(), userId);
-        return decks;
+        return deckRepository.findByUserId(userId);
     }
 
     /**
@@ -94,14 +88,7 @@ public class DeckUseCaseService implements DeckUseCase {
     @Override
     @Transactional(readOnly = true)
     public Optional<Deck> getDeckById(final long id) {
-        LOGGER.debug("Retrieving deck with ID {}", id);
-        Optional<Deck> deck = deckRepository.findById(id);
-        if (deck.isPresent()) {
-            LOGGER.info("Deck {} found successfully", id);
-        } else {
-            LOGGER.debug("Deck {} not found", id);
-        }
-        return deck;
+        return deckRepository.findById(id);
     }
 
     /**
@@ -141,7 +128,7 @@ public class DeckUseCaseService implements DeckUseCase {
                 deck.getId() == null);
 
         // Audit log
-        AUDIT_LOG.info(
+        AUDIT_LOGGER.info(
                 "Deck {}: title='{}', userId={}, isNew={}",
                 savedDeck.getId(),
                 savedDeck.getTitle(),
@@ -184,6 +171,6 @@ public class DeckUseCaseService implements DeckUseCase {
         LOGGER.info("Deck deleted: id={}, title='{}', userId={}", id, deck.getTitle(), deck.getUserId());
 
         // Audit log
-        AUDIT_LOG.warn("Deck deleted: id={}, title='{}', userId={}", id, deck.getTitle(), deck.getUserId());
+        AUDIT_LOGGER.warn("Deck deleted: id={}, title='{}', userId={}", id, deck.getTitle(), deck.getUserId());
     }
 }

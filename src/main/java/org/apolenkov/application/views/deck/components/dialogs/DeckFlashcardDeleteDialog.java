@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 public final class DeckFlashcardDeleteDialog extends Dialog {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckFlashcardDeleteDialog.class);
-    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     // Dependencies
     private final transient FlashcardUseCase flashcardUseCase;
@@ -143,17 +142,10 @@ public final class DeckFlashcardDeleteDialog extends Dialog {
         try {
             flashcardUseCase.deleteFlashcard(flashcard.getId());
 
-            // Audit log for flashcard deletion
-            AUDIT_LOGGER.info(
-                    "User deleted flashcard '{}' (ID: {}) from deck (ID: {})",
-                    flashcard.getFrontText(),
-                    flashcard.getId(),
-                    flashcard.getDeckId());
-
             notifyFlashcardDeleted();
             close();
             NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_CARD_DELETED));
-            LOGGER.info("Flashcard {} deleted successfully", flashcard.getId());
+            LOGGER.debug("Flashcard {} deleted successfully", flashcard.getId());
         } catch (Exception ex) {
             handleDeletionError(ex);
         }
