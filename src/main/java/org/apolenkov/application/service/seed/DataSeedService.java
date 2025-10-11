@@ -30,7 +30,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import jakarta.annotation.PostConstruct;
 
 /**
- * Optimized service for generating test data using batch operations and virtual threads.
+ * Service for generating test data using batch operations and virtual threads.
  * Only active in dev and test profiles for safety.
  */
 @Service
