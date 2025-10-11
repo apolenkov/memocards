@@ -1,4 +1,4 @@
-package org.apolenkov.application.config.data;
+package org.apolenkov.application.config.seed;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 import org.apolenkov.application.model.Flashcard;
 
 /**
@@ -36,14 +37,6 @@ public interface FlashcardRepository {
      * @param flashcard flashcard to save
      */
     void save(Flashcard flashcard);
-
-    /**
-     * Saves multiple flashcards in batch operation.
-     * More efficient than calling save() multiple times.
-     *
-     * @param flashcards collection of flashcards to save
-     */
-    void saveAll(Collection<Flashcard> flashcards);
 
     /**
      * Deletes flashcard by identifier.

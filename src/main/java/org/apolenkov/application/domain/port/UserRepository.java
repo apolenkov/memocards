@@ -1,8 +1,8 @@
 package org.apolenkov.application.domain.port;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
 import org.apolenkov.application.model.User;
 
 /**
@@ -43,15 +43,6 @@ public interface UserRepository {
      * @return saved user with generated ID
      */
     User save(User user);
-
-    /**
-     * Saves multiple users in batch operation.
-     * More efficient than calling save() multiple times.
-     *
-     * @param users collection of users to save
-     * @return list of saved users with generated IDs
-     */
-    List<User> saveAll(Collection<User> users);
 
     /**
      * Deletes user by identifier.

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.infrastructure.repository.jdbc.batch.FlashcardBatchOperations;
 import org.apolenkov.application.infrastructure.repository.jdbc.dto.FlashcardDto;
@@ -365,20 +366,5 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
             results.put(deckId, count);
         }
         return results;
-    }
-
-    /**
-     * Saves multiple flashcards in batch operation for better performance.
-     * Delegates to batch operations helper for clean separation of concerns.
-     *
-     * @param flashcards collection of flashcards to save
-     */
-    @Override
-    public void saveAll(final Collection<Flashcard> flashcards) {
-        try {
-            batchOperations.saveAll(jdbcTemplate, flashcards);
-        } catch (DataAccessException e) {
-            throw new FlashcardPersistenceException("Failed to batch save flashcards", e);
-        }
     }
 }

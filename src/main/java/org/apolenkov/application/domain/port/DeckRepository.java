@@ -1,8 +1,8 @@
 package org.apolenkov.application.domain.port;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
 import org.apolenkov.application.model.Deck;
 
 /**
@@ -43,15 +43,6 @@ public interface DeckRepository {
      * @return saved deck, potentially with updated fields
      */
     Deck save(Deck deck);
-
-    /**
-     * Saves multiple decks in batch operation.
-     * More efficient than calling save() multiple times.
-     *
-     * @param decks collection of decks to save
-     * @return list of saved decks with generated IDs
-     */
-    List<Deck> saveAll(Collection<Deck> decks);
 
     /**
      * Deletes deck from repository by ID.

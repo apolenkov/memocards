@@ -1,15 +1,11 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
 import org.apolenkov.application.config.cache.CacheConfiguration;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.infrastructure.repository.jdbc.dto.UserDto;
@@ -25,8 +21,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -326,111 +320,5 @@ public class UserJdbcAdapter implements UserRepository {
 
         return UserDto.forExistingUser(
                 userDto.id(), userDto.email(), userDto.passwordHash(), userDto.name(), userDto.createdAt(), roles);
-    }
-
-    /**
-     * Saves multiple users in batch operation for better performance.
-     * Uses batch insert for new users only.
-     *
-     * @param users collection of users to save
-     * @return list of saved users with generated IDs
-     */
-    @Override
-    public List<User> saveAll(final Collection<User> users) {
-        if (users == null || users.isEmpty()) {
-            return List.of();
-        }
-
-        LOGGER.debug("Batch saving {} users", users.size());
-        List<User> savedUsers = new ArrayList<>(users.size());
-
-        try {
-            // Process only new users for batch insert
-            List<User> newUsers = users.stream().filter(u -> u.getId() == null).toList();
-
-            if (!newUsers.isEmpty()) {
-                savedUsers.addAll(batchInsertUsers(newUsers));
-            }
-
-            // Update existing users one by one (rare case in seed data)
-            for (User user : users) {
-                if (user.getId() != null) {
-                    savedUsers.add(updateUser(user));
-                }
-            }
-
-            LOGGER.debug("Batch saved {} users successfully", savedUsers.size());
-            return savedUsers;
-        } catch (DataAccessException e) {
-            throw new UserPersistenceException("Failed to batch save users", e);
-        }
-    }
-
-    /**
-     * Batch inserts new users into database.
-     * Uses ON CONFLICT to handle duplicate emails gracefully (for seed operations).
-     *
-     * @param newUsers list of new users without IDs
-     * @return list of created users with generated IDs
-     */
-    private List<User> batchInsertUsers(final List<User> newUsers) {
-        LocalDateTime now = LocalDateTime.now();
-        List<User> result = new ArrayList<>(newUsers.size());
-
-        // Batch insert users and collect generated IDs
-        List<Long> generatedIds = new ArrayList<>(newUsers.size());
-
-        for (User user : newUsers) {
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-
-            jdbcTemplate.update(
-                    connection -> {
-                        PreparedStatement ps = connection.prepareStatement(
-                                UserSqlQueries.INSERT_USER_ON_CONFLICT_RETURNING_ID, Statement.RETURN_GENERATED_KEYS);
-                        ps.setString(1, user.getEmail());
-                        ps.setString(2, user.getPasswordHash());
-                        ps.setString(3, user.getName());
-                        ps.setTimestamp(4, Timestamp.valueOf(now));
-                        return ps;
-                    },
-                    keyHolder);
-
-            Number key = keyHolder.getKey();
-            if (key != null) {
-                generatedIds.add(key.longValue());
-            }
-        }
-
-        // Batch insert roles for all users (with conflict handling)
-        List<Object[]> roleBatchArgs = new ArrayList<>();
-        for (int i = 0; i < newUsers.size(); i++) {
-            User user = newUsers.get(i);
-            Long userId = generatedIds.get(i);
-
-            for (String role : user.getRoles()) {
-                roleBatchArgs.add(new Object[] {userId, role});
-            }
-        }
-
-        if (!roleBatchArgs.isEmpty()) {
-            jdbcTemplate.batchUpdate(UserSqlQueries.INSERT_USER_ROLE_ON_CONFLICT, roleBatchArgs);
-        }
-
-        // Build result users with generated IDs
-        for (int i = 0; i < newUsers.size(); i++) {
-            User user = newUsers.get(i);
-            Long generatedId = generatedIds.get(i);
-
-            User savedUser = new User();
-            savedUser.setId(generatedId);
-            savedUser.setEmail(user.getEmail());
-            savedUser.setName(user.getName());
-            savedUser.setPasswordHash(user.getPasswordHash());
-            savedUser.setRoles(new HashSet<>(user.getRoles()));
-
-            result.add(savedUser);
-        }
-
-        return result;
     }
 }

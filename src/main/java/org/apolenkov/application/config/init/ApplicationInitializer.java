@@ -1,4 +1,4 @@
-package org.apolenkov.application.config.data;
+package org.apolenkov.application.config.init;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -9,12 +9,10 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
+import org.apolenkov.application.config.seed.SeedConfig;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.DeckRepository;
-import org.apolenkov.application.domain.port.FlashcardRepository;
-import org.apolenkov.application.domain.port.NewsRepository;
 import org.apolenkov.application.domain.port.StatsRepository;
-import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.News;
@@ -39,13 +37,11 @@ public class DataSeedService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSeedService.class);
 
-    private final UserRepository userRepository;
     private final DeckRepository deckRepository;
-    private final FlashcardRepository flashcardRepository;
     private final StatsRepository statsRepository;
-    private final NewsRepository newsRepository;
     private final PasswordEncoder passwordEncoder;
     private final TransactionTemplate transactionTemplate;
+    private final DataSeedRepository seedRepository;
     private final SecureRandom random = new SecureRandom();
 
     private String cachedPasswordHash;
@@ -94,21 +90,23 @@ public class DataSeedService {
     /**
      * Constructs DataSeedService with required dependencies and configuration.
      *
-     * @param repositories grouped repository dependencies
+     * @param deckRepositoryValue repository for deck read operations (findByUserId)
+     * @param statsRepositoryValue repository for statistics operations
+     * @param seedRepositoryValue repository for batch seed operations
      * @param passwordEncoderValue encoder for password hashing
      * @param transactionManager transaction manager for manual TX control
      * @param config seed configuration with batch sizes and generation limits
      */
     public DataSeedService(
-            final DataSeedRepositories repositories,
+            final DeckRepository deckRepositoryValue,
+            final StatsRepository statsRepositoryValue,
+            final DataSeedRepository seedRepositoryValue,
             final PasswordEncoder passwordEncoderValue,
             final PlatformTransactionManager transactionManager,
             final SeedConfig config) {
-        this.userRepository = repositories.userRepository();
-        this.deckRepository = repositories.deckRepository();
-        this.flashcardRepository = repositories.flashcardRepository();
-        this.statsRepository = repositories.statsRepository();
-        this.newsRepository = repositories.newsRepository();
+        this.deckRepository = deckRepositoryValue;
+        this.statsRepository = statsRepositoryValue;
+        this.seedRepository = seedRepositoryValue;
         this.passwordEncoder = passwordEncoderValue;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
 
@@ -193,7 +191,7 @@ public class DataSeedService {
                 for (int j = currentBatch; j < end; j++) {
                     users.add(createTestUser(j));
                 }
-                return userRepository.saveAll(users);
+                return seedRepository.batchInsertUsers(users);
             });
 
             assert batch != null;
@@ -276,7 +274,7 @@ public class DataSeedService {
                     userDecks.add(createTestDeck(user, i));
                 }
 
-                List<Deck> savedDecks = deckRepository.saveAll(userDecks);
+                List<Deck> savedDecks = seedRepository.batchInsertDecks(userDecks);
                 decks += savedDecks.size();
 
                 // Generate flashcards for all decks in batch
@@ -287,7 +285,7 @@ public class DataSeedService {
                     }
                 }
 
-                flashcardRepository.saveAll(allCards);
+                seedRepository.batchInsertFlashcards(allCards);
                 cards += allCards.size();
             }
 
@@ -445,7 +443,7 @@ public class DataSeedService {
         }
 
         transactionTemplate.execute(status -> {
-            newsRepository.saveAll(newsList);
+            seedRepository.batchInsertNews(newsList);
             return null;
         });
 
