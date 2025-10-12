@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.stats.StatsService;
@@ -90,8 +91,8 @@ public final class DeckGrid extends Composite<VerticalLayout> {
      * @param searchQuery the search query
      */
     private void handleSearch(final String searchQuery) {
-        LOGGER.debug("Search query changed: '{}'", searchQuery);
-        applyFilter();
+        // Apply filter with the provided search query
+        applyFilterWithParams(searchQuery, searchControls.isHideKnown());
     }
 
     /**
@@ -100,8 +101,8 @@ public final class DeckGrid extends Composite<VerticalLayout> {
      * @param hideKnown whether to hide known cards
      */
     private void handleFilter(final Boolean hideKnown) {
-        LOGGER.debug("Filter changed: hideKnown={}", hideKnown);
-        applyFilter();
+        // Apply filter with the provided hide known setting
+        applyFilterWithParams(searchControls.getSearchQuery(), hideKnown);
     }
 
     /**
@@ -115,6 +116,13 @@ public final class DeckGrid extends Composite<VerticalLayout> {
             LOGGER.debug("Toggling known status for card {}: {} -> {}", flashcard.getId(), known, !known);
 
             statsService.setCardKnown(currentDeckId, flashcard.getId(), !known);
+
+            // Invalidate grid cache to force fresh data loading
+            flashcardGrid.invalidateCache();
+
+            // Refresh status for the specific card that changed
+            flashcardGrid.refreshStatusForCards(Set.of(flashcard.getId()));
+
             applyFilter();
         }
     }
@@ -127,21 +135,42 @@ public final class DeckGrid extends Composite<VerticalLayout> {
             LOGGER.debug("Resetting progress for deck {}", currentDeckId);
 
             statsService.resetDeckProgress(currentDeckId);
+
+            // Invalidate grid cache to force fresh data loading
+            flashcardGrid.invalidateCache();
+
+            // Refresh all cards since all statuses changed
+            if (allFlashcards != null) {
+                Set<Long> allCardIds =
+                        allFlashcards.stream().map(Flashcard::getId).collect(java.util.stream.Collectors.toSet());
+                flashcardGrid.refreshStatusForCards(allCardIds);
+            }
+
             applyFilter();
         }
     }
 
     /**
      * Applies search and filter criteria to the flashcards.
+     * Passes known card IDs to grid to avoid duplicate queries.
      */
     private void applyFilter() {
-        String searchQuery = searchControls.getSearchQuery();
-        boolean hideKnown = searchControls.isHideKnown();
+        applyFilterWithParams(searchControls.getSearchQuery(), searchControls.isHideKnown());
+    }
 
-        List<Flashcard> filtered =
+    /**
+     * Applies search and filter criteria to the flashcards with specific parameters.
+     * Passes known card IDs to grid to avoid duplicate queries.
+     *
+     * @param searchQuery the search query to apply
+     * @param hideKnown whether to hide known cards
+     */
+    private void applyFilterWithParams(final String searchQuery, final boolean hideKnown) {
+        var filterResult =
                 DeckGridFilter.applyFilter(allFlashcards, searchQuery, hideKnown, statsService, currentDeckId);
 
-        flashcardGrid.updateData(filtered);
+        // Pass known card IDs to grid to reuse in status column (avoids duplicate DB query)
+        flashcardGrid.updateData(filterResult.filteredFlashcards(), filterResult.knownCardIds());
     }
 
     /**
@@ -150,7 +179,6 @@ public final class DeckGrid extends Composite<VerticalLayout> {
      * @param deckId the deck ID
      */
     public void setCurrentDeckId(final Long deckId) {
-        LOGGER.debug("Setting current deck ID: {}", deckId);
         this.currentDeckId = deckId;
         flashcardGrid.setCurrentDeckId(deckId);
     }
@@ -161,7 +189,6 @@ public final class DeckGrid extends Composite<VerticalLayout> {
      * @param flashcards the list of flashcards to display
      */
     public void setFlashcards(final List<Flashcard> flashcards) {
-        LOGGER.debug("Setting {} flashcards for deck {}", flashcards.size(), currentDeckId);
         this.allFlashcards = new ArrayList<>(flashcards);
         applyFilter();
     }

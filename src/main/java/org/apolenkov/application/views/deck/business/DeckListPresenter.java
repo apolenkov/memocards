@@ -10,6 +10,8 @@ import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.stats.StatsService;
+import org.apolenkov.application.views.deck.cache.UserDecksCache;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -22,6 +24,7 @@ public class DeckListPresenter {
     private final FlashcardUseCase flashcardUseCase;
     private final StatsService statsService;
     private final UserUseCase userUseCase;
+    private final UserDecksCache decksCache;
 
     /**
      * Creates a new DeckListPresenter with the specified dependencies.
@@ -30,13 +33,15 @@ public class DeckListPresenter {
      * @param flashcardUseCaseParam the use case for flashcard operations (non-null)
      * @param statsServiceParam the service for statistics operations (non-null)
      * @param userUseCaseParam the use case for user operations (non-null)
+     * @param decksCacheParam UI-scoped cache for decks (non-null, lazy-loaded)
      * @throws IllegalArgumentException if any parameter is null
      */
     public DeckListPresenter(
             final DeckUseCase deckUseCaseParam,
             final FlashcardUseCase flashcardUseCaseParam,
             final StatsService statsServiceParam,
-            final UserUseCase userUseCaseParam) {
+            final UserUseCase userUseCaseParam,
+            @Lazy final UserDecksCache decksCacheParam) {
         if (deckUseCaseParam == null) {
             throw new IllegalArgumentException("DeckUseCase cannot be null");
         }
@@ -49,22 +54,27 @@ public class DeckListPresenter {
         if (userUseCaseParam == null) {
             throw new IllegalArgumentException("UserUseCase cannot be null");
         }
+        if (decksCacheParam == null) {
+            throw new IllegalArgumentException("UserDecksCache cannot be null");
+        }
         this.deckUseCase = deckUseCaseParam;
         this.flashcardUseCase = flashcardUseCaseParam;
         this.statsService = statsServiceParam;
         this.userUseCase = userUseCaseParam;
+        this.decksCache = decksCacheParam;
     }
 
     /**
      * Lists decks for the current user based on an optional search query.
+     * Uses UI-scoped cache to avoid repeated database queries during navigation.
      *
      * @param query the search query to filter decks, maybe null or empty
      * @return a list of deck view models for the current user, never null (maybe empty)
      */
     public List<DeckCardViewModel> listDecksForCurrentUser(final String query) {
-        // Get current user ID and load all their decks
+        // Get current user ID and load decks (cached in UI session)
         long userId = userUseCase.getCurrentUser().getId();
-        List<Deck> decks = deckUseCase.getDecksByUserId(userId);
+        List<Deck> decks = decksCache.getDecks(userId, () -> deckUseCase.getDecksByUserId(userId));
 
         // Normalize search query: convert to lowercase, trim whitespace, handle null
         String normalized = query != null ? query.toLowerCase(Locale.ROOT).trim() : "";

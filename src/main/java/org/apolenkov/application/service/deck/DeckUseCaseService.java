@@ -4,6 +4,8 @@ import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apolenkov.application.domain.event.DeckModifiedEvent;
+import org.apolenkov.application.domain.event.DeckModifiedEvent.ModificationType;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.domain.usecase.DeckUseCase;
@@ -11,6 +13,7 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,7 @@ public class DeckUseCaseService implements DeckUseCase {
     private final DeckRepository deckRepository;
     private final FlashcardRepository flashcardRepository;
     private final Validator validator;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Creates service with required dependencies.
@@ -33,12 +37,14 @@ public class DeckUseCaseService implements DeckUseCase {
      * @param deckRepositoryValue the repository for deck operations
      * @param flashcardRepositoryValue the repository for flashcard operations
      * @param validatorValue the validator for input validation
+     * @param eventPublisherValue the Spring event publisher for cache invalidation
      * @throws IllegalArgumentException if any parameter is null
      */
     public DeckUseCaseService(
             final DeckRepository deckRepositoryValue,
             final FlashcardRepository flashcardRepositoryValue,
-            final Validator validatorValue) {
+            final Validator validatorValue,
+            final ApplicationEventPublisher eventPublisherValue) {
         if (deckRepositoryValue == null) {
             throw new IllegalArgumentException("DeckRepository cannot be null");
         }
@@ -48,10 +54,14 @@ public class DeckUseCaseService implements DeckUseCase {
         if (validatorValue == null) {
             throw new IllegalArgumentException("Validator cannot be null");
         }
+        if (eventPublisherValue == null) {
+            throw new IllegalArgumentException("ApplicationEventPublisher cannot be null");
+        }
 
         this.deckRepository = deckRepositoryValue;
         this.flashcardRepository = flashcardRepositoryValue;
         this.validator = validatorValue;
+        this.eventPublisher = eventPublisherValue;
     }
 
     /**
@@ -117,23 +127,33 @@ public class DeckUseCaseService implements DeckUseCase {
             throw new IllegalArgumentException("Validation failed: " + message);
         }
 
+        boolean isNew = deck.getId() == null;
         Deck savedDeck = deckRepository.save(deck);
 
-        // Log business event
-        LOGGER.info(
-                "Deck saved: id={}, title='{}', userId={}, isNew={}",
-                savedDeck.getId(),
-                savedDeck.getTitle(),
-                savedDeck.getUserId(),
-                deck.getId() == null);
+        // Audit log with explicit action
+        if (isNew) {
+            AUDIT_LOGGER.info(
+                    "Deck created: deckId={}, title='{}', userId={}",
+                    savedDeck.getId(),
+                    savedDeck.getTitle(),
+                    savedDeck.getUserId());
+            LOGGER.info("Deck created successfully: id={}, title='{}'", savedDeck.getId(), savedDeck.getTitle());
 
-        // Audit log
-        AUDIT_LOGGER.info(
-                "Deck {}: title='{}', userId={}, isNew={}",
-                savedDeck.getId(),
-                savedDeck.getTitle(),
-                savedDeck.getUserId(),
-                deck.getId() == null);
+            // Publish event to invalidate UI caches
+            eventPublisher.publishEvent(
+                    new DeckModifiedEvent(this, savedDeck.getUserId(), savedDeck.getId(), ModificationType.CREATED));
+        } else {
+            AUDIT_LOGGER.info(
+                    "Deck updated: deckId={}, title='{}', userId={}",
+                    savedDeck.getId(),
+                    savedDeck.getTitle(),
+                    savedDeck.getUserId());
+            LOGGER.debug("Deck updated: id={}", savedDeck.getId());
+
+            // Publish event to invalidate UI caches
+            eventPublisher.publishEvent(
+                    new DeckModifiedEvent(this, savedDeck.getUserId(), savedDeck.getId(), ModificationType.UPDATED));
+        }
 
         return savedDeck;
     }
@@ -172,5 +192,8 @@ public class DeckUseCaseService implements DeckUseCase {
 
         // Audit log
         AUDIT_LOGGER.warn("Deck deleted: id={}, title='{}', userId={}", id, deck.getTitle(), deck.getUserId());
+
+        // Publish event to invalidate UI caches
+        eventPublisher.publishEvent(new DeckModifiedEvent(this, deck.getUserId(), id, ModificationType.DELETED));
     }
 }

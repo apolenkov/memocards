@@ -1,7 +1,6 @@
 package org.apolenkov.application;
 
 import org.apolenkov.application.config.TestContainersConfig;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,14 +25,6 @@ public abstract class BaseIntegrationTest {
     public static void init() {
         container = TestContainersConfig.CustomPostgreSQLContainer.getInstance();
         container.start();
-    }
-
-    /**
-     * Shuts down the PostgreSQL container after all tests.
-     */
-    @AfterAll
-    public static void shutdown() {
-        // Use for all tests one container
     }
 
     /**

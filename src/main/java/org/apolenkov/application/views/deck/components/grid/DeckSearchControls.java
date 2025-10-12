@@ -90,19 +90,56 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
     }
 
     /**
-     * Configures the reset progress button.
+     * Configures the reset progress button with confirmation dialog.
+     * Prevents accidental resets by requiring user confirmation.
      */
     private void configureResetProgressButton() {
         resetProgressButton.setText(getTranslation(DeckConstants.DECK_RESET_PROGRESS));
         resetProgressButton.setIcon(VaadinIcon.ROTATE_LEFT.create());
         resetProgressButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
         resetProgressButtonListenerRegistration = resetProgressButton.addClickListener(e -> {
-            LOGGER.info("Reset progress button clicked");
-            NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_PROGRESS_RESET));
-            if (resetCallback != null) {
-                resetCallback.run();
+            LOGGER.info("Reset progress button clicked - showing confirmation dialog");
+            showResetConfirmationDialog();
+        });
+    }
+
+    /**
+     * Shows confirmation dialog before resetting progress.
+     * Prevents multiple rapid clicks by disabling button during operation.
+     */
+    private void showResetConfirmationDialog() {
+        com.vaadin.flow.component.confirmdialog.ConfirmDialog dialog =
+                new com.vaadin.flow.component.confirmdialog.ConfirmDialog();
+
+        dialog.setHeader(getTranslation("deck.reset.confirm.title"));
+        dialog.setText(getTranslation("deck.reset.confirm.message"));
+
+        dialog.setCancelable(true);
+        dialog.setConfirmText(getTranslation("common.yes"));
+        dialog.setCancelText(getTranslation("common.cancel"));
+        dialog.setConfirmButtonTheme("error primary");
+
+        dialog.addConfirmListener(event -> {
+            LOGGER.info("Reset progress confirmed by user");
+
+            // Disable button to prevent multiple clicks
+            resetProgressButton.setEnabled(false);
+
+            try {
+                NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_PROGRESS_RESET));
+
+                if (resetCallback != null) {
+                    resetCallback.run();
+                }
+            } finally {
+                // Re-enable button after operation completes
+                resetProgressButton.setEnabled(true);
             }
         });
+
+        dialog.addCancelListener(event -> LOGGER.debug("Reset progress cancelled by user"));
+
+        dialog.open();
     }
 
     /**

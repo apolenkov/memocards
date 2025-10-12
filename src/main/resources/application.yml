@@ -52,6 +52,14 @@ app:
     user:
       ttl-minutes: ${CACHE_USER_TTL:30}
       max-size: ${CACHE_USER_MAX_SIZE:1000}
+  monitoring:
+    slow-query-threshold-ms: ${SLOW_QUERY_THRESHOLD:100}
+    hikari:
+      enabled: ${HIKARI_MONITORING_ENABLED:true}
+      log-interval-ms: ${HIKARI_LOG_INTERVAL:60000}
+  security:
+    max-failed-attempts: ${MAX_FAILED_ATTEMPTS:5}
+    failed-attempts-window-minutes: ${FAILED_ATTEMPTS_WINDOW:15}
 
 ---
 # Development Profile
@@ -59,6 +67,11 @@ spring:
   config:
     activate:
       on-profile: dev
+  # Increased connection pool for Virtual Threads in seed operations
+  datasource:
+    hikari:
+      maximum-pool-size: 100  # Match Virtual Threads count for parallel seed operations
+      minimum-idle: 10
 
 # Data seeding configuration (dev profile only)
 app:

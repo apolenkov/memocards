@@ -1,0 +1,160 @@
+---
+alwaysApply: true
+autoFix: true
+version: "1.2.0"
+---
+
+# CACHING STRATEGY
+
+## STACK
+@UIScope/@RequestScope | Spring Events | TTL | ConcurrentHashMap | Micrometer Metrics
+
+## CORE PATTERN
+
+```java
+@Component @UIScope
+public class EntityCache<T> {
+    @Value("${app.cache.entity.ttl-ms:60000}") long ttlMs;
+    @Value("${app.cache.entity.max-size:1000}") int maxSize;
+    Map<Long, Cached<T>> cache = new ConcurrentHashMap<>();
+    AtomicLong hitCount, missCount;
+    
+    public T get(Long key, Supplier<T> loader) {
+        Cached<T> cached = cache.get(key);
+        if (cached != null && cached.isValid(ttlMs)) {
+            hitCount.incrementAndGet();
+            return cached.data;
+        }
+        missCount.incrementAndGet();
+        T data = loader.get();
+        if (cache.size() >= maxSize) evictOldest();
+        cache.put(key, new Cached<>(data, Instant.now()));
+        return data;
+    }
+    
+    @EventListener void onModified(EntityEvent e) { invalidate(e.getId()); }
+    
+    @Scheduled(fixedRate = 60000) // Every minute
+    void logStats() { LOGGER.debug("Cache stats: hits={}, misses={}", hitCount, missCount); }
+    
+    record Cached<T>(T data, Instant at) { 
+        boolean isValid(long ttl) { return Instant.now().isBefore(at.plusMillis(ttl)); }
+    }
+}
+```
+
+## RULES [OK]
+
+**Structure**:
+- @UIScope (single user, UI navigation) or @SessionScope (shared across UI instances)
+- ConcurrentHashMap for thread-safety
+- @Value for TTL and max-size (NO hardcoded values)
+- Inner record with TTL validation
+- AtomicLong for hit/miss tracking
+- Bounded cache with eviction (LRU-style)
+
+**Invalidation**:
+- Primary: @EventListener + publish events after save/delete
+- Backup: TTL (1-5 min)
+- Manual: invalidate() method
+
+**Logging**:
+- DEBUG: "Cache stats: hits={}, misses={}, hitRate={}, size={}"
+- Never log in loops (use counters + periodic logStats())
+- Track hit/miss with AtomicLong
+- Call logStats() via @Scheduled or manually (NOT in get())
+
+**Config**:
+```yaml
+app:
+  cache:
+    entity:
+      ttl-ms: ${CACHE_TTL_MS:60000}  # Env var with fallback
+      max-size: ${CACHE_MAX_SIZE:1000}  # Prevent unbounded growth
+```
+
+**Size Management**:
+- Max size prevents memory leak
+- LRU eviction when cache is full
+- Monitor cache.size() in logStats()
+- Consider Caffeine library for advanced eviction (LRU, LFU, weight-based)
+
+## ANTIPATTERNS [BAD]
+1. Static cache → memory leak, not thread-safe
+2. TTL only → stale after edits (bad UX)
+3. Events only → stale if forget invalidate
+4. Mutable data → data corruption
+5. No null checks → NPE
+6. HashMap → not thread-safe
+7. Hardcoded TTL/max-size → inflexible, violates env-config rules
+8. Logging in get() → performance overhead
+9. @UIScope for multi-tab data → inconsistency (use @SessionScope)
+10. **Unbounded cache** → memory leak (ALWAYS set max-size)
+11. **List.copyOf() in generic cache** → compilation error (ensure immutability in loader)
+
+## MICROMETER METRICS [OK]
+
+**Integration**:
+```java
+@Autowired(required = false)
+private MeterRegistry meterRegistry;
+
+@PostConstruct
+public void registerMetrics() {
+    if (meterRegistry != null) {
+        CacheMetricsConfiguration.CacheMetrics.register(
+            meterRegistry, "entityCache", hitCount, missCount, 
+            ignored -> (double) cache.size());
+    }
+}
+```
+
+**Available Metrics**:
+- `cache.hits{cache="entityCache"}` - Total hits
+- `cache.misses{cache="entityCache"}` - Total misses
+- `cache.hit.rate{cache="entityCache"}` - Hit rate (0.0 to 1.0)
+- `cache.size{cache="entityCache"}` - Current size
+
+**Accessing Metrics**:
+```bash
+# HTTP endpoint
+curl http://localhost:8080/actuator/metrics/cache.hits?tag=cache:userDecks
+
+# Prometheus format
+cache_hits_total{cache="userDecks"} 150
+cache_misses_total{cache="userDecks"} 50
+cache_hit_rate{cache="userDecks"} 0.75
+cache_size{cache="userDecks"} 25
+```
+
+**Testing Stats**:
+```java
+CacheStats stats = cache.getStats();
+assertThat(stats.hitRate()).isGreaterThan(0.7); // 70% hit rate
+assertThat(stats.size()).isLessThan(maxSize);   // Not full
+```
+
+**Dashboard Example** (Grafana):
+```promql
+# Hit rate over time
+rate(cache_hits_total[5m]) / (rate(cache_hits_total[5m]) + rate(cache_misses_total[5m]))
+
+# Cache effectiveness alert (hit rate < 50%)
+cache_hit_rate{cache="userDecks"} < 0.5
+```
+
+## CHECKLIST
+- [ ] @UIScope or @SessionScope (NEVER static)
+- [ ] @Value for TTL and max-size with defaults
+- [ ] TTL + @EventListener (dual invalidation)
+- [ ] Immutability ensured by loader (return immutable objects)
+- [ ] invalidate() and clear() methods
+- [ ] ConcurrentHashMap
+- [ ] AtomicLong counters for stats
+- [ ] logStats() method (NOT in get())
+- [ ] Eviction strategy when cache is full
+- [ ] Service publishes events after CRUD
+- [ ] Consider @SessionScope for multi-tab scenarios
+- [ ] Monitor cache size in production (alert if near max-size)
+- [ ] Micrometer metrics registered (@PostConstruct)
+- [ ] CacheStats record for testing

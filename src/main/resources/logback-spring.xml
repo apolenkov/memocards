@@ -120,7 +120,14 @@
         <appender-ref ref="ASYNC_FILE"/>
     </logger>
     
-    <!-- Security logger - authentication and authorization -->
+    <!-- Application Security logger - brute-force detection, suspicious activity -->
+    <logger name="org.apolenkov.application.security" level="INFO" additivity="false">
+        <appender-ref ref="SECURITY_FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+    
+    <!-- Spring Security logger - authentication and authorization -->
     <logger name="org.springframework.security" level="INFO" additivity="false">
         <appender-ref ref="SECURITY_FILE"/>
         <appender-ref ref="ASYNC_FILE"/>

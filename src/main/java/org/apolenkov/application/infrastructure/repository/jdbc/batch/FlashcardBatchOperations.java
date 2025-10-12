@@ -57,6 +57,9 @@ public class FlashcardBatchOperations {
 
     /**
      * Batch inserts new flashcards in chunks for optimal performance.
+     * NOTE: Generated IDs are NOT set on flashcard objects due to Spring JDBC limitations.
+     * For seed operations this is acceptable as IDs are not needed after insert.
+     * For production use cases that require IDs, use single save() in loop.
      *
      * @param jdbcTemplate JDBC template for database operations
      * @param newCards list of new flashcards
@@ -70,6 +73,9 @@ public class FlashcardBatchOperations {
             List<Flashcard> chunk = newCards.subList(i, end);
 
             List<Object[]> batchArgs = prepareBatchInsertArgs(chunk, now);
+
+            // NOTE: batchUpdate with RETURNING ID doesn't populate IDs back to objects
+            // This is a Spring JDBC limitation - acceptable for seed operations
             jdbcTemplate.batchUpdate(FlashcardSqlQueries.INSERT_FLASHCARD_RETURNING_ID, batchArgs);
 
             logProgress(i, newCards.size());

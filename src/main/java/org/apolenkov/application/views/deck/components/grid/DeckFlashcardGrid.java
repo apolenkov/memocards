@@ -10,16 +10,12 @@ import java.util.Set;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.stats.StatsService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Component for displaying flashcards in a grid with columns and actions.
  * Provides the main flashcard grid with status indicators and action buttons.
  */
 public final class DeckFlashcardGrid extends Grid<Flashcard> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeckFlashcardGrid.class);
 
     // Dependencies
     private final transient StatsService statsService;
@@ -93,7 +89,6 @@ public final class DeckFlashcardGrid extends Grid<Flashcard> {
      * @param deckId the deck ID
      */
     public void setCurrentDeckId(final Long deckId) {
-        LOGGER.debug("Setting current deck ID: {}", deckId);
         this.currentDeckId = deckId;
     }
 
@@ -126,17 +121,49 @@ public final class DeckFlashcardGrid extends Grid<Flashcard> {
 
     /**
      * Updates the grid data provider with filtered flashcards.
-     * Invalidates cache to force reload of known card IDs on next render.
+     * Caches known card IDs to reuse in status column render (avoids duplicate DB query).
      *
      * @param filteredFlashcards the filtered flashcards to display
+     * @param knownCardIds the set of known card IDs (pre-loaded by filter)
      */
-    public void updateData(final List<Flashcard> filteredFlashcards) {
-        // Invalidate cache to ensure fresh data on next render
-        cachedKnownCardIds = null;
+    public void updateData(final List<Flashcard> filteredFlashcards, final Set<Long> knownCardIds) {
+        // Cache known card IDs from filter to reuse in status column
+        // This avoids duplicate DB query (filter already loaded them)
+        this.cachedKnownCardIds = knownCardIds;
 
-        // Data
+        // Update grid data
         ListDataProvider<Flashcard> flashcardsDataProvider =
                 new ListDataProvider<>(new ArrayList<>(filteredFlashcards));
         setDataProvider(flashcardsDataProvider);
+
+        // Force grid to refresh all rows (re-render ComponentColumns with new data)
+        // This is necessary for status column to show updated known status
+        getDataProvider().refreshAll();
+    }
+
+    /**
+     * Refreshes the status column to show updated known status.
+     * Forces re-render of ComponentColumn by refreshing specific items.
+     *
+     * @param flashcardIds the IDs of flashcards whose status changed
+     */
+    @SuppressWarnings("unchecked")
+    public void refreshStatusForCards(final Set<Long> flashcardIds) {
+        var dataProvider = getDataProvider();
+        if (dataProvider instanceof ListDataProvider) {
+            ListDataProvider<Flashcard> listDataProvider = (ListDataProvider<Flashcard>) dataProvider;
+            // Refresh specific items to force ComponentColumn re-render
+            listDataProvider.getItems().stream()
+                    .filter(flashcard -> flashcardIds.contains(flashcard.getId()))
+                    .forEach(listDataProvider::refreshItem);
+        }
+    }
+
+    /**
+     * Invalidates the local cache to force fresh data loading.
+     * Call this after known status changes to ensure UI shows updated status.
+     */
+    public void invalidateCache() {
+        this.cachedKnownCardIds = null;
     }
 }

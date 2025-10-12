@@ -6,10 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
+import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.domain.usecase.StatsUseCase;
+import org.apolenkov.application.model.Deck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,14 +26,23 @@ public class StatsService implements StatsUseCase {
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     private final StatsRepository statsRepository;
+    private final DeckRepository deckRepository;
+    private final KnownCardsCache knownCardsCache;
 
     /**
      * Constructs StatsService with required dependencies.
      *
      * @param statsRepositoryValue repository for statistics operations
+     * @param deckRepositoryValue repository for deck operations
+     * @param knownCardsCacheValue UI-scoped cache for known cards (lazy-loaded)
      */
-    public StatsService(final StatsRepository statsRepositoryValue) {
+    public StatsService(
+            final StatsRepository statsRepositoryValue,
+            final DeckRepository deckRepositoryValue,
+            @Lazy final KnownCardsCache knownCardsCacheValue) {
         this.statsRepository = statsRepositoryValue;
+        this.deckRepository = deckRepositoryValue;
+        this.knownCardsCache = knownCardsCacheValue;
     }
 
     /**
@@ -57,6 +69,9 @@ public class StatsService implements StatsUseCase {
 
         LocalDate today = LocalDate.now();
         statsRepository.appendSession(sessionData, today);
+
+        // Invalidate known cards cache after session (new cards may be marked as known)
+        knownCardsCache.invalidate(sessionData.deckId());
 
         LOGGER.info(
                 "Session recorded: deckId={}, viewed={}, correct={}, hard={}, durationMs={}, knownDelta={}",
@@ -114,6 +129,7 @@ public class StatsService implements StatsUseCase {
 
     /**
      * Retrieves all card IDs marked as known in specific deck.
+     * Uses UI-scoped cache to avoid repeated database queries during navigation.
      *
      * @param deckId ID of deck to retrieve known cards for
      * @return set of card IDs marked as known
@@ -121,11 +137,12 @@ public class StatsService implements StatsUseCase {
     @Override
     @Transactional(readOnly = true)
     public Set<Long> getKnownCardIds(final long deckId) {
-        return statsRepository.getKnownCardIds(deckId);
+        return knownCardsCache.getKnownCards(deckId, () -> statsRepository.getKnownCardIds(deckId));
     }
 
     /**
      * Retrieves known card IDs for multiple decks in single database query.
+     * Uses UI-scoped cache to avoid repeated queries, loads missing decks in batch.
      *
      * @param deckIds collection of deck IDs to retrieve known cards for
      * @return map of deck ID to set of known card IDs (empty map if deckIds is empty)
@@ -139,7 +156,11 @@ public class StatsService implements StatsUseCase {
         }
 
         LOGGER.debug("Batch retrieving known cards for {} decks", deckIds.size());
-        Map<Long, Set<Long>> result = statsRepository.getKnownCardIdsBatch(deckIds);
+
+        // Use cache with batch loader for missing entries
+        Map<Long, Set<Long>> result = knownCardsCache.getKnownCardsBatch(
+                Set.copyOf(deckIds), () -> statsRepository.getKnownCardIdsBatch(deckIds));
+
         LOGGER.debug("Batch retrieval completed: {} decks have known cards", result.size());
 
         return result;
@@ -149,6 +170,7 @@ public class StatsService implements StatsUseCase {
      * Sets knowledge status of specific card in deck.
      * Updates knowledge status of card, marking it as either known or unknown
      * based on user's performance and feedback.
+     * Invalidates cache to ensure fresh data on next query.
      *
      * @param deckId ID of deck containing the card
      * @param cardId ID of card to update
@@ -161,12 +183,16 @@ public class StatsService implements StatsUseCase {
 
         statsRepository.setCardKnown(deckId, cardId, known);
 
+        // Invalidate cache after known status change
+        knownCardsCache.invalidate(deckId);
+
         LOGGER.info("Card marked as {} in deck {}: cardId={}", known ? "known" : "unknown", deckId, cardId);
     }
 
     /**
      * Resets all progress for specific deck.
      * Removes all known card associations and resets daily statistics.
+     * Logs detailed audit information including deck details and cards cleared.
      *
      * @param deckId ID of deck to reset progress for
      */
@@ -175,11 +201,25 @@ public class StatsService implements StatsUseCase {
     public void resetDeckProgress(final long deckId) {
         LOGGER.debug("Resetting progress for deck: {}", deckId);
 
+        // Get deck info for audit logging
+        Deck deck = deckRepository
+                .findById(deckId)
+                .orElseThrow(() -> new IllegalArgumentException("Deck not found: " + deckId));
+
         int knownCardsBefore = statsRepository.getKnownCardIds(deckId).size();
 
         statsRepository.resetDeckProgress(deckId);
 
-        AUDIT_LOGGER.warn("Deck progress reset: deckId={}, knownCardsCleared={}", deckId, knownCardsBefore);
+        // Invalidate cache after progress reset (all known cards cleared)
+        knownCardsCache.invalidate(deckId);
+
+        // Audit log with deck context
+        AUDIT_LOGGER.warn(
+                "Deck progress reset: deckId={}, title='{}', userId={}, clearedCards={}",
+                deckId,
+                deck.getTitle(),
+                deck.getUserId(),
+                knownCardsBefore);
         LOGGER.info("Deck progress reset successfully: deckId={}, cleared {} known cards", deckId, knownCardsBefore);
     }
 

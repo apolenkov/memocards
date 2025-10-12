@@ -16,6 +16,7 @@ public final class PracticeConstants {
     public static final String PRACTICE_HARD_KEY = "practice.hard";
     public static final String PRACTICE_ALL_KNOWN_TITLE_KEY = "practice.allKnown.title";
     public static final String PRACTICE_ALL_KNOWN_MESSAGE_KEY = "practice.allKnown.message";
+    public static final String PRACTICE_ALL_KNOWN_BADGE_KEY = "practice.allKnown.badge";
     public static final String PRACTICE_PROGRESS_LINE_KEY = "practice.progressLine";
     public static final String PRACTICE_EXAMPLE_PREFIX_KEY = "practice.example.prefix";
     public static final String PRACTICE_SESSION_COMPLETE_KEY = "practice.sessionComplete";

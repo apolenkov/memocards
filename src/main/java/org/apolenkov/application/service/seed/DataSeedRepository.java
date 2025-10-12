@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-
 import org.apolenkov.application.infrastructure.repository.jdbc.batch.FlashcardBatchOperations;
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.DeckSqlQueries;
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.NewsSqlQueries;
@@ -33,7 +32,7 @@ import org.springframework.stereotype.Repository;
  * optimized batch insert operations for initial data loading.
  */
 @Repository
-@Profile({"dev"})
+@Profile({"dev", "test"})
 public class DataSeedRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSeedRepository.class);

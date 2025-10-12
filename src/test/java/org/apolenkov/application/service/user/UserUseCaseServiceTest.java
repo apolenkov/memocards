@@ -1,11 +1,12 @@
 package org.apolenkov.application.service.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import org.apolenkov.application.config.cache.RequestScopedUserCache;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,14 +23,11 @@ class UserUseCaseServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private RequestScopedUserCache userCache;
-
     private UserUseCaseService userUseCaseService;
 
     @BeforeEach
     void setUp() {
-        userUseCaseService = new UserUseCaseService(userRepository, userCache);
+        userUseCaseService = new UserUseCaseService(userRepository);
     }
 
     @Test
@@ -87,5 +85,65 @@ class UserUseCaseServiceTest {
 
         // Then
         assertThat(result).hasSize(2).containsExactlyElementsOf(expectedUsers);
+    }
+
+    @Test
+    @DisplayName("Should update user")
+    void shouldUpdateUser() {
+        // Given: Existing user
+        User user = new User(1L, "old@example.com", "Old Name");
+        user.setEmail("new@example.com");
+        user.setName("New Name");
+
+        User updatedUser = new User(1L, "new@example.com", "New Name");
+
+        when(userRepository.save(user)).thenReturn(updatedUser);
+
+        // When: Update user
+        User result = userUseCaseService.updateUser(user);
+
+        // Then: User updated
+        assertThat(result.getEmail()).isEqualTo("new@example.com");
+        assertThat(result.getName()).isEqualTo("New Name");
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating null user")
+    void shouldThrowExceptionWhenUpdatingNull() {
+        // When/Then
+        assertThatThrownBy(() -> userUseCaseService.updateUser(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("User cannot be null");
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating user without ID")
+    void shouldThrowExceptionWhenUpdatingUserWithoutId() {
+        // Given: New user without ID
+        User user = new User(null, "test@example.com", "Test User");
+
+        // When/Then
+        assertThatThrownBy(() -> userUseCaseService.updateUser(user))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Cannot update user without ID");
+    }
+
+    @Test
+    @DisplayName("Should update user email")
+    void shouldUpdateUserEmail() {
+        // Given: User with old email
+        User user = new User(1L, "old@example.com", "User Name");
+        user.setEmail("new@example.com"); // Email change
+
+        User saved = new User(1L, "new@example.com", "User Name");
+        when(userRepository.save(user)).thenReturn(saved);
+
+        // When: Update
+        User result = userUseCaseService.updateUser(user);
+
+        // Then: Email updated and Caffeine cache evicted (allEntries=true at repository level)
+        assertThat(result.getEmail()).isEqualTo("new@example.com");
+        verify(userRepository).save(user);
     }
 }

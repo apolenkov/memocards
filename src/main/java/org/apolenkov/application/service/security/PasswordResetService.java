@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.apolenkov.application.domain.port.PasswordResetTokenRepository;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.domain.usecase.PasswordResetUseCase;
+import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.model.PasswordResetToken;
 import org.apolenkov.application.model.User;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ public class PasswordResetService implements PasswordResetUseCase {
 
     private final PasswordResetTokenRepository tokenRepository;
     private final UserRepository userRepository;
+    private final UserUseCase userUseCase;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -38,12 +40,14 @@ public class PasswordResetService implements PasswordResetUseCase {
      *
      * @param tokenRepositoryValue repository for password reset token operations
      * @param userRepositoryValue repository for user operations
+     * @param userUseCaseValue use case for user operations with cache invalidation
      * @param passwordEncoderValue encoder for secure password hashing
      * @throws IllegalArgumentException if any parameter is null
      */
     public PasswordResetService(
             final PasswordResetTokenRepository tokenRepositoryValue,
             final UserRepository userRepositoryValue,
+            final UserUseCase userUseCaseValue,
             final PasswordEncoder passwordEncoderValue) {
         if (tokenRepositoryValue == null) {
             throw new IllegalArgumentException("PasswordResetTokenRepository cannot be null");
@@ -51,12 +55,16 @@ public class PasswordResetService implements PasswordResetUseCase {
         if (userRepositoryValue == null) {
             throw new IllegalArgumentException("UserRepository cannot be null");
         }
+        if (userUseCaseValue == null) {
+            throw new IllegalArgumentException("UserUseCase cannot be null");
+        }
         if (passwordEncoderValue == null) {
             throw new IllegalArgumentException("PasswordEncoder cannot be null");
         }
 
         this.tokenRepository = tokenRepositoryValue;
         this.userRepository = userRepositoryValue;
+        this.userUseCase = userUseCaseValue;
         this.passwordEncoder = passwordEncoderValue;
     }
 
@@ -163,7 +171,9 @@ public class PasswordResetService implements PasswordResetUseCase {
 
         // Securely hash and update password
         user.setPasswordHash(passwordEncoder.encode(newPassword.trim()));
-        userRepository.save(user);
+
+        // Use UserUseCase to ensure proper cache invalidation (both Caffeine and RequestScoped)
+        userUseCase.updateUser(user);
 
         // Mark token as used to prevent reuse
         tokenRepository.markAsUsed(resetToken.getId());

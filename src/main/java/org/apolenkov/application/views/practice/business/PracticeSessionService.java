@@ -111,6 +111,23 @@ public final class PracticeSessionService {
     }
 
     /**
+     * Determines the default number of cards for a practice session.
+     * Optimized version that accepts pre-loaded cards to avoid redundant database queries.
+     *
+     * @param notKnownCards list of not-known cards already fetched from database
+     * @return the number of cards to include in the practice session (1 to configured default)
+     * @throws IllegalArgumentException if notKnownCards is null
+     */
+    public int resolveDefaultCount(final List<Flashcard> notKnownCards) {
+        if (notKnownCards == null) {
+            throw new IllegalArgumentException("notKnownCards cannot be null");
+        }
+        int configured = practiceSettingsService.getDefaultCount();
+        int notKnown = notKnownCards.size();
+        return Math.clamp(notKnown, 1, configured);
+    }
+
+    /**
      * Determines if practice sessions should use random card order.
      *
      * @return true if random ordering is enabled, false for sequential ordering

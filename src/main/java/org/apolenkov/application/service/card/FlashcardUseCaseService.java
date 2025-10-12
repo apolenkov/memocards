@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class FlashcardUseCaseService implements FlashcardUseCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlashcardUseCaseService.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
+    private static final int MAX_LOG_TEXT_LENGTH = 50;
 
     private final FlashcardRepository flashcardRepository;
     private final Validator validator;
@@ -71,16 +73,28 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
         boolean isNew = flashcard.getId() == null;
         flashcardRepository.save(flashcard);
 
-        LOGGER.info(
-                "Flashcard saved: id={}, frontText='{}', deckId={}, isNew={}",
-                flashcard.getId(),
-                flashcard.getFrontText(),
-                flashcard.getDeckId(),
-                isNew);
+        // Audit log with explicit action (truncate frontText for readability)
+        String frontTextTruncated = truncate(flashcard.getFrontText());
+        if (isNew) {
+            AUDIT_LOGGER.info(
+                    "Flashcard created: cardId={}, deckId={}, front='{}'",
+                    flashcard.getId(),
+                    flashcard.getDeckId(),
+                    frontTextTruncated);
+            LOGGER.info("Flashcard created: id={}, front='{}'", flashcard.getId(), frontTextTruncated);
+        } else {
+            AUDIT_LOGGER.info(
+                    "Flashcard updated: cardId={}, deckId={}, front='{}'",
+                    flashcard.getId(),
+                    flashcard.getDeckId(),
+                    frontTextTruncated);
+            LOGGER.debug("Flashcard updated: id={}", flashcard.getId());
+        }
     }
 
     /**
      * Deletes flashcard by ID.
+     * Logs flashcard details before deletion for audit trail.
      *
      * @param id the unique identifier of the flashcard to delete
      */
@@ -88,6 +102,16 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     @Transactional
     public void deleteFlashcard(final long id) {
         LOGGER.debug("Deleting flashcard with ID: {}", id);
+
+        // Get flashcard info before deletion for audit logging
+        flashcardRepository.findById(id).ifPresent(flashcard -> {
+            String frontTextTruncated = truncate(flashcard.getFrontText());
+            AUDIT_LOGGER.warn(
+                    "Flashcard deleted: cardId={}, deckId={}, front='{}'",
+                    id,
+                    flashcard.getDeckId(),
+                    frontTextTruncated);
+        });
 
         flashcardRepository.deleteById(id);
 
@@ -125,5 +149,19 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
         LOGGER.debug("Batch count completed: {} decks have flashcards", counts.size());
 
         return counts;
+    }
+
+    /**
+     * Truncates text to specified maximum length.
+     * Adds ellipsis if text was truncated.
+     *
+     * @param text the text to truncate
+     * @return truncated text or original if shorter than maxLength
+     */
+    private static String truncate(final String text) {
+        if (text == null || text.length() <= MAX_LOG_TEXT_LENGTH) {
+            return text;
+        }
+        return text.substring(0, MAX_LOG_TEXT_LENGTH - 3) + "...";
     }
 }

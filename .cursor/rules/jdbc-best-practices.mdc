@@ -1,7 +1,7 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "2.0.0"
+version: "2.1.0"
 ---
 
 # JDBC - Spring Data JDBC + PostgreSQL + Java 21
@@ -38,7 +38,6 @@ Spring Data JDBC (NOT JPA/Hibernate!) | JdbcTemplate | PostgreSQL | Records
 
 **DTOs**:
 - Records (immutable)
-- Compact constructor validation
 - **Builder for 5+ params** (readability, self-documenting)
 - **Static factory for 2-4 params** (forNew*, forExisting*)
 - Nested records for groups
@@ -54,10 +53,23 @@ Spring Data JDBC (NOT JPA/Hibernate!) | JdbcTemplate | PostgreSQL | Records
 - ON CONFLICT (upsert)
 - JSONB, arrays, text blocks
 
-**Validation**:
-- Input checks before queries
-- IllegalArgumentException
-- ID >0, non-null/empty strings
+**N+1 Prevention**:
+- Fetch aggregates with JOIN in single query
+- Use batch operations for collections (batchUpdate)
+- Profile queries with EXPLAIN ANALYZE
+- Monitor query count per request (should be constant, not O(n))
+
+**Validation Layers:**
+```
+UI (Binder: required, format, length)
+  ↓
+Service (business: uniqueness, authorization, state transitions)
+  ↓
+DTO compact constructor (technical: null, blank, positive IDs)
+  ↓
+Repository (NO validation, assumes valid data)
+```
+- Exceptions: IllegalArgumentException (DTO), Business exceptions (Service)
 
 ## ANTIPATTERNS [BAD]
 1. SQL injection → always parameterized (?)
@@ -68,6 +80,9 @@ Spring Data JDBC (NOT JPA/Hibernate!) | JdbcTemplate | PostgreSQL | Records
 6. String concat → text blocks
 7. LASTVAL() → RETURNING id
 8. @Autowired fields → constructor
+9. **N+1 queries** → JOIN or batch operations
+10. **Missing @Transactional** → connection leak, no auto-rollback
+11. **Validation in Repository** → should be in Service/DTO
 
 ## CHECKLIST
 - [ ] @Profile + @Repository
@@ -76,47 +91,19 @@ Spring Data JDBC (NOT JPA/Hibernate!) | JdbcTemplate | PostgreSQL | Records
 - [ ] SQL in *SqlQueries
 - [ ] Text blocks
 - [ ] Parameterized (?)
-- [ ] DTO records
+- [ ] DTO records with technical validation
 - [ ] Domain exceptions
-- [ ] Input validation
+- [ ] Input validation in correct layer
 - [ ] Optional<T> returns
+- [ ] @Transactional on Service (NOT Repository)
+- [ ] N+1 prevention (JOIN or batch)
+- [ ] Profile queries (EXPLAIN ANALYZE)
 
 ## BUILDER vs STATIC FACTORY
 
-**Use Builder when [OK]:**
-- **5+ parameters** (improves readability)
-- **Similar types** (easy to mix up: `long duration, long delay`)
-- **Optional parameters** (partial initialization)
-- **Self-documenting code** preferred
-
-```java
-// ✅ 7 params - Builder is better!
-SessionStatsDto.builder()
-    .deckId(deckId)
-    .viewed(totalViewed)
-    .correct(correct)
-    .hard(hard)
-    .sessionDurationMs(sessionDuration.toMillis())
-    .totalAnswerDelayMs(totalAnswerDelayMs)
-    .knownCardIdsDelta(knownCardIdsDelta)
-    .build()
-```
-
-**Use Static Factory when [OK]:**
-- **2-4 parameters** (compact, clear)
-- **Different types** (hard to confuse)
-- **All required** (no optionals)
-
-```java
-// ✅ 3 params - static factory is fine
-UserDto.forNew("email@example.com", "John Doe", "hashedPassword")
-UserDto.forExisting(1L, "email@example.com", "John Doe")
-```
-
-**Guideline**:
-- 2-3 params → static factory `of()` or `forNew*()` / `forExisting*()`
-- 4 params → your choice (consider similarity of types)
-- **5+ params → Builder** (readability wins!)
+- **2-4 params** → Static factory (`forNew*()`, `forExisting*()`)
+- **5+ params** → Builder (readability, self-documenting)
+- Similar types → Builder; Different types → Factory
 
 ## JAVA 21
 Text blocks | Records | getFirst() | Pattern matching

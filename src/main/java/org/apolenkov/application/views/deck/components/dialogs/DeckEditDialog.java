@@ -167,6 +167,7 @@ public class DeckEditDialog extends Dialog {
 
             LOGGER.debug("Deck edited successfully: id={}, title='{}'", saved.getId(), saved.getTitle());
 
+            // Cache invalidation handled automatically via DeckModifiedEvent
             NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_EDIT_SUCCESS));
             close();
 
