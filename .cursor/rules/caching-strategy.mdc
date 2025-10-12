@@ -94,37 +94,30 @@ app:
 
 ## MICROMETER METRICS [OK]
 
-**Integration**:
+**ONLY for Application-Level Caches** (NOT @UIScope/@RequestScope):
+- Caffeine cache (@Cacheable) - long-lived, cross-user
+- @ApplicationScope caches - persistent across all users
+- Database connection pools (HikariCP)
+
+**WHY NOT for @UIScope?**
+- ❌ Short lifecycle (only while tab open)
+- ❌ Metrics reset on UI destroy
+- ❌ No historical aggregation
+- ❌ Over-engineering for temporary cache
+
+**For @UIScope caches use:**
 ```java
-@Autowired(required = false)
-private MeterRegistry meterRegistry;
-
-@PostConstruct
-public void registerMetrics() {
-    if (meterRegistry != null) {
-        CacheMetricsConfiguration.CacheMetrics.register(
-            meterRegistry, "entityCache", hitCount, missCount, 
-            ignored -> (double) cache.size());
-    }
+// CacheStats record for testing
+public CacheStats getStats() {
+    return new CacheStats(hitCount.get(), missCount.get(), cache.size());
 }
-```
 
-**Available Metrics**:
-- `cache.hits{cache="entityCache"}` - Total hits
-- `cache.misses{cache="entityCache"}` - Total misses
-- `cache.hit.rate{cache="entityCache"}` - Hit rate (0.0 to 1.0)
-- `cache.size{cache="entityCache"}` - Current size
-
-**Accessing Metrics**:
-```bash
-# HTTP endpoint
-curl http://localhost:8080/actuator/metrics/cache.hits?tag=cache:userDecks
-
-# Prometheus format
-cache_hits_total{cache="userDecks"} 150
-cache_misses_total{cache="userDecks"} 50
-cache_hit_rate{cache="userDecks"} 0.75
-cache_size{cache="userDecks"} 25
+// logStats() for debugging
+public void logStats() {
+    long total = hitCount.get() + missCount.get();
+    String hitRate = total > 0 ? String.format("%.1f%%", ...) : "N/A";
+    LOGGER.debug("Cache stats: hits={}, misses={}, hitRate={}, size={}", ...);
+}
 ```
 
 **Testing Stats**:
@@ -132,15 +125,6 @@ cache_size{cache="userDecks"} 25
 CacheStats stats = cache.getStats();
 assertThat(stats.hitRate()).isGreaterThan(0.7); // 70% hit rate
 assertThat(stats.size()).isLessThan(maxSize);   // Not full
-```
-
-**Dashboard Example** (Grafana):
-```promql
-# Hit rate over time
-rate(cache_hits_total[5m]) / (rate(cache_hits_total[5m]) + rate(cache_misses_total[5m]))
-
-# Cache effectiveness alert (hit rate < 50%)
-cache_hit_rate{cache="userDecks"} < 0.5
 ```
 
 ## CHECKLIST
@@ -156,5 +140,5 @@ cache_hit_rate{cache="userDecks"} < 0.5
 - [ ] Service publishes events after CRUD
 - [ ] Consider @SessionScope for multi-tab scenarios
 - [ ] Monitor cache size in production (alert if near max-size)
-- [ ] Micrometer metrics registered (@PostConstruct)
 - [ ] CacheStats record for testing
+- [ ] NO Micrometer for @UIScope (only for application-level caches)
