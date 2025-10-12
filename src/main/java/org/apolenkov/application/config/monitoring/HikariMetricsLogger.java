@@ -5,7 +5,6 @@ import com.zaxxer.hikari.HikariPoolMXBean;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -24,11 +23,6 @@ public class HikariMetricsLogger {
     private static final Logger LOGGER = LoggerFactory.getLogger(HikariMetricsLogger.class);
 
     private final DataSource dataSource;
-
-    // Note: Used in @Scheduled annotation below (SonarLint doesn't detect usage in annotations)
-    @Value("${app.monitoring.hikari.log-interval-ms:60000}")
-    @SuppressWarnings("java:S1068")
-    private long logIntervalMs;
 
     /**
      * Creates HikariMetricsLogger with datasource.

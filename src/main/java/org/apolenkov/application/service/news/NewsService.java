@@ -60,7 +60,6 @@ public class NewsService implements NewsUseCase {
         newsRepository.save(news);
 
         AUDIT_LOGGER.info("News created: title='{}', author={}, contentLength={}", title, author, content.length());
-        LOGGER.info("News created successfully: title='{}', author={}", title, author);
     }
 
     /**
@@ -95,7 +94,6 @@ public class NewsService implements NewsUseCase {
         newsRepository.save(existing);
 
         AUDIT_LOGGER.info("News updated: id={}, titleChanged='{}' -> '{}', author={}", id, oldTitle, title, author);
-        LOGGER.info("News updated successfully: id={}, title='{}'", id, title);
     }
 
     /**
@@ -117,7 +115,6 @@ public class NewsService implements NewsUseCase {
         newsRepository.deleteById(id);
 
         AUDIT_LOGGER.warn("News deleted: id={}, title='{}', author={}", id, news.getTitle(), news.getAuthor());
-        LOGGER.info("News deleted successfully: id={}, title='{}'", id, news.getTitle());
     }
 
     /**

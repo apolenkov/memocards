@@ -77,14 +77,12 @@ public class UserUseCaseService implements UserUseCase {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             AUDIT_LOGGER.warn("Unauthenticated access attempt to getCurrentUser()");
-            LOGGER.warn("Attempted to get current user without authentication");
             throw new IllegalStateException("Unauthenticated");
         }
 
         Object principal = authentication.getPrincipal();
         if (principal == null) {
             AUDIT_LOGGER.error("Authenticated principal is null");
-            LOGGER.error("Authentication principal is null");
             throw new IllegalStateException("Authenticated principal is null");
         }
 
@@ -93,7 +91,6 @@ public class UserUseCaseService implements UserUseCase {
         try {
             User user = userRepository.findByEmail(username).orElseThrow(() -> {
                 AUDIT_LOGGER.error("Authenticated principal has no domain user: username={}", username);
-                LOGGER.error("Domain user not found for authenticated principal: {}", username);
                 return new IllegalStateException("Authenticated principal has no domain user: " + username);
             });
 

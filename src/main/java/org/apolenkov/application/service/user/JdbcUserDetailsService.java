@@ -61,12 +61,11 @@ public class JdbcUserDetailsService implements UserDetailsService {
 
             // Validate user exists and has password hash
             if (user == null || !hasValidPasswordHash(user)) {
+                // Security events: AUDIT_LOGGER writes to both audit.log and application.log
                 if (user == null) {
                     AUDIT_LOGGER.warn("Authentication failed: username={}", username);
-                    LOGGER.warn("Authentication failed for: {}", username);
                 } else {
                     AUDIT_LOGGER.error("User has no password hash: userId={}, email={}", user.getId(), username);
-                    LOGGER.error("User has no password hash: {}", username);
                 }
                 // Generic error message to prevent user enumeration
                 throw new UsernameNotFoundException("Bad credentials");
