@@ -51,7 +51,6 @@ public class JdbcRegistrationService implements RegistrationService {
 
         userRepository.findByEmail(email).ifPresent(u -> {
             AUDIT_LOGGER.warn("Registration attempt with existing email: {}", email);
-            LOGGER.warn("Registration failed - user already exists: {}", email);
             throw new IllegalArgumentException("User already exists");
         });
 
@@ -64,6 +63,5 @@ public class JdbcRegistrationService implements RegistrationService {
         User savedUser = userRepository.save(user);
 
         AUDIT_LOGGER.info("New user registered: email={}, name={}, userId={}", email, name, savedUser.getId());
-        LOGGER.info("User registered successfully: email={}, userId={}", email, savedUser.getId());
     }
 }

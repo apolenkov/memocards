@@ -88,6 +88,7 @@ public class AuthService {
     /**
      * Performs authentication using Spring Security.
      * Handles different authentication failure scenarios with detailed audit logging.
+     * SecurityAuditAspect tracks additional context (IP, attempt count, user agent) via AOP.
      *
      * @param username the username
      * @param rawPassword the password
@@ -102,22 +103,18 @@ public class AuthService {
             return authenticationConfiguration.getAuthenticationManager().authenticate(authRequest);
         } catch (BadCredentialsException e) {
             AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=BAD_CREDENTIALS", username);
-            LOGGER.warn("Authentication failed for user {}: invalid credentials", username);
             throw new IllegalArgumentException("Invalid username or password", e);
         } catch (DisabledException e) {
             AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=ACCOUNT_DISABLED", username);
-            LOGGER.warn("Authentication failed for user {}: account disabled", username);
             throw new IllegalArgumentException("Account is disabled", e);
         } catch (LockedException e) {
             AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=ACCOUNT_LOCKED", username);
-            LOGGER.warn("Authentication failed for user {}: account locked", username);
             throw new IllegalArgumentException("Account is locked", e);
         } catch (Exception e) {
             AUDIT_LOGGER.warn(
                     "Failed login attempt: username={}, reason=UNKNOWN ({})",
                     username,
                     e.getClass().getSimpleName());
-            LOGGER.warn("Authentication failed for user {}: {}", username, e.getMessage());
             throw new IllegalArgumentException("Authentication failed", e);
         }
     }

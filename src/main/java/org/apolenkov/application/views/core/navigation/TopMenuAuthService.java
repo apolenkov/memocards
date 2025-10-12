@@ -130,14 +130,12 @@ public class TopMenuAuthService {
             new SecurityContextLogoutHandler().logout(request.getHttpServletRequest(), null, null);
 
             AUDIT_LOGGER.info("User logged out successfully: {}", username);
-            LOGGER.info("Logout successful for user: {}", username);
         } catch (AuthenticationException e) {
-            AUDIT_LOGGER.warn("Logout failed for user: {} - Authentication error: {}", username, e.getMessage());
-            LOGGER.warn("Authentication error during logout: {}", e.getMessage());
+            AUDIT_LOGGER.warn("Logout failed: username={}, reason={}", username, e.getMessage());
             NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
         } catch (Exception e) {
-            AUDIT_LOGGER.error("Logout failed for user: {} - Unexpected error", username, e);
-            LOGGER.error("Unexpected error during logout", e);
+            AUDIT_LOGGER.error("Logout failed: username={}", username);
+            LOGGER.error("Logout error", e);
             NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
         }
     }

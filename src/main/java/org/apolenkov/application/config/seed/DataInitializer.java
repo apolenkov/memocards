@@ -16,7 +16,6 @@ import org.apolenkov.application.model.User;
 import org.apolenkov.application.service.seed.DataSeedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,17 +34,16 @@ public class DataInitializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataInitializer.class);
 
-    @Value("${app.seed.demo.admin-password:admin}")
-    private String demoAdminPassword;
+    private final SeedConfig seedConfig;
 
-    @Value("${app.seed.demo.user-password:user}")
-    private String demoUserPassword;
-
-    @Value("${app.seed.demo.enabled:true}")
-    private boolean seedDemoDataEnabled;
-
-    @Value("${app.seed.test.enabled:false}")
-    private boolean generateTestDataEnabled;
+    /**
+     * Creates DataInitializer with seed configuration.
+     *
+     * @param seedConfigValue type-safe seed configuration
+     */
+    public DataInitializer(final SeedConfig seedConfigValue) {
+        this.seedConfig = seedConfigValue;
+    }
 
     /**
      * Demo user configuration constants.
@@ -154,7 +152,7 @@ public class DataInitializer {
      */
     private void createDemoDataIfNeeded(
             final User user, final DeckRepository decks, final FlashcardRepository cards, final NewsRepository news) {
-        if (!seedDemoDataEnabled) {
+        if (!seedConfig.demo().enabled()) {
             LOGGER.info("Demo data creation disabled (app.seed.demo.enabled=false)");
             return;
         }
@@ -276,7 +274,7 @@ public class DataInitializer {
      * @param dataSeedService service for generating test data
      */
     private void generateTestDataIfEnabled(final DataSeedService dataSeedService) {
-        if (!generateTestDataEnabled) {
+        if (!seedConfig.test().enabled()) {
             LOGGER.info("Test data generation skipped (set app.seed.test.enabled=true to enable)");
             return;
         }
@@ -331,6 +329,6 @@ public class DataInitializer {
      * @return demo password for development environment
      */
     private String getDemoPassword(final boolean isAdmin) {
-        return isAdmin ? demoAdminPassword : demoUserPassword;
+        return isAdmin ? seedConfig.demo().adminPassword() : seedConfig.demo().userPassword();
     }
 }

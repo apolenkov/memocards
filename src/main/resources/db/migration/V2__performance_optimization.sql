@@ -30,6 +30,7 @@ CREATE INDEX IF NOT EXISTS idx_deck_daily_stats_user_progress ON deck_daily_stat
 CREATE INDEX IF NOT EXISTS idx_deck_daily_stats_version ON deck_daily_stats(version);
 
 -- User roles and permissions indexes
+CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id);  -- Critical for JOIN with users table
 CREATE INDEX IF NOT EXISTS idx_user_roles_role ON user_roles(role);
 
 -- News and content indexes

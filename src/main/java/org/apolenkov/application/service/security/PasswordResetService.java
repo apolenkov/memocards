@@ -89,7 +89,6 @@ public class PasswordResetService implements PasswordResetUseCase {
         Optional<User> userOpt = userRepository.findByEmail(email.trim());
         if (userOpt.isEmpty()) {
             AUDIT_LOGGER.warn("Password reset attempt for non-existent email: {}", email);
-            LOGGER.debug("Password reset request for non-existent email: {}", email);
             // Return empty to prevent user enumeration attacks
             return Optional.empty();
         }
@@ -144,7 +143,6 @@ public class PasswordResetService implements PasswordResetUseCase {
         Optional<PasswordResetToken> tokenOpt = tokenRepository.findByToken(token.trim());
         if (tokenOpt.isEmpty()) {
             AUDIT_LOGGER.warn("Password reset attempt with invalid token");
-            LOGGER.warn("Invalid password reset token provided");
             return false;
         }
 
@@ -179,7 +177,6 @@ public class PasswordResetService implements PasswordResetUseCase {
         tokenRepository.markAsUsed(resetToken.getId());
 
         AUDIT_LOGGER.info("Password reset successful for user: email={}, userId={}", user.getEmail(), user.getId());
-        LOGGER.info("Password reset completed for user: {}", user.getEmail());
 
         return true;
     }
