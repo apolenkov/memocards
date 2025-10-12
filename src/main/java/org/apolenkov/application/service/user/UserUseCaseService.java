@@ -2,7 +2,6 @@ package org.apolenkov.application.service.user;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.model.User;
