@@ -2,6 +2,7 @@ package org.apolenkov.application.service.user;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.model.User;
@@ -143,7 +144,6 @@ public class UserUseCaseService implements UserUseCase {
         User saved = userRepository.save(user);
 
         AUDIT_LOGGER.info("User updated: userId={}, email={}", saved.getId(), saved.getEmail());
-        LOGGER.debug("User updated: userId={}, email={}", saved.getId(), saved.getEmail());
         return saved;
     }
 }

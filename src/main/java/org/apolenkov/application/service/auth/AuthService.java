@@ -1,10 +1,5 @@
 package org.apolenkov.application.service.auth;
 
-import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.server.VaadinServletRequest;
-import com.vaadin.flow.server.VaadinServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,6 +12,13 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
+
+import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Service for authentication operations.
@@ -64,9 +66,7 @@ public class AuthService {
         Authentication auth = performAuthentication(username, rawPassword);
         persistAuthenticationContext(auth);
 
-        // Log successful authentication
         AUDIT_LOGGER.info("User logged in successfully: {}", username);
-        LOGGER.info("Authentication successful for user: {}", username);
     }
 
     /**
