@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
 import org.apolenkov.application.domain.port.NewsRepository;
 import org.apolenkov.application.infrastructure.repository.jdbc.dto.NewsDto;
 import org.apolenkov.application.infrastructure.repository.jdbc.exception.NewsPersistenceException;

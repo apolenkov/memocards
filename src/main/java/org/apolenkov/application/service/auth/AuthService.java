@@ -7,6 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
@@ -45,28 +48,25 @@ public class AuthService {
      * Performs user authentication using Spring Security's authentication manager
      * and persists authentication context to HTTP session for subsequent requests.
      *
+     * <p>Failed authentication attempts are automatically logged in performAuthentication()
+     * with detailed reason codes for security audit trail (OWASP compliance).
+     *
      * @param username email address of user to authenticate
      * @param rawPassword plain text password for authentication
      * @throws IllegalArgumentException if authentication fails due to invalid credentials or invalid parameters
      */
-    @SuppressWarnings("java:S2139") // Security audit requires logging before rethrow (OWASP compliance)
     public void authenticateAndPersist(final String username, final String rawPassword) {
         validateCredentials(username, rawPassword);
 
         LOGGER.debug("Attempting authentication for user: {}", username);
 
-        try {
-            Authentication auth = performAuthentication(username, rawPassword);
-            persistAuthenticationContext(auth);
+        // performAuthentication() handles detailed audit logging for failures
+        Authentication auth = performAuthentication(username, rawPassword);
+        persistAuthenticationContext(auth);
 
-            AUDIT_LOGGER.info("User logged in successfully: {}", username);
-            LOGGER.info("Authentication successful for user: {}", username);
-        } catch (IllegalArgumentException e) {
-            // S2139: Intentionally logging before rethrow for security audit trail (OWASP compliance)
-            AUDIT_LOGGER.warn("Failed login attempt for user: {} - Reason: {}", username, e.getMessage());
-            LOGGER.warn("Authentication failed for user: {}", username);
-            throw e;
-        }
+        // Log successful authentication
+        AUDIT_LOGGER.info("User logged in successfully: {}", username);
+        LOGGER.info("Authentication successful for user: {}", username);
     }
 
     /**
@@ -87,18 +87,37 @@ public class AuthService {
 
     /**
      * Performs authentication using Spring Security.
+     * Handles different authentication failure scenarios with detailed audit logging.
      *
      * @param username the username
      * @param rawPassword the password
      * @return authenticated Authentication object
      * @throws IllegalArgumentException if authentication fails
      */
+    @SuppressWarnings("java:S2139") // Security audit requires logging before rethrow (OWASP compliance)
     private Authentication performAuthentication(final String username, final String rawPassword) {
         UsernamePasswordAuthenticationToken authRequest =
                 new UsernamePasswordAuthenticationToken(username, rawPassword);
         try {
             return authenticationConfiguration.getAuthenticationManager().authenticate(authRequest);
+        } catch (BadCredentialsException e) {
+            AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=BAD_CREDENTIALS", username);
+            LOGGER.warn("Authentication failed for user {}: invalid credentials", username);
+            throw new IllegalArgumentException("Invalid username or password", e);
+        } catch (DisabledException e) {
+            AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=ACCOUNT_DISABLED", username);
+            LOGGER.warn("Authentication failed for user {}: account disabled", username);
+            throw new IllegalArgumentException("Account is disabled", e);
+        } catch (LockedException e) {
+            AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=ACCOUNT_LOCKED", username);
+            LOGGER.warn("Authentication failed for user {}: account locked", username);
+            throw new IllegalArgumentException("Account is locked", e);
         } catch (Exception e) {
+            AUDIT_LOGGER.warn(
+                    "Failed login attempt: username={}, reason=UNKNOWN ({})",
+                    username,
+                    e.getClass().getSimpleName());
+            LOGGER.warn("Authentication failed for user {}: {}", username, e.getMessage());
             throw new IllegalArgumentException("Authentication failed", e);
         }
     }

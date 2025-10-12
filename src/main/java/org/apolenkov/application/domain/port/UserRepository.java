@@ -2,7 +2,6 @@ package org.apolenkov.application.domain.port;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.apolenkov.application.model.User;
 
 /**

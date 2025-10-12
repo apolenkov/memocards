@@ -35,4 +35,14 @@ public interface UserUseCase {
      * @return currently authenticated user
      */
     User getCurrentUser();
+
+    /**
+     * Updates existing user and clears request-scoped cache.
+     * Use this method instead of direct repository access to ensure proper cache invalidation.
+     *
+     * @param user user to update (must have non-null ID)
+     * @return updated user
+     * @throws IllegalArgumentException if user is null or has no ID
+     */
+    User updateUser(User user);
 }

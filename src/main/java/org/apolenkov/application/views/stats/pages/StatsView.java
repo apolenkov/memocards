@@ -19,6 +19,7 @@ import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.service.stats.StatsService;
 import org.apolenkov.application.views.core.layout.PublicLayout;
+import org.apolenkov.application.views.deck.cache.UserDecksCache;
 import org.apolenkov.application.views.shared.base.BaseView;
 import org.apolenkov.application.views.stats.components.CollapsibleSectionBuilder;
 import org.apolenkov.application.views.stats.components.DeckPaginationBuilder;
@@ -27,6 +28,7 @@ import org.apolenkov.application.views.stats.components.StatsCalculator;
 import org.apolenkov.application.views.stats.constants.StatsConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 
 /**
  * Simplified statistics view with integrated components.
@@ -42,6 +44,7 @@ public class StatsView extends BaseView {
     private final transient DeckUseCase deckUseCase;
     private final transient UserUseCase userUseCase;
     private final transient StatsService statsService;
+    private final transient UserDecksCache decksCache;
 
     // Data
     private transient List<Deck> decks;
@@ -56,14 +59,17 @@ public class StatsView extends BaseView {
      * @param deckUseCaseParam service for deck operations
      * @param userUseCaseParam service for user operations
      * @param statsServiceParam service for statistics and progress tracking
+     * @param decksCacheParam UI-scoped cache for decks (lazy-loaded)
      */
     public StatsView(
             final DeckUseCase deckUseCaseParam,
             final UserUseCase userUseCaseParam,
-            final StatsService statsServiceParam) {
+            final StatsService statsServiceParam,
+            @Lazy final UserDecksCache decksCacheParam) {
         this.deckUseCase = deckUseCaseParam;
         this.userUseCase = userUseCaseParam;
         this.statsService = statsServiceParam;
+        this.decksCache = decksCacheParam;
     }
 
     /**
@@ -127,10 +133,11 @@ public class StatsView extends BaseView {
 
     /**
      * Loads statistics data from services.
+     * Uses UI-scoped cache to avoid repeated database queries.
      */
     private void loadStatsData() {
         long userId = userUseCase.getCurrentUser().getId();
-        decks = deckUseCase.getDecksByUserId(userId);
+        decks = decksCache.getDecks(userId, () -> deckUseCase.getDecksByUserId(userId));
 
         List<Long> deckIds = decks.stream().map(Deck::getId).toList();
         aggregates = statsService.getDeckAggregates(deckIds);

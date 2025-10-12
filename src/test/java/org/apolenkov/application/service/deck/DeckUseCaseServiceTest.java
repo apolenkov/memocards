@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("DeckUseCaseService Core Tests")
@@ -30,11 +31,14 @@ class DeckUseCaseServiceTest {
     @Mock
     private Validator validator;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     private DeckUseCaseService deckUseCaseService;
 
     @BeforeEach
     void setUp() {
-        deckUseCaseService = new DeckUseCaseService(deckRepository, flashcardRepository, validator);
+        deckUseCaseService = new DeckUseCaseService(deckRepository, flashcardRepository, validator, eventPublisher);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package org.apolenkov.application.service.seed;
 
+import jakarta.annotation.PostConstruct;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-
 import org.apolenkov.application.config.seed.SeedConfig;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.port.DeckRepository;
@@ -24,8 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import jakarta.annotation.PostConstruct;
 
 /**
  * Service for generating test data using batch operations and virtual threads.
@@ -138,6 +136,7 @@ public class DataSeedService {
      * Avoids expensive password encoding in loops.
      */
     @PostConstruct
+    @SuppressWarnings("unused")
     void initPasswordCache() {
         LOGGER.debug("Caching password hash for test data generation...");
         this.cachedPasswordHash = passwordEncoder.encode(testUserPassword);

@@ -2,7 +2,6 @@ package org.apolenkov.application.service.user;
 
 import java.util.List;
 import java.util.Optional;
-import org.apolenkov.application.config.cache.RequestScopedUserCache;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.model.User;
@@ -25,24 +24,18 @@ public class UserUseCaseService implements UserUseCase {
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
     private final UserRepository userRepository;
-    private final RequestScopedUserCache userCache;
 
     /**
-     * Creates a new UserUseCaseService with the required dependencies.
+     * Creates a new UserUseCaseService with the required repository dependency.
      *
      * @param userRepositoryValue the repository for user persistence operations (non-null)
-     * @param userCacheValue request-scoped cache for current user (non-null)
-     * @throws IllegalArgumentException if any dependency is null
+     * @throws IllegalArgumentException if userRepository is null
      */
-    public UserUseCaseService(final UserRepository userRepositoryValue, final RequestScopedUserCache userCacheValue) {
+    public UserUseCaseService(final UserRepository userRepositoryValue) {
         if (userRepositoryValue == null) {
             throw new IllegalArgumentException("UserRepository cannot be null");
         }
-        if (userCacheValue == null) {
-            throw new IllegalArgumentException("RequestScopedUserCache cannot be null");
-        }
         this.userRepository = userRepositoryValue;
-        this.userCache = userCacheValue;
     }
 
     /**
@@ -71,6 +64,7 @@ public class UserUseCaseService implements UserUseCase {
     /**
      * Gets the currently authenticated user from Spring Security context.
      * Resolves authentication principal to domain user object.
+     * Uses Caffeine cache at repository level for performance.
      *
      * @return the currently authenticated user
      * @throws IllegalStateException if the user is not authenticated, if the principal
@@ -80,11 +74,6 @@ public class UserUseCaseService implements UserUseCase {
     @Transactional(readOnly = true)
     @SuppressWarnings("java:S2139") // Security audit requires logging before rethrow (OWASP compliance)
     public User getCurrentUser() {
-        User cachedUser = userCache.get();
-        if (cachedUser != null) {
-            return cachedUser;
-        }
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             AUDIT_LOGGER.warn("Unauthenticated access attempt to getCurrentUser()");
@@ -108,10 +97,7 @@ public class UserUseCaseService implements UserUseCase {
                 return new IllegalStateException("Authenticated principal has no domain user: " + username);
             });
 
-            // Cache for current request to avoid repeated database calls
-            userCache.set(user);
-
-            LOGGER.debug("Current user retrieved from database: userId={}, email={}", user.getId(), user.getEmail());
+            LOGGER.debug("Current user retrieved: userId={}, email={}", user.getId(), user.getEmail());
             return user;
         } catch (Exception e) {
             // S2139: Intentionally logging before rethrow for security audit trail (OWASP compliance)
@@ -127,5 +113,40 @@ public class UserUseCaseService implements UserUseCase {
             case null -> throw new IllegalStateException("Principal is null");
             default -> throw new IllegalStateException("Unsupported principal type: " + principal.getClass());
         };
+    }
+
+    /**
+     * Updates user and clears request-scoped cache to avoid stale data.
+     * Should be used instead of direct repository.save() when modifying existing users.
+     *
+     * <p>Use cases (future implementation):
+     * <ul>
+     *   <li>User profile editing (email, name change)</li>
+     *   <li>Admin panel user management</li>
+     *   <li>Settings updates affecting user entity</li>
+     * </ul>
+     *
+     * <p>Current usage: Ready for implementation when user editing features are added.
+     * For password reset, see {@link org.apolenkov.application.service.security.PasswordResetService}
+     * which uses direct repository (safe due to separate request lifecycle).
+     *
+     * @param user user to update
+     * @return updated user
+     */
+    @Override
+    @Transactional
+    public User updateUser(final User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+        if (user.getId() == null) {
+            throw new IllegalArgumentException("Cannot update user without ID - use save() for new users");
+        }
+
+        User saved = userRepository.save(user);
+
+        AUDIT_LOGGER.info("User updated: userId={}, email={}", saved.getId(), saved.getEmail());
+        LOGGER.debug("User updated: userId={}, email={}", saved.getId(), saved.getEmail());
+        return saved;
     }
 }

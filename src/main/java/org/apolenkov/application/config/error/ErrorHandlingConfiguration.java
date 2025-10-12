@@ -51,6 +51,7 @@ public class ErrorHandlingConfiguration {
 
     /**
      * Handles UI errors with cycle protection and secure navigation.
+     * Filters out normal client disconnection exceptions (ClientAbortException, BrokenPipe).
      *
      * @param ui the UI instance where error occurred
      * @param errorEvent the error event containing error details
@@ -59,6 +60,12 @@ public class ErrorHandlingConfiguration {
         VaadinSession session = ui.getSession();
         String currentRoute = getCurrentRoute(ui);
         Throwable error = errorEvent.getThrowable();
+
+        // Filter out normal client disconnection events - not actual errors
+        if (isClientAbortException(error)) {
+            LOGGER.debug("Client disconnected [uiId={}, route={}]: {}", ui.getUIId(), currentRoute, error.getMessage());
+            return;
+        }
 
         LOGGER.error("UI error [uiId={}, route={}]", ui.getUIId(), currentRoute, error);
 
@@ -73,6 +80,44 @@ public class ErrorHandlingConfiguration {
         }
 
         navigateToErrorPage(ui, session, currentRoute, error);
+    }
+
+    /**
+     * Checks if the exception is a normal client disconnect (not an actual error).
+     * Filters ClientAbortException, BrokenPipe, and ConnectionReset exceptions.
+     *
+     * @param throwable the exception to check
+     * @return true if this is a client disconnection event, false if it's a real error
+     */
+    private boolean isClientAbortException(final Throwable throwable) {
+        if (throwable == null) {
+            return false;
+        }
+
+        // Check exception class name (handles multiple classloader scenarios)
+        String className = throwable.getClass().getName();
+        if (className.contains("ClientAbortException") || className.contains("BrokenPipeException")) {
+            return true;
+        }
+
+        // Check exception message for common disconnect patterns
+        String message = throwable.getMessage();
+        if (message != null) {
+            String lowerMessage = message.toLowerCase();
+            if (lowerMessage.contains("broken pipe")
+                    || lowerMessage.contains("connection reset")
+                    || lowerMessage.contains("connection was aborted")) {
+                return true;
+            }
+        }
+
+        // Check cause recursively (exceptions are often wrapped)
+        Throwable cause = throwable.getCause();
+        if (cause != null && cause != throwable) {
+            return isClientAbortException(cause);
+        }
+
+        return false;
     }
 
     /**

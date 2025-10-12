@@ -1,7 +1,7 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "2.0.0"
+version: "2.1.0"
 ---
 
 # VAADIN 24+ BEST PRACTICES
@@ -33,10 +33,34 @@ Composite<T> + initContent() | Builder | Factory
 - UI: `getTranslation("key")` directly
 - [BAD] Hardcoded strings → NPE in constructor
 
-## SECURITY
-- Server validation + Binder
-- CSRF enabled
-- [BAD] Client-only validation
+## SECURITY [CRITICAL]
+
+**Authorization:**
+- @AnonymousAllowed, @PermitAll, @RolesAllowed on @Route classes
+- Check permissions in beforeEnter() for dynamic authorization
+- NEVER rely on UI visibility for security (hidden != secure)
+- Always validate on server side
+
+**CSRF:**
+- Enabled by default (Vaadin handles it)
+- Don't disable unless you know what you're doing
+
+**XSS Prevention:**
+- getTranslation() auto-escapes HTML
+- Html() component: ONLY for trusted content
+- Sanitize user input: OWASP Java HTML Sanitizer
+- Never use setInnerHtml() with user data
+
+**Session Security:**
+- Invalidate session on logout: VaadinSession.getCurrent().close()
+- Set session timeout: server.servlet.session.timeout=30m
+- Use HTTPS in production (redirect HTTP → HTTPS)
+
+**Input Validation:**
+- Server validation + Binder (client validation is UX, not security)
+- Validate all user inputs (text fields, file uploads, URL parameters)
+- Use Bean Validation annotations (@NotNull, @Size, @Email)
+
 
 ## @UIScope (Spring)
 
@@ -44,46 +68,39 @@ Composite<T> + initContent() | Builder | Factory
 - @Component + Reused across @Route views + Needs UI.getCurrent()
 - @Lazy for @UIScope injection into @Component
 - LocaleChangeObserver: only with @UIScope WITHOUT page.reload()
+- Single-user cache (one browser window)
 
 **Don't use [BAD]:**
 - @Route views (created by Vaadin)
 - Dialogs (short lifecycle)
 - Reusable Components (created in View)
 - Stateless Services (singleton sufficient)
+- Multi-tab shared cache → use @SessionScope instead
+
+**Multi-tab considerations:**
+- @UIScope creates separate instance per browser tab/window
+- For shared data across tabs → use @SessionScope
+- For global data → use @ApplicationScope with user-specific keys
 
 ```java
-@Component @UIScope
-public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
-    @Override
-    public void localeChange(LocaleChangeEvent e) { refreshMenu(); }
+// ❌ BAD: Component extends UI component
+@Component @UIScope class Menu extends HorizontalLayout { }
+
+// ✅ GOOD: Factory pattern
+@Component @UIScope class MenuFactory {
+    Menu create() { return new Menu(...); }
 }
 
-@Component
-public class SomeService {
-    // [OK] @Lazy for @UIScope dependency
-    public SomeService(@Lazy TopMenu menu) { this.menu = menu; }
+// ✅ GOOD: Non-UI logic only (no Component fields)
+@Component @UIScope class LocaleManager implements LocaleChangeObserver {
+    // Only business logic, no UI components stored
 }
 ```
 
-## @Lazy (Spring Dependency Injection)
+## @Lazy (Spring DI)
 
-**What is @Lazy:**
-- Delays bean creation until first access
-- Solves scope conflicts (@Component → @UIScope)
-- Prevents circular dependencies
-- Optimizes performance for heavy resources
-
-**Use @Lazy when [OK]:**
-- @Component injecting @UIScope beans
-- Circular dependencies (A → B → A)
-- Heavy resources not always needed
-- Conditional bean creation
-
-**Don't use @Lazy when [BAD]:**
-- Regular @Component → @Component dependencies
-- Always-needed beans (adds overhead)
-- Performance-critical paths
-- Simple, lightweight dependencies
+**Use:** @Component → @UIScope, circular deps, heavy resources
+**Don't use:** Regular @Component deps, always-needed beans
 
 ## CRITICAL ANTIPATTERNS [BAD]
 1. getTranslation() in constructor → NPE
@@ -95,74 +112,56 @@ public class SomeService {
 7. @UIScope without @Lazy injection → scope conflict
 8. @Lazy for regular @Component dependencies → unnecessary overhead
 9. **@Component + extends Dialog** → singleton Dialog, state tree corruption
-10. **removeAll() + add(sameComponent)** → component reuse, memory leak
-11. **UI.getCurrent().add(this) in @Component** → state tree corruption
-12. **Component field in singleton** → component reuse across UI sessions
+10. **@Component + extends any UI component (Layout, Button, etc.)** → memory leak risk
+11. **removeAll() + add(sameComponent)** → component reuse, memory leak
+12. **UI.getCurrent().add(this) in @Component** → state tree corruption
+13. **Component field in singleton** → component reuse across UI sessions
+14. **Html() with user data** → XSS vulnerability (sanitize first!)
+15. **Hidden fields for security** → UI hiding is NOT security
 
 ## PUSH
-@Push + save UI ref: `UI ui=UI.getCurrent(); thread(()->ui.access(()->...))`
 
-## DIALOG PATTERN [OK]
+**Pattern:** `UI ui = UI.getCurrent(); executor.submit(() -> ui.access(() -> update()));`
 
-**Factory Pattern** (для Dialog в @Component):
-```java
-@Component
-public class MyDialogFactory {
-    public void openDialog() {
-        Dialog dialog = new Dialog(); // ✅ Новый каждый раз!
-        UI.getCurrent().add(dialog);
-        dialog.open();
-    }
-}
-```
+**Performance Considerations:**
+- @Push creates WebSocket/Long-polling connection per user
+- Memory overhead: ~1-2MB per connection
+- Max connections: 10K-50K (depending on RAM)
+- Consider @Push(PushMode.MANUAL) for controlled updates
+- Disable push for anonymous/public users if possible
+- Monitor WebSocket connections in production
 
-**Direct Creation** (в @Route views):
-```java
-public class MyView extends VerticalLayout {
-    private void showDialog() {
-        MyDialog dialog = new MyDialog(...); // ✅ Новый каждый раз!
-        dialog.open();
-    }
-}
-```
+**Best Practices:**
+- Use @Push only when needed (real-time updates)
+- Batch UI updates (don't call ui.access() in loop)
+- Clean up background tasks in onDetach()
+- Test with realistic user count (load testing)
 
-**[BAD] Singleton Dialog**:
-```java
-@Component
-public class MyDialog extends Dialog { } // ❌ ПЛОХО! State tree corruption!
-```
+## DIALOG PATTERN
+
+- ✅ Factory: `new Dialog()` each time
+- ✅ In View: `new MyDialog(...)` directly
+- ❌ `@Component extends Dialog` = singleton, state corruption
 
 ## COMPONENT REUSE [BAD]
 
-**NEVER reuse components**:
-```java
-private Button myButton = new Button();
-layout.removeAll();
-layout.add(myButton); // ❌ Component reuse!
-```
-
-**DO: Use setVisible() or recreate**:
-```java
-// Option 1: Visibility
-myButton.setVisible(false); // ✅ Скрыть
-myButton.setVisible(true);  // ✅ Показать
-
-// Option 2: Recreate
-layout.removeAll();
-Button newButton = new Button(); // ✅ Новый компонент!
-layout.add(newButton);
-```
+- ❌ `removeAll() + add(sameComponent)` = memory leak
+- ✅ `setVisible(false/true)` OR recreate with `new`
 
 ## CHECKLIST
 - [ ] Composite<T> (reusable) or extends for @Route views
 - [ ] @PostConstruct or initContent()
 - [ ] onDetach + Registration.remove()
 - [ ] getTranslation() for all strings
-- [ ] Server validation
+- [ ] Server validation (Binder + Service layer)
+- [ ] @RolesAllowed or @PermitAll on @Route
 - [ ] Lazy loading if >100 items
 - [ ] Lumo tokens (no hardcode)
 - [ ] @Lazy for @UIScope dependencies
 - [ ] No @Lazy for regular @Component dependencies
-- [ ] No @Component + extends Dialog
+- [ ] No @Component + extends UI component (use Factory)
 - [ ] No removeAll() + add(sameComponent)
 - [ ] Dialog created via new each time
+- [ ] Sanitize HTML if using Html() component
+- [ ] HTTPS in production
+- [ ] Session timeout configured

@@ -189,6 +189,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         if (editDeckClickListenerRegistration == null) {
             editDeckClickListenerRegistration = deckViewLayout.getDeckActions().addEditDeckClickListener(e -> {
                 if (currentDeck != null) {
+                    // Cache invalidation handled automatically via DeckModifiedEvent
+                    // published by DeckUseCaseService after save/delete operations
                     new DeckEditDialog(deckUseCase, currentDeck, updated -> updateDeckInfo()).open();
                 }
             });

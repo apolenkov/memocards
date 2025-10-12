@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.apolenkov.application.config.cache.CacheConfiguration;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.infrastructure.repository.jdbc.dto.UserDto;
@@ -189,14 +188,15 @@ public class UserJdbcAdapter implements UserRepository {
 
     /**
      * Saves user to database.
-     * Evicts user from cache by email to ensure consistency.
+     * Evicts entire user cache to handle email changes correctly.
+     * Uses allEntries eviction because user email might change (old email would remain cached).
      *
      * @param user user to save
      * @return saved user with updated fields
      * @throws IllegalArgumentException if user is null
      */
     @Override
-    @CacheEvict(value = CacheConfiguration.USER_BY_EMAIL_CACHE, key = "#user.email")
+    @CacheEvict(value = CacheConfiguration.USER_BY_EMAIL_CACHE, allEntries = true)
     public User save(final User user) {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");

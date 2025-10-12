@@ -47,13 +47,5 @@ public class TestContainersConfig {
             super.start();
             LOGGER.info("PostgreSQL container started: url={}", getJdbcUrl());
         }
-
-        /**
-         * Stops the PostgreSQL container.
-         */
-        @Override
-        public void stop() {
-            super.stop();
-        }
     }
 }

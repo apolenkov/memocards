@@ -1,7 +1,7 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "2.1.0"
+version: "2.2.0"
 ---
 
 # Project Rules - Senior+ Level
@@ -16,12 +16,14 @@ version: "2.1.0"
 
 ## Modern Java 21+ Standards
 
-- **Virtual Threads**: Use for I/O operations, database calls, concurrent operations, and non-blocking async processing
+- **Virtual Threads**: Spring Boot 3.2+ auto-enables for Tomcat/Undertow. Manual use only when auto-configuration insufficient (custom thread pools, specific async tasks)
 - **Pattern Matching**: Switch expressions, instanceof patterns, record patterns
 - **Sealed Classes**: For restricted inheritance hierarchies and type safety
 - **Records**: Use for immutable DTOs, responses, data carriers
   - **Builder for 5+ params** (readability, self-documenting)
   - **Static factory for 2-4 params** (compact, clear)
+  - **Compact constructor**: Technical validation only (null checks, non-blank, positive IDs)
+  - **Business validation in Service**: Uniqueness, authorization, state transitions, cross-field rules
 - **Text Blocks**: For SQL queries, JSON, and long strings
 - **Structured Concurrency**: Modern async programming patterns
 - **String Templates**: For dynamic string construction
@@ -47,21 +49,21 @@ version: "2.1.0"
 
 ## Performance & Monitoring
 
-- **Caching Strategy**: Implement appropriate caching layers
-- **Async Processing**: Use non-blocking operations where possible
+- **Caching Strategy**: Implement appropriate caching layers (@UIScope/@SessionScope with TTL + events)
+- **Async Processing**: Use non-blocking operations where possible (Virtual Threads auto-enabled)
 - **Database Optimization**: Optimize queries, use connection pooling (HikariCP), batch operations
-- **APM**: Implement distributed tracing, monitor response times and throughput
+- **APM**: Monitor response times, throughput, error rates
 - **Memory Management**: Avoid memory leaks, use object pooling for expensive objects
 
 ## Modern Testing Strategy
 
 - **Testing Pyramid**: 70% Unit Tests, 20% Integration Tests, 10% E2E Tests
-- **Coverage**: Minimum 80% for business logic, 70% branch coverage
+- **Coverage**: Target 70-80% for business logic (pragmatic, not dogmatic)
 - **Test Data Builders**: Use builders for consistent test data
 - **Mocking Strategy**: Mock external dependencies, not internal logic
-- **Test Containers**: Real PostgreSQL for integration tests
+- **Test Containers**: Real PostgreSQL for integration tests (use singleton mode for speed)
 - **Virtual Threads Testing**: Test concurrent operations
-- **Mutation Testing**: Use PIT for code quality validation
+- **Mutation Testing**: Optional for critical modules only (PIT is slow for large codebases)
 - **Performance Testing**: Load, stress, and endurance testing
 
 ## Vaadin 24+ UI/UX Standards
@@ -80,7 +82,7 @@ version: "2.1.0"
 ## Spring Boot 3.x + Spring Data JDBC
 
 - **Spring Boot 3.x**: Jakarta EE 10, Native compilation, AOT compilation
-- **Virtual Threads Support**: Better scalability for I/O operations
+- **Virtual Threads Support**: Auto-enabled in Spring Boot 3.2+ (property: spring.threads.virtual.enabled=true)
 - **Enhanced Security**: Spring Security 6.x with modern authentication
 - **Spring Data JDBC**: NOT JPA/Hibernate - use JdbcTemplate and RowMapper
 - **Adapter Pattern**: `*JdbcAdapter implements *Repository` with @Profile
@@ -88,6 +90,13 @@ version: "2.1.0"
 - **SQL**: Text blocks in separate *SqlQueries classes, parameterized queries only
 - **Exceptions**: Catch DataAccessException, wrap in domain exceptions
 - **PostgreSQL**: Use RETURNING id, ON CONFLICT, JSONB, arrays
+- **Transactions**: 
+  - @Transactional on Service layer only (NOT Repository)
+  - @Transactional(readOnly = true) for queries (optimization + safety)
+  - Explicit isolation levels when needed (e.g., SERIALIZABLE for critical operations)
+  - Propagation REQUIRED (default) for most cases
+  - Keep transactions short (avoid long-running operations, I/O, or API calls)
+  - ALWAYS use @Transactional (prevents connection leaks, ensures auto-rollback)
 - **Detail**: See @jdbc-best-practices for complete JDBC rules
 
 ## PostgreSQL & Database Optimization
@@ -187,4 +196,4 @@ With these instructions, I will:
 - **"Java 21+ features"** - modern Java patterns check
 - **"Vaadin standards"** - Vaadin 24+ best practices validation
 - **"PostgreSQL optimization"** - database performance check
-- **"Virtual threads"** - virtual threads implementation check
+- **"Virtual threads"** - virtual threads configuration check

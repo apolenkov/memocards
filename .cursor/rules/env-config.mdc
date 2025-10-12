@@ -1,7 +1,7 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "1.1.0"
+version: "1.2.0"
 ---
 
 # ENV-BASED CONFIGURATION
@@ -56,45 +56,12 @@ Spring Boot Profiles | application-{profile}.yml | Environment Variables | @Valu
 5. Magic values → named properties
 6. **System.getenv() directly** → use @Value with Spring properties
 
-## EXAMPLE: Environment Variables
+## EXAMPLE
 
-**❌ BAD - Direct System.getenv():**
-```java
-private void loadConfig() {
-    String flag = System.getenv().getOrDefault("GENERATE_TEST_DATA", "false");
-    if ("true".equalsIgnoreCase(flag)) {
-        // ...
-    }
-}
-```
+**❌ BAD:** `System.getenv("KEY")`  
+**✅ GOOD:** `@Value("${app.key:default}")`
 
-**✅ GOOD - Spring @Value:**
-```java
-@Value("${app.seed.test.enabled:false}")
-private boolean generateTestDataEnabled;
-
-private void loadConfig() {
-    if (generateTestDataEnabled) {
-        // ...
-    }
-}
-```
-
-**application.yml:**
-```yaml
-app:
-  seed:
-    test:
-      enabled: ${GENERATE_TEST_DATA:false}  # Env var with fallback
-```
-
-**Why @Value is better:**
-- ✅ Works in IDE, Docker, K8s, command-line equally
-- ✅ Testable with `@TestPropertySource`
-- ✅ Type-safe (boolean, int, Duration, etc.)
-- ✅ Centralized configuration
-- ✅ Profile-specific overrides
-- ❌ System.getenv() bypasses Spring, hard to test, IDE-unfriendly
+**Why:** Testable, type-safe, IDE-friendly, profile-specific
 
 ## CHECKLIST
 - [ ] application-{profile}.yml for each env

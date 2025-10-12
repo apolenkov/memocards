@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.infrastructure.repository.jdbc.batch.FlashcardBatchOperations;
 import org.apolenkov.application.infrastructure.repository.jdbc.dto.FlashcardDto;
@@ -61,7 +60,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
     };
 
     private final JdbcTemplate jdbcTemplate;
-    private final FlashcardBatchOperations batchOperations;
 
     /**
      * Creates adapter with JdbcTemplate dependency.
@@ -79,7 +77,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
             throw new IllegalArgumentException("BatchOperations cannot be null");
         }
         this.jdbcTemplate = jdbcTemplateValue;
-        this.batchOperations = batchOperationsValue;
     }
 
     /**
@@ -296,17 +293,8 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 flashcardDto.timestamps().createdAt(),
                 flashcardDto.timestamps().updatedAt());
 
-        // Return created flashcard
-        FlashcardDto createdDto = FlashcardDto.forExistingFlashcard(
-                generatedId,
-                flashcardDto.deckId(),
-                flashcardDto.frontText(),
-                flashcardDto.backText(),
-                flashcardDto.example(),
-                flashcardDto.imageUrl(),
-                flashcardDto.timestamps());
-
-        toModel(createdDto);
+        // Set generated ID on the flashcard object
+        flashcard.setId(generatedId);
     }
 
     /**

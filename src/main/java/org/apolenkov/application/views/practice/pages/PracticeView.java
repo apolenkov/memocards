@@ -22,8 +22,8 @@ import org.apolenkov.application.views.practice.business.PracticeSession;
 import org.apolenkov.application.views.practice.business.PracticeSessionManager;
 import org.apolenkov.application.views.practice.business.PracticeSessionService;
 import org.apolenkov.application.views.practice.components.PracticeActions;
-import org.apolenkov.application.views.practice.components.PracticeAllKnownDialog;
 import org.apolenkov.application.views.practice.components.PracticeCard;
+import org.apolenkov.application.views.practice.components.PracticeCongratulations;
 import org.apolenkov.application.views.practice.components.PracticeHeader;
 import org.apolenkov.application.views.practice.components.PracticeProgress;
 import org.apolenkov.application.views.practice.constants.PracticeConstants;
@@ -56,6 +56,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private PracticeProgress practiceProgress;
     private PracticeCard practiceCard;
     private PracticeActions practiceActions;
+    private PracticeCongratulations practiceCongratulations;
 
     /**
      * Creates a new PracticeView with required dependencies.
@@ -101,7 +102,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
         // Initialize components
         initializeComponents();
-        pageSection.add(practiceHeader, practiceProgress, practiceCard, practiceActions);
+        pageSection.add(practiceHeader, practiceProgress, practiceCard, practiceActions, practiceCongratulations);
         setupActionHandlers();
 
         contentContainer.add(pageSection);
@@ -116,6 +117,10 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         practiceProgress = new PracticeProgress();
         practiceCard = new PracticeCard();
         practiceActions = new PracticeActions();
+        practiceCongratulations = new PracticeCongratulations("", () -> {});
+
+        // Initially hide congratulations component
+        practiceCongratulations.setVisible(false);
 
         // Load practice direction from user settings
         sessionDirection = sessionService.defaultDirection();
@@ -174,37 +179,46 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     /**
      * Starts default practice session.
+     * Optimized to avoid redundant database queries by reusing fetched cards.
      */
     private void startDefaultPractice() {
+        // Fetch not-known cards once
         List<Flashcard> notKnownCards = sessionService.getNotKnownCards(currentDeck.getId());
         if (notKnownCards.isEmpty()) {
             showAllKnownDialogAndRedirect();
             return;
         }
 
-        int defaultCount = sessionService.resolveDefaultCount(currentDeck.getId());
+        // Use preloaded cards to avoid redundant SQL query
+        int defaultCount = sessionService.resolveDefaultCount(notKnownCards);
         boolean random = sessionService.isRandom();
         session = sessionService.startSession(currentDeck.getId(), defaultCount, random);
         showCurrentCard();
     }
 
     /**
-     * Shows congratulations dialog and redirects to deck when all cards are already studied.
+     * Shows congratulations component when all cards are already studied.
      */
     private void showAllKnownDialogAndRedirect() {
-        // Hide only the practice components, keep the header visible
+        // Hide practice components, keep the header visible
         if (practiceProgress != null) {
             practiceProgress.setVisible(false);
         }
         if (practiceActions != null) {
             practiceActions.setVisible(false);
         }
+        if (practiceCard != null) {
+            practiceCard.setVisible(false);
+        }
 
-        PracticeAllKnownDialog dialog = new PracticeAllKnownDialog(
-                currentDeck.getTitle(), () -> NavigationHelper.navigateToDeck(currentDeck.getId()));
-        dialog.open();
+        // Show congratulations component
+        if (practiceCongratulations != null) {
+            practiceCongratulations.updateContent(
+                    currentDeck.getTitle(), () -> NavigationHelper.navigateToDeck(currentDeck.getId()));
+            practiceCongratulations.setVisible(true);
+        }
 
-        LOGGER.debug("All cards known for deck '{}', showing dialog and will redirect to deck", currentDeck.getTitle());
+        LOGGER.debug("All cards known for deck '{}', showing congratulations component", currentDeck.getTitle());
     }
 
     /**

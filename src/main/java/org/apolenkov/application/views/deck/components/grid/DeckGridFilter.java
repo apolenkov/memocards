@@ -21,35 +21,30 @@ public final class DeckGridFilter {
 
     /**
      * Applies search and filter criteria to the flashcards.
+     * Returns both filtered flashcards and known card IDs to avoid duplicate queries.
      *
      * @param flashcards the list of flashcards to filter
      * @param searchQuery the search query
      * @param hideKnown whether to hide known cards
      * @param statsService service for statistics tracking
      * @param currentDeckId current deck ID
-     * @return filtered list of flashcards
+     * @return FilterResult containing filtered flashcards and known card IDs
      */
-    public static List<Flashcard> applyFilter(
+    public static FilterResult applyFilter(
             final List<Flashcard> flashcards,
             final String searchQuery,
             final boolean hideKnown,
             final StatsService statsService,
             final Long currentDeckId) {
-        if (flashcards == null || currentDeckId == null) {
-            LOGGER.debug(
-                    "Cannot apply filter: allFlashcards={}, currentDeckId={}",
-                    flashcards != null ? flashcards.size() : "null",
-                    currentDeckId);
-            return List.of();
+        // Early return if not ready (normal during component initialization)
+        if (flashcards == null || flashcards.isEmpty() || currentDeckId == null) {
+            // Silent skip - this is expected during initialization lifecycle
+            return new FilterResult(List.of(), Set.of());
         }
 
-        LOGGER.debug(
-                "Applying filter: searchQuery='{}', hideKnown={}, totalCards={}",
-                searchQuery,
-                hideKnown,
-                flashcards.size());
-
-        Set<Long> knownCardIds = hideKnown ? statsService.getKnownCardIds(currentDeckId) : Set.of();
+        // Load known card IDs once (will be reused by grid for status column)
+        // Always load known card IDs to show correct status in UI
+        Set<Long> knownCardIds = statsService.getKnownCardIds(currentDeckId);
 
         List<Flashcard> filtered = flashcards.stream()
                 .filter(card -> searchQuery.isEmpty()
@@ -58,7 +53,14 @@ public final class DeckGridFilter {
                 .filter(card -> !hideKnown || !knownCardIds.contains(card.getId()))
                 .toList();
 
-        LOGGER.debug("Filter applied: {} cards visible out of {}", filtered.size(), flashcards.size());
-        return filtered;
+        // Log only anomalies (all cards filtered out)
+        if (filtered.isEmpty() && !flashcards.isEmpty()) {
+            LOGGER.debug(
+                    "Filter excluded all {} cards: query='{}', hideKnown={}",
+                    flashcards.size(),
+                    searchQuery,
+                    hideKnown);
+        }
+        return new FilterResult(filtered, knownCardIds);
     }
 }

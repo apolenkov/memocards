@@ -23,26 +23,6 @@ public final class UserSqlQueries {
             """;
 
     /**
-     * SQL query to select user by ID.
-     */
-    public static final String SELECT_USER_BY_ID =
-            """
-            SELECT u.id, u.email, u.password_hash, u.name, u.created_at
-            FROM users u
-            WHERE u.id = ?
-            """;
-
-    /**
-     * SQL query to select user by email.
-     */
-    public static final String SELECT_USER_BY_EMAIL =
-            """
-            SELECT u.id, u.email, u.password_hash, u.name, u.created_at
-            FROM users u
-            WHERE u.email = ?
-            """;
-
-    /**
      * SQL query to select user with roles by email (optimized single query).
      * Uses LEFT JOIN and ARRAY_AGG to fetch user and roles in one query.
      */

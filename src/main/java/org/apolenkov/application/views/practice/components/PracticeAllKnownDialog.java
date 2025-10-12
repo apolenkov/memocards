@@ -4,8 +4,11 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.apolenkov.application.views.practice.constants.PracticeConstants;
@@ -53,29 +56,68 @@ public final class PracticeAllKnownDialog extends Dialog {
         setDraggable(false);
         setResizable(false);
         addClassName(PracticeConstants.DIALOG_MD_CLASS);
+        addClassName("congratulations-dialog");
     }
 
     /**
      * Builds the dialog UI components and layout.
      */
     private void build() {
-        H3 title = new H3(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_TITLE_KEY));
-        Paragraph message = new Paragraph(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_MESSAGE_KEY, deckTitle));
+        // Create celebration icon container
+        Div iconContainer = createCelebrationIcon();
 
-        Button backToDeckButton = new Button(getTranslation(PracticeConstants.PRACTICE_BACK_TO_DECK_KEY), e -> {
+        // Create title with emoji
+        H2 title = new H2(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_TITLE_KEY));
+        title.addClassName("congratulations-title");
+
+        // Create message with better formatting
+        Paragraph message = new Paragraph(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_MESSAGE_KEY, deckTitle));
+        message.addClassName("congratulations-message");
+
+        // Create success badge
+        Span successBadge = new Span(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_BADGE_KEY));
+        successBadge.addClassName("success-badge");
+
+        // Create action button with icon
+        Button backToDeckButton = new Button(getTranslation(PracticeConstants.PRACTICE_BACK_TO_DECK_KEY));
+        backToDeckButton.setIcon(VaadinIcon.ARROW_LEFT.create());
+        backToDeckButton.setIconAfterText(false);
+        backToDeckButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
+        backToDeckButton.addClassName("action-button");
+        backToDeckButton.addClickListener(e -> {
             if (onBackToDeck != null) {
                 onBackToDeck.run();
             }
             close();
         });
-        backToDeckButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         backToDeckButton.focus();
 
-        VerticalLayout dialogLayout = new VerticalLayout(title, message, backToDeckButton);
+        // Create main layout
+        VerticalLayout dialogLayout = new VerticalLayout();
+        dialogLayout.addClassName("congratulations-layout");
         dialogLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        dialogLayout.setSpacing(true);
-        dialogLayout.setPadding(true);
+        dialogLayout.setSpacing(false);
+        dialogLayout.setPadding(false);
+
+        // Add components with proper spacing
+        dialogLayout.add(iconContainer, title, message, successBadge, backToDeckButton);
 
         add(dialogLayout);
+    }
+
+    /**
+     * Creates a celebration icon container with animation.
+     *
+     * @return a Div container with animated trophy icon
+     */
+    private Div createCelebrationIcon() {
+        Div iconContainer = new Div();
+        iconContainer.addClassName("celebration-icon-container");
+
+        Span trophyIcon = new Span("🏆");
+        trophyIcon.addClassName("trophy-icon");
+
+        iconContainer.add(trophyIcon);
+        return iconContainer;
     }
 }
