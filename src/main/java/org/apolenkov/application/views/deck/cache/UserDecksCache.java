@@ -14,11 +14,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * UI-scoped cache for user decks to avoid repeated database queries during navigation.
+ * UI-scoped cache for user decks.
  * Cache lifetime is bound to UI session and automatically cleared when UI is destroyed.
- *
- * <p>Uses TTL (Time-To-Live) of 1 minute to ensure data freshness.
- * No manual invalidation needed - TTL handles staleness automatically (KISS principle).
+ * Data freshness is ensured through automatic expiration and event-based invalidation.
  */
 @Component
 @UIScope
@@ -30,12 +28,12 @@ public class UserDecksCache {
     private final Map<Long, CachedDecks> cache = new ConcurrentHashMap<>();
 
     /**
-     * Gets decks for a user, using cache if available and not expired.
-     * If cache miss or expired, loads fresh data using the provided supplier.
+     * Gets decks for a user.
+     * Uses cached data when available and valid, otherwise loads fresh data.
      *
      * @param userId the user ID
-     * @param loader supplier to load decks from database
-     * @return list of user's decks
+     * @param loader supplier to load decks when cache miss occurs
+     * @return list of user's decks, never null
      */
     public List<Deck> getDecks(final Long userId, final Supplier<List<Deck>> loader) {
         if (userId == null) {
@@ -60,7 +58,7 @@ public class UserDecksCache {
 
     /**
      * Invalidates cache for a specific user.
-     * Should be called after deck modifications (create/update/delete) to ensure immediate refresh.
+     * Call after deck modifications to ensure data freshness.
      *
      * @param userId the user ID
      */
@@ -72,8 +70,8 @@ public class UserDecksCache {
     }
 
     /**
-     * Handles deck modification events to invalidate cache immediately.
-     * Ensures UI shows fresh data right after create/update/delete operations.
+     * Handles deck modification events to invalidate cache.
+     * Ensures UI displays current data after deck changes.
      *
      * @param event the deck modified event
      */

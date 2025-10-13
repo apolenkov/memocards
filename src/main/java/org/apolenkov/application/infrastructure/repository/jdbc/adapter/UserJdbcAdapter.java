@@ -133,11 +133,10 @@ public class UserJdbcAdapter implements UserRepository {
     }
 
     /**
-     * Retrieves user by unique identifier.
-     * Uses optimized single query with JOIN to fetch user and roles together.
+     * Retrieves user by unique identifier with all associated roles.
      *
      * @param id unique identifier of user
-     * @return Optional containing user if found
+     * @return Optional containing user with roles if found, empty otherwise
      */
     @Override
     public Optional<User> findById(final long id) {
@@ -156,13 +155,11 @@ public class UserJdbcAdapter implements UserRepository {
     }
 
     /**
-     * Retrieves user by email address.
-     * Uses optimized single query with JOIN to fetch user and roles together.
-     * Results are cached using Caffeine cache with 30-minute TTL.
-     * Caches both present and empty Optional to avoid repeated DB queries.
+     * Retrieves user by email address with all associated roles.
+     * Results are cached to improve performance on repeated lookups.
      *
      * @param email email address of user
-     * @return Optional containing user if found
+     * @return Optional containing user with roles if found, empty otherwise
      * @throws IllegalArgumentException if email is null or empty
      */
     @Override
@@ -187,9 +184,8 @@ public class UserJdbcAdapter implements UserRepository {
     }
 
     /**
-     * Saves user to database.
-     * Evicts entire user cache to handle email changes correctly.
-     * Uses allEntries eviction because user email might change (old email would remain cached).
+     * Saves user to database (creates new or updates existing).
+     * Invalidates user cache to ensure data consistency.
      *
      * @param user user to save
      * @return saved user with updated fields
@@ -217,7 +213,7 @@ public class UserJdbcAdapter implements UserRepository {
 
     /**
      * Deletes user by unique identifier.
-     * Clears entire user cache to ensure consistency.
+     * Invalidates user cache to ensure consistency.
      *
      * @param id unique identifier of user to delete
      */

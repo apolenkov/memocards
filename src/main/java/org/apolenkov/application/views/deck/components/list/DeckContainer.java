@@ -21,8 +21,7 @@ public final class DeckContainer extends Composite<VerticalLayout> {
     private final DeckList deckList;
 
     /**
-     * Creates a new DeckContainer with all required components.
-     * Initializes title, toolbar, and deck list with proper configuration.
+     * Creates a new DeckContainer.
      */
     public DeckContainer() {
         this.title = new H2();
@@ -49,8 +48,7 @@ public final class DeckContainer extends Composite<VerticalLayout> {
     }
 
     /**
-     * Gets the toolbar component for external configuration.
-     * Allows parent components to set up event listeners.
+     * Gets the toolbar component.
      *
      * @return the DeckToolbar component
      */
@@ -60,7 +58,6 @@ public final class DeckContainer extends Composite<VerticalLayout> {
 
     /**
      * Refreshes the deck list with new data.
-     * Delegates to the deck list component for data refresh.
      *
      * @param decks the list of deck view models to display
      */

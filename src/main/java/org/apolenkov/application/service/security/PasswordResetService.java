@@ -40,8 +40,8 @@ public class PasswordResetService implements PasswordResetUseCase {
      *
      * @param tokenRepositoryValue repository for password reset token operations
      * @param userRepositoryValue repository for user operations
-     * @param userUseCaseValue use case for user operations with cache invalidation
-     * @param passwordEncoderValue encoder for secure password hashing
+     * @param userUseCaseValue use case for user operations
+     * @param passwordEncoderValue encoder for password hashing
      * @throws IllegalArgumentException if any parameter is null
      */
     public PasswordResetService(
@@ -70,12 +70,10 @@ public class PasswordResetService implements PasswordResetUseCase {
 
     /**
      * Creates password reset token for user with specified email address.
-     * Implements first step of password reset process.
      *
      * @param email email address of user requesting password reset
      * @return Optional containing generated token if user exists, empty otherwise
      * @throws IllegalArgumentException if email is null or empty
-     * @throws RuntimeException if database operation fails
      */
     @Override
     @Transactional

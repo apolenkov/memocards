@@ -34,7 +34,7 @@ public class StatsService implements StatsUseCase {
      *
      * @param statsRepositoryValue repository for statistics operations
      * @param deckRepositoryValue repository for deck operations
-     * @param knownCardsCacheValue UI-scoped cache for known cards (lazy-loaded)
+     * @param knownCardsCacheValue cache for known card IDs
      */
     public StatsService(
             final StatsRepository statsRepositoryValue,

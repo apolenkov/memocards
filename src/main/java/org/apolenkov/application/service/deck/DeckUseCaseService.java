@@ -34,10 +34,10 @@ public class DeckUseCaseService implements DeckUseCase {
     /**
      * Creates service with required dependencies.
      *
-     * @param deckRepositoryValue the repository for deck operations
-     * @param flashcardRepositoryValue the repository for flashcard operations
-     * @param validatorValue the validator for input validation
-     * @param eventPublisherValue the Spring event publisher for cache invalidation
+     * @param deckRepositoryValue repository for deck operations
+     * @param flashcardRepositoryValue repository for flashcard operations
+     * @param validatorValue validator for input validation
+     * @param eventPublisherValue event publisher for domain events
      * @throws IllegalArgumentException if any parameter is null
      */
     public DeckUseCaseService(

@@ -23,7 +23,7 @@ import org.apolenkov.application.views.shared.utils.NotificationHelper;
 import org.apolenkov.application.views.shared.utils.ValidationHelper;
 
 /**
- * User registration view with comprehensive form validation, security measures, and automatic login.
+ * User registration view with form validation and user creation.
  */
 @Route(value = RouteConstants.REGISTER_ROUTE, layout = PublicLayout.class)
 @AnonymousAllowed

@@ -28,7 +28,6 @@ public final class DeckActions extends Composite<HorizontalLayout> {
 
     /**
      * Creates a new DeckActions component.
-     * Initializes UI components without configuring them to avoid this-escape warnings.
      */
     public DeckActions() {
         this.practiceButton = new Button();
@@ -53,7 +52,6 @@ public final class DeckActions extends Composite<HorizontalLayout> {
 
     /**
      * Configures the practice button.
-     * Sets up button with proper styling and icon.
      */
     private void configurePracticeButton() {
         practiceButton.setText(getTranslation(DeckConstants.COMMON_START));
@@ -64,7 +62,6 @@ public final class DeckActions extends Composite<HorizontalLayout> {
 
     /**
      * Configures the edit deck button.
-     * Sets up button with proper styling and tooltip.
      */
     private void configureEditDeckButton() {
         editDeckButton.setText(getTranslation(DeckConstants.COMMON_EDIT));
@@ -77,7 +74,6 @@ public final class DeckActions extends Composite<HorizontalLayout> {
 
     /**
      * Configures the delete deck button.
-     * Sets up button with proper styling and error variant.
      */
     private void configureDeleteDeckButton() {
         deleteDeckButton.setText(getTranslation(DeckConstants.COMMON_DELETE));

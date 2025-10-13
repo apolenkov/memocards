@@ -98,7 +98,7 @@ public class SecurityAuditAspect {
     }
 
     /**
-     * Alerts security team about suspicious activity (potential brute-force attack).
+     * Alerts security team about suspicious activity.
      *
      * @param username attempted username
      * @param ipAddress source IP address
@@ -130,7 +130,6 @@ public class SecurityAuditAspect {
 
     /**
      * Extracts client IP address from current HTTP request.
-     * Handles X-Forwarded-For header for proxied requests.
      *
      * @return client IP address or "unknown" if not available
      */

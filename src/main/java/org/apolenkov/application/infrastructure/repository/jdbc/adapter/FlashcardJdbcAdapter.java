@@ -217,11 +217,10 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
     }
 
     /**
-     * Counts flashcards for multiple decks in single query.
-     * Performance optimization using GROUP BY to avoid N+1 queries.
+     * Counts flashcards for multiple decks.
      *
-     * @param deckIds collection of deck identifiers
-     * @return map of deck ID to flashcard count (only decks with flashcards are included)
+     * @param deckIds collection of deck identifiers (non-null, may be empty)
+     * @return map of deck ID to flashcard count (decks with zero flashcards may be absent)
      */
     @Override
     public Map<Long, Long> countByDeckIds(final Collection<Long> deckIds) {
