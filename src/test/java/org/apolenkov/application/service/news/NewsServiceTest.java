@@ -157,7 +157,7 @@ class NewsServiceTest {
     @DisplayName("Should throw exception when updating non-existent news")
     void shouldThrowExceptionWhenUpdatingNonExistentNews() {
         // Given
-        Long newsId = 999L;
+        long newsId = 999L;
         when(newsRepository.findById(newsId)).thenReturn(Optional.empty());
 
         // When / Then
@@ -170,7 +170,7 @@ class NewsServiceTest {
     @DisplayName("Should delete news by id")
     void shouldDeleteNewsById() {
         // Given
-        Long newsId = 1L;
+        long newsId = 1L;
         News existingNews = new News(newsId, "Title", "Content", "Author", LocalDateTime.now());
         when(newsRepository.findById(newsId)).thenReturn(Optional.of(existingNews));
 
@@ -185,7 +185,7 @@ class NewsServiceTest {
     @DisplayName("Should handle delete of non-existent news without error")
     void shouldHandleDeleteOfNonExistentNewsWithoutError() {
         // Given
-        Long newsId = 999L;
+        long newsId = 999L;
         when(newsRepository.findById(newsId)).thenReturn(Optional.empty());
 
         // When / Then - should not throw exception

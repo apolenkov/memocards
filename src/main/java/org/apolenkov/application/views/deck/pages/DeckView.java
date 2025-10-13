@@ -42,6 +42,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckView.class);
 
+    // ==================== Fields ====================
+
     // Dependencies
     private final transient DeckUseCase deckUseCase;
     private final transient FlashcardUseCase flashcardUseCase;
@@ -60,6 +62,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private Registration editDeckClickListenerRegistration;
     private Registration deleteDeckClickListenerRegistration;
 
+    // ==================== Constructor ====================
+
     /**
      * Creates a new DeckView with required dependencies.
      *
@@ -75,6 +79,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         this.flashcardUseCase = flashcardUseCaseParam;
         this.statsService = statsServiceParam;
     }
+
+    // ==================== Lifecycle Methods ====================
 
     /**
      * Initializes the view components after dependency injection is complete.
@@ -147,6 +153,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             deleteDeckClickListenerRegistration = null;
         }
     }
+
+    // ==================== Setup Methods ====================
 
     /**
      * Sets up event listeners for deck action buttons.
@@ -229,6 +237,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         }
     }
 
+    // ==================== UI State Management ====================
+
     /**
      * Shows loading state while deck is being loaded.
      */
@@ -256,6 +266,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         loadingContainer.add(loadingSection);
         getContent().add(loadingContainer);
     }
+
+    // ==================== Content Creation ====================
 
     /**
      * Creates the main deck content after successful deck loading.
@@ -292,6 +304,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         contentContainer.add(pageSection);
         getContent().add(contentContainer);
     }
+
+    // ==================== Data Loading ====================
 
     /**
      * Loads a deck by ID and initializes the view.
@@ -341,6 +355,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
             LOGGER.info("Loaded {} flashcards for deck: {}", flashcards.size(), currentDeck.getTitle());
         }
     }
+
+    // ==================== Dialog Handlers ====================
 
     /**
      * Opens a dialog for creating or editing a flashcard.

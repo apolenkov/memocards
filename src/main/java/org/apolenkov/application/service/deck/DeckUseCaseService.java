@@ -26,10 +26,14 @@ public class DeckUseCaseService implements DeckUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckUseCaseService.class);
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
+    // ==================== Fields ====================
+
     private final DeckRepository deckRepository;
     private final FlashcardRepository flashcardRepository;
     private final Validator validator;
     private final ApplicationEventPublisher eventPublisher;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates service with required dependencies.
@@ -63,6 +67,8 @@ public class DeckUseCaseService implements DeckUseCase {
         this.validator = validatorValue;
         this.eventPublisher = eventPublisherValue;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Returns all decks in the system.

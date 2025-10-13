@@ -36,6 +36,9 @@ import org.springframework.core.env.Environment;
 public final class ErrorView extends VerticalLayout implements HasDynamicTitle, BeforeEnterObserver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ErrorView.class);
+
+    // ==================== Fields ====================
+
     private final transient Environment environment;
     private final transient ErrorDevInfo devInfo;
 
@@ -47,6 +50,8 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
     private Span errorDescription;
     private VerticalLayout errorContainer;
 
+    // ==================== Constructor ====================
+
     /**
      * Creates a new error view.
      *
@@ -57,6 +62,8 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
         this.devInfo = new ErrorDevInfo(env);
         this.errorState = new ErrorState("", "", "", "");
     }
+
+    // ==================== Lifecycle & Initialization ====================
 
     @PostConstruct
     @SuppressWarnings("unused")

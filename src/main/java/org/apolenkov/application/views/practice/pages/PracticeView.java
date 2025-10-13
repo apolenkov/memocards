@@ -41,6 +41,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PracticeView.class);
 
+    // ==================== Fields ====================
+
     // Dependencies
     private final transient PracticeSessionService sessionService;
     private final transient PracticeSessionManager sessionManager;
@@ -56,6 +58,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private PracticeActions practiceActions;
     private PracticeCongratulations practiceCongratulations;
 
+    // ==================== Constructor ====================
+
     /**
      * Creates a new PracticeView with required dependencies.
      *
@@ -67,6 +71,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         this.sessionService = sessionServiceParam;
         this.sessionManager = sessionManagerParam;
     }
+
+    // ==================== Lifecycle & Initialization ====================
 
     /**
      * Initializes the view components after dependency injection is complete.
@@ -123,6 +129,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         sessionDirection = sessionService.defaultDirection();
     }
 
+    // ==================== Setup Methods ====================
+
     /**
      * Sets up action component handlers.
      */
@@ -173,6 +181,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
                     parameter, RouteConstants.DECKS_ROUTE, getTranslation(PracticeConstants.PRACTICE_INVALID_ID_KEY));
         }
     }
+
+    // ==================== Practice Session Management ====================
 
     /**
      * Starts default practice session.

@@ -19,6 +19,8 @@ import org.apolenkov.application.views.stats.constants.StatsConstants;
  */
 public final class CollapsibleSectionBuilder extends Composite<VerticalLayout> {
 
+    // ==================== Fields ====================
+
     private final String titleKey;
     private final transient VerticalLayout content;
     private final boolean openByDefault;
@@ -26,6 +28,8 @@ public final class CollapsibleSectionBuilder extends Composite<VerticalLayout> {
     // Event Registrations
     private Registration toggleButtonListenerRegistration;
     private Registration titleClickListenerRegistration;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates a new collapsible section builder.
@@ -40,6 +44,8 @@ public final class CollapsibleSectionBuilder extends Composite<VerticalLayout> {
         this.content = contentParam;
         this.openByDefault = openByDefaultParam;
     }
+
+    // ==================== Lifecycle & UI Building ====================
 
     @Override
     protected VerticalLayout initContent() {

@@ -24,6 +24,8 @@ public class PasswordResetService implements PasswordResetUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(PasswordResetService.class);
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
+    // ==================== Fields ====================
+
     private final PasswordResetTokenRepository tokenRepository;
     private final UserRepository userRepository;
     private final UserUseCase userUseCase;
@@ -34,6 +36,8 @@ public class PasswordResetService implements PasswordResetUseCase {
      * Balances security with usability. 24 hours is common industry standard.
      */
     private static final int TOKEN_EXPIRATION_HOURS = 24;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates PasswordResetService with required dependencies.
@@ -67,6 +71,8 @@ public class PasswordResetService implements PasswordResetUseCase {
         this.userUseCase = userUseCaseValue;
         this.passwordEncoder = passwordEncoderValue;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Creates password reset token for user with specified email address.

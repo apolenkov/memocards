@@ -35,11 +35,15 @@ import org.apolenkov.application.views.shared.utils.ValidationHelper;
 @RolesAllowed(SecurityConstants.ROLE_USER)
 public class DeckCreateView extends Composite<VerticalLayout> implements HasDynamicTitle {
 
+    // ==================== Fields ====================
+
     private final transient DeckUseCase deckUseCase;
     private final transient UserUseCase userUseCase;
 
     private TextField titleField;
     private TextArea descriptionArea;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates a new deck creation view.
@@ -51,6 +55,8 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         this.deckUseCase = deckUseCaseValue;
         this.userUseCase = userUseCaseValue;
     }
+
+    // ==================== Lifecycle & UI Creation ====================
 
     /**
      * Initializes the view components after dependency injection is complete.

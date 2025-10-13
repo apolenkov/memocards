@@ -34,6 +34,8 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlashcardJdbcAdapter.class);
 
+    // ==================== Row Mappers ====================
+
     /**
      * RowMapper for FlashcardDto.
      */
@@ -59,7 +61,11 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                         updatedAt != null ? updatedAt.toLocalDateTime() : null));
     };
 
+    // ==================== Fields ====================
+
     private final JdbcTemplate jdbcTemplate;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates adapter with JdbcTemplate dependency.

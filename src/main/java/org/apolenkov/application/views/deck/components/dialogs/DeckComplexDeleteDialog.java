@@ -40,6 +40,8 @@ public final class DeckComplexDeleteDialog extends Dialog {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckComplexDeleteDialog.class);
 
+    // ==================== Fields ====================
+
     // Dependencies
     private final transient DeckUseCase deckUseCase;
     private final transient FlashcardUseCase flashcardUseCase;
@@ -47,6 +49,8 @@ public final class DeckComplexDeleteDialog extends Dialog {
 
     // Callbacks
     private final transient Consumer<Void> onDeckDeleted;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates a new DeckComplexDeleteDialog with required dependencies.
@@ -67,6 +71,8 @@ public final class DeckComplexDeleteDialog extends Dialog {
         this.currentDeck = currentDeckParam;
         this.onDeckDeleted = onDeckDeletedParam;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Shows the complex deletion dialog.

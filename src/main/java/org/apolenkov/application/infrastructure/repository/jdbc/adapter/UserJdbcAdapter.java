@@ -34,6 +34,9 @@ import org.springframework.stereotype.Repository;
 public class UserJdbcAdapter implements UserRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserJdbcAdapter.class);
+
+    // ==================== Row Mappers ====================
+
     /**
      * RowMapper for UserDto.
      */
@@ -84,7 +87,11 @@ public class UserJdbcAdapter implements UserRepository {
      */
     private static final RowMapper<String> ROLE_ROW_MAPPER = (rs, rowNum) -> rs.getString("role");
 
+    // ==================== Fields ====================
+
     private final JdbcTemplate jdbcTemplate;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates adapter with JdbcTemplate dependency.
@@ -99,6 +106,8 @@ public class UserJdbcAdapter implements UserRepository {
         this.jdbcTemplate = jdbcTemplateValue;
     }
 
+    // ==================== Private Methods ====================
+
     /**
      * Converts UserDto to domain User model.
      *
@@ -112,6 +121,8 @@ public class UserJdbcAdapter implements UserRepository {
         user.setRoles(userDto.roles());
         return user;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Retrieves all users from database.

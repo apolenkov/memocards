@@ -40,6 +40,8 @@ public class StatsView extends BaseView {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsView.class);
 
+    // ==================== Fields ====================
+
     // Services
     private final transient DeckUseCase deckUseCase;
     private final transient UserUseCase userUseCase;
@@ -52,6 +54,8 @@ public class StatsView extends BaseView {
 
     // Helpers
     private transient StatsCalculator statsCalculator;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates a new StatsView with required dependencies.

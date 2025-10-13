@@ -26,7 +26,12 @@ import org.springframework.stereotype.Repository;
 public class StatsJdbcAdapter implements StatsRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsJdbcAdapter.class);
+
+    // ==================== Fields ====================
+
     private final JdbcTemplate jdbcTemplate;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates StatsJdbcAdapter with JDBC template.
@@ -36,6 +41,8 @@ public class StatsJdbcAdapter implements StatsRepository {
     public StatsJdbcAdapter(final JdbcTemplate jdbcTemplateParam) {
         this.jdbcTemplate = jdbcTemplateParam;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Appends session statistics to daily stats.

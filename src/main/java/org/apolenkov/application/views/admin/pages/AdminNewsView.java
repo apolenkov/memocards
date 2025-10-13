@@ -40,11 +40,15 @@ import org.apolenkov.application.views.shared.utils.NotificationHelper;
 @RolesAllowed(SecurityConstants.ROLE_ADMIN)
 public class AdminNewsView extends BaseView {
 
+    // ==================== Fields ====================
+
     private final transient NewsService newsService;
     private VerticalLayout newsList;
 
     // Event Registrations
     private Registration searchListenerRegistration;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates news management interface.
@@ -59,6 +63,8 @@ public class AdminNewsView extends BaseView {
 
         this.newsService = service;
     }
+
+    // ==================== Lifecycle & Initialization ====================
 
     /**
      * Initializes the view components after dependency injection is complete.

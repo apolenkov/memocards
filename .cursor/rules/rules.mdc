@@ -121,6 +121,20 @@ version: "2.2.0"
 - Exceptions: when and why thrown
 - Examples: only if complex behavior needs clarification
 - Inline comments: explain context/purpose when code intent isn't obvious
+- **Section dividers**: Use visual separators for code organization
+
+**Section Divider Pattern:**
+```java
+// ==================== Public API ====================
+
+// ==================== Private Methods ====================
+
+// ==================== Helper Methods ====================
+
+// ==================== Event Handlers ====================
+
+// ==================== Inner Classes ====================
+```
 
 **DON'T:**
 
