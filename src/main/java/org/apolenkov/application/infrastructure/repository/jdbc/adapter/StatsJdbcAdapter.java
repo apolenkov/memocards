@@ -101,10 +101,10 @@ public class StatsJdbcAdapter implements StatsRepository {
     }
 
     /**
-     * Gets known card IDs for multiple decks in single query.
+     * Gets known card IDs for multiple decks.
      *
-     * @param deckIds collection of deck identifiers
-     * @return map of deck ID to set of known card IDs
+     * @param deckIds collection of deck identifiers (non-null, may be empty)
+     * @return map of deck ID to set of known card IDs (decks with no known cards may be absent)
      */
     @Override
     public Map<Long, Set<Long>> getKnownCardIdsBatch(final Collection<Long> deckIds) {

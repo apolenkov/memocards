@@ -46,8 +46,7 @@ public final class PracticeHeader extends Composite<HorizontalLayout> {
     }
 
     /**
-     * Creates the back button with navigation logic.
-     * Click handler will be set via setBackButtonHandler().
+     * Creates the back button.
      *
      * @return configured back button
      */

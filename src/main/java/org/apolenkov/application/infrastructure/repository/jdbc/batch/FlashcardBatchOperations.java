@@ -66,6 +66,8 @@ public class FlashcardBatchOperations {
      */
     private void batchInsert(final JdbcTemplate jdbcTemplate, final List<Flashcard> newCards) {
         LocalDateTime now = LocalDateTime.now();
+        long startTime = System.currentTimeMillis();
+        int chunkCount = 0;
 
         // Process in chunks to avoid memory issues
         for (int i = 0; i < newCards.size(); i += DEFAULT_BATCH_SIZE) {
@@ -77,9 +79,13 @@ public class FlashcardBatchOperations {
             // NOTE: batchUpdate with RETURNING ID doesn't populate IDs back to objects
             // This is a Spring JDBC limitation - acceptable for seed operations
             jdbcTemplate.batchUpdate(FlashcardSqlQueries.INSERT_FLASHCARD_RETURNING_ID, batchArgs);
-
-            logProgress(i, newCards.size());
+            chunkCount++;
         }
+
+        // Log summary after completion (no logging in loop)
+        long duration = System.currentTimeMillis() - startTime;
+        LOGGER.debug(
+                "Batch insert completed: {} flashcards in {} chunks, took {}ms", newCards.size(), chunkCount, duration);
     }
 
     /**
@@ -114,9 +120,14 @@ public class FlashcardBatchOperations {
      * @param existingCards list of flashcards to update
      */
     private void batchUpdate(final JdbcTemplate jdbcTemplate, final List<Flashcard> existingCards) {
+        long startTime = System.currentTimeMillis();
         LocalDateTime now = LocalDateTime.now();
         List<Object[]> batchArgs = prepareBatchUpdateArgs(existingCards, now);
         jdbcTemplate.batchUpdate(FlashcardSqlQueries.UPDATE_FLASHCARD, batchArgs);
+
+        // Log summary after completion (no logging in loop)
+        long duration = System.currentTimeMillis() - startTime;
+        LOGGER.debug("Batch update completed: {} flashcards, took {}ms", existingCards.size(), duration);
     }
 
     /**
@@ -142,17 +153,5 @@ public class FlashcardBatchOperations {
         }
 
         return batchArgs;
-    }
-
-    /**
-     * Logs progress for large batch operations.
-     *
-     * @param processed number of processed items
-     * @param total total number of items
-     */
-    private void logProgress(final int processed, final int total) {
-        if ((processed / DEFAULT_BATCH_SIZE) % 10 == 0) {
-            LOGGER.debug("Processed {}/{} flashcards", Math.min(processed + DEFAULT_BATCH_SIZE, total), total);
-        }
     }
 }

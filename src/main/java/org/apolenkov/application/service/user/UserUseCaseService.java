@@ -113,22 +113,11 @@ public class UserUseCaseService implements UserUseCase {
     }
 
     /**
-     * Updates user and clears request-scoped cache to avoid stale data.
-     * Should be used instead of direct repository.save() when modifying existing users.
+     * Updates existing user.
      *
-     * <p>Use cases (future implementation):
-     * <ul>
-     *   <li>User profile editing (email, name change)</li>
-     *   <li>Admin panel user management</li>
-     *   <li>Settings updates affecting user entity</li>
-     * </ul>
-     *
-     * <p>Current usage: Ready for implementation when user editing features are added.
-     * For password reset, see {@link org.apolenkov.application.service.security.PasswordResetService}
-     * which uses direct repository (safe due to separate request lifecycle).
-     *
-     * @param user user to update
+     * @param user user to update (must have non-null ID)
      * @return updated user
+     * @throws IllegalArgumentException if user is null or has no ID
      */
     @Override
     @Transactional

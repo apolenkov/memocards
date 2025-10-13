@@ -11,11 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * UI-scoped cache for known card IDs to avoid repeated database queries during navigation.
+ * UI-scoped cache for known card IDs.
  * Cache lifetime is bound to UI session and automatically cleared when UI is destroyed.
- *
- * <p>Uses TTL (Time-To-Live) to ensure data freshness within the UI session.
- * Cache is invalidated automatically after practice sessions or manually via invalidate().
+ * Data freshness is ensured through automatic expiration and manual invalidation.
  */
 @Component
 @UIScope
@@ -27,12 +25,12 @@ public class KnownCardsCache {
     private final Map<Long, CachedKnownCards> cache = new ConcurrentHashMap<>();
 
     /**
-     * Gets known card IDs for a deck, using cache if available and not expired.
-     * If cache miss or expired, loads fresh data using the provided supplier.
+     * Gets known card IDs for a deck.
+     * Uses cached data when available and valid, otherwise loads fresh data.
      *
      * @param deckId the deck ID
-     * @param loader supplier to load known card IDs from database
-     * @return set of known card IDs
+     * @param loader supplier to load known card IDs when cache miss occurs
+     * @return set of known card IDs, never null
      */
     public Set<Long> getKnownCards(final Long deckId, final Supplier<Set<Long>> loader) {
         if (deckId == null) {

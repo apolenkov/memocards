@@ -26,8 +26,7 @@ public final class DeckToolbar extends Composite<HorizontalLayout> {
     private final Button addButton;
 
     /**
-     * Creates a new DeckToolbar with default configuration.
-     * Initializes search field and add button with proper styling and event handling.
+     * Creates a new DeckToolbar.
      */
     public DeckToolbar() {
         this.searchField = new TextField();
@@ -50,7 +49,6 @@ public final class DeckToolbar extends Composite<HorizontalLayout> {
 
     /**
      * Configures the search input field.
-     * Defers translation and configuration to avoid this-escape in constructor.
      */
     private void configureSearchField() {
         searchField.setPlaceholder(getTranslation(DeckConstants.HOME_SEARCH_PLACEHOLDER));
@@ -62,7 +60,6 @@ public final class DeckToolbar extends Composite<HorizontalLayout> {
 
     /**
      * Configures the add deck button.
-     * Defers translation and configuration to avoid this-escape in constructor.
      */
     private void configureAddButton() {
         addButton.setText(getTranslation(DeckConstants.HOME_ADD_DECK));
@@ -73,7 +70,6 @@ public final class DeckToolbar extends Composite<HorizontalLayout> {
 
     /**
      * Adds a listener for search value changes.
-     * Provides access to search field value change events for filtering operations.
      *
      * @param listener the consumer for search value changes
      * @return registration for removing the listener
@@ -84,7 +80,6 @@ public final class DeckToolbar extends Composite<HorizontalLayout> {
 
     /**
      * Adds a listener for add button clicks.
-     * Provides access to add button click events for deck creation operations.
      *
      * @param listener the event listener for add button clicks
      * @return registration for removing the listener

@@ -133,7 +133,6 @@ public class DataSeedService {
 
     /**
      * Initializes cached password hash after bean construction.
-     * Avoids expensive password encoding in loops.
      */
     @PostConstruct
     @SuppressWarnings("unused")
@@ -144,11 +143,11 @@ public class DataSeedService {
     }
 
     /**
-     * Generates test data for load testing using batch operations and virtual threads.
-     * Use LIMIT_* environment variables to control data volume.
+     * Generates test data for load testing.
+     * Data volume is controlled via environment variables.
      */
     public void generateTestData() {
-        LOGGER.info("=== Starting OPTIMIZED test data generation ===");
+        LOGGER.info("=== Starting test data generation ===");
         long startTime = System.currentTimeMillis();
 
         // Step 1: Generate users in batches
@@ -165,14 +164,12 @@ public class DataSeedService {
         int statsGenerated = statsFuture.join();
         int newsGenerated = newsFuture.join();
 
-        // Log completion summary
         logGenerationSummary(
                 startTime, users.size(), deckAndCardCounts[0], deckAndCardCounts[1], statsGenerated, newsGenerated);
     }
 
     /**
-     * Generates test users in batches for better performance.
-     * Uses configured LIMIT_USERS for total count.
+     * Generates test users.
      *
      * @return list of generated users
      */

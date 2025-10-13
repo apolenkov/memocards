@@ -25,7 +25,6 @@ public final class DeckHeader extends Composite<HorizontalLayout> {
 
     /**
      * Creates a new DeckHeader component.
-     * Initializes UI components without configuring them to avoid this-escape warnings.
      */
     public DeckHeader() {
         this.backButton = new Button();
@@ -54,7 +53,6 @@ public final class DeckHeader extends Composite<HorizontalLayout> {
 
     /**
      * Configures the back navigation button.
-     * Sets up button with proper styling and navigation functionality.
      */
     private void configureBackButton() {
         backButton.setText(getTranslation(DeckConstants.COMMON_BACK));
@@ -66,7 +64,6 @@ public final class DeckHeader extends Composite<HorizontalLayout> {
 
     /**
      * Configures the deck title display.
-     * Sets up the title with proper styling and initial loading state.
      */
     private void configureTitle() {
         deckTitle.setText(getTranslation(DeckConstants.DECK_LOADING));
@@ -75,7 +72,6 @@ public final class DeckHeader extends Composite<HorizontalLayout> {
 
     /**
      * Configures the deck statistics display.
-     * Sets up the stats span with proper styling.
      */
     private void configureStats() {
         deckStats.addClassName(DeckConstants.DECK_VIEW_STATS_CLASS);

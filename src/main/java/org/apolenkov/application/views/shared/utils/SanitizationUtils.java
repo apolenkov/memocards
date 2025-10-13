@@ -16,12 +16,11 @@ public final class SanitizationUtils {
     }
 
     /**
-     * Sanitizes error details to prevent XSS and information leakage.
-     * Removes potentially dangerous characters and limits length.
+     * Sanitizes error details for safe display.
      *
      * @param errorDetail the error detail to sanitize
      * @param unknownText the text to return for null/empty inputs
-     * @return sanitized error detail
+     * @return sanitized error detail suitable for display
      */
     public static String sanitizeErrorDetail(final String errorDetail, final String unknownText) {
         if (errorDetail == null || errorDetail.isEmpty()) {

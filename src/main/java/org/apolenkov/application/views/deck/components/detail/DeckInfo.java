@@ -18,7 +18,6 @@ public final class DeckInfo extends Composite<VerticalLayout> {
 
     /**
      * Creates a new DeckInfo component.
-     * Initializes UI components without configuring them to avoid this-escape warnings.
      */
     public DeckInfo() {
         this.infoSection = new Div();
