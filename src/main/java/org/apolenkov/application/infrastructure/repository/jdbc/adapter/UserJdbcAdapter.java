@@ -306,9 +306,14 @@ public class UserJdbcAdapter implements UserRepository {
      * @param roles set of roles to insert
      */
     private void insertUserRoles(final Long userId, final Set<String> roles) {
-        for (String role : roles) {
-            jdbcTemplate.update(UserSqlQueries.INSERT_USER_ROLE, userId, role);
+        if (roles.isEmpty()) {
+            return;
         }
+
+        // Batch insert for better performance (avoids N+1)
+        jdbcTemplate.batchUpdate(
+                UserSqlQueries.INSERT_USER_ROLE,
+                roles.stream().map(role -> new Object[] {userId, role}).toList());
     }
 
     /**

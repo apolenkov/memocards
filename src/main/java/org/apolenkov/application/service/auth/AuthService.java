@@ -28,7 +28,11 @@ public class AuthService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthService.class);
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
+    // ==================== Fields ====================
+
     private final AuthenticationConfiguration authenticationConfiguration;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates a new AuthService with authentication configuration.
@@ -42,6 +46,8 @@ public class AuthService {
         }
         this.authenticationConfiguration = authConfig;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Authenticates user and persists authentication session.
@@ -66,6 +72,8 @@ public class AuthService {
 
         AUDIT_LOGGER.info("User logged in successfully: {}", username);
     }
+
+    // ==================== Private Methods ====================
 
     /**
      * Validates authentication credentials.
