@@ -30,6 +30,9 @@ import org.springframework.stereotype.Repository;
 public class NewsJdbcAdapter implements NewsRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NewsJdbcAdapter.class);
+
+    // ==================== Row Mappers ====================
+
     /**
      * RowMapper for NewsDto.
      */
@@ -50,7 +53,11 @@ public class NewsJdbcAdapter implements NewsRepository {
                 updatedAt != null ? updatedAt.toLocalDateTime() : null);
     };
 
+    // ==================== Fields ====================
+
     private final JdbcTemplate jdbcTemplate;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates adapter with JdbcTemplate dependency.
@@ -65,6 +72,8 @@ public class NewsJdbcAdapter implements NewsRepository {
         this.jdbcTemplate = jdbcTemplateValue;
     }
 
+    // ==================== Private Methods ====================
+
     /**
      * Converts NewsDto to domain News model.
      *
@@ -77,6 +86,8 @@ public class NewsJdbcAdapter implements NewsRepository {
         news.setUpdatedAt(newsDto.updatedAt());
         return news;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Retrieves all news items ordered by creation date (newest first).

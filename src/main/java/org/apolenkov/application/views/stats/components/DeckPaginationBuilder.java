@@ -24,6 +24,8 @@ import org.apolenkov.application.views.stats.constants.StatsConstants;
  */
 public final class DeckPaginationBuilder extends Composite<VerticalLayout> {
 
+    // ==================== Fields ====================
+
     // Data
     private final transient List<Deck> decks;
     private final transient Map<Long, StatsRepository.DeckAggregate> aggregates;
@@ -34,6 +36,8 @@ public final class DeckPaginationBuilder extends Composite<VerticalLayout> {
     // Event Registrations
     private Registration prevButtonListenerRegistration;
     private Registration nextButtonListenerRegistration;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates a new DeckPaginationBuilder with required dependencies.
@@ -46,6 +50,8 @@ public final class DeckPaginationBuilder extends Composite<VerticalLayout> {
         this.decks = decksParam;
         this.aggregates = aggregatesParam;
     }
+
+    // ==================== Lifecycle & UI Building ====================
 
     @Override
     protected VerticalLayout initContent() {

@@ -24,8 +24,12 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
     private static final int MAX_LOG_TEXT_LENGTH = 50;
 
+    // ==================== Fields ====================
+
     private final FlashcardRepository flashcardRepository;
     private final Validator validator;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates a new FlashcardUseCaseService with required dependencies.
@@ -37,6 +41,8 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
         this.flashcardRepository = flashcardRepositoryValue;
         this.validator = validatorValue;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Returns flashcards belonging to specific deck.

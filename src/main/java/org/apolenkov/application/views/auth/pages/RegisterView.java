@@ -29,6 +29,8 @@ import org.apolenkov.application.views.shared.utils.ValidationHelper;
 @AnonymousAllowed
 public class RegisterView extends BaseView {
 
+    // ==================== Fields ====================
+
     /**
      * Registration service for handling user registration operations.
      */
@@ -54,6 +56,8 @@ public class RegisterView extends BaseView {
      */
     private PasswordField confirm;
 
+    // ==================== Constructor ====================
+
     /**
      * Creates a new RegisterView with registration service dependency.
      *
@@ -62,6 +66,8 @@ public class RegisterView extends BaseView {
     public RegisterView(final RegistrationService registrationServiceParam) {
         this.registrationService = registrationServiceParam;
     }
+
+    // ==================== Lifecycle & UI Creation ====================
 
     /**
      * Initializes the view components after dependency injection is complete.

@@ -22,11 +22,15 @@ import org.apolenkov.application.views.shared.utils.ValidationHelper;
  */
 public final class AdminNewsDialog extends Dialog {
 
+    // ==================== Fields ====================
+
     // Data
     private final transient News news;
 
     // Callbacks
     private final transient Consumer<NewsFormData> onSave;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates a new AdminNewsDialog for creating or editing news.
@@ -39,6 +43,8 @@ public final class AdminNewsDialog extends Dialog {
         this.news = newsParam;
         this.onSave = onSaveParam;
     }
+
+    // ==================== Lifecycle & UI Building ====================
 
     /**
      * Initializes the dialog components when attached to the UI.

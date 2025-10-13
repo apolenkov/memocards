@@ -48,7 +48,6 @@ public final class DeckConstants {
     // Translation keys for common actions
     public static final String COMMON_CANCEL = "common.cancel";
     public static final String COMMON_BACK = "common.back";
-    public static final String COMMON_START = "common.start";
     public static final String COMMON_EDIT = "common.edit";
     public static final String COMMON_DELETE = "common.delete";
 

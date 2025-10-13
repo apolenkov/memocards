@@ -2,6 +2,7 @@ package org.apolenkov.application.service.seed.generator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
@@ -41,7 +43,8 @@ class UserSeedGeneratorTest {
         // Mock TransactionTemplate to execute callback immediately
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
             var callback = invocation.getArgument(0, org.springframework.transaction.support.TransactionCallback.class);
-            return callback.doInTransaction(null);
+            TransactionStatus mockStatus = mock(TransactionStatus.class);
+            return callback.doInTransaction(mockStatus);
         });
     }
 

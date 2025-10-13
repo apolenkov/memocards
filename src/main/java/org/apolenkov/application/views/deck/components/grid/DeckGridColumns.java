@@ -43,8 +43,7 @@ public final class DeckGridColumns {
      * @param grid the grid to add column to
      */
     public static void addExampleColumn(final Grid<Flashcard> grid) {
-        grid.addColumn(
-                flashcard -> {
+        grid.addColumn(flashcard -> {
                     String example = flashcard.getExample();
                     return example != null && !example.trim().isEmpty() ? example : "-";
                 })

@@ -30,6 +30,9 @@ import org.springframework.stereotype.Repository;
 public class DeckJdbcAdapter implements DeckRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckJdbcAdapter.class);
+
+    // ==================== Row Mappers ====================
+
     /**
      * RowMapper for DeckDto.
      */
@@ -50,7 +53,11 @@ public class DeckJdbcAdapter implements DeckRepository {
                 updatedAt != null ? updatedAt.toLocalDateTime() : null);
     };
 
+    // ==================== Fields ====================
+
     private final JdbcTemplate jdbcTemplate;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates adapter with JdbcTemplate dependency.
@@ -65,6 +72,8 @@ public class DeckJdbcAdapter implements DeckRepository {
         this.jdbcTemplate = jdbcTemplateValue;
     }
 
+    // ==================== Private Methods ====================
+
     /**
      * Converts DeckDto to domain Deck model.
      *
@@ -77,6 +86,8 @@ public class DeckJdbcAdapter implements DeckRepository {
         deck.setUpdatedAt(deckDto.updatedAt());
         return deck;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Retrieves all decks from database.

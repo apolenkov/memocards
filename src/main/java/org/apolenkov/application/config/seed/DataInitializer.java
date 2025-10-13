@@ -34,7 +34,11 @@ public class DataInitializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataInitializer.class);
 
+    // ==================== Fields ====================
+
     private final SeedConfig seedConfig;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates DataInitializer with seed configuration.
@@ -44,6 +48,8 @@ public class DataInitializer {
     public DataInitializer(final SeedConfig seedConfigValue) {
         this.seedConfig = seedConfigValue;
     }
+
+    // ==================== Constants ====================
 
     /**
      * Demo user configuration constants.

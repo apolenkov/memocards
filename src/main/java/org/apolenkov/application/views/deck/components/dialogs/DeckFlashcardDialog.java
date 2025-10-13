@@ -38,6 +38,8 @@ public final class DeckFlashcardDialog extends Dialog {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckFlashcardDialog.class);
 
+    // ==================== Fields ====================
+
     // Dependencies
     private final transient FlashcardUseCase flashcardUseCase;
     private final transient Deck currentDeck;
@@ -54,6 +56,8 @@ public final class DeckFlashcardDialog extends Dialog {
     private TextField backTextField;
     private TextArea exampleArea;
     private TextField imageUrlField;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates a new DeckFlashcardDialog with required dependencies.
@@ -72,6 +76,8 @@ public final class DeckFlashcardDialog extends Dialog {
         this.onFlashcardSaved = onFlashcardSavedParam;
         addClassName(DeckConstants.DIALOG_MD_CLASS);
     }
+
+    // ==================== Public API ====================
 
     /**
      * Opens the dialog for creating a new flashcard.

@@ -16,8 +16,12 @@ import org.springframework.stereotype.Component;
 @Component
 public final class PracticeSessionManager {
 
+    // ==================== Fields ====================
+
     // Dependencies
     private final Clock clock;
+
+    // ==================== Constructors ====================
 
     /**
      * Creates a new PracticeSessionManager with system clock.
@@ -39,6 +43,8 @@ public final class PracticeSessionManager {
         }
         this.clock = clockValue;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Checks if a practice session is complete.

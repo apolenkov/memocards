@@ -25,9 +25,13 @@ public class StatsService implements StatsUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsService.class);
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
+    // ==================== Fields ====================
+
     private final StatsRepository statsRepository;
     private final DeckRepository deckRepository;
     private final KnownCardsCache knownCardsCache;
+
+    // ==================== Constructor ====================
 
     /**
      * Constructs StatsService with required dependencies.
@@ -44,6 +48,8 @@ public class StatsService implements StatsUseCase {
         this.deckRepository = deckRepositoryValue;
         this.knownCardsCache = knownCardsCacheValue;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Records practice session and updates daily statistics.
