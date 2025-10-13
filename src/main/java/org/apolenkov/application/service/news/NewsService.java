@@ -21,7 +21,11 @@ public class NewsService implements NewsUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(NewsService.class);
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
+    // ==================== Fields ====================
+
     private final NewsRepository newsRepository;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates NewsService with required repository dependency.
@@ -31,6 +35,8 @@ public class NewsService implements NewsUseCase {
     public NewsService(final NewsRepository newsRepositoryValue) {
         this.newsRepository = newsRepositoryValue;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Gets all news items ordered by creation date (newest first).

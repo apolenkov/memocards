@@ -23,7 +23,11 @@ public class UserUseCaseService implements UserUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserUseCaseService.class);
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 
+    // ==================== Fields ====================
+
     private final UserRepository userRepository;
+
+    // ==================== Constructor ====================
 
     /**
      * Creates a new UserUseCaseService with the required repository dependency.
@@ -37,6 +41,8 @@ public class UserUseCaseService implements UserUseCase {
         }
         this.userRepository = userRepositoryValue;
     }
+
+    // ==================== Public API ====================
 
     /**
      * Gets all users in the system.
