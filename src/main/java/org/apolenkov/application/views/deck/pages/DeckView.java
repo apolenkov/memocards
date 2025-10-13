@@ -25,7 +25,8 @@ import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.stats.StatsService;
 import org.apolenkov.application.views.core.exception.EntityNotFoundException;
 import org.apolenkov.application.views.core.layout.PublicLayout;
-import org.apolenkov.application.views.deck.components.detail.DeckViewLayout;
+import org.apolenkov.application.views.deck.components.DeckDetailHeader;
+import org.apolenkov.application.views.deck.components.detail.DeckGrid;
 import org.apolenkov.application.views.deck.components.dialogs.DeckDeleteDialog;
 import org.apolenkov.application.views.deck.components.dialogs.DeckEditDialog;
 import org.apolenkov.application.views.deck.components.dialogs.DeckFlashcardDeleteDialog;
@@ -46,9 +47,12 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private final transient FlashcardUseCase flashcardUseCase;
     private final transient StatsService statsService;
 
-    // State and Layout
+    // State
     private transient Deck currentDeck;
-    private transient DeckViewLayout deckViewLayout;
+
+    // UI Components
+    private DeckDetailHeader detailHeader;
+    private DeckGrid deckGrid;
 
     // Event Registrations
     private Registration practiceClickListenerRegistration;
@@ -149,7 +153,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * Configures click handlers for practice, add, edit and delete actions.
      */
     private void setupActionListeners() {
-        if (deckViewLayout == null || deckViewLayout.getDeckActions() == null) {
+        if (detailHeader == null || deckGrid == null) {
             return;
         }
 
@@ -164,7 +168,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      */
     private void setupPracticeButtonListener() {
         if (practiceClickListenerRegistration == null) {
-            practiceClickListenerRegistration = deckViewLayout.getDeckActions().addPracticeClickListener(e -> {
+            practiceClickListenerRegistration = detailHeader.addPracticeClickListener(e -> {
                 if (currentDeck != null) {
                     NavigationHelper.navigateToPractice(currentDeck.getId());
                 }
@@ -176,9 +180,9 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * Sets up the add flashcard button click listener.
      */
     private void setupAddFlashcardButtonListener() {
-        if (addFlashcardClickListenerRegistration == null && deckViewLayout.getDeckGrid() != null) {
+        if (addFlashcardClickListenerRegistration == null) {
             addFlashcardClickListenerRegistration =
-                    deckViewLayout.getDeckGrid().addAddFlashcardClickListener(e -> openFlashcardDialog(null));
+                    deckGrid.addAddFlashcardClickListener(e -> openFlashcardDialog(null));
         }
     }
 
@@ -187,7 +191,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      */
     private void setupEditDeckButtonListener() {
         if (editDeckClickListenerRegistration == null) {
-            editDeckClickListenerRegistration = deckViewLayout.getDeckActions().addEditDeckClickListener(e -> {
+            editDeckClickListenerRegistration = detailHeader.addEditDeckClickListener(e -> {
                 if (currentDeck != null) {
                     // Cache invalidation handled automatically via DeckModifiedEvent
                     // published by DeckUseCaseService after save/delete operations
@@ -202,8 +206,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      */
     private void setupDeleteDeckButtonListener() {
         if (deleteDeckClickListenerRegistration == null) {
-            deleteDeckClickListenerRegistration =
-                    deckViewLayout.getDeckActions().addDeleteDeckClickListener(e -> deleteDeck());
+            deleteDeckClickListenerRegistration = detailHeader.addDeleteDeckClickListener(e -> deleteDeck());
         }
     }
 
@@ -260,15 +263,33 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private void createDeckContent() {
         getContent().removeAll();
 
-        // Create layout component
-        deckViewLayout = new DeckViewLayout(statsService);
+        // Main content container
+        VerticalLayout contentContainer = new VerticalLayout();
+        contentContainer.setSpacing(true);
+        contentContainer.setWidthFull();
+        contentContainer.addClassName(DeckConstants.CONTAINER_MD_CLASS);
+        contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        // Primary content section
+        VerticalLayout pageSection = new VerticalLayout();
+        pageSection.setSpacing(true);
+        pageSection.setPadding(true);
+        pageSection.setWidthFull();
+        pageSection.addClassName(DeckConstants.DECK_VIEW_SECTION_CLASS);
+        pageSection.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
+        pageSection.addClassName(DeckConstants.CONTAINER_MD_CLASS);
+
+        // Create components
+        detailHeader = new DeckDetailHeader();
+        deckGrid = new DeckGrid(statsService);
 
         // Set callbacks
-        deckViewLayout.setEditFlashcardCallback(this::openFlashcardDialog);
-        deckViewLayout.setDeleteFlashcardCallback(this::deleteFlashcard);
+        deckGrid.setEditFlashcardCallback(this::openFlashcardDialog);
+        deckGrid.setDeleteFlashcardCallback(this::deleteFlashcard);
 
-        // Create and add content
-        VerticalLayout contentContainer = deckViewLayout.createDeckContent();
+        // Add components to section
+        pageSection.add(detailHeader, deckGrid);
+        contentContainer.add(pageSection);
         getContent().add(contentContainer);
     }
 
@@ -297,20 +318,15 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * Updates the display of deck information (title, stats, description).
      */
     private void updateDeckInfo() {
-        if (currentDeck != null && deckViewLayout != null) {
-            if (deckViewLayout.getDeckHeader() != null) {
-                deckViewLayout.getDeckHeader().setDeckTitle(currentDeck.getTitle());
-                deckViewLayout
-                        .getDeckHeader()
-                        .setDeckStats(getTranslation(
-                                DeckConstants.DECK_COUNT, flashcardUseCase.countByDeckId(currentDeck.getId())));
-            }
-            if (deckViewLayout.getDeckInfo() != null) {
-                String description = Optional.ofNullable(currentDeck.getDescription())
-                        .filter(desc -> !desc.trim().isEmpty())
-                        .orElse(getTranslation(DeckConstants.DECK_DESCRIPTION_EMPTY));
-                deckViewLayout.getDeckInfo().setDescription(description);
-            }
+        if (currentDeck != null && detailHeader != null) {
+            detailHeader.setDeckTitle(currentDeck.getTitle());
+            detailHeader.setDeckStats(
+                    getTranslation(DeckConstants.DECK_COUNT, flashcardUseCase.countByDeckId(currentDeck.getId())));
+
+            String description = Optional.ofNullable(currentDeck.getDescription())
+                    .filter(desc -> !desc.trim().isEmpty())
+                    .orElse(getTranslation(DeckConstants.DECK_DESCRIPTION_EMPTY));
+            detailHeader.setDescription(description);
         }
     }
 
@@ -318,10 +334,10 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * Loads flashcards for the current deck and updates the grid.
      */
     private void loadFlashcards() {
-        if (currentDeck != null && deckViewLayout != null && deckViewLayout.getDeckGrid() != null) {
+        if (currentDeck != null && deckGrid != null) {
             List<Flashcard> flashcards = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId());
-            deckViewLayout.getDeckGrid().setCurrentDeckId(currentDeck.getId());
-            deckViewLayout.getDeckGrid().setFlashcards(flashcards);
+            deckGrid.setCurrentDeckId(currentDeck.getId());
+            deckGrid.setFlashcards(flashcards);
             LOGGER.info("Loaded {} flashcards for deck: {}", flashcards.size(), currentDeck.getTitle());
         }
     }
@@ -338,8 +354,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
                 loadFlashcards();
             } else {
                 // Existing flashcard - update locally
-                if (deckViewLayout != null && deckViewLayout.getDeckGrid() != null) {
-                    deckViewLayout.getDeckGrid().updateFlashcard(savedFlashcard);
+                if (deckGrid != null) {
+                    deckGrid.updateFlashcard(savedFlashcard);
                 }
             }
             updateDeckInfo();
@@ -361,8 +377,8 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
         DeckFlashcardDeleteDialog dialog =
                 new DeckFlashcardDeleteDialog(flashcardUseCase, flashcard, deletedFlashcardId -> {
                     // Flashcard was deleted successfully
-                    if (deckViewLayout != null && deckViewLayout.getDeckGrid() != null) {
-                        deckViewLayout.getDeckGrid().removeFlashcard(deletedFlashcardId);
+                    if (deckGrid != null) {
+                        deckGrid.removeFlashcard(deletedFlashcardId);
                     }
                     updateDeckInfo();
                     LOGGER.info("Flashcard {} deleted successfully", deletedFlashcardId);

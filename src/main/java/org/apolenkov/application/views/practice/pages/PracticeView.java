@@ -24,8 +24,7 @@ import org.apolenkov.application.views.practice.business.PracticeSessionService;
 import org.apolenkov.application.views.practice.components.PracticeActions;
 import org.apolenkov.application.views.practice.components.PracticeCard;
 import org.apolenkov.application.views.practice.components.PracticeCongratulations;
-import org.apolenkov.application.views.practice.components.PracticeHeader;
-import org.apolenkov.application.views.practice.components.PracticeProgress;
+import org.apolenkov.application.views.practice.components.PracticeDisplay;
 import org.apolenkov.application.views.practice.constants.PracticeConstants;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.slf4j.Logger;
@@ -52,8 +51,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     private transient PracticeDirection sessionDirection;
 
     // UI Components
-    private PracticeHeader practiceHeader;
-    private PracticeProgress practiceProgress;
+    private PracticeDisplay practiceDisplay;
     private PracticeCard practiceCard;
     private PracticeActions practiceActions;
     private PracticeCongratulations practiceCongratulations;
@@ -102,7 +100,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
 
         // Initialize components
         initializeComponents();
-        pageSection.add(practiceHeader, practiceProgress, practiceCard, practiceActions, practiceCongratulations);
+        pageSection.add(practiceDisplay, practiceCard, practiceActions, practiceCongratulations);
         setupActionHandlers();
 
         contentContainer.add(pageSection);
@@ -113,8 +111,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * Initializes all practice components.
      */
     private void initializeComponents() {
-        practiceHeader = new PracticeHeader();
-        practiceProgress = new PracticeProgress();
+        practiceDisplay = new PracticeDisplay();
         practiceCard = new PracticeCard();
         practiceActions = new PracticeActions();
         practiceCongratulations = new PracticeCongratulations("", () -> {});
@@ -130,7 +127,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * Sets up action component handlers.
      */
     private void setupActionHandlers() {
-        practiceHeader.setBackButtonHandler(this::handleBackToDeck);
+        practiceDisplay.setBackButtonHandler(this::handleBackToDeck);
         practiceActions.setShowAnswerHandler(this::showAnswer);
         practiceActions.setKnowHandler(() -> markLabeled(PracticeConstants.KNOW_LABEL));
         practiceActions.setHardHandler(() -> markLabeled(PracticeConstants.HARD_LABEL));
@@ -200,10 +197,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * Shows congratulations component when all cards are already studied.
      */
     private void showAllKnownDialogAndRedirect() {
-        // Hide practice components, keep the header visible
-        if (practiceProgress != null) {
-            practiceProgress.setVisible(false);
-        }
+        // Hide practice actions
         if (practiceActions != null) {
             practiceActions.setVisible(false);
         }
@@ -230,7 +224,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         Optional<Deck> deckOpt = sessionService.loadDeck(deckId);
         if (deckOpt.isPresent()) {
             currentDeck = deckOpt.get();
-            practiceHeader.setDeckTitle(getTranslation(PracticeConstants.PRACTICE_TITLE_KEY, currentDeck.getTitle()));
+            practiceDisplay.setDeckTitle(getTranslation(PracticeConstants.PRACTICE_TITLE_KEY, currentDeck.getTitle()));
             LOGGER.debug("Deck loaded successfully: {} (ID: {})", currentDeck.getTitle(), currentDeck.getId());
         } else {
             LOGGER.warn("Deck not found for ID: {}", deckId);
@@ -324,7 +318,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             return;
         }
         PracticeSessionManager.Progress progress = sessionManager.progress(session);
-        practiceProgress.updateProgress(progress);
+        practiceDisplay.updateProgress(progress);
     }
 
     /**

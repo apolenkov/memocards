@@ -141,4 +141,37 @@ class DeckUseCaseServiceTest {
         // Then
         assertThat(result).isEmpty();
     }
+
+    @Test
+    @DisplayName("Should create new deck")
+    void shouldCreateNewDeck() {
+        // Given
+        Deck newDeck = new Deck(null, 1L, "New Deck", "Description");
+        Deck savedDeck = new Deck(1L, 1L, "New Deck", "Description");
+        when(deckRepository.save(newDeck)).thenReturn(savedDeck);
+
+        // When
+        Deck result = deckUseCaseService.saveDeck(newDeck);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getTitle()).isEqualTo("New Deck");
+    }
+
+    @Test
+    @DisplayName("Should update existing deck")
+    void shouldUpdateExistingDeck() {
+        // Given
+        Deck existingDeck = new Deck(1L, 1L, "Updated Title", "Updated Description");
+        when(deckRepository.save(existingDeck)).thenReturn(existingDeck);
+
+        // When
+        Deck result = deckUseCaseService.saveDeck(existingDeck);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getTitle()).isEqualTo("Updated Title");
+        assertThat(result.getDescription()).isEqualTo("Updated Description");
+    }
 }

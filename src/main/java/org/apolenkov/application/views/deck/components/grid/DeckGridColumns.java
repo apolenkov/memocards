@@ -15,7 +15,6 @@ import java.util.function.Supplier;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.TextFormattingUtils;
 
 /**
  * Utility class for creating grid columns in the flashcard grid.
@@ -44,7 +43,11 @@ public final class DeckGridColumns {
      * @param grid the grid to add column to
      */
     public static void addExampleColumn(final Grid<Flashcard> grid) {
-        grid.addColumn(flashcard -> TextFormattingUtils.formatPlaceholder(flashcard.getExample()))
+        grid.addColumn(
+                flashcard -> {
+                    String example = flashcard.getExample();
+                    return example != null && !example.trim().isEmpty() ? example : "-";
+                })
                 .setHeader(grid.getTranslation(DeckConstants.DECK_COL_EXAMPLE))
                 .setFlexGrow(2);
     }
@@ -64,7 +67,7 @@ public final class DeckGridColumns {
 
     /**
      * Creates a status component for a flashcard.
-     * Checks if card is known using pre-loaded Set to avoid database queries.
+     * Checks if card is known using preloaded Set to avoid database queries.
      *
      * @param flashcard the flashcard to create status for
      * @param knownCardIdsSupplier supplier for known card IDs

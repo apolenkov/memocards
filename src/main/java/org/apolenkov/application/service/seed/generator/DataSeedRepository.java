@@ -1,4 +1,4 @@
-package org.apolenkov.application.service.seed;
+package org.apolenkov.application.service.seed.generator;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
