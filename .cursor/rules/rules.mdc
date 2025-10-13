@@ -156,6 +156,7 @@ version: "2.2.0"
 - **NEVER create @Component + extends Dialog** - singleton Dialog causes state tree corruption
 - **NEVER reuse UI components** - removeAll() + add(sameComponent) causes memory leaks
 - **NEVER store Vaadin Components in singleton fields** - component reuse across UI sessions
+- **NEVER use final for @Component/@Service with @Lazy or AOP** - CGLIB cannot subclass final classes
 
 ## Error Handling
 

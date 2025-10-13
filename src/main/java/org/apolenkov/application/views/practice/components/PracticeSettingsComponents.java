@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @UIScope
-public final class PracticeSettingsComponents implements LocaleChangeObserver {
+public class PracticeSettingsComponents implements LocaleChangeObserver {
 
     /**
      * Creates a card count selection component.

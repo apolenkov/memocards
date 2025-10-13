@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import org.apolenkov.application.views.core.constants.CoreConstants;
-import org.apolenkov.application.views.shared.utils.SanitizationUtils;
 import org.springframework.core.env.Environment;
 
 /**
@@ -144,9 +143,9 @@ public final class ErrorDevInfo extends Composite<Component> {
 
         // Sanitize error details for security
         String unknownText = getTranslation(CoreConstants.ERROR_UNKNOWN_KEY);
-        String safeErrorType = SanitizationUtils.sanitizeErrorDetail(state.errorType(), unknownText);
-        String safeErrorMessage = SanitizationUtils.sanitizeErrorDetail(state.errorMessage(), unknownText);
-        String safeErrorId = SanitizationUtils.sanitizeErrorDetail(state.errorId(), unknownText);
+        String safeErrorType = sanitizeErrorDetail(state.errorType(), unknownText);
+        String safeErrorMessage = sanitizeErrorDetail(state.errorMessage(), unknownText);
+        String safeErrorId = sanitizeErrorDetail(state.errorId(), unknownText);
 
         errorTypeSpan.setText(
                 getTranslation(CoreConstants.ERROR_TYPE_KEY) + CoreConstants.SEPARATOR_COLON_SPACE + safeErrorType);
@@ -196,5 +195,29 @@ public final class ErrorDevInfo extends Composite<Component> {
     private boolean isDevProfile() {
         String[] activeProfiles = environment.getActiveProfiles();
         return Arrays.asList(activeProfiles).contains(CoreConstants.DEV_PROFILE);
+    }
+
+    /**
+     * Sanitizes error details for safe display.
+     *
+     * @param errorDetail the error detail to sanitize
+     * @param unknownText the text to return for null/empty inputs
+     * @return sanitized error detail suitable for display
+     */
+    private String sanitizeErrorDetail(final String errorDetail, final String unknownText) {
+        if (errorDetail == null || errorDetail.isEmpty()) {
+            return unknownText;
+        }
+
+        // Remove potentially dangerous characters
+        String sanitized =
+                errorDetail.replaceAll("[<>\"'&]", "").replaceAll("\\s+", " ").trim();
+
+        // Limit length to prevent information leakage
+        if (sanitized.length() > CoreConstants.MAX_ERROR_DETAIL_LENGTH) {
+            sanitized = sanitized.substring(0, CoreConstants.MAX_ERROR_DETAIL_LENGTH) + CoreConstants.TRUNCATION_SUFFIX;
+        }
+
+        return sanitized.isEmpty() ? unknownText : sanitized;
     }
 }
