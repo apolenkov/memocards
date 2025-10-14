@@ -52,6 +52,12 @@ app:
     user:
       ttl-minutes: ${CACHE_USER_TTL:30}
       max-size: ${CACHE_USER_MAX_SIZE:1000}
+    decks:
+      ttl-ms: ${CACHE_DECKS_TTL:60000}  # 1 minute (UI-scoped cache)
+      max-size: ${CACHE_DECKS_MAX_SIZE:1000}
+    known-cards:
+      ttl-ms: ${CACHE_KNOWN_CARDS_TTL:300000}  # 5 minutes (less volatile than decks)
+      max-size: ${CACHE_KNOWN_CARDS_MAX_SIZE:1000}
   monitoring:
     slow-query-threshold-ms: ${SLOW_QUERY_THRESHOLD:100}
     hikari:

@@ -1,6 +1,7 @@
 package org.apolenkov.application.service.stats;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 import java.util.Map;
 import java.util.Set;
@@ -8,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Unit tests for KnownCardsCache.
@@ -22,6 +24,9 @@ class KnownCardsCacheTest {
     @BeforeEach
     void setUp() {
         cache = new KnownCardsCache();
+        // Set @Value fields manually for unit tests
+        ReflectionTestUtils.setField(cache, "ttlMs", 300000L);
+        ReflectionTestUtils.setField(cache, "maxSize", 1000);
         loaderCallCount = new AtomicInteger(0);
     }
 
@@ -47,20 +52,20 @@ class KnownCardsCacheTest {
     void shouldReturnCachedValueOnSecondAccess() {
         // Given: Cached known cards
         Set<Long> knownCards = Set.of(1L, 2L, 3L);
-        cache.getKnownCards(1L, () -> {
-            loaderCallCount.incrementAndGet();
-            return knownCards;
-        });
+        cache.getKnownCards(1L, () -> knownCards);
 
         // When: Second access (cache HIT)
         Set<Long> result = cache.getKnownCards(1L, () -> {
-            loaderCallCount.incrementAndGet();
-            return Set.of(); // Should NOT be called
+            throw new AssertionError("Loader should NOT be called for cache HIT");
         });
 
-        // Then: Cached value returned, loader NOT called
+        // Then: Cached value returned
         assertThat(result).containsExactlyInAnyOrderElementsOf(knownCards);
-        assertThat(loaderCallCount.get()).isEqualTo(1); // Only first call
+
+        // And: Cache stats show 1 hit, 1 miss
+        KnownCardsCache.CacheStats stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(1);
+        assertThat(stats.misses()).isEqualTo(1);
     }
 
     @Test
@@ -102,23 +107,23 @@ class KnownCardsCacheTest {
         Set<Long> emptySet = Set.of();
 
         // When: Cache empty set
-        Set<Long> result1 = cache.getKnownCards(1L, () -> {
-            loaderCallCount.incrementAndGet();
-            return emptySet;
-        });
+        Set<Long> result1 = cache.getKnownCards(1L, () -> emptySet);
 
         // Then: Empty set cached
         assertThat(result1).isEmpty();
 
         // When: Second access
         Set<Long> result2 = cache.getKnownCards(1L, () -> {
-            loaderCallCount.incrementAndGet();
-            return Set.of(999L); // Should NOT be called
+            throw new AssertionError("Loader should NOT be called for cache HIT");
         });
 
         // Then: Cached empty set returned
         assertThat(result2).isEmpty();
-        assertThat(loaderCallCount.get()).isEqualTo(1); // Only once
+
+        // And: Cache stats show 1 hit, 1 miss
+        KnownCardsCache.CacheStats stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(1);
+        assertThat(stats.misses()).isEqualTo(1);
     }
 
     @Test
@@ -132,7 +137,6 @@ class KnownCardsCacheTest {
 
         // When: Batch retrieval
         Map<Long, Set<Long>> result = cache.getKnownCardsBatch(requestedDeckIds, () -> {
-            loaderCallCount.incrementAndGet();
             // Loader called only for missing deck 3
             return Map.of(3L, Set.of(5L, 6L));
         });
@@ -142,7 +146,11 @@ class KnownCardsCacheTest {
         assertThat(result.get(1L)).containsExactlyInAnyOrder(1L, 2L); // From cache
         assertThat(result.get(2L)).containsExactlyInAnyOrder(3L, 4L); // From cache
         assertThat(result.get(3L)).containsExactlyInAnyOrder(5L, 6L); // Fresh load
-        assertThat(loaderCallCount.get()).isEqualTo(1); // Batch loader called once
+
+        // And: Cache stats: 2 initial misses + 2 hits (batch) + 1 miss (batch)
+        KnownCardsCache.CacheStats stats = cache.getStats();
+        assertThat(stats.misses()).isEqualTo(3); // 2 initial + 1 batch miss
+        assertThat(stats.hits()).isEqualTo(2); // 2 batch hits
     }
 
     @Test
@@ -191,11 +199,16 @@ class KnownCardsCacheTest {
         // When: Invalidate deck 1
         cache.invalidate(1L);
 
-        // Then: Deck 2 still cached, deck 1 reloaded
+        // Then: Deck 2 still cached (HIT), deck 1 invalidated
         Set<Long> cached2 = cache.getKnownCards(2L, () -> {
             throw new AssertionError("Should not be called - deck 2 still cached");
         });
         assertThat(cached2).containsExactlyInAnyOrderElementsOf(deck2Cards);
+
+        // And: Stats show 1 hit (deck 2) + 2 initial misses
+        KnownCardsCache.CacheStats stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(1);
+        assertThat(stats.misses()).isEqualTo(2);
     }
 
     @Test
@@ -243,7 +256,7 @@ class KnownCardsCacheTest {
             assertThat(thread.isAlive()).isFalse();
         }
 
-        // Verify all decks cached
+        // Verify all decks cached (HIT for each)
         for (int i = 0; i < threadCount; i++) {
             final long deckId = i;
             Set<Long> result = cache.getKnownCards(deckId, () -> {
@@ -251,6 +264,11 @@ class KnownCardsCacheTest {
             });
             assertThat(result).hasSize(2);
         }
+
+        // And: Stats show 10 hits + 10 initial misses
+        KnownCardsCache.CacheStats stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(threadCount);
+        assertThat(stats.misses()).isEqualTo(threadCount);
     }
 
     @Test
@@ -265,18 +283,163 @@ class KnownCardsCacheTest {
 
         // When: Batch request
         Map<Long, Set<Long>> result = cache.getKnownCardsBatch(requestedDeckIds, () -> {
-            loaderCallCount.incrementAndGet();
             // Batch loader should only load 4 and 5
             return Map.of(4L, Set.of(4L), 5L, Set.of(5L));
         });
 
-        // Then: All 5 decks in result, batch loader called once
+        // Then: All 5 decks in result
         assertThat(result).hasSize(5);
         assertThat(result.get(1L)).containsExactly(1L); // From cache
         assertThat(result.get(2L)).containsExactly(2L); // From cache
         assertThat(result.get(3L)).containsExactly(3L); // From cache
         assertThat(result.get(4L)).containsExactly(4L); // Batch loaded
         assertThat(result.get(5L)).containsExactly(5L); // Batch loaded
-        assertThat(loaderCallCount.get()).isEqualTo(1); // Single batch call
+
+        // And: Stats: 3 initial misses + 3 batch hits + 2 batch misses
+        KnownCardsCache.CacheStats stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(3); // Decks 1, 2, 3 from cache
+        assertThat(stats.misses()).isEqualTo(5); // 3 initial + 2 batch
+    }
+
+    @Test
+    @DisplayName("Should track cache hits and misses")
+    void shouldTrackCacheHitsAndMisses() {
+        // Given: Empty cache
+        Set<Long> knownCards = Set.of(1L, 2L, 3L);
+
+        // When: First access (MISS)
+        cache.getKnownCards(1L, () -> knownCards);
+
+        // Then: One miss, zero hits
+        KnownCardsCache.CacheStats stats = cache.getStats();
+        assertThat(stats.misses()).isEqualTo(1);
+        assertThat(stats.hits()).isZero();
+        assertThat(stats.size()).isEqualTo(1);
+
+        // When: Second access (HIT)
+        cache.getKnownCards(1L, Set::of);
+
+        // Then: One miss, one hit
+        stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(1);
+        assertThat(stats.misses()).isEqualTo(1);
+        assertThat(stats.hitRate()).isEqualTo(0.5); // 50% hit rate
+    }
+
+    @Test
+    @DisplayName("Should calculate correct hit rate")
+    void shouldCalculateCorrectHitRate() {
+        // Given: Cached known cards
+        cache.getKnownCards(1L, () -> Set.of(1L, 2L));
+
+        // When: 3 cache hits
+        cache.getKnownCards(1L, Set::of);
+        cache.getKnownCards(1L, Set::of);
+        cache.getKnownCards(1L, Set::of);
+
+        // Then: Hit rate is 75% (3 hits / 4 total)
+        KnownCardsCache.CacheStats stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(3);
+        assertThat(stats.misses()).isEqualTo(1);
+        assertThat(stats.hitRate()).isEqualTo(0.75);
+    }
+
+    @Test
+    @DisplayName("Should track batch hits and misses correctly")
+    void shouldTrackBatchHitsAndMisses() {
+        // Given: Decks 1,2 cached
+        cache.getKnownCards(1L, () -> Set.of(1L));
+        cache.getKnownCards(2L, () -> Set.of(2L));
+
+        // When: Batch request for 1,2,3 (3 is MISS)
+        cache.getKnownCardsBatch(Set.of(1L, 2L, 3L), () -> Map.of(3L, Set.of(3L)));
+
+        // Then: 2 hits (from cache) + 1 miss (loaded) + 2 initial misses
+        KnownCardsCache.CacheStats stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(2); // Decks 1 and 2 from cache
+        assertThat(stats.misses()).isEqualTo(3); // Initial 2 loads + deck 3
+    }
+
+    @Test
+    @DisplayName("Should clear cache successfully")
+    void shouldClearCacheSuccessfully() {
+        // Given: Cached known cards for multiple decks
+        cache.getKnownCards(1L, () -> Set.of(1L, 2L));
+        cache.getKnownCards(2L, () -> Set.of(3L, 4L));
+
+        // When: Clear cache
+        cache.clear();
+
+        // Then: Cache is empty
+        KnownCardsCache.CacheStats stats = cache.getStats();
+        assertThat(stats.size()).isZero();
+
+        // And: Next access reloads (MISS)
+        cache.getKnownCards(1L, () -> {
+            loaderCallCount.incrementAndGet();
+            return Set.of(1L, 2L);
+        });
+        assertThat(loaderCallCount.get()).isEqualTo(1); // Fresh load
+    }
+
+    @Test
+    @DisplayName("Should track cache hit rate and log statistics")
+    void shouldTrackHitRateAndLogStats() {
+        // Given: First access (MISS)
+        Set<Long> knownCards = Set.of(1L, 2L, 3L);
+        cache.getKnownCards(1L, () -> {
+            loaderCallCount.incrementAndGet();
+            return knownCards;
+        });
+
+        KnownCardsCache.CacheStats stats = cache.getStats();
+        assertThat(stats.misses()).isEqualTo(1);
+        assertThat(stats.hits()).isZero();
+        assertThat(stats.hitRate()).isEqualTo(0.0);
+
+        // When: Multiple cache hits
+        cache.getKnownCards(1L, () -> {
+            throw new AssertionError("Should not be called on cache hit");
+        });
+        cache.getKnownCards(1L, () -> {
+            throw new AssertionError("Should not be called on cache hit");
+        });
+
+        // Then: Hit rate should be 66.7% (2 hits out of 3 total accesses)
+        stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(2);
+        assertThat(stats.misses()).isEqualTo(1);
+        assertThat(stats.hitRate()).isCloseTo(0.667, within(0.01)); // ~66.7%
+
+        // Debug: Log cache statistics (this should not throw exception)
+        cache.logStats();
+
+        // Verify cache size
+        assertThat(stats.size()).isEqualTo(1);
+        assertThat(loaderCallCount.get()).isEqualTo(1); // Only one actual load
+    }
+
+    @Test
+    @DisplayName("Should handle cache eviction with statistics")
+    void shouldHandleEvictionWithStats() {
+        // Given: Small cache size for testing
+        ReflectionTestUtils.setField(cache, "maxSize", 2);
+
+        // Fill cache to max size
+        cache.getKnownCards(1L, () -> Set.of(1L, 2L));
+        cache.getKnownCards(2L, () -> Set.of(3L, 4L));
+
+        KnownCardsCache.CacheStats stats = cache.getStats();
+        assertThat(stats.size()).isEqualTo(2);
+
+        // When: Add third entry (should evict oldest)
+        cache.getKnownCards(3L, () -> Set.of(5L, 6L));
+
+        // Then: Cache size should still be 2 (eviction occurred)
+        stats = cache.getStats();
+        assertThat(stats.size()).isEqualTo(2);
+
+        // Debug: Log statistics after eviction
+        cache.logStats();
     }
 }

@@ -11,7 +11,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /**
  * Base class for integration tests using TestContainers.
  */
-@SpringBootTest
+@SpringBootTest(properties = {"vaadin.launch-browser=false", "spring.main.web-application-type=servlet"})
 @ActiveProfiles("test")
 @Testcontainers
 public abstract class BaseIntegrationTest {

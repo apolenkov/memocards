@@ -20,12 +20,12 @@ class PasswordValidatorTest {
 
     @Test
     @DisplayName("Should throw exception when trying to instantiate")
-    void shouldThrowExceptionWhenInstantiating() {
-        assertThatThrownBy(() -> {
-                    var constructor = PasswordValidator.class.getDeclaredConstructor();
-                    constructor.setAccessible(true);
-                    constructor.newInstance();
-                })
+    void shouldThrowExceptionWhenInstantiating() throws Exception {
+        var constructor = PasswordValidator.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+
+        assertThatThrownBy(constructor::newInstance)
+                .isInstanceOf(ReflectiveOperationException.class)
                 .hasCauseInstanceOf(UnsupportedOperationException.class);
     }
 

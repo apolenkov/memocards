@@ -10,6 +10,7 @@ import org.apolenkov.application.model.Deck;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Unit tests for UserDecksCache.
@@ -24,6 +25,9 @@ class UserDecksCacheTest {
     @BeforeEach
     void setUp() {
         cache = new UserDecksCache();
+        // Set @Value fields manually for unit tests
+        ReflectionTestUtils.setField(cache, "ttlMs", 60000L);
+        ReflectionTestUtils.setField(cache, "maxSize", 1000);
         loaderCallCount = new AtomicInteger(0);
     }
 
@@ -50,20 +54,20 @@ class UserDecksCacheTest {
     void shouldReturnCachedValueOnSecondAccess() {
         // Given: Cached decks
         List<Deck> decks = List.of(new Deck(1L, 1L, "Deck 1", "Desc"));
-        cache.getDecks(1L, () -> {
-            loaderCallCount.incrementAndGet();
-            return decks;
-        });
+        cache.getDecks(1L, () -> decks);
 
         // When: Second access (cache HIT)
         List<Deck> result = cache.getDecks(1L, () -> {
-            loaderCallCount.incrementAndGet();
-            return List.of(); // Should NOT be called
+            throw new AssertionError("Loader should NOT be called for cache HIT");
         });
 
-        // Then: Cached value returned, loader NOT called
+        // Then: Cached value returned
         assertThat(result).hasSize(1);
-        assertThat(loaderCallCount.get()).isEqualTo(1); // Only first call
+
+        // And: Cache stats show 1 hit, 1 miss
+        UserDecksCache.CacheStats stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(1);
+        assertThat(stats.misses()).isEqualTo(1);
     }
 
     @Test
@@ -142,12 +146,15 @@ class UserDecksCacheTest {
 
         // Then: Cache for user 1 NOT invalidated (still cached)
         List<Deck> result = cache.getDecks(1L, () -> {
-            loaderCallCount.incrementAndGet();
-            return List.of(); // Should NOT be called
+            throw new AssertionError("Loader should NOT be called - cache HIT");
         });
 
         assertThat(result).hasSize(1); // Cached value
-        assertThat(loaderCallCount.get()).isZero(); // Loader NOT called
+
+        // And: Cache stats show 1 hit, 1 miss
+        UserDecksCache.CacheStats stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(1);
+        assertThat(stats.misses()).isEqualTo(1);
     }
 
     @Test
@@ -171,23 +178,23 @@ class UserDecksCacheTest {
         List<Deck> emptyList = List.of();
 
         // When: Cache empty list
-        List<Deck> result1 = cache.getDecks(1L, () -> {
-            loaderCallCount.incrementAndGet();
-            return emptyList;
-        });
+        List<Deck> result1 = cache.getDecks(1L, () -> emptyList);
 
         // Then: Empty list cached
         assertThat(result1).isEmpty();
 
         // When: Second access
         List<Deck> result2 = cache.getDecks(1L, () -> {
-            loaderCallCount.incrementAndGet();
-            return List.of(new Deck()); // Should NOT be called
+            throw new AssertionError("Loader should NOT be called for cache HIT");
         });
 
         // Then: Cached empty list returned
         assertThat(result2).isEmpty();
-        assertThat(loaderCallCount.get()).isEqualTo(1); // Only once
+
+        // And: Cache stats show 1 hit, 1 miss
+        UserDecksCache.CacheStats stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(1);
+        assertThat(stats.misses()).isEqualTo(1);
     }
 
     @Test
@@ -218,5 +225,69 @@ class UserDecksCacheTest {
 
         assertThat(result.getFirst().getTitle()).isEqualTo("New");
         assertThat(loaderCallCount.get()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Should track cache hit rate and log statistics")
+    void shouldTrackHitRateAndLogStats() {
+        // Given: First access (MISS)
+        List<Deck> decks = List.of(new Deck(1L, 1L, "Test Deck", ""));
+        cache.getDecks(1L, () -> {
+            loaderCallCount.incrementAndGet();
+            return decks;
+        });
+
+        UserDecksCache.CacheStats stats = cache.getStats();
+        assertThat(stats.misses()).isEqualTo(1);
+        assertThat(stats.hits()).isZero();
+        assertThat(stats.hitRate()).isEqualTo(0.0);
+
+        // When: Multiple cache hits
+        cache.getDecks(1L, () -> {
+            throw new AssertionError("Should not be called on cache hit");
+        });
+        cache.getDecks(1L, () -> {
+            throw new AssertionError("Should not be called on cache hit");
+        });
+        cache.getDecks(1L, () -> {
+            throw new AssertionError("Should not be called on cache hit");
+        });
+
+        // Then: Hit rate should be 75% (3 hits out of 4 total accesses)
+        stats = cache.getStats();
+        assertThat(stats.hits()).isEqualTo(3);
+        assertThat(stats.misses()).isEqualTo(1);
+        assertThat(stats.hitRate()).isEqualTo(0.75); // 75%
+
+        // Debug: Log cache statistics (this should not throw exception)
+        cache.logStats();
+
+        // Verify cache size
+        assertThat(stats.size()).isEqualTo(1);
+        assertThat(loaderCallCount.get()).isEqualTo(1); // Only one actual load
+    }
+
+    @Test
+    @DisplayName("Should handle cache eviction with statistics")
+    void shouldHandleEvictionWithStats() {
+        // Given: Small cache size for testing
+        ReflectionTestUtils.setField(cache, "maxSize", 2);
+
+        // Fill cache to max size
+        cache.getDecks(1L, () -> List.of(new Deck(1L, 1L, "Deck 1", "")));
+        cache.getDecks(2L, () -> List.of(new Deck(2L, 2L, "Deck 2", "")));
+
+        UserDecksCache.CacheStats stats = cache.getStats();
+        assertThat(stats.size()).isEqualTo(2);
+
+        // When: Add third entry (should evict oldest)
+        cache.getDecks(3L, () -> List.of(new Deck(3L, 3L, "Deck 3", "")));
+
+        // Then: Cache size should still be 2 (eviction occurred)
+        stats = cache.getStats();
+        assertThat(stats.size()).isEqualTo(2);
+
+        // Debug: Log statistics after eviction
+        cache.logStats();
     }
 }

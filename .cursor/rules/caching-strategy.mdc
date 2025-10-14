@@ -112,11 +112,15 @@ public CacheStats getStats() {
     return new CacheStats(hitCount.get(), missCount.get(), cache.size());
 }
 
-// logStats() for debugging
+// logStats() for debugging (performance optimized)
 public void logStats() {
-    long total = hitCount.get() + missCount.get();
-    String hitRate = total > 0 ? String.format("%.1f%%", ...) : "N/A";
-    LOGGER.debug("Cache stats: hits={}, misses={}, hitRate={}, size={}", ...);
+    if (LOGGER.isDebugEnabled()) {
+        long total = hitCount.get() + missCount.get();
+        String hitRate = total > 0 ? String.format("%.1f%%", 
+            (double) hitCount.get() * 100 / total) : "N/A";
+        LOGGER.debug("Cache stats: hits={}, misses={}, hitRate={}, size={}", 
+            hitCount.get(), missCount.get(), hitRate, cache.size());
+    }
 }
 ```
 
@@ -127,6 +131,27 @@ assertThat(stats.hitRate()).isGreaterThan(0.7); // 70% hit rate
 assertThat(stats.size()).isLessThan(maxSize);   // Not full
 ```
 
+**Unit Testing @UIScope Caches**:
+```java
+@BeforeEach
+void setUp() {
+    // Inject @Value fields for unit tests
+    ReflectionTestUtils.setField(cache, "ttlMs", 60000L);
+    ReflectionTestUtils.setField(cache, "maxSize", 1000);
+}
+
+@Test
+void shouldTrackHitsAndMisses() {
+    // First access: MISS
+    cache.get(key, () -> data);
+    assertThat(cache.getStats().misses()).isEqualTo(1);
+    
+    // Second access: HIT (use Set::of for method reference)
+    cache.get(key, Set::of);
+    assertThat(cache.getStats().hits()).isEqualTo(1);
+}
+```
+
 ## CHECKLIST
 - [ ] @UIScope or @SessionScope (NEVER static)
 - [ ] @Value for TTL and max-size with defaults
@@ -135,10 +160,12 @@ assertThat(stats.size()).isLessThan(maxSize);   // Not full
 - [ ] invalidate() and clear() methods
 - [ ] ConcurrentHashMap
 - [ ] AtomicLong counters for stats
-- [ ] logStats() method (NOT in get())
+- [ ] logStats() method with isDebugEnabled() check (NOT in get())
 - [ ] Eviction strategy when cache is full
 - [ ] Service publishes events after CRUD
 - [ ] Consider @SessionScope for multi-tab scenarios
 - [ ] Monitor cache size in production (alert if near max-size)
 - [ ] CacheStats record for testing
 - [ ] NO Micrometer for @UIScope (only for application-level caches)
+- [ ] Unit tests inject @Value fields with ReflectionTestUtils
+- [ ] Use method references (Set::of) instead of lambdas when possible
