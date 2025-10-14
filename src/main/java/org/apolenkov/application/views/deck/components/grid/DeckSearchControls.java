@@ -30,6 +30,9 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
     private final Checkbox hideKnownCheckbox;
     private final Button resetProgressButton;
 
+    // Configuration
+    private final int searchDebounceMs;
+
     // Callbacks
     private transient Consumer<String> searchCallback;
     private transient Consumer<Boolean> filterCallback;
@@ -42,11 +45,14 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
 
     /**
      * Creates a new DeckSearchControls component.
+     *
+     * @param searchDebounceTimeout debouncing timeout in milliseconds for search field
      */
-    public DeckSearchControls() {
+    public DeckSearchControls(final int searchDebounceTimeout) {
         this.searchField = new TextField();
         this.hideKnownCheckbox = new Checkbox();
         this.resetProgressButton = new Button();
+        this.searchDebounceMs = searchDebounceTimeout;
     }
 
     @Override
@@ -63,12 +69,14 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
 
     /**
      * Configures the search field with placeholder, prefix icon, and value change listener.
+     * Uses debouncing to reduce server calls during typing.
      */
     private void configureSearchField() {
         searchField.setPlaceholder(getTranslation(DeckConstants.DECK_SEARCH_CARDS));
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setClearButtonVisible(true);
-        searchField.setValueChangeMode(ValueChangeMode.EAGER);
+        searchField.setValueChangeMode(ValueChangeMode.TIMEOUT);
+        searchField.setValueChangeTimeout(searchDebounceMs);
         searchFieldListenerRegistration = searchField.addValueChangeListener(e -> {
             if (searchCallback != null) {
                 searchCallback.accept(e.getValue());

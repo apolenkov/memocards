@@ -25,12 +25,18 @@ public final class DeckToolbar extends Composite<HorizontalLayout> {
     private final TextField searchField;
     private final Button addButton;
 
+    // Configuration
+    private final int searchDebounceMs;
+
     /**
      * Creates a new DeckToolbar.
+     *
+     * @param searchDebounceTimeout debouncing timeout in milliseconds for search field
      */
-    public DeckToolbar() {
+    public DeckToolbar(final int searchDebounceTimeout) {
         this.searchField = new TextField();
         this.addButton = new Button();
+        this.searchDebounceMs = searchDebounceTimeout;
     }
 
     @Override
@@ -49,11 +55,13 @@ public final class DeckToolbar extends Composite<HorizontalLayout> {
 
     /**
      * Configures the search input field.
+     * Uses debouncing to reduce server calls during typing.
      */
     private void configureSearchField() {
         searchField.setPlaceholder(getTranslation(DeckConstants.HOME_SEARCH_PLACEHOLDER));
         searchField.setClearButtonVisible(true);
-        searchField.setValueChangeMode(ValueChangeMode.EAGER);
+        searchField.setValueChangeMode(ValueChangeMode.TIMEOUT);
+        searchField.setValueChangeTimeout(searchDebounceMs);
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.addClassName(DeckConstants.DECK_TOOLBAR_SEARCH_CLASS);
     }

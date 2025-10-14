@@ -51,10 +51,11 @@ public final class DeckGrid extends Composite<VerticalLayout> {
      * Creates a new DeckGrid component.
      *
      * @param statsServiceParam service for statistics tracking
+     * @param searchDebounceMs debouncing timeout for search field
      */
-    public DeckGrid(final StatsService statsServiceParam) {
+    public DeckGrid(final StatsService statsServiceParam, final int searchDebounceMs) {
         this.statsService = statsServiceParam;
-        this.searchControls = new DeckSearchControls();
+        this.searchControls = new DeckSearchControls(searchDebounceMs);
         this.flashcardGrid = new DeckFlashcardGrid(statsService);
         this.addFlashcardButton = new Button();
         this.allFlashcards = new ArrayList<>();
