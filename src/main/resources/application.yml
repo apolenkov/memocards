@@ -58,6 +58,9 @@ app:
     known-cards:
       ttl-ms: ${CACHE_KNOWN_CARDS_TTL:300000}  # 5 minutes (less volatile than decks)
       max-size: ${CACHE_KNOWN_CARDS_MAX_SIZE:1000}
+  ui:
+    search:
+      debounce-ms: ${SEARCH_DEBOUNCE_MS:300}  # Debouncing timeout for search fields
   monitoring:
     slow-query-threshold-ms: ${SLOW_QUERY_THRESHOLD:100}
     hikari:

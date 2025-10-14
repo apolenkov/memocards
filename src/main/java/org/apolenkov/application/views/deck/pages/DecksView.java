@@ -10,6 +10,7 @@ import jakarta.annotation.security.RolesAllowed;
 import java.util.List;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.config.ui.UIConfig;
 import org.apolenkov.application.domain.usecase.DeckUseCase;
 import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.views.core.layout.PublicLayout;
@@ -34,6 +35,7 @@ public final class DecksView extends BaseView {
     private final transient DeckListPresenter deckListPresenter;
     private final transient DeckUseCase deckUseCase;
     private final transient UserUseCase userUseCase;
+    private final transient UIConfig uiConfig;
 
     // UI Components
     private DeckContainer deckContainer;
@@ -48,14 +50,17 @@ public final class DecksView extends BaseView {
      * @param deckListPresenterValue service for home page operations and deck listing
      * @param deckUseCaseValue use case for deck management operations
      * @param userUseCaseValue service for user operations and authentication
+     * @param uiConfigParam UI configuration settings
      */
     public DecksView(
             final DeckListPresenter deckListPresenterValue,
             final DeckUseCase deckUseCaseValue,
-            final UserUseCase userUseCaseValue) {
+            final UserUseCase userUseCaseValue,
+            final UIConfig uiConfigParam) {
         this.deckListPresenter = deckListPresenterValue;
         this.deckUseCase = deckUseCaseValue;
         this.userUseCase = userUseCaseValue;
+        this.uiConfig = uiConfigParam;
     }
 
     /**
@@ -79,7 +84,7 @@ public final class DecksView extends BaseView {
         add(content);
 
         // Create and add deck container
-        deckContainer = new DeckContainer();
+        deckContainer = new DeckContainer(uiConfig.search().debounceMs());
         content.add(deckContainer);
     }
 

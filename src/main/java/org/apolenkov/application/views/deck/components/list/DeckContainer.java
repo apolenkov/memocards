@@ -22,10 +22,12 @@ public final class DeckContainer extends Composite<VerticalLayout> {
 
     /**
      * Creates a new DeckContainer.
+     *
+     * @param searchDebounceMs debouncing timeout for search field
      */
-    public DeckContainer() {
+    public DeckContainer(final int searchDebounceMs) {
         this.title = new H2();
-        this.toolbar = new DeckToolbar();
+        this.toolbar = new DeckToolbar(searchDebounceMs);
         this.deckList = new DeckList();
     }
 

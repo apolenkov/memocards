@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.config.ui.UIConfig;
 import org.apolenkov.application.model.News;
 import org.apolenkov.application.service.news.NewsService;
 import org.apolenkov.application.views.admin.components.AdminNewsDeleteDialog;
@@ -43,6 +44,7 @@ public class AdminNewsView extends BaseView {
     // ==================== Fields ====================
 
     private final transient NewsService newsService;
+    private final transient UIConfig uiConfig;
     private VerticalLayout newsList;
 
     // Event Registrations
@@ -54,14 +56,16 @@ public class AdminNewsView extends BaseView {
      * Creates news management interface.
      *
      * @param service the service for news operations
+     * @param uiConfigParam UI configuration settings
      * @throws IllegalArgumentException if service is null
      */
-    public AdminNewsView(final NewsService service) {
+    public AdminNewsView(final NewsService service, final UIConfig uiConfigParam) {
         if (service == null) {
             throw new IllegalArgumentException("NewsService cannot be null");
         }
 
         this.newsService = service;
+        this.uiConfig = uiConfigParam;
     }
 
     // ==================== Lifecycle & Initialization ====================
@@ -91,7 +95,8 @@ public class AdminNewsView extends BaseView {
         TextField search = new TextField();
         search.setPlaceholder(getTranslation(AdminConstants.ADMIN_CONTENT_SEARCH_PLACEHOLDER_KEY));
         search.setClearButtonVisible(true);
-        search.setValueChangeMode(ValueChangeMode.EAGER);
+        search.setValueChangeMode(ValueChangeMode.TIMEOUT);
+        search.setValueChangeTimeout(uiConfig.search().debounceMs());
         search.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchListenerRegistration = search.addValueChangeListener(e -> refreshNews(e.getValue()));
 

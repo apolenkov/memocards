@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.config.ui.UIConfig;
 import org.apolenkov.application.domain.usecase.DeckUseCase;
 import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.model.Deck;
@@ -48,6 +49,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     private final transient DeckUseCase deckUseCase;
     private final transient FlashcardUseCase flashcardUseCase;
     private final transient StatsService statsService;
+    private final transient UIConfig uiConfig;
 
     // State
     private transient Deck currentDeck;
@@ -70,14 +72,17 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
      * @param deckUseCaseParam use case for deck operations
      * @param flashcardUseCaseParam use case for flashcard operations
      * @param statsServiceParam service for statistics tracking
+     * @param uiConfigParam UI configuration settings
      */
     public DeckView(
             final DeckUseCase deckUseCaseParam,
             final FlashcardUseCase flashcardUseCaseParam,
-            final StatsService statsServiceParam) {
+            final StatsService statsServiceParam,
+            final UIConfig uiConfigParam) {
         this.deckUseCase = deckUseCaseParam;
         this.flashcardUseCase = flashcardUseCaseParam;
         this.statsService = statsServiceParam;
+        this.uiConfig = uiConfigParam;
     }
 
     // ==================== Lifecycle Methods ====================
@@ -293,7 +298,7 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
 
         // Create components
         detailHeader = new DeckDetailHeader();
-        deckGrid = new DeckGrid(statsService);
+        deckGrid = new DeckGrid(statsService, uiConfig.search().debounceMs());
 
         // Set callbacks
         deckGrid.setEditFlashcardCallback(this::openFlashcardDialog);

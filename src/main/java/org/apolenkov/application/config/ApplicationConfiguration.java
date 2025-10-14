@@ -2,6 +2,7 @@ package org.apolenkov.application.config;
 
 import java.time.Clock;
 import org.apolenkov.application.config.seed.SeedConfig;
+import org.apolenkov.application.config.ui.UIConfig;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @EnableAspectJAutoProxy
 @EnableScheduling
-@EnableConfigurationProperties(SeedConfig.class)
+@EnableConfigurationProperties({SeedConfig.class, UIConfig.class})
 public class ApplicationConfiguration {
 
     /**
