@@ -230,6 +230,11 @@ public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
         return button;
     }
 
+    /**
+     * Refreshes menu items when locale changes to update translations.
+     *
+     * @param event locale change event
+     */
     @Override
     public void localeChange(final LocaleChangeEvent event) {
         // Refresh menu on locale change to update button labels

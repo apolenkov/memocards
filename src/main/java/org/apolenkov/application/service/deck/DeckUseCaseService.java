@@ -136,14 +136,13 @@ public class DeckUseCaseService implements DeckUseCase {
         boolean isNew = deck.getId() == null;
         Deck savedDeck = deckRepository.save(deck);
 
-        // Audit log with explicit action
+        // Audit log (writes to both audit.log and application.log)
         if (isNew) {
             AUDIT_LOGGER.info(
                     "Deck created: deckId={}, title='{}', userId={}",
                     savedDeck.getId(),
                     savedDeck.getTitle(),
                     savedDeck.getUserId());
-            LOGGER.info("Deck created successfully: id={}, title='{}'", savedDeck.getId(), savedDeck.getTitle());
 
             // Publish event to invalidate UI caches
             eventPublisher.publishEvent(
@@ -154,7 +153,6 @@ public class DeckUseCaseService implements DeckUseCase {
                     savedDeck.getId(),
                     savedDeck.getTitle(),
                     savedDeck.getUserId());
-            LOGGER.debug("Deck updated: id={}", savedDeck.getId());
 
             // Publish event to invalidate UI caches
             eventPublisher.publishEvent(
@@ -184,7 +182,6 @@ public class DeckUseCaseService implements DeckUseCase {
         }
 
         Deck deck = deckOpt.get();
-        LOGGER.info("Deleting deck '{}' (ID: {}) for user {}", deck.getTitle(), id, deck.getUserId());
 
         // Delete associated flashcards first to maintain referential integrity
         flashcardRepository.deleteByDeckId(id);
@@ -193,10 +190,7 @@ public class DeckUseCaseService implements DeckUseCase {
         // Then delete the deck itself
         deckRepository.deleteById(id);
 
-        // Log business event
-        LOGGER.info("Deck deleted: id={}, title='{}', userId={}", id, deck.getTitle(), deck.getUserId());
-
-        // Audit log
+        // Audit log (writes to both audit.log and application.log)
         AUDIT_LOGGER.warn("Deck deleted: id={}, title='{}', userId={}", id, deck.getTitle(), deck.getUserId());
 
         // Publish event to invalidate UI caches

@@ -2,27 +2,44 @@ package org.apolenkov.application.service.stats;
 
 import com.vaadin.flow.spring.annotation.UIScope;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
  * UI-scoped cache for known card IDs.
  * Cache lifetime is bound to UI session and automatically cleared when UI is destroyed.
  * Data freshness is ensured through automatic expiration and manual invalidation.
+ *
+ * <p>Configuration:
+ * <ul>
+ *   <li>TTL: configurable via app.cache.known-cards.ttl-ms (default: 5 minutes)</li>
+ *   <li>Max size: configurable via app.cache.known-cards.max-size (default: 1000 entries)</li>
+ *   <li>Eviction: LRU-style when cache reaches max size</li>
+ * </ul>
  */
 @Component
 @UIScope
 public class KnownCardsCache {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KnownCardsCache.class);
-    private static final long TTL_MILLIS = 300_000; // 5 minutes TTL (longer than decks - less volatile)
 
     private final Map<Long, CachedKnownCards> cache = new ConcurrentHashMap<>();
+    private final AtomicLong hitCount = new AtomicLong();
+    private final AtomicLong missCount = new AtomicLong();
+
+    @Value("${app.cache.known-cards.ttl-ms:300000}")
+    private long ttlMs;
+
+    @Value("${app.cache.known-cards.max-size:1000}")
+    private int maxSize;
 
     /**
      * Gets known card IDs for a deck.
@@ -40,13 +57,21 @@ public class KnownCardsCache {
 
         CachedKnownCards cached = cache.get(deckId);
 
-        if (cached != null && cached.isValid()) {
+        if (cached != null && cached.isValid(ttlMs)) {
+            hitCount.incrementAndGet();
             LOGGER.debug("Cache HIT: Returning {} known cards for deckId={}", cached.cardIds.size(), deckId);
             return cached.cardIds;
         }
 
+        missCount.incrementAndGet();
         LOGGER.debug("Cache MISS: Loading known cards for deckId={}", deckId);
         Set<Long> cardIds = loader.get();
+
+        // Evict the oldest entry if cache is full
+        if (cache.size() >= maxSize) {
+            evictOldest();
+        }
+
         cache.put(deckId, new CachedKnownCards(cardIds));
         LOGGER.debug("Cache updated: {} known cards cached for deckId={}", cardIds.size(), deckId);
 
@@ -73,9 +98,11 @@ public class KnownCardsCache {
 
         for (Long deckId : deckIds) {
             CachedKnownCards cached = cache.get(deckId);
-            if (cached != null && cached.isValid()) {
+            if (cached != null && cached.isValid(ttlMs)) {
+                hitCount.incrementAndGet();
                 result.put(deckId, cached.cardIds);
             } else {
+                missCount.incrementAndGet();
                 missingDeckIds.add(deckId);
             }
         }
@@ -87,6 +114,10 @@ public class KnownCardsCache {
 
             // Cache newly loaded data
             loaded.forEach((deckId, cardIds) -> {
+                // Evict the oldest entry if cache is full
+                if (cache.size() >= maxSize) {
+                    evictOldest();
+                }
                 cache.put(deckId, new CachedKnownCards(cardIds));
                 result.put(deckId, cardIds);
             });
@@ -114,6 +145,57 @@ public class KnownCardsCache {
     }
 
     /**
+     * Clears all cache entries.
+     * Use for testing or when global cache invalidation is needed.
+     */
+    public void clear() {
+        cache.clear();
+        LOGGER.debug("Cache cleared: all entries removed");
+    }
+
+    /**
+     * Returns cache statistics for monitoring and testing.
+     *
+     * @return cache statistics including hit/miss counts and current size
+     */
+    public CacheStats getStats() {
+        return new CacheStats(hitCount.get(), missCount.get(), cache.size());
+    }
+
+    /**
+     * Logs cache statistics at DEBUG level.
+     * Call periodically or on demand for monitoring.
+     */
+    public void logStats() {
+        if (LOGGER.isDebugEnabled()) {
+            CacheStats stats = getStats();
+            String hitRate = String.format("%.1f%%", stats.hitRate() * 100);
+            LOGGER.debug(
+                    "Cache stats: hits={}, misses={}, hitRate={}, size={}, maxSize={}",
+                    stats.hits(),
+                    stats.misses(),
+                    hitRate,
+                    stats.size(),
+                    maxSize);
+        }
+    }
+
+    /**
+     * Evicts oldest cache entry (LRU-style).
+     * Called when cache reaches max size.
+     */
+    private void evictOldest() {
+        cache.entrySet().stream()
+                .min(Comparator.comparing(e -> e.getValue().cachedAt))
+                .ifPresent(oldest -> {
+                    cache.remove(oldest.getKey());
+                    LOGGER.debug("Cache eviction: removed oldest entry for deckId={}", oldest.getKey());
+                });
+    }
+
+    // ==================== Inner Classes ====================
+
+    /**
      * Cached known cards with TTL.
      */
     private static final class CachedKnownCards {
@@ -125,8 +207,27 @@ public class KnownCardsCache {
             this.cachedAt = Instant.now();
         }
 
-        boolean isValid() {
-            return Instant.now().isBefore(cachedAt.plusMillis(TTL_MILLIS));
+        boolean isValid(final long ttlMs) {
+            return Instant.now().isBefore(cachedAt.plusMillis(ttlMs));
+        }
+    }
+
+    /**
+     * Cache statistics record for monitoring and testing.
+     *
+     * @param hits number of cache hits
+     * @param misses number of cache misses
+     * @param size current cache size
+     */
+    public record CacheStats(long hits, long misses, int size) {
+        /**
+         * Calculates hit rate (0.0 to 1.0).
+         *
+         * @return hit rate percentage as double
+         */
+        public double hitRate() {
+            long total = hits + misses;
+            return total > 0 ? (double) hits / total : 0.0;
         }
     }
 }
