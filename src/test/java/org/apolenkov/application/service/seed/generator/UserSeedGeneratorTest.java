@@ -3,6 +3,7 @@ package org.apolenkov.application.service.seed.generator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
@@ -42,7 +44,7 @@ class UserSeedGeneratorTest {
 
         // Mock TransactionTemplate to execute callback immediately
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
-            var callback = invocation.getArgument(0, org.springframework.transaction.support.TransactionCallback.class);
+            TransactionCallback<?> callback = invocation.getArgument(0, TransactionCallback.class);
             TransactionStatus mockStatus = mock(TransactionStatus.class);
             return callback.doInTransaction(mockStatus);
         });
@@ -84,7 +86,7 @@ class UserSeedGeneratorTest {
         // Then
         assertThat(result).hasSize(totalUsers);
         // Verify called 3 times (10 + 10 + 5)
-        verify(seedRepository, org.mockito.Mockito.times(3)).batchInsertUsers(any());
+        verify(seedRepository, times(3)).batchInsertUsers(any());
     }
 
     @Test
@@ -175,7 +177,7 @@ class UserSeedGeneratorTest {
 
         // Then
         // Verify called 2 times (10 + 5)
-        verify(seedRepository, org.mockito.Mockito.times(2)).batchInsertUsers(usersCaptor.capture());
+        verify(seedRepository, times(2)).batchInsertUsers(usersCaptor.capture());
 
         // First batch should have 10 users, second batch should have 5
         List<List<User>> allBatches = usersCaptor.getAllValues();

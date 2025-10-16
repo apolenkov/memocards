@@ -34,6 +34,7 @@ class UserSettingsServiceTest {
 
     @Test
     @DisplayName("Should throw exception when repository is null")
+    @SuppressWarnings("ConstantConditions") // Intentional null test
     void shouldThrowExceptionWhenRepositoryIsNull() {
         assertThatThrownBy(() -> new UserSettingsService(null))
                 .isInstanceOf(IllegalArgumentException.class)

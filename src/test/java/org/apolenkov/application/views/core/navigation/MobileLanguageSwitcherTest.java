@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import com.vaadin.flow.component.AttachEvent;
 import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.service.settings.UserSettingsService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,15 +16,27 @@ import org.junit.jupiter.api.Test;
  */
 class MobileLanguageSwitcherTest {
 
-    private UserUseCase userUseCase;
-    private UserSettingsService userSettingsService;
     private MobileLanguageSwitcher switcher;
+    private VaadinTestContext vaadinContext;
 
     @BeforeEach
     void setUp() {
-        userUseCase = mock(UserUseCase.class);
-        userSettingsService = mock(UserSettingsService.class);
+        vaadinContext = new VaadinTestContext();
+
+        UserUseCase userUseCase = mock(UserUseCase.class);
+        UserSettingsService userSettingsService = mock(UserSettingsService.class);
         switcher = new MobileLanguageSwitcher(userUseCase, userSettingsService);
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (vaadinContext != null) {
+            try {
+                vaadinContext.close();
+            } catch (Exception e) {
+                // Ignore cleanup errors in tests
+            }
+        }
     }
 
     @Test
