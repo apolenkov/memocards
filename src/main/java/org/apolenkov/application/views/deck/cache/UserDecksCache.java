@@ -95,15 +95,6 @@ public class UserDecksCache {
     }
 
     /**
-     * Clears all cache entries.
-     * Use for testing or when global cache invalidation is needed.
-     */
-    public void clear() {
-        cache.clear();
-        LOGGER.debug("Cache cleared: all entries removed");
-    }
-
-    /**
      * Returns cache statistics for monitoring and testing.
      *
      * @return cache statistics including hit/miss counts and current size
