@@ -19,37 +19,49 @@ import org.apolenkov.application.views.practice.components.PracticeSettingsCompo
 import org.apolenkov.application.views.practice.components.PracticeSettingsDialog;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 /**
- * Top navigation menu component for the application.
- * Provides navigation interface with user authentication status and role-based menu items.
+ * Desktop navigation bar component for wide screens (≥768px).
+ * Provides horizontal navigation interface with logo, greeting, navigation buttons, and user menu.
  *
- * <p>Simplified version consolidating button creation and layout logic for better code locality.
+ * <p>This component is displayed in the navbar slot of AppLayout on desktop screens
+ * and hidden on mobile devices where the drawer navigation is used instead.
  */
 @Component
 @UIScope
-public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
+public class DesktopNavigationBar extends HorizontalLayout implements LocaleChangeObserver {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DesktopNavigationBar.class);
+
+    // ==================== Dependencies ====================
 
     private final transient TopMenuAuthService authService;
     private final transient TopMenuLogoutDialog logoutDialog;
     private final transient PracticeSettingsService practiceSettingsService;
     private final transient PracticeSettingsComponents settingsComponents;
 
-    // Initialization flag
+    // Tracks if component has been initialized at least once
     private boolean hasBeenInitialized = false;
 
+    // Tracks authentication state to prevent unnecessary refreshes
+    private boolean wasAuthenticated = false;
+
+    // ==================== Constructor ====================
+
     /**
-     * Creates a new TopMenu with required dependencies.
+     * Creates a new DesktopNavigationBar with required dependencies.
      *
      * @param authenticationService service for authentication operations
      * @param logoutDialogService service for logout dialog operations
      * @param settingsService service for practice settings
      * @param settingsComponentsService components for settings UI
      */
-    public TopMenu(
+    public DesktopNavigationBar(
             final TopMenuAuthService authenticationService,
             final TopMenuLogoutDialog logoutDialogService,
             @Lazy final PracticeSettingsService settingsService,
@@ -60,8 +72,10 @@ public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
         this.settingsComponents = settingsComponentsService;
     }
 
+    // ==================== Lifecycle ====================
+
     /**
-     * Initializes the menu components when attached to the UI.
+     * Initializes the navigation bar components when attached to the UI.
      * At this point, all @UIScope components are ready and getTranslation() is safe to use.
      *
      * @param attachEvent the attaching event
@@ -80,10 +94,15 @@ public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
         setSpacing(true);
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.BETWEEN);
+        addClassName(CoreConstants.DESKTOP_NAV_BAR_CLASS);
 
         refreshMenu();
 
         hasBeenInitialized = true;
+
+        // Initialize authentication state tracking
+        Authentication auth = authService.getCurrentAuthentication();
+        wasAuthenticated = authService.isAuthenticated(auth);
     }
 
     /**
@@ -102,10 +121,25 @@ public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
         add(leftSection, buttonsSection);
     }
 
+    /**
+     * Refreshes menu only if authentication state has changed.
+     * Prevents unnecessary re-rendering that causes flickering.
+     */
+    public void refreshMenuIfNeeded() {
+        Authentication auth = authService.getCurrentAuthentication();
+        boolean isAuthenticated = authService.isAuthenticated(auth);
+
+        // Only refresh if authentication state changed
+        if (isAuthenticated != wasAuthenticated) {
+            refreshMenu();
+            wasAuthenticated = isAuthenticated;
+        }
+    }
+
     // ==================== Layout Creation ====================
 
     /**
-     * Creates the left section of the menu containing title and user greeting.
+     * Creates the left section of the navigation bar containing logo and user greeting.
      *
      * @param auth the authentication context
      * @param isAuthenticated whether user is authenticated
@@ -115,6 +149,7 @@ public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
         HorizontalLayout left = new HorizontalLayout();
         left.setAlignItems(Alignment.CENTER);
         left.setSpacing(true);
+        left.addClassName(CoreConstants.DESKTOP_NAV_LEFT_CLASS);
 
         Anchor title = createTitleAnchor();
         left.add(title);
@@ -158,6 +193,7 @@ public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSpacing(true);
         buttonsLayout.setAlignItems(Alignment.CENTER);
+        buttonsLayout.addClassName(CoreConstants.DESKTOP_NAV_BUTTONS_CLASS);
 
         if (isAuthenticated) {
             if (authService.hasUserRole(auth)) {
@@ -244,17 +280,23 @@ public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
         return button;
     }
 
+    // ==================== Locale Change Observer ====================
+
     /**
      * Refreshes menu items when locale changes to update translations.
-     * Only refreshes if component is already initialized.
+     * Only refreshes if component is already initialized (has children).
      *
      * @param event locale change event
      */
     @Override
     public void localeChange(final LocaleChangeEvent event) {
+        LOGGER.debug("Locale changed in DesktopNavigationBar, refreshing menu");
+
         // Only refresh if already initialized
         if (hasBeenInitialized) {
             refreshMenu();
+        } else {
+            LOGGER.debug("DesktopNavigationBar not yet initialized, skipping locale change refresh");
         }
     }
 }

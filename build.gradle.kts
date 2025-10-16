@@ -326,30 +326,20 @@ tasks.register("codeQuality") {
     )
 }
 
-tasks.register("lintCss") {
+tasks.register<com.github.gradle.node.npm.task.NpmTask>("lintCss") {
     description = "Run stylelint for CSS in themes"
     group = JavaBasePlugin.VERIFICATION_GROUP
     dependsOn("npmInstall")
     mustRunAfter("vaadinPrepareFrontend")
-    doLast {
-        exec {
-            workingDir = project.projectDir
-            commandLine("npm", "run", "lint:css")
-        }
-    }
+    args.set(listOf("run", "lint:css"))
 }
 
-tasks.register("lintCssFix") {
+tasks.register<com.github.gradle.node.npm.task.NpmTask>("lintCssFix") {
     description = "Run stylelint --fix for CSS in themes"
     group = JavaBasePlugin.VERIFICATION_GROUP
     dependsOn("npmInstall")
     mustRunAfter("vaadinPrepareFrontend")
-    doLast {
-        exec {
-            workingDir = project.projectDir
-            commandLine("npm", "run", "lint:css:fix")
-        }
-    }
+    args.set(listOf("run", "lint:css:fix"))
 }
 
 // Complete code quality check (everything)

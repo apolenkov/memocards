@@ -1,0 +1,44 @@
+---
+alwaysApply: true
+autoFix: true
+version: "1.0.0"
+---
+
+# TESTCONTAINERS - MODERN INTEGRATION TESTING
+
+## SETUP
+```java
+@Testcontainers
+public abstract class BaseIntegrationTest {
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
+        .withDatabaseName("testdb").withReuse(true);
+    
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+    }
+}
+
+@SpringBootTest
+class MyTest extends BaseIntegrationTest { /* tests */ }
+```
+
+## PERFORMANCE
+```properties
+# testcontainers.properties
+testcontainers.reuse.enable=true  # ⚡ Reuse container (2-5s startup)
+```
+
+## ISOLATION
+```java
+@SpringBootTest
+@Transactional  // Auto-rollback after each test
+class MyTest extends BaseIntegrationTest { }
+```
+
+## ANTIPATTERNS
+1. New container per test → use singleton
+2. @DirtiesContext everywhere → very slow
+3. No @Transactional → data pollution
+4. No reuse enabled → slow

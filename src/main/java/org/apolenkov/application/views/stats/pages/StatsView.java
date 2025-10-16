@@ -6,6 +6,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
@@ -36,7 +38,7 @@ import org.springframework.context.annotation.Lazy;
  */
 @Route(value = RouteConstants.STATS_ROUTE, layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
-public class StatsView extends BaseView {
+public class StatsView extends BaseView implements AfterNavigationObserver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsView.class);
 
@@ -54,6 +56,9 @@ public class StatsView extends BaseView {
 
     // Helpers
     private transient StatsCalculator statsCalculator;
+
+    // UI Components (created in @PostConstruct)
+    private VerticalLayout pageSection;
 
     // ==================== Constructor ====================
 
@@ -77,13 +82,12 @@ public class StatsView extends BaseView {
     }
 
     /**
-     * Initializes the UI components and loads data.
+     * Initializes the UI structure (no data loading).
+     * Data will be loaded in afterNavigation().
      */
     @PostConstruct
     @SuppressWarnings("unused")
     private void initializeUI() {
-        LOGGER.debug("Initializing stats view UI");
-
         setSpacing(true);
         setAlignItems(FlexComponent.Alignment.CENTER);
         setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
@@ -96,8 +100,8 @@ public class StatsView extends BaseView {
         contentContainer.addClassName(StatsConstants.CONTAINER_MD_CLASS);
         contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Page section
-        VerticalLayout pageSection = new VerticalLayout();
+        // Page section (stored as field for afterNavigation access)
+        pageSection = new VerticalLayout();
         pageSection.setSpacing(true);
         pageSection.setWidthFull();
         pageSection.addClassName(StatsConstants.STATS_PAGE_SECTION_CLASS);
@@ -105,19 +109,24 @@ public class StatsView extends BaseView {
 
         contentContainer.add(pageSection);
         add(contentContainer);
+    }
 
-        // Load and display data
-        loadAndDisplayStats(pageSection);
+    /**
+     * Called after navigation to this view is complete.
+     * Loads statistics data and populates the view.
+     * This method is called ONCE per navigation - no flag needed.
+     *
+     * @param event the after navigation event
+     */
+    @Override
+    public void afterNavigation(final AfterNavigationEvent event) {
+        loadAndDisplayStats();
     }
 
     /**
      * Loads statistics data and populates the view.
-     *
-     * @param pageSection the container to add stats sections to
      */
-    private void loadAndDisplayStats(final VerticalLayout pageSection) {
-        LOGGER.debug("Loading statistics data for current user");
-
+    private void loadAndDisplayStats() {
         // Add main title
         H2 mainTitle = new H2(getTranslation(StatsConstants.STATS_TITLE_KEY));
         mainTitle.addClassName(StatsConstants.STATS_VIEW_TITLE_CLASS);

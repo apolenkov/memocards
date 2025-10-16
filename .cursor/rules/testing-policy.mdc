@@ -1,167 +1,104 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "1.1.0"
+version: "2.0.0"
 ---
 
-# TESTING POLICY - CRITICAL RULES
+# TESTING POLICY
 
 ## CORE PRINCIPLE
-
 **NEVER DELETE TESTS BECAUSE THEY FAIL!**
 
 Tests fail for a reason. Fix the reason, not the test.
 
----
-
 ## WHEN TESTS FAIL
+**✅ CORRECT**:
+1. Investigate WHY test failed
+2. Identify root cause (Docker not running, missing dependency, etc.)
+3. ASK USER if external dependency needed
+4. FIX the cause, not the test
+5. Run tests again after fix
 
-### ✅ CORRECT Response:
-1. **Investigate WHY** test failed
-2. **Identify root cause** (missing dependency, Docker not running, etc.)
-3. **ASK USER** if external dependency needed ("Please start Docker: docker compose up -d")
-4. **FIX the cause**, not the test
-5. **Run tests again** after fix
+**❌ WRONG**: Delete test | Add @Disabled | Move to "templates" | Comment out
 
-### ❌ WRONG Response:
-1. Test fails → delete test ❌
-2. Test fails → add @Disabled ❌
-3. Test fails → move to "templates" ❌
-4. Test fails → comment out ❌
-
----
-
-## COMMON FAILURE CAUSES
+## COMMON FAILURES
 
 ### 1. TestContainers Error
-```
-java.lang.IllegalStateException at DockerClientProviderStrategy.java:274
-```
+`java.lang.IllegalStateException at DockerClientProviderStrategy.java:274`
 
-**Root Cause**: Docker is not running  
-**Solution**: Ask user to start Docker
-```bash
-docker compose up -d
-# or
-colima start
-```
+**Root Cause**: Docker not running  
+**Solution**: Ask user to start Docker (`docker compose up -d` or `colima start`)  
+**NEVER**: Delete integration tests!
 
-**NEVER**: Delete integration tests that need Docker!
+**Profiles Strategy**:
+- `spring.profiles.active=integration-test` for TestContainers
+- `spring.profiles.active=unit-test` for H2/in-memory
+- CI/CD can choose profile
 
-**Test Profiles Strategy:**
-- @SpringBootTest(properties = "spring.profiles.active=integration-test") for TestContainers
-- @SpringBootTest(properties = "spring.profiles.active=unit-test") for H2/in-memory
-- CI/CD can choose profile based on environment
-- Keep both test types for flexibility
-
-**TestContainers Performance:**
-- Use singleton mode: @Container static PostgreSQLContainer (shared across tests)
-- Reuse containers: @Testcontainers on class level
-- Startup time: 2-5 sec per container (singleton reduces to once per test suite)
-- For fast feedback: use H2 in PostgreSQL mode for unit tests
-- For CI: consider service containers (docker-compose) instead of Testcontainers
-
----
+**Performance**:
+- Singleton mode: `@Container static PostgreSQLContainer` (shared)
+- Reuse: @Testcontainers on class level
+- Startup: 2-5 sec (singleton = once per suite)
+- Fast feedback: H2 in PostgreSQL mode for unit tests
 
 ### 2. Missing Dependencies
-```
-cannot find symbol: method someMethod()
-```
+`cannot find symbol: method someMethod()`
 
-**Root Cause**: Feature not yet implemented  
+**Root Cause**: Feature not implemented  
 **Solution**: 
-- If feature in patch → wait for patch application
-- If feature missing → implement or ask user
-- Use `@Disabled("Waiting for feature X")` ONLY if feature confirmed coming
+- If in patch → wait
+- If missing → implement or ask
+- Use `@Disabled("Waiting for feature X")` ONLY if confirmed coming
 
-**NEVER**: Delete tests for unimplemented features without asking!
-
----
+**NEVER**: Delete tests for unimplemented features!
 
 ### 3. Database Issues
-```
-Connection refused to localhost:5432
-```
+`Connection refused to localhost:5432`
 
 **Root Cause**: Database not running  
-**Solution**: Ask user to start database
-```bash
-docker compose up -d postgres
-```
-
+**Solution**: Ask user to start database (`docker compose up -d postgres`)  
 **NEVER**: Delete database integration tests!
 
----
-
-## ALLOWED TEST MODIFICATIONS
-
-### ✅ ALLOWED:
+## ALLOWED MODIFICATIONS
+**✅ ALLOWED**:
 - Fix flaky tests (timing, race conditions)
 - Update assertions when requirements change
-- Refactor test code (extract methods, improve readability)
+- Refactor test code
 - Add @Disabled WITH user permission and clear reason
-- Skip tests temporarily IF user explicitly asks
+- Skip tests IF user explicitly asks
 
-### ❌ FORBIDDEN:
-- Delete tests because they fail
-- Delete tests because compilation errors (fix code instead!)
-- Delete tests because missing Docker/DB (ask user to start!)
-- Move tests to "templates" folder
+**❌ FORBIDDEN**:
+- Delete because fail
+- Delete because compilation errors
+- Delete because missing Docker/DB
+- Move to "templates"
 - Add @Disabled without investigation
 
----
+## EXCEPTIONS FOR DELETION
+1. User explicitly requests deletion
+2. Duplicate test (same logic tested twice)
+3. Test for removed feature
+4. Test replaced with better alternative
 
-## EXCEPTIONS
+## EXCEPTIONS FOR @Disabled
+1. Known platform bug (e.g., "JDK-12345")
+2. Temporary infrastructure issue
+3. User explicitly asks
+4. WITH clear comment (why + when to re-enable)
 
-### When deletion IS allowed:
-1. **User explicitly requests** test deletion
-2. **Duplicate test** found (same logic tested twice)
-3. **Test for removed feature** (feature no longer exists)
-4. **Test replaced** with better alternative (delete old, keep new)
+## CHECKLIST BEFORE DELETION
+- [ ] User explicitly requested?
+- [ ] Duplicate test?
+- [ ] Tested feature removed?
+- [ ] Better replacement exists?
 
-### When @Disabled IS allowed:
-1. **Known platform bug** (e.g., "JDK-12345 - fails on macOS only")
-2. **Temporary infrastructure issue** (e.g., "External API down")
-3. **User explicitly asks** to disable temporarily
-4. **WITH clear comment** explaining why and when to re-enable
-
----
-
-## EXAMPLES
-
-**❌ WRONG:** Delete test when Docker not running  
-**✅ CORRECT:** Ask user to start Docker
-
-**❌ WRONG:** Delete test when method missing  
-**✅ CORRECT:** Ask if feature is in patch or implement
-
-**❌ WRONG:** Move test to templates on DB error  
-**✅ CORRECT:** Ask user to start database
-
----
-
-## CHECKLIST BEFORE DELETING TEST
-
-Before deleting ANY test, ask yourself:
-
-- [ ] Did user explicitly request deletion?
-- [ ] Is this a duplicate test?
-- [ ] Was the tested feature removed?
-- [ ] Is there a better replacement test?
-
-If all answers are NO → **DON'T DELETE!**
-
----
+**If all NO → DON'T DELETE!**
 
 ## APOLOGY PROTOCOL
-
-If you deleted tests incorrectly:
-
-1. **Admit the mistake** immediately
-2. **Explain what you should have done** instead
-3. **Help user restore** the test if needed
-4. **Create memory** to never repeat this mistake
-
----
+If deleted incorrectly:
+1. Admit mistake immediately
+2. Explain correct approach
+3. Help restore test
+4. Create memory
 
 **REMEMBER**: Tests are valuable. Protect them. Fix failures, don't hide them.

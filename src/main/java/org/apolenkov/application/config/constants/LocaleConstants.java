@@ -21,4 +21,14 @@ public final class LocaleConstants {
      * Cookie name for storing user's preferred locale.
      */
     public static final String COOKIE_LOCALE_KEY = "preferredLocale";
+
+    /**
+     * Locale code for Russian language (uppercase for ComboBox values).
+     */
+    public static final String LOCALE_CODE_RU = "RU";
+
+    /**
+     * Locale code for Spanish language (uppercase for ComboBox values).
+     */
+    public static final String LOCALE_CODE_ES = "ES";
 }

@@ -16,15 +16,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * Desktop language selection component for the application.
- * Provides a user interface for selecting the preferred language
- * for the application with support for English, Russian, and Spanish.
+ * Mobile language selection component for the application.
+ * Separate @UIScope class to allow Spring to inject two instances (desktop + mobile).
+ * Inherits all functionality from BaseLanguageSwitcher.
  */
 @Component
 @UIScope
-public class LanguageSwitcher extends BaseLanguageSwitcher {
+public class MobileLanguageSwitcher extends BaseLanguageSwitcher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LanguageSwitcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MobileLanguageSwitcher.class);
 
     // Event Registrations
     private Registration localeChangeListenerRegistration;
@@ -33,12 +33,12 @@ public class LanguageSwitcher extends BaseLanguageSwitcher {
     private boolean hasBeenInitialized = false;
 
     /**
-     * Creates a new LanguageSwitcher with required dependencies.
+     * Creates a new MobileLanguageSwitcher with required dependencies.
      *
      * @param useCase service for user operations and current user information
      * @param settingsService service for persisting user preferences
      */
-    public LanguageSwitcher(final UserUseCase useCase, final UserSettingsService settingsService) {
+    public MobileLanguageSwitcher(final UserUseCase useCase, final UserSettingsService settingsService) {
         super(useCase, settingsService);
     }
 
@@ -82,7 +82,7 @@ public class LanguageSwitcher extends BaseLanguageSwitcher {
 
         localeChangeListenerRegistration = combo.addValueChangeListener(event -> {
             String value = event.getValue();
-            LOGGER.info("Language changed to: {}", value);
+            LOGGER.info("Mobile language changed to: {}", value);
             if (value != null) {
                 Locale locale = mapSelectedValueToLocale(value);
                 applyLocaleToApplication(locale);

@@ -1,114 +1,72 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "1.1.0"
+version: "2.0.0"
 ---
 
 # LOGGING POLICY
 
 ## STACK
-SLF4J + Logback | MDC (Mapped Diagnostic Context) | Structured Logging | Audit Trail | Log Levels
+SLF4J + Logback | MDC | Structured Logging | Audit Trail
 
-## LOG LEVELS [OK]
+## LOG LEVELS
+- **DEBUG**: Technical details (cache hits, query counts, SQL, internal state)
+- **INFO**: Business events (user actions, service init, background jobs)
+- **WARN**: Recoverable problems (validation failures, not found, fallback, retryable)
+- **ERROR**: System failures (DB connection failures, unexpected exceptions, corruption)
+- **AUDIT**: Security & compliance (auth, authorization, data modifications, violations)
 
-### DEBUG - Technical details
-- Cache hits/misses, query results count, SQL (dev only), internal state
+## STRUCTURED LOGGING
+**✅ CORRECT**: `LOGGER.info("Deck: id={}, title='{}'", id, title);`  
+**❌ WRONG**: `LOGGER.info("Deck: " + id);` // String concatenation
 
-### INFO - Business events
-- User actions (login, create, complete), service init, background jobs
+**Benefits**: Performance (lazy evaluation), structured (parseable), searchable
 
-### WARN - Recoverable problems
-- Validation failures, not found, fallback scenarios, retryable errors
-
-### ERROR - System failures
-- DB connection failures, unexpected exceptions, data corruption
-
-### AUDIT - Security & Compliance
-- Authentication, authorization, data modifications, security violations
-
----
-
-## STRUCTURED LOGGING [OK]
-
-### ✅ ПРАВИЛЬНО
-`LOGGER.info("Deck: id={}, title='{}'", id, title);`
-
-### ❌ НЕПРАВИЛЬНО
-`LOGGER.info("Deck: " + id); // String concat`
-
-**Why parametrization:**
-- ✅ Performance (no string building if log level disabled)
-- ✅ Structured (log aggregators can parse)
-- ✅ Searchable (можно искать по userId=123)
-
----
-
-## AUDIT LOGGER [OK]
-
-### Setup
+## LOGGERS
 ```java
 private static final Logger LOGGER = LoggerFactory.getLogger(MyClass.class);
 private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 ```
 
-### Guidelines
-- **AUDIT_LOGGER** для security events и data modifications
-- **LOGGER** для technical events
-- **Separate logger** позволяет отдельный файл/sink
+**AUDIT_LOGGER**: Security events, data modifications (Service layer)  
+**LOGGER**: Technical events (Repository, UI)
 
-- ✅ Service: `AUDIT_LOGGER.info("User logged in: {}", user);`
-- ❌ UI: `AUDIT_LOGGER.info("Clicked button")` - too low-level
-- ❌ LOGGER for security events - should be AUDIT_LOGGER
+**Configuration**: AUDIT_LOGGER writes to both audit.log + application.log (additivity)
 
----
+## PLACEMENT
+- **Service**: INFO + AUDIT_LOGGER
+- **Repository**: DEBUG only
+- **UI**: DEBUG only, minimal
 
-## PLACEMENT [OK]
-
-- **Service Layer**: INFO + AUDIT_LOGGER
-- **Repository Layer**: DEBUG only
-- **UI Layer**: DEBUG only, minimal
-
-
-## RULES [OK]
-
-**Parameterized**:
-- ✅ `LOGGER.info("Deck: id={}", id);`
-- ❌ `LOGGER.info("Deck: " + id);`
-
-**Context**:
-- Always include IDs, counts, relevant params
-- Exception as last parameter (for stack trace)
-
-**Performance**:
-- NO logging in loops → log summary instead
-- Expensive check: `if (LOGGER.isDebugEnabled()) { ... }`
-- Lambda support: `LOGGER.debug("Result: {}", () -> expensiveCall())`
+## RULES
+- **Parameterized**: Use `{}` placeholders (never string concat)
+- **Context**: Always include IDs, counts, relevant params
+- **Exception**: As last parameter for stack trace
+- **Performance**: NO logging in loops → log summary
+- **Expensive ops**: `if (LOGGER.isDebugEnabled()) { ... }` or lambda `() -> expensiveCall()`
 
 ## MDC (MAPPED DIAGNOSTIC CONTEXT)
+Auto-attaches requestId/userId to ALL logs via filter.
 
-Auto-attaches requestId/userId to ALL logs via MdcFilter.
+**Pattern**: `[%X{requestId:-}] [%X{userId:-}] - %msg`
 
-**Fields:** requestId (UUID), userId (from SecurityContext)
-
-**Pattern:** `[%X{requestId:-}] [%X{userId:-}] - %msg`
-
-### Rules [OK]
-- ✅ NEVER call `MDC.put(requestId/userId)` manually
+**Rules**:
+- ✅ NEVER call `MDC.put(requestId/userId)` manually (filter handles it)
 - ✅ ALWAYS cleanup custom fields in finally
 - ❌ DON'T use MDC for business logic (logging only)
 
-### Custom Fields
+**Custom Fields**:
 ```java
 try {
     MDC.put("key", value);
+    // work
 } finally {
-    MDC.remove("key"); // MANDATORY!
+    MDC.remove("key"); // MANDATORY
 }
 ```
 
-### Async
+**Async**:
 ```java
-// Copy MDC to new thread
 Map<String, String> ctx = MDC.getCopyOfContextMap();
 executor.submit(() -> {
     MDC.setContextMap(ctx);
@@ -116,74 +74,37 @@ executor.submit(() -> {
 });
 ```
 
----
+## AUDIT_LOGGER vs LOGGER
+**NEVER duplicate logs!** AUDIT_LOGGER already writes to both files.
 
-## LOGGER vs AUDIT_LOGGER [OK]
-
-### When to Use Both
-
-**NEVER duplicate logs!** AUDIT_LOGGER already writes to both audit.log + application.log.
-
-**✅ Use ONLY AUDIT_LOGGER for:**
-- Authentication/authorization events
-- Data modifications (create/update/delete)
+**Use ONLY AUDIT_LOGGER for**:
+- Authentication/authorization
+- Data modifications (CRUD)
 - Security violations
-- User actions (login, logout, registration)
+- User actions
 
-**✅ Use ONLY LOGGER for:**
-- Technical details (method entry/exit)
+**Use ONLY LOGGER for**:
+- Technical details
 - Performance metrics
-- Cache hits/misses
+- Cache operations
 - Repository operations
 
-**✅ OK to use both ONLY when:**
-- Different log levels: `AUDIT.info` + `LOGGER.debug`
-- Different context: `AUDIT.error("WHO")` + `LOGGER.error("WHAT", exception)`
+**Use both ONLY when**:
+- Different levels: `AUDIT.info` + `LOGGER.debug`
+- Different context: `AUDIT.error("WHO: username={}")` + `LOGGER.error("WHAT", exception)`
 
-### Examples
-
-**❌ BAD:**
-```java
-AUDIT_LOGGER.info("User logged in: {}", username);
-LOGGER.info("Authentication successful: {}", username);  // ❌ Redundant!
-```
-
-**✅ GOOD:**
-```java
-AUDIT_LOGGER.info("User logged in: {}", username);  // ✅ Goes to both files
-
-// OR different levels:
-AUDIT_LOGGER.info("User updated: userId={}", id);    // Audit trail
-LOGGER.debug("User updated in DB: userId={}", id);   // Technical detail
-
-// OR different context:
-AUDIT_LOGGER.error("Logout failed: username={}", username);  // WHO
-LOGGER.error("Logout error", e);                              // WHAT + stack trace
-```
-
-### Logback Configuration
-```xml
-<!-- AUDIT_LOGGER writes to 2 places automatically: -->
-<logger name="org.apolenkov.application.audit" level="INFO" additivity="false">
-    <appender-ref ref="AUDIT_FILE"/>      <!-- audit.log -->
-    <appender-ref ref="ASYNC_FILE"/>      <!-- application.log -->
-</logger>
-```
-
----
-
-## ANTIPATTERNS [BAD]
-1. String concatenation → use {} placeholders
+## ANTIPATTERNS
+1. String concatenation → use `{}` placeholders
 2. No context → include IDs
 3. Logging in loops → summary only
 4. Sensitive data → NEVER log passwords/tokens/full User
 5. Wrong level → DEBUG in repo, AUDIT in service
 6. No exception param → missing stack trace
-7. AUDIT in UI → prefer service layer (exception: UI-initiated security actions like logout)
+7. AUDIT in UI → prefer service (except UI-initiated security actions)
 8. Manual MDC.put(requestId/userId) → filter handles it
 9. Custom MDC without cleanup → memory leak
-10. Logging requestId manually → redundant with MDC pattern
-11. **AUDIT_LOGGER + LOGGER duplication** → use single logger (AUDIT writes to both files)
+10. Logging requestId manually → redundant (MDC adds it)
+11. AUDIT_LOGGER + LOGGER duplication → use single logger
 
 ## CHECKLIST
 - [ ] Parameterized logging (no +)
@@ -193,6 +114,6 @@ LOGGER.error("Logout error", e);                              // WHAT + stack tr
 - [ ] NO sensitive data
 - [ ] Exception as last param
 - [ ] NO logging in loops
-- [ ] MDC fields in logback pattern (%X{requestId:-}, %X{userId:-})
-- [ ] Custom MDC fields cleaned up in finally
-- [ ] NO AUDIT_LOGGER + LOGGER duplication (AUDIT writes to both files)
+- [ ] MDC fields in logback pattern
+- [ ] Custom MDC cleanup in finally
+- [ ] NO AUDIT + LOGGER duplication

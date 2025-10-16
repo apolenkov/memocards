@@ -1,67 +1,58 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "1.2.0"
+version: "2.0.0"
 ---
 
 # ENV-BASED CONFIGURATION
 
 ## STACK
-Spring Boot Profiles | application-{profile}.yml | Environment Variables | @Value
+Spring Boot Profiles | application-{profile}.yml | @Value | Environment Variables
 
-## RULES [OK]
+## STRUCTURE
+- **application.yml**: defaults
+- **application-{profile}.yml**: env-specific (dev/test/prod)
+- **@Profile**: conditional beans
+- **@Value**: `@Value("${key:defaultValue}")`
 
-**Structure**:
-- application.yml (defaults)
-- application-{profile}.yml (env-specific)
-- @Profile for conditional beans
-- @Value with defaults: `@Value("${key:defaultValue}")`
+## CONFIGURATION READING
+**❌ NEVER**: `System.getenv("KEY")` directly  
+**✅ ALWAYS**: `@Value("${app.key:default}")`
 
-**Profiles**:
-- dev (local development)
-- test (integration tests)
-- prod (production)
+**Why**: Testable, mockable, IDE-friendly, profile-specific, Docker/K8s compatible
 
-**Environment Variables**:
-- Override via `ENV_VAR_NAME`
-- Spring Boot auto-mapping
-- Docker/K8s friendly
+## PROFILES
+- **dev**: local development
+- **test**: integration tests
+- **prod**: production
 
-**Secrets**:
-- NO hardcoded passwords/keys
+## SECRETS
+- NO hardcoded passwords/keys in code/git
 - Environment variables for secrets
 - Spring Cloud Config/Vault for production
 
-**Database**:
+## DATABASE
 - Profile-specific datasource
 - Connection pooling per env
 - Migration per profile
 
-**Logging**:
+## LOGGING
 - logback-spring.xml with `<springProfile>`
 - Log levels per environment
 - File/console output per env
 
-**Configuration Reading**:
-- NEVER use `System.getenv()` directly
-- ALWAYS use `@Value("${property:default}")`
-- Spring auto-maps environment variables to properties
-- Testable, mockable, IDE/Docker/K8s compatible
+## ENVIRONMENT VARIABLES
+- Override via `ENV_VAR_NAME`
+- Spring Boot auto-mapping
+- Docker/K8s friendly
 
-## ANTIPATTERNS [BAD]
+## ANTIPATTERNS
 1. Hardcoded values → externalize
 2. Secrets in code/git → env vars
 3. Single config for all envs → profiles
 4. No defaults → always provide fallback
 5. Magic values → named properties
-6. **System.getenv() directly** → use @Value with Spring properties
-
-## EXAMPLE
-
-**❌ BAD:** `System.getenv("KEY")`  
-**✅ GOOD:** `@Value("${app.key:default}")`
-
-**Why:** Testable, type-safe, IDE-friendly, profile-specific
+6. System.getenv() directly → use @Value
 
 ## CHECKLIST
 - [ ] application-{profile}.yml for each env

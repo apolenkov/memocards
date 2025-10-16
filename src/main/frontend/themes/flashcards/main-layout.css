@@ -39,6 +39,9 @@
 }
 
 .main-layout__right {
+    display: flex;
+    align-items: center;
+    gap: var(--lumo-space-s);
     color: var(--lumo-secondary-text-color);
     text-decoration: none;
 }

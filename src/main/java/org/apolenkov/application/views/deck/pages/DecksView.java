@@ -1,8 +1,9 @@
 package org.apolenkov.application.views.deck.pages;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.PostConstruct;
@@ -29,7 +30,7 @@ import org.apolenkov.application.views.shared.base.BaseView;
  */
 @Route(value = RouteConstants.DECKS_ROUTE, layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
-public final class DecksView extends BaseView {
+public final class DecksView extends BaseView implements AfterNavigationObserver {
 
     // Dependencies
     private final transient DeckListPresenter deckListPresenter;
@@ -88,9 +89,15 @@ public final class DecksView extends BaseView {
         content.add(deckContainer);
     }
 
+    /**
+     * Called after navigation to this view is complete.
+     * Sets up event listeners and loads initial data.
+     * This method is called ONCE per navigation - no flag needed.
+     *
+     * @param event the after navigation event
+     */
     @Override
-    protected void onAttach(final AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
+    public void afterNavigation(final AfterNavigationEvent event) {
         if (searchListenerRegistration == null) {
             searchListenerRegistration = deckContainer.getToolbar().addSearchListener(this::refreshDecks);
         }

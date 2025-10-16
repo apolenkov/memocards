@@ -1,12 +1,13 @@
 package org.apolenkov.application.views.deck.pages;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
@@ -39,7 +40,8 @@ import org.slf4j.LoggerFactory;
 
 @Route(value = RouteConstants.DECK_ROUTE, layout = PublicLayout.class)
 @RolesAllowed(SecurityConstants.ROLE_USER)
-public class DeckView extends Composite<VerticalLayout> implements HasUrlParameter<String>, HasDynamicTitle {
+public class DeckView extends Composite<VerticalLayout>
+        implements HasUrlParameter<String>, HasDynamicTitle, AfterNavigationObserver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeckView.class);
 
@@ -114,17 +116,17 @@ public class DeckView extends Composite<VerticalLayout> implements HasUrlParamet
     }
 
     /**
-     * Updates deck info when component is attached to UI.
-     * Ensures that deck information is properly displayed after all components are initialized.
+     * Called after navigation to this view is complete.
+     * Sets up event listeners and updates deck information.
+     * This method is called ONCE per navigation - no flag needed.
      *
-     * @param attachEvent the attachment event
+     * @param event the after navigation event
      */
     @Override
-    protected void onAttach(final AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
+    public void afterNavigation(final AfterNavigationEvent event) {
         // Setup event listeners for deck actions
         setupActionListeners();
-        // Update deck info after all components are attached and initialized
+        // Update deck info after navigation is complete
         updateDeckInfo();
     }
 

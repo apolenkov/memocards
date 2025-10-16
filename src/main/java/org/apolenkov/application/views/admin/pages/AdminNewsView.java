@@ -11,6 +11,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.shared.Registration;
@@ -39,7 +41,7 @@ import org.apolenkov.application.views.shared.utils.NotificationHelper;
 @Route(value = RouteConstants.ADMIN_NEWS_ROUTE, layout = PublicLayout.class)
 @RouteAlias(value = RouteConstants.ADMIN_CONTENT_ROUTE, layout = PublicLayout.class)
 @RolesAllowed(SecurityConstants.ROLE_ADMIN)
-public class AdminNewsView extends BaseView {
+public class AdminNewsView extends BaseView implements AfterNavigationObserver {
 
     // ==================== Fields ====================
 
@@ -127,7 +129,17 @@ public class AdminNewsView extends BaseView {
 
         content.add(newsContainer);
         add(content);
+    }
 
+    /**
+     * Called after navigation to this view is complete.
+     * Loads news data and displays it.
+     * This method is called ONCE per navigation - no flag needed.
+     *
+     * @param event the after navigation event
+     */
+    @Override
+    public void afterNavigation(final AfterNavigationEvent event) {
         refreshNews("");
     }
 

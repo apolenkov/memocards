@@ -1,0 +1,37 @@
+---
+alwaysApply: true
+autoFix: true
+version: "1.0.0"
+---
+
+# VAADIN PWA & WEB COMPONENTS
+
+## PWA SETUP
+```java
+@PWA(name = "MyApp", shortName = "App", iconPath = "icons/logo.png",
+     backgroundColor = "#fff", themeColor = "#4285f4", offlinePath = "offline.html")
+public class AppShell implements AppShellConfigurator { }
+```
+
+## PUSH NOTIFICATIONS (Optional)
+```java
+WebPushMessage.builder().title("Title").body("Message").icon("/icon.png").build();
+```
+
+## WEB COMPONENTS (Optional)
+```java
+@WebComponentExporter
+public class MyExporter extends WebComponentExporter<MyComponent> {
+    public MyExporter() { super("my-component"); }
+}
+```
+
+## REQUIREMENTS
+- Icons: 192x192, 512x512
+- HTTPS in production (mandatory for PWA)
+- Offline page: `src/main/webapp/offline.html`
+
+## ANTIPATTERNS
+1. No HTTPS → PWA fails
+2. Missing icons → no installation
+3. No offline page → blank screen offline
