@@ -1,0 +1,198 @@
+/* Responsive Navbar Styles - Desktop/Mobile Visibility Control */
+
+/* ==================== Desktop Navbar (≥768px) ==================== */
+
+/* Desktop navbar - hidden on mobile, visible on desktop (mobile-first) */
+.desktop-nav-bar {
+    display: none;
+    min-height: var(--lumo-size-xl);
+}
+
+.desktop-nav-bar img {
+    width: auto;
+    height: var(--lumo-size-m);
+}
+
+/* Show desktop navbar on medium+ screens (mobile-first approach) */
+
+@media (min-width: 768px) {
+    .desktop-nav-bar {
+        display: flex;
+    }
+}
+
+/* Desktop navigation left section */
+.desktop-nav__left {
+    display: flex;
+    align-items: center;
+    gap: var(--lumo-space-m);
+    flex-shrink: 0; /* Prevent shrinking */
+    min-width: 0; /* Allow text truncation if needed */
+}
+
+/* Desktop navigation buttons */
+.desktop-nav__buttons {
+    display: flex;
+    align-items: center;
+    gap: var(--lumo-space-xs);
+}
+
+/* Desktop navbar right section (language switcher) */
+.main-layout__right {
+    display: flex;
+    align-items: center;
+    gap: var(--lumo-space-s);
+}
+
+/* ==================== Mobile Navbar (<768px) ==================== */
+
+/* Mobile navbar - visible on mobile by default (mobile-first) */
+.mobile-navbar {
+    display: flex;
+    min-height: var(--lumo-size-l);
+    padding: var(--lumo-space-s) var(--lumo-space-m);
+}
+
+.mobile-navbar img {
+    width: auto;
+    height: 32px;
+}
+
+/* Hide mobile navbar on medium+ screens (mobile-first approach) */
+
+@media (min-width: 768px) {
+    .mobile-navbar {
+        display: none;
+    }
+}
+
+/* Mobile navbar sections */
+.mobile-navbar__left {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto; /* Don't grow or shrink */
+}
+
+.mobile-navbar__center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1; /* Take remaining space */
+}
+
+.mobile-navbar__right {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto; /* Don't grow or shrink */
+}
+
+/* ==================== Drawer Styling ==================== */
+
+/* Drawer backdrop on mobile */
+[overlay] [slot="drawer"] {
+    box-shadow: var(--lumo-box-shadow-xl);
+}
+
+/* Drawer width and transition */
+vaadin-app-layout::part(drawer) {
+    width: 280px;
+    max-width: 85vw;
+    background: var(--lumo-base-color);
+    transition: transform 0.3s ease-out;
+}
+
+/* ==================== Touch Targets ==================== */
+
+/* Ensure all interactive elements meet WCAG 2.1 touch target size */
+.mobile-navbar vaadin-drawer-toggle,
+.mobile-navbar a,
+.mobile-navbar button {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+/* ==================== Mobile Text Logo Styling ==================== */
+
+/* Mobile text logo styling */
+.mobile-navbar__center a {
+    display: flex;
+    align-items: center;
+    height: 100%; /* Ensure the anchor takes full height to center its content */
+    text-decoration: none;
+}
+
+.mobile-navbar__center a:hover,
+.mobile-navbar__center a:visited,
+.mobile-navbar__center a:active,
+.mobile-navbar__center a:focus {
+    text-decoration: none;
+}
+
+.mobile-text-logo {
+    color: var(--lumo-primary-text-color);
+    font-size: var(--lumo-font-size-l);
+    font-weight: var(--lumo-font-weight-semibold);
+    text-decoration: none;
+}
+
+.mobile-text-logo:hover {
+    color: var(--lumo-primary-text-color);
+    text-decoration: none;
+}
+
+/* Override any inherited underline from parent anchor - all states handled via .mobile-text-logo */
+.mobile-navbar__center .mobile-text-logo {
+    color: var(--lumo-primary-text-color);
+    text-decoration: none;
+}
+
+/* ==================== Language Switcher Mobile Adaptation ==================== */
+
+/* Make language switcher more compact on mobile (mobile-first) */
+.mobile-navbar .language-switcher__label {
+    display: none; /* Hide "Language:" label on mobile by default */
+}
+
+.mobile-navbar vaadin-combo-box {
+    width: 80px; /* Narrower combo box on mobile by default */
+}
+
+/* Show label and expand on desktop */
+
+@media (min-width: 768px) {
+    .mobile-navbar .language-switcher__label {
+        display: inline;
+    }
+
+    .mobile-navbar vaadin-combo-box {
+        width: auto;
+    }
+}
+
+/* ==================== Drawer Overlay Backdrop ==================== */
+
+/* Style for drawer overlay backdrop */
+[overlay]::before {
+    background: rgb(0 0 0 / 50%);
+    backdrop-filter: blur(2px);
+}
+
+/* ==================== Accessibility ==================== */
+
+/* Focus visible states for drawer toggle */
+vaadin-drawer-toggle:focus-visible {
+    outline: 2px solid var(--lumo-primary-color);
+    outline-offset: 2px;
+    border-radius: var(--lumo-border-radius-m);
+}
+
+/* ==================== Animation Performance ==================== */
+
+/* Reduce motion for users who prefer it */
+
+@media (prefers-reduced-motion: reduce) {
+    vaadin-app-layout::part(drawer) {
+        transition-duration: 0.01ms;
+    }
+}
+

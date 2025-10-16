@@ -1,0 +1,129 @@
+---
+alwaysApply: true
+autoFix: true
+version: "1.0.0"
+---
+
+# MOBILE-FIRST BEST PRACTICES
+
+## PHILOSOPHY
+Mobile-First = Design mobile FIRST → enhance desktop. Progressive: 320px → 768px → 1024px+
+
+## BREAKPOINTS
+- **768px**: ⭐ PRIMARY (tablet/mobile boundary)
+- **1024px**: Desktop
+- **1280px**: Large desktop
+
+**Mobile-first CSS:**
+```css
+/* ❌ Desktop-first */ .nav { display: flex; } @media (max-width: 767px) { .nav { display: none; } }
+/* ✅ Mobile-first */ .nav { display: none; } @media (min-width: 768px) { .nav { display: flex; } }
+```
+
+## TOUCH TARGETS (WCAG 2.1 AAA)
+- **44x44px** minimum, **48x48px** recommended, spacing ≥8px
+```css
+button, a, input, select { min-width: 44px; min-height: 44px; }
+```
+
+## VIEWPORT
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<!-- ❌ NEVER: user-scalable=no -->
+```
+
+## UX PATTERNS
+
+### Navigation
+- **Drawer (hamburger)**: 5+ items, hierarchical
+- **Bottom nav**: 3-5 primary actions, mobile app feel
+- **Tab bar**: 2-4 related views
+
+### Forms
+```java
+FormLayout form = new FormLayout();
+form.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("768px", 2));
+// Input types: email/tel/number for mobile keyboards
+```
+
+### Dialogs
+```css
+@media (max-width: 767px) { vaadin-dialog-overlay { width: 100vw; height: 100vh; } }
+@media (min-width: 768px) { vaadin-dialog-overlay { width: 600px; height: auto; } }
+```
+
+## TYPOGRAPHY
+```css
+body { font-size: 16px; } /* NEVER <16px (iOS zooms) */
+@media (min-width: 768px) { h1 { font-size: 32px; } }
+```
+
+## PERFORMANCE
+- **FCP**: <1.8s, **LCP**: <2.5s, **TTI**: <3.8s, **CLS**: <0.1
+- Lazy loading: `grid.setItems(query -> service.fetchPage(...))`
+- Virtual scrolling: `grid.setPageSize(50)`
+- Images: WebP/AVIF, srcset for responsive
+
+## VAADIN COMPONENTS
+```java
+// AppLayout: auto-overlay <768px
+layout.addToDrawer(mobileMenu); layout.addToNavbar(desktopMenu);
+// FormLayout: responsive columns
+form.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("768px", 2));
+// Grid: hide columns @media (max-width: 767px) { .hide-on-mobile { display: none; } }
+```
+
+## CSS STRATEGY
+```css
+/* Mobile: stack vertical */
+.container { display: flex; flex-direction: column; }
+@media (min-width: 768px) { .container { flex-direction: row; } }
+
+/* Grid: 1 → 2 → 3 columns */
+.grid { grid-template-columns: 1fr; }
+@media (min-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+```
+
+## ACCESSIBILITY
+- Contrast: ≥4.5:1 (text), ≥3:1 (interactive)
+- Focus visible: `outline: 2px solid var(--lumo-primary-color)`
+- ARIA labels: `button.setAriaLabel(getTranslation(...))`
+
+## ANTIPATTERNS
+1. Fixed widths → use max-width: 100%
+2. user-scalable=no → accessibility violation
+3. Touch targets <44px → WCAG fail
+4. Hover-only interactions → use class toggle
+5. Desktop-first @media (max-width) → use min-width
+6. Horizontal scroll → max-width: 100%
+7. Font-size <16px → iOS zooms
+8. No offline support → add @PWA
+9. Ignore iOS safe areas → use env(safe-area-inset-*)
+
+## iOS SAFE AREAS
+```css
+.header { padding-top: env(safe-area-inset-top); }
+.footer { padding-bottom: env(safe-area-inset-bottom); }
+```
+
+## TESTING CHECKLIST
+- [ ] Touch targets ≥44px, spacing ≥8px
+- [ ] Text ≥16px (no zoom)
+- [ ] Forms: mobile keyboards (email/tel/number)
+- [ ] Navigation: drawer <768px, navbar ≥768px
+- [ ] Images: WebP, srcset, lazy load
+- [ ] Offline: @PWA configured
+- [ ] Performance: Lighthouse >90, FCP <1.8s, LCP <2.5s
+- [ ] Accessibility: WCAG 2.1 contrast, ARIA labels
+- [ ] Breakpoints: 320px, 375px, 768px, 1024px
+- [ ] Real devices: iPhone SE, 12/13/14, iPad Mini
+
+## QUICK COMMANDS
+- **F12 → Ctrl+Shift+M** → Device toolbar
+- **Lighthouse mobile audit** → target >90
+- **Check touch targets**: `document.querySelectorAll('button,a').forEach(el=>console.log(el.getBoundingClientRect()))`
+
+---
+
+**Version:** 1.0.0 | **Status:** ✅ PRODUCTION-READY

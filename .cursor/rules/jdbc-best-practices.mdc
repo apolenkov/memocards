@@ -1,109 +1,119 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "2.1.0"
+version: "2.2.0"
 ---
 
 # JDBC - Spring Data JDBC + PostgreSQL + Java 21
 
 ## STACK
-Spring Data JDBC (NOT JPA/Hibernate!) | JdbcTemplate | PostgreSQL | Records
+Spring Data JDBC (NOT JPA!) | JdbcTemplate | PostgreSQL | Records | Text Blocks
 
 ## ARCHITECTURE
-- Adapter: `*JdbcAdapter implements *Repository`
-- Aggregates (NO lazy loading)
-- Immutability: Records for DTOs
-- Layers: adapter/dto/sql/exception/model
+- **Adapter**: `*JdbcAdapter implements *Repository`
+- **Aggregates**: NO lazy loading
+- **Immutability**: Records for DTOs
+- **Layers**: adapter/dto/sql/exception/model
 
 ## ADAPTER PATTERN
-
 - @Profile({"dev","prod","test"}) + @Repository
 - Static final RowMapper (thread-safe)
 - Constructor injection with JdbcTemplate
 - Implements domain repository interface
 
-## CRITICAL RULES [OK]
+## STRUCTURE
+- **RowMapper**: Static final (thread-safe)
+- **Injection**: Constructor (validate null)
+- **Conversion**: Private toModel()
+- **Logging**: SLF4J
 
-**Structure**:
-- Static final RowMapper (thread-safe)
-- Constructor injection (validate null)
-- Private toModel() conversion
-- SLF4J logging
+## SQL
+- **Text Blocks**: Java 21 for all SQL
+- **Parameterized**: Always use `?` placeholders
+- **Queries Class**: Separate `*SqlQueries` class
+- **PostgreSQL**: `RETURNING id` (NOT LASTVAL()), `ON CONFLICT`, JSONB, arrays
 
-**SQL**:
-- Text Blocks (Java 21)
-- Parameterized queries (?)
-- Separate *SqlQueries class
-- PostgreSQL RETURNING id
+## DTOs
+- **Records**: Immutable
+- **5+ params**: Builder (readability)
+- **2-4 params**: Static factory (`forNew*`, `forExisting*`)
+- **Nested records**: For grouped params
+- **Compact constructor**: Technical validation only (null, blank, positive IDs)
 
-**DTOs**:
-- Records (immutable)
-- **Builder for 5+ params** (readability, self-documenting)
-- **Static factory for 2-4 params** (forNew*, forExisting*)
-- Nested records for groups
-
-**Exceptions**:
+## EXCEPTIONS
 - Catch DataAccessException
-- Wrap in domain (*Persistence, *Retrieval)
-- Context in error msg
+- Wrap in domain exceptions (`*Persistence`, `*Retrieval`)
+- Context in error message
 - Optional<T> for single results
 
-**PostgreSQL**:
-- RETURNING id (NOT LASTVAL())
-- ON CONFLICT (upsert)
-- JSONB, arrays, text blocks
-
-**N+1 Prevention**:
-- Fetch aggregates with JOIN in single query
-- Use batch operations for collections (batchUpdate)
-- Profile queries with EXPLAIN ANALYZE
-- Monitor query count per request (should be constant, not O(n))
-
-**Validation Layers:**
+## VALIDATION LAYERS
 ```
-UI (Binder: required, format, length)
+UI → Binder (required, format, length)
   ↓
-Service (business: uniqueness, authorization, state transitions)
+Service → Business (uniqueness, authorization, state transitions)
   ↓
-DTO compact constructor (technical: null, blank, positive IDs)
+DTO → Technical (null, blank, positive IDs)
   ↓
-Repository (NO validation, assumes valid data)
+Repository → NO validation (assumes valid data)
 ```
-- Exceptions: IllegalArgumentException (DTO), Business exceptions (Service)
 
-## ANTIPATTERNS [BAD]
-1. SQL injection → always parameterized (?)
+## N+1 PREVENTION
+- **JOIN**: Fetch aggregates in single query
+- **Batch**: Use batchUpdate() for collections
+- **Profile**: EXPLAIN ANALYZE
+- **Monitor**: Query count per request (constant, not O(n))
+
+## TRANSACTIONS
+- **@Transactional**: On Service layer ONLY (NOT Repository)
+- **readOnly=true**: For queries (optimization + safety)
+- **Isolation**: Explicit when needed (SERIALIZABLE for critical ops)
+- **Keep short**: Avoid long-running ops, I/O, API calls
+- **ALWAYS use**: Prevents connection leaks, ensures auto-rollback
+
+## ANTIPATTERNS
+1. SQL injection → parameterized `?`
 2. Instance RowMapper → static final
-3. SQL in methods → *SqlQueries class
+3. SQL in methods → `*SqlQueries` class
 4. Raw exceptions → domain exceptions
 5. No validation → validate first
 6. String concat → text blocks
 7. LASTVAL() → RETURNING id
 8. @Autowired fields → constructor
-9. **N+1 queries** → JOIN or batch operations
-10. **Missing @Transactional** → connection leak, no auto-rollback
-11. **Validation in Repository** → should be in Service/DTO
+9. N+1 queries → JOIN or batch
+10. Missing @Transactional → connection leak
+11. Validation in Repository → should be in Service/DTO
+
+## FLYWAY MIGRATIONS
+
+### Best Practices
+- **Naming**: `V{version}__{description}.sql` (e.g., `V1__initial_schema.sql`)
+- **Versioning**: Sequential integers (V1, V2, V3) or timestamps (V20240101)
+- **Idempotent**: Use IF NOT EXISTS, IF EXISTS for safety
+- **Baseline**: Set baseline version for existing DBs
+- **Location**: `src/main/resources/db/migration/`
+
+### Rules
+- ✅ ONE migration per change (atomic)
+- ✅ NEVER modify applied migrations
+- ✅ Test migrations on copy of production DB
+- ✅ Use repeatable migrations (R__) for views/functions
+- ❌ NO rollback scripts (Flyway doesn't support well)
+
+## JAVA 21
+Text blocks | Records | getFirst() | Pattern matching
 
 ## CHECKLIST
 - [ ] @Profile + @Repository
 - [ ] Static final RowMapper
 - [ ] Constructor injection
-- [ ] SQL in *SqlQueries
-- [ ] Text blocks
-- [ ] Parameterized (?)
-- [ ] DTO records with technical validation
+- [ ] SQL in *SqlQueries (text blocks)
+- [ ] Parameterized queries (?)
+- [ ] DTO records with compact constructor validation
 - [ ] Domain exceptions
-- [ ] Input validation in correct layer
+- [ ] Validation in correct layer
 - [ ] Optional<T> returns
-- [ ] @Transactional on Service (NOT Repository)
+- [ ] @Transactional on Service
 - [ ] N+1 prevention (JOIN or batch)
 - [ ] Profile queries (EXPLAIN ANALYZE)
-
-## BUILDER vs STATIC FACTORY
-
-- **2-4 params** → Static factory (`forNew*()`, `forExisting*()`)
-- **5+ params** → Builder (readability, self-documenting)
-- Similar types → Builder; Different types → Factory
-
-## JAVA 21
-Text blocks | Records | getFirst() | Pattern matching
+- [ ] Flyway migrations properly named
+- [ ] Migrations tested before deploy

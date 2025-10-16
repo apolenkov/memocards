@@ -1,7 +1,7 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "2.1.0"
+version: "4.0.0"
 ---
 
 # VAADIN 24+ BEST PRACTICES
@@ -10,158 +10,210 @@ version: "2.1.0"
 Composite<T> + initContent() | Builder | Factory
 
 ## LIFECYCLE (CRITICAL!)
-1. Constructor → data ONLY (NO UI)
-2. @PostConstruct (Spring) or initContent() → getTranslation() safe
-3. onAttach → register listeners
-4. onDetach → Registration.remove() MANDATORY
 
-## MEMORY [CRITICAL]
-- onDetach: `if(reg!=null) reg.remove()` + `super.onDetach(e)`
-- Fields: IDs only (NO collections/objects)
-
-## PERFORMANCE
-- Lazy: `grid.setItems(query→service.find(PageRequest))`
-- Virtual scroll: `grid.setPageSize(50)`
-- Flat hierarchy: max 3 nesting
-
-## UI/UX
-- Lumo tokens: `var(--lumo-*)`
-- Factory: `ButtonHelper.create*()`
-- Responsive: mobile-first
-
-## i18n
-- UI: `getTranslation("key")` directly
-- [BAD] Hardcoded strings → NPE in constructor
-
-## SECURITY [CRITICAL]
-
-**Authorization:**
-- @AnonymousAllowed, @PermitAll, @RolesAllowed on @Route classes
-- Check permissions in beforeEnter() for dynamic authorization
-- NEVER rely on UI visibility for security (hidden != secure)
-- Always validate on server side
-
-**CSRF:**
-- Enabled by default (Vaadin handles it)
-- Don't disable unless you know what you're doing
-
-**XSS Prevention:**
-- getTranslation() auto-escapes HTML
-- Html() component: ONLY for trusted content
-- Sanitize user input: OWASP Java HTML Sanitizer
-- Never use setInnerHtml() with user data
-
-**Session Security:**
-- Invalidate session on logout: VaadinSession.getCurrent().close()
-- Set session timeout: server.servlet.session.timeout=30m
-- Use HTTPS in production (redirect HTTP → HTTPS)
-
-**Input Validation:**
-- Server validation + Binder (client validation is UX, not security)
-- Validate all user inputs (text fields, file uploads, URL parameters)
-- Use Bean Validation annotations (@NotNull, @Size, @Email)
-
-
-## @UIScope (Spring)
-
-**Use when [OK]:**
-- @Component + Reused across @Route views + Needs UI.getCurrent()
-- @Lazy for @UIScope injection into @Component
-- LocaleChangeObserver: only with @UIScope WITHOUT page.reload()
-- Single-user cache (one browser window)
-
-**Don't use [BAD]:**
-- @Route views (created by Vaadin)
-- Dialogs (short lifecycle)
-- Reusable Components (created in View)
-- Stateless Services (singleton sufficient)
-- Multi-tab shared cache → use @SessionScope instead
-
-**Multi-tab considerations:**
-- @UIScope creates separate instance per browser tab/window
-- For shared data across tabs → use @SessionScope
-- For global data → use @ApplicationScope with user-specific keys
+### For @Route Views (Navigation Targets):
+1. **Constructor** → DI + setup UI structure (getTranslation() safe)
+2. **beforeEnter(BeforeEnterEvent)** → validation, access control, redirects ⭐ (called ONCE per navigation)
+3. **afterNavigation(AfterNavigationEvent)** → load data, update UI ⭐ (called ONCE per navigation, NO flag needed!)
+4. **onDetach()** → Registration.remove() MANDATORY
 
 ```java
-// ❌ BAD: Component extends UI component
-@Component @UIScope class Menu extends HorizontalLayout { }
-
-// ✅ GOOD: Factory pattern
-@Component @UIScope class MenuFactory {
-    Menu create() { return new Menu(...); }
-}
-
-// ✅ GOOD: Non-UI logic only (no Component fields)
-@Component @UIScope class LocaleManager implements LocaleChangeObserver {
-    // Only business logic, no UI components stored
+@Route("users")
+public class UsersView extends VerticalLayout implements AfterNavigationObserver {
+    
+    public UsersView(UserService service) {
+        // Constructor: DI + UI structure
+        setupUI();
+    }
+    
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        // ✅ Called ONCE after navigation - NO hasBeenInitialized flag needed!
+        loadData();
+    }
 }
 ```
 
-## @Lazy (Spring DI)
+### For @UIScope Components (NON-@Route):
+1. **Constructor** → data ONLY (NO UI, NO getTranslation())
+2. **onAttach()** → init UI + use `hasBeenInitialized` flag ⭐ (onAttach called MULTIPLE times)
+3. **onDetach()** → Registration.remove() MANDATORY
 
-**Use:** @Component → @UIScope, circular deps, heavy resources
-**Don't use:** Regular @Component deps, always-needed beans
+```java
+@Component
+@UIScope
+public class ChatWidget extends Div {
+    
+    private boolean hasBeenInitialized = false; // ⭐ FLAG REQUIRED!
+    private Registration broadcasterReg;
+    
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        
+        if (!hasBeenInitialized) {
+            hasBeenInitialized = true;
+            initUI();
+            setupListeners();
+        }
+    }
+    
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+        if (broadcasterReg != null) {
+            broadcasterReg.remove();
+        }
+    }
+}
+```
 
-## CRITICAL ANTIPATTERNS [BAD]
-1. getTranslation() in constructor → NPE
-2. Listeners without cleanup → memory leak
-3. UI.getCurrent() in thread → NPE (save UI ref first)
-4. Component in final field → memory leak
-5. grid.setItems(all) for >100 → OOM (use lazy)
-6. Forget super.onDetach(e)
-7. @UIScope without @Lazy injection → scope conflict
-8. @Lazy for regular @Component dependencies → unnecessary overhead
-9. **@Component + extends Dialog** → singleton Dialog, state tree corruption
-10. **@Component + extends any UI component (Layout, Button, etc.)** → memory leak risk
-11. **removeAll() + add(sameComponent)** → component reuse, memory leak
-12. **UI.getCurrent().add(this) in @Component** → state tree corruption
-13. **Component field in singleton** → component reuse across UI sessions
-14. **Html() with user data** → XSS vulnerability (sanitize first!)
-15. **Hidden fields for security** → UI hiding is NOT security
+**Why `hasBeenInitialized` for @UIScope?**
+- onAttach() called EVERY time component attached/reattached
+- Vaadin provides NO built-in mechanism to check if already initialized
+- Standard community practice (confirmed by research & documentation)
+- Alternative `getComponentCount()` is UNRELIABLE (doesn't track listeners, breaks on removeAll())
+
+**@Route Views:** ✅ Use `afterNavigation()` - built-in, called ONCE  
+**@UIScope:** ✅ Use `onAttach()` + `hasBeenInitialized` flag - no built-in solution
+
+## MEMORY (CRITICAL!)
+- **onDetach**: `if(reg!=null) reg.remove()` + `super.onDetach(e)`
+- **Fields**: IDs only (NO collections/objects)
+- **Cleanup**: Always remove listeners
+
+## PERFORMANCE
+- **Lazy Loading**: `grid.setItems(query→service.find(PageRequest))`
+- **Virtual Scroll**: `grid.setPageSize(50)`
+- **Flat Hierarchy**: max 3 nesting levels
+- **Batch Updates**: Group UI updates
+- **Smart Refresh**: Use `refreshMenuIfNeeded()` for navigation components to prevent unnecessary re-rendering
+
+### Navigation Component Optimization
+For navigation components (DesktopNavigationBar, MobileNavigationMenu) that are part of AppLayout:
+
+```java
+// Track state to prevent unnecessary refreshes
+private boolean wasAuthenticated = false;
+
+public void refreshMenuIfNeeded() {
+    Authentication auth = authService.getCurrentAuthentication();
+    boolean isAuthenticated = authService.isAuthenticated(auth);
+    
+    // Only refresh if authentication state changed
+    if (isAuthenticated != wasAuthenticated) {
+        refreshMenu();
+        wasAuthenticated = isAuthenticated;
+    }
+}
+```
+
+**Why**: Prevents UI flickering and improves performance by avoiding unnecessary DOM updates.
+
+## UI/UX
+- **Lumo Tokens**: `var(--lumo-*)` for all styling
+- **Factory Pattern**: `ButtonHelper.create*()`
+- **Responsive**: Mobile-first design
+- **Accessibility**: ARIA labels, proper contrast
+
+## i18n
+- **UI**: getTranslation("key") directly
+- **NEVER**: Hardcoded strings → NPE in constructor
+
+## SECURITY (CRITICAL!)
+- @AnonymousAllowed, @PermitAll, @RolesAllowed on @Route classes
+- Check permissions in beforeEnter() for dynamic authorization
+- NEVER rely on UI visibility (hidden != secure)
+- Always validate on server side
+
+### CSRF
+- Enabled by default (Vaadin handles it)
+- Don't disable unless you know what you're doing
+
+### XSS Prevention
+- getTranslation() auto-escapes HTML
+- Html() component: ONLY for trusted content
+- Sanitize user input: OWASP Java HTML Sanitizer
+- NEVER use setInnerHtml() with user data
+
+### Session Security
+- Invalidate on logout: `VaadinSession.getCurrent().close()`
+- Set timeout: `server.servlet.session.timeout=30m`
+- Use HTTPS in production (redirect HTTP → HTTPS)
+
+### Input Validation
+- Server validation + Binder (client validation = UX, not security)
+- Validate all inputs (text fields, file uploads, URL parameters)
+- Use Bean Validation (@NotNull, @Size, @Email)
+
+## @UIScope (Spring)
+**Use:** @Component + reused across @Route + needs UI.getCurrent()  
+**Don't use:** @Route views, Dialogs, Stateless Services  
+**Multi-tab:** @UIScope = per tab, @SessionScope = shared tabs
+
+**Pattern:** Factory или non-UI logic only (NO extends HorizontalLayout)
+
+## @Lazy
+Use: @UIScope deps, circular deps, heavy resources
 
 ## PUSH
-
-**Pattern:** `UI ui = UI.getCurrent(); executor.submit(() -> ui.access(() -> update()));`
-
-**Performance Considerations:**
-- @Push creates WebSocket/Long-polling connection per user
-- Memory overhead: ~1-2MB per connection
-- Max connections: 10K-50K (depending on RAM)
-- Consider @Push(PushMode.MANUAL) for controlled updates
-- Disable push for anonymous/public users if possible
-- Monitor WebSocket connections in production
-
-**Best Practices:**
-- Use @Push only when needed (real-time updates)
-- Batch UI updates (don't call ui.access() in loop)
-- Clean up background tasks in onDetach()
-- Test with realistic user count (load testing)
+```java
+UI ui = UI.getCurrent(); executor.submit(() -> ui.access(() -> update()));
+```
+**Performance:** ~1-2MB per connection, max 10K-50K users. Use @Push(PushMode.MANUAL) for control.
 
 ## DIALOG PATTERN
-
 - ✅ Factory: `new Dialog()` each time
 - ✅ In View: `new MyDialog(...)` directly
 - ❌ `@Component extends Dialog` = singleton, state corruption
 
-## COMPONENT REUSE [BAD]
-
+## COMPONENT REUSE
 - ❌ `removeAll() + add(sameComponent)` = memory leak
 - ✅ `setVisible(false/true)` OR recreate with `new`
 
+## MULTIPLE INSTANCES (@UIScope)
+**❌ Spring НЕ создаёт 2+ @UIScope экземпляра одного класса!**
+
+**Решения:**
+1. Один компонент + CSS visibility
+2. Два РАЗНЫХ класса (Desktop*/Mobile*)
+3. Factory pattern: `factory.create()`
+
+## CRITICAL ANTIPATTERNS
+1. getTranslation() in @UIScope constructor → NPE (OK in @Route constructor)
+2. Listeners without cleanup → memory leak
+3. UI.getCurrent() in thread → NPE
+4. grid.setItems(all) for >100 → OOM (use lazy)
+5. Forget super.onDetach(e) → memory leak
+6. @Component + extends Dialog → singleton, state corruption
+7. removeAll() + add(sameComponent) → memory leak
+8. Component field in singleton → reuse across sessions
+9. Html() with user data → XSS
+10. Hidden fields for security → UI hiding != secure
+11. **@PostConstruct в @UIScope** → UI not ready (use onAttach)
+12. **onAttach без hasBeenInitialized для @UIScope** → double init, duplicate listeners
+13. **Один @UIScope в двух parent** → component moves (create 2 instances)
+14. **getComponentCount() для проверки инициализации** → unreliable (listeners not counted, breaks on removeAll())
+
 ## CHECKLIST
-- [ ] Composite<T> (reusable) or extends for @Route views
-- [ ] @PostConstruct or initContent()
-- [ ] onDetach + Registration.remove()
-- [ ] getTranslation() for all strings
-- [ ] Server validation (Binder + Service layer)
-- [ ] @RolesAllowed or @PermitAll on @Route
+
+### For @Route Views:
+- [ ] Implement AfterNavigationObserver for data loading (NO flag needed)
+- [ ] Implement BeforeEnterObserver for validation/access control
+- [ ] onDetach + Registration.remove() if using listeners
+- [ ] Server validation + @RolesAllowed
+- [ ] getTranslation() for all strings (safe in constructor)
+
+### For @UIScope Components:
+- [ ] onAttach (NOT @PostConstruct) + hasBeenInitialized flag
+- [ ] onDetach + Registration.remove() MANDATORY
+- [ ] NO getTranslation() in constructor (use onAttach)
+- [ ] NO UI initialization in constructor
+
+### General:
 - [ ] Lazy loading if >100 items
 - [ ] Lumo tokens (no hardcode)
-- [ ] @Lazy for @UIScope dependencies
-- [ ] No @Lazy for regular @Component dependencies
-- [ ] No @Component + extends UI component (use Factory)
-- [ ] No removeAll() + add(sameComponent)
-- [ ] Dialog created via new each time
-- [ ] Sanitize HTML if using Html() component
-- [ ] HTTPS in production
-- [ ] Session timeout configured
+- [ ] @Lazy for @UIScope deps only
+- [ ] Dialog via new (NOT @Component)
+- [ ] Sanitize HTML if using Html()
+- [ ] HTTPS + session timeout in production

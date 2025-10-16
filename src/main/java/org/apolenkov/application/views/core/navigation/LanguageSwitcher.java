@@ -1,51 +1,36 @@
 package org.apolenkov.application.views.core.navigation;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.ComboBoxVariant;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.server.VaadinServletRequest;
-import com.vaadin.flow.server.VaadinServletResponse;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.UIScope;
-import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.Locale;
-import org.apolenkov.application.config.constants.LocaleConstants;
-import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.domain.usecase.UserUseCase;
 import org.apolenkov.application.service.settings.UserSettingsService;
 import org.apolenkov.application.views.core.constants.CoreConstants;
-import org.apolenkov.application.views.shared.utils.AuthRedirectHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * Language selection component for the application.
+ * Desktop language selection component for the application.
  * Provides a user interface for selecting the preferred language
  * for the application with support for English, Russian, and Spanish.
  */
 @Component
 @UIScope
-public class LanguageSwitcher extends HorizontalLayout {
+public class LanguageSwitcher extends BaseLanguageSwitcher {
 
-    public static final String SESSION_LOCALE_KEY = LocaleConstants.SESSION_LOCALE_KEY;
-    private static final String COOKIE_LOCALE_KEY = LocaleConstants.COOKIE_LOCALE_KEY;
-
-    // Locale code constants for ComboBox values (matching translation keys)
-    private static final String LOCALE_CODE_RU = "RU";
-    private static final String LOCALE_CODE_ES = "ES";
-
-    private final transient UserUseCase userUseCase;
-    private final transient UserSettingsService userSettingsService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(LanguageSwitcher.class);
 
     // Event Registrations
     private Registration localeChangeListenerRegistration;
+
+    // Initialization flag
+    private boolean hasBeenInitialized = false;
 
     /**
      * Creates a new LanguageSwitcher with required dependencies.
@@ -54,18 +39,24 @@ public class LanguageSwitcher extends HorizontalLayout {
      * @param settingsService service for persisting user preferences
      */
     public LanguageSwitcher(final UserUseCase useCase, final UserSettingsService settingsService) {
-        this.userUseCase = useCase;
-        this.userSettingsService = settingsService;
+        super(useCase, settingsService);
     }
 
     /**
-     * Initializes the language selection interface after dependency injection is complete.
-     * This method is called after the constructor and ensures that all
-     * dependencies are properly injected before UI initialization.
+     * Initializes the language selection interface when the component is attached to the UI.
+     * At this point, getTranslation() is safe to use.
+     *
+     * @param attachEvent the attaching event
      */
-    @PostConstruct
-    @SuppressWarnings("unused")
-    private void init() {
+    @Override
+    protected void onAttach(final AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+
+        // Check if already initialized
+        if (hasBeenInitialized) {
+            return;
+        }
+
         setSpacing(true);
         setPadding(false);
         setAlignItems(Alignment.CENTER);
@@ -91,6 +82,7 @@ public class LanguageSwitcher extends HorizontalLayout {
 
         localeChangeListenerRegistration = combo.addValueChangeListener(event -> {
             String value = event.getValue();
+            LOGGER.info("Language changed to: {}", value);
             if (value != null) {
                 Locale locale = mapSelectedValueToLocale(value);
                 applyLocaleToApplication(locale);
@@ -98,6 +90,8 @@ public class LanguageSwitcher extends HorizontalLayout {
         });
 
         add(label, combo);
+
+        hasBeenInitialized = true;
     }
 
     /**
@@ -113,161 +107,5 @@ public class LanguageSwitcher extends HorizontalLayout {
             localeChangeListenerRegistration = null;
         }
         super.onDetach(detachEvent);
-    }
-
-    /**
-     * Maps the selected combo box value to a Locale object.
-     * ComboBox values are locale codes: "EN", "RU", "ES" (from translations).
-     *
-     * @param selectedValue the selected value from the combo box
-     * @return the corresponding locale
-     */
-    private Locale mapSelectedValueToLocale(final String selectedValue) {
-        if (selectedValue == null) {
-            return Locale.forLanguageTag(CoreConstants.EN_LOCALE);
-        }
-
-        String upperValue = selectedValue.toUpperCase();
-        return switch (upperValue) {
-            case LOCALE_CODE_RU -> Locale.forLanguageTag(CoreConstants.RU_LOCALE);
-            case LOCALE_CODE_ES -> Locale.forLanguageTag(CoreConstants.ES_LOCALE);
-            default -> Locale.forLanguageTag(CoreConstants.EN_LOCALE);
-        };
-    }
-
-    /**
-     * Applies the new locale to the application and persists the preference.
-     *
-     * @param newLocale the locale to apply
-     */
-    private void applyLocaleToApplication(final Locale newLocale) {
-        VaadinSession.getCurrent().setAttribute(SESSION_LOCALE_KEY, newLocale.toLanguageTag());
-        persistPreferredLocaleCookie(newLocale);
-        persistIfLoggedIn(newLocale);
-
-        getUI().ifPresent(ui -> {
-            ui.setLocale(newLocale);
-            ui.getPage().reload();
-        });
-    }
-
-    /**
-     * Maps the current locale to the appropriate display value for the combo box.
-     * Converts the current locale to the corresponding display text that matches the combo box items.
-     *
-     * @param current the current locale to map
-     * @param en the English display text
-     * @param ru the Russian display text
-     * @param es the Spanish display text
-     * @return the appropriate display text for the current locale
-     */
-    private String getSelectedValueForLocale(final Locale current, final String en, final String ru, final String es) {
-        return switch (current.getLanguage().toLowerCase()) {
-            case CoreConstants.RU_LOCALE -> ru;
-            case CoreConstants.ES_LOCALE -> es;
-            default -> en;
-        };
-    }
-
-    /**
-     * Retrieves the current locale from session, cookie, or UI context.
-     * Priority order: Session attribute (highest), Cookie value, UI locale, English (fallback).
-     *
-     * @return the current locale, never null
-     */
-    private Locale getCurrentLocale() {
-        Object sessionAttribute = VaadinSession.getCurrent().getAttribute(SESSION_LOCALE_KEY);
-        if (sessionAttribute instanceof String localeTag) {
-            return Locale.forLanguageTag(localeTag);
-        }
-        // Fallback to cookie if present
-        Locale fromCookie = readPreferredLocaleCookie();
-        if (fromCookie != null) {
-            // Store into session for this UI and apply
-            VaadinSession.getCurrent().setAttribute(SESSION_LOCALE_KEY, fromCookie.toLanguageTag());
-            getUI().ifPresent(ui -> ui.setLocale(fromCookie));
-            return fromCookie;
-        }
-        return getUI().map(UI::getLocale).orElse(Locale.forLanguageTag(CoreConstants.EN_LOCALE));
-    }
-
-    /**
-     * Persists the preferred locale to user settings if the user is logged in.
-     *
-     * <p>Attempts to save the language preference to the user's profile
-     * for future sessions. This method gracefully handles cases where
-     * the user is not authenticated or the service is unavailable.</p>
-     *
-     * @param locale the locale preference to persist
-     */
-    private void persistIfLoggedIn(final Locale locale) {
-        if (userUseCase == null || userSettingsService == null) {
-            return;
-        }
-        // Skip for anonymous users
-        if (!AuthRedirectHelper.isAuthenticated()) {
-            return;
-        }
-        try {
-            long userId = userUseCase.getCurrentUser().getId();
-            userSettingsService.setPreferredLocale(userId, locale);
-        } catch (Exception ex) {
-            // Intentionally ignoring exceptions when user service is unavailable
-            // This allows the language switcher to work without database access
-        }
-    }
-
-    /**
-     * Persists the preferred locale to a secure HTTP-only cookie.
-     *
-     * <p>Creates a secure cookie with the user's language preference that
-     * will persist across browser sessions. The cookie is configured with
-     * appropriate security settings including HTTP-only and secure flags.</p>
-     *
-     * @param locale the locale preference to store in the cookie
-     */
-    private void persistPreferredLocaleCookie(final Locale locale) {
-        VaadinServletResponse vaadinResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
-        if (vaadinResponse == null) {
-            return;
-        }
-        HttpServletResponse response = vaadinResponse.getHttpServletResponse();
-        Cookie cookie = new Cookie(COOKIE_LOCALE_KEY, locale.toLanguageTag());
-        cookie.setPath(RouteConstants.ROOT_PATH);
-        cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        response.addCookie(cookie);
-    }
-
-    /**
-     * Reads the preferred locale from the HTTP cookie.
-     *
-     * <p>Retrieves the language preference from the cookie if present and
-     * valid. Handles cases where cookies are not available or contain
-     * invalid locale values gracefully.</p>
-     *
-     * @return the locale from the cookie, or null if not available or invalid
-     */
-    private Locale readPreferredLocaleCookie() {
-        VaadinServletRequest vaadinRequest = (VaadinServletRequest) VaadinService.getCurrentRequest();
-        if (vaadinRequest == null) {
-            return null;
-        }
-        HttpServletRequest request = vaadinRequest.getHttpServletRequest();
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return null;
-        }
-        for (Cookie cookie : cookies) {
-            if (COOKIE_LOCALE_KEY.equals(cookie.getName())) {
-                try {
-                    return Locale.forLanguageTag(cookie.getValue());
-                } catch (Exception ignored) {
-                    // Invalid locale format in cookie, continue searching
-                }
-            }
-        }
-        return null;
     }
 }

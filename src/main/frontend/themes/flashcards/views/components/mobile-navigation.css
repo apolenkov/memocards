@@ -1,0 +1,278 @@
+/* Mobile Navigation Menu Styles (Drawer) - Standard Design */
+
+/* ==================== Mobile Navigation Menu ==================== */
+.mobile-nav-menu {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: var(--lumo-base-color);
+    box-shadow: var(--lumo-box-shadow-m);
+}
+
+/* ==================== Header Section ==================== */
+.mobile-nav__header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 60px;
+    padding: 0;
+    background: var(--lumo-contrast-5pct);
+    border-bottom: 1px solid var(--lumo-contrast-10pct);
+}
+
+/* Header sections - 2 separate divs with 100% width distribution */
+.mobile-nav__header-left {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: var(--lumo-space-l);
+    gap: var(--lumo-space-s);
+    flex: 1;
+}
+
+.mobile-nav__header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: auto;
+    padding: var(--lumo-space-l);
+    flex: 0 0 auto;
+}
+
+/* Close button styling - Right aligned */
+.mobile-nav__close-button {
+    min-width: 32px;
+    min-height: 32px;
+    border: none;
+    border-radius: var(--lumo-border-radius-s);
+    background: transparent;
+}
+
+.mobile-nav__close-button:hover {
+    background: var(--lumo-contrast-10pct);
+}
+
+.mobile-nav__close-button vaadin-icon {
+    --vaadin-icon-width: 18px;
+    --vaadin-icon-height: 18px;
+    color: var(--lumo-secondary-text-color);
+}
+
+/* Favicon styling */
+.mobile-nav__favicon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Title styling - Left aligned with favicon */
+.mobile-nav__title {
+    margin: 0;
+    color: var(--lumo-body-text-color);
+    font-size: var(--lumo-font-size-l);
+    font-weight: var(--lumo-font-weight-semibold);
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* ==================== Greeting Section ==================== */
+.mobile-nav__greeting {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 60px;
+}
+
+.mobile-nav__greeting-text {
+    width: 100%;
+    padding: 0 var(--lumo-space-l);
+    color: var(--lumo-body-text-color);
+    font-size: var(--lumo-font-size-l);
+    font-weight: var(--lumo-font-weight-semibold);
+    text-align: left;
+}
+
+/* ==================== Divider ==================== */
+.mobile-nav__divider {
+    margin: 0;
+    border: none;
+    border-top: 1px solid var(--lumo-contrast-10pct);
+}
+
+/* ==================== SideNav ==================== */
+.mobile-nav__sidenav {
+    flex: 1;
+    width: 100%;
+    padding: var(--lumo-space-m); /* Same padding as .mobile-nav__actions */
+}
+
+/* SideNav item styling */
+.mobile-nav__sidenav vaadin-side-nav-item {
+    --vaadin-side-nav-item-padding: var(--lumo-space-m) var(--lumo-space-l);
+    min-height: 48px; /* Larger touch target */
+    margin: var(--lumo-space-xs) var(--lumo-space-s);
+    border-radius: var(--lumo-border-radius-m);
+    font-size: var(--lumo-font-size-m);
+    font-weight: var(--lumo-font-weight-medium);
+    transition: all 0.2s ease;
+}
+
+.mobile-nav__sidenav vaadin-side-nav-item::part(content) {
+    gap: var(--lumo-space-m);
+}
+
+/* Icon styling - General rules first (lower specificity) */
+.mobile-nav__sidenav vaadin-icon {
+    --vaadin-icon-width: var(--lumo-icon-size-m);
+    --vaadin-icon-height: var(--lumo-icon-size-m);
+    color: var(--lumo-secondary-text-color);
+    transition: color 0.2s ease;
+}
+
+/* Active item */
+.mobile-nav__sidenav [aria-current="page"] {
+    background: var(--lumo-primary-color-10pct);
+    border-left: 4px solid var(--lumo-primary-color);
+    color: var(--lumo-primary-color);
+    font-weight: var(--lumo-font-weight-semibold);
+}
+
+/* Active item icon - More specific rule after general rules */
+.mobile-nav__sidenav [aria-current="page"] vaadin-icon {
+    color: var(--lumo-primary-color);
+}
+
+/* Hover state */
+.mobile-nav__sidenav vaadin-side-nav-item:hover {
+    background: var(--lumo-contrast-5pct);
+}
+
+/* ==================== Action Buttons Container ==================== */
+.mobile-nav__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    width: 100%;
+    padding: var(--lumo-space-m);
+    gap: var(--lumo-space-s);
+}
+
+/* ==================== Action Buttons ==================== */
+
+/* Base button and icon styles (lower specificity first) */
+.mobile-nav__action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 100%;
+    min-height: 44px;
+    margin: var(--lumo-space-xs) 0;
+    padding: var(--lumo-space-m) var(--lumo-space-l);
+    border-radius: var(--lumo-border-radius-m);
+    font-weight: var(--lumo-font-weight-medium);
+    text-align: center;
+}
+
+/* Navigation buttons (Decks, Stats) - use default button styles like Registration */
+
+/* stylelint-disable-next-line no-descending-specificity -- Different components: action buttons vs sidenav items */
+.mobile-nav__action-button vaadin-icon {
+    flex-shrink: 0;
+    margin-right: var(--lumo-space-s);
+
+    --vaadin-icon-width: 20px;
+    --vaadin-icon-height: 20px;
+}
+
+.mobile-nav__action-button:hover {
+    background: var(--lumo-contrast-5pct);
+}
+
+/* Ensure button content is centered */
+.mobile-nav__action-button .vaadin-button-container {
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+}
+
+.mobile-nav__action-button .vaadin-button-container span {
+    text-align: center;
+}
+
+/* ==================== Drawer Toggle (Hamburger) ==================== */
+.drawer-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+}
+
+vaadin-drawer-toggle {
+    --vaadin-drawer-toggle-icon-size: 24px;
+    color: var(--lumo-body-text-color);
+}
+
+vaadin-drawer-toggle::part(icon) {
+    color: var(--lumo-body-text-color);
+}
+
+/* ==================== Drawer Container Improvements ==================== */
+
+/* Drawer backdrop - No animations */
+[overlay]::before {
+    background: rgb(0 0 0 / 60%);
+}
+
+/* Drawer - No animations */
+vaadin-app-layout::part(drawer) {
+    border-right: 1px solid var(--lumo-contrast-10pct);
+}
+
+/* ==================== Anonymous Menu Specific Styles ==================== */
+
+/* Login button styling - Standard */
+.mobile-nav__action-button[data-test-id="nav-login"] {
+    border: none;
+    background: var(--lumo-primary-color);
+    color: var(--lumo-primary-contrast-color);
+}
+
+.mobile-nav__action-button[data-test-id="nav-login"]:hover {
+    background: var(--lumo-primary-color-90pct);
+}
+
+.mobile-nav__action-button[data-test-id="nav-login"] vaadin-icon {
+    color: var(--lumo-primary-contrast-color);
+}
+
+/* Registration button styling - Standard */
+.mobile-nav__action-button[data-test-id="nav-register"] {
+    border: 1px solid var(--lumo-contrast-20pct);
+    background: var(--lumo-contrast-5pct);
+    color: var(--lumo-body-text-color);
+}
+
+.mobile-nav__action-button[data-test-id="nav-register"]:hover {
+    background: var(--lumo-contrast-10pct);
+}
+
+.mobile-nav__action-button[data-test-id="nav-register"] vaadin-icon {
+    color: var(--lumo-secondary-text-color);
+}
+
+/* Navigation buttons use default hover states */
+
+/* ==================== Dark Theme Support ==================== */
+[theme~="dark"] .mobile-nav__header {
+    background: var(--lumo-contrast-10pct);
+}
+
+[theme~="dark"] .mobile-nav__sidenav :hover {
+    background: var(--lumo-contrast-20pct);
+}
+

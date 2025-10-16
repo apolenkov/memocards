@@ -12,6 +12,8 @@
 @import './views/components/dialogs.css';
 @import './views/components/top-menu.css';
 @import './views/components/status.css';
+@import './views/components/mobile-navigation.css';
+@import './views/components/responsive-navbar.css';
 @import './views/login-view.css';
 @import './views/deck-view.css';
 @import './views/home-view.css';

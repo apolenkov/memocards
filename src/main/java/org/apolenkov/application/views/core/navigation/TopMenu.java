@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.core.navigation;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
@@ -10,7 +11,6 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.UIScope;
-import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.vaadin.VaadinApplicationShell;
 import org.apolenkov.application.service.settings.PracticeSettingsService;
@@ -38,6 +38,9 @@ public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
     private final transient PracticeSettingsService practiceSettingsService;
     private final transient PracticeSettingsComponents settingsComponents;
 
+    // Initialization flag
+    private boolean hasBeenInitialized = false;
+
     /**
      * Creates a new TopMenu with required dependencies.
      *
@@ -58,11 +61,20 @@ public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
     }
 
     /**
-     * Initializes the menu components after dependency injection is complete.
+     * Initializes the menu components when attached to the UI.
+     * At this point, all @UIScope components are ready and getTranslation() is safe to use.
+     *
+     * @param attachEvent the attaching event
      */
-    @PostConstruct
-    @SuppressWarnings("unused")
-    private void init() {
+    @Override
+    protected void onAttach(final AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+
+        // Check if already initialized
+        if (hasBeenInitialized) {
+            return;
+        }
+
         setWidthFull();
         setPadding(true);
         setSpacing(true);
@@ -70,6 +82,8 @@ public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
         setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         refreshMenu();
+
+        hasBeenInitialized = true;
     }
 
     /**
@@ -232,12 +246,15 @@ public class TopMenu extends HorizontalLayout implements LocaleChangeObserver {
 
     /**
      * Refreshes menu items when locale changes to update translations.
+     * Only refreshes if component is already initialized.
      *
      * @param event locale change event
      */
     @Override
     public void localeChange(final LocaleChangeEvent event) {
-        // Refresh menu on locale change to update button labels
-        refreshMenu();
+        // Only refresh if already initialized
+        if (hasBeenInitialized) {
+            refreshMenu();
+        }
     }
 }
