@@ -44,6 +44,8 @@
     border-radius: var(--lumo-border-radius-l);
     background: var(--lumo-base-color);
     transition: box-shadow var(--lumo-transition-duration) ease, transform var(--lumo-transition-duration) ease;
+
+    /* Mobile: 100% width, responsive via mobile-responsive.css */
 }
 
 .news-card:hover {
@@ -72,6 +74,10 @@
 .news-card__date {
     color: var(--lumo-tertiary-text-color);
     font-size: var(--lumo-font-size-s);
+}
+
+.news-card__actions {
+    /* Mobile: stacked buttons, Desktop: horizontal via mobile-responsive.css */
 }
 
 /* Admin view common styles */

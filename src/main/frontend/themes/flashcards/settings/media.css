@@ -1,4 +1,14 @@
-/* Design system media queries (custom media) */
+/* Mobile-First Design System Media Queries */
+
+/* Mobile-first breakpoints (min-width) */
+
+@custom-media --mobile-sm (min-width: 375px);  /* iPhone SE */
+@custom-media --mobile (min-width: 480px);      /* Small phones */
+@custom-media --tablet (min-width: 768px);      /* ⭐ PRIMARY - Tablet/Desktop boundary */
+@custom-media --desktop (min-width: 1024px);    /* Desktop */
+@custom-media --desktop-lg (min-width: 1280px); /* Large desktop */
+
+/* Legacy desktop-first (for gradual migration - use sparingly) */
 
 @custom-media --bp-xl (max-width: 1200px);
 @custom-media --bp-lg (max-width: 1024px);

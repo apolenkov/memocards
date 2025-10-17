@@ -148,6 +148,10 @@ public final class DeckConstants {
     public static final String DECK_VIEW_INFO_SECTION_CLASS = "deck-view__info-section";
     public static final String DECK_VIEW_DESCRIPTION_CLASS = "deck-view__description";
     public static final String DECK_VIEW_STATS_CLASS = "deck-view__stats";
+    public static final String DECK_VIEW_HEADER_CLASS = "deck-view__header";
+    public static final String DECK_VIEW_TITLE_SECTION_CLASS = "deck-view__title-section";
+    public static final String DECK_VIEW_ACTIONS_CLASS = "deck-view__actions";
+    public static final String DECK_VIEW_BACK_BUTTON_CLASS = "deck-view__back-button";
     public static final String DECKS_VIEW_CLASS = "decks-view";
     public static final String DECKS_VIEW_CONTENT_CLASS = "decks-view__content";
     public static final String GLASS_MD_CLASS = "glass-md";

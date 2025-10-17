@@ -41,7 +41,7 @@ module.exports = {
       except: ["first-nested", "blockless-after-same-name-blockless"] 
     }],
     
-    // 5. NO IMPORTANT
+    // 5. NO IMPORTANT (except for shadow DOM overrides)
     "declaration-no-important": true,
     
     // 6. STRICT SELECTOR COMPLEXITY
@@ -54,7 +54,7 @@ module.exports = {
     
     // 8. STRICT UNITS
     "length-zero-no-unit": true,
-    "unit-allowed-list": ["px", "em", "rem", "%", "vw", "vh", "deg", "ms", "s"],
+    "unit-allowed-list": ["px", "em", "rem", "%", "vw", "vh", "deg", "ms", "s", "fr"],
     
     // 9. NO BROWSER PREFIXES - USE AUTOPREFIXER
     "property-no-vendor-prefix": true,
@@ -165,23 +165,19 @@ module.exports = {
   
   // OVERRIDE FOR VAADIN COMPONENTS
   overrides: [
-    // Temporarily disabled strict px ban until migration completes
-    {
-      files: [
-        "src/main/frontend/themes/flashcards/settings/media.css"
-      ],
-      rules: {
-        // Allow px inside design tokens and custom media
-        "unit-allowed-list": ["px", "em", "rem", "%", "vw", "vh", "deg", "ms", "s"]
-      }
-    },
     {
       files: ["**/vaadin-*.css"],
       rules: {
         "selector-class-pattern": null,
         "custom-property-pattern": null
       }
-    }
+    },
+    {
+      files: ["src/main/frontend/themes/flashcards/mobile-responsive.css"],
+      rules: {
+        "unit-allowed-list": ["px", "em", "rem", "%", "vw", "vh", "deg", "ms", "s", "fr"]
+      }
+    },
   ]
 };
 

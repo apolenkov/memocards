@@ -1,0 +1,592 @@
+/* ==================== MOBILE-FIRST RESPONSIVE STYLES ==================== */
+
+/* Based on: @mobile-first-best-practices */
+
+/* ==================== Global Touch Targets ==================== */
+
+/* WCAG 2.1 AAA: 44x44px minimum, 48x48px recommended */
+button,
+.vaadin-button,
+input,
+select,
+vaadin-button {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+/* ==================== DeckView - Detail Header ==================== */
+
+/* Mobile: Icon-only buttons, stacked layout */
+.deck-view__header {
+    flex-direction: column;
+    gap: var(--lumo-space-s);
+}
+
+/* Mobile: Icon-only buttons in header */
+.deck-view__header button {
+    position: relative;
+    min-width: 48px;
+    padding: var(--lumo-space-s);
+}
+
+/* Скрываем текст через ::part(label) */
+.deck-view__header button::part(label) {
+    display: none;
+}
+
+/* Показываем иконку поверх текста */
+.deck-view__header button vaadin-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    font-size: var(--lumo-icon-size-m);
+    transform: translate(-50%, -50%);
+}
+
+/* Back button on mobile */
+.deck-view__header .deck-view__back-button {
+    align-self: flex-start;
+}
+
+/* Actions row on mobile - center aligned */
+.deck-view__actions {
+    justify-content: center;
+    width: 100%;
+    gap: var(--lumo-space-m);
+}
+
+/* Title and stats stacked */
+.deck-view__title-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.deck-view__title {
+    font-size: var(--lumo-font-size-l);
+}
+
+.deck-view__stats {
+    margin-top: var(--lumo-space-xs);
+}
+
+/* Tablet and up: Show button text */
+
+@media (min-width: 768px) {
+    .deck-view__header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .deck-view__header button {
+        min-width: auto;
+        padding: var(--lumo-space-xs) var(--lumo-space-m);
+        font-size: var(--lumo-font-size-m);
+    }
+    
+    .deck-view__header button vaadin-icon {
+        margin-right: var(--lumo-space-xs);
+    }
+    
+    .deck-view__title-section {
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .deck-view__title {
+        font-size: var(--lumo-font-size-xxl);
+    }
+    
+    .deck-view__stats {
+        margin-top: 0;
+        margin-left: var(--lumo-space-m);
+    }
+}
+
+/* Desktop: Larger spacing */
+
+@media (min-width: 1024px) {
+    .deck-view__header {
+        gap: var(--lumo-space-l);
+    }
+}
+
+/* ==================== DeckToolbar - Search & Add ==================== */
+
+/* Mobile: Horizontal layout with proper sizing */
+.deck-toolbar {
+    width: 100%;
+    max-width: var(--app-card-max, 700px); /* Same as deck-card */
+    margin: 0 auto; /* Center the toolbar */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.deck-toolbar > * {
+    flex-direction: row;
+    gap: var(--lumo-space-s);
+    align-items: center;
+    justify-content: space-between; /* Search on left, button on right */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.deck-toolbar__search {
+    flex: 1;
+    min-width: 0; /* Allow shrinking */
+}
+
+.deck-toolbar__add-button {
+    flex-shrink: 0; /* Prevent button from shrinking */
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Ensure search field doesn't overflow */
+.deck-toolbar__search vaadin-text-field {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Ensure button text fits */
+.deck-toolbar__add-button vaadin-button {
+    width: 100%;
+    max-width: 100%;
+    font-size: var(--lumo-font-size-s); /* Smaller font on mobile */
+}
+
+/* Mobile: Hide button text, show only icon */
+
+@media (max-width: 767px) {
+    /* Кнопка "Добавить колоду" - только иконка */
+    .deck-toolbar__add-button {
+        position: relative;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        max-width: 44px;
+        padding: 0;
+    }
+    
+    /* Скрываем текст через ::part(label) */
+    .deck-toolbar__add-button::part(label) {
+        display: none;
+    }
+    
+    /* Показываем иконку поверх текста */
+    .deck-toolbar__add-button vaadin-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin: 0;
+        font-size: var(--lumo-icon-size-m);
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Tablet and up: More spacing and larger text */
+
+@media (min-width: 768px) {
+    .deck-toolbar > * {
+        gap: var(--lumo-space-m);
+    }
+    
+    .deck-toolbar__add-button vaadin-button {
+        min-width: auto;
+        max-width: none;
+        padding: var(--lumo-space-xs) var(--lumo-space-m);
+        font-size: var(--lumo-font-size-m); /* Normal font size on larger screens */
+    }
+    
+    .deck-toolbar__add-button vaadin-button vaadin-icon {
+        margin-right: var(--lumo-space-xs);
+    }
+}
+
+/* ==================== StatsView - Responsive Grid ==================== */
+
+/* Mobile: 1 column, stacked */
+.stats-today-grid,
+.stats-overall-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--lumo-space-s);
+    width: 100%;
+}
+
+.stats-card {
+    width: 100%;
+    min-width: unset;
+}
+
+/* Small mobile: 2 columns */
+
+@media (min-width: 480px) {
+    .stats-today-grid,
+    .stats-overall-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Tablet: 4 columns */
+
+@media (min-width: 768px) {
+    .stats-today-grid,
+    .stats-overall-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--lumo-space-m);
+    }
+}
+
+/* Deck stats cards - mobile optimization */
+.deck-stats-card {
+    width: 100%;
+    min-width: unset;
+}
+
+.stats-current-deck__container {
+    min-height: unset;
+    padding: var(--lumo-space-m);
+}
+
+/* Deck stats grid - responsive */
+.deck-stats-card__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--lumo-space-s);
+}
+
+@media (min-width: 480px) {
+    .deck-stats-card__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .deck-stats-card__grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ==================== AdminNewsView - Responsive Toolbar ==================== */
+
+/* Mobile: Stack search and button */
+.admin-content-toolbar {
+    width: 100%;
+}
+
+.admin-content-toolbar > * {
+    flex-direction: column;
+    gap: var(--lumo-space-s);
+}
+
+.admin-content-toolbar vaadin-text-field {
+    width: 100%;
+}
+
+.admin-content-toolbar button {
+    width: 100%;
+}
+
+/* Tablet and up: Horizontal layout */
+
+@media (min-width: 768px) {
+    .admin-content-toolbar > * {
+        flex-direction: row;
+        gap: var(--lumo-space-m);
+    }
+    
+    .admin-content-toolbar vaadin-text-field {
+        flex: 1;
+        width: auto;
+    }
+    
+    .admin-content-toolbar button {
+        width: auto;
+    }
+}
+
+/* News cards - prevent overflow */
+.news-card {
+    width: 100%;
+    max-width: 100%;
+    padding: var(--lumo-space-m);
+    box-sizing: border-box;
+}
+
+.news-card__content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* News card actions - mobile stack */
+.news-card__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--lumo-space-s);
+    width: 100%;
+}
+
+.news-card__actions button {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .news-card {
+        max-width: var(--app-card-max, 700px);
+    }
+    
+    .news-card__actions {
+        flex-direction: row;
+        width: auto;
+    }
+    
+    .news-card__actions button {
+        width: auto;
+    }
+}
+
+/* ==================== DecksView - Card Grid ==================== */
+
+/* Deck cards container */
+.decks-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--lumo-space-m);
+    width: 100%;
+    max-width: var(--app-card-max, 700px); /* Same as deck-card */
+    margin: 0 auto; /* Center the cards */
+}
+
+/* ==================== Deck Card Mobile Optimization ==================== */
+
+/* Mobile: Compact deck card layout */
+
+@media (max-width: 767px) {
+    .deck-card {
+        padding: var(--lumo-space-s); /* Smaller padding on mobile */
+    }
+    
+    .deck-card__title {
+        font-size: var(--lumo-font-size-m); /* Smaller title on mobile */
+    }
+    
+    .deck-card__description {
+        margin: var(--lumo-space-xs) 0; /* Smaller margins */
+        font-size: var(--lumo-font-size-xs); /* Smaller description */
+    }
+    
+    .deck-card__progress-label,
+    .deck-card__progress-text,
+    .deck-card__progress-details {
+        font-size: var(--lumo-font-size-xs); /* Smaller progress text */
+    }
+    
+    /* Very small screens: compact progress */
+
+    @media (max-width: 480px) {
+        .deck-card__progress-details {
+            display: none; /* Hide detailed progress on very small screens */
+        }
+        
+        .deck-card__progress-text {
+            font-size: var(--lumo-font-size-xs);
+        }
+    }
+    
+    /* Practice button - icon only on mobile */
+    .deck-card__practice-button {
+        margin-top: var(--lumo-space-xs);
+    }
+    
+    .deck-card__practice-button vaadin-button {
+        position: relative;
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        max-width: 48px;
+        padding: 0;
+    }
+
+    /* Скрываем текст через ::part(label) */
+    .deck-card__practice-button vaadin-button::part(label) {
+        display: none;
+    }
+    
+    .deck-card__practice-button vaadin-button vaadin-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin: 0;
+        font-size: var(--lumo-icon-size-m);
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Tablet and up: Full button with text and responsive grid */
+
+@media (min-width: 768px) {
+    .deck-card__practice-button vaadin-button {
+        width: auto;
+        height: auto;
+        min-width: auto;
+        max-width: none;
+        padding: var(--lumo-space-xs) var(--lumo-space-m);
+        font-size: var(--lumo-font-size-s);
+    }
+    
+    .deck-card__practice-button vaadin-button vaadin-icon {
+        margin-right: var(--lumo-space-xs);
+    }
+    
+    .decks-list {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .decks-list {
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    }
+}
+
+/* Deck card - prevent overflow */
+.deck-card {
+    width: 100%;
+    max-width: 100%;
+    margin: 0; /* Remove any margins that could cause overflow */
+    box-sizing: border-box;
+}
+
+/* ==================== General Container Fixes ==================== */
+
+/* Prevent horizontal scroll */
+.container-md,
+.container-lg,
+.container-xl {
+    max-width: 100%;
+    padding-right: var(--lumo-space-m);
+    padding-left: var(--lumo-space-m);
+    box-sizing: border-box;
+    overflow-x: hidden; /* Prevent any horizontal overflow */
+}
+
+/* Ensure toolbar respects container padding */
+.decks-section {
+    margin-right: 0;
+    margin-left: 0;
+    padding-right: 0;
+    padding-left: 0;
+}
+
+/* Toolbar should match deck-card width exactly - merged with mobile toolbar styles */
+
+@media (min-width: 768px) {
+    .container-md {
+        max-width: 800px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container-lg {
+        max-width: 1024px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .container-xl {
+        max-width: 1200px;
+    }
+}
+
+/* ==================== Typography Mobile ==================== */
+
+/* Prevent iOS zoom on input focus */
+input,
+textarea,
+select,
+vaadin-text-field,
+vaadin-text-area,
+vaadin-select {
+    font-size: 16px;
+}
+
+@media (min-width: 768px) {
+    input,
+    textarea,
+    select,
+    vaadin-text-field,
+    vaadin-text-area,
+    vaadin-select {
+        font-size: var(--lumo-font-size-m);
+    }
+}
+
+/* Headings responsive */
+h1 {
+    font-size: var(--lumo-font-size-xl);
+}
+
+h2 {
+    font-size: var(--lumo-font-size-l);
+}
+
+h3 {
+    font-size: var(--lumo-font-size-m);
+}
+
+@media (min-width: 768px) {
+    h1 {
+        font-size: var(--lumo-font-size-xxxl);
+    }
+    
+    h2 {
+        font-size: var(--lumo-font-size-xxl);
+    }
+    
+    h3 {
+        font-size: var(--lumo-font-size-xl);
+    }
+}
+
+/* ==================== iOS Safe Areas ==================== */
+.app-header {
+    padding-top: env(safe-area-inset-top);
+}
+
+.app-footer {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ==================== Utility Classes ==================== */
+
+/* Mobile-only visibility */
+.mobile-only {
+    display: block;
+}
+
+.desktop-only {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .mobile-only {
+        display: none;
+    }
+    
+    .desktop-only {
+        display: block;
+    }
+}
+
+/* Responsive flex direction */
+.flex-mobile-column {
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .flex-mobile-column {
+        flex-direction: row;
+    }
+}
+

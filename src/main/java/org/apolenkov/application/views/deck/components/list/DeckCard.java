@@ -6,6 +6,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -81,10 +82,13 @@ public final class DeckCard extends Composite<Div> {
         // Create practice button with primary styling and navigation
         Button practiceButton = ButtonHelper.createButton(
                 getTranslation(DeckConstants.HOME_PRACTICE),
+                VaadinIcon.PLAY,
                 e -> navigateToPractice(),
                 ButtonVariant.LUMO_SMALL,
                 ButtonVariant.LUMO_PRIMARY);
         practiceButton.addClassName(DeckConstants.DECK_CARD_PRACTICE_BUTTON_CLASS);
+        // Add tooltip for mobile users
+        practiceButton.getElement().setAttribute("title", getTranslation(DeckConstants.HOME_PRACTICE));
 
         // Assemble all components in the main layout
         cardContent.add(titleLayout, description, progressLayout, practiceButton);

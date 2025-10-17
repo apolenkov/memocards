@@ -92,10 +92,12 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         header.setWidthFull();
         header.setAlignItems(FlexComponent.Alignment.CENTER);
         header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        header.addClassName(DeckConstants.DECK_VIEW_HEADER_CLASS);
 
         // Left section: Back button + Title + Stats
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
+        leftSection.addClassName(DeckConstants.DECK_VIEW_TITLE_SECTION_CLASS);
 
         configureBackButton();
         configureTitle();
@@ -133,6 +135,7 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         actions.setWidthFull();
         actions.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         actions.setAlignItems(FlexComponent.Alignment.CENTER);
+        actions.addClassName(DeckConstants.DECK_VIEW_ACTIONS_CLASS);
 
         configurePracticeButton();
         configureEditDeckButton();
@@ -149,6 +152,7 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         backButton.setText(getTranslation(DeckConstants.DECKS_TITLE_KEY));
         backButton.setIcon(VaadinIcon.ARROW_LEFT.create());
         backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        backButton.addClassName(DeckConstants.DECK_VIEW_BACK_BUTTON_CLASS);
         backButton.addClickListener(e -> NavigationHelper.navigateToDecks());
     }
 

@@ -331,6 +331,7 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
         HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(true);
         actions.setAlignItems(Alignment.CENTER);
+        actions.addClassName(AdminConstants.NEWS_CARD_ACTIONS_CLASS);
 
         Button editBtn = ButtonHelper.createButton(
                 getTranslation(AdminConstants.COMMON_EDIT_KEY),
