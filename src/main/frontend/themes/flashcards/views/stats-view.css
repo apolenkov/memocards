@@ -32,6 +32,8 @@
     min-width: 120px; 
     padding: var(--lumo-space-m); 
     text-align: center; 
+
+    /* Mobile: full width, responsive grid via mobile-responsive.css */
 }
 
 .stats-card.surface-card { /* visuals via component token */ }
@@ -58,6 +60,8 @@
     width: 100%;
     min-width:320px;
     padding: var(--lumo-space-l);
+
+    /* Mobile: no min-width, responsive via mobile-responsive.css */
  }
 
 .deck-stats-card.surface-card { /* visuals via component token */ }

@@ -47,7 +47,7 @@ public final class DeckStatCard extends Composite<Div> {
         HorizontalLayout deckStatsGrid = new HorizontalLayout();
         deckStatsGrid.setWidthFull();
         deckStatsGrid.setSpacing(true);
-        deckStatsGrid.addClassName(StatsConstants.STATS_DECK_GRID_CLASS);
+        deckStatsGrid.addClassName(StatsConstants.DECK_STATS_CARD_GRID_CLASS);
         deckStatsGrid.setJustifyContentMode(FlexComponent.JustifyContentMode.EVENLY);
 
         deckStatsGrid.add(

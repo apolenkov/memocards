@@ -8,6 +8,7 @@
 @import './settings/tokens.css';
 @import './components.css';
 @import './settings/media.css';
+@import './mobile-responsive.css';
 @import './views/components/deck-card.css';
 @import './views/components/dialogs.css';
 @import './views/components/top-menu.css';

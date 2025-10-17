@@ -25,7 +25,7 @@ public final class LayoutHelper {
         HorizontalLayout searchRow = new HorizontalLayout();
         searchRow.setWidthFull();
         searchRow.setAlignItems(FlexComponent.Alignment.CENTER);
-        searchRow.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        searchRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN); // Changed from CENTER to BETWEEN
 
         searchRow.add(searchField);
 

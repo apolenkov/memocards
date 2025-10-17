@@ -15,7 +15,7 @@ public final class StatsConstants {
     public static final String DECK_STATS_CARD_CLASS = "deck-stats-card";
     public static final String DECK_STATS_CARD_HEADER_CLASS = "deck-stats-card__header";
     public static final String DECK_STATS_CARD_TITLE_CLASS = "deck-stats-card__title";
-    public static final String STATS_DECK_GRID_CLASS = "stats-deck-grid";
+    public static final String DECK_STATS_CARD_GRID_CLASS = "deck-stats-card__grid";
 
     public static final String STATS_DECK_ITEM_CLASS = "stats-deck-item";
     public static final String STATS_DECK_ITEM_TOTAL_CLASS = "stats-deck-item__total";

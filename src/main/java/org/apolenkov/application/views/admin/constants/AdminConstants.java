@@ -23,6 +23,7 @@ public final class AdminConstants {
     public static final String NEWS_CARD_CONTENT_CLASS = "news-card__content";
     public static final String NEWS_CARD_AUTHOR_CLASS = "news-card__author";
     public static final String NEWS_CARD_DATE_CLASS = "news-card__date";
+    public static final String NEWS_CARD_ACTIONS_CLASS = "news-card__actions";
     public static final String TEXT_CENTER_CLASS = "text-center";
 
     // Common Classes

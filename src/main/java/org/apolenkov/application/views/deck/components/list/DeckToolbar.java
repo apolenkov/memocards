@@ -74,6 +74,8 @@ public final class DeckToolbar extends Composite<HorizontalLayout> {
         addButton.setIcon(VaadinIcon.PLUS.create());
         addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addButton.addClassName(DeckConstants.DECK_TOOLBAR_ADD_BUTTON_CLASS);
+        // Add tooltip for mobile users
+        addButton.getElement().setAttribute("title", getTranslation(DeckConstants.HOME_ADD_DECK));
     }
 
     /**

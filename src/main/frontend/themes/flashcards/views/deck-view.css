@@ -5,6 +5,8 @@
 
 .deck-view__header {
     margin-bottom: var(--lumo-space-l);
+
+    /* Mobile: icon-only buttons, responsive layout via mobile-responsive.css */
 }
 
 .deck-view__content {
@@ -14,10 +16,24 @@
 
 .deck-view__title {
     margin: 0;
+
+    /* Mobile: responsive font-size via mobile-responsive.css */
+}
+
+.deck-view__title-section {
+    /* Mobile: stacked, Desktop: horizontal via mobile-responsive.css */
 }
 
 .deck-view__stats {
     color: var(--lumo-secondary-text-color);
+}
+
+.deck-view__actions {
+    /* Mobile: centered, Desktop: spaced via mobile-responsive.css */
+}
+
+.deck-view__back-button {
+    /* Mobile: icon-only, Desktop: with text via mobile-responsive.css */
 }
 
 .deck-view__info-section { 
