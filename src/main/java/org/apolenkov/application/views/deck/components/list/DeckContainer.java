@@ -43,7 +43,7 @@ public final class DeckContainer extends Composite<VerticalLayout> {
 
         // Initialize title content
         title.setText(getTranslation(DeckConstants.DECKS_TITLE_KEY));
-        title.addClassName(DeckConstants.DECKS_VIEW_TITLE_CLASS);
+        title.addClassName(DeckConstants.PAGE_TITLE_CLASS);
 
         container.add(title, toolbar, deckList);
         return container;

@@ -62,6 +62,7 @@ public class DeckView extends Composite<VerticalLayout>
 
     // Event Registrations
     private Registration practiceClickListenerRegistration;
+    private Registration resetProgressClickListenerRegistration;
     private Registration addFlashcardClickListenerRegistration;
     private Registration editDeckClickListenerRegistration;
     private Registration deleteDeckClickListenerRegistration;
@@ -96,13 +97,22 @@ public class DeckView extends Composite<VerticalLayout>
      */
     @PostConstruct
     public void init() {
+        // Configure main view layout like DecksView
+        getContent().setPadding(false);
+        getContent().setSpacing(false);
         getContent().setWidthFull();
-        getContent().setPadding(true);
-        getContent().setSpacing(true);
-        getContent().setAlignItems(FlexComponent.Alignment.CENTER);
+
+        // Create content layout with same structure as DecksView
+        VerticalLayout content = new VerticalLayout();
+        content.setSizeFull();
+        content.setPadding(true);
+        content.setSpacing(true);
+        content.setAlignItems(FlexComponent.Alignment.CENTER);
+        content.addClassName(DeckConstants.DECKS_VIEW_CONTENT_CLASS);
+        getContent().add(content);
 
         // Show loading state initially
-        showLoadingState();
+        showLoadingState(content);
     }
 
     /**
@@ -145,6 +155,11 @@ public class DeckView extends Composite<VerticalLayout>
             practiceClickListenerRegistration = null;
         }
 
+        if (resetProgressClickListenerRegistration != null) {
+            resetProgressClickListenerRegistration.remove();
+            resetProgressClickListenerRegistration = null;
+        }
+
         if (addFlashcardClickListenerRegistration != null) {
             addFlashcardClickListenerRegistration.remove();
             addFlashcardClickListenerRegistration = null;
@@ -165,7 +180,7 @@ public class DeckView extends Composite<VerticalLayout>
 
     /**
      * Sets up event listeners for deck action buttons.
-     * Configures click handlers for practice, add, edit and delete actions.
+     * Configures click handlers for practice, reset, add, edit and delete actions.
      */
     private void setupActionListeners() {
         if (detailHeader == null || deckGrid == null) {
@@ -173,6 +188,7 @@ public class DeckView extends Composite<VerticalLayout>
         }
 
         setupPracticeButtonListener();
+        setupResetProgressButtonListener();
         setupAddFlashcardButtonListener();
         setupEditDeckButtonListener();
         setupDeleteDeckButtonListener();
@@ -188,6 +204,16 @@ public class DeckView extends Composite<VerticalLayout>
                     NavigationHelper.navigateToPractice(currentDeck.getId());
                 }
             });
+        }
+    }
+
+    /**
+     * Sets up the reset progress button click listener with confirmation dialog.
+     */
+    private void setupResetProgressButtonListener() {
+        if (resetProgressClickListenerRegistration == null) {
+            resetProgressClickListenerRegistration =
+                    detailHeader.addResetProgressClickListener(e -> showResetConfirmationDialog());
         }
     }
 
@@ -248,14 +274,18 @@ public class DeckView extends Composite<VerticalLayout>
 
     /**
      * Shows loading state while deck is being loaded.
+     *
+     * @param contentContainer the container where loading state will be displayed
      */
-    private void showLoadingState() {
-        getContent().removeAll();
+    private void showLoadingState(final VerticalLayout contentContainer) {
+        contentContainer.removeAll();
 
         VerticalLayout loadingContainer = new VerticalLayout();
         loadingContainer.setSpacing(true);
         loadingContainer.setWidthFull();
         loadingContainer.addClassName(DeckConstants.CONTAINER_MD_CLASS);
+        loadingContainer.addClassName(DeckConstants.DECKS_SECTION_CLASS);
+        loadingContainer.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
         loadingContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
         VerticalLayout loadingSection = new VerticalLayout();
@@ -271,7 +301,7 @@ public class DeckView extends Composite<VerticalLayout>
 
         loadingSection.add(loadingTitle);
         loadingContainer.add(loadingSection);
-        getContent().add(loadingContainer);
+        contentContainer.add(loadingContainer);
     }
 
     // ==================== Content Creation ====================
@@ -280,23 +310,23 @@ public class DeckView extends Composite<VerticalLayout>
      * Creates the main deck content after successful deck loading.
      */
     private void createDeckContent() {
-        getContent().removeAll();
+        // Get the content container from init()
+        VerticalLayout contentContainer =
+                (VerticalLayout) getContent().getChildren().findFirst().orElse(null);
+        if (contentContainer == null) {
+            return;
+        }
 
-        // Main content container
-        VerticalLayout contentContainer = new VerticalLayout();
-        contentContainer.setSpacing(true);
-        contentContainer.setWidthFull();
-        contentContainer.addClassName(DeckConstants.CONTAINER_MD_CLASS);
-        contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+        contentContainer.removeAll();
 
-        // Primary content section
-        VerticalLayout pageSection = new VerticalLayout();
-        pageSection.setSpacing(true);
-        pageSection.setPadding(true);
-        pageSection.setWidthFull();
-        pageSection.addClassName(DeckConstants.DECK_VIEW_SECTION_CLASS);
-        pageSection.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
-        pageSection.addClassName(DeckConstants.CONTAINER_MD_CLASS);
+        // Main content container with same structure as DeckContainer
+        VerticalLayout deckContainer = new VerticalLayout();
+        deckContainer.setSpacing(true);
+        deckContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+        deckContainer.setWidthFull();
+        deckContainer.addClassName(DeckConstants.CONTAINER_MD_CLASS);
+        deckContainer.addClassName(DeckConstants.DECKS_SECTION_CLASS);
+        deckContainer.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
 
         // Create components
         detailHeader = new DeckDetailHeader();
@@ -306,10 +336,9 @@ public class DeckView extends Composite<VerticalLayout>
         deckGrid.setEditFlashcardCallback(this::openFlashcardDialog);
         deckGrid.setDeleteFlashcardCallback(this::deleteFlashcard);
 
-        // Add components to section
-        pageSection.add(detailHeader, deckGrid);
-        contentContainer.add(pageSection);
-        getContent().add(contentContainer);
+        // Add components to container
+        deckContainer.add(detailHeader, deckGrid);
+        contentContainer.add(deckContainer);
     }
 
     // ==================== Data Loading ====================
@@ -427,5 +456,34 @@ public class DeckView extends Composite<VerticalLayout>
                 deletedDeck -> LOGGER.info("Deck {} deleted successfully", currentDeck.getId()));
 
         dialog.show();
+    }
+
+    /**
+     * Shows confirmation dialog before resetting progress.
+     */
+    private void showResetConfirmationDialog() {
+        com.vaadin.flow.component.confirmdialog.ConfirmDialog dialog =
+                new com.vaadin.flow.component.confirmdialog.ConfirmDialog();
+
+        dialog.setHeader(getTranslation("deck.reset.confirm.title"));
+        dialog.setText(getTranslation("deck.reset.confirm.message"));
+
+        dialog.setCancelable(true);
+        dialog.setConfirmText(getTranslation("common.yes"));
+        dialog.setCancelText(getTranslation("common.cancel"));
+        dialog.setConfirmButtonTheme("error primary");
+
+        dialog.addConfirmListener(event -> {
+            LOGGER.info("Reset progress confirmed by user");
+            if (deckGrid != null) {
+                deckGrid.resetProgress();
+                org.apolenkov.application.views.shared.utils.NotificationHelper.showSuccessBottom(
+                        getTranslation(DeckConstants.DECK_PROGRESS_RESET));
+            }
+        });
+
+        dialog.addCancelListener(event -> LOGGER.debug("Reset progress cancelled by user"));
+
+        dialog.open();
     }
 }

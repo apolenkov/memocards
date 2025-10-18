@@ -1,64 +1,24 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "2.0.0"
+version: "3.0.0"
 ---
 
 # ENV-BASED CONFIGURATION
 
-## STACK
-Spring Boot Profiles | application-{profile}.yml | @Value | Environment Variables
-
-## STRUCTURE
-- **application.yml**: defaults
-- **application-{profile}.yml**: env-specific (dev/test/prod)
-- **@Profile**: conditional beans
-- **@Value**: `@Value("${key:defaultValue}")`
-
-## CONFIGURATION READING
+## RULES
 **❌ NEVER**: `System.getenv("KEY")` directly  
 **✅ ALWAYS**: `@Value("${app.key:default}")`
 
-**Why**: Testable, mockable, IDE-friendly, profile-specific, Docker/K8s compatible
+**Why**: Testable, mockable, profile-specific, Docker/K8s compatible
 
-## PROFILES
-- **dev**: local development
-- **test**: integration tests
-- **prod**: production
+## STRUCTURE
+- application.yml → defaults
+- application-{profile}.yml → env-specific (dev/test/prod)
+- @Profile → conditional beans
+- @Value → `@Value("${key:defaultValue}")`
 
-## SECRETS
-- NO hardcoded passwords/keys in code/git
-- Environment variables for secrets
-- Spring Cloud Config/Vault for production
-
-## DATABASE
-- Profile-specific datasource
-- Connection pooling per env
-- Migration per profile
-
-## LOGGING
-- logback-spring.xml with `<springProfile>`
-- Log levels per environment
-- File/console output per env
-
-## ENVIRONMENT VARIABLES
-- Override via `ENV_VAR_NAME`
-- Spring Boot auto-mapping
-- Docker/K8s friendly
-
-## ANTIPATTERNS
-1. Hardcoded values → externalize
-2. Secrets in code/git → env vars
-3. Single config for all envs → profiles
-4. No defaults → always provide fallback
-5. Magic values → named properties
-6. System.getenv() directly → use @Value
-
-## CHECKLIST
-- [ ] application-{profile}.yml for each env
-- [ ] @Profile for conditional beans
-- [ ] @Value with defaults
-- [ ] NO secrets in code
-- [ ] Environment variable overrides
-- [ ] Profile-specific logging
-- [ ] NO System.getenv() - use @Value
+## CRITICAL
+- NO secrets in code/git → environment variables
+- ALWAYS provide fallback defaults
+- NO System.getenv() directly

@@ -64,6 +64,12 @@ public final class DeckGrid extends Composite<VerticalLayout> {
     @Override
     protected VerticalLayout initContent() {
         VerticalLayout grid = new VerticalLayout();
+        grid.setPadding(false);
+        grid.setSpacing(true);
+        grid.setWidthFull();
+        grid.setAlignItems(FlexComponent.Alignment.CENTER);
+        grid.addClassName(DeckConstants.DECK_CENTERED_SECTION_CLASS);
+        grid.addClassName(DeckConstants.DECK_GRID_SECTION_CLASS);
 
         createAddFlashcardButton();
         setupCallbacks();
@@ -80,7 +86,6 @@ public final class DeckGrid extends Composite<VerticalLayout> {
         // Search controls callbacks
         searchControls.setSearchCallback(this::handleSearch);
         searchControls.setFilterCallback(this::handleFilter);
-        searchControls.setResetCallback(this::handleResetProgress);
 
         // Flashcard grid callbacks
         flashcardGrid.setToggleKnownCallback(this::handleToggleKnown);
@@ -129,9 +134,20 @@ public final class DeckGrid extends Composite<VerticalLayout> {
     }
 
     /**
-     * Handles the reset progress action.
+     * Resets progress for the current deck by clearing all known/unknown statuses.
+     * This method should be called from the parent component after user confirmation.
+     *
+     * <p>The method performs the following actions:
+     * <ul>
+     *   <li>Resets all card statuses in the statistics service</li>
+     *   <li>Invalidates the grid cache to force fresh data loading</li>
+     *   <li>Refreshes status indicators for all cards in the grid</li>
+     *   <li>Reapplies current search and filter criteria</li>
+     * </ul>
+     *
+     * <p>Note: This operation has no effect if currentDeckId is null.
      */
-    private void handleResetProgress() {
+    public void resetProgress() {
         if (currentDeckId != null) {
             LOGGER.debug("Resetting progress for deck {}", currentDeckId);
 
@@ -256,31 +272,30 @@ public final class DeckGrid extends Composite<VerticalLayout> {
     }
 
     /**
-     * Creates the layout with add button, search controls, and flashcard grid.
-     * Groups buttons logically: Add card (separate row), Search/Filters (separate row).
+     * Creates the layout with search controls, add button, and flashcard grid.
+     * Groups all controls in one row: Search/Filters (left), Add card button (right).
      *
      * @param container the container to add components to
      */
     private void createLayout(final VerticalLayout container) {
-        // Row 1: Add card button (centered)
-        HorizontalLayout addCardRow = new HorizontalLayout();
-        addCardRow.setWidthFull();
-        addCardRow.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        addCardRow.setAlignItems(FlexComponent.Alignment.CENTER);
+        container.setWidthFull();
+        container.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        // Single row: Search, filter, and add button aligned to edges
+        HorizontalLayout controlsRow = new HorizontalLayout();
+        controlsRow.setWidthFull();
+        controlsRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        controlsRow.setAlignItems(FlexComponent.Alignment.CENTER);
+        controlsRow.setSpacing(true);
 
         addFlashcardButton.setWidth("auto");
-        addCardRow.add(addFlashcardButton);
 
-        // Row 2: Search and filter controls
-        HorizontalLayout searchRow = new HorizontalLayout();
-        searchRow.setWidthFull();
-        searchRow.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        searchRow.setAlignItems(FlexComponent.Alignment.CENTER);
-        searchRow.setSpacing(true);
-        searchRow.add(searchControls);
+        // Left side: Search controls (search field + checkbox)
+        // Right side: Add button
+        controlsRow.add(searchControls, addFlashcardButton);
 
-        // Add all rows
-        container.add(addCardRow, searchRow, flashcardGrid);
+        // Add row and grid
+        container.add(controlsRow, flashcardGrid);
     }
 
     /**

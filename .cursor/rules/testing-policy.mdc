@@ -1,7 +1,7 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "2.0.0"
+version: "3.0.0"
 ---
 
 # TESTING POLICY
@@ -13,92 +13,30 @@ Tests fail for a reason. Fix the reason, not the test.
 
 ## WHEN TESTS FAIL
 **✅ CORRECT**:
-1. Investigate WHY test failed
-2. Identify root cause (Docker not running, missing dependency, etc.)
+1. Investigate WHY
+2. Identify root cause
 3. ASK USER if external dependency needed
-4. FIX the cause, not the test
-5. Run tests again after fix
+4. FIX the cause
+5. Run tests again
 
-**❌ WRONG**: Delete test | Add @Disabled | Move to "templates" | Comment out
+**❌ WRONG**: Delete | @Disabled | Comment out
 
 ## COMMON FAILURES
 
-### 1. TestContainers Error
-`java.lang.IllegalStateException at DockerClientProviderStrategy.java:274`
-
+### TestContainers Error
 **Root Cause**: Docker not running  
-**Solution**: Ask user to start Docker (`docker compose up -d` or `colima start`)  
+**Solution**: Ask user to start Docker  
 **NEVER**: Delete integration tests!
 
-**Profiles Strategy**:
-- `spring.profiles.active=integration-test` for TestContainers
-- `spring.profiles.active=unit-test` for H2/in-memory
-- CI/CD can choose profile
-
-**Performance**:
-- Singleton mode: `@Container static PostgreSQLContainer` (shared)
-- Reuse: @Testcontainers on class level
-- Startup: 2-5 sec (singleton = once per suite)
-- Fast feedback: H2 in PostgreSQL mode for unit tests
-
-### 2. Missing Dependencies
-`cannot find symbol: method someMethod()`
-
+### Missing Dependencies
 **Root Cause**: Feature not implemented  
-**Solution**: 
-- If in patch → wait
-- If missing → implement or ask
-- Use `@Disabled("Waiting for feature X")` ONLY if confirmed coming
-
+**Solution**: Implement or wait  
 **NEVER**: Delete tests for unimplemented features!
 
-### 3. Database Issues
-`Connection refused to localhost:5432`
-
-**Root Cause**: Database not running  
-**Solution**: Ask user to start database (`docker compose up -d postgres`)  
-**NEVER**: Delete database integration tests!
-
-## ALLOWED MODIFICATIONS
-**✅ ALLOWED**:
-- Fix flaky tests (timing, race conditions)
-- Update assertions when requirements change
-- Refactor test code
-- Add @Disabled WITH user permission and clear reason
-- Skip tests IF user explicitly asks
-
-**❌ FORBIDDEN**:
-- Delete because fail
-- Delete because compilation errors
-- Delete because missing Docker/DB
-- Move to "templates"
-- Add @Disabled without investigation
-
 ## EXCEPTIONS FOR DELETION
-1. User explicitly requests deletion
-2. Duplicate test (same logic tested twice)
+1. User explicitly requests
+2. Duplicate test
 3. Test for removed feature
-4. Test replaced with better alternative
-
-## EXCEPTIONS FOR @Disabled
-1. Known platform bug (e.g., "JDK-12345")
-2. Temporary infrastructure issue
-3. User explicitly asks
-4. WITH clear comment (why + when to re-enable)
-
-## CHECKLIST BEFORE DELETION
-- [ ] User explicitly requested?
-- [ ] Duplicate test?
-- [ ] Tested feature removed?
-- [ ] Better replacement exists?
+4. Better replacement exists
 
 **If all NO → DON'T DELETE!**
-
-## APOLOGY PROTOCOL
-If deleted incorrectly:
-1. Admit mistake immediately
-2. Explain correct approach
-3. Help restore test
-4. Create memory
-
-**REMEMBER**: Tests are valuable. Protect them. Fix failures, don't hide them.

@@ -1,119 +1,42 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "2.2.0"
+version: "3.0.0"
 ---
 
-# JDBC - Spring Data JDBC + PostgreSQL + Java 21
+# JDBC - Spring Data JDBC + PostgreSQL
 
 ## STACK
 Spring Data JDBC (NOT JPA!) | JdbcTemplate | PostgreSQL | Records | Text Blocks
 
 ## ARCHITECTURE
-- **Adapter**: `*JdbcAdapter implements *Repository`
-- **Aggregates**: NO lazy loading
-- **Immutability**: Records for DTOs
-- **Layers**: adapter/dto/sql/exception/model
-
-## ADAPTER PATTERN
-- @Profile({"dev","prod","test"}) + @Repository
-- Static final RowMapper (thread-safe)
-- Constructor injection with JdbcTemplate
-- Implements domain repository interface
-
-## STRUCTURE
+- **Adapter**: `*JdbcAdapter implements *Repository` + @Profile({"dev","prod","test"})
 - **RowMapper**: Static final (thread-safe)
-- **Injection**: Constructor (validate null)
-- **Conversion**: Private toModel()
-- **Logging**: SLF4J
-
-## SQL
-- **Text Blocks**: Java 21 for all SQL
-- **Parameterized**: Always use `?` placeholders
-- **Queries Class**: Separate `*SqlQueries` class
-- **PostgreSQL**: `RETURNING id` (NOT LASTVAL()), `ON CONFLICT`, JSONB, arrays
-
-## DTOs
-- **Records**: Immutable
-- **5+ params**: Builder (readability)
-- **2-4 params**: Static factory (`forNew*`, `forExisting*`)
-- **Nested records**: For grouped params
-- **Compact constructor**: Technical validation only (null, blank, positive IDs)
-
-## EXCEPTIONS
-- Catch DataAccessException
-- Wrap in domain exceptions (`*Persistence`, `*Retrieval`)
-- Context in error message
-- Optional<T> for single results
+- **SQL**: Text blocks in `*SqlQueries` class
+- **DTOs**: Records with compact constructor validation (technical only)
+- **Exceptions**: Catch DataAccessException → wrap in domain exceptions
 
 ## VALIDATION LAYERS
 ```
-UI → Binder (required, format, length)
-  ↓
-Service → Business (uniqueness, authorization, state transitions)
-  ↓
+UI → Binder (format, length)
+Service → Business (uniqueness, authorization, state)
 DTO → Technical (null, blank, positive IDs)
-  ↓
-Repository → NO validation (assumes valid data)
+Repository → NO validation (assumes valid)
 ```
 
-## N+1 PREVENTION
-- **JOIN**: Fetch aggregates in single query
-- **Batch**: Use batchUpdate() for collections
-- **Profile**: EXPLAIN ANALYZE
-- **Monitor**: Query count per request (constant, not O(n))
-
 ## TRANSACTIONS
-- **@Transactional**: On Service layer ONLY (NOT Repository)
-- **readOnly=true**: For queries (optimization + safety)
-- **Isolation**: Explicit when needed (SERIALIZABLE for critical ops)
-- **Keep short**: Avoid long-running ops, I/O, API calls
-- **ALWAYS use**: Prevents connection leaks, ensures auto-rollback
+- @Transactional on Service ONLY (NOT Repository)
+- readOnly=true for queries
+- ALWAYS use (prevents connection leaks)
 
-## ANTIPATTERNS
-1. SQL injection → parameterized `?`
+## CRITICAL ANTIPATTERNS
+1. SQL injection → use `?` placeholders
 2. Instance RowMapper → static final
-3. SQL in methods → `*SqlQueries` class
-4. Raw exceptions → domain exceptions
-5. No validation → validate first
-6. String concat → text blocks
-7. LASTVAL() → RETURNING id
-8. @Autowired fields → constructor
-9. N+1 queries → JOIN or batch
-10. Missing @Transactional → connection leak
-11. Validation in Repository → should be in Service/DTO
+3. Missing @Transactional → connection leak
+4. N+1 queries → JOIN or batchUpdate()
+5. Validation in Repository → should be in Service/DTO
 
-## FLYWAY MIGRATIONS
-
-### Best Practices
-- **Naming**: `V{version}__{description}.sql` (e.g., `V1__initial_schema.sql`)
-- **Versioning**: Sequential integers (V1, V2, V3) or timestamps (V20240101)
-- **Idempotent**: Use IF NOT EXISTS, IF EXISTS for safety
-- **Baseline**: Set baseline version for existing DBs
-- **Location**: `src/main/resources/db/migration/`
-
-### Rules
-- ✅ ONE migration per change (atomic)
-- ✅ NEVER modify applied migrations
-- ✅ Test migrations on copy of production DB
-- ✅ Use repeatable migrations (R__) for views/functions
-- ❌ NO rollback scripts (Flyway doesn't support well)
-
-## JAVA 21
-Text blocks | Records | getFirst() | Pattern matching
-
-## CHECKLIST
-- [ ] @Profile + @Repository
-- [ ] Static final RowMapper
-- [ ] Constructor injection
-- [ ] SQL in *SqlQueries (text blocks)
-- [ ] Parameterized queries (?)
-- [ ] DTO records with compact constructor validation
-- [ ] Domain exceptions
-- [ ] Validation in correct layer
-- [ ] Optional<T> returns
-- [ ] @Transactional on Service
-- [ ] N+1 prevention (JOIN or batch)
-- [ ] Profile queries (EXPLAIN ANALYZE)
-- [ ] Flyway migrations properly named
-- [ ] Migrations tested before deploy
+## FLYWAY
+- Naming: `V{version}__{description}.sql`
+- NEVER modify applied migrations
+- ONE migration per change
