@@ -1,7 +1,7 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "3.0.0"
+version: "4.0.0"
 ---
 
 # PROJECT RULES - SENIOR+ LEVEL
@@ -9,169 +9,56 @@ Java 21+ | Vaadin 24+ | Spring Boot 3.x | PostgreSQL
 
 ## CORE AI BEHAVIOR
 - **Autonomous**: Complete tasks end-to-end without confirmation
-- **Documentation** - Use actual documentation by context7 mcp
-- **Enterprise Level**: Senior/enterprise level without interruptions
+- **Documentation**: Use actual documentation by context7 mcp
+- **Enterprise Level**: Senior+ without interruptions
 - **Quality First**: Apply all standards automatically
-- **Proactive**: Fix issues without user intervention
 
 ## JAVA 21+ STANDARDS
-- **Virtual Threads**: Auto-enabled in Spring Boot 3.2+ (Tomcat/Undertow). Manual use only for custom thread pools
-- **Pattern Matching**: Switch expressions, instanceof patterns, record patterns
-- **Sealed Classes**: Restricted inheritance hierarchies
-- **Records**: Immutable DTOs, responses, data carriers
-  - 5+ params → Builder
-  - 2-4 params → Static factory (forNew*, forExisting*)
-  - Compact constructor → Technical validation only (null, blank, positive IDs)
-  - Business validation → Service layer
-- **Text Blocks**: SQL queries, JSON, long strings
-- **Structured Concurrency**: Modern async patterns
-- **String Templates**: Dynamic string construction
-- **Unnamed Patterns**: Better readability
+- **Virtual Threads**: Available in Spring Boot 3.2+ (set spring.threads.virtual.enabled=true)
+- **Pattern Matching**: Switch expressions, instanceof patterns
+- **Records**: Immutable DTOs (5+ params → Builder, 2-4 → Static factory)
+- **Text Blocks**: SQL, JSON, long strings
+- **Compact Constructor**: Technical validation only (null, blank, positive IDs)
 
-## CODE QUALITY & ARCHITECTURE
-- **SOLID**: All five principles
-- **Clean Architecture**: Strict layer separation, correct dependency direction
-- **DRY**: No duplication, extract common functionality
-- **KISS > Optimization**: Simple readable code beats complex "optimized" code
-- **Constructor Injection**: Always for Spring beans (never @Autowired on fields)
+## CODE QUALITY
+- **SOLID + Clean Architecture**: Strict layer separation
+- **DRY + KISS**: Simple readable code beats complex "optimized"
+- **Constructor Injection**: Always (never @Autowired on fields)
 - **Immutable Design**: Records and final classes
-- **Functional Programming**: Stream API, Optional, functional interfaces
 
-## SECURITY (OWASP Top 10)
-- **Authorization**: Proper implementation
-- **Input Validation**: All external inputs at boundaries (UI, API, DB)
+## SECURITY (OWASP)
+- **Authorization + Input Validation**: All boundaries (UI, API, DB)
 - **SQL Injection**: Parameterized queries only
-- **XSS Prevention**: Encode all user-generated content
-- **Secure by Default**: Fail securely, deny by default
-
-## PERFORMANCE & MONITORING
-- **Caching**: @UIScope/@SessionScope with TTL + events (see @caching-strategy)
-- **Async**: Non-blocking operations (Virtual Threads auto-enabled)
-- **Database**: Optimize queries, HikariCP, batch operations (see @jdbc-best-practices)
-- **Logging**: SLF4J structured logging (see @logging-policy)
-- **Memory**: Avoid leaks, object pooling for expensive objects
-
-## TESTING
-- **Pyramid**: 70% Unit, 20% Integration, 10% E2E
-- **Coverage**: 70-80% for business logic (pragmatic)
-- **Test Data Builders**: Consistent test data
-- **Mocking**: External dependencies, not internal logic
-- **Testcontainers**: Real PostgreSQL, singleton pattern (see @testcontainers-modern)
-- **Integration Tests**: @SpringBootTest with Testcontainers (see @testing-policy)
-- **Virtual Threads**: Test concurrent operations
-- **Mutation Testing**: Optional for critical modules only
-- **Performance Testing**: Load, stress, endurance
+- **XSS**: Encode all user-generated content
 
 ## VAADIN 24+ UI/UX
 - **DSL**: Native Vaadin DSL over JavaScript
-- **TypeScript**: Custom components and type safety
-- **Component Pattern**: `extends Composite<Component>` for custom UI
-- **i18n**: Never hardcoded strings - always getTranslation() (see @vaadin-best-practices)
+- **i18n**: NEVER hardcoded strings - always getTranslation()
 - **Lumo Theme**: Lumo tokens for all styling
-- **PWA**: @PWA annotation, offline support, service worker (see @vaadin-pwa-modern)
-- **Web Components**: Export with @WebComponentExporter (see @vaadin-pwa-modern)
-- **Virtual Scrolling**: Large datasets
-- **Accessibility**: ARIA labels, proper contrast
 - **Responsive**: Mobile-first (CSS Grid, Flexbox)
+- **PWA**: @PWA annotation, offline support
 
-## SPRING BOOT 3.x + SPRING DATA JDBC
-- **Spring Boot 3.x**: Jakarta EE 10, Native/AOT compilation
-- **Virtual Threads**: Auto-enabled (property: spring.threads.virtual.enabled=true)
-- **Security**: Spring Security 6.x modern authentication
-- **Spring Data JDBC**: NOT JPA/Hibernate - JdbcTemplate and RowMapper
-- **Adapter Pattern**: `*JdbcAdapter implements *Repository` with @Profile (see @jdbc-best-practices)
-- **DTOs**: Records with static factory methods (forNew*, forExisting*)
-- **SQL**: Text blocks in `*SqlQueries` classes, parameterized only
-- **Exceptions**: Catch DataAccessException, wrap in domain exceptions
-- **PostgreSQL**: RETURNING id, ON CONFLICT, JSONB, arrays
-- **Transactions**: @Transactional on Service layer (see @jdbc-best-practices)
+## SPRING DATA JDBC (NOT JPA!)
+- **Adapter Pattern**: `*JdbcAdapter implements *Repository` + @Profile
+- **DTOs**: Records with static factory methods
+- **SQL**: Text blocks in `*SqlQueries` classes
+- **Transactions**: @Transactional on Service layer ONLY
 
-## POSTGRESQL & DATABASE
-- **Features**: JSONB, arrays, full-text search, partitioning
-- **Indexing**: B-tree, GIN, GiST, BRIN
-- **Materialized Views**: Complex aggregations and reports
-- **Foreign Data Wrappers**: External data integration
-- **Connection Pooling**: HikariCP optimal configuration
-- **Migrations**: Flyway for schema versioning
-- **Virtual Threads**: For database operations and concurrency
+## JAVADOC
+**DO**: Purpose, behavior, constraints, parameters, exceptions  
+**DON'T**: Implementation details, refactoring history, obvious descriptions
 
-## JAVADOC & COMMENTS
-**Purpose**: Document contract (WHAT), not implementation (HOW)
-
-**DO**:
-- Brief & substantive (purpose, behavior, constraints)
-- Parameters (meaning, valid values)
-- Returns (what is returned)
-- Exceptions (when and why)
-- Examples (only if complex)
-- Inline comments (when intent not obvious)
-- Section dividers (`// ==================== Public API ====================`)
-
-**DON'T**:
-- Implementation details ("uses single stream pass")
-- Refactoring history ("follows pattern established")
-- Obvious descriptions ("sets the value")
-- Principles/patterns ("DRY principle")
-- Performance claims ("optimal", "fast")
-- Technology mentions ("uses reduce instead of")
+## CRITICAL PROHIBITIONS
+- **NEVER use System.out.println** → SLF4J/Logback
+- **NEVER use System.getenv() directly** → @Value
+- **NEVER hardcoded strings in UI** → getTranslation()
+- **NEVER @Autowired on fields** → constructor injection
+- **NEVER leave dead/commented/unreachable code** → remove
+- **NEVER duplicate code** → extract common functionality
+- **NEVER @Component + extends Dialog** → singleton corruption
+- **NEVER reuse UI components** → removeAll() + add(same) = memory leak
+- **NEVER final for @Component/@Service with @Lazy** → CGLIB cannot subclass
 
 ## COMMUNICATION
 - **English Code**: All code (names, comments, messages)
 - **Russian Chat**: Chat communication
-- **Professional Tone**: All communications
-
-## CRITICAL PROHIBITIONS
-- **NEVER use System.out.println** → SLF4J/Logback
-- **NEVER use System.getenv() directly** → @Value with Spring properties (see @env-config)
-- **NEVER use FQN** → proper imports
-- **NEVER use hardcoded strings in UI** → getTranslation()
-- **NEVER use @Autowired on fields** → constructor injection
-- **NEVER use primitive types in nullable fields** → wrapper types
-- **NEVER leave dead code** → remove unused methods, classes, variables
-- **NEVER leave commented code** → delete or implement
-- **NEVER leave unreachable code** → remove or fix logic
-- **NEVER duplicate code** → extract common functionality, DRY
-- **NEVER copy-paste code** → reusable methods and utilities
-- **NEVER use magic strings** → ALL strings in constants
-- **NEVER create redundant wrappers** → remove methods that just call others
-- **NEVER create unnecessary abstractions** → no DTOs used once, no empty factories
-- **NEVER create @Component + extends Dialog** → singleton Dialog causes state corruption
-- **NEVER reuse UI components** → removeAll() + add(sameComponent) = memory leak
-- **NEVER store Vaadin Components in singleton fields** → component reuse across UI sessions
-- **NEVER use final for @Component/@Service with @Lazy or AOP** → CGLIB cannot subclass final
-
-## ERROR HANDLING
-- **Fail Fast**: Detect and handle errors early
-- **Fail Gracefully**: Meaningful error messages
-- **Fail Securely**: Don't expose sensitive information
-- **Centralized**: @ControllerAdvice for REST APIs
-- **Business Exceptions**: Domain-specific with error codes
-
-## TRANSLATION PROVIDER PATTERN
-- **UI Components**: Use getTranslation() directly (extends Component or Composite)
-- **Non-UI Classes**: Accept pre-translated String parameters (no UnaryOperator<String>)
-
-## RESULT
-With these instructions, AI will:
-- Automatically apply all rules
-- Fix all issues proactively
-- Suggest improvements constantly
-- Follow enterprise standards always
-- Work at senior+ level continuously
-- Maintain maximum efficiency
-- Use modern Java 21+ features appropriately
-- Implement Vaadin 24+ best practices automatically
-- Optimize PostgreSQL queries and performance
-- Apply Spring Boot 3.x patterns correctly
-
-## QUICK COMMANDS
-- "Apply all rules" → automatic rule application
-- "Check quality" → comprehensive quality check
-- "Optimize performance" → performance optimization
-- "Add tests" → complete test coverage
-- "Fix all issues" → proactive issue resolution
-- "Simplify code" → remove over-engineering
-- "Java 21+ features" → modern Java patterns check
-- "Vaadin standards" → Vaadin 24+ best practices validation
-- "PostgreSQL optimization" → database performance check
-- "Virtual threads" → virtual threads configuration check

@@ -132,3 +132,53 @@
 .language-switcher__combo {
 	width: 92px; /* fixed width via class instead of inline */
 }
+
+/* Deck search checkbox alignment */
+.deck-search-checkbox {
+	align-items: center;
+
+	--vaadin-field-default-width: auto;
+}
+
+.deck-search-checkbox::part(checkbox) {
+	margin-right: auto;
+	margin-left: auto;
+	align-self: center;
+}
+
+.deck-search-checkbox::part(label) {
+	align-self: center;
+}
+
+/* Deck description centering */
+.deck-description-centered {
+	width: 100%;
+	text-align: center;
+}
+
+/* Deck centered section with max-width constraint */
+.deck-centered-section {
+	width: 100%;
+	max-width: var(--app-card-max);
+}
+
+/* Common page title style */
+.page-title {
+	margin: 0;
+	color: var(--lumo-header-text-color);
+	font-size: var(--lumo-font-size-xxl);
+	font-weight: 600;
+	text-align: center;
+}
+
+/* Deck header three-column layout with centered title */
+.deck-header-three-column {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	gap: var(--lumo-space-m);
+}
+
+.deck-header-center {
+	grid-column: 2;
+	justify-self: center;
+}

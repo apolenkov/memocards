@@ -1,12 +1,12 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "1.0.0"
+version: "2.0.0"
 ---
 
-# TESTCONTAINERS - MODERN INTEGRATION TESTING
+# TESTCONTAINERS
 
-## SETUP
+## PATTERN
 ```java
 @Testcontainers
 public abstract class BaseIntegrationTest {
@@ -20,25 +20,16 @@ public abstract class BaseIntegrationTest {
     }
 }
 
-@SpringBootTest
-class MyTest extends BaseIntegrationTest { /* tests */ }
-```
-
-## PERFORMANCE
-```properties
-# testcontainers.properties
-testcontainers.reuse.enable=true  # ⚡ Reuse container (2-5s startup)
-```
-
-## ISOLATION
-```java
-@SpringBootTest
-@Transactional  // Auto-rollback after each test
+@SpringBootTest @Transactional
 class MyTest extends BaseIntegrationTest { }
 ```
 
-## ANTIPATTERNS
+## PERFORMANCE
+- testcontainers.reuse.enable=true (2-5s startup)
+- @Transactional for auto-rollback
+- Singleton container (NOT per test)
+
+## CRITICAL ANTIPATTERNS
 1. New container per test → use singleton
 2. @DirtiesContext everywhere → very slow
-3. No @Transactional → data pollution
-4. No reuse enabled → slow
+3. No reuse enabled → slow

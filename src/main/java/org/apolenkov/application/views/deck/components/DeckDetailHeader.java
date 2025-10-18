@@ -45,6 +45,7 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
 
     // Action buttons
     private final Button practiceButton;
+    private final Button resetProgressButton;
     private final Button editDeckButton;
     private final Button deleteDeckButton;
 
@@ -58,6 +59,7 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         this.descriptionSection = new Div();
         this.description = new Span();
         this.practiceButton = new Button();
+        this.resetProgressButton = new Button();
         this.editDeckButton = new Button();
         this.deleteDeckButton = new Button();
     }
@@ -68,6 +70,7 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         container.setSpacing(true);
         container.setPadding(false);
         container.setWidthFull();
+        container.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Header row: [← Back] [Title + Stats]
         HorizontalLayout headerRow = createHeaderRow();
@@ -84,6 +87,7 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
 
     /**
      * Creates header row with back button and title.
+     * Uses CSS Grid for proper three-column layout with centered title.
      *
      * @return configured header row
      */
@@ -91,20 +95,27 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         HorizontalLayout header = new HorizontalLayout();
         header.setWidthFull();
         header.setAlignItems(FlexComponent.Alignment.CENTER);
-        header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         header.addClassName(DeckConstants.DECK_VIEW_HEADER_CLASS);
+        header.addClassName(DeckConstants.DECK_HEADER_THREE_COLUMN_CLASS);
 
-        // Left section: Back button + Title + Stats
+        // Left section: Back button
         HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
         leftSection.addClassName(DeckConstants.DECK_VIEW_TITLE_SECTION_CLASS);
+
+        // Center section: Title + Stats (will be centered via CSS)
+        HorizontalLayout centerSection = new HorizontalLayout();
+        centerSection.setAlignItems(FlexComponent.Alignment.CENTER);
+        centerSection.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        centerSection.addClassName(DeckConstants.DECK_HEADER_CENTER_CLASS);
 
         configureBackButton();
         configureTitle();
         configureStats();
 
-        leftSection.add(backButton, deckTitle, deckStats);
-        header.add(leftSection);
+        leftSection.add(backButton);
+        centerSection.add(deckTitle, deckStats);
+        header.add(leftSection, centerSection);
 
         return header;
     }
@@ -117,8 +128,10 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
     private Div createDescriptionSection() {
         descriptionSection.addClassName(DeckConstants.DECK_VIEW_INFO_SECTION_CLASS);
         descriptionSection.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
+        descriptionSection.addClassName(DeckConstants.DECK_CENTERED_SECTION_CLASS);
 
         description.addClassName(DeckConstants.DECK_VIEW_DESCRIPTION_CLASS);
+        description.addClassName(DeckConstants.DECK_DESCRIPTION_CENTERED_CLASS);
         description.setText(getTranslation(DeckConstants.DECK_DESCRIPTION_LOADING));
 
         descriptionSection.add(description);
@@ -126,22 +139,37 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
     }
 
     /**
-     * Creates actions row with practice, edit, and delete buttons.
+     * Creates actions row with practice, reset progress, edit, and delete buttons.
+     * Buttons are aligned to edges: left side (practice, reset) and right side (edit, delete).
      *
      * @return configured actions row
      */
     private HorizontalLayout createActionsRow() {
         HorizontalLayout actions = new HorizontalLayout();
         actions.setWidthFull();
-        actions.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        actions.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         actions.setAlignItems(FlexComponent.Alignment.CENTER);
         actions.addClassName(DeckConstants.DECK_VIEW_ACTIONS_CLASS);
+        actions.addClassName(DeckConstants.DECK_CENTERED_SECTION_CLASS);
 
         configurePracticeButton();
+        configureResetProgressButton();
         configureEditDeckButton();
         configureDeleteDeckButton();
 
-        actions.add(practiceButton, editDeckButton, deleteDeckButton);
+        // Left side: Practice and Reset buttons
+        HorizontalLayout leftButtons = new HorizontalLayout();
+        leftButtons.setSpacing(true);
+        leftButtons.setAlignItems(FlexComponent.Alignment.CENTER);
+        leftButtons.add(practiceButton, resetProgressButton);
+
+        // Right side: Edit and Delete buttons
+        HorizontalLayout rightButtons = new HorizontalLayout();
+        rightButtons.setSpacing(true);
+        rightButtons.setAlignItems(FlexComponent.Alignment.CENTER);
+        rightButtons.add(editDeckButton, deleteDeckButton);
+
+        actions.add(leftButtons, rightButtons);
         return actions;
     }
 
@@ -161,7 +189,7 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
      */
     private void configureTitle() {
         deckTitle.setText(getTranslation(DeckConstants.DECK_LOADING));
-        deckTitle.addClassName(DeckConstants.DECK_VIEW_TITLE_CLASS);
+        deckTitle.addClassName(DeckConstants.PAGE_TITLE_CLASS);
     }
 
     /**
@@ -178,6 +206,15 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         practiceButton.setText(getTranslation(DeckConstants.DECK_START_SESSION));
         practiceButton.setIcon(VaadinIcon.PLAY.create());
         practiceButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+    }
+
+    /**
+     * Configures the reset progress button.
+     */
+    private void configureResetProgressButton() {
+        resetProgressButton.setText(getTranslation(DeckConstants.DECK_RESET_PROGRESS));
+        resetProgressButton.setIcon(VaadinIcon.ROTATE_LEFT.create());
+        resetProgressButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
     }
 
     /**
@@ -265,6 +302,19 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
     public Registration addDeleteDeckClickListener(final ComponentEventListener<ClickEvent<Button>> listener) {
         return deleteDeckButton.addClickListener(e -> {
             LOGGER.debug("Delete deck button clicked");
+            listener.onComponentEvent(e);
+        });
+    }
+
+    /**
+     * Adds a listener for reset progress button clicks.
+     *
+     * @param listener the event listener for reset progress button clicks
+     * @return registration for removing the listener
+     */
+    public Registration addResetProgressClickListener(final ComponentEventListener<ClickEvent<Button>> listener) {
+        return resetProgressButton.addClickListener(e -> {
+            LOGGER.debug("Reset progress button clicked");
             listener.onComponentEvent(e);
         });
     }

@@ -1,26 +1,21 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "2.0.0"
+version: "3.0.0"
 ---
 
 # LOGGING POLICY
 
-## STACK
-SLF4J + Logback | MDC | Structured Logging | Audit Trail
-
-## LOG LEVELS
-- **DEBUG**: Technical details (cache hits, query counts, SQL, internal state)
-- **INFO**: Business events (user actions, service init, background jobs)
-- **WARN**: Recoverable problems (validation failures, not found, fallback, retryable)
-- **ERROR**: System failures (DB connection failures, unexpected exceptions, corruption)
-- **AUDIT**: Security & compliance (auth, authorization, data modifications, violations)
+## LEVELS
+- **DEBUG**: Technical (cache, SQL, internal state)
+- **INFO**: Business events (user actions, service init)
+- **WARN**: Recoverable problems (validation fail, not found)
+- **ERROR**: System failures (DB connection, exceptions)
+- **AUDIT**: Security (auth, data modifications)
 
 ## STRUCTURED LOGGING
-**✅ CORRECT**: `LOGGER.info("Deck: id={}, title='{}'", id, title);`  
-**❌ WRONG**: `LOGGER.info("Deck: " + id);` // String concatenation
-
-**Benefits**: Performance (lazy evaluation), structured (parseable), searchable
+**✅**: `LOGGER.info("Deck: id={}, title='{}'", id, title);`  
+**❌**: `LOGGER.info("Deck: " + id);` // String concatenation
 
 ## LOGGERS
 ```java
@@ -28,92 +23,19 @@ private static final Logger LOGGER = LoggerFactory.getLogger(MyClass.class);
 private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
 ```
 
-**AUDIT_LOGGER**: Security events, data modifications (Service layer)  
-**LOGGER**: Technical events (Repository, UI)
+**AUDIT_LOGGER**: Service layer (security, CRUD)  
+**LOGGER**: Repository/UI (technical)
 
-**Configuration**: AUDIT_LOGGER writes to both audit.log + application.log (additivity)
+**NEVER duplicate logs** - AUDIT_LOGGER writes to both files
 
-## PLACEMENT
-- **Service**: INFO + AUDIT_LOGGER
-- **Repository**: DEBUG only
-- **UI**: DEBUG only, minimal
-
-## RULES
-- **Parameterized**: Use `{}` placeholders (never string concat)
-- **Context**: Always include IDs, counts, relevant params
-- **Exception**: As last parameter for stack trace
-- **Performance**: NO logging in loops → log summary
-- **Expensive ops**: `if (LOGGER.isDebugEnabled()) { ... }` or lambda `() -> expensiveCall()`
-
-## MDC (MAPPED DIAGNOSTIC CONTEXT)
-Auto-attaches requestId/userId to ALL logs via filter.
-
-**Pattern**: `[%X{requestId:-}] [%X{userId:-}] - %msg`
-
-**Rules**:
-- ✅ NEVER call `MDC.put(requestId/userId)` manually (filter handles it)
+## MDC (Mapped Diagnostic Context)
+- ✅ NEVER call MDC.put(requestId/userId) manually (filter handles it)
 - ✅ ALWAYS cleanup custom fields in finally
-- ❌ DON'T use MDC for business logic (logging only)
+- Pattern: `[%X{requestId:-}] [%X{userId:-}] - %msg`
 
-**Custom Fields**:
-```java
-try {
-    MDC.put("key", value);
-    // work
-} finally {
-    MDC.remove("key"); // MANDATORY
-}
-```
-
-**Async**:
-```java
-Map<String, String> ctx = MDC.getCopyOfContextMap();
-executor.submit(() -> {
-    MDC.setContextMap(ctx);
-    try { /* work */ } finally { MDC.clear(); }
-});
-```
-
-## AUDIT_LOGGER vs LOGGER
-**NEVER duplicate logs!** AUDIT_LOGGER already writes to both files.
-
-**Use ONLY AUDIT_LOGGER for**:
-- Authentication/authorization
-- Data modifications (CRUD)
-- Security violations
-- User actions
-
-**Use ONLY LOGGER for**:
-- Technical details
-- Performance metrics
-- Cache operations
-- Repository operations
-
-**Use both ONLY when**:
-- Different levels: `AUDIT.info` + `LOGGER.debug`
-- Different context: `AUDIT.error("WHO: username={}")` + `LOGGER.error("WHAT", exception)`
-
-## ANTIPATTERNS
-1. String concatenation → use `{}` placeholders
-2. No context → include IDs
-3. Logging in loops → summary only
-4. Sensitive data → NEVER log passwords/tokens/full User
-5. Wrong level → DEBUG in repo, AUDIT in service
-6. No exception param → missing stack trace
-7. AUDIT in UI → prefer service (except UI-initiated security actions)
-8. Manual MDC.put(requestId/userId) → filter handles it
-9. Custom MDC without cleanup → memory leak
-10. Logging requestId manually → redundant (MDC adds it)
-11. AUDIT_LOGGER + LOGGER duplication → use single logger
-
-## CHECKLIST
-- [ ] Parameterized logging (no +)
-- [ ] Context (IDs, params)
-- [ ] AUDIT_LOGGER in service
-- [ ] DEBUG only in repo/UI
-- [ ] NO sensitive data
-- [ ] Exception as last param
-- [ ] NO logging in loops
-- [ ] MDC fields in logback pattern
-- [ ] Custom MDC cleanup in finally
-- [ ] NO AUDIT + LOGGER duplication
+## CRITICAL ANTIPATTERNS
+1. String concatenation → use `{}`
+2. Logging in loops → log summary
+3. NEVER log passwords/tokens/full User
+4. Manual MDC.put(requestId/userId) → filter handles it
+5. AUDIT + LOGGER duplication → use single logger

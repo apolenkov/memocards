@@ -156,6 +156,14 @@ public final class DeckConstants {
     public static final String DECKS_VIEW_CONTENT_CLASS = "decks-view__content";
     public static final String GLASS_MD_CLASS = "glass-md";
 
+    // Common component CSS classes
+    public static final String PAGE_TITLE_CLASS = "page-title";
+    public static final String DECK_CENTERED_SECTION_CLASS = "deck-centered-section";
+    public static final String DECK_HEADER_THREE_COLUMN_CLASS = "deck-header-three-column";
+    public static final String DECK_HEADER_CENTER_CLASS = "deck-header-center";
+    public static final String DECK_DESCRIPTION_CENTERED_CLASS = "deck-description-centered";
+    public static final String DECK_SEARCH_CHECKBOX_CLASS = "deck-search-checkbox";
+
     // Deck toolbar CSS classes
     public static final String DECK_TOOLBAR_SEARCH_CLASS = "deck-toolbar__search";
     public static final String DECK_TOOLBAR_ADD_BUTTON_CLASS = "deck-toolbar__add-button";
@@ -174,6 +182,7 @@ public final class DeckConstants {
     // Grid CSS classes
     public static final String ACTIONS_LAYOUT_CLASS = "actions-layout";
     public static final String KNOWN_STATUS_CLASS = "known-status";
+    public static final String DECK_GRID_SECTION_CLASS = "deck-grid-section";
 
     // HTML attributes
     public static final String TITLE_PROPERTY = "title";

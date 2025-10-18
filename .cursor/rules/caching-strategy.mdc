@@ -1,7 +1,7 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "2.0.0"
+version: "3.0.0"
 ---
 
 # CACHING STRATEGY
@@ -9,7 +9,7 @@ version: "2.0.0"
 ## STACK
 @UIScope/@SessionScope | Spring Events | TTL | ConcurrentHashMap | AtomicLong
 
-## PATTERN
+## CORE PATTERN
 ```java
 @Component @UIScope
 public class EntityCache<T> {
@@ -21,8 +21,7 @@ public class EntityCache<T> {
     public T get(Long key, Supplier<T> loader) {
         Cached<T> cached = cache.get(key);
         if (cached != null && cached.isValid(ttlMs)) {
-            hitCount.incrementAndGet();
-            return cached.data;
+            hitCount.incrementAndGet(); return cached.data;
         }
         missCount.incrementAndGet();
         T data = loader.get();
@@ -32,100 +31,23 @@ public class EntityCache<T> {
     }
     
     @EventListener void onModified(EntityEvent e) { invalidate(e.getId()); }
-    
     record Cached<T>(T data, Instant at) { 
         boolean isValid(long ttl) { return Instant.now().isBefore(at.plusMillis(ttl)); }
     }
-    
-    public CacheStats getStats() {
-        return new CacheStats(hitCount.get(), missCount.get(), cache.size());
-    }
-    
-    public void logStats() {
-        if (LOGGER.isDebugEnabled()) {
-            long total = hitCount.get() + missCount.get();
-            String hitRate = total > 0 ? String.format("%.1f%%", 
-                (double) hitCount.get() * 100 / total) : "N/A";
-            LOGGER.debug("Cache stats: hits={}, misses={}, hitRate={}, size={}", 
-                hitCount.get(), missCount.get(), hitRate, cache.size());
-        }
-    }
 }
 ```
 
-## STRUCTURE
-- **@UIScope** (single tab) or **@SessionScope** (multi-tab shared)
-- **ConcurrentHashMap** for thread-safety
-- **@Value** for TTL and max-size (NO hardcoded values)
-- **Bounded cache** with LRU eviction when full
-- **AtomicLong** for hit/miss tracking
-- **CacheStats record** for testing
+## RULES
+- **Scope**: @UIScope (single tab) | @SessionScope (multi-tab shared)
+- **Config**: @Value with defaults (NO hardcoded values)
+- **Invalidation**: @EventListener (primary) + TTL 1-5min (backup)
+- **Metrics**: CacheStats record for testing | logStats() for debugging
+- **Logging**: DEBUG level with `if (LOGGER.isDebugEnabled())` wrap
+- **Bounded**: LRU eviction when cache.size() >= maxSize
 
-## INVALIDATION
-- **Primary**: @EventListener + publish events after save/delete
-- **Backup**: TTL (1-5 min)
-- **Manual**: invalidate() method
-
-## LOGGING
-- **DEBUG level**: "Cache stats: hits={}, misses={}, hitRate={}, size={}"
-- **Never in loops**: use counters + periodic logStats()
-- **Call via**: @Scheduled or manual (NOT in get())
-- **Performance**: wrap with `if (LOGGER.isDebugEnabled())`
-
-## CONFIG
-```yaml
-app.cache.entity:
-  ttl-ms: ${CACHE_TTL_MS:60000}
-  max-size: ${CACHE_MAX_SIZE:1000}
-```
-
-## METRICS
-**For @ApplicationScope caches ONLY** (Caffeine, HikariCP):
-- Long-lived, cross-user caches
-- Historical aggregation needed
-
-**For @UIScope/@SessionScope use**:
-- CacheStats record for testing
-- logStats() for debugging (no Micrometer overhead)
-
-**Testing**:
-```java
-@BeforeEach void setUp() {
-    ReflectionTestUtils.setField(cache, "ttlMs", 60000L);
-    ReflectionTestUtils.setField(cache, "maxSize", 1000);
-}
-
-@Test void shouldTrackHitsAndMisses() {
-    cache.get(key, () -> data);  // MISS
-    assertThat(cache.getStats().misses()).isEqualTo(1);
-    cache.get(key, Set::of);      // HIT
-    assertThat(cache.getStats().hits()).isEqualTo(1);
-}
-```
-
-## ANTIPATTERNS
-1. Static cache → memory leak, not thread-safe
-2. TTL only → stale after edits
-3. Events only → stale if forget invalidate
-4. Mutable data → corruption
-5. HashMap → not thread-safe
-6. Hardcoded TTL/max-size → inflexible
-7. Logging in get() → performance overhead
-8. @UIScope for multi-tab → inconsistency (use @SessionScope)
-9. Unbounded cache → memory leak
-10. List.copyOf() in generic cache → compilation error (ensure immutability in loader)
-
-## CHECKLIST
-- [ ] @UIScope/@SessionScope (NEVER static)
-- [ ] @Value for TTL and max-size with defaults
-- [ ] TTL + @EventListener (dual invalidation)
-- [ ] Immutability via loader (return immutable objects)
-- [ ] ConcurrentHashMap
-- [ ] AtomicLong counters
-- [ ] logStats() with isDebugEnabled() check
-- [ ] Eviction when full
-- [ ] Service publishes events after CRUD
-- [ ] CacheStats record for testing
-- [ ] NO Micrometer for @UIScope
-- [ ] Unit tests use ReflectionTestUtils
-- [ ] Method references (Set::of) preferred
+## CRITICAL ANTIPATTERNS
+1. Static cache → memory leak
+2. TTL only (no events) → stale after edits
+3. Unbounded cache → memory leak
+4. Logging in get() → performance overhead
+5. List.copyOf() in generic cache → compilation error
