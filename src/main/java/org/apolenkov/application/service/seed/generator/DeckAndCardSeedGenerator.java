@@ -70,7 +70,7 @@ public class DeckAndCardSeedGenerator {
      * @param batchSize batch size for user chunks
      * @return array with [totalDecks, totalCards] counts
      */
-    @SuppressWarnings("java:S2139")
+    @SuppressWarnings("java:S2139") // Audit requires logging before rethrow
     public int[] generateDecksAndCards(
             final List<User> users, final int decksPerUser, final int cardsPerDeck, final int batchSize) {
         LOGGER.info("Generating decks and flashcards using Virtual Threads...");

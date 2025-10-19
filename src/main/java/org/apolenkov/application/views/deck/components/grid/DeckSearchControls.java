@@ -2,36 +2,34 @@ package org.apolenkov.application.views.deck.components.grid;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.DetachEvent;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.shared.Registration;
+import java.util.Locale;
 import java.util.function.Consumer;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 
 /**
  * Component for search and filter controls in the deck grid.
- * Provides search field and hide known checkbox.
+ * Provides search field, filter combobox, and add flashcard button.
  */
 public final class DeckSearchControls extends Composite<HorizontalLayout> {
 
     // UI Components
     private final TextField searchField;
-    private final Checkbox hideKnownCheckbox;
+    private final DeckToolbarFilter filterComboBox;
 
     // Configuration
     private final int searchDebounceMs;
 
     // Callbacks
     private transient Consumer<String> searchCallback;
-    private transient Consumer<Boolean> filterCallback;
 
     // Event Registrations
     private Registration searchFieldListenerRegistration;
-    private Registration hideKnownCheckboxListenerRegistration;
 
     /**
      * Creates a new DeckSearchControls component.
@@ -40,7 +38,7 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
      */
     public DeckSearchControls(final int searchDebounceTimeout) {
         this.searchField = new TextField();
-        this.hideKnownCheckbox = new Checkbox();
+        this.filterComboBox = new DeckToolbarFilter();
         this.searchDebounceMs = searchDebounceTimeout;
     }
 
@@ -49,7 +47,6 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
         HorizontalLayout controls = new HorizontalLayout();
 
         configureSearchField();
-        configureHideKnownCheckbox();
         createLayout(controls);
 
         return controls;
@@ -65,6 +62,8 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.TIMEOUT);
         searchField.setValueChangeTimeout(searchDebounceMs);
+        searchField.setWidthFull();
+        searchField.addClassName(DeckConstants.DECK_SEARCH_FIELD_CLASS);
 
         searchFieldListenerRegistration = searchField.addValueChangeListener(e -> {
             if (searchCallback != null) {
@@ -74,36 +73,31 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
     }
 
     /**
-     * Configures the hide known checkbox with proper styling.
-     */
-    private void configureHideKnownCheckbox() {
-        hideKnownCheckbox.setLabel(getTranslation(DeckConstants.DECK_HIDE_KNOWN));
-        hideKnownCheckbox.setValue(true);
-        hideKnownCheckbox.addClassName(DeckConstants.DECK_SEARCH_CHECKBOX_CLASS);
-
-        hideKnownCheckboxListenerRegistration = hideKnownCheckbox.addValueChangeListener(e -> {
-            if (filterCallback != null) {
-                filterCallback.accept(e.getValue());
-            }
-        });
-    }
-
-    /**
      * Creates the search controls layout.
-     * Groups search and filters in a compact layout.
+     * Layout: [Search Field] [Filter ComboBox]
      *
      * @param container the container to configure and populate
      */
     private void createLayout(final HorizontalLayout container) {
-        // Configure container layout
+        // Configure container layout - same structure as DeckToolbar
+        container.setWidthFull();
         container.setAlignItems(FlexComponent.Alignment.CENTER);
         container.setSpacing(true);
+        container.addClassName(DeckConstants.DECK_TOOLBAR_CLASS);
 
-        // Add search field with fixed width
-        searchField.setWidth("250px");
+        // Create inner layout for proper spacing like in DecksView
+        HorizontalLayout innerLayout = new HorizontalLayout();
+        innerLayout.setWidthFull();
+        innerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        innerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        innerLayout.setSpacing(true);
 
-        // Add components directly to container
-        container.add(searchField, hideKnownCheckbox);
+        // Search field grows
+        searchField.addClassName(DeckConstants.DECK_TOOLBAR_SEARCH_CLASS);
+
+        // Layout: Search Field + Filter ComboBox only
+        innerLayout.add(searchField, filterComboBox);
+        container.add(innerLayout);
     }
 
     /**
@@ -116,32 +110,26 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
     }
 
     /**
-     * Sets the filter callback.
-     *
-     * @param callback the callback to execute when filter value changes
-     */
-    public void setFilterCallback(final Consumer<Boolean> callback) {
-        this.filterCallback = callback;
-    }
-
-    /**
      * Gets the current search query.
      *
      * @return the search query
      */
     public String getSearchQuery() {
         return searchField.getValue() != null
-                ? searchField.getValue().toLowerCase().trim()
+                ? searchField.getValue().toLowerCase(Locale.ROOT).trim()
                 : "";
     }
 
     /**
-     * Gets the current hide known filter value.
+     * Adds a listener for filter value changes.
      *
-     * @return true if hiding known cards
+     * @param callback the callback to execute when filter value changes
+     * @return registration for removing the listener
      */
-    public boolean isHideKnown() {
-        return Boolean.TRUE.equals(hideKnownCheckbox.getValue());
+    public Registration addFilterChangeListener(
+            final java.util.function.Consumer<org.apolenkov.application.views.deck.components.grid.FilterOption>
+                    callback) {
+        return filterComboBox.addFilterChangeListener(callback);
     }
 
     /**
@@ -155,10 +143,6 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
         if (searchFieldListenerRegistration != null) {
             searchFieldListenerRegistration.remove();
             searchFieldListenerRegistration = null;
-        }
-        if (hideKnownCheckboxListenerRegistration != null) {
-            hideKnownCheckboxListenerRegistration.remove();
-            hideKnownCheckboxListenerRegistration = null;
         }
         super.onDetach(detachEvent);
     }

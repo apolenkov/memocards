@@ -28,54 +28,6 @@
 	gap: var(--lumo-space-xs);
 }
 
-/* Button variants */
-.btn-primary {
-	padding: var(--lumo-space-s) var(--lumo-space-m);
-	border: none;
-	border-radius: var(--lumo-border-radius-m);
-	background-color: var(--lumo-primary-color);
-	color: var(--lumo-primary-contrast-color);
-	font-weight: 500;
-	transition: all var(--lumo-transition-duration) ease;
-}
-
-.btn-primary:hover {
-	background-color: var(--lumo-primary-color-10pct);
-	transform: translateY(-1px);
-	box-shadow: var(--lumo-box-shadow-s);
-}
-
-.btn-secondary {
-	padding: var(--lumo-space-s) var(--lumo-space-m);
-	border: 1px solid var(--lumo-contrast-20pct);
-	border-radius: var(--lumo-border-radius-m);
-	background-color: var(--lumo-contrast-5pct);
-	color: var(--lumo-primary-text-color);
-	font-weight: 500;
-	transition: all var(--lumo-transition-duration) ease;
-}
-
-.btn-secondary:hover {
-	border-color: var(--lumo-contrast-30pct);
-	background-color: var(--lumo-contrast-10pct);
-}
-
-/* Form elements (deprecated aliases) */
-.form-field {
-	margin-bottom: var(--lumo-space-m);
-}
-
-.form-field__label {
-	color: var(--lumo-primary-text-color);
-	font-weight: 500;
-}
-
-.form-field__input {
-	width: 100%;
-}
-
-/* Use .form-control__* from form-controls.css for new code */
-
 /* Dialog sizing via tokens */
 .dialog-sm::part(overlay) { 
     width: var(--app-dialog-sm); 
@@ -94,35 +46,6 @@
 
 .text-area--md { max-height: 150px; }
 
-/* Layout utilities */
-.flex-center {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.flex-between {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
-
-.text-center {
-	text-align: center;
-}
-
-.text-primary {
-	color: var(--lumo-primary-color);
-}
-
-.text-secondary {
-	color: var(--lumo-secondary-text-color);
-}
-
-.text-muted {
-	color: var(--lumo-tertiary-text-color);
-}
-
 /* Language switcher */
 .language-switcher__label {
 	color: var(--lumo-secondary-text-color);
@@ -130,7 +53,7 @@
 }
 
 .language-switcher__combo {
-	width: 92px; /* fixed width via class instead of inline */
+	width: var(--app-language-switcher-width);
 }
 
 /* Deck search checkbox alignment */
@@ -160,6 +83,9 @@
 .deck-centered-section {
 	width: 100%;
 	max-width: var(--app-card-max);
+	margin-right: auto;
+	margin-left: auto;
+	box-sizing: border-box;
 }
 
 /* Common page title style */
@@ -180,5 +106,14 @@
 
 .deck-header-center {
 	grid-column: 2;
-	justify-self: center;
+	justify-self: start;
+}
+
+/* Deck Actions Menu - spacing between icons and text */
+[theme="deck-actions-menu-theme"] vaadin-context-menu-item {
+	padding: var(--lumo-space-s) var(--lumo-space-m);
+}
+
+[theme="deck-actions-menu-theme"] vaadin-context-menu-item vaadin-icon {
+	margin-inline-end: var(--lumo-space-s);
 }

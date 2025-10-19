@@ -28,8 +28,6 @@
     box-sizing: border-box; 
 }
 
-.practice-progress.surface-panel { /* visuals moved to parent section */ }
-
 .practice-progress__text {
     display: inline-block;
     padding: var(--lumo-space-l) var(--lumo-space-m);
@@ -51,8 +49,6 @@
     box-sizing: border-box;
 }
 
-.practice-card-container.surface-card { /* visuals moved to parent section */ }
-
 .practice-card-content {
     text-align: center;
 }
@@ -61,12 +57,25 @@
     margin: 0;
 }
 
-/* Practice Congratulations Component */
+/* Practice Congratulations Component - using Lumo tokens directly */
 .practice-congratulations {
-    /* Using Lumo tokens directly */
+    width: 100%;
+    text-align: center;
 }
 
 /* Celebration Icon */
+.celebration-icon-container {
+    position: relative;
+    margin-bottom: var(--lumo-space-m);
+}
+
+.trophy-icon {
+    display: inline-block;
+    font-size: 4rem;
+    animation: celebration-bounce 2s ease-in-out infinite;
+    filter: drop-shadow(0 4px 8px rgb(255 215 0 / 30%));
+}
+
 .practice-congratulations .celebration-icon-container {
     position: relative;
     margin-bottom: var(--lumo-space-m);
@@ -94,6 +103,13 @@
 }
 
 /* Title Styling */
+.congratulations-title {
+    margin: var(--lumo-space-s) 0 var(--lumo-space-m) 0;
+    color: var(--lumo-primary-color);
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
 .practice-congratulations .congratulations-title {
     margin: var(--lumo-space-s) 0 var(--lumo-space-m) 0;
     color: var(--lumo-primary-color);
@@ -102,6 +118,16 @@
 }
 
 /* Message Styling */
+.congratulations-message {
+    max-width: 400px;
+    margin: 0 0 var(--lumo-space-m) 0;
+    margin-right: auto;
+    margin-left: auto;
+    color: var(--lumo-primary-text-color);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
 .practice-congratulations .congratulations-message {
     max-width: 400px;
     margin: 0 0 var(--lumo-space-m) 0;
@@ -112,9 +138,31 @@
     line-height: 1.6;
 }
 
+/* Dialog variant */
+.congratulations-dialog {
+    /* Dialog-specific styling */
+}
 
+.congratulations-layout {
+    padding: var(--lumo-space-l);
+}
+
+/* Badge styling */
+.success-badge {
+    display: inline-block;
+    padding: var(--lumo-space-xs) var(--lumo-space-s);
+    border-radius: var(--lumo-border-radius-s);
+    background-color: var(--lumo-success-color-10pct);
+    color: var(--lumo-success-color);
+    font-size: var(--lumo-font-size-s);
+    font-weight: 500;
+}
 
 /* Action Button - use default Vaadin button styling */
+.action-button {
+    margin-top: var(--lumo-space-m);
+}
+
 .practice-congratulations .action-button {
     margin-top: var(--lumo-space-m);
 }

@@ -30,9 +30,6 @@
 @import './views/register-view.css';
 @import './views/public-layout.css';
 @import './views/deck-create-view.css';
-@import './views/deckedit-view.css';
-@import './views/decklist-view.css';
-@import './views/deckview-view.css';
 
 /* Import utility styles */
 
@@ -45,25 +42,13 @@
 @import './main-layout.css';
 @import './auth-forms.css';
 
-/* Background root stays behind all content */
-.animated-background {
-    position: fixed;
-    inset: 0;
-    z-index: 0; /* behind content but above page background */
-    pointer-events: none;
-}
-
-/* Ensure main content is always above background */
+/* Background and content layers */
 .app-content {
     position: relative;
     z-index: 1;
 }
 
-/* Standard Lumo theme usage - no custom CSS needed */
-
-/* Removed legacy float keyframes */
-
-/* Triangles layer replacing previous floating icons */
+/* Triangles layer for decorative background */
 .triangles-layer {
     position: fixed;
     z-index: 0;
@@ -116,10 +101,6 @@
     border-bottom-color: var(--lumo-tint-10pct); 
 }
 
-.bg-static .triangle { transition: none; }
-
-/* Removed legacy floating elements responsive tuning */
-
 /* User Profile Edit Dialog Avatar Styles */
 .user-profile-avatar {
     transition: all var(--lumo-transition-duration) ease-in-out;
@@ -131,24 +112,11 @@
 }
 
 /* Background using Lumo tokens */
-body {
+body,
+html {
     min-height: 100vh;
     margin: 0;
     padding: 0;
-    background: url('./assets/bg-custom-dark.webp') no-repeat center center
-    fixed;
-    background-size: cover;
-}
-
-html {
-    background: url('./assets/bg-custom-dark.webp') no-repeat center center
-    fixed;
-    background-size: cover;
-}
-
-.app {
-    min-height: 100vh;
-    background: url('./assets/bg-custom-dark.webp') no-repeat center center
-    fixed;
+    background: url('./assets/bg-custom-dark.webp') no-repeat center center fixed;
     background-size: cover;
 }

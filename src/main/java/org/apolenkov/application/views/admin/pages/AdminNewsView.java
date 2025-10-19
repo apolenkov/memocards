@@ -20,6 +20,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.config.ui.UIConfig;
@@ -245,7 +246,7 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
             return allNews;
         }
 
-        String lowerQuery = query.toLowerCase();
+        String lowerQuery = query.toLowerCase(Locale.ROOT);
         return allNews.stream().filter(news -> matchesQuery(news, lowerQuery)).toList();
     }
 
@@ -257,9 +258,9 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
      * @return true if matches
      */
     private boolean matchesQuery(final News news, final String lowerQuery) {
-        return news.getTitle().toLowerCase().contains(lowerQuery)
-                || news.getContent().toLowerCase().contains(lowerQuery)
-                || news.getAuthor().toLowerCase().contains(lowerQuery);
+        return news.getTitle().toLowerCase(Locale.ROOT).contains(lowerQuery)
+                || news.getContent().toLowerCase(Locale.ROOT).contains(lowerQuery)
+                || news.getAuthor().toLowerCase(Locale.ROOT).contains(lowerQuery);
     }
 
     /**

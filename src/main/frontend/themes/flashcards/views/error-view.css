@@ -81,3 +81,34 @@
     color: var(--lumo-tertiary-text-color);
     font-size: var(--lumo-font-size-xs);
 }
+
+.error-dev__id {
+    display: block;
+    margin-top: var(--lumo-space-xs);
+    color: var(--lumo-tertiary-text-color);
+    font-size: var(--lumo-font-size-xs);
+}
+
+/* Entity error styles */
+.entity-error__section {
+    padding: var(--lumo-space-l);
+}
+
+.entity-error__title {
+    margin: 0 0 var(--lumo-space-m) 0;
+    color: var(--lumo-error-color);
+    text-align: center;
+}
+
+.entity-error__description {
+    margin-bottom: var(--lumo-space-m);
+    color: var(--lumo-secondary-text-color);
+    text-align: center;
+}
+
+.entity-error__suggestion {
+    margin-bottom: var(--lumo-space-l);
+    color: var(--lumo-tertiary-text-color);
+    font-size: var(--lumo-font-size-s);
+    text-align: center;
+}

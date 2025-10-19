@@ -119,33 +119,6 @@ public final class ButtonHelper {
     }
 
     /**
-     * Creates an icon-only button for grid actions and toolbars.
-     * Perfect for compact UI elements where space is limited.
-     *
-     * @param icon the Vaadin icon to display (non-null)
-     * @param clickListener the event handler for button clicks (non-null)
-     * @param variants the button variants to apply
-     * @return a configured icon-only button
-     * @throws IllegalArgumentException if icon or clickListener is null
-     */
-    public static Button createIconButton(
-            final VaadinIcon icon,
-            final ComponentEventListener<ClickEvent<Button>> clickListener,
-            final ButtonVariant... variants) {
-        if (icon == null) {
-            throw new IllegalArgumentException("Icon cannot be null");
-        }
-        if (clickListener == null) {
-            throw new IllegalArgumentException("Click listener cannot be null");
-        }
-        Button button = new Button(icon.create(), clickListener);
-        if (variants.length > 0) {
-            button.addThemeVariants(variants);
-        }
-        return button;
-    }
-
-    /**
      * Creates an icon-only button without click listener.
      * Useful when click listener needs to be added later.
      *

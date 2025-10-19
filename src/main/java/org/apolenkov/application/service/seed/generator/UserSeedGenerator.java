@@ -3,6 +3,7 @@ package org.apolenkov.application.service.seed.generator;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import org.apolenkov.application.model.User;
 import org.slf4j.Logger;
@@ -89,7 +90,8 @@ public class UserSeedGenerator {
     private User createTestUser(final int index, final String cachedPasswordHash) {
         String firstName = USER_NAMES[random.nextInt(USER_NAMES.length)];
         String lastName = LAST_NAMES[random.nextInt(LAST_NAMES.length)];
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "." + index + "@example.com";
+        String email = firstName.toLowerCase(Locale.ROOT) + "." + lastName.toLowerCase(Locale.ROOT) + "." + index
+                + "@example.com";
         String name = firstName + " " + lastName;
 
         User user = new User();

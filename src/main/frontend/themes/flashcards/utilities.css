@@ -35,39 +35,34 @@
 
 .text-center { text-align: center; }
 
+/* Text color utilities */
+.text-primary { color: var(--lumo-primary-color); }
+
+.text-secondary { color: var(--lumo-secondary-text-color); }
+
+.text-muted { color: var(--lumo-tertiary-text-color); }
+
+/* Layout utilities */
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .w-full { width: 100%; }
 
 .h-full { height: 100%; }
 
-/* Container width helpers */
-.container-sm { 
-    width: 100%; 
-    max-width: var(--app-container-sm, 600px); 
-    margin-inline: auto; 
-}
-
+/* Container width helper - only container-md is actively used */
 .container-md { 
     width: 100%; 
     max-width: var(--app-container-md, 800px); 
-    margin-inline: auto; 
-}
-
-.container-lg { 
-    width: 100%; 
-    max-width: var(--app-container-lg, 900px); 
-    margin-inline: auto; 
-}
-
-.container-xl { 
-    width: 100%; 
-    max-width: var(--app-container-xl, 1000px); 
-    margin-inline: auto; 
-}
-
-/* Extra wide container */
-.container-xxl { 
-    width: 100%; 
-    max-width: var(--app-container-xxl, 1200px); 
     margin-inline: auto; 
 }
 

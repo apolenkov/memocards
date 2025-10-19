@@ -70,6 +70,7 @@ public class VaadinTestContext implements AutoCloseable {
         responseMock.when(VaadinServletResponse::getCurrent).thenReturn(mockVaadinResponse);
     }
 
+    @SuppressWarnings("SameReturnValue")
     private Object setSessionAttribute(final InvocationOnMock invocation) {
         String key = invocation.getArgument(0);
         Object value = invocation.getArgument(1);

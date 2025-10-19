@@ -1,6 +1,7 @@
 /* DeckCard Component Styles */
 .deck-card {
     width: 100%;
+    min-width: 300px;
     max-width: var(--app-card-max, 700px);
     padding: var(--lumo-space-m);
     border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);

@@ -5,111 +5,260 @@
 /* ==================== Global Touch Targets ==================== */
 
 /* WCAG 2.1 AAA: 44x44px minimum, 48x48px recommended */
+
+/* Apply minimum touch target size to all interactive elements */
 button,
-.vaadin-button,
 input,
-select,
-vaadin-button {
-    min-width: 44px;
-    min-height: 44px;
+select {
+    min-width: var(--app-mobile-button-size);
+    min-height: var(--app-mobile-button-size);
+}
+
+/* ==================== MenuButton Component ==================== */
+
+/* Menu button - compact button with three dots (used in deck header) */
+.menu-button {
+    min-width: var(--app-mobile-button-size);
+    min-height: var(--app-mobile-button-size);
+    padding: 0;
+}
+
+.menu-button vaadin-icon {
+    margin: 0;
 }
 
 /* ==================== DeckView - Detail Header ==================== */
 
-/* Mobile: Icon-only buttons, stacked layout */
-.deck-view__header {
-    flex-direction: column;
-    gap: var(--lumo-space-s);
-}
+/* Desktop: [← Back] [Title] [Stats] - left aligned */
 
-/* Mobile: Icon-only buttons in header */
-.deck-view__header button {
-    position: relative;
-    min-width: 48px;
-    padding: var(--lumo-space-s);
-}
+/* Mobile: [← Back] [Title] [Stats] + [⋮ Menu: Practice, Edit, Reset, Delete] */
 
-/* Скрываем текст через ::part(label) */
-.deck-view__header button::part(label) {
-    display: none;
-}
-
-/* Показываем иконку поверх текста */
-.deck-view__header button vaadin-icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin: 0;
-    font-size: var(--lumo-icon-size-m);
-    transform: translate(-50%, -50%);
-}
-
-/* Back button on mobile */
-.deck-view__header .deck-view__back-button {
-    align-self: flex-start;
-}
-
-/* Actions row on mobile - center aligned */
-.deck-view__actions {
-    justify-content: center;
-    width: 100%;
-    gap: var(--lumo-space-m);
-}
-
-/* Title and stats stacked */
-.deck-view__title-section {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.deck-view__title {
-    font-size: var(--lumo-font-size-l);
-}
-
-.deck-view__stats {
-    margin-top: var(--lumo-space-xs);
-}
-
-/* Tablet and up: Show button text */
-
-@media (min-width: 768px) {
-    .deck-view__header {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
+@media (max-width: 767px) {
+    /* Hide desktop actions section completely */
+    .deck-view__actions {
+        display: none;
     }
     
-    .deck-view__header button {
-        min-width: auto;
-        padding: var(--lumo-space-xs) var(--lumo-space-m);
+    /* Mobile: Title and stats - compact */
+    .deck-view__title {
+        margin: 0;
         font-size: var(--lumo-font-size-m);
     }
     
-    .deck-view__header button vaadin-icon {
-        margin-right: var(--lumo-space-xs);
+    .deck-view__stats {
+        margin: 0;
+        font-size: var(--lumo-font-size-xs);
     }
     
-    .deck-view__title-section {
-        flex-direction: row;
-        align-items: center;
+    /* Mobile: center section with title + stats + menu - left aligned */
+    .deck-view__header .deck-header-center {
+        gap: var(--lumo-space-xs);
     }
     
+    /* Mobile toolbar: only search + filter */
+    .deck-toolbar {
+        gap: var(--lumo-space-s);
+    }
+    
+    .deck-search-field {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    
+    .deck-filter-combobox {
+        flex: 0 0 120px;
+    }
+    
+    /* Mobile actions: only Add button visible */
+    .deck-view__actions .desktop-only {
+        display: none;
+    }
+    
+    .deck-view__actions.mobile-actions {
+        display: flex;
+        justify-content: center;
+    }
+}
+
+/* Base layout managed via Java code */
+
+/* Mobile: Compact filter and practice button */
+
+@media (max-width: 767px) {
+    /* Compact filter on mobile */
+    .deck-filter-combobox {
+        flex-shrink: 1;
+        min-width: 100px;
+        max-width: 140px;
+    }
+    
+    /* Ensure mobile-only container doesn't overflow */
+    .deck-view__actions .mobile-only {
+        justify-content: center;
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+        gap: var(--lumo-space-xs);
+    }
+}
+
+/* Tablet and up: Larger fonts */
+
+@media (min-width: 768px) {
     .deck-view__title {
         font-size: var(--lumo-font-size-xxl);
     }
     
     .deck-view__stats {
-        margin-top: 0;
-        margin-left: var(--lumo-space-m);
+        font-size: var(--lumo-font-size-m);
     }
 }
 
-/* Desktop: Larger spacing */
+/* ==================== Flashcard Cards List ==================== */
 
-@media (min-width: 1024px) {
-    .deck-view__header {
-        gap: var(--lumo-space-l);
+/* Flashcard card styling */
+.flashcard-card {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: var(--lumo-space-s);
+    border: 1px solid var(--lumo-contrast-10pct);
+    border-radius: var(--lumo-border-radius-m);
+    background: var(--lumo-base-color);
+    transition: box-shadow 0.2s ease;
+    cursor: pointer; /* Double-click to edit */
+    box-shadow: var(--lumo-box-shadow-s);
+}
+
+/* Known flashcard - green left border */
+.flashcard-card--known {
+    border-left: 4px solid var(--lumo-success-color);
+}
+
+/* Unknown flashcard - light blue left border (like edit icon) */
+.flashcard-card--unknown {
+    border-left: 4px solid var(--lumo-primary-color-50pct);
+}
+
+
+.flashcard-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--lumo-box-shadow-m);
+}
+
+/* Front text styling */
+.flashcard-front {
+    flex-grow: 1;
+    color: var(--lumo-body-text-color);
+    font-size: var(--lumo-font-size-m);
+    font-weight: var(--lumo-font-weight-medium);
+    cursor: text; /* Text is selectable, not clickable */
+    user-select: text; /* Allow text selection */
+}
+
+/* Example text styling */
+.flashcard-example {
+    margin-top: var(--lumo-space-xs);
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-s);
+    cursor: text; /* Text is selectable, not clickable */
+    font-style: italic;
+    user-select: text; /* Allow text selection */
+}
+
+/* Known indicator (checkmark) - hidden, replaced with border */
+.flashcard-known-indicator {
+    display: none;
+}
+
+/* Desktop action buttons */
+.flashcard-desktop-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--lumo-space-xs);
+}
+
+/* Action buttons styling */
+.flashcard-desktop-actions button {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+/* Mobile action buttons - same as desktop but with mobile-specific styling */
+
+@media (max-width: 767px) {
+    .flashcard-desktop-actions button {
+        min-width: 44px;
+        min-height: 44px;
+        padding: var(--lumo-space-xs);
+    }
+}
+
+/* Mobile: Compact cards */
+
+@media (max-width: 767px) {
+    .flashcard-card {
+        margin-bottom: var(--lumo-space-xs);
+    }
+    
+    .flashcard-front {
+        font-size: var(--lumo-font-size-s);
+    }
+    
+    .flashcard-example {
+        font-size: var(--lumo-font-size-xs);
+    }
+}
+
+/* ==================== Search Controls - Search & Filter ==================== */
+
+/* Search controls container - ensure proper padding */
+.deck-search-controls-container {
+    margin: 0;
+}
+
+/* Search field with hover effect and responsive width */
+.deck-search-field {
+    width: 100%;
+    max-width: 600px;
+    margin: 0;
+    transition: box-shadow var(--lumo-transition-duration) ease, transform var(--lumo-transition-duration) ease;
+}
+
+
+/* Flex properties for search controls - desktop: search grows, filter fixed */
+.search-field-flex {
+    flex: 1;
+}
+
+.filter-combobox-flex {
+    flex: 0 0 auto;
+}
+
+/* Filter combobox with hover effect - responsive width */
+.deck-filter-combobox {
+    width: var(--app-filter-width);
+    max-width: var(--app-filter-width);
+    margin: 0;
+    transition: box-shadow var(--lumo-transition-duration) ease, transform var(--lumo-transition-duration) ease;
+}
+
+/* Mobile: equal width for search and filter (50/50) */
+
+@media (max-width: 767px) {
+    .deck-search-controls-container {
+        padding: 0 var(--lumo-space-s);
+    }
+    
+    /* Both search and filter take equal space */
+    .search-field-flex,
+    .filter-combobox-flex {
+        flex: 1;
+    }
+    
+    .deck-filter-combobox {
+        width: auto;
+        max-width: none;
     }
 }
 
@@ -135,6 +284,7 @@ vaadin-button {
 .deck-toolbar__search {
     flex: 1;
     min-width: 0; /* Allow shrinking */
+    transition: box-shadow var(--lumo-transition-duration) ease, transform var(--lumo-transition-duration) ease;
 }
 
 .deck-toolbar__add-button {
@@ -158,22 +308,22 @@ vaadin-button {
 /* Mobile: Hide button text, show only icon */
 
 @media (max-width: 767px) {
-    /* Кнопка "Добавить колоду" - только иконка */
+    /* Add deck button - icon only */
     .deck-toolbar__add-button {
         position: relative;
-        width: 44px;
-        height: 44px;
-        min-width: 44px;
-        max-width: 44px;
+        width: var(--app-mobile-button-size);
+        height: var(--app-mobile-button-size);
+        min-width: var(--app-mobile-button-size);
+        max-width: var(--app-mobile-button-size);
         padding: 0;
     }
     
-    /* Скрываем текст через ::part(label) */
+    /* Hide text via ::part(label) */
     .deck-toolbar__add-button::part(label) {
         display: none;
     }
     
-    /* Показываем иконку поверх текста */
+    /* Show icon over text */
     .deck-toolbar__add-button vaadin-icon {
         position: absolute;
         top: 50%;
@@ -183,6 +333,10 @@ vaadin-button {
         transform: translate(-50%, -50%);
     }
 }
+
+/* ==================== DeckGrid - Search Controls & Grid Actions ==================== */
+
+/* Flashcard actions menu - compact menu in table - styling via MenuButton */
 
 /* Tablet and up: More spacing and larger text */
 
@@ -401,14 +555,14 @@ vaadin-button {
     
     .deck-card__practice-button vaadin-button {
         position: relative;
-        width: 48px;
-        height: 48px;
-        min-width: 48px;
-        max-width: 48px;
+        width: var(--app-mobile-practice-button-size);
+        height: var(--app-mobile-practice-button-size);
+        min-width: var(--app-mobile-practice-button-size);
+        max-width: var(--app-mobile-practice-button-size);
         padding: 0;
     }
 
-    /* Скрываем текст через ::part(label) */
+    /* Hide text via ::part(label) */
     .deck-card__practice-button vaadin-button::part(label) {
         display: none;
     }
@@ -461,9 +615,7 @@ vaadin-button {
 /* ==================== General Container Fixes ==================== */
 
 /* Prevent horizontal scroll */
-.container-md,
-.container-lg,
-.container-xl {
+.container-md {
     max-width: 100%;
     padding-right: var(--lumo-space-m);
     padding-left: var(--lumo-space-m);
@@ -487,42 +639,11 @@ vaadin-button {
     }
 }
 
-@media (min-width: 1024px) {
-    .container-lg {
-        max-width: 1024px;
-    }
-}
-
-@media (min-width: 1280px) {
-    .container-xl {
-        max-width: 1200px;
-    }
-}
-
 /* ==================== Typography Mobile ==================== */
 
-/* Prevent iOS zoom on input focus */
-input,
-textarea,
-select,
-vaadin-text-field,
-vaadin-text-area,
-vaadin-select {
-    font-size: 16px;
-}
+/* Headings responsive - mobile-first sizing */
 
-@media (min-width: 768px) {
-    input,
-    textarea,
-    select,
-    vaadin-text-field,
-    vaadin-text-area,
-    vaadin-select {
-        font-size: var(--lumo-font-size-m);
-    }
-}
-
-/* Headings responsive */
+/* Applied globally to all heading elements for consistent typography */
 h1 {
     font-size: var(--lumo-font-size-xl);
 }
@@ -534,6 +655,8 @@ h2 {
 h3 {
     font-size: var(--lumo-font-size-m);
 }
+
+/* Desktop: larger heading sizes */
 
 @media (min-width: 768px) {
     h1 {
@@ -550,19 +673,16 @@ h3 {
 }
 
 /* ==================== iOS Safe Areas ==================== */
-.app-header {
-    padding-top: env(safe-area-inset-top);
-}
 
-.app-footer {
-    padding-bottom: env(safe-area-inset-bottom);
-}
+/* Note: app-header and app-footer classes are not currently used */
+
+/* To enable iOS safe areas, add these classes to your header/footer components */
 
 /* ==================== Utility Classes ==================== */
 
-/* Mobile-only visibility */
+/* Mobile-only visibility (flex by default for Vaadin layouts) */
 .mobile-only {
-    display: block;
+    display: flex;
 }
 
 .desktop-only {
@@ -575,7 +695,7 @@ h3 {
     }
     
     .desktop-only {
-        display: block;
+        display: flex;
     }
 }
 
@@ -589,4 +709,5 @@ h3 {
         flex-direction: row;
     }
 }
+
 

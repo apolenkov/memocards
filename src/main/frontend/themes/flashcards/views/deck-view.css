@@ -4,7 +4,9 @@
 }
 
 .deck-view__header {
-    margin-bottom: var(--lumo-space-l);
+    width: 100%;
+    max-width: var(--app-card-max);
+    box-sizing: border-box;
 
     /* Mobile: icon-only buttons, responsive layout via mobile-responsive.css */
 }
@@ -17,11 +19,13 @@
 .deck-view__title {
     margin: 0;
 
-    /* Mobile: responsive font-size via mobile-responsive.css */
+    /* Responsive font-size via mobile-responsive.css */
 }
 
 .deck-view__title-section {
-    /* Mobile: stacked, Desktop: horizontal via mobile-responsive.css */
+    display: flex;
+    align-items: center;
+    gap: var(--lumo-space-s);
 }
 
 .deck-view__stats {
@@ -29,24 +33,64 @@
 }
 
 .deck-view__actions {
-    /* Mobile: centered, Desktop: spaced via mobile-responsive.css */
+    display: flex;
+    gap: var(--lumo-space-s);
+    align-items: center;
 }
 
 .deck-view__back-button {
-    /* Mobile: icon-only, Desktop: with text via mobile-responsive.css */
+    /* Responsive styling via mobile-responsive.css */
 }
 
-.deck-view__info-section { 
-    width: 100%; 
-    padding: var(--lumo-space-m); 
-    box-sizing: border-box; 
+/* Deck actions menu (mobile) */
+.deck-actions-menu {
+    /* Compact menu button for mobile header */
 }
 
-.deck-view__info-section.surface-panel { /* visuals via component token */ }
-
-.deck-view__description {
-    color: var(--lumo-secondary-text-color);
+.deck-practice-button {
+    /* Mobile practice button styling */
 }
+
+.deck-add-card-button {
+    /* Add card button styling */
+}
+
+.flashcard-actions-menu {
+    /* Compact menu button in flashcard list */
+}
+
+.deck-flashcard-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: var(--lumo-space-s);
+}
+
+/* Toolbar filter combobox styling */
+.deck-toolbar .deck-filter-combobox {
+    min-width: 150px;
+    max-width: 200px;
+}
+
+/* Deck header: title and stats on separate lines */
+.deck-header-center {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: calc(var(--lumo-space-xs) / 2);
+}
+
+.deck-stats-row {
+    width: 100%;
+    gap: var(--lumo-space-xs);
+    font-size: var(--lumo-font-size-s);
+}
+
+
+/* Mobile: show actions section but hide Practice and Reset buttons */
+
+/* Only Add button is visible on mobile */
+
+/* Removed deck-view__info-section and deck-view__description styles - no longer needed */
 
 /* Deck practice section (actions + grid) */
 .deck-view__section { 
@@ -56,11 +100,9 @@
     padding: var(--lumo-space-m); 
 }
 
-.deck-view__section.glass-lg { /* visuals via utility */ }
-
 /* Grid component spacing - only for grid section, not action buttons */
 .deck-grid-section {
-    margin-top: var(--lumo-space-xl);
+    margin-top: var(--lumo-space-xs);
 }
 
 /* Deck delete dialog styles */
@@ -110,8 +152,6 @@
     padding: var(--lumo-space-s); 
     text-align: center; 
 }
-
-.deck-delete-confirm__info.glass-md { /* visuals via utility */ }
 
 .deck-delete-confirm__deck-name {
     color: var(--lumo-primary-text-color);

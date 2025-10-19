@@ -1,25 +1,19 @@
 package org.apolenkov.application.views.deck.components.detail;
 
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.DetachEvent;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.stats.StatsService;
-import org.apolenkov.application.views.deck.components.grid.DeckFlashcardGrid;
+import org.apolenkov.application.views.deck.components.grid.DeckFlashcardList;
 import org.apolenkov.application.views.deck.components.grid.DeckGridFilter;
 import org.apolenkov.application.views.deck.components.grid.DeckSearchControls;
+import org.apolenkov.application.views.deck.components.grid.FilterOption;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,15 +31,12 @@ public final class DeckGrid extends Composite<VerticalLayout> {
 
     // UI Components
     private final DeckSearchControls searchControls;
-    private final DeckFlashcardGrid flashcardGrid;
-    private final Button addFlashcardButton;
+    private final DeckFlashcardList flashcardList;
 
     // Data
     private transient Long currentDeckId;
     private transient List<Flashcard> allFlashcards;
-
-    // Event Registrations
-    private Registration addFlashcardClickListenerRegistration;
+    private transient FilterOption currentFilterOption;
 
     /**
      * Creates a new DeckGrid component.
@@ -56,9 +47,9 @@ public final class DeckGrid extends Composite<VerticalLayout> {
     public DeckGrid(final StatsService statsServiceParam, final int searchDebounceMs) {
         this.statsService = statsServiceParam;
         this.searchControls = new DeckSearchControls(searchDebounceMs);
-        this.flashcardGrid = new DeckFlashcardGrid(statsService);
-        this.addFlashcardButton = new Button();
+        this.flashcardList = new DeckFlashcardList(statsService);
         this.allFlashcards = new ArrayList<>();
+        this.currentFilterOption = FilterOption.UNKNOWN_ONLY; // Default: hide known
     }
 
     @Override
@@ -71,7 +62,6 @@ public final class DeckGrid extends Composite<VerticalLayout> {
         grid.addClassName(DeckConstants.DECK_CENTERED_SECTION_CLASS);
         grid.addClassName(DeckConstants.DECK_GRID_SECTION_CLASS);
 
-        createAddFlashcardButton();
         setupCallbacks();
         createLayout(grid);
         applyFilter();
@@ -85,10 +75,20 @@ public final class DeckGrid extends Composite<VerticalLayout> {
     private void setupCallbacks() {
         // Search controls callbacks
         searchControls.setSearchCallback(this::handleSearch);
-        searchControls.setFilterCallback(this::handleFilter);
+        searchControls.addFilterChangeListener(this::handleFilterChange);
 
-        // Flashcard grid callbacks
-        flashcardGrid.setToggleKnownCallback(this::handleToggleKnown);
+        // Flashcard list callbacks
+        flashcardList.setToggleKnownCallback(this::handleToggleKnown);
+    }
+
+    /**
+     * Handles filter option changes.
+     *
+     * @param filterOption the new filter option
+     */
+    private void handleFilterChange(final FilterOption filterOption) {
+        this.currentFilterOption = filterOption != null ? filterOption : FilterOption.ALL;
+        applyFilter();
     }
 
     /**
@@ -98,17 +98,7 @@ public final class DeckGrid extends Composite<VerticalLayout> {
      */
     private void handleSearch(final String searchQuery) {
         // Apply filter with the provided search query
-        applyFilterWithParams(searchQuery, searchControls.isHideKnown());
-    }
-
-    /**
-     * Handles filter changes.
-     *
-     * @param hideKnown whether to hide known cards
-     */
-    private void handleFilter(final Boolean hideKnown) {
-        // Apply filter with the provided hide known setting
-        applyFilterWithParams(searchControls.getSearchQuery(), hideKnown);
+        applyFilterWithParams(searchQuery, currentFilterOption);
     }
 
     /**
@@ -123,11 +113,11 @@ public final class DeckGrid extends Composite<VerticalLayout> {
 
             statsService.setCardKnown(currentDeckId, flashcard.getId(), !known);
 
-            // Invalidate grid cache to force fresh data loading
-            flashcardGrid.invalidateCache();
+            // Invalidate list cache to force fresh data loading
+            flashcardList.invalidateCache();
 
             // Refresh status for the specific card that changed
-            flashcardGrid.refreshStatusForCards(Set.of(flashcard.getId()));
+            flashcardList.refreshStatusForCards();
 
             applyFilter();
         }
@@ -153,14 +143,12 @@ public final class DeckGrid extends Composite<VerticalLayout> {
 
             statsService.resetDeckProgress(currentDeckId);
 
-            // Invalidate grid cache to force fresh data loading
-            flashcardGrid.invalidateCache();
+            // Invalidate list cache to force fresh data loading
+            flashcardList.invalidateCache();
 
             // Refresh all cards since all statuses changed
             if (allFlashcards != null) {
-                Set<Long> allCardIds =
-                        allFlashcards.stream().map(Flashcard::getId).collect(java.util.stream.Collectors.toSet());
-                flashcardGrid.refreshStatusForCards(allCardIds);
+                flashcardList.refreshStatusForCards();
             }
 
             applyFilter();
@@ -169,25 +157,25 @@ public final class DeckGrid extends Composite<VerticalLayout> {
 
     /**
      * Applies search and filter criteria to the flashcards.
-     * Passes known card IDs to grid to avoid duplicate queries.
+     * Passes known card IDs to list to avoid duplicate queries.
      */
     private void applyFilter() {
-        applyFilterWithParams(searchControls.getSearchQuery(), searchControls.isHideKnown());
+        applyFilterWithParams(searchControls.getSearchQuery(), currentFilterOption);
     }
 
     /**
      * Applies search and filter criteria to the flashcards with specific parameters.
-     * Passes known card IDs to grid to avoid duplicate queries.
+     * Passes known card IDs to list to avoid duplicate queries.
      *
      * @param searchQuery the search query to apply
-     * @param hideKnown whether to hide known cards
+     * @param filterOption the filter option to apply
      */
-    private void applyFilterWithParams(final String searchQuery, final boolean hideKnown) {
+    private void applyFilterWithParams(final String searchQuery, final FilterOption filterOption) {
         var filterResult =
-                DeckGridFilter.applyFilter(allFlashcards, searchQuery, hideKnown, statsService, currentDeckId);
+                DeckGridFilter.applyFilter(allFlashcards, searchQuery, filterOption, statsService, currentDeckId);
 
-        // Pass known card IDs to grid to reuse in status column (avoids duplicate DB query)
-        flashcardGrid.updateData(filterResult.filteredFlashcards(), filterResult.knownCardIds());
+        // Pass known card IDs to list to reuse in status indicators (avoids duplicate DB query)
+        flashcardList.updateData(filterResult.filteredFlashcards(), filterResult.knownCardIds());
     }
 
     /**
@@ -197,7 +185,7 @@ public final class DeckGrid extends Composite<VerticalLayout> {
      */
     public void setCurrentDeckId(final Long deckId) {
         this.currentDeckId = deckId;
-        flashcardGrid.setCurrentDeckId(deckId);
+        flashcardList.setCurrentDeckId(deckId);
     }
 
     /**
@@ -246,8 +234,8 @@ public final class DeckGrid extends Composite<VerticalLayout> {
      * @param callback the callback to execute when editing a flashcard
      */
     public void setEditFlashcardCallback(final Consumer<Flashcard> callback) {
-        if (flashcardGrid != null) {
-            flashcardGrid.setEditFlashcardCallback(callback);
+        if (flashcardList != null) {
+            flashcardList.setEditFlashcardCallback(callback);
         }
     }
 
@@ -257,23 +245,24 @@ public final class DeckGrid extends Composite<VerticalLayout> {
      * @param callback the callback to execute when deleting a flashcard
      */
     public void setDeleteFlashcardCallback(final Consumer<Flashcard> callback) {
-        if (flashcardGrid != null) {
-            flashcardGrid.setDeleteFlashcardCallback(callback);
+        if (flashcardList != null) {
+            flashcardList.setDeleteFlashcardCallback(callback);
         }
     }
 
     /**
-     * Creates the add flashcard button.
+     * Adds a listener for filter value changes.
+     *
+     * @param callback the callback to execute when filter value changes
+     * @return registration for removing the listener
      */
-    private void createAddFlashcardButton() {
-        addFlashcardButton.setText(getTranslation(DeckConstants.DECK_ADD_CARD));
-        addFlashcardButton.setIcon(VaadinIcon.PLUS.create());
-        addFlashcardButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+    public Registration addFilterChangeListener(final java.util.function.Consumer<FilterOption> callback) {
+        return searchControls.addFilterChangeListener(callback);
     }
 
     /**
-     * Creates the layout with search controls, add button, and flashcard grid.
-     * Groups all controls in one row: Search/Filters (left), Add card button (right).
+     * Creates the layout with search controls and flashcard list.
+     * Only search controls at the top, list below.
      *
      * @param container the container to add components to
      */
@@ -281,49 +270,16 @@ public final class DeckGrid extends Composite<VerticalLayout> {
         container.setWidthFull();
         container.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        // Single row: Search, filter, and add button aligned to edges
+        // Search controls row
         HorizontalLayout controlsRow = new HorizontalLayout();
         controlsRow.setWidthFull();
-        controlsRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         controlsRow.setAlignItems(FlexComponent.Alignment.CENTER);
         controlsRow.setSpacing(true);
 
-        addFlashcardButton.setWidth("auto");
+        // Only search controls
+        controlsRow.add(searchControls);
 
-        // Left side: Search controls (search field + checkbox)
-        // Right side: Add button
-        controlsRow.add(searchControls, addFlashcardButton);
-
-        // Add row and grid
-        container.add(controlsRow, flashcardGrid);
-    }
-
-    /**
-     * Sets the add flashcard click listener.
-     *
-     * @param listener the click listener
-     * @return registration for removing the listener
-     */
-    public Registration addAddFlashcardClickListener(final ComponentEventListener<ClickEvent<Button>> listener) {
-        if (addFlashcardClickListenerRegistration != null) {
-            addFlashcardClickListenerRegistration.remove();
-        }
-        addFlashcardClickListenerRegistration = addFlashcardButton.addClickListener(listener);
-        return addFlashcardClickListenerRegistration;
-    }
-
-    /**
-     * Cleans up event listeners when the component is detached.
-     * Prevents memory leaks by removing event listener registrations.
-     *
-     * @param detachEvent the detach event
-     */
-    @Override
-    protected void onDetach(final DetachEvent detachEvent) {
-        if (addFlashcardClickListenerRegistration != null) {
-            addFlashcardClickListenerRegistration.remove();
-            addFlashcardClickListenerRegistration = null;
-        }
-        super.onDetach(detachEvent);
+        // Add row and list
+        container.add(controlsRow, flashcardList);
     }
 }

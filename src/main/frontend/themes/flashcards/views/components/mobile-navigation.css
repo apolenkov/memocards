@@ -212,25 +212,11 @@
     min-height: 44px;
 }
 
-vaadin-drawer-toggle {
-    --vaadin-drawer-toggle-icon-size: 24px;
-    color: var(--lumo-body-text-color);
-}
-
-vaadin-drawer-toggle::part(icon) {
-    color: var(--lumo-body-text-color);
-}
-
 /* ==================== Drawer Container Improvements ==================== */
 
 /* Drawer backdrop - No animations */
 [overlay]::before {
     background: rgb(0 0 0 / 60%);
-}
-
-/* Drawer - No animations */
-vaadin-app-layout::part(drawer) {
-    border-right: 1px solid var(--lumo-contrast-10pct);
 }
 
 /* ==================== Anonymous Menu Specific Styles ==================== */

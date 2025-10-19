@@ -90,7 +90,7 @@ public abstract class BaseLanguageSwitcher extends HorizontalLayout {
      */
     protected String getSelectedValueForLocale(
             final Locale current, final String en, final String ru, final String es) {
-        return switch (current.getLanguage().toLowerCase()) {
+        return switch (current.getLanguage().toLowerCase(Locale.ROOT)) {
             case CoreConstants.RU_LOCALE -> ru;
             case CoreConstants.ES_LOCALE -> es;
             default -> en;
