@@ -66,6 +66,7 @@ public class DeckView extends Composite<VerticalLayout>
     private Registration addFlashcardClickListenerRegistration;
     private Registration editDeckClickListenerRegistration;
     private Registration deleteDeckClickListenerRegistration;
+    private Registration filterChangeListenerRegistration;
 
     // ==================== Constructor ====================
 
@@ -174,6 +175,11 @@ public class DeckView extends Composite<VerticalLayout>
             deleteDeckClickListenerRegistration.remove();
             deleteDeckClickListenerRegistration = null;
         }
+
+        if (filterChangeListenerRegistration != null) {
+            filterChangeListenerRegistration.remove();
+            filterChangeListenerRegistration = null;
+        }
     }
 
     // ==================== Setup Methods ====================
@@ -192,6 +198,7 @@ public class DeckView extends Composite<VerticalLayout>
         setupAddFlashcardButtonListener();
         setupEditDeckButtonListener();
         setupDeleteDeckButtonListener();
+        setupFilterChangeListener();
     }
 
     /**
@@ -218,12 +225,12 @@ public class DeckView extends Composite<VerticalLayout>
     }
 
     /**
-     * Sets up the add flashcard button click listener.
+     * Sets up the add flashcard button click listener from header actions.
      */
     private void setupAddFlashcardButtonListener() {
         if (addFlashcardClickListenerRegistration == null) {
             addFlashcardClickListenerRegistration =
-                    deckGrid.addAddFlashcardClickListener(e -> openFlashcardDialog(null));
+                    detailHeader.addAddCardClickListener(e -> openFlashcardDialog(null));
         }
     }
 
@@ -248,6 +255,16 @@ public class DeckView extends Composite<VerticalLayout>
     private void setupDeleteDeckButtonListener() {
         if (deleteDeckClickListenerRegistration == null) {
             deleteDeckClickListenerRegistration = detailHeader.addDeleteDeckClickListener(e -> deleteDeck());
+        }
+    }
+
+    /**
+     * Sets up the filter change listener from toolbar.
+     */
+    private void setupFilterChangeListener() {
+        if (filterChangeListenerRegistration == null) {
+            filterChangeListenerRegistration = deckGrid.addFilterChangeListener(
+                    filterOption -> LOGGER.debug("Filter changed to: {}", filterOption));
         }
     }
 
@@ -370,13 +387,17 @@ public class DeckView extends Composite<VerticalLayout>
     private void updateDeckInfo() {
         if (currentDeck != null && detailHeader != null) {
             detailHeader.setDeckTitle(currentDeck.getTitle());
-            detailHeader.setDeckStats(
-                    getTranslation(DeckConstants.DECK_COUNT, flashcardUseCase.countByDeckId(currentDeck.getId())));
-
+            // New format: "(description) X карточки"
             String description = Optional.ofNullable(currentDeck.getDescription())
                     .filter(desc -> !desc.trim().isEmpty())
-                    .orElse(getTranslation(DeckConstants.DECK_DESCRIPTION_EMPTY));
-            detailHeader.setDescription(description);
+                    .orElse("");
+
+            long count = flashcardUseCase.countByDeckId(currentDeck.getId());
+            String statsText = description.isEmpty()
+                    ? getTranslation(DeckConstants.DECK_COUNT, count)
+                    : String.format("(%s) %s", description, getTranslation(DeckConstants.DECK_COUNT_SHORT, count));
+
+            detailHeader.setDeckStats(statsText);
         }
     }
 

@@ -5,7 +5,9 @@
 
 .main-layout__navbar { border-bottom: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent); }
 
-.main-layout__navbar.surface-panel { /* visuals via component token */ }
+.main-layout__navbar.surface-panel {
+    height: var(--lumo-space-l);
+}
 
 .main-layout__right {
     display: flex;
@@ -28,17 +30,4 @@
         linear-gradient(90deg, var(--lumo-contrast-5pct) 1px, transparent 1px);
     background-size: 50px 50px;
     opacity: 0.1;
-}
-
-/* App illustration */
-.app-illustration-left {
-    position: absolute;
-    bottom: 10%;
-    left: 5%;
-    width: 200px;
-    height: 200px;
-    background-image: url('../assets/modern-icons.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    opacity: 0.3;
 }

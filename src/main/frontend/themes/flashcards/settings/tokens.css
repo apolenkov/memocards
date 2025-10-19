@@ -32,5 +32,12 @@
     --app-dialog-md: 500px;
     --app-dialog-lg: 600px;
     --app-dialog-height-md: 500px;
+
+    /* Component sizes */
+    --app-language-switcher-width: 92px;
+    --app-filter-width: 150px;
+    --app-indicator-min-width: 24px;
+    --app-mobile-button-size: 36px;
+    --app-mobile-practice-button-size: 48px;
 }
 

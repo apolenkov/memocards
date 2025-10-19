@@ -1,6 +1,7 @@
 package org.apolenkov.application.views.deck.components.grid;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.stats.StatsService;
@@ -25,7 +26,7 @@ public final class DeckGridFilter {
      *
      * @param flashcards the list of flashcards to filter
      * @param searchQuery the search query
-     * @param hideKnown whether to hide known cards
+     * @param filterOption the filter option (ALL, KNOWN_ONLY, UNKNOWN_ONLY)
      * @param statsService service for statistics tracking
      * @param currentDeckId current deck ID
      * @return FilterResult containing filtered flashcards and known card IDs
@@ -33,7 +34,7 @@ public final class DeckGridFilter {
     public static FilterResult applyFilter(
             final List<Flashcard> flashcards,
             final String searchQuery,
-            final boolean hideKnown,
+            final FilterOption filterOption,
             final StatsService statsService,
             final Long currentDeckId) {
         // Early return if not ready (normal during component initialization)
@@ -42,24 +43,28 @@ public final class DeckGridFilter {
             return new FilterResult(List.of(), Set.of());
         }
 
-        // Load known card IDs once (will be reused by grid for status column)
+        // Load known card IDs once (will be reused by list for status indicators)
         // Always load known card IDs to show correct status in UI
         Set<Long> knownCardIds = statsService.getKnownCardIds(currentDeckId);
 
         List<Flashcard> filtered = flashcards.stream()
                 .filter(card -> searchQuery.isEmpty()
-                        || card.getFrontText().toLowerCase().contains(searchQuery)
-                        || card.getBackText().toLowerCase().contains(searchQuery))
-                .filter(card -> !hideKnown || !knownCardIds.contains(card.getId()))
+                        || card.getFrontText().toLowerCase(Locale.ROOT).contains(searchQuery)
+                        || card.getBackText().toLowerCase(Locale.ROOT).contains(searchQuery))
+                .filter(card -> switch (filterOption) {
+                    case ALL -> true;
+                    case KNOWN_ONLY -> knownCardIds.contains(card.getId());
+                    case UNKNOWN_ONLY -> !knownCardIds.contains(card.getId());
+                })
                 .toList();
 
         // Log only anomalies (all cards filtered out)
         if (filtered.isEmpty() && !flashcards.isEmpty()) {
             LOGGER.debug(
-                    "Filter excluded all {} cards: query='{}', hideKnown={}",
+                    "Filter excluded all {} cards: query='{}', filterOption={}",
                     flashcards.size(),
                     searchQuery,
-                    hideKnown);
+                    filterOption);
         }
         return new FilterResult(filtered, knownCardIds);
     }

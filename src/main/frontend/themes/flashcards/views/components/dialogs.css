@@ -4,14 +4,6 @@
     box-shadow: var(--lumo-box-shadow-l);
 }
 
-/* Global Vaadin Dialog overlay styling */
-vaadin-dialog-overlay::part(overlay) {
-    border: 1px solid var(--lumo-contrast-10pct);
-    border-radius: var(--lumo-border-radius-l);
-    background-color: var(--lumo-base-color);
-    box-shadow: var(--lumo-box-shadow-l);
-}
-
 .dialog__header {
     border-bottom: 1px solid var(--lumo-contrast-10pct);
     padding: var(--lumo-space-m);
@@ -27,4 +19,25 @@ vaadin-dialog-overlay::part(overlay) {
     padding: var(--lumo-space-m);
     border-top: 1px solid var(--lumo-contrast-10pct);
     gap: var(--lumo-space-s);
+}
+
+/* Dialog buttons - scoped to dialog overlay context */
+
+/* Dialog button layout - alternative selectors */
+.dialog__footer vaadin-button,
+.dialog vaadin-button {
+    min-width: 120px;
+    padding: var(--lumo-space-s) var(--lumo-space-m);
+}
+
+.dialog vaadin-horizontal-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: var(--lumo-space-s);
+}
+
+.dialog vaadin-horizontal-layout vaadin-button {
+    flex: 0 0 auto; /* Don't grow, don't shrink, auto size */
 }

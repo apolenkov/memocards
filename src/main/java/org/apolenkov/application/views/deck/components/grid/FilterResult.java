@@ -8,8 +8,8 @@ import org.apolenkov.application.model.Flashcard;
  * Result of applying filter to flashcards.
  * Contains both filtered flashcards and known card IDs to avoid duplicate queries.
  *
- * @param filteredFlashcards the filtered flashcards
- * @param knownCardIds the set of known card IDs (empty if hideKnown=false)
+ * @param filteredFlashcards the filtered flashcards based on search and filter criteria
+ * @param knownCardIds the set of known card IDs (always loaded for status display)
  */
 public record FilterResult(List<Flashcard> filteredFlashcards, Set<Long> knownCardIds) {
 

@@ -1,18 +1,6 @@
 /* DeckCreateView Component Styles */
-.deck-create-view {
-    padding: var(--lumo-space-m);
-}
 
-.deck-create-view__header {
-    margin-bottom: var(--lumo-space-l);
-}
-
-.deck-create-view__content {
-    max-width: var(--app-container-md, 800px);
-    margin: 0 auto;
-}
-
-/* Extracted from inline styles in DeckCreateView */
+/* Deck create form (used in CreateDeckDialog) */
 .deck-create__form {
     width: 100%;
     max-width: var(--app-container-sm, 600px);

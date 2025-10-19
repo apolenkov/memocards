@@ -74,18 +74,18 @@ public final class DeckConstants {
     public static final String DECK_START_SESSION = "deck.startSession";
     public static final String DECK_EDIT_TOOLTIP = "deck.edit.tooltip";
     public static final String DECK_LOADING = "deck.loading";
-    public static final String DECK_DESCRIPTION_LOADING = "deck.description.loading";
-    public static final String DECK_DESCRIPTION_EMPTY = "deck.description.empty";
     public static final String DECK_NOT_FOUND = "deck.notFound";
     public static final String DECK_COUNT = "deck.count";
+    public static final String DECK_COUNT_SHORT = "deck.count.short";
+    public static final String DECK_MENU_PRACTICE = "deck.menu.practice";
     public static final String DECK_ADD_CARD = "deck.addCard";
     public static final String DECK_SEARCH_CARDS = "deck.searchCards";
-    public static final String DECK_HIDE_KNOWN = "deck.hideKnown";
+    public static final String DECK_FILTER_LABEL = "deck.filter.label";
+    public static final String DECK_FILTER_ALL = "deck.filter.all";
+    public static final String DECK_FILTER_KNOWN = "deck.filter.known";
+    public static final String DECK_FILTER_UNKNOWN = "deck.filter.unknown";
     public static final String DECK_RESET_PROGRESS = "deck.resetProgress";
     public static final String DECK_PROGRESS_RESET = "deck.progressReset";
-    public static final String DECK_COL_EXAMPLE = "deck.col.example";
-    public static final String DECK_COL_STATUS = "deck.col.status";
-    public static final String DECK_COL_ACTIONS = "deck.col.actions";
 
     // Translation keys for deck creation
     public static final String DECK_CREATE_TITLE = "deckCreate.title";
@@ -129,7 +129,6 @@ public final class DeckConstants {
     public static final String DECK_LIST_CLASS = "deck-list";
     public static final String DECKS_EMPTY_MESSAGE_CLASS = "decks-empty-message";
     public static final String DECKS_SECTION_CLASS = "decks-section";
-    public static final String DECKS_VIEW_TITLE_CLASS = "decks-view__title";
 
     // Deck create CSS classes
     public static final String DECK_CREATE_FORM_CLASS = "deck-create__form";
@@ -145,11 +144,8 @@ public final class DeckConstants {
     public static final String DECK_CARD_PROGRESS_DETAILS_CLASS = "deck-card__progress-details";
 
     // Deck view CSS classes
-    public static final String DECK_VIEW_INFO_SECTION_CLASS = "deck-view__info-section";
-    public static final String DECK_VIEW_DESCRIPTION_CLASS = "deck-view__description";
     public static final String DECK_VIEW_STATS_CLASS = "deck-view__stats";
     public static final String DECK_VIEW_HEADER_CLASS = "deck-view__header";
-    public static final String DECK_VIEW_TITLE_SECTION_CLASS = "deck-view__title-section";
     public static final String DECK_VIEW_ACTIONS_CLASS = "deck-view__actions";
     public static final String DECK_VIEW_BACK_BUTTON_CLASS = "deck-view__back-button";
     public static final String DECKS_VIEW_CLASS = "decks-view";
@@ -159,10 +155,7 @@ public final class DeckConstants {
     // Common component CSS classes
     public static final String PAGE_TITLE_CLASS = "page-title";
     public static final String DECK_CENTERED_SECTION_CLASS = "deck-centered-section";
-    public static final String DECK_HEADER_THREE_COLUMN_CLASS = "deck-header-three-column";
     public static final String DECK_HEADER_CENTER_CLASS = "deck-header-center";
-    public static final String DECK_DESCRIPTION_CENTERED_CLASS = "deck-description-centered";
-    public static final String DECK_SEARCH_CHECKBOX_CLASS = "deck-search-checkbox";
 
     // Deck toolbar CSS classes
     public static final String DECK_TOOLBAR_SEARCH_CLASS = "deck-toolbar__search";
@@ -180,23 +173,30 @@ public final class DeckConstants {
     public static final String DECK_DELETE_CONFIRM_CARD_COUNT_CLASS = "deck-delete-confirm__card-count";
 
     // Grid CSS classes
-    public static final String ACTIONS_LAYOUT_CLASS = "actions-layout";
-    public static final String KNOWN_STATUS_CLASS = "known-status";
     public static final String DECK_GRID_SECTION_CLASS = "deck-grid-section";
+
+    // Mobile menu CSS classes
+    public static final String DECK_ACTIONS_MENU_CLASS = "deck-actions-menu";
+    public static final String DECK_SEARCH_FIELD_CLASS = "deck-search-field";
 
     // HTML attributes
     public static final String TITLE_PROPERTY = "title";
 
-    // Grid action keys
-    public static final String ACTIONS_COLUMN_KEY = "actions";
-
-    // Tooltips for grid actions
-    public static final String GRID_EDIT_TOOLTIP = "deck.grid.edit.tooltip";
-    public static final String GRID_TOGGLE_TOOLTIP = "deck.grid.toggle.tooltip";
-    public static final String GRID_DELETE_TOOLTIP = "deck.grid.delete.tooltip";
-
     // Loading states
     public static final String DECK_LOADING_STATE = "deck.loading.state";
+
+    // Menu actions for deck
+    public static final String DECK_MENU_EDIT = "deck.menu.edit";
+    public static final String DECK_MENU_DELETE = "deck.menu.delete";
+    public static final String DECK_MENU_RESET = "deck.menu.resetProgress";
+
+    // Menu actions for flashcard
+    public static final String FLASHCARD_MENU_EDIT = "flashcard.menu.edit";
+    public static final String FLASHCARD_MENU_TOGGLE = "flashcard.menu.toggleKnown";
+    public static final String FLASHCARD_MENU_DELETE = "flashcard.menu.delete";
+
+    // Accessibility
+    public static final String MENU_ACTIONS_ARIA_LABEL = "menu.actions.ariaLabel";
 
     // Private constructor to prevent instantiation
     private DeckConstants() {

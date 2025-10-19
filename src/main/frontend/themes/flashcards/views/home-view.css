@@ -15,8 +15,32 @@
     margin: 0 auto;
 }
 
-/* DecksView styles (same structure as HomeView) */
+/* DecksView styles (main deck listing view) */
+.decks-view {
+    padding: var(--lumo-space-m);
+}
+
+.decks-view__content {
+    display: grid;
+    gap: var(--lumo-space-m);
+}
+
 .decks-view__title {
+    text-align: center;
+}
+
+/* Deck list component */
+.deck-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--lumo-space-m);
+    width: 100%;
+}
+
+.decks-empty-message {
+    padding: var(--lumo-space-l);
+    color: var(--lumo-secondary-text-color);
     text-align: center;
 }
 
@@ -32,6 +56,9 @@
 
 /* Decks section (list wrapper) */
 .decks-section { 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 100%; 
     max-width: var(--app-container-md, 800px); 
     margin: 0 auto; 

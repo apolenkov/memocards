@@ -5,6 +5,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.server.ErrorEvent;
 import com.vaadin.flow.server.VaadinSession;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import org.apolenkov.application.config.constants.RouteConstants;
@@ -103,7 +104,7 @@ public class ErrorHandlingConfiguration {
         // Check exception message for common disconnect patterns
         String message = throwable.getMessage();
         if (message != null) {
-            String lowerMessage = message.toLowerCase();
+            String lowerMessage = message.toLowerCase(Locale.ROOT);
             if (lowerMessage.contains("broken pipe")
                     || lowerMessage.contains("connection reset")
                     || lowerMessage.contains("connection was aborted")) {
