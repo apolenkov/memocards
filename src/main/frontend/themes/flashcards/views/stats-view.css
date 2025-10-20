@@ -27,27 +27,50 @@
     text-align: center;
 }
 
-/* Stats cards */
+/* Stats cards - simplified design with better colors */
 .stats-card { 
-    min-width: 120px; 
-    padding: var(--lumo-space-m); 
-    text-align: center; 
-
-    /* Mobile: full width, responsive grid via mobile-responsive.css */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px; /* Reduced from 120px */
+    padding: var(--lumo-space-s); /* Reduced from var(--lumo-space-l) */
+    border: 1px solid var(--lumo-contrast-20pct);
+    border-radius: var(--lumo-border-radius-m);
+    background: var(--lumo-base-color);
+    text-align: center;
+    aspect-ratio: 1; /* Make cards square */
+    transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
-.stats-card.surface-card { /* visuals via component token */ }
+.stats-card:hover {
+    border-color: var(--lumo-primary-color-30pct);
+    transform: translateY(-2px);
+    box-shadow: var(--lumo-box-shadow-s);
+}
+
+.stats-card.surface-card { 
+    /* Override surface-card styling for cleaner look */
+    border: 1px solid var(--lumo-contrast-20pct);
+    background: var(--lumo-base-color);
+    box-shadow: none;
+}
 
 .stats-card__value {
-    margin-bottom: var(--lumo-space-xs);
+    margin-bottom: var(--lumo-space-xs); /* Reduced from var(--lumo-space-s) */
     color: var(--lumo-primary-text-color);
-    font-size: var(--lumo-font-size-xxl);
-    font-weight: bold;
+    font-size: var(--lumo-font-size-xl); /* Reduced from var(--lumo-font-size-xxxl) */
+    font-weight: 700;
+    line-height: 1;
 }
 
 .stats-card__label {
     color: var(--lumo-secondary-text-color);
-    font-size: var(--lumo-font-size-s);
+    font-size: var(--lumo-font-size-xs); /* Reduced from var(--lumo-font-size-s) */
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .stats-card--today {
@@ -58,8 +81,10 @@
 .deck-stats-card {
     flex-shrink: 0;
     width: 100%;
-    min-width:320px;
+    min-width: 200px; /* Reduced from 320px for better mobile fit */
     padding: var(--lumo-space-l);
+    box-sizing: border-box; /* Include padding in width calculation */
+    overflow-x: hidden; /* Prevent horizontal overflow */
 
     /* Mobile: no min-width, responsive via mobile-responsive.css */
  }
@@ -75,10 +100,15 @@
     font-size: var(--lumo-font-size-m);
 }
 
-/* Stats sections */
-.stats-section { box-sizing: border-box; }
+/* Stats sections - mobile height optimization */
+.stats-section { 
+    padding: var(--lumo-space-s); /* Smaller padding on mobile */
+    box-sizing: border-box; 
+}
 
-.stats-section.surface-panel { border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent); }
+.stats-section.surface-panel { 
+    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent); 
+}
 
 /* Stats section header - clickable area */
 .stats-section__title {
@@ -116,29 +146,55 @@
     min-height: 200px;
 }
 
-/* Stats deck items */
+/* Stats deck items - simplified design */
 .stats-deck-item {
-    min-width: 120px;
-    padding: var(--lumo-space-s);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px; /* Reduced from 120px */
+    padding: var(--lumo-space-s); /* Reduced from var(--lumo-space-m) */
+    border: 1px solid var(--lumo-contrast-20pct);
+    border-radius: var(--lumo-border-radius-m);
+    background: var(--lumo-base-color);
     text-align: center;
+    aspect-ratio: 1; /* Make deck stat items square */
+    transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
-.stats-deck-item.surface-card { /* visuals via component token */ }
+.stats-deck-item:hover {
+    border-color: var(--lumo-primary-color-30pct);
+    transform: translateY(-1px);
+    box-shadow: var(--lumo-box-shadow-s);
+}
+
+.stats-deck-item.surface-card { 
+    /* Override surface-card styling for cleaner look */
+    border: 1px solid var(--lumo-contrast-20pct);
+    background: var(--lumo-base-color);
+    box-shadow: none;
+}
 
 .stats-deck-item__total {
     margin-bottom: var(--lumo-space-xs);
     color: var(--lumo-primary-text-color);
-    font-size: calc(var(--lumo-font-size-l) + 2px);
-    font-weight: bold;
+    font-size: var(--lumo-font-size-l); /* Reduced from var(--lumo-font-size-xl) */
+    font-weight: 700;
+    line-height: 1;
 }
 
 .stats-deck-item__today {
     margin-bottom: var(--lumo-space-xs);
     color: var(--lumo-success-color);
-    font-size: var(--lumo-font-size-m);
+    font-size: var(--lumo-font-size-xs); /* Reduced from var(--lumo-font-size-s) */
+    font-weight: 600;
 }
 
 .stats-deck-item__label {
     color: var(--lumo-secondary-text-color);
-    font-size: var(--lumo-font-size-m);
+    font-size: var(--lumo-font-size-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }

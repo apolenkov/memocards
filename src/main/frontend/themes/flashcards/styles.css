@@ -32,6 +32,7 @@
 @import './views/components/status.css';
 @import './views/components/mobile-navigation.css';
 @import './views/components/responsive-navbar.css';
+@import './components/practice-actions.css';
 
 /* Views - Consolidated */
 
