@@ -3,13 +3,44 @@
     padding: var(--lumo-space-m);
 }
 
+/* Mobile: Optimize spacing and use safe area insets */
+
+@media (max-width: 767px) {
+    .practice-view {
+        /* Ensure content doesn't get hidden behind system UI */
+        min-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+        
+        /* Reduce overall padding for mobile */
+        padding: var(--lumo-space-s);
+        
+        /* Use safe area insets for mobile devices */
+        padding-bottom: max(var(--lumo-space-xl), env(safe-area-inset-bottom, 0px));
+    }
+}
+
 .practice-view__header {
     margin-bottom: var(--lumo-space-l);
+}
+
+/* Mobile: Reduce header margin */
+
+@media (max-width: 767px) {
+    .practice-view__header {
+        margin-bottom: var(--lumo-space-m);
+    }
 }
 
 .practice-view__content {
     display: grid;
     gap: var(--lumo-space-m);
+}
+
+/* Mobile: Reduce content gap */
+
+@media (max-width: 767px) {
+    .practice-view__content {
+        gap: var(--lumo-space-s);
+    }
 }
 
 /* Unified section container */
@@ -28,6 +59,14 @@
     box-sizing: border-box; 
 }
 
+/* Mobile: Reduce progress padding */
+
+@media (max-width: 767px) {
+    .practice-progress {
+        padding: var(--lumo-space-s);
+    }
+}
+
 .practice-progress__text {
     display: inline-block;
     padding: var(--lumo-space-l) var(--lumo-space-m);
@@ -36,6 +75,14 @@
     background-color: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
     color: var(--lumo-secondary-text-color);
     box-sizing: border-box;
+}
+
+/* Mobile: Reduce progress text padding */
+
+@media (max-width: 767px) {
+    .practice-progress__text {
+        padding: var(--lumo-space-m) var(--lumo-space-s);
+    }
 }
 
 /* Practice card container */
@@ -47,6 +94,15 @@
     min-height: 300px;
     padding: var(--lumo-space-xl);
     box-sizing: border-box;
+}
+
+/* Mobile: Reduce card height and padding for better space utilization */
+
+@media (max-width: 767px) {
+    .practice-card-container {
+        min-height: 200px;
+        padding: var(--lumo-space-m);
+    }
 }
 
 .practice-card-content {
@@ -73,7 +129,7 @@
     display: inline-block;
     font-size: 4rem;
     animation: celebration-bounce 2s ease-in-out infinite;
-    filter: drop-shadow(0 4px 8px rgb(255 215 0 / 30%));
+    filter: drop-shadow(0 4px 8px var(--lumo-warning-color-10pct));
 }
 
 .practice-congratulations .celebration-icon-container {
@@ -85,7 +141,7 @@
     display: inline-block;
     font-size: 4rem;
     animation: celebration-bounce 2s ease-in-out infinite;
-    filter: drop-shadow(0 4px 8px rgb(255 215 0 / 30%));
+    filter: drop-shadow(0 4px 8px var(--lumo-warning-color-10pct));
 }
 
 @keyframes celebration-bounce {
@@ -105,14 +161,14 @@
 /* Title Styling */
 .congratulations-title {
     margin: var(--lumo-space-s) 0 var(--lumo-space-m) 0;
-    color: var(--lumo-primary-color);
+    color: var(--lumo-primary-text-color);
     font-size: 1.8rem;
     font-weight: 600;
 }
 
 .practice-congratulations .congratulations-title {
     margin: var(--lumo-space-s) 0 var(--lumo-space-m) 0;
-    color: var(--lumo-primary-color);
+    color: var(--lumo-primary-text-color);
     font-size: 1.8rem;
     font-weight: 600;
 }

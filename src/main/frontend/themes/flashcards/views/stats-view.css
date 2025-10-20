@@ -1,6 +1,14 @@
-/* StatsView Component Styles */
+/* StatsView Component Styles - Material Design Implementation */
 .stats-view {
     padding: var(--lumo-space-m);
+}
+
+/* Mobile: Much smaller padding for compact layout */
+
+@media (max-width: 767px) {
+    .stats-view {
+        padding: var(--lumo-space-xs); /* Much smaller padding */
+    }
 }
 
 .stats-view__header {
@@ -9,7 +17,15 @@
 
 .stats-view__content {
     display: grid;
-    gap: var(--lumo-space-m);
+    gap: var(--lumo-space-xl); /* 8px grid: 4 * 8px */
+}
+
+/* Mobile: Much smaller gap for compact layout */
+
+@media (max-width: 767px) {
+    .stats-view__content {
+        gap: var(--lumo-space-s); /* Much smaller gap */
+    }
 }
 
 /* Unified page section */
@@ -27,42 +43,426 @@
     text-align: center;
 }
 
-/* Stats cards */
-.stats-card { 
-    min-width: 120px; 
-    padding: var(--lumo-space-m); 
-    text-align: center; 
-
-    /* Mobile: full width, responsive grid via mobile-responsive.css */
+/* Stats sections - Material Design elevation */
+.stats-section { 
+    margin-bottom: var(--lumo-space-xl); /* 8px grid: 4 * 8px */
+    padding: var(--lumo-space-l); /* 8px grid: 2 * 8px */
+    border-radius: var(--lumo-border-radius-l);
+    background: var(--lumo-base-color);
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    box-shadow: var(--lumo-box-shadow-xs);
 }
 
-.stats-card.surface-card { /* visuals via component token */ }
+.stats-section:hover {
+    box-shadow: var(--lumo-box-shadow-s);
+}
+
+.stats-section.surface-panel { 
+    border: 1px solid var(--lumo-contrast-20pct);
+    background: var(--lumo-base-color);
+}
+
+/* Mobile: Much smaller padding for compact layout */
+
+@media (max-width: 767px) {
+    .stats-section {
+        margin-bottom: var(--lumo-space-s); /* Reduced from l */
+        padding: var(--lumo-space-s); /* Reduced from m */
+    }
+}
+
+/* Stats section titles */
+.stats-section__title {
+    margin: 0 0 var(--lumo-space-m) 0; /* 8px grid: 1.5 * 8px */
+    color: var(--lumo-primary-text-color);
+    font-size: var(--lumo-font-size-l);
+    font-weight: 600;
+}
+
+/* Mobile: Reduce title font size and margins */
+
+@media (max-width: 767px) {
+    .stats-section__title {
+        margin-bottom: var(--lumo-space-xs); /* Much smaller margin */
+        font-size: var(--lumo-font-size-s); /* Smaller font */
+    }
+}
+
+/* Stats cards - Material Design elevation with semantic variants */
+.stats-card { 
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+    padding: var(--lumo-space-l); /* 8px grid: 2 * 8px */
+    border: 1px solid var(--lumo-contrast-20pct);
+    border-radius: var(--lumo-border-radius-m);
+    background: var(--lumo-base-color);
+    text-align: center;
+    aspect-ratio: 1;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fade-in-up 0.4s ease-out;
+    overflow: hidden;
+    box-sizing: border-box;
+    box-shadow: var(--lumo-box-shadow-xs);
+}
+
+.stats-card:hover {
+    border-color: var(--lumo-primary-color-30pct);
+    transform: translateY(-2px);
+    box-shadow: var(--lumo-box-shadow-m);
+}
+
+.stats-card.surface-card { 
+    border: 1px solid var(--lumo-contrast-20pct);
+    background: var(--lumo-base-color);
+}
+
+/* Semantic color variants - accent borders */
+.stats-card--primary {
+    border-top: 4px solid var(--lumo-primary-color);
+}
+
+.stats-card--success {
+    border-top: 4px solid var(--lumo-success-color);
+}
+
+.stats-card--warning {
+    border-top: 4px solid var(--lumo-error-color);
+}
+
+.stats-card--info {
+    border-top: 4px solid var(--lumo-contrast-60pct);
+}
+
+/* Mobile: Much smaller cards for better space utilization */
+
+@media (max-width: 767px) {
+    .stats-card {
+        min-width: 60px; /* Reduced from 80px */
+        padding: var(--lumo-space-s); /* Reduced from var(--lumo-space-m) */
+        aspect-ratio: 0.8; /* Make cards less square, more rectangular */
+    }
+}
 
 .stats-card__value {
-    margin-bottom: var(--lumo-space-xs);
+    margin-bottom: var(--lumo-space-s); /* 8px grid: 1 * 8px */
     color: var(--lumo-primary-text-color);
     font-size: var(--lumo-font-size-xxl);
-    font-weight: bold;
+    font-weight: 700;
+    line-height: 1;
 }
 
 .stats-card__label {
     color: var(--lumo-secondary-text-color);
     font-size: var(--lumo-font-size-s);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
 }
 
-.stats-card--today {
-    border: 2px solid var(--lumo-primary-color-10pct);
+/* Mobile: Much smaller font sizes for compact cards */
+
+@media (max-width: 767px) {
+    .stats-card__value {
+        margin-bottom: var(--lumo-space-xs); /* 8px grid: 0.5 * 8px */
+        font-size: var(--lumo-font-size-l); /* Reduced from xl */
+    }
+    
+    .stats-card__label {
+        font-size: var(--lumo-font-size-xs);
+        letter-spacing: 0.3px; /* Reduced letter spacing */
+    }
 }
 
-/* Deck stats cards */
+/* Typography scale for different sections */
+.stats-section--today .stats-card__value {
+    font-size: 3rem; /* Large for primary focus */
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.stats-section--overall .stats-card__value {
+    font-size: 2rem; /* Medium for secondary */
+    font-weight: 600;
+}
+
+.stats-section--decks .stats-card__value {
+    font-size: 1.2rem; /* Small for compact */
+    font-weight: 500;
+}
+
+/* Mobile: Adaptive grid layout for today and overall stats */
+
+@media (max-width: 767px) {
+    .stats-section--today .stats-today-grid,
+    .stats-section--overall .stats-overall-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* 2x2 grid instead of horizontal */
+        gap: var(--lumo-space-xs); /* Minimal gap */
+        justify-content: center;
+    }
+    
+    .stats-section--today .stats-card,
+    .stats-section--overall .stats-card {
+        min-width: unset; /* Remove min-width constraint */
+        padding: var(--lumo-space-xs); /* Smaller padding */
+        aspect-ratio: 0.9; /* Slightly rectangular */
+        border: 1px solid var(--lumo-contrast-5pct); /* Subtle border */
+        background: var(--lumo-contrast-5pct); /* Subtle background */
+    }
+    
+    .stats-section--today .stats-card__value {
+        margin-bottom: var(--lumo-space-xs);
+        font-size: 1.2rem; /* Much smaller for mobile */
+    }
+    
+    .stats-section--overall .stats-card__value {
+        margin-bottom: var(--lumo-space-xs);
+        font-size: 1rem; /* Smaller for mobile */
+    }
+    
+    .stats-section--today .stats-card__label,
+    .stats-section--overall .stats-card__label {
+        font-size: var(--lumo-font-size-xs);
+        letter-spacing: 0.2px; /* Tighter spacing */
+    }
+}
+
+/* Very small screens: Single column for stats */
+
+@media (max-width: 479px) {
+    .stats-section--today .stats-today-grid,
+    .stats-section--overall .stats-overall-grid {
+        grid-template-columns: 1fr; /* Single column for very small screens */
+        gap: var(--lumo-space-xs);
+    }
+    
+    .stats-section--today .stats-card,
+    .stats-section--overall .stats-card {
+        display: flex;
+        flex-direction: row; /* Horizontal layout within each card */
+        align-items: center;
+        justify-content: space-between;
+        min-height: 44px; /* Touch target size */
+        padding: var(--lumo-space-xs);
+        aspect-ratio: unset; /* Remove aspect ratio */
+    }
+    
+    .stats-section--today .stats-card__value,
+    .stats-section--overall .stats-card__value {
+        margin-right: var(--lumo-space-xs);
+        margin-bottom: 0;
+        font-size: var(--lumo-font-size-l);
+    }
+    
+    .stats-section--today .stats-card__label,
+    .stats-section--overall .stats-card__label {
+        margin-left: auto; /* Push label to the right */
+        font-size: var(--lumo-font-size-xs);
+    }
+}
+
+/* Deck statistics list */
+.stats-decks-list {
+    gap: var(--lumo-space-s); /* 8px grid: 1 * 8px */
+}
+
+/* Mobile: Smaller gap between deck cards */
+
+@media (max-width: 767px) {
+    .stats-decks-list {
+        gap: var(--lumo-space-xs); /* Minimal gap for mobile */
+    }
+}
+
+/* Compact deck card styles */
+.deck-stat-card-compact {
+    padding: var(--lumo-space-s); /* 8px grid: 1 * 8px */
+    border: 1px solid var(--lumo-contrast-10pct);
+    border-radius: var(--lumo-border-radius-s);
+    background: var(--lumo-base-color);
+    transition: all 0.2s ease;
+}
+
+.deck-stat-card-compact:hover {
+    border-color: var(--lumo-primary-color-20pct);
+    box-shadow: var(--lumo-box-shadow-xs);
+}
+
+.deck-stat-card-compact__header {
+    margin-bottom: var(--lumo-space-xs); /* 8px grid: 0.5 * 8px */
+}
+
+.deck-stat-card-compact__title {
+    margin: 0;
+    color: var(--lumo-primary-text-color);
+    font-size: var(--lumo-font-size-m);
+    font-weight: 600;
+}
+
+.deck-stat-card-compact__grid {
+    gap: var(--lumo-space-s); /* 8px grid: 1 * 8px */
+}
+
+.deck-stat-card-compact__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+    text-align: center;
+}
+
+.deck-stat-card-compact__total {
+    margin-bottom: var(--lumo-space-xs); /* 8px grid: 0.5 * 8px */
+    color: var(--lumo-primary-text-color);
+    font-size: var(--lumo-font-size-l);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.deck-stat-card-compact__today {
+    margin-bottom: var(--lumo-space-xs); /* 8px grid: 0.5 * 8px */
+    color: var(--lumo-success-color);
+    font-size: var(--lumo-font-size-s);
+    font-weight: 600;
+    line-height: 1;
+}
+
+.deck-stat-card-compact__label {
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    opacity: 0.7;
+}
+
+/* Mobile: Vertical layout for deck cards to prevent merging */
+
+@media (max-width: 767px) {
+    .deck-stat-card-compact {
+        padding: var(--lumo-space-xs); /* Smaller padding */
+    }
+    
+    .deck-stat-card-compact__header {
+        margin-bottom: var(--lumo-space-xs);
+        text-align: center; /* Center title on mobile */
+    }
+    
+    .deck-stat-card-compact__title {
+        font-size: var(--lumo-font-size-s); /* Smaller title */
+    }
+    
+    .deck-stat-card-compact__grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* 2x2 grid instead of horizontal */
+        gap: var(--lumo-space-xs); /* Smaller gap */
+        justify-content: center;
+    }
+    
+    .deck-stat-card-compact__item {
+        min-width: unset; /* Remove min-width constraint */
+        padding: var(--lumo-space-xs); /* Add padding to items */
+        border: 1px solid var(--lumo-contrast-5pct); /* Subtle border */
+        border-radius: var(--lumo-border-radius-xs);
+        background: var(--lumo-contrast-5pct); /* Subtle background */
+    }
+    
+    .deck-stat-card-compact__total {
+        margin-bottom: var(--lumo-space-xs);
+        font-size: var(--lumo-font-size-m); /* Smaller total */
+    }
+    
+    .deck-stat-card-compact__today {
+        margin-bottom: var(--lumo-space-xs);
+        font-size: var(--lumo-font-size-xs); /* Smaller today */
+    }
+    
+    .deck-stat-card-compact__label {
+        font-size: var(--lumo-font-size-xs);
+        letter-spacing: 0.2px; /* Tighter spacing */
+    }
+}
+
+/* Very small screens: Single column layout */
+
+@media (max-width: 479px) {
+    .deck-stat-card-compact__grid {
+        grid-template-columns: 1fr; /* Single column for very small screens */
+        gap: var(--lumo-space-xs);
+    }
+    
+    .deck-stat-card-compact__item {
+        display: flex;
+        flex-direction: row; /* Horizontal layout within each item */
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--lumo-space-xs);
+    }
+    
+    .deck-stat-card-compact__total {
+        margin-right: var(--lumo-space-xs);
+        margin-bottom: 0;
+    }
+    
+    .deck-stat-card-compact__today {
+        margin-right: var(--lumo-space-xs);
+        margin-bottom: 0;
+    }
+    
+    .deck-stat-card-compact__label {
+        margin-left: auto; /* Push label to the right */
+    }
+}
+
+/* No decks message */
+.stats-no-decks {
+    padding: var(--lumo-space-l); /* 8px grid: 2 * 8px */
+    color: var(--lumo-secondary-text-color);
+    font-style: italic;
+    text-align: center;
+}
+
+/* Fade-in animations for cards */
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stats-card:nth-child(2) { 
+    animation-delay: 0.1s; 
+}
+
+.stats-card:nth-child(3) { 
+    animation-delay: 0.2s; 
+}
+
+.stats-card:nth-child(4) { 
+    animation-delay: 0.3s; 
+}
+
+/* Legacy deck stats cards (for compatibility) */
 .deck-stats-card {
     flex-shrink: 0;
     width: 100%;
-    min-width:320px;
+    min-width: 200px;
     padding: var(--lumo-space-l);
-
-    /* Mobile: no min-width, responsive via mobile-responsive.css */
- }
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
 
 .deck-stats-card.surface-card { /* visuals via component token */ }
 
@@ -75,70 +475,54 @@
     font-size: var(--lumo-font-size-m);
 }
 
-/* Stats sections */
-.stats-section { box-sizing: border-box; }
-
-.stats-section.surface-panel { border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent); }
-
-/* Stats section header - clickable area */
-.stats-section__title {
-    color: var(--lumo-primary-text-color);
-}
-
-.stats-section__header:hover .stats-section__title {
-  color: var(--lumo-primary-contrast-color);
-}
-
-/* Clickable title styles */
-.clickable-title {
-    transition: color 0.2s ease, opacity 0.2s ease;
-    cursor: pointer;
-}
-
-.clickable-title:hover {
-    color: var(--lumo-primary-contrast-color);
-    opacity: 0.8;
-}
-
-/* Stats pagination */
-.stats-pagination__indicator {
-    min-width: 80px;
-    color: var(--lumo-secondary-text-color);
-    font-size: var(--lumo-font-size-s);
-    text-align: center;
-}
-
-/* Stats current deck */
-.stats-current-deck__container {
+/* Legacy stats deck items (for compatibility) */
+.stats-deck-item {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 200px;
-}
-
-/* Stats deck items */
-.stats-deck-item {
-    min-width: 120px;
+    min-width: 80px;
     padding: var(--lumo-space-s);
+    border: 1px solid var(--lumo-contrast-20pct);
+    border-radius: var(--lumo-border-radius-m);
+    background: var(--lumo-base-color);
     text-align: center;
+    aspect-ratio: 1;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
-.stats-deck-item.surface-card { /* visuals via component token */ }
+.stats-deck-item:hover {
+    border-color: var(--lumo-primary-color-30pct);
+    transform: translateY(-1px);
+    box-shadow: var(--lumo-box-shadow-s);
+}
+
+.stats-deck-item.surface-card { 
+    border: 1px solid var(--lumo-contrast-20pct);
+    background: var(--lumo-base-color);
+    box-shadow: none;
+}
 
 .stats-deck-item__total {
     margin-bottom: var(--lumo-space-xs);
     color: var(--lumo-primary-text-color);
-    font-size: calc(var(--lumo-font-size-l) + 2px);
-    font-weight: bold;
+    font-size: var(--lumo-font-size-l);
+    font-weight: 700;
+    line-height: 1;
 }
 
 .stats-deck-item__today {
     margin-bottom: var(--lumo-space-xs);
     color: var(--lumo-success-color);
-    font-size: var(--lumo-font-size-m);
+    font-size: var(--lumo-font-size-xs);
+    font-weight: 600;
 }
 
 .stats-deck-item__label {
     color: var(--lumo-secondary-text-color);
-    font-size: var(--lumo-font-size-m);
+    font-size: var(--lumo-font-size-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }

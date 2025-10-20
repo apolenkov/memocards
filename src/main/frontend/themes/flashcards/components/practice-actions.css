@@ -1,0 +1,37 @@
+/**
+ * Practice Actions Component - Mobile-First Responsive Styles
+ * Handles button layout for practice actions and completion buttons
+ */
+
+/* Mobile: Allow button wrapping + remove large variant */
+.practice-actions {
+    flex-wrap: wrap;
+    gap: var(--lumo-space-s);
+}
+
+/* Mobile: Remove large size from practice buttons + safe area spacing */
+
+@media (max-width: 767px) {
+    .practice-actions [theme~="large"] {
+        min-height: var(--lumo-size-m);
+        padding: var(--lumo-space-xs) var(--lumo-space-s);
+        font-size: var(--lumo-font-size-m);
+    }
+    
+    /* Use safe area insets for mobile devices to prevent overlap with system UI */
+    .practice-actions {
+        margin-bottom: max(var(--lumo-space-l), env(safe-area-inset-bottom, 0px));
+        padding-bottom: max(var(--lumo-space-xs), env(safe-area-inset-bottom, 0px));
+        gap: var(--lumo-space-xs);
+    }
+}
+
+/* Tablet+: Keep original button sizes */
+
+@media (min-width: 768px) {
+    .practice-actions {
+        flex-wrap: nowrap;
+        gap: var(--lumo-space-m);
+    }
+}
+

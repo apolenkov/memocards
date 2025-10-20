@@ -39,6 +39,7 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
         actionButtons.setWidthFull();
         actionButtons.setAlignItems(FlexComponent.Alignment.CENTER);
         actionButtons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        actionButtons.addClassName("practice-actions");
 
         createActionButtons(actionButtons);
         return actionButtons;
