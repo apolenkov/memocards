@@ -1,6 +1,7 @@
 package org.apolenkov.application.views.deck.components.grid;
 
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -304,10 +305,14 @@ public final class DeckFlashcardList extends VerticalLayout {
             String noItemsText = getTranslation("deck.pagination.no-items");
             topPaginationInfo.setText(noItemsText);
             bottomPaginationInfo.setText(noItemsText);
-            updatePaginationButtons(false, false);
-            updatePageInfoLabels("");
+
+            // Hide pagination controls when no items
+            hidePaginationControls();
             return;
         }
+
+        // Show pagination controls when items exist
+        showPaginationControls();
 
         int startItem = currentPage * pageSize + 1;
         int endItem = Math.min((currentPage + 1) * pageSize, (int) totalItems);
@@ -328,12 +333,6 @@ public final class DeckFlashcardList extends VerticalLayout {
         String pageInfoText = (currentPage + 1) + " / " + Math.max(1, totalPages);
         topPaginationInfo.getElement().setAttribute("data-page-info", pageInfoText);
         bottomPaginationInfo.getElement().setAttribute("data-page-info", pageInfoText);
-
-        // Update button states
-        updatePaginationButtons(currentPage > 0, currentPage < totalPages - 1);
-
-        // Update page info in pagination controls
-        updatePageInfoLabels(pageInfoText);
     }
 
     /**
@@ -369,6 +368,54 @@ public final class DeckFlashcardList extends VerticalLayout {
         if (bottomPageInfo != null) {
             bottomPageInfo.setText(text);
         }
+    }
+
+    /**
+     * Hides pagination controls when no items are available.
+     */
+    private void hidePaginationControls() {
+        // Hide top pagination
+        if (getComponentCount() > 1) {
+            Component topPagination = getComponentAt(1);
+            if (topPagination != null) {
+                topPagination.setVisible(false);
+            }
+        }
+
+        // Hide bottom pagination
+        if (getComponentCount() > 3) {
+            Component bottomPagination = getComponentAt(3);
+            if (bottomPagination != null) {
+                bottomPagination.setVisible(false);
+            }
+        }
+    }
+
+    /**
+     * Shows pagination controls when items are available.
+     */
+    private void showPaginationControls() {
+        // Show top pagination
+        if (getComponentCount() > 1) {
+            Component topPagination = getComponentAt(1);
+            if (topPagination != null) {
+                topPagination.setVisible(true);
+            }
+        }
+
+        // Show bottom pagination
+        if (getComponentCount() > 3) {
+            Component bottomPagination = getComponentAt(3);
+            if (bottomPagination != null) {
+                bottomPagination.setVisible(true);
+            }
+        }
+
+        // Update button states and page info
+        updatePaginationButtons(currentPage > 0, currentPage < totalPages - 1);
+
+        String pageInfoText = (currentPage + 1) + " / " + Math.max(1, totalPages);
+        updatePageInfoLabels(pageInfoText);
     }
 
     /**
