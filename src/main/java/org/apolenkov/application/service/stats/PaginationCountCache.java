@@ -36,7 +36,9 @@ import org.springframework.web.context.WebApplicationContext;
  * <ul>
  *   <li>Event-driven: DeckModifiedEvent (deck delete invalidates all counts)</li>
  *   <li>Event-driven: ProgressChangedEvent (known/unknown status change)</li>
- *   <li>TTL-based: 30 seconds backup fallback</li>
+ *   <li>Smart invalidation: FilterOption.ALL is NOT invalidated on progress change (count unchanged)</li>
+ *   <li>Debouncing: 2-second cooldown prevents excessive invalidations during rapid clicks</li>
+ *   <li>TTL-based: configurable backup fallback</li>
  * </ul>
  */
 @Component
@@ -44,10 +46,13 @@ import org.springframework.web.context.WebApplicationContext;
 public class PaginationCountCache {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaginationCountCache.class);
+    private static final long INVALIDATION_COOLDOWN_MS = 2000; // 2 seconds debouncing
 
     private final Map<CountKey, CachedCount> cache = new ConcurrentHashMap<>();
+    private final Map<Long, Instant> lastInvalidationTime = new ConcurrentHashMap<>();
     private final AtomicLong hitCount = new AtomicLong();
     private final AtomicLong missCount = new AtomicLong();
+    private final AtomicLong skippedInvalidations = new AtomicLong();
 
     @Value("${app.cache.pagination-count.ttl-ms:30000}")
     private long ttlMs;
@@ -132,6 +137,50 @@ public class PaginationCountCache {
     }
 
     /**
+     * Invalidates cache entries for a specific deck and filter option.
+     * Smart invalidation: only removes entries that are affected by the change.
+     *
+     * @param deckId the deck ID
+     * @param filterOption the filter option to invalidate
+     */
+    private void invalidateByFilter(final Long deckId, final FilterOption filterOption) {
+        if (deckId == null || filterOption == null) {
+            return;
+        }
+
+        long removed = cache.keySet().stream()
+                .filter(key -> deckId.equals(key.deckId()) && filterOption.equals(key.filterOption()))
+                .count();
+
+        cache.keySet().removeIf(key -> deckId.equals(key.deckId()) && filterOption.equals(key.filterOption()));
+
+        if (removed > 0 && LOGGER.isDebugEnabled()) {
+            LOGGER.debug(
+                    "COUNT cache invalidated for deckId={}, filter={}: {} entries removed",
+                    deckId,
+                    filterOption,
+                    removed);
+        }
+    }
+
+    /**
+     * Checks if deck is in invalidation cooldown period.
+     * Prevents excessive invalidations during rapid user interactions (practice mode).
+     *
+     * @param deckId the deck ID
+     * @return true if in cooldown, false otherwise
+     */
+    private boolean isInCooldown(final Long deckId) {
+        Instant lastInvalidation = lastInvalidationTime.get(deckId);
+        if (lastInvalidation == null) {
+            return false;
+        }
+
+        Instant now = Instant.now();
+        return now.isBefore(lastInvalidation.plusMillis(INVALIDATION_COOLDOWN_MS));
+    }
+
+    /**
      * Handles deck modified events for automatic cache invalidation.
      * Event-driven approach ensures data consistency after deck deletion.
      *
@@ -157,6 +206,13 @@ public class PaginationCountCache {
      * Handles progress changed events for automatic cache invalidation.
      * Event-driven approach ensures data consistency after known/unknown status changes.
      *
+     * <p>Optimization strategies:
+     * <ul>
+     *   <li>Smart invalidation: FilterOption.ALL is NOT invalidated (total count unchanged)</li>
+     *   <li>Debouncing: 2-second cooldown prevents excessive invalidations during rapid clicks</li>
+     *   <li>Selective: Only KNOWN_ONLY and UNKNOWN_ONLY filters are invalidated</li>
+     * </ul>
+     *
      * @param event progress changed event
      */
     @EventListener
@@ -165,12 +221,32 @@ public class PaginationCountCache {
             return;
         }
 
-        invalidate(event.getDeckId());
+        Long deckId = event.getDeckId();
+
+        // Debouncing: Skip if last invalidation was < 2 seconds ago
+        if (isInCooldown(deckId)) {
+            skippedInvalidations.incrementAndGet();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "COUNT cache invalidation skipped (cooldown): deckId={}, changeType={}",
+                        deckId,
+                        event.getChangeType());
+            }
+            return;
+        }
+
+        // Smart invalidation: Only invalidate filters affected by card status change
+        // FilterOption.ALL count doesn't change when card status toggles (total remains same)
+        invalidateByFilter(deckId, FilterOption.KNOWN_ONLY);
+        invalidateByFilter(deckId, FilterOption.UNKNOWN_ONLY);
+
+        // Update last invalidation time for debouncing
+        lastInvalidationTime.put(deckId, Instant.now());
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(
-                    "COUNT cache auto-invalidated on ProgressChangedEvent: deckId={}, changeType={}",
-                    event.getDeckId(),
+                    "COUNT cache smart-invalidated on ProgressChangedEvent: deckId={}, changeType={}, filters=[KNOWN_ONLY, UNKNOWN_ONLY]",
+                    deckId,
                     event.getChangeType());
         }
     }
@@ -178,10 +254,29 @@ public class PaginationCountCache {
     /**
      * Returns cache statistics for monitoring and testing.
      *
-     * @return cache statistics including hit/miss counts and current size
+     * @return cache statistics including hit/miss counts, current size, and skipped invalidations
      */
     public CacheStats getStats() {
-        return new CacheStats(hitCount.get(), missCount.get(), cache.size());
+        return new CacheStats(hitCount.get(), missCount.get(), cache.size(), skippedInvalidations.get());
+    }
+
+    /**
+     * Logs cache statistics at DEBUG level.
+     * Useful for monitoring cache effectiveness and debouncing impact.
+     */
+    public void logStats() {
+        if (LOGGER.isDebugEnabled()) {
+            CacheStats stats = getStats();
+            long total = stats.hits() + stats.misses();
+            String hitRate = total > 0 ? String.format("%.1f%%", (double) stats.hits() / total * 100) : "N/A";
+            LOGGER.debug(
+                    "COUNT cache stats: hits={}, misses={}, hitRate={}, size={}, skippedInvalidations={}",
+                    stats.hits(),
+                    stats.misses(),
+                    hitRate,
+                    stats.size(),
+                    stats.skippedInvalidations());
+        }
     }
 
     /**
@@ -246,6 +341,17 @@ public class PaginationCountCache {
      * @param hits number of cache hits
      * @param misses number of cache misses
      * @param size current cache size
+     * @param skippedInvalidations number of invalidations skipped due to debouncing
      */
-    public record CacheStats(long hits, long misses, int size) {}
+    public record CacheStats(long hits, long misses, int size, long skippedInvalidations) {
+        /**
+         * Calculates cache hit rate.
+         *
+         * @return hit rate as percentage (0.0 to 1.0)
+         */
+        public double hitRate() {
+            long total = hits + misses;
+            return total > 0 ? (double) hits / total : 0.0;
+        }
+    }
 }

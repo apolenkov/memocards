@@ -81,7 +81,7 @@ app:
       ttl-ms: ${CACHE_KNOWN_CARDS_TTL:300000}  # 5 minutes (less volatile than decks)
       max-size: ${CACHE_KNOWN_CARDS_MAX_SIZE:1000}
     pagination-count:
-      ttl-ms: ${CACHE_PAGINATION_COUNT_TTL:30000}  # 30 seconds (short TTL for COUNT queries)
+      ttl-ms: ${CACHE_PAGINATION_COUNT_TTL:60000}  # 1 minute (dev/test default, prod uses 5 minutes)
       max-size: ${CACHE_PAGINATION_COUNT_MAX_SIZE:500}
   ui:
     search:
@@ -93,6 +93,9 @@ app:
     hikari:
       enabled: ${HIKARI_MONITORING_ENABLED:true}
       log-interval-ms: ${HIKARI_LOG_INTERVAL:60000}
+    cache:
+      enabled: ${CACHE_MONITORING_ENABLED:false}  # Disabled by default (enable for debugging)
+      log-interval-ms: ${CACHE_LOG_INTERVAL:300000}  # 5 minutes
   security:
     max-failed-attempts: ${MAX_FAILED_ATTEMPTS:5}
     failed-attempts-window-minutes: ${FAILED_ATTEMPTS_WINDOW:15}
@@ -161,4 +164,12 @@ logging:
     org.flywaydb: INFO
     com.vaadin: WARN
     com.zaxxer.hikari: INFO
+
+# Production cache optimization: longer TTL with event-driven invalidation
+app:
+  cache:
+    pagination-count:
+      ttl-ms: 300000  # 5 minutes (longer TTL safe with event-driven invalidation)
+    known-cards:
+      ttl-ms: 600000  # 10 minutes (less volatile, event-driven invalidation ensures freshness)
 
