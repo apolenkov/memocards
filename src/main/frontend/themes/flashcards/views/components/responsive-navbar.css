@@ -173,6 +173,6 @@ vaadin-app-layout::part(drawer) {
 
 /* Style for drawer overlay backdrop */
 [overlay]::before {
-    background: rgb(0 0 0 / 50%);
+    background: var(--lumo-shade-90pct);
     backdrop-filter: blur(2px);
 }

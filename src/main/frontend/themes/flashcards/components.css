@@ -117,3 +117,74 @@
 [theme="deck-actions-menu-theme"] vaadin-context-menu-item vaadin-icon {
 	margin-inline-end: var(--lumo-space-s);
 }
+
+/* ==================== Enhanced Views (from enhanced-views.css) ==================== */
+.view-header {
+	margin-bottom: var(--lumo-space-l);
+	padding-bottom: var(--lumo-space-m);
+	border-bottom: 1px solid var(--lumo-contrast-10pct);
+}
+
+.view-header__title {
+	margin: 0;
+	color: var(--lumo-primary-text-color);
+	font-size: var(--lumo-font-size-xxl);
+	font-weight: bold;
+}
+
+.view-header__subtitle {
+	margin: var(--lumo-space-xs) 0 0 0;
+	color: var(--lumo-secondary-text-color);
+	font-size: var(--lumo-font-size-m);
+}
+
+.view-content {
+	padding: var(--lumo-space-m) 0;
+}
+
+.view-footer {
+	margin-top: var(--lumo-space-l);
+	padding-top: var(--lumo-space-m);
+	border-top: 1px solid var(--lumo-contrast-10pct);
+	text-align: center;
+}
+
+/* ==================== Form Controls (from form-controls.css) ==================== */
+.form-control {
+	margin-bottom: var(--lumo-space-m);
+}
+
+.form-control__label {
+	display: block;
+	margin-bottom: var(--lumo-space-xs);
+	color: var(--lumo-primary-text-color);
+	font-weight: 500;
+}
+
+.form-control__input {
+	width: 100%;
+	padding: var(--lumo-space-s);
+	border: 1px solid var(--lumo-contrast-20pct);
+	border-radius: var(--lumo-border-radius-s);
+	background-color: var(--lumo-base-color);
+	color: var(--lumo-primary-text-color);
+	transition: border-color var(--lumo-transition-duration) ease;
+}
+
+.form-control__input:focus {
+	outline: none;
+	border-color: var(--lumo-primary-color);
+	box-shadow: 0 0 0 2px var(--lumo-primary-color-10pct);
+}
+
+.form-control__error {
+	margin-top: var(--lumo-space-xs);
+	color: var(--lumo-error-color);
+	font-size: var(--lumo-font-size-xs);
+}
+
+.form-control__help {
+	margin-top: var(--lumo-space-xs);
+	color: var(--lumo-secondary-text-color);
+	font-size: var(--lumo-font-size-xs);
+}

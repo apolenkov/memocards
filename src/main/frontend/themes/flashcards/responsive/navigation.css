@@ -1,0 +1,115 @@
+/* ==================== MOBILE-FIRST RESPONSIVE STYLES ==================== */
+
+/* Based on: @mobile-first-best-practices */
+
+/* ==================== Global Touch Targets ==================== */
+
+/* WCAG 2.1 AAA: 44x44px minimum, 48x48px recommended */
+
+/* Apply minimum touch target size to all interactive elements */
+button,
+input,
+select {
+    min-width: var(--app-mobile-button-size);
+    min-height: var(--app-mobile-button-size);
+}
+
+/* ==================== MenuButton Component ==================== */
+
+/* Menu button - compact button with three dots (used in deck header) */
+.menu-button {
+    min-width: var(--app-mobile-button-size);
+    min-height: var(--app-mobile-button-size);
+    padding: 0;
+}
+
+.menu-button vaadin-icon {
+    margin: 0;
+}
+
+/* ==================== DeckView - Detail Header ==================== */
+
+/* Desktop: [← Back] [Title] [Stats] - left aligned */
+
+/* Mobile: [← Back] [Title] [Stats] + [⋮ Menu: Practice, Edit, Reset, Delete] */
+
+@media (max-width: 767px) {
+    /* Hide desktop actions section completely */
+    .deck-view__actions {
+        display: none;
+    }
+    
+    /* Mobile: Title and stats - compact */
+    .deck-view__title {
+        margin: 0;
+        font-size: var(--lumo-font-size-m);
+    }
+    
+    .deck-view__stats {
+        margin: 0;
+        font-size: var(--lumo-font-size-xs);
+    }
+    
+    /* Mobile: center section with title + stats + menu - left aligned */
+    .deck-view__header .deck-header-center {
+        gap: var(--lumo-space-xs);
+    }
+    
+    /* Mobile toolbar: only search + filter */
+    .deck-toolbar {
+        gap: var(--lumo-space-s);
+    }
+    
+    .deck-search-field {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    
+    .deck-filter-combobox {
+        flex: 0 0 120px;
+    }
+    
+    /* Mobile actions: only Add button visible */
+    .deck-view__actions .desktop-only {
+        display: none;
+    }
+    
+    .deck-view__actions.mobile-actions {
+        display: flex;
+        justify-content: center;
+    }
+}
+
+/* Base layout managed via Java code */
+
+/* Mobile: Compact filter and practice button */
+
+@media (max-width: 767px) {
+    /* Compact filter on mobile */
+    .deck-filter-combobox {
+        flex-shrink: 1;
+        min-width: 100px;
+        max-width: 140px;
+    }
+    
+    /* Ensure mobile-only container doesn't overflow */
+    .deck-view__actions .mobile-only {
+        justify-content: center;
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+        gap: var(--lumo-space-xs);
+    }
+}
+
+/* Tablet and up: Larger fonts */
+
+@media (min-width: 768px) {
+    .deck-view__title {
+        font-size: var(--lumo-font-size-xxl);
+    }
+    
+    .deck-view__stats {
+        font-size: var(--lumo-font-size-m);
+    }
+}

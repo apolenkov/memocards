@@ -1,43 +1,47 @@
-/* Project tokens (extend Lumo, no custom colors) */
+/* Project tokens - App-specific only (no Lumo token duplication) */
 :root {
-    /* Breakpoints */
-    --app-bp-sm: 480px;
-    --app-bp-md: 768px;
-    --app-bp-lg: 1024px;
-    --app-bp-xl: 1280px;
+	/* NOTE: Use native Lumo tokens directly where possible:
+	 * --lumo-space-xs, --lumo-space-s, --lumo-space-m, --lumo-space-l, --lumo-space-xl
+	 * --lumo-font-size-xs, --lumo-font-size-s, --lumo-font-size-m, etc.
+	 * See: https://vaadin.com/docs/latest/styling/lumo/lumo-style-properties
+	 */
 
-    /* Spacing scales (aliases to Lumo if needed) */
-    --app-space-xs: var(--lumo-space-xs);
-    --app-space-s: var(--lumo-space-s);
-    --app-space-m: var(--lumo-space-m);
-    --app-space-l: var(--lumo-space-l);
-    --app-space-xl: var(--lumo-space-xl);
+	/* ==================== Breakpoints (for reference only) ==================== */
+	--app-bp-sm: 480px;
+	--app-bp-md: 768px;
+	/* ⭐ PRIMARY - Tablet/Desktop boundary */
+	--app-bp-lg: 1024px;
+	--app-bp-xl: 1280px;
 
-    /* Container sizes */
-    --app-container-sm: 600px;
-    --app-container-md: 800px;
-    --app-container-lg: 900px;
-    --app-container-xl: 1000px;
-    --app-container-xxl: 1200px;
+	/* ==================== Container Sizes ==================== */
+	--app-container-sm: 600px;
+	--app-container-md: 800px;
+	--app-container-lg: 900px;
+	--app-container-xl: 1000px;
+	--app-container-xxl: 1200px;
 
-    /* Card widths */
-    --app-card-max: 700px;
+	/* ==================== Card & Component Sizes ==================== */
+	--app-card-max: 700px;
+	--app-auth-form-max-width: 480px;
 
-    /* Hero and accent sizes */
-    --app-hero-image-size: 160px;
-    --app-accent-icon-size: 36px;
+	/* ==================== Specialty Sizes ==================== */
+	--app-hero-image-size: 160px;
+	--app-accent-icon-size: 36px;
 
-    /* Dialog sizes */
-    --app-dialog-sm: 420px;
-    --app-dialog-md: 500px;
-    --app-dialog-lg: 600px;
-    --app-dialog-height-md: 500px;
+	/* ==================== Dialog Sizes ==================== */
+	--app-dialog-sm: 420px;
+	--app-dialog-md: 500px;
+	--app-dialog-lg: 600px;
+	--app-dialog-height-md: 500px;
 
-    /* Component sizes */
-    --app-language-switcher-width: 92px;
-    --app-filter-width: 150px;
-    --app-indicator-min-width: 24px;
-    --app-mobile-button-size: 36px;
-    --app-mobile-practice-button-size: 48px;
+	/* ==================== Component-Specific Sizes ==================== */
+	--app-language-switcher-width: 92px;
+	--app-filter-width: 150px;
+	--app-indicator-min-width: 24px;
+
+	/* ==================== Mobile Touch Targets (WCAG 2.1 AAA) ==================== */
+	--app-mobile-button-size: 36px;
+
+	/* Minimum: 44x44px recommended by WCAG */
+	--app-mobile-practice-button-size: 48px;
 }
-

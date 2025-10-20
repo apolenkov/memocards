@@ -5,39 +5,42 @@
 
 /* All imports must be at the top before any rules */
 
+/* Settings */
 @import './settings/tokens.css';
+
+/* Base Components */
 @import './components.css';
-@import './settings/media.css';
-@import './mobile-responsive.css';
+@import './animations.css';
+@import './utilities.css';
+@import './main-layout.css';
+
+/* Mobile Responsive - Modular */
+@import './responsive/navigation.css';
+@import './responsive/deck-cards.css';
+@import './responsive/pagination.css';
+@import './responsive/utilities.css';
+
+/* Component Modules */
 @import './views/components/deck-card.css';
 @import './views/components/dialogs.css';
 @import './views/components/top-menu.css';
 @import './views/components/status.css';
 @import './views/components/mobile-navigation.css';
 @import './views/components/responsive-navbar.css';
-@import './views/login-view.css';
+
+/* Views - Consolidated */
+@import './views/auth.css';
+@import './views/errors.css';
+@import './views/public.css';
+
+/* Views - Specific */
 @import './views/deck-view.css';
 @import './views/home-view.css';
 @import './views/admin-news-view.css';
 @import './views/stats-view.css';
 @import './views/practice-view.css';
-@import './views/landing-view.css';
-@import './views/error-view.css';
-@import './views/not-found-view.css';
-@import './views/forgot-password-view.css';
-@import './views/reset-password-view.css';
 @import './views/settings-view.css';
-@import './views/register-view.css';
-@import './views/public-layout.css';
 @import './views/deck-create-view.css';
-@import './utilities.css';
-@import './responsive.css';
-@import './animations.css';
-@import './form-controls.css';
-@import './modern-components.css';
-@import './enhanced-views.css';
-@import './main-layout.css';
-@import './auth-forms.css';
 
 /* Global styles to prevent horizontal scroll */
 * {
