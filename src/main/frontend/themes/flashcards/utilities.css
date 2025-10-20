@@ -1,105 +1,65 @@
-/* Utility Classes */
-.mt-0 { margin-top: 0; }
+/* Utility Classes - App-Specific Only */
 
-.mt-s { margin-top: var(--lumo-space-s); }
+/* NOTE: For margin, padding, typography, layout utilities use LumoUtility Java classes:
+ * - LumoUtility.Margin.* / LumoUtility.Padding.*
+ * - LumoUtility.TextAlignment.* / LumoUtility.TextColor.*
+ * - LumoUtility.Display.* / LumoUtility.Flex.*
+ * - LumoUtility.Width.* / LumoUtility.Height.*
+ * See: https://vaadin.com/docs/latest/styling/lumo/utility-classes
+ */
 
-.mt-m { margin-top: var(--lumo-space-m); }
+/* ==================== App-Specific Container ==================== */
 
-.mt-l { margin-top: var(--lumo-space-l); }
-
-.mt-xl { margin-top: var(--lumo-space-xl); }
-
-.mb-0 { margin-bottom: 0; }
-
-.mb-s { margin-bottom: var(--lumo-space-s); }
-
-.mb-m { margin-bottom: var(--lumo-space-m); }
-
-.mb-l { margin-bottom: var(--lumo-space-l); }
-
-.mb-xl { margin-bottom: var(--lumo-space-xl); }
-
-.p-0 { padding: 0; }
-
-.p-s { padding: var(--lumo-space-s); }
-
-.p-m { padding: var(--lumo-space-m); }
-
-.p-l { padding: var(--lumo-space-l); }
-
-.p-xl { padding: var(--lumo-space-xl); }
-
-.text-left { text-align: left; }
-
-.text-right { text-align: right; }
-
-.text-center { text-align: center; }
-
-/* Text color utilities */
-.text-primary { color: var(--lumo-primary-color); }
-
-.text-secondary { color: var(--lumo-secondary-text-color); }
-
-.text-muted { color: var(--lumo-tertiary-text-color); }
-
-/* Layout utilities */
-.flex-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Container width helper - actively used in views */
+.container-md {
+	width: 100%;
+	max-width: var(--app-container-md, 800px);
+	margin-inline: auto;
+	padding-right: var(--lumo-space-m);
+	padding-left: var(--lumo-space-m);
+	box-sizing: border-box;
+	overflow-x: hidden;
 }
 
-.flex-between {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.w-full { width: 100%; }
-
-.h-full { height: 100%; }
-
-/* Container width helper - only container-md is actively used */
-.container-md { 
-    width: 100%; 
-    max-width: var(--app-container-md, 800px); 
-    margin-inline: auto; 
-}
-
-.hidden { display: none; }
-
-.visible { display: block; }
-
-.rounded { border-radius: var(--lumo-border-radius-s); }
-
-.rounded-m { border-radius: var(--lumo-border-radius-m); }
-
-.rounded-l { border-radius: var(--lumo-border-radius-l); }
-
-/* Glass utilities - use with Lumo tokens only */
+/* ==================== Glass Morphism Effects ==================== */
 .glass-sm {
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
-    border-radius: var(--lumo-border-radius-m);
-    background: color-mix(in srgb, var(--lumo-base-color) 92%, transparent);
-    backdrop-filter: blur(4px);
+	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
+	border-radius: var(--lumo-border-radius-m);
+	background: color-mix(in srgb, var(--lumo-base-color) 92%, transparent);
+	backdrop-filter: blur(4px);
 }
 
 .glass-md {
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
-    border-radius: var(--lumo-border-radius-l);
-    background: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
-    backdrop-filter: blur(6px);
+	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+	border-radius: var(--lumo-border-radius-l);
+	background: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
+	backdrop-filter: blur(6px);
 }
 
 .glass-lg {
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
-    border-radius: var(--lumo-border-radius-l);
-    background: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
-    backdrop-filter: blur(8px);
+	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
+	border-radius: var(--lumo-border-radius-l);
+	background: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
+	backdrop-filter: blur(8px);
 }
+
+/* ==================== Accessibility ==================== */
 
 /* Focus ring utility for keyboard navigation */
 .focus-ring:focus-visible {
-    outline: 2px solid var(--lumo-primary-color);
-    outline-offset: 2px;
+	outline: 2px solid var(--lumo-primary-color);
+	outline-offset: 2px;
+}
+
+/* ==================== Border Radius ==================== */
+.rounded {
+	border-radius: var(--lumo-border-radius-s);
+}
+
+.rounded-m {
+	border-radius: var(--lumo-border-radius-m);
+}
+
+.rounded-l {
+	border-radius: var(--lumo-border-radius-l);
 }

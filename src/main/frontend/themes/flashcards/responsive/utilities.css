@@ -1,0 +1,99 @@
+/* ==================== General Container Fixes ==================== */
+
+/* Prevent horizontal scroll */
+.container-md {
+    max-width: 100%;
+    padding-right: var(--lumo-space-m);
+    padding-left: var(--lumo-space-m);
+    box-sizing: border-box;
+    overflow-x: hidden; /* Prevent any horizontal overflow */
+}
+
+/* Ensure toolbar respects container padding */
+.decks-section {
+    margin-right: 0;
+    margin-left: 0;
+    padding-right: 0;
+    padding-left: 0;
+}
+
+/* Toolbar should match deck-card width exactly - merged with mobile toolbar styles */
+
+@media (min-width: 768px) {
+    .container-md {
+        max-width: 800px;
+    }
+}
+
+/* ==================== Typography Mobile ==================== */
+
+/* Headings responsive - mobile-first sizing */
+
+/* Applied globally to all heading elements for consistent typography */
+h1 {
+    font-size: var(--lumo-font-size-xl);
+}
+
+h2 {
+    font-size: var(--lumo-font-size-l);
+}
+
+h3 {
+    font-size: var(--lumo-font-size-m);
+}
+
+/* Desktop: larger heading sizes */
+
+@media (min-width: 768px) {
+    h1 {
+        font-size: var(--lumo-font-size-xxxl);
+    }
+    
+    h2 {
+        font-size: var(--lumo-font-size-xxl);
+    }
+    
+    h3 {
+        font-size: var(--lumo-font-size-xl);
+    }
+}
+
+/* ==================== iOS Safe Areas ==================== */
+
+/* Note: app-header and app-footer classes are not currently used */
+
+/* To enable iOS safe areas, add these classes to your header/footer components */
+
+/* ==================== Utility Classes ==================== */
+
+/* Mobile-only visibility (flex by default for Vaadin layouts) */
+.mobile-only {
+    display: flex;
+}
+
+.desktop-only {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .mobile-only {
+        display: none;
+    }
+    
+    .desktop-only {
+        display: flex;
+    }
+}
+
+/* Responsive flex direction */
+.flex-mobile-column {
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .flex-mobile-column {
+        flex-direction: row;
+    }
+}
+
+

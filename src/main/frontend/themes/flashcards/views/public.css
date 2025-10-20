@@ -1,4 +1,42 @@
-/* LandingView Component Styles */
+/* Public Views - Consolidated (Landing View, Public Layout) */
+
+/* ==================== Public Layout ==================== */
+.public-layout {
+    margin-top: 0;
+}
+
+.main-layout__navbar {
+    border-bottom: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
+}
+
+.main-layout__navbar.surface-panel {
+    height: var(--lumo-space-l);
+}
+
+.main-layout__right {
+    display: flex;
+    align-items: center;
+    gap: var(--lumo-space-s);
+    color: var(--lumo-secondary-text-color);
+    text-decoration: none;
+}
+
+.main-layout__right.surface-panel {
+    border: none;
+}
+
+/* Grid pattern */
+.grid-pattern {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(var(--lumo-contrast-5pct) 1px, transparent 1px),
+        linear-gradient(90deg, var(--lumo-contrast-5pct) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.1;
+}
+
+/* ==================== Landing View ==================== */
 .landing-view {
     padding: var(--lumo-space-m);
 }
@@ -97,7 +135,6 @@
 }
 
 /* Animation for hero title */
-
 @keyframes fade-in-up {
     from {
         opacity: 0;
@@ -109,3 +146,4 @@
         transform: translateY(0);
     }
 }
+

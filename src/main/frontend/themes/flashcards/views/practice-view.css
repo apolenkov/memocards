@@ -73,7 +73,7 @@
     display: inline-block;
     font-size: 4rem;
     animation: celebration-bounce 2s ease-in-out infinite;
-    filter: drop-shadow(0 4px 8px rgb(255 215 0 / 30%));
+    filter: drop-shadow(0 4px 8px var(--lumo-warning-color-10pct));
 }
 
 .practice-congratulations .celebration-icon-container {
@@ -85,7 +85,7 @@
     display: inline-block;
     font-size: 4rem;
     animation: celebration-bounce 2s ease-in-out infinite;
-    filter: drop-shadow(0 4px 8px rgb(255 215 0 / 30%));
+    filter: drop-shadow(0 4px 8px var(--lumo-warning-color-10pct));
 }
 
 @keyframes celebration-bounce {
