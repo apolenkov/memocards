@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.event.ProgressChangedEvent;
+import org.apolenkov.application.domain.event.ProgressChangedEvent.ChangeType;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.domain.usecase.StatsUseCase;
@@ -196,7 +197,7 @@ public class StatsService implements StatsUseCase {
         statsRepository.setCardKnown(deckId, cardId, known);
 
         // Publish event for cache invalidation (event-driven approach, decouples service from cache)
-        eventPublisher.publishEvent(new ProgressChangedEvent(this, deckId, cardId));
+        eventPublisher.publishEvent(new ProgressChangedEvent(this, deckId));
 
         LOGGER.info("Card marked as {} in deck {}: cardId={}", known ? "known" : "unknown", deckId, cardId);
     }
@@ -222,7 +223,7 @@ public class StatsService implements StatsUseCase {
         statsRepository.setCardKnown(deckId, cardId, newStatus);
 
         // Publish event for cache invalidation (event-driven approach, decouples service from cache)
-        eventPublisher.publishEvent(new ProgressChangedEvent(this, deckId, cardId));
+        eventPublisher.publishEvent(new ProgressChangedEvent(this, deckId));
 
         LOGGER.info("Card toggled to {} in deck {}: cardId={}", newStatus ? "known" : "unknown", deckId, cardId);
     }
@@ -250,7 +251,7 @@ public class StatsService implements StatsUseCase {
         statsRepository.resetDeckProgress(deckId);
 
         // Publish event for cache invalidation (event-driven approach, decouples service from cache)
-        eventPublisher.publishEvent(new ProgressChangedEvent(this, deckId));
+        eventPublisher.publishEvent(new ProgressChangedEvent(this, deckId, ChangeType.DECK_RESET));
 
         // Audit log with deck context
         AUDIT_LOGGER.warn(

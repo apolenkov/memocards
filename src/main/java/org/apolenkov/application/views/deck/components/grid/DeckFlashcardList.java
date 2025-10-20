@@ -604,15 +604,6 @@ public final class DeckFlashcardList extends VerticalLayout {
         }
     }
 
-    /**
-     * Invalidates the cache in stats service and refreshes the view.
-     * Call this after known status changes to ensure UI shows updated status.
-     */
-    public void invalidateCache() {
-        // Stats service has its own cache, just refresh the view
-        refreshStatusForCards();
-    }
-
     @Override
     protected void onDetach(final DetachEvent detachEvent) {
         super.onDetach(detachEvent);
