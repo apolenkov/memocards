@@ -314,10 +314,16 @@ public final class DeckFlashcardList extends VerticalLayout {
             return getTranslation("deck.pagination.no-items");
         }
 
-        // Otherwise, show contextual message based on filter
+        // Check if deck is completely empty (no cards at all)
+        long totalCardsInDeck = flashcardUseCase.countByDeckId(currentDeckId);
+        if (totalCardsInDeck == 0) {
+            return getTranslation("deck.pagination.no-items.all");
+        }
+
+        // Deck has cards, but filter hides them all
         FilterOption filterOption = currentFilter != null ? currentFilter.filterOption() : FilterOption.ALL;
         return switch (filterOption) {
-            case ALL -> getTranslation("deck.pagination.no-items.all");
+            case ALL -> getTranslation("deck.pagination.no-items"); // Should not happen if deck has cards
             case KNOWN_ONLY -> getTranslation("deck.pagination.no-items.known");
             case UNKNOWN_ONLY -> getTranslation("deck.pagination.no-items.unknown");
         };

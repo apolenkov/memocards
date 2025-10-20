@@ -101,6 +101,7 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
         search.setValueChangeMode(ValueChangeMode.TIMEOUT);
         search.setValueChangeTimeout(uiConfig.search().debounceMs());
         search.setPrefixComponent(VaadinIcon.SEARCH.create());
+        search.addClassName(AdminConstants.ADMIN_CONTENT_TOOLBAR_SEARCH_CLASS);
         searchListenerRegistration = search.addValueChangeListener(e -> refreshNews(e.getValue()));
 
         Button addNewsBtn = ButtonHelper.createButton(
@@ -108,6 +109,9 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
                 VaadinIcon.PLUS,
                 e -> showNewsDialog(null),
                 ButtonVariant.LUMO_PRIMARY);
+        addNewsBtn.addClassName(AdminConstants.ADMIN_CONTENT_TOOLBAR_ADD_BUTTON_CLASS);
+        // Add tooltip for mobile users
+        addNewsBtn.getElement().setAttribute("title", getTranslation(AdminConstants.ADMIN_NEWS_ADD_KEY));
 
         HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addNewsBtn);
         toolbar.addClassName(AdminConstants.ADMIN_CONTENT_TOOLBAR_CLASS);
