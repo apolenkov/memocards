@@ -9,6 +9,7 @@
 	/* ==================== Breakpoints (for reference only) ==================== */
 	--app-bp-sm: 480px;
 	--app-bp-md: 768px;
+
 	/* ⭐ PRIMARY - Tablet/Desktop boundary */
 	--app-bp-lg: 1024px;
 	--app-bp-xl: 1280px;

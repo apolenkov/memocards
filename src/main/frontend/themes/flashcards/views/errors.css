@@ -195,6 +195,20 @@
     .not-found__suggestion {
         font-size: var(--lumo-font-size-s);
     }
+
+    /* Mobile button optimization */
+    .not-found__button-layout {
+        margin-top: var(--lumo-space-m);
+        gap: var(--lumo-space-s);
+    }
+
+    .not-found__button-layout vaadin-button {
+        width: 100%;
+        height: 44px; /* WCAG 2.1 AAA touch target */
+        min-width: 180px;
+        max-width: 280px;
+        font-size: var(--lumo-font-size-m);
+    }
 }
 
 /* Dark theme adjustments */
@@ -236,6 +250,17 @@
 /* Button styling for navigation */
 .not-found-container vaadin-button {
     margin: var(--lumo-space-xs);
+}
+
+/* Button layout styling */
+.not-found__button-layout {
+    margin-top: var(--lumo-space-l);
+}
+
+.not-found__button-layout vaadin-button {
+    width: 100%;
+    min-width: 200px;
+    max-width: 300px;
 }
 
 /* Focus states for accessibility */

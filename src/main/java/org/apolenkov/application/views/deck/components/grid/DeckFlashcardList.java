@@ -342,7 +342,15 @@ public final class DeckFlashcardList extends VerticalLayout {
             return;
         }
 
-        // Show pagination controls when items exist
+        // Hide pagination controls if all items fit on one page
+        if (totalPages <= 1) {
+            hidePaginationControls();
+            topPaginationInfo.setText("");
+            bottomPaginationInfo.setText("");
+            return;
+        }
+
+        // Show pagination controls when multiple pages exist
         showPaginationControls();
 
         int startItem = currentPage * pageSize + 1;
