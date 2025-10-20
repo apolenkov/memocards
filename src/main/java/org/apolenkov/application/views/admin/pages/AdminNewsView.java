@@ -1,16 +1,8 @@
 package org.apolenkov.application.views.admin.pages;
 
 import com.vaadin.flow.component.DetachEvent;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
@@ -18,7 +10,6 @@ import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import org.apolenkov.application.config.constants.RouteConstants;
@@ -28,32 +19,32 @@ import org.apolenkov.application.model.News;
 import org.apolenkov.application.service.news.NewsService;
 import org.apolenkov.application.views.admin.components.AdminNewsDeleteDialog;
 import org.apolenkov.application.views.admin.components.AdminNewsDialog;
+import org.apolenkov.application.views.admin.components.NewsContainer;
 import org.apolenkov.application.views.admin.constants.AdminConstants;
-import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.shared.base.BaseView;
-import org.apolenkov.application.views.shared.utils.ButtonHelper;
-import org.apolenkov.application.views.shared.utils.LayoutHelper;
 import org.apolenkov.application.views.shared.utils.NotificationHelper;
 
 /**
  * Administrative interface for managing news articles.
+ * This view provides functionality for listing all news articles,
+ * searching through them, and creating/editing/deleting news.
  */
 @Route(value = RouteConstants.ADMIN_NEWS_ROUTE, layout = PublicLayout.class)
 @RouteAlias(value = RouteConstants.ADMIN_CONTENT_ROUTE, layout = PublicLayout.class)
 @RolesAllowed(SecurityConstants.ROLE_ADMIN)
 public class AdminNewsView extends BaseView implements AfterNavigationObserver {
 
-    // ==================== Fields ====================
-
+    // Dependencies
     private final transient NewsService newsService;
     private final transient UIConfig uiConfig;
-    private VerticalLayout newsList;
+
+    // UI Components
+    private NewsContainer newsContainer;
 
     // Event Registrations
     private Registration searchListenerRegistration;
-
-    // ==================== Constructor ====================
+    private Registration addClickListenerRegistration;
 
     /**
      * Creates news management interface.
@@ -71,76 +62,52 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
         this.uiConfig = uiConfigParam;
     }
 
-    // ==================== Lifecycle & Initialization ====================
-
     /**
      * Initializes the view components after dependency injection is complete.
-     * This method is called after the constructor and ensures that all
-     * dependencies are properly injected before UI initialization.
+     * Sets up layout, creates components, configures event listeners, and loads data.
      */
     @PostConstruct
     @SuppressWarnings("unused")
     private void init() {
+        // Configure main view layout
         setPadding(false);
         setSpacing(false);
         addClassName(AdminConstants.ADMIN_CONTENT_VIEW_CLASS);
 
+        // Create content layout
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         content.setPadding(true);
         content.setSpacing(true);
-        content.setAlignItems(Alignment.CENTER);
+        content.setAlignItems(FlexComponent.Alignment.CENTER);
         content.addClassName(AdminConstants.ADMIN_CONTENT_VIEW_CONTENT_CLASS);
+        add(content);
 
-        H2 title = new H2(getTranslation(AdminConstants.ADMIN_CONTENT_PAGE_TITLE_KEY));
-        title.addClassName(AdminConstants.ADMIN_CONTENT_VIEW_TITLE_CLASS);
+        // Create and add news container
+        newsContainer = new NewsContainer(uiConfig.search().debounceMs());
 
-        TextField search = new TextField();
-        search.setPlaceholder(getTranslation(AdminConstants.ADMIN_CONTENT_SEARCH_PLACEHOLDER_KEY));
-        search.setClearButtonVisible(true);
-        search.setValueChangeMode(ValueChangeMode.TIMEOUT);
-        search.setValueChangeTimeout(uiConfig.search().debounceMs());
-        search.setPrefixComponent(VaadinIcon.SEARCH.create());
-        searchListenerRegistration = search.addValueChangeListener(e -> refreshNews(e.getValue()));
-
-        Button addNewsBtn = ButtonHelper.createButton(
-                getTranslation(AdminConstants.ADMIN_NEWS_ADD_KEY),
-                VaadinIcon.PLUS,
-                e -> showNewsDialog(null),
-                ButtonVariant.LUMO_PRIMARY);
-
-        HorizontalLayout toolbar = LayoutHelper.createSearchRow(search, addNewsBtn);
-        toolbar.addClassName(AdminConstants.ADMIN_CONTENT_TOOLBAR_CLASS);
-
-        newsList = new VerticalLayout();
-        newsList.setPadding(false);
-        newsList.setSpacing(true);
-        newsList.setWidthFull();
-        newsList.setAlignItems(Alignment.CENTER);
-
-        VerticalLayout newsContainer = new VerticalLayout();
-        newsContainer.setSpacing(true);
-        newsContainer.setAlignItems(Alignment.CENTER);
-        newsContainer.setWidthFull();
-        newsContainer.addClassName(AdminConstants.CONTAINER_MD_CLASS);
-        newsContainer.addClassName(AdminConstants.ADMIN_CONTENT_SECTION_CLASS);
-        newsContainer.addClassName(AdminConstants.SURFACE_PANEL_CLASS);
-
-        newsContainer.add(title, toolbar, newsList);
+        // Set up callbacks for news actions
+        newsContainer.getNewsList().setEditCallback(this::showNewsDialog);
+        newsContainer.getNewsList().setDeleteCallback(this::deleteNews);
 
         content.add(newsContainer);
-        add(content);
     }
 
     /**
      * Called after navigation to this view is complete.
-     * Loads news data and displays it.
+     * Sets up event listeners and loads initial data.
      * This method is called ONCE per navigation - no flag needed.
      *
      * @param event the after navigation event
      */
     @Override
     public void afterNavigation(final AfterNavigationEvent event) {
+        if (searchListenerRegistration == null) {
+            searchListenerRegistration = newsContainer.getToolbar().addSearchListener(this::refreshNews);
+        }
+        if (addClickListenerRegistration == null) {
+            addClickListenerRegistration = newsContainer.getToolbar().addAddClickListener(e -> showNewsDialog(null));
+        }
         refreshNews("");
     }
 
@@ -214,24 +181,17 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
     }
 
     /**
-     * Refreshes news data based on search query.
+     * Refreshes the news list display based on the search query.
      * This method updates the news list by filtering news based on the
      * provided search query. It handles empty results gracefully by displaying
      * an appropriate message when no news match the search criteria.
      *
-     * @param query the search query to filter news by title or content
+     * @param query the search query to filter news by title, content, or author
      */
     private void refreshNews(final String query) {
-        newsList.removeAll();
-        List<News> allNews = newsService.getAllNews();
-        List<News> filteredNews = filterNews(allNews, query);
-
-        if (filteredNews.isEmpty()) {
-            displayEmptyState();
-            return;
-        }
-
-        displayNewsCards(filteredNews);
+        final List<News> allNews = newsService.getAllNews();
+        final List<News> filteredNews = filterNews(allNews, query);
+        newsContainer.refreshNews(filteredNews);
     }
 
     /**
@@ -264,97 +224,6 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
     }
 
     /**
-     * Displays empty state when no news found.
-     */
-    private void displayEmptyState() {
-        Span empty = new Span(getTranslation(AdminConstants.ADMIN_CONTENT_SEARCH_NO_RESULTS_KEY));
-        empty.addClassName(AdminConstants.ADMIN_CONTENT_EMPTY_MESSAGE_CLASS);
-        newsList.add(empty);
-    }
-
-    /**
-     * Displays news cards for filtered news.
-     *
-     * @param filteredNews the news to display
-     */
-    private void displayNewsCards(final List<News> filteredNews) {
-        filteredNews.forEach(news -> newsList.add(createNewsCard(news)));
-    }
-
-    /**
-     * Creates a news card component similar to deck cards.
-     * This method creates a card-like component for displaying news information
-     * with title, content preview, author, and action buttons.
-     *
-     * @param news the news item to display
-     * @return a vertical layout containing the news card
-     */
-    private VerticalLayout createNewsCard(final News news) {
-        VerticalLayout card = new VerticalLayout();
-        card.setPadding(true);
-        card.setSpacing(true);
-        card.setWidthFull();
-        card.addClassName(AdminConstants.NEWS_CARD_CLASS);
-
-        // Title
-        H3 title = new H3(news.getTitle());
-        title.addClassName(AdminConstants.NEWS_CARD_TITLE_CLASS);
-
-        // Content preview (first 150 characters)
-        String contentPreview = news.getContent();
-        if (contentPreview.length() > AdminConstants.CONTENT_PREVIEW_LENGTH) {
-            contentPreview = contentPreview.substring(0, AdminConstants.CONTENT_PREVIEW_LENGTH)
-                    + AdminConstants.CONTENT_PREVIEW_SUFFIX;
-        }
-        Span content = new Span(contentPreview);
-        content.addClassName(AdminConstants.NEWS_CARD_CONTENT_CLASS);
-        content.addClassName(AdminConstants.TEXT_CONTENT_CLASS);
-
-        // Author and date
-        HorizontalLayout metaInfo = new HorizontalLayout();
-        metaInfo.setSpacing(true);
-        metaInfo.setAlignItems(Alignment.CENTER);
-
-        Span author = new Span(getTranslation(AdminConstants.ADMIN_NEWS_AUTHOR_KEY)
-                + CoreConstants.SEPARATOR_COLON_SPACE
-                + news.getAuthor());
-        author.addClassName(AdminConstants.NEWS_CARD_AUTHOR_CLASS);
-        author.addClassName(AdminConstants.TEXT_MUTED_CLASS);
-
-        Span createdAt =
-                new Span(news.getCreatedAt().format(DateTimeFormatter.ofPattern(AdminConstants.DATE_TIME_PATTERN)));
-        createdAt.addClassName(AdminConstants.NEWS_CARD_DATE_CLASS);
-        createdAt.addClassName(AdminConstants.TEXT_MUTED_SMALL_CLASS);
-
-        metaInfo.add(author, createdAt);
-
-        // Action buttons
-        HorizontalLayout actions = new HorizontalLayout();
-        actions.setSpacing(true);
-        actions.setAlignItems(Alignment.CENTER);
-        actions.addClassName(AdminConstants.NEWS_CARD_ACTIONS_CLASS);
-
-        Button editBtn = ButtonHelper.createButton(
-                getTranslation(AdminConstants.COMMON_EDIT_KEY),
-                VaadinIcon.EDIT,
-                e -> showNewsDialog(news),
-                ButtonVariant.LUMO_TERTIARY,
-                ButtonVariant.LUMO_SMALL);
-
-        Button deleteBtn = ButtonHelper.createButton(
-                getTranslation(AdminConstants.COMMON_DELETE_KEY),
-                VaadinIcon.TRASH,
-                e -> deleteNews(news),
-                ButtonVariant.LUMO_ERROR,
-                ButtonVariant.LUMO_SMALL);
-
-        actions.add(editBtn, deleteBtn);
-
-        card.add(title, content, metaInfo, actions);
-        return card;
-    }
-
-    /**
      * Returns localized page title.
      *
      * @return the localized page title
@@ -372,10 +241,16 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
      */
     @Override
     protected void onDetach(final DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+
         if (searchListenerRegistration != null) {
             searchListenerRegistration.remove();
             searchListenerRegistration = null;
         }
-        super.onDetach(detachEvent);
+
+        if (addClickListenerRegistration != null) {
+            addClickListenerRegistration.remove();
+            addClickListenerRegistration = null;
+        }
     }
 }

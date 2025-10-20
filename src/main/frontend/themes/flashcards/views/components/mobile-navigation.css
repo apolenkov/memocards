@@ -216,7 +216,7 @@
 
 /* Drawer backdrop - No animations */
 [overlay]::before {
-    background: rgb(0 0 0 / 60%);
+    background: var(--lumo-shade-90pct);
 }
 
 /* ==================== Anonymous Menu Specific Styles ==================== */

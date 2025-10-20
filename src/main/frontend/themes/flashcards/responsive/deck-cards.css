@@ -1,119 +1,3 @@
-/* ==================== MOBILE-FIRST RESPONSIVE STYLES ==================== */
-
-/* Based on: @mobile-first-best-practices */
-
-/* ==================== Global Touch Targets ==================== */
-
-/* WCAG 2.1 AAA: 44x44px minimum, 48x48px recommended */
-
-/* Apply minimum touch target size to all interactive elements */
-button,
-input,
-select {
-    min-width: var(--app-mobile-button-size);
-    min-height: var(--app-mobile-button-size);
-}
-
-/* ==================== MenuButton Component ==================== */
-
-/* Menu button - compact button with three dots (used in deck header) */
-.menu-button {
-    min-width: var(--app-mobile-button-size);
-    min-height: var(--app-mobile-button-size);
-    padding: 0;
-}
-
-.menu-button vaadin-icon {
-    margin: 0;
-}
-
-/* ==================== DeckView - Detail Header ==================== */
-
-/* Desktop: [← Back] [Title] [Stats] - left aligned */
-
-/* Mobile: [← Back] [Title] [Stats] + [⋮ Menu: Practice, Edit, Reset, Delete] */
-
-@media (max-width: 767px) {
-    /* Hide desktop actions section completely */
-    .deck-view__actions {
-        display: none;
-    }
-    
-    /* Mobile: Title and stats - compact */
-    .deck-view__title {
-        margin: 0;
-        font-size: var(--lumo-font-size-m);
-    }
-    
-    .deck-view__stats {
-        margin: 0;
-        font-size: var(--lumo-font-size-xs);
-    }
-    
-    /* Mobile: center section with title + stats + menu - left aligned */
-    .deck-view__header .deck-header-center {
-        gap: var(--lumo-space-xs);
-    }
-    
-    /* Mobile toolbar: only search + filter */
-    .deck-toolbar {
-        gap: var(--lumo-space-s);
-    }
-    
-    .deck-search-field {
-        flex: 1 1 auto;
-        min-width: 0;
-    }
-    
-    .deck-filter-combobox {
-        flex: 0 0 120px;
-    }
-    
-    /* Mobile actions: only Add button visible */
-    .deck-view__actions .desktop-only {
-        display: none;
-    }
-    
-    .deck-view__actions.mobile-actions {
-        display: flex;
-        justify-content: center;
-    }
-}
-
-/* Base layout managed via Java code */
-
-/* Mobile: Compact filter and practice button */
-
-@media (max-width: 767px) {
-    /* Compact filter on mobile */
-    .deck-filter-combobox {
-        flex-shrink: 1;
-        min-width: 100px;
-        max-width: 140px;
-    }
-    
-    /* Ensure mobile-only container doesn't overflow */
-    .deck-view__actions .mobile-only {
-        justify-content: center;
-        width: 100%;
-        max-width: 100%;
-        padding: 0;
-        gap: var(--lumo-space-xs);
-    }
-}
-
-/* Tablet and up: Larger fonts */
-
-@media (min-width: 768px) {
-    .deck-view__title {
-        font-size: var(--lumo-font-size-xxl);
-    }
-    
-    .deck-view__stats {
-        font-size: var(--lumo-font-size-m);
-    }
-}
-
 /* ==================== Flashcard Cards List ==================== */
 
 /* Flashcard card styling */
@@ -373,66 +257,210 @@ select {
 
 /* ==================== StatsView - Responsive Grid ==================== */
 
-/* Mobile: 1 column, stacked */
+/* Stats grids - Material Design 8px grid */
 .stats-today-grid,
 .stats-overall-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--lumo-space-s);
+    gap: var(--lumo-space-xs); /* Minimal gap for mobile */
     width: 100%;
+    box-sizing: border-box;
 }
 
+/* Stats cards - mobile height optimization */
 .stats-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     min-width: unset;
+    aspect-ratio: 0.8; /* Make cards more rectangular on mobile */
+    padding: var(--lumo-space-xs); /* 8px grid: 0.5 * 8px */
 }
 
-/* Small mobile: 2 columns */
+/* Very small screens: Single column layout for stats */
+
+@media (max-width: 479px) {
+    .stats-today-grid,
+    .stats-overall-grid {
+        grid-template-columns: 1fr; /* Single column */
+        gap: var(--lumo-space-xs);
+    }
+    
+    .stats-card {
+        display: flex;
+        flex-direction: row; /* Horizontal layout within each card */
+        align-items: center;
+        justify-content: space-between;
+        min-height: 44px; /* Touch target size */
+        padding: var(--lumo-space-xs);
+        aspect-ratio: unset; /* Remove aspect ratio */
+    }
+}
+
+/* Small mobile: 2 columns with minimal spacing */
 
 @media (min-width: 480px) {
     .stats-today-grid,
     .stats-overall-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: var(--lumo-space-xs); /* Minimal gap for mobile */
+        justify-content: center; /* Center the grid */
+    }
+    
+    .stats-current-deck__container {
+        min-height: 120px; /* Reduced height */
+    }
+    
+    .deck-stats-card {
+        padding: var(--lumo-space-xs); /* Smaller padding */
     }
 }
 
-/* Tablet: 4 columns */
+/* Tablet: 4 columns with enhanced spacing */
 
 @media (min-width: 768px) {
     .stats-today-grid,
     .stats-overall-grid {
         grid-template-columns: repeat(4, 1fr);
-        gap: var(--lumo-space-m);
+        gap: var(--lumo-space-l); /* 8px grid: 2 * 8px */
+        justify-content: space-evenly;
+    }
+    
+    .stats-current-deck__container {
+        min-height: 160px;
+    }
+    
+    .deck-stats-card {
+        padding: var(--lumo-space-m);
     }
 }
 
-/* Deck stats cards - mobile optimization */
-.deck-stats-card {
-    width: 100%;
-    min-width: unset;
+/* Stats current deck container - mobile height optimization */
+.stats-current-deck__container {
+    min-height: 120px; /* Reduced from 200px for mobile */
+    padding: var(--lumo-space-s); /* Smaller padding on mobile */
+    box-sizing: border-box;
 }
 
-.stats-current-deck__container {
-    min-height: unset;
-    padding: var(--lumo-space-m);
+/* Deck stats cards - mobile height optimization */
+.deck-stats-card {
+    width: 100%;
+    min-width: unset; /* Remove min-width on mobile */
+    padding: var(--lumo-space-s); /* Smaller padding on mobile */
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 /* Deck stats grid - responsive */
 .deck-stats-card__grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Single column on mobile */
     gap: var(--lumo-space-s);
+    width: 100%;
+    box-sizing: border-box;
 }
+
+/* Stats deck items - mobile optimization */
+.stats-deck-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: unset; /* Remove min-width on mobile */
+    padding: var(--lumo-space-xs); /* Smaller padding on mobile */
+    text-align: center;
+    aspect-ratio: 1; /* Keep square shape on mobile */
+    box-sizing: border-box;
+}
+
+.stats-deck-item__total {
+    font-size: var(--lumo-font-size-m); /* Smaller font on mobile */
+    font-weight: 700;
+}
+
+.stats-deck-item__today {
+    font-size: var(--lumo-font-size-xs); /* Smaller font on mobile */
+    font-weight: 600;
+}
+
+.stats-deck-item__label {
+    font-size: var(--lumo-font-size-xs); /* Smaller font on mobile */
+    font-weight: 500;
+}
+
+
+
+/* Small mobile: 2 columns for deck stats */
 
 @media (min-width: 480px) {
     .deck-stats-card__grid {
         grid-template-columns: repeat(2, 1fr);
     }
+    
+    .stats-deck-item {
+        padding: var(--lumo-space-s); /* Larger padding on small mobile */
+    }
+    
+    .stats-deck-item__total {
+        font-size: var(--lumo-font-size-l); /* Larger font */
+        font-weight: 700;
+    }
+    
+    .stats-deck-item__today {
+        font-size: var(--lumo-font-size-xs); /* Larger font */
+        font-weight: 600;
+    }
+    
+    .stats-deck-item__label {
+        font-size: var(--lumo-font-size-xs); /* Larger font */
+        font-weight: 500;
+    }
+}
+
+
+
+/* Tablet and up: larger padding for stats sections */
+
+@media (min-width: 768px) {
+    .stats-section {
+        padding: var(--lumo-space-m); /* Larger padding on tablet+ */
+    }
 }
 
 @media (min-width: 768px) {
+    .deck-stats-card {
+        min-width: 320px; /* Restore min-width on tablet+ */
+        padding: var(--lumo-space-l); /* Larger padding on tablet+ */
+    }
+    
+    .stats-current-deck__container {
+        padding: var(--lumo-space-m); /* Larger padding on tablet+ */
+    }
+    
     .deck-stats-card__grid {
         grid-template-columns: repeat(4, 1fr);
+        gap: var(--lumo-space-m);
+    }
+    
+    .stats-deck-item {
+        padding: var(--lumo-space-s); /* Normal padding on tablet+ */
+    }
+    
+    .stats-deck-item__total {
+        font-size: var(--lumo-font-size-l); /* Normal font size */
+        font-weight: 700;
+    }
+    
+    .stats-deck-item__today {
+        font-size: var(--lumo-font-size-xs); /* Normal font size */
+        font-weight: 600;
+    }
+    
+    .stats-deck-item__label {
+        font-size: var(--lumo-font-size-xs); /* Normal font size */
+        font-weight: 500;
     }
 }
 
@@ -441,11 +469,15 @@ select {
 /* Mobile: Stack search and button */
 .admin-content-toolbar {
     width: 100%;
+    max-width: var(--app-card-max, 700px); /* Same as news-card */
+    margin: 0 auto; /* Center the toolbar */
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .admin-content-toolbar > * {
     flex-direction: column;
     gap: var(--lumo-space-s);
+    width: 100%;
 }
 
 .admin-content-toolbar vaadin-text-field {
@@ -625,277 +657,4 @@ select {
     margin: 0; /* Remove any margins that could cause overflow */
     box-sizing: border-box;
 }
-
-/* ==================== Pagination Mobile Fixes ==================== */
-
-/* Mobile pagination - fix alignment and text overflow */
-
-@media (max-width: 767px) {
-    /* Pagination info text - responsive display */
-    .deck-pagination-info {
-        position: relative;
-        padding: 0 var(--lumo-space-s);
-        font-size: var(--lumo-font-size-xs);
-        line-height: 1.2;
-        text-align: center;
-        word-break: break-word;
-        overflow-wrap: break-word;
-    }
-
-    /* Show only page numbers on mobile by hiding the original text and showing page info */
-    .deck-pagination-info::after {
-        content: attr(data-page-info);
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        display: none;
-        min-width: 60px;
-        padding: var(--lumo-space-xs) var(--lumo-space-s);
-        border: 1px solid var(--lumo-contrast-20pct);
-        border-radius: var(--lumo-border-radius-m);
-        background: var(--lumo-contrast-5pct);
-        font-size: var(--lumo-font-size-s);
-        text-align: center;
-        transform: translate(-50%, -50%);
-    }
-
-    /* On tablet screens, show compact version */
-
-    @media (max-width: 768px) and (min-width: 481px) {
-        .deck-pagination-info {
-            padding: var(--lumo-space-xs);
-            border: 1px solid var(--lumo-contrast-10pct);
-            border-radius: var(--lumo-border-radius-s);
-            background: var(--lumo-contrast-5pct);
-            font-size: var(--lumo-font-size-xs);
-        }
-    }
-
-    /* On medium mobile screens, show compact version */
-
-    @media (max-width: 600px) and (min-width: 481px) {
-        .deck-pagination-info {
-            max-width: 200px;
-            padding: var(--lumo-space-xs);
-            border: 1px solid var(--lumo-contrast-10pct);
-            border-radius: var(--lumo-border-radius-s);
-            background: var(--lumo-contrast-5pct);
-            font-size: var(--lumo-font-size-xs);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-    }
-
-    /* On very small screens, hide original text and show only page numbers */
-
-    @media (max-width: 480px) {
-        .deck-pagination-info {
-            padding: 0;
-            border: none;
-            background: transparent;
-            color: var(--lumo-contrast-0pct);
-            font-size: 0;
-            line-height: 0;
-        }
-        
-        .deck-pagination-info::after {
-            display: block;
-            color: var(--lumo-body-text-color);
-            font-size: var(--lumo-font-size-s);
-            line-height: normal;
-        }
-    }
-    
-    /* Pagination controls - better alignment */
-    .deck-pagination-top,
-    .deck-pagination-bottom {
-        flex-wrap: nowrap;
-        padding: var(--lumo-space-xs) var(--lumo-space-s);
-        gap: var(--lumo-space-xs);
-    }
-    
-    /* Page info text - fix vertical alignment */
-    .pagination-page-info {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 44px; /* Match button height for proper alignment */
-        margin: 0 var(--lumo-space-xs);
-        font-size: var(--lumo-font-size-s);
-        font-weight: var(--lumo-font-weight-medium);
-        white-space: nowrap;
-    }
-    
-    /* Pagination buttons - consistent sizing */
-    .deck-pagination-top vaadin-button,
-    .deck-pagination-bottom vaadin-button {
-        flex-shrink: 0;
-        min-width: 44px;
-        min-height: 44px;
-        padding: var(--lumo-space-xs);
-        font-size: var(--lumo-font-size-xs);
-    }
-    
-    /* Hide button text on very small screens, show only icons */
-
-    @media (max-width: 480px) {
-        .deck-pagination-top vaadin-button::part(label),
-        .deck-pagination-bottom vaadin-button::part(label) {
-            display: none;
-        }
-        
-        .deck-pagination-top vaadin-button,
-        .deck-pagination-bottom vaadin-button {
-            width: 44px;
-            height: 44px;
-            padding: 0;
-        }
-        
-        .deck-pagination-top vaadin-button vaadin-icon,
-        .deck-pagination-bottom vaadin-button vaadin-icon {
-            margin: 0;
-        }
-        
-        /* Even more compact pagination info on very small screens */
-        .deck-pagination-info {
-            padding: 0 var(--lumo-space-xs);
-            font-size: var(--lumo-font-size-xs);
-        }
-    }
-}
-
-/* Tablet and desktop: restore full pagination text */
-
-@media (min-width: 768px) {
-    .deck-pagination-info {
-        padding: 0 var(--lumo-space-m);
-        font-size: var(--lumo-font-size-s);
-        text-align: center;
-    }
-    
-    .pagination-page-info {
-        margin: 0 var(--lumo-space-m);
-        font-size: var(--lumo-font-size-m);
-    }
-    
-    /* Show button text on larger screens */
-    .deck-pagination-top vaadin-button::part(label),
-    .deck-pagination-bottom vaadin-button::part(label) {
-        display: block;
-    }
-    
-    .deck-pagination-top vaadin-button,
-    .deck-pagination-bottom vaadin-button {
-        width: auto;
-        height: auto;
-        min-width: auto;
-        padding: var(--lumo-space-xs) var(--lumo-space-s);
-        font-size: var(--lumo-font-size-s);
-    }
-    
-    .deck-pagination-top vaadin-button vaadin-icon,
-    .deck-pagination-bottom vaadin-button vaadin-icon {
-        margin-right: var(--lumo-space-xs);
-    }
-}
-
-/* ==================== General Container Fixes ==================== */
-
-/* Prevent horizontal scroll */
-.container-md {
-    max-width: 100%;
-    padding-right: var(--lumo-space-m);
-    padding-left: var(--lumo-space-m);
-    box-sizing: border-box;
-    overflow-x: hidden; /* Prevent any horizontal overflow */
-}
-
-/* Ensure toolbar respects container padding */
-.decks-section {
-    margin-right: 0;
-    margin-left: 0;
-    padding-right: 0;
-    padding-left: 0;
-}
-
-/* Toolbar should match deck-card width exactly - merged with mobile toolbar styles */
-
-@media (min-width: 768px) {
-    .container-md {
-        max-width: 800px;
-    }
-}
-
-/* ==================== Typography Mobile ==================== */
-
-/* Headings responsive - mobile-first sizing */
-
-/* Applied globally to all heading elements for consistent typography */
-h1 {
-    font-size: var(--lumo-font-size-xl);
-}
-
-h2 {
-    font-size: var(--lumo-font-size-l);
-}
-
-h3 {
-    font-size: var(--lumo-font-size-m);
-}
-
-/* Desktop: larger heading sizes */
-
-@media (min-width: 768px) {
-    h1 {
-        font-size: var(--lumo-font-size-xxxl);
-    }
-    
-    h2 {
-        font-size: var(--lumo-font-size-xxl);
-    }
-    
-    h3 {
-        font-size: var(--lumo-font-size-xl);
-    }
-}
-
-/* ==================== iOS Safe Areas ==================== */
-
-/* Note: app-header and app-footer classes are not currently used */
-
-/* To enable iOS safe areas, add these classes to your header/footer components */
-
-/* ==================== Utility Classes ==================== */
-
-/* Mobile-only visibility (flex by default for Vaadin layouts) */
-.mobile-only {
-    display: flex;
-}
-
-.desktop-only {
-    display: none;
-}
-
-@media (min-width: 768px) {
-    .mobile-only {
-        display: none;
-    }
-    
-    .desktop-only {
-        display: flex;
-    }
-}
-
-/* Responsive flex direction */
-.flex-mobile-column {
-    flex-direction: column;
-}
-
-@media (min-width: 768px) {
-    .flex-mobile-column {
-        flex-direction: row;
-    }
-}
-
 

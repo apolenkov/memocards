@@ -1,0 +1,111 @@
+/* Auth Views - Consolidated (Login, Register, Forgot Password, Reset Password) */
+
+/* Unified auth forms layout */
+.auth-form {
+    width: 100%;
+    max-width: var(--app-auth-form-max-width, 480px);
+    padding: var(--lumo-space-xl);
+}
+
+.auth-form .vaadin-text-field,
+.auth-form .vaadin-password-field,
+.auth-form .vaadin-email-field {
+    width: 100%;
+}
+
+.auth-form .vaadin-button {
+    width: 100%;
+    margin-top: var(--lumo-space-s);
+}
+
+.auth-form .vaadin-button:first-of-type {
+    margin-top: var(--lumo-space-m);
+}
+
+/* Spacing between form and submit button */
+.form-spacing {
+    height: var(--lumo-space-l);
+}
+
+/* Login View */
+.login-form.surface-panel {
+    /* visuals via component token */
+}
+
+.login-form__title-container {
+    margin-bottom: var(--lumo-space-l);
+    text-align: center;
+}
+
+.login-form__title {
+    color: var(--lumo-primary-text-color);
+    font-size: var(--lumo-font-size-xxl);
+    font-weight: bold;
+}
+
+/* Register View */
+.register-form.surface-panel {
+    /* visuals via component token */
+}
+
+.register-form__title-container {
+    margin-bottom: var(--lumo-space-l);
+    text-align: center;
+}
+
+.register-form__title {
+    color: var(--lumo-primary-text-color);
+    font-size: var(--lumo-font-size-xxl);
+    font-weight: bold;
+}
+
+/* Forgot Password View */
+.forgot-password-view {
+    padding: var(--lumo-space-m);
+}
+
+.forgot-password-view__header {
+    margin-bottom: var(--lumo-space-l);
+    text-align: center;
+}
+
+.forgot-password-view__content {
+    max-width: var(--app-container-sm, 600px);
+    margin: 0 auto;
+}
+
+.forgot-password-form.surface-panel {
+    /* visuals via component token */
+}
+
+.forgot-password-form__title {
+    margin: 0 0 var(--lumo-space-l) 0;
+    color: var(--lumo-primary-text-color);
+    text-align: center;
+}
+
+/* Reset Password View */
+.reset-password-view {
+    padding: var(--lumo-space-m);
+}
+
+.reset-password-view__header {
+    margin-bottom: var(--lumo-space-l);
+    text-align: center;
+}
+
+.reset-password-view__content {
+    max-width: var(--app-container-sm, 600px);
+    margin: 0 auto;
+}
+
+.reset-password-form.surface-panel {
+    /* visuals via component token */
+}
+
+.reset-password-form__title {
+    margin: 0 0 var(--lumo-space-l) 0;
+    color: var(--lumo-primary-text-color);
+    text-align: center;
+}
+

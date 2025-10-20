@@ -1,0 +1,44 @@
+/* Touch Device Optimization - Vaadin Best Practice */
+
+/* Based on: https://vaadin.com/docs/latest/designing-apps/size-space */
+
+/* Increase Lumo element sizes for touch-enabled devices (coarse pointer = fingers) */
+
+/* This provides better UX on phones and tablets without affecting desktop */
+
+@media (pointer: coarse) {
+	html {
+		/* Increase interactive element sizes for comfortable touch interaction */
+
+		--lumo-size-xl: 4rem;
+
+		/* 64px - Large buttons */
+
+		--lumo-size-l: 3rem;
+
+		/* 48px - Standard buttons */
+
+		--lumo-size-m: 2.5rem;
+
+		/* 40px - Medium elements */
+
+		--lumo-size-s: 2rem;
+
+		/* 32px - Small elements */
+
+		--lumo-size-xs: 1.75rem;
+
+		/* 28px - Extra small */
+
+		/* Font size remains unchanged - only interactive elements grow */
+	}
+}
+
+/* Note: This optimization works alongside our fixed mobile button sizes:
+ * - Global touch targets: 36x36px minimum (via --app-mobile-button-size)
+ * - Practice buttons: 48x48px (via --app-mobile-practice-button-size)
+ * 
+ * The @media (pointer: coarse) provides additional comfort for touch devices
+ * by increasing Vaadin component sizes dynamically.
+ */
+
