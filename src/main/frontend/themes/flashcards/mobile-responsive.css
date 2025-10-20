@@ -125,9 +125,12 @@ select {
     border: 1px solid var(--lumo-contrast-10pct);
     border-radius: var(--lumo-border-radius-m);
     background: var(--lumo-base-color);
-    transition: box-shadow 0.2s ease;
+    transition: all 0.2s ease; /* Smooth transitions for all properties */
     cursor: pointer; /* Double-click to edit */
+    box-sizing: border-box; /* Include padding/border in width calculation */
     box-shadow: var(--lumo-box-shadow-s);
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    word-wrap: break-word; /* Break long words to prevent overflow */
 }
 
 /* Known flashcard - green left border */
@@ -142,8 +145,19 @@ select {
 
 
 .flashcard-card:hover {
-    transform: translateY(-1px);
+    border-color: var(--lumo-primary-color-30pct); /* Subtle border highlight */
+    background: var(--lumo-contrast-5pct); /* Subtle background highlight */
     box-shadow: var(--lumo-box-shadow-m);
+}
+
+.flashcard-card:active {
+    background: var(--lumo-primary-color-10pct);
+    transform: scale(0.98); /* Subtle press effect */
+}
+
+.flashcard-card:focus {
+    outline: 2px solid var(--lumo-primary-color);
+    outline-offset: 2px;
 }
 
 /* Front text styling */
@@ -610,6 +624,114 @@ select {
     max-width: 100%;
     margin: 0; /* Remove any margins that could cause overflow */
     box-sizing: border-box;
+}
+
+/* ==================== Pagination Mobile Fixes ==================== */
+
+/* Mobile pagination - fix alignment and text overflow */
+
+@media (max-width: 767px) {
+    /* Pagination info text - shorter version for mobile */
+    .deck-pagination-info {
+        padding: 0 var(--lumo-space-s);
+        font-size: var(--lumo-font-size-xs);
+        line-height: 1.2;
+        text-align: center;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Pagination controls - better alignment */
+    .deck-pagination-top,
+    .deck-pagination-bottom {
+        flex-wrap: nowrap;
+        padding: var(--lumo-space-xs) var(--lumo-space-s);
+        gap: var(--lumo-space-xs);
+    }
+    
+    /* Page info text - fix vertical alignment */
+    .pagination-page-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px; /* Match button height for proper alignment */
+        margin: 0 var(--lumo-space-xs);
+        font-size: var(--lumo-font-size-s);
+        font-weight: var(--lumo-font-weight-medium);
+        white-space: nowrap;
+    }
+    
+    /* Pagination buttons - consistent sizing */
+    .deck-pagination-top vaadin-button,
+    .deck-pagination-bottom vaadin-button {
+        flex-shrink: 0;
+        min-width: 44px;
+        min-height: 44px;
+        padding: var(--lumo-space-xs);
+        font-size: var(--lumo-font-size-xs);
+    }
+    
+    /* Hide button text on very small screens, show only icons */
+
+    @media (max-width: 480px) {
+        .deck-pagination-top vaadin-button::part(label),
+        .deck-pagination-bottom vaadin-button::part(label) {
+            display: none;
+        }
+        
+        .deck-pagination-top vaadin-button,
+        .deck-pagination-bottom vaadin-button {
+            width: 44px;
+            height: 44px;
+            padding: 0;
+        }
+        
+        .deck-pagination-top vaadin-button vaadin-icon,
+        .deck-pagination-bottom vaadin-button vaadin-icon {
+            margin: 0;
+        }
+        
+        /* Even more compact pagination info on very small screens */
+        .deck-pagination-info {
+            padding: 0 var(--lumo-space-xs);
+            font-size: var(--lumo-font-size-xs);
+        }
+    }
+}
+
+/* Tablet and desktop: restore full pagination text */
+
+@media (min-width: 768px) {
+    .deck-pagination-info {
+        padding: 0 var(--lumo-space-m);
+        font-size: var(--lumo-font-size-s);
+        text-align: center;
+    }
+    
+    .pagination-page-info {
+        margin: 0 var(--lumo-space-m);
+        font-size: var(--lumo-font-size-m);
+    }
+    
+    /* Show button text on larger screens */
+    .deck-pagination-top vaadin-button::part(label),
+    .deck-pagination-bottom vaadin-button::part(label) {
+        display: block;
+    }
+    
+    .deck-pagination-top vaadin-button,
+    .deck-pagination-bottom vaadin-button {
+        width: auto;
+        height: auto;
+        min-width: auto;
+        padding: var(--lumo-space-xs) var(--lumo-space-s);
+        font-size: var(--lumo-font-size-s);
+    }
+    
+    .deck-pagination-top vaadin-button vaadin-icon,
+    .deck-pagination-bottom vaadin-button vaadin-icon {
+        margin-right: var(--lumo-space-xs);
+    }
 }
 
 /* ==================== General Container Fixes ==================== */

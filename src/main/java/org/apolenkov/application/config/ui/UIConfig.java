@@ -7,9 +7,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Provides validated settings for UI components with compile-time safety.
  *
  * @param search search field configuration
+ * @param pagination pagination configuration
  */
 @ConfigurationProperties(prefix = "app.ui")
-public record UIConfig(Search search) {
+public record UIConfig(Search search, Pagination pagination) {
 
     /**
      * Search field configuration.
@@ -32,11 +33,34 @@ public record UIConfig(Search search) {
     }
 
     /**
+     * Pagination configuration.
+     * Controls page size for lists and grids.
+     *
+     * @param pageSize number of items per page
+     */
+    public record Pagination(int pageSize) {
+        /**
+         * Compact constructor with validation.
+         */
+        public Pagination {
+            if (pageSize <= 0) {
+                throw new IllegalArgumentException("Page size must be positive");
+            }
+            if (pageSize > 500) {
+                throw new IllegalArgumentException("Page size must be <= 500 (performance degradation)");
+            }
+        }
+    }
+
+    /**
      * Compact constructor with validation.
      */
     public UIConfig {
         if (search == null) {
             throw new IllegalArgumentException("Search configuration cannot be null");
+        }
+        if (pagination == null) {
+            throw new IllegalArgumentException("Pagination configuration cannot be null");
         }
     }
 }

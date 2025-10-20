@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apolenkov.application.domain.model.FilterOption;
 import org.apolenkov.application.model.Flashcard;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Domain port for flashcard management operations.
@@ -59,6 +61,30 @@ public interface FlashcardRepository {
      * @return map of deck ID to flashcard count (non-null, contains only decks with flashcards)
      */
     Map<Long, Long> countByDeckIds(Collection<Long> deckIds);
+
+    /**
+     * Finds flashcards using dynamic filtering.
+     * Supports combinations of search query and known/unknown status.
+     *
+     * @param deckId deck identifier
+     * @param searchQuery search query (can be null or empty)
+     * @param filterOption filter option for known/unknown status
+     * @param pageable pagination and sorting parameters
+     * @return list of flashcards matching criteria
+     */
+    List<Flashcard> findFlashcardsWithFilter(
+            long deckId, String searchQuery, FilterOption filterOption, Pageable pageable);
+
+    /**
+     * Counts flashcards using dynamic filtering.
+     * Supports combinations of search query and known/unknown status.
+     *
+     * @param deckId deck identifier
+     * @param searchQuery search query (can be null or empty)
+     * @param filterOption filter option for known/unknown status
+     * @return count of flashcards matching criteria
+     */
+    long countFlashcardsWithFilter(long deckId, String searchQuery, FilterOption filterOption);
 
     /**
      * Deletes all flashcards in specific deck.

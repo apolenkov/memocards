@@ -15,7 +15,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
-import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
@@ -28,7 +27,7 @@ import org.apolenkov.application.service.stats.StatsService;
 import org.apolenkov.application.views.core.exception.EntityNotFoundException;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.deck.components.DeckDetailHeader;
-import org.apolenkov.application.views.deck.components.detail.DeckGrid;
+import org.apolenkov.application.views.deck.components.detail.DeckFlashcardContainer;
 import org.apolenkov.application.views.deck.components.dialogs.DeckDeleteDialog;
 import org.apolenkov.application.views.deck.components.dialogs.DeckEditDialog;
 import org.apolenkov.application.views.deck.components.dialogs.DeckFlashcardDeleteDialog;
@@ -58,7 +57,7 @@ public class DeckView extends Composite<VerticalLayout>
 
     // UI Components
     private DeckDetailHeader detailHeader;
-    private DeckGrid deckGrid;
+    private DeckFlashcardContainer flashcardContainer;
 
     // Event Registrations
     private Registration practiceClickListenerRegistration;
@@ -189,7 +188,7 @@ public class DeckView extends Composite<VerticalLayout>
      * Configures click handlers for practice, reset, add, edit and delete actions.
      */
     private void setupActionListeners() {
-        if (detailHeader == null || deckGrid == null) {
+        if (detailHeader == null || flashcardContainer == null) {
             return;
         }
 
@@ -263,7 +262,7 @@ public class DeckView extends Composite<VerticalLayout>
      */
     private void setupFilterChangeListener() {
         if (filterChangeListenerRegistration == null) {
-            filterChangeListenerRegistration = deckGrid.addFilterChangeListener(
+            filterChangeListenerRegistration = flashcardContainer.addFilterChangeListener(
                     filterOption -> LOGGER.debug("Filter changed to: {}", filterOption));
         }
     }
@@ -347,14 +346,18 @@ public class DeckView extends Composite<VerticalLayout>
 
         // Create components
         detailHeader = new DeckDetailHeader();
-        deckGrid = new DeckGrid(statsService, uiConfig.search().debounceMs());
+        flashcardContainer = new DeckFlashcardContainer(
+                statsService,
+                flashcardUseCase,
+                uiConfig.search().debounceMs(),
+                uiConfig.pagination().pageSize());
 
         // Set callbacks
-        deckGrid.setEditFlashcardCallback(this::openFlashcardDialog);
-        deckGrid.setDeleteFlashcardCallback(this::deleteFlashcard);
+        flashcardContainer.setEditFlashcardCallback(this::openFlashcardDialog);
+        flashcardContainer.setDeleteFlashcardCallback(this::deleteFlashcard);
 
         // Add components to container
-        deckContainer.add(detailHeader, deckGrid);
+        deckContainer.add(detailHeader, flashcardContainer);
         contentContainer.add(deckContainer);
     }
 
@@ -378,7 +381,12 @@ public class DeckView extends Composite<VerticalLayout>
         }
 
         createDeckContent();
-        loadFlashcards();
+        updateDeckInfo();
+
+        // Initialize data provider with current deck ID
+        if (currentDeck != null && flashcardContainer != null) {
+            flashcardContainer.setCurrentDeckId(currentDeck.getId());
+        }
     }
 
     /**
@@ -401,18 +409,6 @@ public class DeckView extends Composite<VerticalLayout>
         }
     }
 
-    /**
-     * Loads flashcards for the current deck and updates the grid.
-     */
-    private void loadFlashcards() {
-        if (currentDeck != null && deckGrid != null) {
-            List<Flashcard> flashcards = flashcardUseCase.getFlashcardsByDeckId(currentDeck.getId());
-            deckGrid.setCurrentDeckId(currentDeck.getId());
-            deckGrid.setFlashcards(flashcards);
-            LOGGER.info("Loaded {} flashcards for deck: {}", flashcards.size(), currentDeck.getTitle());
-        }
-    }
-
     // ==================== Dialog Handlers ====================
 
     /**
@@ -422,14 +418,9 @@ public class DeckView extends Composite<VerticalLayout>
      */
     private void openFlashcardDialog(final Flashcard flashcard) {
         DeckFlashcardDialog dialog = new DeckFlashcardDialog(flashcardUseCase, currentDeck, savedFlashcard -> {
-            if (flashcard == null) {
-                // New flashcard - reload all data
-                loadFlashcards();
-            } else {
-                // Existing flashcard - update locally
-                if (deckGrid != null) {
-                    deckGrid.updateFlashcard(savedFlashcard);
-                }
+            // Refresh grid data to reflect changes (lazy loading handles updates)
+            if (flashcardContainer != null) {
+                flashcardContainer.refreshData();
             }
             updateDeckInfo();
         });
@@ -449,9 +440,9 @@ public class DeckView extends Composite<VerticalLayout>
     private void deleteFlashcard(final Flashcard flashcard) {
         DeckFlashcardDeleteDialog dialog =
                 new DeckFlashcardDeleteDialog(flashcardUseCase, flashcard, deletedFlashcardId -> {
-                    // Flashcard was deleted successfully
-                    if (deckGrid != null) {
-                        deckGrid.removeFlashcard(deletedFlashcardId);
+                    // Refresh grid data to reflect deletion (lazy loading handles updates)
+                    if (flashcardContainer != null) {
+                        flashcardContainer.refreshData();
                     }
                     updateDeckInfo();
                     LOGGER.info("Flashcard {} deleted successfully", deletedFlashcardId);
@@ -496,8 +487,8 @@ public class DeckView extends Composite<VerticalLayout>
 
         dialog.addConfirmListener(event -> {
             LOGGER.info("Reset progress confirmed by user");
-            if (deckGrid != null) {
-                deckGrid.resetProgress();
+            if (flashcardContainer != null) {
+                flashcardContainer.resetProgress();
                 org.apolenkov.application.views.shared.utils.NotificationHelper.showSuccessBottom(
                         getTranslation(DeckConstants.DECK_PROGRESS_RESET));
             }

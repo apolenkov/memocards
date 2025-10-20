@@ -185,10 +185,16 @@ public class DataInitializer {
         final Deck travel = decks.save(new Deck(null, user.getId(), "Travel - phrases", "Short phrases for trips"));
         final Deck it = decks.save(new Deck(null, user.getId(), "IT - terms", "Core programming terms"));
         final Deck english = decks.save(new Deck(null, user.getId(), "English Basics", "Basic English words"));
+        final Deck performance = decks.save(new Deck(
+                null,
+                user.getId(),
+                "🚀 Performance Test (600 cards)",
+                "Large deck for testing lazy loading and pagination performance"));
 
         createTravelCards(travel, cards);
         createItCards(it, cards);
         createEnglishCards(english, cards);
+        createPerformanceTestCards(performance, cards);
     }
 
     /**
@@ -246,6 +252,46 @@ public class DataInitializer {
                 new Flashcard(null, english.getId(), "Dog", "Собака", "My dog is very friendly"),
                 new Flashcard(null, english.getId(), "Education", "Образование", "Education is very important"));
         englishCards.forEach(cards::save);
+    }
+
+    /**
+     * Creates 600 flashcards for performance testing of lazy loading and pagination.
+     * Tests virtual scrolling, search, and filter performance with large datasets.
+     *
+     * @param performance performance test deck
+     * @param cards flashcard repository
+     */
+    private void createPerformanceTestCards(final Deck performance, final FlashcardRepository cards) {
+        LOGGER.info("Generating 600 flashcards for performance testing...");
+
+        final String[] topics = {"Animals", "Food", "Travel", "Technology", "Science", "Art", "Sports", "Music"};
+        final String[] examples = {
+            "This is a common word used in everyday conversation",
+            "You will hear this frequently in professional settings",
+            "Essential vocabulary for beginners",
+            "Advanced level terminology",
+            "Colloquial expression often used informally"
+        };
+
+        for (int i = 1; i <= 600; i++) {
+            String topic = topics[i % topics.length];
+            String example = examples[i % examples.length];
+
+            Flashcard card = new Flashcard(
+                    null,
+                    performance.getId(),
+                    String.format("%s #%d - Word", topic, i),
+                    String.format("%s #%d - Перевод", topic, i),
+                    String.format("%s. Example %d: %s", example, i, "Sample sentence using this word"));
+            cards.save(card);
+
+            // Log progress every 100 cards
+            if (i % 100 == 0) {
+                LOGGER.info("Generated {}/600 flashcards...", i);
+            }
+        }
+
+        LOGGER.info("Successfully generated 600 flashcards for performance testing");
     }
 
     /**

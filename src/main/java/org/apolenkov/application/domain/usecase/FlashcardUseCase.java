@@ -3,7 +3,9 @@ package org.apolenkov.application.domain.usecase;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.apolenkov.application.domain.model.FilterOption;
 import org.apolenkov.application.model.Flashcard;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Core business operations for managing flashcards.
@@ -46,4 +48,28 @@ public interface FlashcardUseCase {
      * @return map of deck ID to flashcard count (decks with zero flashcards may be absent)
      */
     Map<Long, Long> countByDeckIds(Collection<Long> deckIds);
+
+    /**
+     * Finds flashcards using dynamic filtering.
+     * Supports combinations of search query and known/unknown status.
+     *
+     * @param deckId deck identifier
+     * @param searchQuery search query (can be null or empty)
+     * @param filterOption filter option for known/unknown status
+     * @param pageable pagination parameters
+     * @return list of flashcards matching criteria
+     */
+    List<Flashcard> getFlashcardsWithFilter(
+            long deckId, String searchQuery, FilterOption filterOption, Pageable pageable);
+
+    /**
+     * Counts flashcards using dynamic filtering.
+     * Supports combinations of search query and known/unknown status.
+     *
+     * @param deckId deck identifier
+     * @param searchQuery search query (can be null or empty)
+     * @param filterOption filter option for known/unknown status
+     * @return count of flashcards matching criteria
+     */
+    long countFlashcardsWithFilter(long deckId, String searchQuery, FilterOption filterOption);
 }

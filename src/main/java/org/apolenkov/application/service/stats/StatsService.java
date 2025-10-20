@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
+import org.apolenkov.application.domain.event.ProgressChangedEvent;
 import org.apolenkov.application.domain.port.DeckRepository;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.domain.usecase.StatsUseCase;
 import org.apolenkov.application.model.Deck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,7 @@ public class StatsService implements StatsUseCase {
     private final StatsRepository statsRepository;
     private final DeckRepository deckRepository;
     private final KnownCardsCache knownCardsCache;
+    private final ApplicationEventPublisher eventPublisher;
 
     // ==================== Constructor ====================
 
@@ -38,15 +41,18 @@ public class StatsService implements StatsUseCase {
      *
      * @param statsRepositoryValue repository for statistics operations
      * @param deckRepositoryValue repository for deck operations
-     * @param knownCardsCacheValue cache for known card IDs
+     * @param knownCardsCacheValue cache for known card IDs (used for read operations)
+     * @param eventPublisherValue publisher for domain events
      */
     public StatsService(
             final StatsRepository statsRepositoryValue,
             final DeckRepository deckRepositoryValue,
-            @Lazy final KnownCardsCache knownCardsCacheValue) {
+            @Lazy final KnownCardsCache knownCardsCacheValue,
+            final ApplicationEventPublisher eventPublisherValue) {
         this.statsRepository = statsRepositoryValue;
         this.deckRepository = deckRepositoryValue;
         this.knownCardsCache = knownCardsCacheValue;
+        this.eventPublisher = eventPublisherValue;
     }
 
     // ==================== Public API ====================
@@ -76,8 +82,8 @@ public class StatsService implements StatsUseCase {
         LocalDate today = LocalDate.now();
         statsRepository.appendSession(sessionData, today);
 
-        // Invalidate known cards cache after session (new cards may be marked as known)
-        knownCardsCache.invalidate(sessionData.deckId());
+        // Publish event for cache invalidation (event-driven approach)
+        eventPublisher.publishEvent(new ProgressChangedEvent(this, sessionData.deckId()));
 
         LOGGER.info(
                 "Session recorded: deckId={}, viewed={}, correct={}, hard={}, durationMs={}, knownDelta={}",
@@ -176,7 +182,7 @@ public class StatsService implements StatsUseCase {
      * Sets knowledge status of specific card in deck.
      * Updates knowledge status of card, marking it as either known or unknown
      * based on user's performance and feedback.
-     * Invalidates cache to ensure fresh data on next query.
+     * Publishes ProgressChangedEvent for cache invalidation (event-driven approach).
      *
      * @param deckId ID of deck containing the card
      * @param cardId ID of card to update
@@ -189,8 +195,8 @@ public class StatsService implements StatsUseCase {
 
         statsRepository.setCardKnown(deckId, cardId, known);
 
-        // Invalidate cache after known status change
-        knownCardsCache.invalidate(deckId);
+        // Publish event for cache invalidation (event-driven approach, decouples service from cache)
+        eventPublisher.publishEvent(new ProgressChangedEvent(this, deckId, cardId));
 
         LOGGER.info("Card marked as {} in deck {}: cardId={}", known ? "known" : "unknown", deckId, cardId);
     }
@@ -199,6 +205,7 @@ public class StatsService implements StatsUseCase {
      * Resets all progress for specific deck.
      * Removes all known card associations and resets daily statistics.
      * Logs detailed audit information including deck details and cards cleared.
+     * Publishes ProgressChangedEvent for cache invalidation (event-driven approach).
      *
      * @param deckId ID of deck to reset progress for
      */
@@ -216,8 +223,8 @@ public class StatsService implements StatsUseCase {
 
         statsRepository.resetDeckProgress(deckId);
 
-        // Invalidate cache after progress reset (all known cards cleared)
-        knownCardsCache.invalidate(deckId);
+        // Publish event for cache invalidation (event-driven approach, decouples service from cache)
+        eventPublisher.publishEvent(new ProgressChangedEvent(this, deckId));
 
         // Audit log with deck context
         AUDIT_LOGGER.warn(

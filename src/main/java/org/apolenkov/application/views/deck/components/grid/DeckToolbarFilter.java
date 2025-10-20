@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.shared.Registration;
 import java.util.function.Consumer;
+import org.apolenkov.application.domain.model.FilterOption;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 
 /**

@@ -6,11 +6,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apolenkov.application.domain.model.FilterOption;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.infrastructure.repository.jdbc.batch.FlashcardBatchOperations;
 import org.apolenkov.application.infrastructure.repository.jdbc.dto.FlashcardDto;
 import org.apolenkov.application.infrastructure.repository.jdbc.exception.FlashcardPersistenceException;
 import org.apolenkov.application.infrastructure.repository.jdbc.exception.FlashcardRetrievalException;
+import org.apolenkov.application.infrastructure.repository.jdbc.sql.FlashcardQueryBuilder;
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.FlashcardSqlQueries;
 import org.apolenkov.application.model.Flashcard;
 import org.slf4j.Logger;
@@ -359,5 +361,106 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
             results.put(deckId, count);
         }
         return results;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Flashcard> findFlashcardsWithFilter(
+            final long deckId,
+            final String searchQuery,
+            final FilterOption filterOption,
+            final org.springframework.data.domain.Pageable pageable) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive");
+        }
+        if (pageable == null) {
+            throw new IllegalArgumentException("Pageable cannot be null");
+        }
+
+        int limit = pageable.getPageSize();
+        long offset = pageable.getOffset();
+
+        LOGGER.debug(
+                "Finding flashcards with dynamic filter: deckId={}, searchQuery='{}', filterOption={}, limit={}, offset={}",
+                deckId,
+                searchQuery,
+                filterOption,
+                limit,
+                offset);
+
+        try {
+            // Build dynamic query
+            FlashcardQueryBuilder queryBuilder = new FlashcardQueryBuilder().withDeckId(deckId);
+
+            if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+                queryBuilder.withSearchQuery(searchQuery);
+            }
+
+            if (filterOption == FilterOption.KNOWN_ONLY) {
+                queryBuilder.withKnownStatus();
+            } else if (filterOption == FilterOption.UNKNOWN_ONLY) {
+                queryBuilder.withUnknownStatus();
+            }
+
+            String sql = queryBuilder.buildSelectQueryWithPagination(FlashcardSqlQueries.SELECT_FLASHCARDS_BASE);
+            Object[] params = queryBuilder.getParametersWithPagination(limit, offset);
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Dynamic SQL: {} | Parameters: {}", sql, java.util.Arrays.toString(params));
+            }
+
+            List<FlashcardDto> flashcardDtos = jdbcTemplate.query(sql, FLASHCARD_ROW_MAPPER, params);
+            return flashcardDtos.stream().map(FlashcardJdbcAdapter::toModel).toList();
+        } catch (DataAccessException e) {
+            throw new FlashcardRetrievalException(
+                    "Failed to find flashcards with dynamic filter for deck ID: " + deckId, e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long countFlashcardsWithFilter(
+            final long deckId, final String searchQuery, final FilterOption filterOption) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive");
+        }
+
+        LOGGER.debug(
+                "Counting flashcards with dynamic filter: deckId={}, searchQuery='{}', filterOption={}",
+                deckId,
+                searchQuery,
+                filterOption);
+
+        try {
+            // Build dynamic query
+            FlashcardQueryBuilder queryBuilder = new FlashcardQueryBuilder().withDeckId(deckId);
+
+            if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+                queryBuilder.withSearchQuery(searchQuery);
+            }
+
+            if (filterOption == FilterOption.KNOWN_ONLY) {
+                queryBuilder.withKnownStatus();
+            } else if (filterOption == FilterOption.UNKNOWN_ONLY) {
+                queryBuilder.withUnknownStatus();
+            }
+
+            String sql = queryBuilder.buildCountQuery(FlashcardSqlQueries.COUNT_FLASHCARDS_BASE);
+            Object[] params = queryBuilder.getParameters();
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Dynamic COUNT SQL: {} | Parameters: {}", sql, java.util.Arrays.toString(params));
+            }
+
+            Long count = jdbcTemplate.queryForObject(sql, Long.class, params);
+            return count != null ? count : 0L;
+        } catch (DataAccessException e) {
+            throw new FlashcardRetrievalException(
+                    "Failed to count flashcards with dynamic filter for deck ID: " + deckId, e);
+        }
     }
 }

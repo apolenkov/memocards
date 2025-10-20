@@ -61,6 +61,8 @@ app:
   ui:
     search:
       debounce-ms: ${SEARCH_DEBOUNCE_MS:300}  # Debouncing timeout for search fields
+    pagination:
+      page-size: ${PAGINATION_PAGE_SIZE:50}  # Number of items per page in lists
   monitoring:
     slow-query-threshold-ms: ${SLOW_QUERY_THRESHOLD:100}
     hikari:

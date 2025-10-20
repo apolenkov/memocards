@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apolenkov.application.domain.model.FilterOption;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.model.Flashcard;
@@ -54,6 +55,29 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     @Transactional(readOnly = true)
     public List<Flashcard> getFlashcardsByDeckId(final long deckId) {
         return flashcardRepository.findByDeckId(deckId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Flashcard> getFlashcardsWithFilter(
+            final long deckId,
+            final String searchQuery,
+            final FilterOption filterOption,
+            final org.springframework.data.domain.Pageable pageable) {
+        return flashcardRepository.findFlashcardsWithFilter(deckId, searchQuery, filterOption, pageable);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public long countFlashcardsWithFilter(
+            final long deckId, final String searchQuery, final FilterOption filterOption) {
+        return flashcardRepository.countFlashcardsWithFilter(deckId, searchQuery, filterOption);
     }
 
     /**

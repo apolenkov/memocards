@@ -1,6 +1,7 @@
 /* DeckView Component Styles */
 .deck-view {
     padding: var(--lumo-space-m);
+    overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 .deck-view__header {
@@ -64,6 +65,34 @@
     flex-direction: column;
     width: 100%;
     gap: var(--lumo-space-s);
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    box-sizing: border-box; /* Include padding/border in width calculation */
+}
+
+/* VirtualList specific styles to prevent horizontal scroll */
+
+/* Use higher specificity instead of !important */
+.deck-flashcard-list > vaadin-virtual-list {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Pagination controls styles to prevent horizontal scroll */
+.deck-view .deck-pagination-top,
+.deck-view .deck-pagination-bottom {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.deck-pagination-info {
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 /* Toolbar filter combobox styling */

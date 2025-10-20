@@ -1,6 +1,6 @@
 package org.apolenkov.application.service.stats;
 
-import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Map;
@@ -8,14 +8,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
+import org.apolenkov.application.domain.event.ProgressChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * UI-scoped cache for known card IDs.
- * Cache lifetime is bound to UI session and automatically cleared when UI is destroyed.
+ * Session-scoped cache for known card IDs.
+ * Cache lifetime is bound to Vaadin session (survives page navigation, shared across tabs).
  * Data freshness is ensured through automatic expiration and manual invalidation.
  *
  * <p>Configuration:
@@ -23,10 +25,11 @@ import org.springframework.stereotype.Component;
  *   <li>TTL: configurable via app.cache.known-cards.ttl-ms (default: 5 minutes)</li>
  *   <li>Max size: configurable via app.cache.known-cards.max-size (default: 1000 entries)</li>
  *   <li>Eviction: LRU-style when cache reaches max size</li>
+ *   <li>Scope: @VaadinSessionScope - shared across UI instances in same session</li>
  * </ul>
  */
 @Component
-@UIScope
+@VaadinSessionScope
 public class KnownCardsCache {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KnownCardsCache.class);
@@ -151,6 +154,31 @@ public class KnownCardsCache {
     public void clear() {
         cache.clear();
         LOGGER.debug("Cache cleared: all entries removed");
+    }
+
+    /**
+     * Handles progress changed events for automatic cache invalidation.
+     * Event-driven approach decouples service layer from infrastructure (cache).
+     *
+     * <p>This method is automatically invoked by Spring when ProgressChangedEvent is published.
+     * Supports both single card status changes and full deck resets.
+     *
+     * @param event progress changed event
+     */
+    @EventListener
+    public void onProgressChanged(final ProgressChangedEvent event) {
+        if (event == null) {
+            return;
+        }
+
+        invalidate(event.getDeckId());
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(
+                    "Cache auto-invalidated on event: deckId={}, changeType={}",
+                    event.getDeckId(),
+                    event.getChangeType());
+        }
     }
 
     /**
