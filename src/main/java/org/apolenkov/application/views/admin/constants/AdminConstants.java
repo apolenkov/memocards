@@ -15,6 +15,8 @@ public final class AdminConstants {
     public static final String ADMIN_CONTENT_VIEW_CONTENT_CLASS = "admin-content-view__content";
     public static final String ADMIN_CONTENT_VIEW_TITLE_CLASS = "admin-content-view__title";
     public static final String ADMIN_CONTENT_TOOLBAR_CLASS = "admin-content-toolbar";
+    public static final String ADMIN_CONTENT_TOOLBAR_SEARCH_CLASS = "admin-content-toolbar__search";
+    public static final String ADMIN_CONTENT_TOOLBAR_ADD_BUTTON_CLASS = "admin-content-toolbar__add-button";
     public static final String ADMIN_CONTENT_SECTION_CLASS = "admin-content-section";
     public static final String ADMIN_CONTENT_EMPTY_MESSAGE_CLASS = "admin-content-empty-message";
     public static final String ADMIN_NEWS_CONTENT_AREA_CLASS = "admin-news__content-area";
