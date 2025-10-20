@@ -49,13 +49,13 @@
     padding: var(--lumo-space-l); /* 8px grid: 2 * 8px */
     border-radius: var(--lumo-border-radius-l);
     background: var(--lumo-base-color);
-    box-shadow: 0 2px 4px rgb(0 0 0 / 10%); /* Material elevation level 1 */
-    box-sizing: border-box;
     transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    box-shadow: var(--lumo-box-shadow-xs);
 }
 
 .stats-section:hover {
-    box-shadow: 0 4px 8px rgb(0 0 0 / 12%); /* Material elevation level 2 */
+    box-shadow: var(--lumo-box-shadow-s);
 }
 
 .stats-section.surface-panel { 
@@ -84,8 +84,8 @@
 
 @media (max-width: 767px) {
     .stats-section__title {
-        font-size: var(--lumo-font-size-s); /* Smaller font */
         margin-bottom: var(--lumo-space-xs); /* Much smaller margin */
+        font-size: var(--lumo-font-size-s); /* Smaller font */
     }
 }
 
@@ -104,15 +104,16 @@
     text-align: center;
     aspect-ratio: 1;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fade-in-up 0.4s ease-out;
     overflow: hidden;
     box-sizing: border-box;
-    box-shadow: 0 2px 4px rgb(0 0 0 / 10%); /* Material elevation level 1 */
+    box-shadow: var(--lumo-box-shadow-xs);
 }
 
 .stats-card:hover {
     border-color: var(--lumo-primary-color-30pct);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgb(0 0 0 / 15%); /* Material elevation level 2 */
+    box-shadow: var(--lumo-box-shadow-m);
 }
 
 .stats-card.surface-card { 
@@ -196,6 +197,7 @@
 }
 
 /* Mobile: Adaptive grid layout for today and overall stats */
+
 @media (max-width: 767px) {
     .stats-section--today .stats-today-grid,
     .stats-section--overall .stats-overall-grid {
@@ -215,13 +217,13 @@
     }
     
     .stats-section--today .stats-card__value {
-        font-size: 1.2rem; /* Much smaller for mobile */
         margin-bottom: var(--lumo-space-xs);
+        font-size: 1.2rem; /* Much smaller for mobile */
     }
     
     .stats-section--overall .stats-card__value {
-        font-size: 1rem; /* Smaller for mobile */
         margin-bottom: var(--lumo-space-xs);
+        font-size: 1rem; /* Smaller for mobile */
     }
     
     .stats-section--today .stats-card__label,
@@ -232,6 +234,7 @@
 }
 
 /* Very small screens: Single column for stats */
+
 @media (max-width: 479px) {
     .stats-section--today .stats-today-grid,
     .stats-section--overall .stats-overall-grid {
@@ -243,17 +246,17 @@
     .stats-section--overall .stats-card {
         display: flex;
         flex-direction: row; /* Horizontal layout within each card */
-        justify-content: space-between;
         align-items: center;
+        justify-content: space-between;
+        min-height: 44px; /* Touch target size */
         padding: var(--lumo-space-xs);
         aspect-ratio: unset; /* Remove aspect ratio */
-        min-height: 44px; /* Touch target size */
     }
     
     .stats-section--today .stats-card__value,
     .stats-section--overall .stats-card__value {
-        margin-bottom: 0;
         margin-right: var(--lumo-space-xs);
+        margin-bottom: 0;
         font-size: var(--lumo-font-size-l);
     }
     
@@ -270,6 +273,7 @@
 }
 
 /* Mobile: Smaller gap between deck cards */
+
 @media (max-width: 767px) {
     .stats-decks-list {
         gap: var(--lumo-space-xs); /* Minimal gap for mobile */
@@ -287,7 +291,7 @@
 
 .deck-stat-card-compact:hover {
     border-color: var(--lumo-primary-color-20pct);
-    box-shadow: 0 2px 4px rgb(0 0 0 / 8%);
+    box-shadow: var(--lumo-box-shadow-xs);
 }
 
 .deck-stat-card-compact__header {
@@ -309,8 +313,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
     min-width: 60px;
+    text-align: center;
 }
 
 .deck-stat-card-compact__total {
@@ -339,6 +343,7 @@
 }
 
 /* Mobile: Vertical layout for deck cards to prevent merging */
+
 @media (max-width: 767px) {
     .deck-stat-card-compact {
         padding: var(--lumo-space-xs); /* Smaller padding */
@@ -369,13 +374,13 @@
     }
     
     .deck-stat-card-compact__total {
-        font-size: var(--lumo-font-size-m); /* Smaller total */
         margin-bottom: var(--lumo-space-xs);
+        font-size: var(--lumo-font-size-m); /* Smaller total */
     }
     
     .deck-stat-card-compact__today {
-        font-size: var(--lumo-font-size-xs); /* Smaller today */
         margin-bottom: var(--lumo-space-xs);
+        font-size: var(--lumo-font-size-xs); /* Smaller today */
     }
     
     .deck-stat-card-compact__label {
@@ -385,6 +390,7 @@
 }
 
 /* Very small screens: Single column layout */
+
 @media (max-width: 479px) {
     .deck-stat-card-compact__grid {
         grid-template-columns: 1fr; /* Single column for very small screens */
@@ -394,19 +400,19 @@
     .deck-stat-card-compact__item {
         display: flex;
         flex-direction: row; /* Horizontal layout within each item */
-        justify-content: space-between;
         align-items: center;
+        justify-content: space-between;
         padding: var(--lumo-space-xs);
     }
     
     .deck-stat-card-compact__total {
-        margin-bottom: 0;
         margin-right: var(--lumo-space-xs);
+        margin-bottom: 0;
     }
     
     .deck-stat-card-compact__today {
-        margin-bottom: 0;
         margin-right: var(--lumo-space-xs);
+        margin-bottom: 0;
     }
     
     .deck-stat-card-compact__label {
@@ -429,14 +435,11 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-.stats-card {
-    animation: fade-in-up 0.4s ease-out;
 }
 
 .stats-card:nth-child(2) { 
