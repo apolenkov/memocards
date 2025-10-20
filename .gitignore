@@ -49,6 +49,7 @@ src/main/frontend/generated
 logs/
 changelogs/
 .refactoring/
+*.bundle
 
 # Environment variables
 .env
