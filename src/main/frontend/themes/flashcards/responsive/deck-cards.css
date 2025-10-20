@@ -280,6 +280,7 @@
 }
 
 /* Very small screens: Single column layout for stats */
+
 @media (max-width: 479px) {
     .stats-today-grid,
     .stats-overall-grid {
@@ -290,11 +291,11 @@
     .stats-card {
         display: flex;
         flex-direction: row; /* Horizontal layout within each card */
-        justify-content: space-between;
         align-items: center;
+        justify-content: space-between;
+        min-height: 44px; /* Touch target size */
         padding: var(--lumo-space-xs);
         aspect-ratio: unset; /* Remove aspect ratio */
-        min-height: 44px; /* Touch target size */
     }
 }
 

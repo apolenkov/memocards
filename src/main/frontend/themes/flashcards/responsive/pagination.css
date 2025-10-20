@@ -16,6 +16,7 @@
     
     /* Ensure empty state messages are visible on mobile */
     .deck-pagination-info:not([data-page-info]) {
+        max-width: 100%;
         padding: var(--lumo-space-xs) var(--lumo-space-s);
         color: var(--lumo-body-text-color);
         font-size: var(--lumo-font-size-s);
@@ -24,7 +25,6 @@
         word-break: break-word;
         overflow-wrap: break-word;
         white-space: normal;
-        max-width: 100%;
     }
 
     /* Show only page numbers on mobile by hiding the original text and showing page info */
@@ -93,6 +93,7 @@
         
         /* Special case: show empty state messages on mobile */
         .deck-pagination-info:not([data-page-info]) {
+            max-width: 100%;
             padding: var(--lumo-space-xs);
             color: var(--lumo-body-text-color);
             font-size: var(--lumo-font-size-s);
@@ -101,7 +102,6 @@
             word-break: break-word;
             overflow-wrap: break-word;
             white-space: normal;
-            max-width: 100%;
         }
         
         .deck-pagination-info:not([data-page-info])::after {
