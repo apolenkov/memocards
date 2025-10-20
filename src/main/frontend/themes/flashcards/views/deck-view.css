@@ -95,6 +95,15 @@
     max-width: 100%;
 }
 
+/* Override for empty state messages to allow text wrapping */
+.deck-pagination-info:not([data-page-info]) {
+    white-space: normal;
+    overflow-x: visible;
+    text-overflow: unset;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
 /* Toolbar filter combobox styling */
 .deck-toolbar .deck-filter-combobox {
     min-width: 150px;
@@ -131,7 +140,9 @@
 
 /* Grid component spacing - only for grid section, not action buttons */
 .deck-grid-section {
-    margin-top: var(--lumo-space-xs);
+    margin-top: var(--lumo-space-m);
+    padding-top: var(--lumo-space-m);
+    border-top: 1px solid var(--lumo-contrast-10pct);
 }
 
 /* Deck delete dialog styles */

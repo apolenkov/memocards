@@ -6,7 +6,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.ErrorParameter;
@@ -117,10 +116,12 @@ public class RouteNotFoundError extends VerticalLayout implements HasErrorParame
         Button goBackButton = ButtonHelper.createButton(
                 getTranslation(CoreConstants.COMMON_BACK_KEY), e -> goBack(), ButtonVariant.LUMO_TERTIARY);
 
-        HorizontalLayout buttonLayout = new HorizontalLayout(goHomeButton, goBackButton);
+        // Use VerticalLayout for mobile-first responsive design
+        VerticalLayout buttonLayout = new VerticalLayout(goHomeButton, goBackButton);
         buttonLayout.setSpacing(true);
         buttonLayout.setAlignItems(Alignment.CENTER);
         buttonLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+        buttonLayout.addClassName("not-found__button-layout");
 
         errorContainer.add(errorCode, errorTitle, errorDescription, errorSuggestion, goHomeSuggestion, buttonLayout);
         add(errorContainer);

@@ -325,84 +325,40 @@
 /* Mobile: Stack search and button */
 .admin-content-toolbar {
     width: 100%;
-    max-width: var(--app-card-max, 700px); /* Same as deck-toolbar */
+    max-width: var(--app-card-max, 700px); /* Same as news-card */
     margin: 0 auto; /* Center the toolbar */
     box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .admin-content-toolbar > * {
-    flex-direction: row;
+    flex-direction: column;
     gap: var(--lumo-space-s);
-    align-items: center;
-    justify-content: space-between; /* Search on left, button on right */
     width: 100%;
 }
 
-.admin-content-toolbar__search {
-    flex: 1;
-    min-width: 0; /* Allow shrinking */
-    transition: box-shadow var(--lumo-transition-duration) ease, transform var(--lumo-transition-duration) ease;
-}
-
-.admin-content-toolbar__add-button {
-    flex-shrink: 0; /* Prevent button from shrinking */
-    white-space: nowrap; /* Prevent text wrapping */
-}
-
-/* Ensure search field doesn't overflow */
-.admin-content-toolbar__search vaadin-text-field {
+.admin-content-toolbar vaadin-text-field {
     width: 100%;
-    max-width: 100%;
 }
 
-/* Ensure button text fits */
-.admin-content-toolbar__add-button vaadin-button {
+.admin-content-toolbar button {
     width: 100%;
-    max-width: 100%;
-    font-size: var(--lumo-font-size-s); /* Smaller font on mobile */
 }
 
-/* Mobile: Icon-only button for touch optimization */
-@media (max-width: 767px) {
-    .admin-content-toolbar__add-button {
-        position: relative;
-        width: var(--app-mobile-button-size);
-        height: var(--app-mobile-button-size);
-        min-width: var(--app-mobile-button-size);
-        max-width: var(--app-mobile-button-size);
-    }
-    
-    /* Hide button text on mobile */
-    .admin-content-toolbar__add-button::part(label) {
-        display: none;
-    }
-    
-    /* Show icon over text */
-    .admin-content-toolbar__add-button vaadin-icon {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin: 0;
-        font-size: var(--lumo-icon-size-m);
-        transform: translate(-50%, -50%);
-    }
-}
+/* Tablet and up: Horizontal layout */
 
-/* Desktop: Show full button with text */
 @media (min-width: 768px) {
     .admin-content-toolbar > * {
+        flex-direction: row;
         gap: var(--lumo-space-m);
     }
     
-    .admin-content-toolbar__add-button vaadin-button {
-        min-width: auto;
-        max-width: none;
-        padding: var(--lumo-space-xs) var(--lumo-space-m);
-        font-size: var(--lumo-font-size-m); /* Normal font size on larger screens */
+    .admin-content-toolbar vaadin-text-field {
+        flex: 1;
+        width: auto;
     }
     
-    .admin-content-toolbar__add-button vaadin-button vaadin-icon {
-        margin-right: var(--lumo-space-xs);
+    .admin-content-toolbar button {
+        width: auto;
     }
 }
 

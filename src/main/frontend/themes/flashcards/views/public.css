@@ -135,6 +135,7 @@
 }
 
 /* Animation for hero title */
+
 @keyframes fade-in-up {
     from {
         opacity: 0;

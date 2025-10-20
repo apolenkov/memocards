@@ -3,6 +3,7 @@ package org.apolenkov.application.config.monitoring;
 import org.apolenkov.application.service.stats.PaginationCountCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -26,15 +27,15 @@ public class CacheMetricsLogger {
     private static final double LOW_HIT_RATE_THRESHOLD = 0.5; // 50%
     private static final String HIT_RATE_FORMAT = "%.1f%%";
 
-    private final PaginationCountCache paginationCountCache;
+    private final ObjectProvider<PaginationCountCache> paginationCountCacheProvider;
 
     /**
      * Creates CacheMetricsLogger with session-scoped cache.
      *
-     * @param paginationCountCache the pagination count cache (SessionScope)
+     * @param paginationCountCacheProvider provider for pagination count cache (SessionScope)
      */
-    public CacheMetricsLogger(final PaginationCountCache paginationCountCache) {
-        this.paginationCountCache = paginationCountCache;
+    public CacheMetricsLogger(final ObjectProvider<PaginationCountCache> paginationCountCacheProvider) {
+        this.paginationCountCacheProvider = paginationCountCacheProvider;
     }
 
     /**
@@ -49,10 +50,15 @@ public class CacheMetricsLogger {
 
         LOGGER.debug("=== Cache Metrics Report ===");
 
-        // PaginationCountCache metrics (SessionScope - safe to inject)
+        // PaginationCountCache metrics (SessionScope - injected via ObjectProvider)
         try {
-            PaginationCountCache.CacheStats stats = paginationCountCache.getStats();
-            logPaginationCacheStats(stats);
+            PaginationCountCache cache = paginationCountCacheProvider.getIfAvailable();
+            if (cache != null) {
+                PaginationCountCache.CacheStats stats = cache.getStats();
+                logPaginationCacheStats(stats);
+            } else {
+                LOGGER.debug("PaginationCountCache not available (no active session)");
+            }
         } catch (Exception e) {
             LOGGER.error("Failed to retrieve PaginationCountCache metrics", e);
         }
