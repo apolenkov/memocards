@@ -257,12 +257,12 @@
 
 /* ==================== StatsView - Responsive Grid ==================== */
 
-/* Stats grids - mobile height optimization */
+/* Stats grids - Material Design 8px grid */
 .stats-today-grid,
 .stats-overall-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--lumo-space-xs); /* Reduced gap for mobile */
+    gap: var(--lumo-space-xs); /* Minimal gap for mobile */
     width: 100%;
     box-sizing: border-box;
 }
@@ -275,26 +275,45 @@
     justify-content: center;
     width: 100%;
     min-width: unset;
-    aspect-ratio: 1; /* Keep square shape on mobile */
-    padding: var(--lumo-space-xs); /* Smaller padding on mobile */
+    aspect-ratio: 0.8; /* Make cards more rectangular on mobile */
+    padding: var(--lumo-space-xs); /* 8px grid: 0.5 * 8px */
 }
 
-/* Small mobile: 2 columns with better spacing */
+/* Very small screens: Single column layout for stats */
+@media (max-width: 479px) {
+    .stats-today-grid,
+    .stats-overall-grid {
+        grid-template-columns: 1fr; /* Single column */
+        gap: var(--lumo-space-xs);
+    }
+    
+    .stats-card {
+        display: flex;
+        flex-direction: row; /* Horizontal layout within each card */
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--lumo-space-xs);
+        aspect-ratio: unset; /* Remove aspect ratio */
+        min-height: 44px; /* Touch target size */
+    }
+}
+
+/* Small mobile: 2 columns with minimal spacing */
 
 @media (min-width: 480px) {
     .stats-today-grid,
     .stats-overall-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: var(--lumo-space-m);
-        justify-content: space-between;
+        gap: var(--lumo-space-xs); /* Minimal gap for mobile */
+        justify-content: center; /* Center the grid */
     }
     
     .stats-current-deck__container {
-        min-height: 140px;
+        min-height: 120px; /* Reduced height */
     }
     
     .deck-stats-card {
-        padding: var(--lumo-space-s);
+        padding: var(--lumo-space-xs); /* Smaller padding */
     }
 }
 
@@ -304,7 +323,7 @@
     .stats-today-grid,
     .stats-overall-grid {
         grid-template-columns: repeat(4, 1fr);
-        gap: var(--lumo-space-l);
+        gap: var(--lumo-space-l); /* 8px grid: 2 * 8px */
         justify-content: space-evenly;
     }
     

@@ -23,8 +23,8 @@ import org.apolenkov.application.service.stats.StatsService;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.deck.cache.UserDecksCache;
 import org.apolenkov.application.views.shared.base.BaseView;
-import org.apolenkov.application.views.stats.components.CollapsibleSectionBuilder;
-import org.apolenkov.application.views.stats.components.DeckPaginationBuilder;
+import org.apolenkov.application.views.stats.components.CardVariant;
+import org.apolenkov.application.views.stats.components.DeckStatCardCompact;
 import org.apolenkov.application.views.stats.components.StatCard;
 import org.apolenkov.application.views.stats.components.StatsCalculator;
 import org.apolenkov.application.views.stats.constants.StatsConstants;
@@ -33,14 +33,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 
 /**
- * Simplified statistics view with integrated components.
- * Displays user learning progress with collapsible sections for better organization.
+ * Modern statistics view with Material Design principles.
+ * Displays user learning progress with semantic color coding and single-page layout.
  */
 @Route(value = RouteConstants.STATS_ROUTE, layout = PublicLayout.class)
 @RolesAllowed({SecurityConstants.ROLE_USER, SecurityConstants.ROLE_ADMIN})
 public class StatsView extends BaseView implements AfterNavigationObserver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatsView.class);
+
+    // CSS class constants
+    private static final String STATS_SECTION_CLASS = "stats-section";
+    private static final String STATS_SECTION_TITLE_CLASS = "stats-section__title";
 
     // ==================== Fields ====================
 
@@ -124,7 +128,7 @@ public class StatsView extends BaseView implements AfterNavigationObserver {
     }
 
     /**
-     * Loads statistics data and populates the view.
+     * Loads statistics data and populates the view with Material Design layout.
      */
     private void loadAndDisplayStats() {
         // Add main title
@@ -136,7 +140,7 @@ public class StatsView extends BaseView implements AfterNavigationObserver {
         loadStatsData();
         initializeBuilders();
 
-        // Add sections
+        // Add sections with semantic variants
         pageSection.add(createTodayStatsSection());
         pageSection.add(createOverallStatsSection());
         pageSection.add(createDeckStatsSection());
@@ -164,54 +168,94 @@ public class StatsView extends BaseView implements AfterNavigationObserver {
     }
 
     /**
-     * Creates today's statistics section.
+     * Creates today's statistics section with semantic color coding.
      *
-     * @return configured collapsible section
+     * @return configured vertical layout with today's statistics
      */
     private Component createTodayStatsSection() {
-        VerticalLayout contentContainer = new VerticalLayout();
-        contentContainer.setSpacing(true);
-        contentContainer.add(createStatsGrid(false)); // today's stats
+        VerticalLayout section = new VerticalLayout();
+        section.setSpacing(true);
+        section.addClassName(STATS_SECTION_CLASS);
+        section.addClassName("stats-section--today");
 
-        return new CollapsibleSectionBuilder(StatsConstants.STATS_TODAY_KEY, contentContainer, true); // open by default
+        // Section title
+        H2 sectionTitle = new H2(getTranslation(StatsConstants.STATS_TODAY_KEY));
+        sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
+        section.add(sectionTitle);
+
+        // Today's stats grid with semantic variants
+        HorizontalLayout statsGrid = createStatsGrid(false);
+        statsGrid.addClassName("stats-today-grid");
+        section.add(statsGrid);
+
+        return section;
     }
 
     /**
-     * Creates overall statistics section.
+     * Creates overall statistics section with semantic color coding.
      *
-     * @return configured collapsible section
+     * @return configured vertical layout with overall statistics
      */
     private Component createOverallStatsSection() {
-        VerticalLayout contentContainer = new VerticalLayout();
-        contentContainer.setSpacing(true);
-        contentContainer.add(createStatsGrid(true)); // overall stats
+        VerticalLayout section = new VerticalLayout();
+        section.setSpacing(true);
+        section.addClassName(STATS_SECTION_CLASS);
+        section.addClassName("stats-section--overall");
 
-        return new CollapsibleSectionBuilder(
-                StatsConstants.STATS_OVERALL_KEY, contentContainer, false); // closed by default
+        // Section title
+        H2 sectionTitle = new H2(getTranslation(StatsConstants.STATS_OVERALL_KEY));
+        sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
+        section.add(sectionTitle);
+
+        // Overall stats grid with semantic variants
+        HorizontalLayout statsGrid = createStatsGrid(true);
+        statsGrid.addClassName("stats-overall-grid");
+        section.add(statsGrid);
+
+        return section;
     }
 
     /**
-     * Creates deck-specific statistics section with pagination.
+     * Creates deck-specific statistics section with vertical list layout.
      *
-     * @return configured collapsible section
+     * @return configured vertical layout with deck statistics
      */
     private Component createDeckStatsSection() {
-        VerticalLayout contentContainer = new VerticalLayout();
-        contentContainer.setSpacing(true);
-        contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+        VerticalLayout section = new VerticalLayout();
+        section.setSpacing(true);
+        section.addClassName(STATS_SECTION_CLASS);
+        section.addClassName("stats-section--decks");
+
+        // Section title
+        H2 sectionTitle = new H2(getTranslation(StatsConstants.STATS_BY_DECK_KEY));
+        sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
+        section.add(sectionTitle);
 
         if (decks.isEmpty()) {
-            contentContainer.add(new Span(getTranslation(StatsConstants.STATS_NO_DECKS_KEY)));
+            Span noDecksMessage = new Span(getTranslation(StatsConstants.STATS_NO_DECKS_KEY));
+            noDecksMessage.addClassName("stats-no-decks");
+            section.add(noDecksMessage);
         } else {
-            DeckPaginationBuilder paginationBuilder = new DeckPaginationBuilder(decks, aggregates);
-            contentContainer.add(paginationBuilder);
+            // Vertical list of compact deck cards
+            VerticalLayout decksList = new VerticalLayout();
+            decksList.setSpacing(false);
+            decksList.addClassName("stats-decks-list");
+
+            for (Deck deck : decks) {
+                StatsRepository.DeckAggregate deckStats = aggregates.get(deck.getId());
+                if (deckStats != null) {
+                    decksList.add(new DeckStatCardCompact(deck, deckStats));
+                }
+            }
+
+            section.add(decksList);
         }
 
-        return new CollapsibleSectionBuilder(StatsConstants.STATS_BY_DECK_KEY, contentContainer, false);
+        return section;
     }
 
     /**
-     * Creates a statistics grid with cards.
+     * Creates a statistics grid with semantic color-coded cards.
      *
      * @param useOverallStats whether to use overall stats (true) or today's stats (false)
      * @return configured horizontal layout with statistics cards
@@ -220,19 +264,17 @@ public class StatsView extends BaseView implements AfterNavigationObserver {
         HorizontalLayout statsGrid = new HorizontalLayout();
         statsGrid.setWidthFull();
         statsGrid.setSpacing(true);
-        statsGrid.addClassName(
-                useOverallStats ? StatsConstants.STATS_OVERALL_GRID_CLASS : StatsConstants.STATS_TODAY_GRID_CLASS);
         statsGrid.setJustifyContentMode(FlexComponent.JustifyContentMode.EVENLY);
 
         // Calculate aggregated statistics
         StatsCalculator.StatsValues stats = statsCalculator.calculateStats(useOverallStats);
 
-        // Add statistics cards
+        // Add statistics cards with semantic variants
         statsGrid.add(
-                new StatCard(StatsConstants.STATS_SESSIONS_KEY, stats.sessions()),
-                new StatCard(StatsConstants.STATS_VIEWED_KEY, stats.viewed()),
-                new StatCard(StatsConstants.STATS_CORRECT_KEY, stats.correct()),
-                new StatCard(StatsConstants.STATS_HARD_KEY, stats.hard()));
+                new StatCard(StatsConstants.STATS_SESSIONS_KEY, stats.sessions(), CardVariant.PRIMARY),
+                new StatCard(StatsConstants.STATS_VIEWED_KEY, stats.viewed(), CardVariant.INFO),
+                new StatCard(StatsConstants.STATS_CORRECT_KEY, stats.correct(), CardVariant.SUCCESS),
+                new StatCard(StatsConstants.STATS_HARD_KEY, stats.hard(), CardVariant.WARNING));
 
         return statsGrid;
     }
