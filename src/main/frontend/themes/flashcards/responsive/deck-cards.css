@@ -279,47 +279,41 @@
     padding: var(--lumo-space-xs); /* Smaller padding on mobile */
 }
 
-/* Small mobile: 2 columns */
+/* Small mobile: 2 columns with better spacing */
 
 @media (min-width: 480px) {
     .stats-today-grid,
     .stats-overall-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: var(--lumo-space-s); /* Larger gap on small mobile */
-    }
-    
-    .stats-card {
-        padding: var(--lumo-space-s); /* Larger padding on small mobile */
+        gap: var(--lumo-space-m);
+        justify-content: space-between;
     }
     
     .stats-current-deck__container {
-        min-height: 140px; /* Slightly larger on small mobile */
+        min-height: 140px;
     }
     
     .deck-stats-card {
-        padding: var(--lumo-space-s); /* Larger padding on small mobile */
+        padding: var(--lumo-space-s);
     }
 }
 
-/* Tablet: 4 columns */
+/* Tablet: 4 columns with enhanced spacing */
 
 @media (min-width: 768px) {
     .stats-today-grid,
     .stats-overall-grid {
         grid-template-columns: repeat(4, 1fr);
-        gap: var(--lumo-space-m);
-    }
-    
-    .stats-card {
-        padding: var(--lumo-space-s); /* Normal padding on tablet+ */
+        gap: var(--lumo-space-l);
+        justify-content: space-evenly;
     }
     
     .stats-current-deck__container {
-        min-height: 160px; /* Normal height on tablet+ */
+        min-height: 160px;
     }
     
     .deck-stats-card {
-        padding: var(--lumo-space-m); /* Normal padding on tablet+ */
+        padding: var(--lumo-space-m);
     }
 }
 

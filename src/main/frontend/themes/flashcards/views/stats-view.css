@@ -3,13 +3,29 @@
     padding: var(--lumo-space-m);
 }
 
+/* Mobile: Better spacing for statistics */
+
+@media (max-width: 767px) {
+    .stats-view {
+        padding: var(--lumo-space-s);
+    }
+}
+
 .stats-view__header {
     margin-bottom: var(--lumo-space-l);
 }
 
 .stats-view__content {
     display: grid;
-    gap: var(--lumo-space-m);
+    gap: var(--lumo-space-xl);
+}
+
+/* Mobile: Reduce gap but keep good separation */
+
+@media (max-width: 767px) {
+    .stats-view__content {
+        gap: var(--lumo-space-l);
+    }
 }
 
 /* Unified page section */
@@ -27,50 +43,90 @@
     text-align: center;
 }
 
-/* Stats cards - simplified design with better colors */
+/* Stats cards - enhanced design with better visual distinction */
 .stats-card { 
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 80px; /* Reduced from 120px */
-    padding: var(--lumo-space-s); /* Reduced from var(--lumo-space-l) */
+    min-width: 100px;
+    padding: var(--lumo-space-l);
     border: 1px solid var(--lumo-contrast-20pct);
     border-radius: var(--lumo-border-radius-m);
     background: var(--lumo-base-color);
     text-align: center;
-    aspect-ratio: 1; /* Make cards square */
-    transition: all 0.2s ease;
+    aspect-ratio: 1;
+    transition: all 0.3s ease;
+    overflow: hidden;
     box-sizing: border-box;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--lumo-primary-color-30pct), var(--lumo-primary-color-10pct));
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .stats-card:hover {
     border-color: var(--lumo-primary-color-30pct);
     transform: translateY(-2px);
-    box-shadow: var(--lumo-box-shadow-s);
+    box-shadow: var(--lumo-box-shadow-m);
+}
+
+.stats-card:hover::before {
+    opacity: 1;
 }
 
 .stats-card.surface-card { 
-    /* Override surface-card styling for cleaner look */
     border: 1px solid var(--lumo-contrast-20pct);
     background: var(--lumo-base-color);
     box-shadow: none;
 }
 
+/* Mobile: Smaller cards but maintain visual appeal */
+
+@media (max-width: 767px) {
+    .stats-card {
+        min-width: 80px;
+        padding: var(--lumo-space-m);
+    }
+}
+
 .stats-card__value {
-    margin-bottom: var(--lumo-space-xs); /* Reduced from var(--lumo-space-s) */
+    margin-bottom: var(--lumo-space-s);
     color: var(--lumo-primary-text-color);
-    font-size: var(--lumo-font-size-xl); /* Reduced from var(--lumo-font-size-xxxl) */
+    font-size: var(--lumo-font-size-xxl);
     font-weight: 700;
     line-height: 1;
 }
 
 .stats-card__label {
     color: var(--lumo-secondary-text-color);
-    font-size: var(--lumo-font-size-xs); /* Reduced from var(--lumo-font-size-s) */
+    font-size: var(--lumo-font-size-s);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    opacity: 0.8;
+}
+
+/* Mobile: Adjust font sizes */
+
+@media (max-width: 767px) {
+    .stats-card__value {
+        margin-bottom: var(--lumo-space-xs);
+        font-size: var(--lumo-font-size-xl);
+    }
+    
+    .stats-card__label {
+        font-size: var(--lumo-font-size-xs);
+    }
 }
 
 .stats-card--today {
@@ -100,23 +156,64 @@
     font-size: var(--lumo-font-size-m);
 }
 
-/* Stats sections - mobile height optimization */
+/* Stats sections - enhanced visual hierarchy */
 .stats-section { 
-    padding: var(--lumo-space-s); /* Smaller padding on mobile */
-    box-sizing: border-box; 
+    margin-bottom: var(--lumo-space-m);
+    padding: var(--lumo-space-l);
+    border-radius: var(--lumo-border-radius-l);
+    background: var(--lumo-base-color);
+    transition: box-shadow 0.2s ease;
+    box-sizing: border-box;
+    box-shadow: var(--lumo-box-shadow-xs);
+}
+
+.stats-section:hover {
+    box-shadow: var(--lumo-box-shadow-s);
 }
 
 .stats-section.surface-panel { 
-    border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent); 
+    border: 1px solid var(--lumo-contrast-20pct);
+    background: var(--lumo-base-color);
 }
 
-/* Stats section header - clickable area */
+/* Mobile: Reduce padding but maintain visual separation */
+
+@media (max-width: 767px) {
+    .stats-section {
+        margin-bottom: var(--lumo-space-s);
+        padding: var(--lumo-space-m);
+    }
+}
+
+/* Stats section header - enhanced visual hierarchy */
+.stats-section__header {
+    margin-bottom: var(--lumo-space-l);
+    padding-bottom: var(--lumo-space-s);
+    border-bottom: 1px solid var(--lumo-contrast-10pct);
+}
+
 .stats-section__title {
+    margin: 0;
     color: var(--lumo-primary-text-color);
+    font-size: var(--lumo-font-size-l);
+    font-weight: 600;
 }
 
 .stats-section__header:hover .stats-section__title {
-  color: var(--lumo-primary-contrast-color);
+    color: var(--lumo-primary-contrast-color);
+}
+
+/* Mobile: Reduce header spacing */
+
+@media (max-width: 767px) {
+    .stats-section__header {
+        margin-bottom: var(--lumo-space-m);
+        padding-bottom: var(--lumo-space-xs);
+    }
+    
+    .stats-section__title {
+        font-size: var(--lumo-font-size-m);
+    }
 }
 
 /* Clickable title styles */
