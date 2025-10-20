@@ -17,6 +17,15 @@
     padding: var(--lumo-space-m);
 }
 
+/* Mobile: Add safe area support for content */
+
+@media (max-width: 767px) {
+    .main-layout__content {
+        /* Ensure content doesn't get hidden behind system UI */
+        padding-bottom: max(var(--lumo-space-m), env(safe-area-inset-bottom, 0px));
+    }
+}
+
 .main-layout__footer {
     flex-shrink: 0;
     padding: var(--lumo-space-m);

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  * logStats() methods when needed.
  */
 @Component
-@ConditionalOnProperty(name = "app.monitoring.cache.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "app.monitoring.cache.enabled", havingValue = "true")
 public class CacheMetricsLogger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheMetricsLogger.class);
@@ -32,10 +32,10 @@ public class CacheMetricsLogger {
     /**
      * Creates CacheMetricsLogger with session-scoped cache.
      *
-     * @param paginationCountCacheProvider provider for pagination count cache (SessionScope)
+     * @param paginationCountCacheProviderValue provider for pagination count cache (SessionScope)
      */
-    public CacheMetricsLogger(final ObjectProvider<PaginationCountCache> paginationCountCacheProvider) {
-        this.paginationCountCacheProvider = paginationCountCacheProvider;
+    public CacheMetricsLogger(final ObjectProvider<PaginationCountCache> paginationCountCacheProviderValue) {
+        this.paginationCountCacheProvider = paginationCountCacheProviderValue;
     }
 
     /**

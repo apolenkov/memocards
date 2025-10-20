@@ -257,18 +257,26 @@
 
 /* ==================== StatsView - Responsive Grid ==================== */
 
-/* Mobile: 1 column, stacked */
+/* Stats grids - mobile height optimization */
 .stats-today-grid,
 .stats-overall-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--lumo-space-s);
+    gap: var(--lumo-space-xs); /* Reduced gap for mobile */
     width: 100%;
+    box-sizing: border-box;
 }
 
+/* Stats cards - mobile height optimization */
 .stats-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     min-width: unset;
+    aspect-ratio: 1; /* Keep square shape on mobile */
+    padding: var(--lumo-space-xs); /* Smaller padding on mobile */
 }
 
 /* Small mobile: 2 columns */
@@ -277,6 +285,19 @@
     .stats-today-grid,
     .stats-overall-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: var(--lumo-space-s); /* Larger gap on small mobile */
+    }
+    
+    .stats-card {
+        padding: var(--lumo-space-s); /* Larger padding on small mobile */
+    }
+    
+    .stats-current-deck__container {
+        min-height: 140px; /* Slightly larger on small mobile */
+    }
+    
+    .deck-stats-card {
+        padding: var(--lumo-space-s); /* Larger padding on small mobile */
     }
 }
 
@@ -288,35 +309,144 @@
         grid-template-columns: repeat(4, 1fr);
         gap: var(--lumo-space-m);
     }
+    
+    .stats-card {
+        padding: var(--lumo-space-s); /* Normal padding on tablet+ */
+    }
+    
+    .stats-current-deck__container {
+        min-height: 160px; /* Normal height on tablet+ */
+    }
+    
+    .deck-stats-card {
+        padding: var(--lumo-space-m); /* Normal padding on tablet+ */
+    }
 }
 
-/* Deck stats cards - mobile optimization */
+/* Stats current deck container - mobile height optimization */
+.stats-current-deck__container {
+    min-height: 120px; /* Reduced from 200px for mobile */
+    padding: var(--lumo-space-s); /* Smaller padding on mobile */
+    box-sizing: border-box;
+}
+
+/* Deck stats cards - mobile height optimization */
 .deck-stats-card {
     width: 100%;
-    min-width: unset;
-}
-
-.stats-current-deck__container {
-    min-height: unset;
-    padding: var(--lumo-space-m);
+    min-width: unset; /* Remove min-width on mobile */
+    padding: var(--lumo-space-s); /* Smaller padding on mobile */
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 /* Deck stats grid - responsive */
 .deck-stats-card__grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Single column on mobile */
     gap: var(--lumo-space-s);
+    width: 100%;
+    box-sizing: border-box;
 }
+
+/* Stats deck items - mobile optimization */
+.stats-deck-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: unset; /* Remove min-width on mobile */
+    padding: var(--lumo-space-xs); /* Smaller padding on mobile */
+    text-align: center;
+    aspect-ratio: 1; /* Keep square shape on mobile */
+    box-sizing: border-box;
+}
+
+.stats-deck-item__total {
+    font-size: var(--lumo-font-size-m); /* Smaller font on mobile */
+    font-weight: 700;
+}
+
+.stats-deck-item__today {
+    font-size: var(--lumo-font-size-xs); /* Smaller font on mobile */
+    font-weight: 600;
+}
+
+.stats-deck-item__label {
+    font-size: var(--lumo-font-size-xs); /* Smaller font on mobile */
+    font-weight: 500;
+}
+
+
+
+/* Small mobile: 2 columns for deck stats */
 
 @media (min-width: 480px) {
     .deck-stats-card__grid {
         grid-template-columns: repeat(2, 1fr);
     }
+    
+    .stats-deck-item {
+        padding: var(--lumo-space-s); /* Larger padding on small mobile */
+    }
+    
+    .stats-deck-item__total {
+        font-size: var(--lumo-font-size-l); /* Larger font */
+        font-weight: 700;
+    }
+    
+    .stats-deck-item__today {
+        font-size: var(--lumo-font-size-xs); /* Larger font */
+        font-weight: 600;
+    }
+    
+    .stats-deck-item__label {
+        font-size: var(--lumo-font-size-xs); /* Larger font */
+        font-weight: 500;
+    }
+}
+
+
+
+/* Tablet and up: larger padding for stats sections */
+
+@media (min-width: 768px) {
+    .stats-section {
+        padding: var(--lumo-space-m); /* Larger padding on tablet+ */
+    }
 }
 
 @media (min-width: 768px) {
+    .deck-stats-card {
+        min-width: 320px; /* Restore min-width on tablet+ */
+        padding: var(--lumo-space-l); /* Larger padding on tablet+ */
+    }
+    
+    .stats-current-deck__container {
+        padding: var(--lumo-space-m); /* Larger padding on tablet+ */
+    }
+    
     .deck-stats-card__grid {
         grid-template-columns: repeat(4, 1fr);
+        gap: var(--lumo-space-m);
+    }
+    
+    .stats-deck-item {
+        padding: var(--lumo-space-s); /* Normal padding on tablet+ */
+    }
+    
+    .stats-deck-item__total {
+        font-size: var(--lumo-font-size-l); /* Normal font size */
+        font-weight: 700;
+    }
+    
+    .stats-deck-item__today {
+        font-size: var(--lumo-font-size-xs); /* Normal font size */
+        font-weight: 600;
+    }
+    
+    .stats-deck-item__label {
+        font-size: var(--lumo-font-size-xs); /* Normal font size */
+        font-weight: 500;
     }
 }
 
