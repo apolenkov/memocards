@@ -24,7 +24,6 @@ import org.springframework.context.ApplicationEvent;
 public final class ProgressChangedEvent extends ApplicationEvent {
 
     private final long deckId;
-    private final Long cardId;
     private final ChangeType changeType;
 
     /**
@@ -43,12 +42,10 @@ public final class ProgressChangedEvent extends ApplicationEvent {
      *
      * @param source the object on which the event initially occurred
      * @param deckIdValue deck identifier
-     * @param cardIdValue card identifier
      */
-    public ProgressChangedEvent(final Object source, final long deckIdValue, final long cardIdValue) {
+    public ProgressChangedEvent(final Object source, final long deckIdValue) {
         super(source);
         this.deckId = deckIdValue;
-        this.cardId = cardIdValue;
         this.changeType = ChangeType.CARD_STATUS_CHANGED;
     }
 
@@ -57,12 +54,12 @@ public final class ProgressChangedEvent extends ApplicationEvent {
      *
      * @param source the object on which the event initially occurred
      * @param deckIdValue deck identifier
+     * @param changeTypeValue type of progress change
      */
-    public ProgressChangedEvent(final Object source, final long deckIdValue) {
+    public ProgressChangedEvent(final Object source, final long deckIdValue, final ChangeType changeTypeValue) {
         super(source);
         this.deckId = deckIdValue;
-        this.cardId = null;
-        this.changeType = ChangeType.DECK_RESET;
+        this.changeType = changeTypeValue;
     }
 
     /**
@@ -72,15 +69,6 @@ public final class ProgressChangedEvent extends ApplicationEvent {
      */
     public long getDeckId() {
         return deckId;
-    }
-
-    /**
-     * Gets card identifier (null for DECK_RESET events).
-     *
-     * @return card ID or null
-     */
-    public Long getCardId() {
-        return cardId;
     }
 
     /**
@@ -94,9 +82,6 @@ public final class ProgressChangedEvent extends ApplicationEvent {
 
     @Override
     public String toString() {
-        if (changeType == ChangeType.DECK_RESET) {
-            return "ProgressChangedEvent{deckId=" + deckId + ", type=DECK_RESET}";
-        }
-        return "ProgressChangedEvent{deckId=" + deckId + ", cardId=" + cardId + ", type=CARD_STATUS_CHANGED}";
+        return "ProgressChangedEvent{deckId=" + deckId + ", type=" + changeType + "}";
     }
 }

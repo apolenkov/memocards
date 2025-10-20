@@ -132,15 +132,6 @@ public class PaginationCountCache {
     }
 
     /**
-     * Clears all cache entries.
-     * Use for testing or when global cache invalidation is needed.
-     */
-    public void clear() {
-        cache.clear();
-        LOGGER.debug("COUNT cache cleared: all entries removed");
-    }
-
-    /**
      * Handles deck modified events for automatic cache invalidation.
      * Event-driven approach ensures data consistency after deck deletion.
      *
@@ -191,24 +182,6 @@ public class PaginationCountCache {
      */
     public CacheStats getStats() {
         return new CacheStats(hitCount.get(), missCount.get(), cache.size());
-    }
-
-    /**
-     * Logs cache statistics at DEBUG level.
-     * Call periodically or on demand for monitoring.
-     */
-    public void logStats() {
-        if (LOGGER.isDebugEnabled()) {
-            CacheStats stats = getStats();
-            String hitRate = String.format("%.1f%%", stats.hitRate() * 100);
-            LOGGER.debug(
-                    "COUNT cache stats: hits={}, misses={}, hitRate={}, size={}, maxSize={}",
-                    stats.hits(),
-                    stats.misses(),
-                    hitRate,
-                    stats.size(),
-                    maxSize);
-        }
     }
 
     /**
@@ -274,15 +247,5 @@ public class PaginationCountCache {
      * @param misses number of cache misses
      * @param size current cache size
      */
-    public record CacheStats(long hits, long misses, int size) {
-        /**
-         * Calculates hit rate (0.0 to 1.0).
-         *
-         * @return hit rate percentage as double
-         */
-        public double hitRate() {
-            long total = hits + misses;
-            return total > 0 ? (double) hits / total : 0.0;
-        }
-    }
+    public record CacheStats(long hits, long misses, int size) {}
 }
