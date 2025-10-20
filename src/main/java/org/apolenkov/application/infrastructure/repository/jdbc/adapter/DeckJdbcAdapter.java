@@ -133,6 +133,43 @@ public class DeckJdbcAdapter implements DeckRepository {
     }
 
     /**
+     * Searches decks owned by specific user matching search query.
+     * Performs case-insensitive search in title and description fields using ILIKE.
+     *
+     * @param userId ID of user whose decks to search
+     * @param searchQuery search query (case-insensitive)
+     * @return list of decks matching search criteria
+     * @throws IllegalArgumentException if userId is invalid or searchQuery is null/blank
+     */
+    @Override
+    public List<Deck> findByUserIdAndSearch(final long userId, final String searchQuery) {
+        if (userId <= 0) {
+            throw new IllegalArgumentException("User ID must be positive");
+        }
+        if (searchQuery == null || searchQuery.isBlank()) {
+            throw new IllegalArgumentException("Search query cannot be null or blank");
+        }
+
+        String searchPattern = "%" + searchQuery.trim() + "%";
+        LOGGER.debug("Searching decks for user ID: {}, query: '{}'", userId, searchQuery);
+
+        try {
+            List<DeckDto> deckDtos = jdbcTemplate.query(
+                    DeckSqlQueries.SELECT_DECKS_BY_USER_ID_AND_SEARCH,
+                    DECK_ROW_MAPPER,
+                    userId,
+                    searchPattern,
+                    searchPattern);
+            List<Deck> decks = deckDtos.stream().map(DeckJdbcAdapter::toModel).toList();
+            LOGGER.debug("Found {} decks for user ID: {}, query: '{}'", decks.size(), userId, searchQuery);
+            return decks;
+        } catch (DataAccessException e) {
+            throw new DeckRetrievalException(
+                    "Failed to search decks for user ID: " + userId + ", query: " + searchQuery, e);
+        }
+    }
+
+    /**
      * Retrieves deck by unique identifier.
      *
      * @param id unique identifier of deck
@@ -207,7 +244,6 @@ public class DeckJdbcAdapter implements DeckRepository {
     private Deck createDeck(final Deck deck) {
         DeckDto deckDto = DeckDto.forNewDeck(deck.getUserId(), deck.getTitle(), deck.getDescription());
 
-        // Insert deck and get generated ID using RETURNING clause
         Long generatedId = jdbcTemplate.queryForObject(
                 DeckSqlQueries.INSERT_DECK_RETURNING_ID,
                 Long.class,
@@ -217,7 +253,6 @@ public class DeckJdbcAdapter implements DeckRepository {
                 deckDto.createdAt(),
                 deckDto.updatedAt());
 
-        // Return created deck
         DeckDto createdDto = DeckDto.forExistingDeck(
                 generatedId,
                 deckDto.userId(),
@@ -236,13 +271,12 @@ public class DeckJdbcAdapter implements DeckRepository {
      * @return updated deck
      */
     private Deck updateDeck(final Deck deck) {
-        // Update deck
         jdbcTemplate.update(
                 DeckSqlQueries.UPDATE_DECK,
                 deck.getUserId(),
                 deck.getTitle(),
                 deck.getDescription(),
-                LocalDateTime.now(), // Update timestamp
+                LocalDateTime.now(),
                 deck.getId());
 
         return deck;

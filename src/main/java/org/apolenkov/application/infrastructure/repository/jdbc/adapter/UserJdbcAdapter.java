@@ -48,13 +48,7 @@ public class UserJdbcAdapter implements UserRepository {
         Timestamp createdAt = rs.getTimestamp("created_at");
 
         return UserDto.forExistingUser(
-                id,
-                email,
-                passwordHash,
-                name,
-                createdAt != null ? createdAt.toLocalDateTime() : null,
-                new HashSet<>() // Roles will be loaded separately
-                );
+                id, email, passwordHash, name, createdAt != null ? createdAt.toLocalDateTime() : null, new HashSet<>());
     };
 
     /**
@@ -236,7 +230,6 @@ public class UserJdbcAdapter implements UserRepository {
             // Delete user roles first (foreign key constraint)
             jdbcTemplate.update(UserSqlQueries.DELETE_USER_ROLES, id);
 
-            // Delete user
             int deleted = jdbcTemplate.update(UserSqlQueries.DELETE_USER, id);
             if (deleted == 0) {
                 LOGGER.warn("No user found with ID: {}", id);
@@ -257,7 +250,6 @@ public class UserJdbcAdapter implements UserRepository {
     private User createUser(final User user) {
         UserDto userDto = UserDto.forNewUser(user.getEmail(), user.getPasswordHash(), user.getName(), user.getRoles());
 
-        // Insert user and get generated ID using RETURNING clause
         Long generatedId = jdbcTemplate.queryForObject(
                 UserSqlQueries.INSERT_USER_RETURNING_ID,
                 Long.class,
@@ -266,10 +258,8 @@ public class UserJdbcAdapter implements UserRepository {
                 userDto.name(),
                 userDto.createdAt());
 
-        // Insert roles
         insertUserRoles(generatedId, user.getRoles());
 
-        // Return created user
         UserDto createdDto = UserDto.forExistingUser(
                 generatedId,
                 userDto.email(),
@@ -288,11 +278,9 @@ public class UserJdbcAdapter implements UserRepository {
      * @return updated user
      */
     private User updateUser(final User user) {
-        // Update user
         jdbcTemplate.update(
                 UserSqlQueries.UPDATE_USER, user.getEmail(), user.getPasswordHash(), user.getName(), user.getId());
 
-        // Update roles
         jdbcTemplate.update(UserSqlQueries.DELETE_USER_ROLES, user.getId());
         insertUserRoles(user.getId(), user.getRoles());
 

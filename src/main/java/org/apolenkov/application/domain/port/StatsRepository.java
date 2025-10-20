@@ -31,6 +31,16 @@ public interface StatsRepository {
     Set<Long> getKnownCardIds(long deckId);
 
     /**
+     * Checks if specific card is marked as known in deck.
+     * More efficient than getKnownCardIds().contains() for single card checks.
+     *
+     * @param deckId deck identifier
+     * @param cardId card identifier
+     * @return true if card is marked as known
+     */
+    boolean isCardKnownDirect(long deckId, long cardId);
+
+    /**
      * Gets known card IDs for multiple decks in single query.
      *
      * @param deckIds collection of deck identifiers (non-null, may be empty)

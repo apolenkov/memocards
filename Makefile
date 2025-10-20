@@ -9,7 +9,7 @@ PROFILE_DEV := --spring.profiles.active=dev
 # =============================================================================
 # PHONY TARGETS
 # =============================================================================
-.PHONY: help start stop restart logs clean build run dev test format check \
+.PHONY: help start stop restart logs clean build run dev prod test format check \
         code-quality code-quality-full code-quality-chars \
         coverage coverage-verify deps npm-install vaadin-prepare dev-setup quality-check \
         lint-css lint-css-fix spotless-check sonarlint \
@@ -149,6 +149,10 @@ checkstyle: ## Run Checkstyle analysis for main and test classes
 # =============================================================================
 # DEVELOPMENT COMMANDS
 # =============================================================================
-dev: ## Start application (all config in .env)
-	@echo "Starting application..."
+dev: ## Start application in development mode
+	@echo "Starting application in development mode..."
 	@$(GRADLE) bootRun --args="--spring.profiles.active=dev"
+
+prod: start build ## Start application in production mode
+	@echo "Starting application in production mode..."
+	@$(GRADLE) bootRun --args="--spring.profiles.active=prod"

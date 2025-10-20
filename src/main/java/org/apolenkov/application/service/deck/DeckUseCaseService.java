@@ -95,6 +95,26 @@ public class DeckUseCaseService implements DeckUseCase {
     }
 
     /**
+     * Searches decks owned by specific user matching search query.
+     * Performs case-insensitive search in title and description fields.
+     *
+     * @param userId the ID of the user whose decks to search
+     * @param searchQuery the search query (case-insensitive)
+     * @return a list of decks matching search criteria, or empty list if none found
+     * @throws IllegalArgumentException if userId is invalid or searchQuery is null/blank
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Deck> searchDecksByUserId(final long userId, final String searchQuery) {
+        if (searchQuery == null || searchQuery.isBlank()) {
+            LOGGER.debug("Empty search query for user {}, returning all decks", userId);
+            return deckRepository.findByUserId(userId);
+        }
+        LOGGER.debug("Searching decks for user {}, query: '{}'", userId, searchQuery);
+        return deckRepository.findByUserIdAndSearch(userId, searchQuery);
+    }
+
+    /**
      * Returns deck by ID.
      *
      * @param id the unique identifier of the deck to retrieve
@@ -187,7 +207,6 @@ public class DeckUseCaseService implements DeckUseCase {
         flashcardRepository.deleteByDeckId(id);
         LOGGER.debug("Deleted flashcards for deck {}", id);
 
-        // Then delete the deck itself
         deckRepository.deleteById(id);
 
         // Audit log (writes to both audit.log and application.log)

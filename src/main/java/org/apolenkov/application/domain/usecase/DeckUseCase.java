@@ -24,6 +24,16 @@ public interface DeckUseCase {
     List<Deck> getDecksByUserId(long userId);
 
     /**
+     * Searches decks belonging to specific user by search query.
+     * Performs case-insensitive search in title and description fields.
+     *
+     * @param userId ID of user whose decks to search
+     * @param searchQuery search query (case-insensitive)
+     * @return list of decks matching search criteria
+     */
+    List<Deck> searchDecksByUserId(long userId, String searchQuery);
+
+    /**
      * Returns deck by ID.
      *
      * @param id unique identifier of deck

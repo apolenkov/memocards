@@ -54,6 +54,21 @@ public final class StatsSqlQueries {
             """;
 
     /**
+     * SQL query to check if specific card is known in deck.
+     * More efficient than SELECT_KNOWN_CARD_IDS + contains() for single card checks.
+     * Uses EXISTS for optimal performance (stops after first match).
+     */
+    public static final String IS_CARD_KNOWN_DIRECT =
+            """
+            SELECT EXISTS(
+                SELECT 1
+                FROM known_cards kc
+                JOIN flashcards f ON kc.card_id = f.id
+                WHERE f.deck_id = ? AND kc.card_id = ?
+            ) AS is_known
+            """;
+
+    /**
      * SQL query to select known card IDs for multiple decks in single query.
      * Returns both deck_id and card_id for grouping by deck.
      * Note: Requires dynamic SQL for IN clause (deckIds parameter).

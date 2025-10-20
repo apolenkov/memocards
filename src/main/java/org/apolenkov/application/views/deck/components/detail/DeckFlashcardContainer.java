@@ -105,23 +105,18 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
 
     /**
      * Handles the toggle known action for a flashcard.
+     * Uses toggleCardKnown() to avoid redundant isCardKnown() check.
      *
      * @param flashcard the flashcard to toggle
      */
     private void handleToggleKnown(final Flashcard flashcard) {
         if (currentDeckId != null) {
-            boolean known = statsService.isCardKnown(currentDeckId, flashcard.getId());
-            LOGGER.debug("Toggling known status for card {}: {} -> {}", flashcard.getId(), known, !known);
+            // This saves one SQL query by checking and updating in single transaction
+            statsService.toggleCardKnown(currentDeckId, flashcard.getId());
 
-            statsService.setCardKnown(currentDeckId, flashcard.getId(), !known);
-
-            // Invalidate list cache to force fresh data loading
-            flashcardList.invalidateCache();
-
-            // Refresh status for the specific card that changed
+            // Single refresh - cache auto-invalidated via ProgressChangedEvent
+            // refreshStatusForCards() uses debouncing to prevent multiple redundant refreshes
             flashcardList.refreshStatusForCards();
-
-            applyFilter();
         }
     }
 
@@ -132,12 +127,12 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
      * <p>The method performs the following actions:
      * <ul>
      *   <li>Resets all card statuses in the statistics service</li>
-     *   <li>Invalidates the grid cache to force fresh data loading</li>
      *   <li>Refreshes status indicators for all cards in the grid</li>
-     *   <li>Reapplies current search and filter criteria</li>
+     *   <li>Current search and filter criteria are automatically reapplied</li>
      * </ul>
      *
      * <p>Note: This operation has no effect if currentDeckId is null.
+     * Cache is auto-invalidated via ProgressChangedEvent (event-driven approach).
      */
     public void resetProgress() {
         if (currentDeckId != null) {
@@ -145,13 +140,8 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
 
             statsService.resetDeckProgress(currentDeckId);
 
-            // Invalidate list cache to force fresh data loading
-            flashcardList.invalidateCache();
-
-            // Refresh all cards since all statuses changed
+            // Single refresh - cache auto-invalidated via ProgressChangedEvent
             flashcardList.refreshStatusForCards();
-
-            applyFilter();
         }
     }
 

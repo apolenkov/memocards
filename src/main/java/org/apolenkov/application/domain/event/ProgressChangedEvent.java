@@ -42,13 +42,13 @@ public final class ProgressChangedEvent extends ApplicationEvent {
      * Creates event for single card status change.
      *
      * @param source the object on which the event initially occurred
-     * @param deckId deck identifier
-     * @param cardId card identifier
+     * @param deckIdValue deck identifier
+     * @param cardIdValue card identifier
      */
-    public ProgressChangedEvent(final Object source, final long deckId, final long cardId) {
+    public ProgressChangedEvent(final Object source, final long deckIdValue, final long cardIdValue) {
         super(source);
-        this.deckId = deckId;
-        this.cardId = cardId;
+        this.deckId = deckIdValue;
+        this.cardId = cardIdValue;
         this.changeType = ChangeType.CARD_STATUS_CHANGED;
     }
 
@@ -56,11 +56,11 @@ public final class ProgressChangedEvent extends ApplicationEvent {
      * Creates event for deck reset (all progress cleared).
      *
      * @param source the object on which the event initially occurred
-     * @param deckId deck identifier
+     * @param deckIdValue deck identifier
      */
-    public ProgressChangedEvent(final Object source, final long deckId) {
+    public ProgressChangedEvent(final Object source, final long deckIdValue) {
         super(source);
-        this.deckId = deckId;
+        this.deckId = deckIdValue;
         this.cardId = null;
         this.changeType = ChangeType.DECK_RESET;
     }
