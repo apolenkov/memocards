@@ -19,6 +19,7 @@
 @import './responsive/deck-cards.css';
 @import './responsive/pagination.css';
 @import './responsive/utilities.css';
+@import './responsive/touch-devices.css';
 
 /* Component Modules */
 @import './views/components/deck-card.css';

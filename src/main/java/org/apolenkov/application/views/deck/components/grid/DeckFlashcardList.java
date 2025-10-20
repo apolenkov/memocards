@@ -298,13 +298,38 @@ public final class DeckFlashcardList extends VerticalLayout {
     }
 
     /**
+     * Gets contextual empty message based on current filter and search state.
+     * Provides helpful guidance to users about why no items are shown.
+     *
+     * @return localized message explaining the empty state
+     */
+    private String getContextualEmptyMessage() {
+        // Check if there's an active search query
+        boolean hasSearch = currentFilter != null
+                && currentFilter.searchQuery() != null
+                && !currentFilter.searchQuery().trim().isEmpty();
+
+        // If searching, show generic "no results" message
+        if (hasSearch) {
+            return getTranslation("deck.pagination.no-items");
+        }
+
+        // Otherwise, show contextual message based on filter
+        FilterOption filterOption = currentFilter != null ? currentFilter.filterOption() : FilterOption.ALL;
+        return switch (filterOption) {
+            case ALL -> getTranslation("deck.pagination.no-items.all");
+            case KNOWN_ONLY -> getTranslation("deck.pagination.no-items.known");
+            case UNKNOWN_ONLY -> getTranslation("deck.pagination.no-items.unknown");
+        };
+    }
+
+    /**
      * Updates pagination info displays.
      */
     private void updatePaginationInfo() {
         if (totalItems == 0) {
-            String noItemsText = getTranslation("deck.pagination.no-items");
+            String noItemsText = getContextualEmptyMessage();
             topPaginationInfo.setText(noItemsText);
-            bottomPaginationInfo.setText(noItemsText);
 
             // Hide pagination controls when no items
             hidePaginationControls();
