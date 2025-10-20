@@ -44,6 +44,20 @@ public final class DeckSqlQueries {
             """;
 
     /**
+     * SQL query to search decks by user ID and search query.
+     * Searches in title and description fields (case-insensitive).
+     * Uses ILIKE for case-insensitive pattern matching (PostgreSQL).
+     */
+    public static final String SELECT_DECKS_BY_USER_ID_AND_SEARCH =
+            """
+            SELECT d.id, d.user_id, d.title, d.description, d.created_at, d.updated_at
+            FROM decks d
+            WHERE d.user_id = ?
+              AND (d.title ILIKE ? OR d.description ILIKE ?)
+            ORDER BY d.created_at DESC
+            """;
+
+    /**
      * SQL query to insert new deck and return generated ID.
      */
     public static final String INSERT_DECK_RETURNING_ID =

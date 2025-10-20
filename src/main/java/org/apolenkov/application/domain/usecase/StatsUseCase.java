@@ -63,6 +63,15 @@ public interface StatsUseCase {
     void setCardKnown(long deckId, long cardId, boolean known);
 
     /**
+     * Toggles knowledge status of specific card in deck.
+     * More efficient than isCardKnown() + setCardKnown() as it checks and updates in single operation.
+     *
+     * @param deckId ID of deck containing card
+     * @param cardId ID of card to toggle
+     */
+    void toggleCardKnown(long deckId, long cardId);
+
+    /**
      * Resets all progress for specific deck.
      *
      * @param deckId ID of deck to reset progress for

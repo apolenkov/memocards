@@ -631,14 +631,80 @@ select {
 /* Mobile pagination - fix alignment and text overflow */
 
 @media (max-width: 767px) {
-    /* Pagination info text - shorter version for mobile */
+    /* Pagination info text - responsive display */
     .deck-pagination-info {
+        position: relative;
         padding: 0 var(--lumo-space-s);
         font-size: var(--lumo-font-size-xs);
         line-height: 1.2;
         text-align: center;
         word-break: break-word;
         overflow-wrap: break-word;
+    }
+
+    /* Show only page numbers on mobile by hiding the original text and showing page info */
+    .deck-pagination-info::after {
+        content: attr(data-page-info);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        display: none;
+        min-width: 60px;
+        padding: var(--lumo-space-xs) var(--lumo-space-s);
+        border: 1px solid var(--lumo-contrast-20pct);
+        border-radius: var(--lumo-border-radius-m);
+        background: var(--lumo-contrast-5pct);
+        font-size: var(--lumo-font-size-s);
+        text-align: center;
+        transform: translate(-50%, -50%);
+    }
+
+    /* On tablet screens, show compact version */
+
+    @media (max-width: 768px) and (min-width: 481px) {
+        .deck-pagination-info {
+            padding: var(--lumo-space-xs);
+            border: 1px solid var(--lumo-contrast-10pct);
+            border-radius: var(--lumo-border-radius-s);
+            background: var(--lumo-contrast-5pct);
+            font-size: var(--lumo-font-size-xs);
+        }
+    }
+
+    /* On medium mobile screens, show compact version */
+
+    @media (max-width: 600px) and (min-width: 481px) {
+        .deck-pagination-info {
+            max-width: 200px;
+            padding: var(--lumo-space-xs);
+            border: 1px solid var(--lumo-contrast-10pct);
+            border-radius: var(--lumo-border-radius-s);
+            background: var(--lumo-contrast-5pct);
+            font-size: var(--lumo-font-size-xs);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    /* On very small screens, hide original text and show only page numbers */
+
+    @media (max-width: 480px) {
+        .deck-pagination-info {
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: var(--lumo-contrast-0pct);
+            font-size: 0;
+            line-height: 0;
+        }
+        
+        .deck-pagination-info::after {
+            display: block;
+            color: var(--lumo-body-text-color);
+            font-size: var(--lumo-font-size-s);
+            line-height: normal;
+        }
     }
     
     /* Pagination controls - better alignment */

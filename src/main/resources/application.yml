@@ -14,9 +14,11 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      connection-timeout: 20000
+      maximum-pool-size: 20
+      minimum-idle: 10
+      connection-timeout: 10000      # Fast failover (10s)
+      validation-timeout: 3000       # Quick connection validation
+      leak-detection-threshold: 60000  # Detect leaks after 60s
       idle-timeout: 300000
       max-lifetime: 1800000
       pool-name: FlashcardsHikariPool
@@ -28,24 +30,44 @@ spring:
 
 vaadin:
   allowed-packages: com.vaadin,org.vaadin,com.flowingcode,org.apolenkov.application
+  launch-browser: false  # Override in dev profile
+  productionMode: true # Override in dev profile
 
 # Server configuration
 server:
   compression:
     enabled: true
-    min-response-size: 1024
-    mime-types: text/html,text/css,application/javascript,application/json
+    min-response-size: 512
+    mime-types:
+      - text/html
+      - text/css
+      - application/javascript
+      - application/json
+      - image/svg+xml
+      - application/xml
+  http2:
+    enabled: true
 
 # Actuator endpoints
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: when-authorized
       show-components: when-authorized
+  metrics:
+    enable:
+      jvm: true
+      jdbc: true
+      hikaricp: true
+      logback: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 app:
   cache:
@@ -58,6 +80,9 @@ app:
     known-cards:
       ttl-ms: ${CACHE_KNOWN_CARDS_TTL:300000}  # 5 minutes (less volatile than decks)
       max-size: ${CACHE_KNOWN_CARDS_MAX_SIZE:1000}
+    pagination-count:
+      ttl-ms: ${CACHE_PAGINATION_COUNT_TTL:30000}  # 30 seconds (short TTL for COUNT queries)
+      max-size: ${CACHE_PAGINATION_COUNT_MAX_SIZE:500}
   ui:
     search:
       debounce-ms: ${SEARCH_DEBOUNCE_MS:300}  # Debouncing timeout for search fields
@@ -78,11 +103,15 @@ spring:
   config:
     activate:
       on-profile: dev
-  # Increased connection pool for Virtual Threads in seed operations
-  datasource:
-    hikari:
-      maximum-pool-size: 100  # Match Virtual Threads count for parallel seed operations
-      minimum-idle: 10
+
+vaadin:
+  launch-browser: false
+  productionMode: false
+
+logging:
+  level:
+    org.springframework.jdbc.core: DEBUG
+    org.apolenkov.application: DEBUG
 
 # Data seeding configuration (dev profile only)
 app:
@@ -102,33 +131,12 @@ app:
         cards-per-deck: ${LIMIT_CARDS:50}
         news: ${LIMIT_NEWS:50}
 
-vaadin:
-  launch-browser: true
-
-logging:
-  level:
-    org.springframework.jdbc.core: DEBUG
-    org.apolenkov.application: DEBUG
-
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,env
-  endpoint:
-    health:
-      show-details: always
-
 ---
 # Test Profile
 spring:
   config:
     activate:
       on-profile: test
-
-vaadin:
-  launch-browser: false
 
 logging:
   level:
@@ -142,5 +150,15 @@ spring:
     activate:
       on-profile: prod
 
-vaadin:
-  launch-browser: false
+logging:
+  level:
+    org.springframework: WARN
+    org.springframework.jdbc.core: INFO
+    org.springframework.boot: INFO
+    org.apolenkov.application: INFO
+    org.apolenkov.application.audit: INFO
+    org.atmosphere: WARN
+    org.flywaydb: INFO
+    com.vaadin: WARN
+    com.zaxxer.hikari: INFO
+

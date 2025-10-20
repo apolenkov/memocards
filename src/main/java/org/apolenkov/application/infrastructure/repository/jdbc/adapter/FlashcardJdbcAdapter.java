@@ -15,6 +15,7 @@ import org.apolenkov.application.infrastructure.repository.jdbc.exception.Flashc
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.FlashcardQueryBuilder;
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.FlashcardSqlQueries;
 import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.service.stats.PaginationCountCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -66,6 +67,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
     // ==================== Fields ====================
 
     private final JdbcTemplate jdbcTemplate;
+    private final PaginationCountCache paginationCountCache;
 
     // ==================== Constructor ====================
 
@@ -74,17 +76,24 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      *
      * @param jdbcTemplateValue the JdbcTemplate for database operations
      * @param batchOperationsValue helper for batch operations
+     * @param paginationCountCacheValue cache for pagination COUNT queries
      * @throws IllegalArgumentException if jdbcTemplate is null
      */
     public FlashcardJdbcAdapter(
-            final JdbcTemplate jdbcTemplateValue, final FlashcardBatchOperations batchOperationsValue) {
+            final JdbcTemplate jdbcTemplateValue,
+            final FlashcardBatchOperations batchOperationsValue,
+            final PaginationCountCache paginationCountCacheValue) {
         if (jdbcTemplateValue == null) {
             throw new IllegalArgumentException("JdbcTemplate cannot be null");
         }
         if (batchOperationsValue == null) {
             throw new IllegalArgumentException("BatchOperations cannot be null");
         }
+        if (paginationCountCacheValue == null) {
+            throw new IllegalArgumentException("PaginationCountCache cannot be null");
+        }
         this.jdbcTemplate = jdbcTemplateValue;
+        this.paginationCountCache = paginationCountCacheValue;
     }
 
     /**
@@ -288,7 +297,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 flashcard.getExample(),
                 flashcard.getImageUrl());
 
-        // Insert flashcard and get generated ID using RETURNING clause
         Long generatedId = jdbcTemplate.queryForObject(
                 FlashcardSqlQueries.INSERT_FLASHCARD_RETURNING_ID,
                 Long.class,
@@ -300,7 +308,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 flashcardDto.timestamps().createdAt(),
                 flashcardDto.timestamps().updatedAt());
 
-        // Set generated ID on the flashcard object
         flashcard.setId(generatedId);
     }
 
@@ -310,7 +317,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      * @param flashcard flashcard to update
      */
     private void updateFlashcard(final Flashcard flashcard) {
-        // Update flashcard
         jdbcTemplate.update(
                 FlashcardSqlQueries.UPDATE_FLASHCARD,
                 flashcard.getDeckId(),
@@ -318,7 +324,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 flashcard.getBackText(),
                 flashcard.getExample(),
                 flashcard.getImageUrl(),
-                LocalDateTime.now(), // Update timestamp
+                LocalDateTime.now(),
                 flashcard.getId());
     }
 
@@ -391,7 +397,6 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 offset);
 
         try {
-            // Build dynamic query
             FlashcardQueryBuilder queryBuilder = new FlashcardQueryBuilder().withDeckId(deckId);
 
             if (searchQuery != null && !searchQuery.trim().isEmpty()) {
@@ -435,32 +440,34 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 searchQuery,
                 filterOption);
 
-        try {
-            // Build dynamic query
-            FlashcardQueryBuilder queryBuilder = new FlashcardQueryBuilder().withDeckId(deckId);
+        // Use cache for COUNT queries (30 sec TTL + event-driven invalidation)
+        return paginationCountCache.getCount(deckId, searchQuery, filterOption, () -> {
+            try {
+                FlashcardQueryBuilder queryBuilder = new FlashcardQueryBuilder().withDeckId(deckId);
 
-            if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-                queryBuilder.withSearchQuery(searchQuery);
+                if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+                    queryBuilder.withSearchQuery(searchQuery);
+                }
+
+                if (filterOption == FilterOption.KNOWN_ONLY) {
+                    queryBuilder.withKnownStatus();
+                } else if (filterOption == FilterOption.UNKNOWN_ONLY) {
+                    queryBuilder.withUnknownStatus();
+                }
+
+                String sql = queryBuilder.buildCountQuery(FlashcardSqlQueries.COUNT_FLASHCARDS_BASE);
+                Object[] params = queryBuilder.getParameters();
+
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Dynamic COUNT SQL: {} | Parameters: {}", sql, java.util.Arrays.toString(params));
+                }
+
+                Long count = jdbcTemplate.queryForObject(sql, Long.class, params);
+                return count != null ? count : 0L;
+            } catch (DataAccessException e) {
+                throw new FlashcardRetrievalException(
+                        "Failed to count flashcards with dynamic filter for deck ID: " + deckId, e);
             }
-
-            if (filterOption == FilterOption.KNOWN_ONLY) {
-                queryBuilder.withKnownStatus();
-            } else if (filterOption == FilterOption.UNKNOWN_ONLY) {
-                queryBuilder.withUnknownStatus();
-            }
-
-            String sql = queryBuilder.buildCountQuery(FlashcardSqlQueries.COUNT_FLASHCARDS_BASE);
-            Object[] params = queryBuilder.getParameters();
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Dynamic COUNT SQL: {} | Parameters: {}", sql, java.util.Arrays.toString(params));
-            }
-
-            Long count = jdbcTemplate.queryForObject(sql, Long.class, params);
-            return count != null ? count : 0L;
-        } catch (DataAccessException e) {
-            throw new FlashcardRetrievalException(
-                    "Failed to count flashcards with dynamic filter for deck ID: " + deckId, e);
-        }
+        });
     }
 }

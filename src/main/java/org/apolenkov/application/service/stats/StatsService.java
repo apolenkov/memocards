@@ -202,6 +202,32 @@ public class StatsService implements StatsUseCase {
     }
 
     /**
+     * Toggles knowledge status of specific card in deck.
+     * More efficient than isCardKnown() + setCardKnown() as it checks and updates in one operation.
+     * Uses isCardKnownDirect() for optimal single-card check (EXISTS query instead of loading all cards).
+     * Publishes ProgressChangedEvent for cache invalidation (event-driven approach).
+     *
+     * @param deckId ID of deck containing the card
+     * @param cardId ID of card to toggle
+     */
+    @Override
+    @Transactional
+    public void toggleCardKnown(final long deckId, final long cardId) {
+        // Use direct check instead of loading all known cards (optimized for single card check)
+        boolean currentlyKnown = statsRepository.isCardKnownDirect(deckId, cardId);
+        boolean newStatus = !currentlyKnown;
+
+        LOGGER.debug("Toggling card {} in deck {}: {} -> {}", cardId, deckId, currentlyKnown, newStatus);
+
+        statsRepository.setCardKnown(deckId, cardId, newStatus);
+
+        // Publish event for cache invalidation (event-driven approach, decouples service from cache)
+        eventPublisher.publishEvent(new ProgressChangedEvent(this, deckId, cardId));
+
+        LOGGER.info("Card toggled to {} in deck {}: cardId={}", newStatus ? "known" : "unknown", deckId, cardId);
+    }
+
+    /**
      * Resets all progress for specific deck.
      * Removes all known card associations and resets daily statistics.
      * Logs detailed audit information including deck details and cards cleared.

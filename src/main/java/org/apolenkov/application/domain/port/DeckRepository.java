@@ -28,6 +28,16 @@ public interface DeckRepository {
     List<Deck> findByUserId(long userId);
 
     /**
+     * Searches decks belonging to specific user by search query.
+     * Performs case-insensitive search in title and description fields.
+     *
+     * @param userId ID of user whose decks to search
+     * @param searchQuery search query (case-insensitive, searches in title and description)
+     * @return list of decks matching search criteria
+     */
+    List<Deck> findByUserIdAndSearch(long userId, String searchQuery);
+
+    /**
      * Gets deck by unique identifier.
      *
      * @param id unique identifier of deck

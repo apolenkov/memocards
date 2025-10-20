@@ -2,7 +2,6 @@ package org.apolenkov.application.views.deck.business;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.apolenkov.application.domain.usecase.DeckUseCase;
@@ -66,24 +65,26 @@ public class DeckListPresenter {
 
     /**
      * Lists decks for the current user based on an optional search query.
-     * Uses UI-scoped cache to avoid repeated database queries during navigation.
+     * Uses UI-scoped cache for all decks, database fulltext search for filtered results.
      *
      * @param query the search query to filter decks, maybe null or empty
      * @return a list of deck view models for the current user, never null (maybe empty)
      */
     public List<DeckCardViewModel> listDecksForCurrentUser(final String query) {
-        // Get current user ID and load decks (cached in UI session)
         long userId = userUseCase.getCurrentUser().getId();
-        List<Deck> decks = decksCache.getDecks(userId, () -> deckUseCase.getDecksByUserId(userId));
 
-        // Normalize search query: convert to lowercase, trim whitespace, handle null
-        String normalized = query != null ? query.toLowerCase(Locale.ROOT).trim() : "";
+        // Normalize search query: trim whitespace, handle null
+        String normalized = query != null ? query.trim() : "";
 
-        // Apply text filtering if query is provided
-        if (!normalized.isEmpty()) {
-            decks = decks.stream()
-                    .filter(d -> contains(d.getTitle(), normalized) || contains(d.getDescription(), normalized))
-                    .toList();
+        // Load decks: use cache for all decks, database search for filtered results
+        List<Deck> decks;
+        if (normalized.isEmpty()) {
+            // No search query: load from cache (UI-scoped)
+            decks = decksCache.getDecks(userId, () -> deckUseCase.getDecksByUserId(userId));
+        } else {
+            // Search query: use database fulltext search with trigram indexes
+            // Bypass cache to always get fresh results for search queries
+            decks = deckUseCase.searchDecksByUserId(userId, normalized);
         }
 
         // Sort decks alphabetically by title, handling null titles gracefully
@@ -126,16 +127,5 @@ public class DeckListPresenter {
         percent = Math.clamp(percent, 0, 100);
 
         return new DeckCardViewModel(deck.getId(), deck.getTitle(), deck.getDescription(), deckSize, known, percent);
-    }
-
-    /**
-     * Checks if a string value contains the specified query text.
-     *
-     * @param value the string to search in (can be null)
-     * @param query the query text to search for
-     * @return true if the value contains the query, false otherwise
-     */
-    private static boolean contains(final String value, final String query) {
-        return value != null && value.toLowerCase(Locale.ROOT).contains(query);
     }
 }

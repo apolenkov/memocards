@@ -324,11 +324,15 @@ public final class DeckFlashcardList extends VerticalLayout {
         topPaginationInfo.setText(paginationText);
         bottomPaginationInfo.setText(paginationText);
 
+        // Add data attribute for mobile CSS to show only page numbers
+        String pageInfoText = (currentPage + 1) + " / " + Math.max(1, totalPages);
+        topPaginationInfo.getElement().setAttribute("data-page-info", pageInfoText);
+        bottomPaginationInfo.getElement().setAttribute("data-page-info", pageInfoText);
+
         // Update button states
         updatePaginationButtons(currentPage > 0, currentPage < totalPages - 1);
 
         // Update page info in pagination controls
-        String pageInfoText = (currentPage + 1) + " / " + Math.max(1, totalPages);
         updatePageInfoLabels(pageInfoText);
     }
 

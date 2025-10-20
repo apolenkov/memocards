@@ -108,6 +108,33 @@ public class StatsJdbcAdapter implements StatsRepository {
     }
 
     /**
+     * Checks if specific card is marked as known in deck.
+     * More efficient than getKnownCardIds().contains() for single card checks.
+     * Uses EXISTS query which stops after first match instead of loading all cards.
+     *
+     * @param deckId the deck ID
+     * @param cardId the card ID
+     * @return true if card is marked as known
+     */
+    @Override
+    public boolean isCardKnownDirect(final long deckId, final long cardId) {
+        LOGGER.debug("Checking if card {} is known in deck ID: {}", cardId, deckId);
+
+        try {
+            Boolean result =
+                    jdbcTemplate.queryForObject(StatsSqlQueries.IS_CARD_KNOWN_DIRECT, Boolean.class, deckId, cardId);
+
+            // EXISTS query always returns true/false, but queryForObject may return null if no rows
+            boolean isKnown = Boolean.TRUE.equals(result);
+            LOGGER.debug("Card {} in deck {}: {}", cardId, deckId, isKnown ? "KNOWN" : "UNKNOWN");
+
+            return isKnown;
+        } catch (DataAccessException e) {
+            throw new StatsRetrievalException("Failed to check card " + cardId + " in deck: " + deckId, e);
+        }
+    }
+
+    /**
      * Gets known card IDs for multiple decks.
      *
      * @param deckIds collection of deck identifiers (non-null, may be empty)
