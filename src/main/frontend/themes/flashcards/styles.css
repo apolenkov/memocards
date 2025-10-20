@@ -3,7 +3,7 @@
  * Uses Lumo design tokens for consistency
  */
 
-/* Import component styles */
+/* All imports must be at the top before any rules */
 
 @import './settings/tokens.css';
 @import './components.css';
@@ -30,9 +30,6 @@
 @import './views/register-view.css';
 @import './views/public-layout.css';
 @import './views/deck-create-view.css';
-
-/* Import utility styles */
-
 @import './utilities.css';
 @import './responsive.css';
 @import './animations.css';
@@ -41,6 +38,11 @@
 @import './enhanced-views.css';
 @import './main-layout.css';
 @import './auth-forms.css';
+
+/* Global styles to prevent horizontal scroll */
+* {
+    box-sizing: border-box;
+}
 
 /* Background and content layers */
 .app-content {
@@ -112,11 +114,12 @@
 }
 
 /* Background using Lumo tokens */
-body,
-html {
+body {
     min-height: 100vh;
+    max-width: 100vw;
     margin: 0;
     padding: 0;
     background: url('./assets/bg-custom-dark.webp') no-repeat center center fixed;
     background-size: cover;
+    overflow-x: hidden;
 }

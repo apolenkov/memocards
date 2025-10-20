@@ -153,6 +153,28 @@
         <appender-ref ref="WARN_FILE"/>
     </logger>
     
+    <!-- Suppress Vaadin Push warnings (race condition on startup, not critical) -->
+    <logger name="com.vaadin.flow.server.communication.PushAtmosphereHandler" level="ERROR" additivity="false">
+        <appender-ref ref="ERROR_FILE"/>
+    </logger>
+    
+    <!-- Production profile - reduce logging overhead -->
+    <springProfile name="prod">
+        <!-- Application logging - INFO only (no DEBUG) -->
+        <logger name="org.apolenkov.application" level="INFO" additivity="false">
+            <appender-ref ref="ASYNC_FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </logger>
+        
+        <!-- No SQL logging in production (security + performance) -->
+        <logger name="org.springframework.jdbc.core.JdbcTemplate" level="WARN" additivity="false">
+            <appender-ref ref="SQL_FILE"/>
+        </logger>
+        
+        <!-- Minimal Spring logs -->
+        <logger name="org.springframework" level="WARN"/>
+    </springProfile>
+    
     <!-- Root logger - minimal output -->
     <root level="INFO">
         <appender-ref ref="ASYNC_FILE"/>

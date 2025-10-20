@@ -1,6 +1,6 @@
 package org.apolenkov.application.views.deck.cache;
 
-import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
@@ -17,8 +17,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * UI-scoped cache for user decks.
- * Cache lifetime is bound to UI session and automatically cleared when UI is destroyed.
+ * Session-scoped cache for user decks.
+ * Cache lifetime is bound to Vaadin session (survives page navigation, shared across tabs).
  * Data freshness is ensured through automatic expiration and event-based invalidation.
  *
  * <p>Configuration:
@@ -26,10 +26,11 @@ import org.springframework.stereotype.Component;
  *   <li>TTL: configurable via app.cache.decks.ttl-ms (default: 60 seconds)</li>
  *   <li>Max size: configurable via app.cache.decks.max-size (default: 1000 entries)</li>
  *   <li>Eviction: LRU-style when cache reaches max size</li>
+ *   <li>Scope: @VaadinSessionScope - shared across UI instances in same session</li>
  * </ul>
  */
 @Component
-@UIScope
+@VaadinSessionScope
 public class UserDecksCache {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserDecksCache.class);

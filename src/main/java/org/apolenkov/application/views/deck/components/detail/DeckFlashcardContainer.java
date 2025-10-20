@@ -5,26 +5,24 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
+import org.apolenkov.application.domain.model.FilterOption;
 import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.stats.StatsService;
 import org.apolenkov.application.views.deck.components.grid.DeckFlashcardList;
-import org.apolenkov.application.views.deck.components.grid.DeckGridFilter;
 import org.apolenkov.application.views.deck.components.grid.DeckSearchControls;
-import org.apolenkov.application.views.deck.components.grid.FilterOption;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Component for displaying flashcards in a grid with search and filtering capabilities.
- * Coordinates search controls and flashcard grid components.
+ * Container component for displaying flashcards with search, filtering, and pagination.
+ * Coordinates search controls and flashcard list with explicit pagination controls.
+ * Uses lazy loading for efficient handling of large collections (500+ cards).
  */
-public final class DeckGrid extends Composite<VerticalLayout> {
+public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeckGrid.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeckFlashcardContainer.class);
 
     // Dependencies
     private final transient StatsService statsService;
@@ -35,20 +33,24 @@ public final class DeckGrid extends Composite<VerticalLayout> {
 
     // Data
     private transient Long currentDeckId;
-    private transient List<Flashcard> allFlashcards;
     private transient FilterOption currentFilterOption;
 
     /**
-     * Creates a new DeckGrid component.
+     * Creates a new DeckFlashcardContainer component.
      *
      * @param statsServiceParam service for statistics tracking
+     * @param flashcardUseCaseParam use case for flashcard operations
      * @param searchDebounceMs debouncing timeout for search field
+     * @param pageSize number of items per page in flashcard list
      */
-    public DeckGrid(final StatsService statsServiceParam, final int searchDebounceMs) {
+    public DeckFlashcardContainer(
+            final StatsService statsServiceParam,
+            final org.apolenkov.application.domain.usecase.FlashcardUseCase flashcardUseCaseParam,
+            final int searchDebounceMs,
+            final int pageSize) {
         this.statsService = statsServiceParam;
         this.searchControls = new DeckSearchControls(searchDebounceMs);
-        this.flashcardList = new DeckFlashcardList(statsService);
-        this.allFlashcards = new ArrayList<>();
+        this.flashcardList = new DeckFlashcardList(statsService, flashcardUseCaseParam, pageSize);
         this.currentFilterOption = FilterOption.UNKNOWN_ONLY; // Default: hide known
     }
 
@@ -147,9 +149,7 @@ public final class DeckGrid extends Composite<VerticalLayout> {
             flashcardList.invalidateCache();
 
             // Refresh all cards since all statuses changed
-            if (allFlashcards != null) {
-                flashcardList.refreshStatusForCards();
-            }
+            flashcardList.refreshStatusForCards();
 
             applyFilter();
         }
@@ -165,17 +165,14 @@ public final class DeckGrid extends Composite<VerticalLayout> {
 
     /**
      * Applies search and filter criteria to the flashcards with specific parameters.
-     * Passes known card IDs to list to avoid duplicate queries.
+     * Uses lazy loading through data provider instead of in-memory filtering.
      *
      * @param searchQuery the search query to apply
      * @param filterOption the filter option to apply
      */
     private void applyFilterWithParams(final String searchQuery, final FilterOption filterOption) {
-        var filterResult =
-                DeckGridFilter.applyFilter(allFlashcards, searchQuery, filterOption, statsService, currentDeckId);
-
-        // Pass known card IDs to list to reuse in status indicators (avoids duplicate DB query)
-        flashcardList.updateData(filterResult.filteredFlashcards(), filterResult.knownCardIds());
+        // Update filter in data provider (triggers lazy loading from backend)
+        flashcardList.updateFilter(searchQuery, filterOption);
     }
 
     /**
@@ -189,43 +186,11 @@ public final class DeckGrid extends Composite<VerticalLayout> {
     }
 
     /**
-     * Sets the flashcards data for the grid.
-     *
-     * @param flashcards the list of flashcards to display
+     * Refreshes the data in the grid.
+     * Call after flashcard create/update/delete operations.
      */
-    public void setFlashcards(final List<Flashcard> flashcards) {
-        this.allFlashcards = new ArrayList<>(flashcards);
-        applyFilter();
-    }
-
-    /**
-     * Updates a flashcard in the local data and refreshes the grid.
-     *
-     * @param updatedFlashcard the updated flashcard
-     */
-    public void updateFlashcard(final Flashcard updatedFlashcard) {
-        if (allFlashcards != null) {
-            // Find and replace the flashcard in the local list
-            for (int i = 0; i < allFlashcards.size(); i++) {
-                if (allFlashcards.get(i).getId().equals(updatedFlashcard.getId())) {
-                    allFlashcards.set(i, updatedFlashcard);
-                    break;
-                }
-            }
-            applyFilter();
-        }
-    }
-
-    /**
-     * Removes a flashcard from the local data and refreshes the grid.
-     *
-     * @param flashcardId the ID of the flashcard to remove
-     */
-    public void removeFlashcard(final Long flashcardId) {
-        if (allFlashcards != null) {
-            allFlashcards.removeIf(flashcard -> flashcard.getId().equals(flashcardId));
-            applyFilter();
-        }
+    public void refreshData() {
+        flashcardList.refreshStatusForCards();
     }
 
     /**

@@ -10,6 +10,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.shared.Registration;
 import java.util.Locale;
 import java.util.function.Consumer;
+import org.apolenkov.application.domain.model.FilterOption;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 
 /**
@@ -126,9 +127,7 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
      * @param callback the callback to execute when filter value changes
      * @return registration for removing the listener
      */
-    public Registration addFilterChangeListener(
-            final java.util.function.Consumer<org.apolenkov.application.views.deck.components.grid.FilterOption>
-                    callback) {
+    public Registration addFilterChangeListener(final Consumer<FilterOption> callback) {
         return filterComboBox.addFilterChangeListener(callback);
     }
 
