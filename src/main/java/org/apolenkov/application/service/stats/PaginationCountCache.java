@@ -10,9 +10,12 @@ import java.util.function.LongSupplier;
 import org.apolenkov.application.domain.event.DeckModifiedEvent;
 import org.apolenkov.application.domain.event.ProgressChangedEvent;
 import org.apolenkov.application.domain.model.FilterOption;
+import org.apolenkov.application.service.stats.event.CacheInvalidationEvent;
+import org.apolenkov.application.service.stats.metrics.CacheMetricsCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.EventListener;
@@ -37,7 +40,7 @@ import org.springframework.web.context.WebApplicationContext;
  *   <li>Event-driven: DeckModifiedEvent (deck delete invalidates all counts)</li>
  *   <li>Event-driven: ProgressChangedEvent (known/unknown status change)</li>
  *   <li>Smart invalidation: FilterOption.ALL is NOT invalidated on progress change (count unchanged)</li>
- *   <li>Debouncing: 2-second cooldown prevents excessive invalidations during rapid clicks</li>
+ *   <li>Debouncing: 300ms cooldown prevents excessive invalidations during rapid clicks (balanced UX/performance)</li>
  *   <li>TTL-based: configurable backup fallback</li>
  * </ul>
  */
@@ -46,7 +49,8 @@ import org.springframework.web.context.WebApplicationContext;
 public class PaginationCountCache {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaginationCountCache.class);
-    private static final long INVALIDATION_COOLDOWN_MS = 2000; // 2 seconds debouncing
+    private static final long INVALIDATION_COOLDOWN_MS = 300; // 300ms debouncing (reduced from 2s for better UX)
+    private static final String CACHE_TYPE = "pagination-count";
 
     private final Map<CountKey, CachedCount> cache = new ConcurrentHashMap<>();
     private final Map<Long, Instant> lastInvalidationTime = new ConcurrentHashMap<>();
@@ -59,6 +63,22 @@ public class PaginationCountCache {
 
     @Value("${app.cache.pagination-count.max-size:500}")
     private int maxSize;
+
+    // Dependencies for metrics and events
+    private final ApplicationEventPublisher eventPublisher;
+    private final CacheMetricsCollector metricsCollector;
+
+    /**
+     * Creates PaginationCountCache with required dependencies.
+     *
+     * @param eventPublisherValue the Spring event publisher for cache invalidation events
+     * @param metricsCollectorValue the metrics collector for cache statistics
+     */
+    public PaginationCountCache(
+            final ApplicationEventPublisher eventPublisherValue, final CacheMetricsCollector metricsCollectorValue) {
+        this.eventPublisher = eventPublisherValue;
+        this.metricsCollector = metricsCollectorValue;
+    }
 
     /**
      * Gets cached count or loads fresh count if cache miss.
@@ -81,6 +101,9 @@ public class PaginationCountCache {
 
         if (cached != null && cached.isValid(ttlMs)) {
             hitCount.incrementAndGet();
+            // Record cache hit metrics
+            metricsCollector.recordCacheHitMiss(CACHE_TYPE, true);
+
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                         "COUNT cache HIT: deckId={}, filter={}, search='{}', count={}",
@@ -93,6 +116,8 @@ public class PaginationCountCache {
         }
 
         missCount.incrementAndGet();
+        // Record cache miss metrics
+        metricsCollector.recordCacheHitMiss(CACHE_TYPE, false);
         long count = loader.getAsLong();
 
         // Evict the oldest entry if cache is full
@@ -117,6 +142,7 @@ public class PaginationCountCache {
     /**
      * Invalidates all cache entries for a specific deck.
      * Called after flashcard create/update/delete or progress changes.
+     * Publishes cache invalidation event for metrics collection.
      *
      * @param deckId the deck ID
      */
@@ -131,8 +157,17 @@ public class PaginationCountCache {
 
         cache.keySet().removeIf(key -> deckId.equals(key.deckId()));
 
-        if (removed > 0 && LOGGER.isDebugEnabled()) {
-            LOGGER.debug("COUNT cache invalidated for deckId={}: {} entries removed", deckId, removed);
+        if (removed > 0) {
+            // Publish cache invalidation event for metrics
+            CacheInvalidationEvent event = CacheInvalidationEvent.of(CACHE_TYPE, deckId, "deck-modified");
+            eventPublisher.publishEvent(event);
+
+            // Record metrics
+            metricsCollector.recordCacheSize(CACHE_TYPE, cache.size());
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("COUNT cache invalidated for deckId={}: {} entries removed", deckId, removed);
+            }
         }
     }
 
@@ -166,6 +201,10 @@ public class PaginationCountCache {
     /**
      * Checks if deck is in invalidation cooldown period.
      * Prevents excessive invalidations during rapid user interactions (practice mode).
+     *
+     * <p>Note: Cooldown reduced to 300ms for better UX (was 2s).
+     * This ensures counts update quickly enough while still preventing DB spam.
+     * UI-level debouncing (beforeClientResponse/UI.access) provides additional protection.
      *
      * @param deckId the deck ID
      * @return true if in cooldown, false otherwise
@@ -209,9 +248,12 @@ public class PaginationCountCache {
      * <p>Optimization strategies:
      * <ul>
      *   <li>Smart invalidation: FilterOption.ALL is NOT invalidated (total count unchanged)</li>
-     *   <li>Debouncing: 2-second cooldown prevents excessive invalidations during rapid clicks</li>
+     *   <li>Debouncing: 300ms cooldown prevents excessive invalidations during rapid clicks</li>
      *   <li>Selective: Only KNOWN_ONLY and UNKNOWN_ONLY filters are invalidated</li>
      * </ul>
+     *
+     * <p>Performance note: 300ms cooldown balances UX and performance.
+     * UI-level debouncing (UI.access) provides additional layer of protection against excessive updates.
      *
      * @param event progress changed event
      */
@@ -223,7 +265,7 @@ public class PaginationCountCache {
 
         Long deckId = event.getDeckId();
 
-        // Debouncing: Skip if last invalidation was < 2 seconds ago
+        // Debouncing: Skip if last invalidation was < 300ms ago
         if (isInCooldown(deckId)) {
             skippedInvalidations.incrementAndGet();
             if (LOGGER.isDebugEnabled()) {

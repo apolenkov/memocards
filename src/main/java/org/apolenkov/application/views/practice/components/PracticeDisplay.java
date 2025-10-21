@@ -167,5 +167,16 @@ public final class PracticeDisplay extends Composite<VerticalLayout> {
                 progress.correct(),
                 progress.hard(),
                 percent));
+
+        // Ensure progress is visible when updated
+        progressSection.setVisible(true);
+    }
+
+    /**
+     * Shows the progress section.
+     * Used when returning to practice mode from other states.
+     */
+    public void showProgress() {
+        progressSection.setVisible(true);
     }
 }

@@ -9,9 +9,12 @@ import org.apolenkov.application.domain.model.FilterOption;
 import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.service.stats.PaginationCountCache;
+import org.apolenkov.application.service.stats.event.CacheInvalidationEvent;
 import org.apolenkov.application.views.core.constants.CoreConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +27,14 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlashcardUseCaseService.class);
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
     private static final int MAX_LOG_TEXT_LENGTH = 50;
+    private static final String CACHE_TYPE = "pagination-count";
 
     // ==================== Fields ====================
 
     private final FlashcardRepository flashcardRepository;
     private final Validator validator;
+    private final PaginationCountCache paginationCountCache;
+    private final ApplicationEventPublisher eventPublisher;
 
     // ==================== Constructor ====================
 
@@ -37,10 +43,18 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
      *
      * @param flashcardRepositoryValue the repository for flashcard persistence operations
      * @param validatorValue the validator for flashcard data validation
+     * @param paginationCountCacheValue the cache for pagination count queries
+     * @param eventPublisherValue the Spring event publisher for cache invalidation events
      */
-    public FlashcardUseCaseService(final FlashcardRepository flashcardRepositoryValue, final Validator validatorValue) {
+    public FlashcardUseCaseService(
+            final FlashcardRepository flashcardRepositoryValue,
+            final Validator validatorValue,
+            final PaginationCountCache paginationCountCacheValue,
+            final ApplicationEventPublisher eventPublisherValue) {
         this.flashcardRepository = flashcardRepositoryValue;
         this.validator = validatorValue;
+        this.paginationCountCache = paginationCountCacheValue;
+        this.eventPublisher = eventPublisherValue;
     }
 
     // ==================== Public API ====================
@@ -103,6 +117,15 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
         boolean isNew = flashcard.getId() == null;
         flashcardRepository.save(flashcard);
 
+        // Invalidate pagination count cache for this deck
+        paginationCountCache.invalidate(flashcard.getDeckId());
+        LOGGER.debug("Pagination count cache invalidated after save for deckId={}", flashcard.getDeckId());
+
+        // Publish cache invalidation event for metrics
+        CacheInvalidationEvent event = CacheInvalidationEvent.of(
+                CACHE_TYPE, flashcard.getDeckId(), isNew ? "flashcard-created" : "flashcard-updated");
+        eventPublisher.publishEvent(event);
+
         // Audit log with explicit action (truncate frontText for readability)
         String frontTextTruncated = truncate(flashcard.getFrontText());
         if (isNew) {
@@ -111,14 +134,14 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
                     flashcard.getId(),
                     flashcard.getDeckId(),
                     frontTextTruncated);
-            LOGGER.info("Flashcard created: id={}, front='{}'", flashcard.getId(), frontTextTruncated);
+            LOGGER.info("New flashcard created: id={}, front='{}'", flashcard.getId(), frontTextTruncated);
         } else {
             AUDIT_LOGGER.info(
                     "Flashcard updated: cardId={}, deckId={}, front='{}'",
                     flashcard.getId(),
                     flashcard.getDeckId(),
                     frontTextTruncated);
-            LOGGER.debug("Flashcard updated: id={}", flashcard.getId());
+            LOGGER.info("Flashcard updated: id={}, front='{}'", flashcard.getId(), frontTextTruncated);
         }
     }
 
@@ -133,7 +156,7 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
     public void deleteFlashcard(final long id) {
         LOGGER.debug("Deleting flashcard with ID: {}", id);
 
-        // Get flashcard info before deletion for audit logging
+        // Get flashcard info before deletion for audit logging and cache invalidation
         flashcardRepository.findById(id).ifPresent(flashcard -> {
             String frontTextTruncated = truncate(flashcard.getFrontText());
             AUDIT_LOGGER.warn(
@@ -141,6 +164,15 @@ public class FlashcardUseCaseService implements FlashcardUseCase {
                     id,
                     flashcard.getDeckId(),
                     frontTextTruncated);
+
+            // Invalidate pagination count cache for this deck
+            paginationCountCache.invalidate(flashcard.getDeckId());
+            LOGGER.debug("Pagination count cache invalidated after delete for deckId={}", flashcard.getDeckId());
+
+            // Publish cache invalidation event for metrics
+            CacheInvalidationEvent event =
+                    CacheInvalidationEvent.of(CACHE_TYPE, flashcard.getDeckId(), "flashcard-deleted");
+            eventPublisher.publishEvent(event);
         });
 
         flashcardRepository.deleteById(id);

@@ -141,6 +141,12 @@
         <appender-ref ref="CONSOLE"/>
     </logger>
     
+    <!-- Application JDBC Adapters - SQL queries ONLY to sql.log, NOT application.log -->
+    <logger name="org.apolenkov.application.infrastructure.repository.jdbc.adapter" level="DEBUG" additivity="false">
+        <appender-ref ref="SQL_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+    
     <!-- Vaadin logger - reduce noise -->
     <logger name="com.vaadin" level="WARN" additivity="false">
         <appender-ref ref="ASYNC_FILE"/>
@@ -168,6 +174,11 @@
         
         <!-- No SQL logging in production (security + performance) -->
         <logger name="org.springframework.jdbc.core.JdbcTemplate" level="WARN" additivity="false">
+            <appender-ref ref="SQL_FILE"/>
+        </logger>
+        
+        <!-- No SQL logging from JDBC adapters in production -->
+        <logger name="org.apolenkov.application.infrastructure.repository.jdbc.adapter" level="INFO" additivity="false">
             <appender-ref ref="SQL_FILE"/>
         </logger>
         

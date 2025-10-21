@@ -221,6 +221,44 @@ public final class PracticeSessionService {
     }
 
     /**
+     * Starts a new practice session using preloaded cards.
+     * Optimized version that uses already fetched cards to avoid redundant database queries.
+     *
+     * @param deckId the ID of the deck to practice
+     * @param preloadedCards list of cards already fetched from database
+     * @param count the number of cards to include in the session
+     * @param random whether to randomize the card order
+     * @return a new Session instance ready for practice
+     * @throws IllegalArgumentException if deckId is not positive or preloadedCards is null
+     */
+    public PracticeSession startSessionWithCards(
+            final long deckId, final List<Flashcard> preloadedCards, final int count, final boolean random) {
+        if (deckId <= 0) {
+            throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
+        }
+        if (preloadedCards == null) {
+            throw new IllegalArgumentException("Preloaded cards cannot be null");
+        }
+
+        List<Flashcard> cards = new ArrayList<>(preloadedCards);
+        if (cards.isEmpty()) {
+            return PracticeSession.create(deckId, cards, Instant.now());
+        }
+
+        // Randomize card order if requested for varied practice experience
+        if (random) {
+            Collections.shuffle(cards);
+        }
+
+        // Limit session size to requested count or available cards
+        if (count < cards.size()) {
+            cards = new ArrayList<>(cards.subList(0, count));
+        }
+
+        return PracticeSession.create(deckId, cards, Instant.now());
+    }
+
+    /**
      * Calculates session completion metrics.
      *
      * @param session the completed session

@@ -317,17 +317,17 @@ class FlashcardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should order flashcards by created_at ASC")
-    void testFindAllOrderedByCreatedAt() {
-        // Given: Flashcards created in specific order
+    @DisplayName("Should order flashcards by updated_at DESC")
+    void testFindAllOrderedByUpdatedAt() {
+        // Given: Flashcards in database
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When: Retrieving flashcards
         List<Flashcard> result =
                 flashcardRepository.findFlashcardsWithFilter(testDeck.getId(), null, FilterOption.ALL, pageRequest);
 
-        // Then: Should be ordered by created_at (earliest first)
-        // We can't test exact order without timestamps, but we verify all cards are present
+        // Then: Should be ordered by updated_at (newest first)
+        // We verify all cards are present (exact order verification would require timestamp manipulation)
         assertThat(result).hasSize(5);
     }
 }
