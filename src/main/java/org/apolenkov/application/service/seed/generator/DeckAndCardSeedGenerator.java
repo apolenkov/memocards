@@ -4,8 +4,8 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.User;
 import org.apolenkov.application.service.seed.DataGenerationException;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Generator for test decks and flashcards.
+ * Generator for test decks and cards.
  * Uses Virtual Threads for parallel processing.
  */
 @Component
@@ -62,7 +62,7 @@ public class DeckAndCardSeedGenerator {
     }
 
     /**
-     * Generates decks and flashcards using Virtual Threads for parallel processing.
+     * Generates decks and cards using Virtual Threads for parallel processing.
      *
      * @param users list of users to generate data for
      * @param decksPerUser number of decks per user
@@ -73,7 +73,7 @@ public class DeckAndCardSeedGenerator {
     @SuppressWarnings("java:S2139") // Audit requires logging before rethrow
     public int[] generateDecksAndCards(
             final List<User> users, final int decksPerUser, final int cardsPerDeck, final int batchSize) {
-        LOGGER.info("Generating decks and flashcards using Virtual Threads...");
+        LOGGER.info("Generating decks and cards using Virtual Threads...");
         LOGGER.info("Using generation limits: {} decks per user, {} cards per deck", decksPerUser, cardsPerDeck);
 
         int totalDecks = 0;
@@ -104,12 +104,12 @@ public class DeckAndCardSeedGenerator {
             throw new DataGenerationException("Failed to generate decks and cards", e);
         }
 
-        LOGGER.info("Successfully generated {} decks and {} flashcards", totalDecks, totalCards);
+        LOGGER.info("Successfully generated {} decks and {} cards", totalDecks, totalCards);
         return new int[] {totalDecks, totalCards};
     }
 
     /**
-     * Processes a chunk of users to generate their decks and flashcards.
+     * Processes a chunk of users to generate their decks and cards.
      *
      * @param userChunk chunk of users to process
      * @param deckCount number of decks per user
@@ -131,15 +131,15 @@ public class DeckAndCardSeedGenerator {
                 List<Deck> savedDecks = seedRepository.batchInsertDecks(userDecks);
                 decks += savedDecks.size();
 
-                // Generate flashcards for all decks in batch
-                List<Flashcard> allCards = new ArrayList<>(deckCount * cardCount);
+                // Generate cards for all decks in batch
+                List<Card> allCards = new ArrayList<>(deckCount * cardCount);
                 for (Deck deck : savedDecks) {
                     for (int j = 0; j < cardCount; j++) {
                         allCards.add(createTestCard(deck, j));
                     }
                 }
 
-                seedRepository.batchInsertFlashcards(allCards);
+                seedRepository.batchInsertCards(allCards);
                 cards += allCards.size();
             }
 
@@ -160,17 +160,17 @@ public class DeckAndCardSeedGenerator {
     }
 
     /**
-     * Creates a test flashcard.
+     * Creates a test card.
      *
      * @param deck the parent deck
      * @param index card index for unique content
-     * @return configured test flashcard
+     * @return configured test card
      */
-    private Flashcard createTestCard(final Deck deck, final int index) {
+    private Card createTestCard(final Deck deck, final int index) {
         int cardIndex = random.nextInt(CARD_FRONTS.length);
         String front = CARD_FRONTS[cardIndex] + " " + (index + 1);
         String back = CARD_BACKS[cardIndex];
         String example = CARD_EXAMPLES[cardIndex];
-        return new Flashcard(null, deck.getId(), front, back, example);
+        return new Card(null, deck.getId(), front, back, example);
     }
 }

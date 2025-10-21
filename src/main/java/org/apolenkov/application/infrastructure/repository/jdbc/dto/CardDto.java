@@ -3,40 +3,40 @@ package org.apolenkov.application.infrastructure.repository.jdbc.dto;
 import java.time.LocalDateTime;
 
 /**
- * JDBC DTO for flashcard data transfer operations.
+ * JDBC DTO for card data transfer operations.
  *
- * <p>Immutable record representing flashcard data for JDBC operations.
+ * <p>Immutable record representing card data for JDBC operations.
  * Used for mapping between database rows and domain models.</p>
  *
- * @param id unique flashcard identifier
- * @param deckId ID of deck this flashcard belongs to
+ * @param id unique card identifier
+ * @param deckId ID of deck this card belongs to
  * @param frontText front side text (question/prompt)
  * @param backText back side text (answer/explanation)
  * @param example optional example text
  * @param imageUrl optional image URL
- * @param timestamps flashcard creation and update timestamps
+ * @param timestamps card creation and update timestamps
  */
-public record FlashcardDto(
+public record CardDto(
         Long id,
         long deckId,
         String frontText,
         String backText,
         String example,
         String imageUrl,
-        FlashcardTimestamps timestamps) {
+        CardTimestamps timestamps) {
 
     /**
-     * Creates FlashcardDto with validation.
+     * Creates CardDto with validation.
      *
-     * @param id unique flashcard identifier
-     * @param deckId ID of deck this flashcard belongs to
+     * @param id unique card identifier
+     * @param deckId ID of deck this card belongs to
      * @param frontText front side text (question/prompt)
      * @param backText back side text (answer/explanation)
      * @param example optional example text
      * @param imageUrl optional image URL
      * @throws IllegalArgumentException if deckId is invalid or required text is null/empty
      */
-    public FlashcardDto {
+    public CardDto {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive");
         }
@@ -49,54 +49,53 @@ public record FlashcardDto(
     }
 
     /**
-     * Creates FlashcardDto for new flashcard (without ID).
+     * Creates CardDto for new card (without ID).
      *
-     * @param deckId ID of deck this flashcard belongs to
+     * @param deckId ID of deck this card belongs to
      * @param frontText front side text (question/prompt)
      * @param backText back side text (answer/explanation)
      * @param example optional example text
      * @param imageUrl optional image URL
-     * @return FlashcardDto for new flashcard
+     * @return CardDto for new card
      */
-    public static FlashcardDto forNewFlashcard(
+    public static CardDto forNewCard(
             final long deckId,
             final String frontText,
             final String backText,
             final String example,
             final String imageUrl) {
         LocalDateTime now = LocalDateTime.now();
-        return new FlashcardDto(
-                null, deckId, frontText, backText, example, imageUrl, new FlashcardTimestamps(now, now));
+        return new CardDto(null, deckId, frontText, backText, example, imageUrl, new CardTimestamps(now, now));
     }
 
     /**
-     * Creates FlashcardDto for existing flashcard.
+     * Creates CardDto for existing card.
      *
-     * @param id unique flashcard identifier
-     * @param deckId ID of deck this flashcard belongs to
+     * @param id unique card identifier
+     * @param deckId ID of deck this card belongs to
      * @param frontText front side text (question/prompt)
      * @param backText back side text (answer/explanation)
      * @param example optional example text
      * @param imageUrl optional image URL
-     * @param timestamps flashcard creation and update timestamps
-     * @return FlashcardDto for existing flashcard
+     * @param timestamps card creation and update timestamps
+     * @return CardDto for existing card
      */
-    public static FlashcardDto forExistingFlashcard(
+    public static CardDto forExistingCard(
             final Long id,
             final long deckId,
             final String frontText,
             final String backText,
             final String example,
             final String imageUrl,
-            final FlashcardTimestamps timestamps) {
-        return new FlashcardDto(id, deckId, frontText, backText, example, imageUrl, timestamps);
+            final CardTimestamps timestamps) {
+        return new CardDto(id, deckId, frontText, backText, example, imageUrl, timestamps);
     }
 
     /**
-     * Timestamps for flashcard creation and updates.
+     * Timestamps for card creation and updates.
      *
-     * @param createdAt flashcard creation timestamp
-     * @param updatedAt flashcard last update timestamp
+     * @param createdAt card creation timestamp
+     * @param updatedAt card last update timestamp
      */
-    public record FlashcardTimestamps(LocalDateTime createdAt, LocalDateTime updatedAt) {}
+    public record CardTimestamps(LocalDateTime createdAt, LocalDateTime updatedAt) {}
 }

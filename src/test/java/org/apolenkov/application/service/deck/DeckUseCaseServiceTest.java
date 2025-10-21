@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 import jakarta.validation.Validator;
 import java.util.List;
 import java.util.Optional;
+import org.apolenkov.application.domain.port.CardRepository;
 import org.apolenkov.application.domain.port.DeckRepository;
-import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.model.Deck;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +26,7 @@ class DeckUseCaseServiceTest {
     private DeckRepository deckRepository;
 
     @Mock
-    private FlashcardRepository flashcardRepository;
+    private CardRepository cardRepository;
 
     @Mock
     private Validator validator;
@@ -38,7 +38,7 @@ class DeckUseCaseServiceTest {
 
     @BeforeEach
     void setUp() {
-        deckUseCaseService = new DeckUseCaseService(deckRepository, flashcardRepository, validator, eventPublisher);
+        deckUseCaseService = new DeckUseCaseService(deckRepository, cardRepository, validator, eventPublisher);
     }
 
     @Test

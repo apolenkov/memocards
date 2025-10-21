@@ -11,9 +11,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import java.util.function.Consumer;
-import org.apolenkov.application.domain.usecase.FlashcardUseCase;
+import org.apolenkov.application.domain.usecase.CardUseCase;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.DialogHelper;
@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Dialog component for creating and editing flashcards.
+ * Dialog component for creating and editing cards.
  * Handles form validation, data binding, and user interactions.
  *
  * <p>Features:
@@ -34,21 +34,21 @@ import org.slf4j.LoggerFactory;
  *   <li>Proper cleanup of event listeners</li>
  * </ul>
  */
-public final class DeckFlashcardDialog extends Dialog {
+public final class DeckCardDialog extends Dialog {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeckFlashcardDialog.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeckCardDialog.class);
 
     // ==================== Fields ====================
 
     // Dependencies
-    private final transient FlashcardUseCase flashcardUseCase;
+    private final transient CardUseCase cardUseCase;
     private final transient Deck currentDeck;
 
     // Callbacks
-    private final transient Consumer<Flashcard> onFlashcardSaved;
+    private final transient Consumer<Card> onCardSaved;
 
     // State
-    private transient Flashcard editingFlashcard;
+    private transient Card editingCard;
 
     // UI Components
     private FormLayout formLayout;
@@ -60,39 +60,37 @@ public final class DeckFlashcardDialog extends Dialog {
     // ==================== Constructor ====================
 
     /**
-     * Creates a new DeckFlashcardDialog with required dependencies.
+     * Creates a new DeckCardDialog with required dependencies.
      *
-     * @param flashcardUseCaseParam use case for flashcard operations
-     * @param currentDeckParam the deck this flashcard belongs to
-     * @param onFlashcardSavedParam callback executed when flashcard is saved
+     * @param cardUseCaseParam use case for card operations
+     * @param currentDeckParam the deck this card belongs to
+     * @param onCardSavedParam callback executed when card is saved
      */
-    public DeckFlashcardDialog(
-            final FlashcardUseCase flashcardUseCaseParam,
-            final Deck currentDeckParam,
-            final Consumer<Flashcard> onFlashcardSavedParam) {
+    public DeckCardDialog(
+            final CardUseCase cardUseCaseParam, final Deck currentDeckParam, final Consumer<Card> onCardSavedParam) {
         super();
-        this.flashcardUseCase = flashcardUseCaseParam;
+        this.cardUseCase = cardUseCaseParam;
         this.currentDeck = currentDeckParam;
-        this.onFlashcardSaved = onFlashcardSavedParam;
+        this.onCardSaved = onCardSavedParam;
         addClassName(DeckConstants.DIALOG_MD_CLASS);
     }
 
     // ==================== Public API ====================
 
     /**
-     * Opens the dialog for creating a new flashcard.
+     * Opens the dialog for creating a new card.
      */
     public void openForCreate() {
         openDialog(null);
     }
 
     /**
-     * Opens the dialog for editing an existing flashcard.
+     * Opens the dialog for editing an existing card.
      *
-     * @param flashcard the flashcard to edit
+     * @param card the card to edit
      */
-    public void openForEdit(final Flashcard flashcard) {
-        openDialog(flashcard);
+    public void openForEdit(final Card card) {
+        openDialog(card);
     }
 
     /**
@@ -120,26 +118,26 @@ public final class DeckFlashcardDialog extends Dialog {
     }
 
     /**
-     * Opens the dialog with the specified flashcard data.
+     * Opens the dialog with the specified card data.
      * Creates fresh form components each time to avoid component reuse issues.
      *
-     * @param flashcard the flashcard to edit, or null for creating new
+     * @param card the card to edit, or null for creating new
      */
-    private void openDialog(final Flashcard flashcard) {
-        // Store the editing flashcard
-        this.editingFlashcard = flashcard;
+    private void openDialog(final Card card) {
+        // Store the editing card
+        this.editingCard = card;
 
         // Create fresh form components each time
         createForm();
 
         // Set dialog title
         H3 title = new H3(
-                flashcard == null
+                card == null
                         ? getTranslation(DeckConstants.DECK_CARD_ADD_TITLE)
                         : getTranslation(DeckConstants.DECK_CARD_EDIT_TITLE));
 
-        // Populate form with flashcard data
-        populateForm(flashcard);
+        // Populate form with card data
+        populateForm(card);
 
         // Create dialog layout
         VerticalLayout dialogLayout = new VerticalLayout();
@@ -151,24 +149,24 @@ public final class DeckFlashcardDialog extends Dialog {
     }
 
     /**
-     * Populates the form with flashcard data.
+     * Populates the form with card data.
      *
-     * @param flashcard the flashcard to populate form with, or null for new card
+     * @param card the card to populate form with, or null for new card
      */
-    private void populateForm(final Flashcard flashcard) {
+    private void populateForm(final Card card) {
         // Ensure form components are initialized
         if (frontTextField == null || backTextField == null || exampleArea == null || imageUrlField == null) {
             LOGGER.warn("Form components not initialized yet, skipping populateForm");
             return;
         }
 
-        if (flashcard != null) {
-            frontTextField.setValue(flashcard.getFrontText() != null ? flashcard.getFrontText() : "");
-            backTextField.setValue(flashcard.getBackText() != null ? flashcard.getBackText() : "");
-            exampleArea.setValue(flashcard.getExample() != null ? flashcard.getExample() : "");
-            imageUrlField.setValue(flashcard.getImageUrl() != null ? flashcard.getImageUrl() : "");
+        if (card != null) {
+            frontTextField.setValue(card.getFrontText() != null ? card.getFrontText() : "");
+            backTextField.setValue(card.getBackText() != null ? card.getBackText() : "");
+            exampleArea.setValue(card.getExample() != null ? card.getExample() : "");
+            imageUrlField.setValue(card.getImageUrl() != null ? card.getImageUrl() : "");
         } else {
-            // Clear form for new flashcard
+            // Clear form for new card
             frontTextField.setValue("");
             backTextField.setValue("");
             exampleArea.setValue("");
@@ -177,7 +175,7 @@ public final class DeckFlashcardDialog extends Dialog {
     }
 
     /**
-     * Handles saving the flashcard after form validation.
+     * Handles saving the card after form validation.
      */
     private void handleSave() {
         String frontText = ValidationHelper.safeTrimToEmpty(frontTextField.getValue());
@@ -193,10 +191,10 @@ public final class DeckFlashcardDialog extends Dialog {
         }
 
         try {
-            Flashcard flashcard = prepareFlashcard(frontText, backText);
-            flashcardUseCase.saveFlashcard(flashcard);
+            Card card = prepareCard(frontText, backText);
+            cardUseCase.saveCard(card);
 
-            notifyParentAndClose(flashcard);
+            notifyParentAndClose(card);
 
         } catch (Exception ex) {
             handleSaveError(ex);
@@ -204,36 +202,36 @@ public final class DeckFlashcardDialog extends Dialog {
     }
 
     /**
-     * Prepares flashcard entity with form values.
+     * Prepares card entity with form values.
      * Values are already trimmed by caller.
      *
      * @param frontText front text value (already trimmed)
      * @param backText back text value (already trimmed)
-     * @return prepared flashcard
+     * @return prepared card
      */
-    private Flashcard prepareFlashcard(final String frontText, final String backText) {
-        Flashcard flashcard = editingFlashcard != null ? editingFlashcard : new Flashcard();
+    private Card prepareCard(final String frontText, final String backText) {
+        Card card = editingCard != null ? editingCard : new Card();
 
-        if (editingFlashcard == null) {
-            flashcard.setDeckId(currentDeck.getId());
+        if (editingCard == null) {
+            card.setDeckId(currentDeck.getId());
         }
 
-        flashcard.setFrontText(frontText);
-        flashcard.setBackText(backText);
-        flashcard.setExample(ValidationHelper.safeTrim(exampleArea.getValue())); // Nullable field
-        flashcard.setImageUrl(ValidationHelper.safeTrim(imageUrlField.getValue())); // Nullable field
+        card.setFrontText(frontText);
+        card.setBackText(backText);
+        card.setExample(ValidationHelper.safeTrim(exampleArea.getValue())); // Nullable field
+        card.setImageUrl(ValidationHelper.safeTrim(imageUrlField.getValue())); // Nullable field
 
-        return flashcard;
+        return card;
     }
 
     /**
      * Notifies parent component and closes dialog.
      *
-     * @param flashcard the saved flashcard
+     * @param card the saved card
      */
-    private void notifyParentAndClose(final Flashcard flashcard) {
-        if (onFlashcardSaved != null) {
-            onFlashcardSaved.accept(flashcard);
+    private void notifyParentAndClose(final Card card) {
+        if (onCardSaved != null) {
+            onCardSaved.accept(card);
         }
 
         close();
@@ -244,7 +242,7 @@ public final class DeckFlashcardDialog extends Dialog {
      * Shows success message based on action type.
      */
     private void showSuccessMessage() {
-        boolean isEditing = editingFlashcard != null;
+        boolean isEditing = editingCard != null;
         String message = isEditing
                 ? getTranslation(DeckConstants.DECK_CARD_UPDATED)
                 : getTranslation(DeckConstants.DECK_CARD_ADDED);
@@ -257,7 +255,7 @@ public final class DeckFlashcardDialog extends Dialog {
      * @param ex exception that occurred
      */
     private void handleSaveError(final Exception ex) {
-        LOGGER.error("Error saving flashcard: {}", ex.getMessage(), ex);
+        LOGGER.error("Error saving card: {}", ex.getMessage(), ex);
         NotificationHelper.showErrorLong(ex.getMessage());
     }
 

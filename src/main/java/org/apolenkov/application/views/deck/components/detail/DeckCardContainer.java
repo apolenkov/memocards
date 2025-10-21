@@ -7,50 +7,50 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import java.util.function.Consumer;
 import org.apolenkov.application.domain.model.FilterOption;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.service.stats.StatsService;
-import org.apolenkov.application.views.deck.components.grid.DeckFlashcardList;
+import org.apolenkov.application.views.deck.components.grid.DeckCardList;
 import org.apolenkov.application.views.deck.components.grid.DeckSearchControls;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Container component for displaying flashcards with search, filtering, and pagination.
- * Coordinates search controls and flashcard list with explicit pagination controls.
+ * Container component for displaying cards with search, filtering, and pagination.
+ * Coordinates search controls and card list with explicit pagination controls.
  * Uses lazy loading for efficient handling of large collections (500+ cards).
  */
-public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
+public final class DeckCardContainer extends Composite<VerticalLayout> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeckFlashcardContainer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeckCardContainer.class);
 
     // Dependencies
     private final transient StatsService statsService;
 
     // UI Components
     private final DeckSearchControls searchControls;
-    private final DeckFlashcardList flashcardList;
+    private final DeckCardList cardList;
 
     // Data
     private transient Long currentDeckId;
     private transient FilterOption currentFilterOption;
 
     /**
-     * Creates a new DeckFlashcardContainer component.
+     * Creates a new DeckCardContainer component.
      *
      * @param statsServiceParam service for statistics tracking
-     * @param flashcardUseCaseParam use case for flashcard operations
+     * @param cardUseCaseParam use case for card operations
      * @param searchDebounceMs debouncing timeout for search field
-     * @param pageSize number of items per page in flashcard list
+     * @param pageSize number of items per page in card list
      */
-    public DeckFlashcardContainer(
+    public DeckCardContainer(
             final StatsService statsServiceParam,
-            final org.apolenkov.application.domain.usecase.FlashcardUseCase flashcardUseCaseParam,
+            final org.apolenkov.application.domain.usecase.CardUseCase cardUseCaseParam,
             final int searchDebounceMs,
             final int pageSize) {
         this.statsService = statsServiceParam;
         this.searchControls = new DeckSearchControls(searchDebounceMs);
-        this.flashcardList = new DeckFlashcardList(statsService, flashcardUseCaseParam, pageSize);
+        this.cardList = new DeckCardList(statsService, cardUseCaseParam, pageSize);
         this.currentFilterOption = FilterOption.UNKNOWN_ONLY; // Default: hide known
     }
 
@@ -72,15 +72,15 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
     }
 
     /**
-     * Sets up all callbacks for search controls and flashcard grid.
+     * Sets up all callbacks for search controls and card grid.
      */
     private void setupCallbacks() {
         // Search controls callbacks
         searchControls.setSearchCallback(this::handleSearch);
         searchControls.addFilterChangeListener(this::handleFilterChange);
 
-        // Flashcard list callbacks
-        flashcardList.setToggleKnownCallback(this::handleToggleKnown);
+        // Card list callbacks
+        cardList.setToggleKnownCallback(this::handleToggleKnown);
     }
 
     /**
@@ -104,19 +104,19 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
     }
 
     /**
-     * Handles the toggle known action for a flashcard.
+     * Handles the toggle known action for a card.
      * Uses toggleCardKnown() to avoid redundant isCardKnown() check.
      *
-     * @param flashcard the flashcard to toggle
+     * @param card the card to toggle
      */
-    private void handleToggleKnown(final Flashcard flashcard) {
+    private void handleToggleKnown(final Card card) {
         if (currentDeckId != null) {
             // This saves one SQL query by checking and updating in single transaction
-            statsService.toggleCardKnown(currentDeckId, flashcard.getId());
+            statsService.toggleCardKnown(currentDeckId, card.getId());
 
             // Single refresh - cache auto-invalidated via ProgressChangedEvent
             // refreshStatusForCards() uses debouncing to prevent multiple redundant refreshes
-            flashcardList.refreshStatusForCards();
+            cardList.refreshStatusForCards();
         }
     }
 
@@ -141,12 +141,12 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
             statsService.resetDeckProgress(currentDeckId);
 
             // Single refresh - cache auto-invalidated via ProgressChangedEvent
-            flashcardList.refreshStatusForCards();
+            cardList.refreshStatusForCards();
         }
     }
 
     /**
-     * Applies search and filter criteria to the flashcards.
+     * Applies search and filter criteria to the cards.
      * Passes known card IDs to list to avoid duplicate queries.
      */
     private void applyFilter() {
@@ -154,7 +154,7 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
     }
 
     /**
-     * Applies search and filter criteria to the flashcards with specific parameters.
+     * Applies search and filter criteria to the cards with specific parameters.
      * Uses lazy loading through data provider instead of in-memory filtering.
      *
      * @param searchQuery the search query to apply
@@ -162,7 +162,7 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
      */
     private void applyFilterWithParams(final String searchQuery, final FilterOption filterOption) {
         // Update filter in data provider (triggers lazy loading from backend)
-        flashcardList.updateFilter(searchQuery, filterOption);
+        cardList.updateFilter(searchQuery, filterOption);
     }
 
     /**
@@ -172,15 +172,15 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
      */
     public void setCurrentDeckId(final Long deckId) {
         this.currentDeckId = deckId;
-        flashcardList.setCurrentDeckId(deckId);
+        cardList.setCurrentDeckId(deckId);
     }
 
     /**
      * Refreshes the data in the grid.
-     * Call after flashcard create/update/delete operations.
+     * Call after card create/update/delete operations.
      */
     public void refreshData() {
-        flashcardList.refreshStatusForCards();
+        cardList.refreshStatusForCards();
     }
 
     /**
@@ -188,28 +188,28 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
      * Call after adding or removing cards to ensure proper pagination.
      */
     public void refreshDataAndResetPage() {
-        flashcardList.refreshDataAndResetPage();
+        cardList.refreshDataAndResetPage();
     }
 
     /**
-     * Sets the edit flashcard callback.
+     * Sets the edit card callback.
      *
-     * @param callback the callback to execute when editing a flashcard
+     * @param callback the callback to execute when editing a card
      */
-    public void setEditFlashcardCallback(final Consumer<Flashcard> callback) {
-        if (flashcardList != null) {
-            flashcardList.setEditFlashcardCallback(callback);
+    public void setEditCardCallback(final Consumer<Card> callback) {
+        if (cardList != null) {
+            cardList.setEditCardCallback(callback);
         }
     }
 
     /**
-     * Sets the delete flashcard callback.
+     * Sets the delete card callback.
      *
-     * @param callback the callback to execute when deleting a flashcard
+     * @param callback the callback to execute when deleting a card
      */
-    public void setDeleteFlashcardCallback(final Consumer<Flashcard> callback) {
-        if (flashcardList != null) {
-            flashcardList.setDeleteFlashcardCallback(callback);
+    public void setDeleteCardCallback(final Consumer<Card> callback) {
+        if (cardList != null) {
+            cardList.setDeleteCardCallback(callback);
         }
     }
 
@@ -224,7 +224,7 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
     }
 
     /**
-     * Creates the layout with search controls and flashcard list.
+     * Creates the layout with search controls and card list.
      * Only search controls at the top, list below.
      *
      * @param container the container to add components to
@@ -243,6 +243,6 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
         controlsRow.add(searchControls);
 
         // Add row and list
-        container.add(controlsRow, flashcardList);
+        container.add(controlsRow, cardList);
     }
 }

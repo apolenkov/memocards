@@ -18,8 +18,8 @@ import java.util.Optional;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.domain.event.ProgressChangedEvent;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.views.core.exception.EntityNotFoundException;
 import org.apolenkov.application.views.core.layout.PublicLayout;
@@ -39,8 +39,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 
 /**
- * Interactive flashcard practice session view.
- * Provides a complete practice interface for studying flashcards with
+ * Interactive card practice session view.
+ * Provides a complete practice interface for studying cards with
  * configurable settings, progress tracking, and session statistics.
  */
 @Route(value = RouteConstants.PRACTICE_ROUTE, layout = PublicLayout.class)
@@ -249,7 +249,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         resetUIState();
 
         // Fetch not-known cards once
-        List<Flashcard> notKnownCards = sessionService.getNotKnownCards(currentDeck.getId());
+        List<Card> notKnownCards = sessionService.getNotKnownCards(currentDeck.getId());
         if (notKnownCards.isEmpty()) {
             showAllKnownDialogAndRedirect();
             return;
@@ -311,7 +311,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         }
 
         updateProgress();
-        Flashcard currentCard = sessionManager.currentCard(session);
+        Card currentCard = sessionManager.currentCard(session);
         sessionManager.startQuestion(session);
 
         practiceCard.displayQuestionCard(currentCard, sessionDirection);
@@ -326,7 +326,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             return;
         }
 
-        Flashcard currentCard = sessionManager.currentCard(session);
+        Card currentCard = sessionManager.currentCard(session);
         session = sessionManager.reveal(session);
 
         practiceCard.displayAnswerCard(currentCard, sessionDirection);
@@ -419,7 +419,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * Shows completion action buttons.
      */
     private void showCompletionButtons() {
-        List<Flashcard> failedCards = sessionService.getFailedCards(currentDeck.getId(), session.getFailedCardIds());
+        List<Card> failedCards = sessionService.getFailedCards(currentDeck.getId(), session.getFailedCardIds());
 
         Runnable repeatHandler = failedCards.isEmpty() ? null : () -> handleRepeatPractice(failedCards);
 
@@ -434,7 +434,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      *
      * @param failedCards list of failed cards to practice
      */
-    private void handleRepeatPractice(final List<Flashcard> failedCards) {
+    private void handleRepeatPractice(final List<Card> failedCards) {
         // Reset UI state for repeat practice
         resetUIState();
         practiceActions.resetToPracticeButtons();
@@ -503,7 +503,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         }
 
         // Check if all cards are now known
-        List<Flashcard> notKnownCards = sessionService.getNotKnownCards(currentDeck.getId());
+        List<Card> notKnownCards = sessionService.getNotKnownCards(currentDeck.getId());
 
         if (notKnownCards.isEmpty() && session != null) {
             LOGGER.debug(

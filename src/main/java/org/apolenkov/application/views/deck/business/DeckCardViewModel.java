@@ -6,7 +6,7 @@ package org.apolenkov.application.views.deck.business;
  * @param id the unique identifier of the deck
  * @param title the display name of the deck
  * @param description the descriptive text for the deck
- * @param deckSize the total number of flashcards in the deck
+ * @param deckSize the total number of cards in the deck
  * @param knownCount the number of cards the user has marked as known
  * @param progressPercent the calculated progress percentage (0-100)
  */

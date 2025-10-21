@@ -49,7 +49,7 @@ public final class StatsSqlQueries {
             """
             SELECT kc.card_id
             FROM known_cards kc
-            JOIN flashcards f ON kc.card_id = f.id
+            JOIN cards f ON kc.card_id = f.id
             WHERE f.deck_id = ?
             """;
 
@@ -63,7 +63,7 @@ public final class StatsSqlQueries {
             SELECT EXISTS(
                 SELECT 1
                 FROM known_cards kc
-                JOIN flashcards f ON kc.card_id = f.id
+                JOIN cards f ON kc.card_id = f.id
                 WHERE f.deck_id = ? AND kc.card_id = ?
             ) AS is_known
             """;
@@ -77,7 +77,7 @@ public final class StatsSqlQueries {
             """
             SELECT f.deck_id, kc.card_id
             FROM known_cards kc
-            JOIN flashcards f ON kc.card_id = f.id
+            JOIN cards f ON kc.card_id = f.id
             WHERE f.deck_id IN (%s)
             """;
 

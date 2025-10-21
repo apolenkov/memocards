@@ -3,7 +3,7 @@ package org.apolenkov.application.views.practice.business;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.model.Card;
 
 /**
  * Immutable records for practice session state management.
@@ -149,14 +149,14 @@ public final class PracticeSessionRecords {
      * Contains the core session data that doesn't change during practice.
      *
      * @param deckId the deck ID
-     * @param cards the list of flashcards
+     * @param cards the list of cards
      * @param sessionStart when the session started
      * @param knownCardIdsDelta card IDs that became known
      * @param failedCardIds card IDs that failed
      */
     public record SessionData(
             long deckId,
-            List<Flashcard> cards,
+            List<Card> cards,
             Instant sessionStart,
             List<Long> knownCardIdsDelta,
             List<Long> failedCardIds) {
@@ -165,13 +165,13 @@ public final class PracticeSessionRecords {
          * Creates initial session data.
          *
          * @param deckIdValue the deck ID
-         * @param cardsValue the list of flashcards
+         * @param cardsValue the list of cards
          * @param sessionStart the session start time
          * @return initial session data
          * @throws IllegalArgumentException if deckId is invalid or cards is null/empty
          */
         public static SessionData create(
-                final long deckIdValue, final List<Flashcard> cardsValue, final Instant sessionStart) {
+                final long deckIdValue, final List<Card> cardsValue, final Instant sessionStart) {
             if (deckIdValue <= 0) {
                 throw new IllegalArgumentException("Deck ID must be positive");
             }

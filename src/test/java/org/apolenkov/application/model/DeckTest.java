@@ -13,12 +13,12 @@ import org.junit.jupiter.api.Test;
 class DeckTest {
 
     private Deck testDeck;
-    private Flashcard testFlashcard;
+    private Card testCard;
 
     @BeforeEach
     void setUp() {
         testDeck = new Deck(1L, 1L, "Test Deck", "Test Description");
-        testFlashcard = new Flashcard(1L, 1L, "Front", "Back", "Example");
+        testCard = new Card(1L, 1L, "Front", "Back", "Example");
     }
 
     @Test
@@ -84,56 +84,56 @@ class DeckTest {
     }
 
     @Test
-    @DisplayName("Should add flashcard to deck")
-    void shouldAddFlashcardToDeck() {
-        testDeck.addFlashcard(testFlashcard);
+    @DisplayName("Should add card to deck")
+    void shouldAddCardToDeck() {
+        testDeck.addCard(testCard);
 
-        assertThat(testDeck.getFlashcards()).hasSize(1);
-        assertThat(testDeck.getFlashcardCount()).isEqualTo(1);
-        assertThat(testDeck.getFlashcards().getFirst()).isEqualTo(testFlashcard);
+        assertThat(testDeck.getCards()).hasSize(1);
+        assertThat(testDeck.getCardCount()).isEqualTo(1);
+        assertThat(testDeck.getCards().getFirst()).isEqualTo(testCard);
     }
 
     @Test
-    @DisplayName("Should throw exception when adding null flashcard")
-    void shouldThrowExceptionWhenAddingNullFlashcard() {
-        assertThatThrownBy(() -> testDeck.addFlashcard(null))
+    @DisplayName("Should throw exception when adding null card")
+    void shouldThrowExceptionWhenAddingNullCard() {
+        assertThatThrownBy(() -> testDeck.addCard(null))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("flashcard is null");
+                .hasMessageContaining("card is null");
     }
 
     @Test
-    @DisplayName("Should remove flashcard from deck")
-    void shouldRemoveFlashcardFromDeck() {
-        testDeck.addFlashcard(testFlashcard);
-        assertThat(testDeck.getFlashcardCount()).isEqualTo(1);
+    @DisplayName("Should remove card from deck")
+    void shouldRemoveCardFromDeck() {
+        testDeck.addCard(testCard);
+        assertThat(testDeck.getCardCount()).isEqualTo(1);
 
-        testDeck.removeFlashcard(testFlashcard);
-        assertThat(testDeck.getFlashcardCount()).isZero();
-        assertThat(testDeck.getFlashcards()).isEmpty();
+        testDeck.removeCard(testCard);
+        assertThat(testDeck.getCardCount()).isZero();
+        assertThat(testDeck.getCards()).isEmpty();
     }
 
     @Test
-    @DisplayName("Should handle removing non-existent flashcard")
-    void shouldHandleRemovingNonExistentFlashcard() {
-        Flashcard nonExistentFlashcard = new Flashcard(999L, 1L, "Question", "Answer");
-        testDeck.addFlashcard(testFlashcard);
-        int initialCount = testDeck.getFlashcardCount();
+    @DisplayName("Should handle removing non-existent card")
+    void shouldHandleRemovingNonExistentCard() {
+        Card nonExistentCard = new Card(999L, 1L, "Question", "Answer");
+        testDeck.addCard(testCard);
+        int initialCount = testDeck.getCardCount();
 
-        testDeck.removeFlashcard(nonExistentFlashcard);
+        testDeck.removeCard(nonExistentCard);
 
-        assertThat(testDeck.getFlashcardCount()).isEqualTo(initialCount);
+        assertThat(testDeck.getCardCount()).isEqualTo(initialCount);
     }
 
     @Test
-    @DisplayName("Should get flashcard count")
-    void shouldGetFlashcardCount() {
-        assertThat(testDeck.getFlashcardCount()).isZero();
+    @DisplayName("Should get card count")
+    void shouldGetCardCount() {
+        assertThat(testDeck.getCardCount()).isZero();
 
-        testDeck.addFlashcard(testFlashcard);
-        assertThat(testDeck.getFlashcardCount()).isEqualTo(1);
+        testDeck.addCard(testCard);
+        assertThat(testDeck.getCardCount()).isEqualTo(1);
 
-        testDeck.addFlashcard(new Flashcard(2L, 1L, "Q2", "A2"));
-        assertThat(testDeck.getFlashcardCount()).isEqualTo(2);
+        testDeck.addCard(new Card(2L, 1L, "Q2", "A2"));
+        assertThat(testDeck.getCardCount()).isEqualTo(2);
     }
 
     @Test
@@ -163,48 +163,48 @@ class DeckTest {
     @Test
     @DisplayName("Should handle empty deck")
     void shouldHandleEmptyDeck() {
-        assertThat(testDeck.getFlashcardCount()).isZero();
-        assertThat(testDeck.getFlashcards()).isEmpty();
+        assertThat(testDeck.getCardCount()).isZero();
+        assertThat(testDeck.getCards()).isEmpty();
     }
 
     @Test
-    @DisplayName("Should maintain flashcard order")
-    void shouldMaintainFlashcardOrder() {
-        Flashcard card1 = new Flashcard(1L, 1L, "Front 1", "Back 1");
-        Flashcard card2 = new Flashcard(2L, 1L, "Front 2", "Back 2");
+    @DisplayName("Should maintain card order")
+    void shouldMaintainCardOrder() {
+        Card card1 = new Card(1L, 1L, "Front 1", "Back 1");
+        Card card2 = new Card(2L, 1L, "Front 2", "Back 2");
 
-        testDeck.addFlashcard(card1);
-        testDeck.addFlashcard(card2);
+        testDeck.addCard(card1);
+        testDeck.addCard(card2);
 
-        List<Flashcard> flashcards = testDeck.getFlashcards();
-        assertThat(flashcards).hasSize(2);
-        assertThat(flashcards.getFirst()).isEqualTo(card1);
-        assertThat(flashcards.get(1)).isEqualTo(card2);
+        List<Card> cards = testDeck.getCards();
+        assertThat(cards).hasSize(2);
+        assertThat(cards.getFirst()).isEqualTo(card1);
+        assertThat(cards.get(1)).isEqualTo(card2);
     }
 
     @Test
-    @DisplayName("Should handle deck with multiple flashcards")
-    void shouldHandleDeckWithMultipleFlashcards() {
-        Flashcard card1 = new Flashcard(1L, 1L, "Front 1", "Back 1");
-        Flashcard card2 = new Flashcard(2L, 1L, "Front 2", "Back 2");
-        Flashcard card3 = new Flashcard(3L, 1L, "Front 3", "Back 3");
+    @DisplayName("Should handle deck with multiple cards")
+    void shouldHandleDeckWithMultipleCards() {
+        Card card1 = new Card(1L, 1L, "Front 1", "Back 1");
+        Card card2 = new Card(2L, 1L, "Front 2", "Back 2");
+        Card card3 = new Card(3L, 1L, "Front 3", "Back 3");
 
-        testDeck.addFlashcard(card1);
-        testDeck.addFlashcard(card2);
-        testDeck.addFlashcard(card3);
+        testDeck.addCard(card1);
+        testDeck.addCard(card2);
+        testDeck.addCard(card3);
 
-        assertThat(testDeck.getFlashcardCount()).isEqualTo(3);
-        assertThat(testDeck.getFlashcards()).hasSize(3);
+        assertThat(testDeck.getCardCount()).isEqualTo(3);
+        assertThat(testDeck.getCards()).hasSize(3);
     }
 
     @Test
-    @DisplayName("Should handle deck with null flashcards list")
-    void shouldHandleDeckWithNullFlashcardsList() {
+    @DisplayName("Should handle deck with null cards list")
+    void shouldHandleDeckWithNullCardsList() {
         Deck deck = new Deck();
-        deck.setFlashcards(null);
+        deck.setCards(null);
 
-        assertThat(deck.getFlashcardCount()).isZero();
-        assertThat(deck.getFlashcards()).isEmpty();
+        assertThat(deck.getCardCount()).isZero();
+        assertThat(deck.getCards()).isEmpty();
     }
 
     @Test
@@ -260,7 +260,7 @@ class DeckTest {
         assertThat(deckString)
                 .contains("Test Deck")
                 .contains("Test Description")
-                .contains("flashcardCount=0");
+                .contains("cardCount=0");
     }
 
     @Test

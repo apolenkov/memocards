@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
 import java.util.List;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.model.Card;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +15,7 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should create SessionData with valid parameters")
     void shouldCreateSessionDataWithValidParameters() {
-        List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
         PracticeSessionRecords.SessionData sessionData =
                 PracticeSessionRecords.SessionData.create(1L, cards, Instant.now());
@@ -30,7 +30,7 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should throw exception for invalid deck ID")
     void shouldThrowExceptionForInvalidDeckId() {
-        List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
         Instant now = Instant.now();
 
         assertThatThrownBy(() -> PracticeSessionRecords.SessionData.create(0L, cards, now))
@@ -51,7 +51,7 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should throw exception for empty cards")
     void shouldThrowExceptionForEmptyCards() {
-        List<Flashcard> emptyCards = List.of();
+        List<Card> emptyCards = List.of();
         Instant now = Instant.now();
 
         assertThatThrownBy(() -> PracticeSessionRecords.SessionData.create(1L, emptyCards, now))
@@ -62,7 +62,7 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should add known card to SessionData")
     void shouldAddKnownCardToSessionData() {
-        List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
         PracticeSessionRecords.SessionData sessionData =
                 PracticeSessionRecords.SessionData.create(1L, cards, Instant.now());
@@ -76,7 +76,7 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should add failed card to SessionData")
     void shouldAddFailedCardToSessionData() {
-        List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
         PracticeSessionRecords.SessionData sessionData =
                 PracticeSessionRecords.SessionData.create(1L, cards, Instant.now());

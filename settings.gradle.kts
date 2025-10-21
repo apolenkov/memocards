@@ -30,4 +30,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "flashcards"
+rootProject.name = "memocards"

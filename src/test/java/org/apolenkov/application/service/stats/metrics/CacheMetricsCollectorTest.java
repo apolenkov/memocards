@@ -32,7 +32,7 @@ class CacheMetricsCollectorTest {
     @DisplayName("Should record cache invalidation event metrics")
     void shouldRecordCacheInvalidationEventMetrics() {
         // Given
-        CacheInvalidationEvent event = CacheInvalidationEvent.of("pagination-count", 123L, "flashcard-created");
+        CacheInvalidationEvent event = CacheInvalidationEvent.of("pagination-count", 123L, "card-created");
 
         // When
         metricsCollector.onCacheInvalidation(event);
@@ -41,7 +41,7 @@ class CacheMetricsCollectorTest {
         Counter invalidationCounter = meterRegistry
                 .find("cache.invalidation.count")
                 .tag("cache_type", "pagination-count")
-                .tag("reason", "flashcard-created")
+                .tag("reason", "card-created")
                 .counter();
         assertThat(invalidationCounter).isNotNull();
         assertThat(invalidationCounter.count()).isEqualTo(1.0);
@@ -58,13 +58,13 @@ class CacheMetricsCollectorTest {
         Duration duration = Duration.ofMillis(150);
 
         // When
-        metricsCollector.recordInvalidationTiming("pagination-count", "flashcard-created", () -> duration);
+        metricsCollector.recordInvalidationTiming("pagination-count", "card-created", () -> duration);
 
         // Then
         Timer timer = meterRegistry
                 .find("cache.invalidation.timing")
                 .tag("cache_type", "pagination-count")
-                .tag("reason", "flashcard-created")
+                .tag("reason", "card-created")
                 .timer();
         assertThat(timer).isNotNull();
         assertThat(timer.count()).isEqualTo(1);

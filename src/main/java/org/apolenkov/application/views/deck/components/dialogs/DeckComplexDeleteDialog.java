@@ -12,8 +12,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import java.util.function.Consumer;
+import org.apolenkov.application.domain.usecase.CardUseCase;
 import org.apolenkov.application.domain.usecase.DeckUseCase;
-import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
@@ -44,7 +44,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
 
     // Dependencies
     private final transient DeckUseCase deckUseCase;
-    private final transient FlashcardUseCase flashcardUseCase;
+    private final transient CardUseCase cardUseCase;
     private final transient Deck currentDeck;
 
     // Callbacks
@@ -56,18 +56,18 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * Creates a new DeckComplexDeleteDialog with required dependencies.
      *
      * @param deckUseCaseParam use case for deck operations
-     * @param flashcardUseCaseParam use case for flashcard operations
+     * @param cardUseCaseParam use case for card operations
      * @param currentDeckParam the deck to delete
      * @param onDeckDeletedParam callback executed when deck is deleted
      */
     public DeckComplexDeleteDialog(
             final DeckUseCase deckUseCaseParam,
-            final FlashcardUseCase flashcardUseCaseParam,
+            final CardUseCase cardUseCaseParam,
             final Deck currentDeckParam,
             final Consumer<Void> onDeckDeletedParam) {
         super();
         this.deckUseCase = deckUseCaseParam;
-        this.flashcardUseCase = flashcardUseCaseParam;
+        this.cardUseCase = cardUseCaseParam;
         this.currentDeck = currentDeckParam;
         this.onDeckDeleted = onDeckDeletedParam;
     }
@@ -180,7 +180,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
         Span deckName = new Span(currentDeck.getTitle());
         deckName.addClassName(DeckConstants.DECK_DELETE_CONFIRM_DECK_NAME_CLASS);
 
-        long actualCardCount = flashcardUseCase.countByDeckId(currentDeck.getId());
+        long actualCardCount = cardUseCase.countByDeckId(currentDeck.getId());
         Span cardCount = new Span(getTranslation(DeckConstants.DECK_DELETE_CARD_COUNT, actualCardCount));
         cardCount.addClassName(DeckConstants.DECK_DELETE_CONFIRM_CARD_COUNT_CLASS);
 

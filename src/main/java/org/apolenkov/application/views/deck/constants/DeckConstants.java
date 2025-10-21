@@ -31,7 +31,7 @@ public final class DeckConstants {
     public static final String DECK_DELETE_SUCCESS = "deck.delete.success";
     public static final String DECK_DELETE_CONFIRMATION_MISMATCH = "deck.delete.confirmationMismatch";
 
-    // Translation keys for flashcard dialogs
+    // Translation keys for card dialogs
     public static final String DECK_COL_FRONT = "deck.col.front";
     public static final String DECK_COL_BACK = "deck.col.back";
     public static final String DECK_EXAMPLE_OPTIONAL = "deck.example.optional";
@@ -190,10 +190,10 @@ public final class DeckConstants {
     public static final String DECK_MENU_DELETE = "deck.menu.delete";
     public static final String DECK_MENU_RESET = "deck.menu.resetProgress";
 
-    // Menu actions for flashcard
-    public static final String FLASHCARD_MENU_EDIT = "flashcard.menu.edit";
-    public static final String FLASHCARD_MENU_TOGGLE = "flashcard.menu.toggleKnown";
-    public static final String FLASHCARD_MENU_DELETE = "flashcard.menu.delete";
+    // Menu actions for card
+    public static final String CARD_MENU_EDIT = "card.menu.edit";
+    public static final String CARD_MENU_TOGGLE = "card.menu.toggleKnown";
+    public static final String CARD_MENU_DELETE = "card.menu.delete";
 
     // Accessibility
     public static final String MENU_ACTIONS_ARIA_LABEL = "menu.actions.ariaLabel";

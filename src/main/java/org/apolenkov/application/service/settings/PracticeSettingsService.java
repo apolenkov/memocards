@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
  * Service for managing default practice settings and preferences.
  *
  * <p>Provides centralized access to default practice configuration values used
- * when starting new flashcard practice sessions. Manages settings such as default
+ * when starting new card practice sessions. Manages settings such as default
  * number of cards per session, randomization preferences, and practice direction.</p>
  */
 @Service
@@ -30,7 +30,7 @@ public class PracticeSettingsService {
     private boolean defaultRandomOrder = true;
 
     /**
-     * Default practice direction for flashcard sessions.
+     * Default practice direction for card sessions.
      *
      * <p>Determines whether practice sessions start with front side (question)
      * or back side (answer) of cards by default.</p>
@@ -77,7 +77,7 @@ public class PracticeSettingsService {
     }
 
     /**
-     * Gets default practice direction for flashcard sessions.
+     * Gets default practice direction for card sessions.
      *
      * @return default practice direction
      */
@@ -86,7 +86,7 @@ public class PracticeSettingsService {
     }
 
     /**
-     * Sets default practice direction for flashcard sessions.
+     * Sets default practice direction for card sessions.
      *
      * @param defaultDirectionValue new default practice direction
      */

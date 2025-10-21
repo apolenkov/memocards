@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Builder for dynamic SQL queries for flashcard filtering.
+ * Builder for dynamic SQL queries for card filtering.
  * Supports combinations of search query and known/unknown status filtering.
  */
-public final class FlashcardQueryBuilder {
+public final class CardQueryBuilder {
 
     private static final String KC_ID_IS_NULL = "kc.id IS NULL";
 
@@ -21,7 +21,7 @@ public final class FlashcardQueryBuilder {
      * @param deckId deck identifier
      * @return this builder for method chaining
      */
-    public FlashcardQueryBuilder withDeckId(final long deckId) {
+    public CardQueryBuilder withDeckId(final long deckId) {
         conditions.add("f.deck_id = ?");
         parameters.add(deckId);
         return this;
@@ -58,9 +58,9 @@ public final class FlashcardQueryBuilder {
     }
 
     /**
-     * Builds the complete SQL query for selecting flashcards.
+     * Builds the complete SQL query for selecting cards.
      *
-     * @param baseQuery base SELECT query (from FlashcardSqlQueries)
+     * @param baseQuery base SELECT query (from CardSqlQueries)
      * @return complete SQL query with WHERE and ORDER BY clauses
      */
     public String buildSelectQuery(final String baseQuery) {
@@ -89,9 +89,9 @@ public final class FlashcardQueryBuilder {
     }
 
     /**
-     * Builds the complete SQL query for counting flashcards.
+     * Builds the complete SQL query for counting cards.
      *
-     * @param baseQuery base COUNT query (from FlashcardSqlQueries)
+     * @param baseQuery base COUNT query (from CardSqlQueries)
      * @return complete SQL query with WHERE clause
      */
     public String buildCountQuery(final String baseQuery) {

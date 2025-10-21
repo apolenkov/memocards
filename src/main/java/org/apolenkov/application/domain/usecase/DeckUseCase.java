@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.apolenkov.application.model.Deck;
 
 /**
- * Core business operations for managing flashcard decks.
+ * Core business operations for managing card decks.
  */
 public interface DeckUseCase {
     /**

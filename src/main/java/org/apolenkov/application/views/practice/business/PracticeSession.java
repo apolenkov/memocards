@@ -2,7 +2,7 @@ package org.apolenkov.application.views.practice.business;
 
 import java.time.Instant;
 import java.util.List;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.views.practice.business.PracticeSessionRecords.SessionData;
 import org.apolenkov.application.views.practice.business.PracticeSessionRecords.SessionState;
 
@@ -19,12 +19,12 @@ public record PracticeSession(SessionData data, SessionState state) {
      * Creates a new practice session with the given deck and cards.
      *
      * @param deckId the ID of the deck being practiced
-     * @param cards the list of flashcards for this session
+     * @param cards the list of cards for this session
      * @param sessionStart the session start time
      * @return a new PracticeSession instance
      * @throws IllegalArgumentException if deckId is invalid or cards is null/empty
      */
-    public static PracticeSession create(final long deckId, final List<Flashcard> cards, final Instant sessionStart) {
+    public static PracticeSession create(final long deckId, final List<Card> cards, final Instant sessionStart) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive");
         }
@@ -51,11 +51,11 @@ public record PracticeSession(SessionData data, SessionState state) {
     }
 
     /**
-     * Gets the list of flashcards for this practice session.
+     * Gets the list of cards for this practice session.
      *
-     * @return the list of flashcards
+     * @return the list of cards
      */
-    public List<Flashcard> getCards() {
+    public List<Card> getCards() {
         return data.cards();
     }
 

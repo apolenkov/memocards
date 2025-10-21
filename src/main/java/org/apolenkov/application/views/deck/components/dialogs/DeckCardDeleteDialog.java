@@ -7,8 +7,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.function.Consumer;
-import org.apolenkov.application.domain.usecase.FlashcardUseCase;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.domain.usecase.CardUseCase;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.DialogHelper;
@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Dialog component for flashcard deletion confirmation.
- * Provides a simple confirmation dialog before deleting a flashcard.
+ * Dialog component for card deletion confirmation.
+ * Provides a simple confirmation dialog before deleting a card.
  *
  * <p>Features:
  * <ul>
@@ -27,40 +27,38 @@ import org.slf4j.LoggerFactory;
  *   <li>Proper error handling</li>
  * </ul>
  */
-public final class DeckFlashcardDeleteDialog extends Dialog {
+public final class DeckCardDeleteDialog extends Dialog {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeckFlashcardDeleteDialog.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeckCardDeleteDialog.class);
 
     // Dependencies
-    private final transient FlashcardUseCase flashcardUseCase;
-    private final transient Flashcard flashcard;
+    private final transient CardUseCase cardUseCase;
+    private final transient Card card;
 
     // Callbacks
-    private final transient Consumer<Long> onFlashcardDeleted;
+    private final transient Consumer<Long> onCardDeleted;
 
     /**
-     * Creates a new DeckFlashcardDeleteDialog with required dependencies.
+     * Creates a new DeckCardDeleteDialog with required dependencies.
      *
-     * @param flashcardUseCaseParam use case for flashcard operations
-     * @param flashcardParam the flashcard to delete
-     * @param onFlashcardDeletedParam callback executed when flashcard is deleted
+     * @param cardUseCaseParam use case for card operations
+     * @param cardParam the card to delete
+     * @param onCardDeletedParam callback executed when card is deleted
      */
-    public DeckFlashcardDeleteDialog(
-            final FlashcardUseCase flashcardUseCaseParam,
-            final Flashcard flashcardParam,
-            final Consumer<Long> onFlashcardDeletedParam) {
+    public DeckCardDeleteDialog(
+            final CardUseCase cardUseCaseParam, final Card cardParam, final Consumer<Long> onCardDeletedParam) {
         super();
-        this.flashcardUseCase = flashcardUseCaseParam;
-        this.flashcard = flashcardParam;
-        this.onFlashcardDeleted = onFlashcardDeletedParam;
+        this.cardUseCase = cardUseCaseParam;
+        this.card = cardParam;
+        this.onCardDeleted = onCardDeletedParam;
     }
 
     /**
-     * Shows the flashcard deletion confirmation dialog.
+     * Shows the card deletion confirmation dialog.
      */
     public void show() {
-        if (flashcard == null) {
-            LOGGER.warn("Cannot show delete dialog: flashcard is null");
+        if (card == null) {
+            LOGGER.warn("Cannot show delete dialog: card is null");
             return;
         }
 
@@ -123,7 +121,7 @@ public final class DeckFlashcardDeleteDialog extends Dialog {
      */
     private Button createConfirmButton() {
         return ButtonHelper.createConfirmButton(
-                getTranslation(DeckConstants.DECK_CARD_DELETE_CONFIRM), e -> handleFlashcardDeletion());
+                getTranslation(DeckConstants.DECK_CARD_DELETE_CONFIRM), e -> handleCardDeletion());
     }
 
     /**
@@ -136,27 +134,27 @@ public final class DeckFlashcardDeleteDialog extends Dialog {
     }
 
     /**
-     * Handles flashcard deletion with error handling.
+     * Handles card deletion with error handling.
      */
-    private void handleFlashcardDeletion() {
+    private void handleCardDeletion() {
         try {
-            flashcardUseCase.deleteFlashcard(flashcard.getId());
+            cardUseCase.deleteCard(card.getId());
 
-            notifyFlashcardDeleted();
+            notifyCardDeleted();
             close();
             NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_CARD_DELETED));
-            LOGGER.debug("Flashcard {} deleted successfully", flashcard.getId());
+            LOGGER.debug("Card {} deleted successfully", card.getId());
         } catch (Exception ex) {
             handleDeletionError(ex);
         }
     }
 
     /**
-     * Notifies parent component about flashcard deletion.
+     * Notifies parent component about card deletion.
      */
-    private void notifyFlashcardDeleted() {
-        if (onFlashcardDeleted != null) {
-            onFlashcardDeleted.accept(flashcard.getId());
+    private void notifyCardDeleted() {
+        if (onCardDeleted != null) {
+            onCardDeleted.accept(card.getId());
         }
     }
 
@@ -166,7 +164,7 @@ public final class DeckFlashcardDeleteDialog extends Dialog {
      * @param ex exception that occurred
      */
     private void handleDeletionError(final Exception ex) {
-        LOGGER.error("Error deleting flashcard: {}", flashcard.getId(), ex);
+        LOGGER.error("Error deleting card: {}", card.getId(), ex);
         NotificationHelper.showErrorLong(ex.getMessage());
     }
 }

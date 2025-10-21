@@ -8,47 +8,47 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("Flashcard Domain Model Tests")
-class FlashcardTest {
+@DisplayName("Card Domain Model Tests")
+class CardTest {
 
-    private Flashcard testFlashcard;
+    private Card testCard;
 
     @BeforeEach
     void setUp() {
-        testFlashcard = new Flashcard(1L, 1L, "Test Front", "Test Back", "Test Example");
+        testCard = new Card(1L, 1L, "Test Front", "Test Back", "Test Example");
     }
 
     @Test
-    @DisplayName("Should create flashcard with valid parameters")
-    void shouldCreateFlashcardWithValidParameters() {
-        Flashcard flashcard = new Flashcard(1L, 1L, "Front", "Back");
+    @DisplayName("Should create card with valid parameters")
+    void shouldCreateCardWithValidParameters() {
+        Card card = new Card(1L, 1L, "Front", "Back");
 
-        assertThat(flashcard).isNotNull();
-        assertThat(flashcard.getId()).isEqualTo(1L);
-        assertThat(flashcard.getDeckId()).isEqualTo(1L);
-        assertThat(flashcard.getFrontText()).isEqualTo("Front");
-        assertThat(flashcard.getBackText()).isEqualTo("Back");
-        assertThat(flashcard.getExample()).isNull();
-        assertThat(flashcard.getCreatedAt()).isNotNull();
-        assertThat(flashcard.getUpdatedAt()).isNotNull();
+        assertThat(card).isNotNull();
+        assertThat(card.getId()).isEqualTo(1L);
+        assertThat(card.getDeckId()).isEqualTo(1L);
+        assertThat(card.getFrontText()).isEqualTo("Front");
+        assertThat(card.getBackText()).isEqualTo("Back");
+        assertThat(card.getExample()).isNull();
+        assertThat(card.getCreatedAt()).isNotNull();
+        assertThat(card.getUpdatedAt()).isNotNull();
     }
 
     @Test
-    @DisplayName("Should create flashcard with example")
-    void shouldCreateFlashcardWithExample() {
-        Flashcard flashcard = new Flashcard(1L, 1L, "Front", "Back", "Example");
+    @DisplayName("Should create card with example")
+    void shouldCreateCardWithExample() {
+        Card card = new Card(1L, 1L, "Front", "Back", "Example");
 
-        assertThat(flashcard.getExample()).isEqualTo("Example");
+        assertThat(card.getExample()).isEqualTo("Example");
     }
 
     @Test
     @DisplayName("Should throw exception for invalid deckId")
     void shouldThrowExceptionForInvalidDeckId() {
-        assertThatThrownBy(() -> new Flashcard(1L, 0L, "Front", "Back"))
+        assertThatThrownBy(() -> new Card(1L, 0L, "Front", "Back"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("deckId must be positive");
 
-        assertThatThrownBy(() -> new Flashcard(1L, -1L, "Front", "Back"))
+        assertThatThrownBy(() -> new Card(1L, -1L, "Front", "Back"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("deckId must be positive");
     }
@@ -56,7 +56,7 @@ class FlashcardTest {
     @Test
     @DisplayName("Should throw exception for null front text")
     void shouldThrowExceptionForNullFrontText() {
-        assertThatThrownBy(() -> new Flashcard(1L, 1L, null, "Back"))
+        assertThatThrownBy(() -> new Card(1L, 1L, null, "Back"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("frontText is required");
     }
@@ -64,11 +64,11 @@ class FlashcardTest {
     @Test
     @DisplayName("Should throw exception for empty front text")
     void shouldThrowExceptionForEmptyFrontText() {
-        assertThatThrownBy(() -> new Flashcard(1L, 1L, "", "Back"))
+        assertThatThrownBy(() -> new Card(1L, 1L, "", "Back"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("frontText is required");
 
-        assertThatThrownBy(() -> new Flashcard(1L, 1L, "   ", "Back"))
+        assertThatThrownBy(() -> new Card(1L, 1L, "   ", "Back"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("frontText is required");
     }
@@ -76,7 +76,7 @@ class FlashcardTest {
     @Test
     @DisplayName("Should throw exception for null back text")
     void shouldThrowExceptionForNullBackText() {
-        assertThatThrownBy(() -> new Flashcard(1L, 1L, "Front", null))
+        assertThatThrownBy(() -> new Card(1L, 1L, "Front", null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("backText is required");
     }
@@ -84,11 +84,11 @@ class FlashcardTest {
     @Test
     @DisplayName("Should throw exception for empty back text")
     void shouldThrowExceptionForEmptyBackText() {
-        assertThatThrownBy(() -> new Flashcard(1L, 1L, "Front", ""))
+        assertThatThrownBy(() -> new Card(1L, 1L, "Front", ""))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("backText is required");
 
-        assertThatThrownBy(() -> new Flashcard(1L, 1L, "Front", "   "))
+        assertThatThrownBy(() -> new Card(1L, 1L, "Front", "   "))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("backText is required");
     }
@@ -96,17 +96,17 @@ class FlashcardTest {
     @Test
     @DisplayName("Should handle null example")
     void shouldHandleNullExample() {
-        Flashcard flashcard = new Flashcard(1L, 1L, "Front", "Back", null);
+        Card card = new Card(1L, 1L, "Front", "Back", null);
 
-        assertThat(flashcard.getExample()).isNull();
+        assertThat(card.getExample()).isNull();
     }
 
     @Test
     @DisplayName("Should handle empty example")
     void shouldHandleEmptyExample() {
-        Flashcard flashcard = new Flashcard(1L, 1L, "Front", "Back", "");
+        Card card = new Card(1L, 1L, "Front", "Back", "");
 
-        assertThat(flashcard.getExample()).isEmpty();
+        assertThat(card.getExample()).isEmpty();
     }
 
     @Test
@@ -116,66 +116,66 @@ class FlashcardTest {
         long newId = 999L;
 
         // When
-        testFlashcard.setId(newId);
+        testCard.setId(newId);
 
         // Then
-        assertThat(testFlashcard.getId()).isEqualTo(newId);
+        assertThat(testCard.getId()).isEqualTo(newId);
     }
 
     @Test
     @DisplayName("Should set and get deckId")
     void shouldSetAndGetDeckId() {
         long newDeckId = 999L;
-        testFlashcard.setDeckId(newDeckId);
+        testCard.setDeckId(newDeckId);
 
-        assertThat(testFlashcard.getDeckId()).isEqualTo(newDeckId);
+        assertThat(testCard.getDeckId()).isEqualTo(newDeckId);
     }
 
     @Test
     @DisplayName("Should set and get front text")
     void shouldSetAndGetFrontText() {
         String newFrontText = "New Front Text";
-        testFlashcard.setFrontText(newFrontText);
+        testCard.setFrontText(newFrontText);
 
-        assertThat(testFlashcard.getFrontText()).isEqualTo(newFrontText);
-        assertThat(testFlashcard.getUpdatedAt()).isAfter(testFlashcard.getCreatedAt());
+        assertThat(testCard.getFrontText()).isEqualTo(newFrontText);
+        assertThat(testCard.getUpdatedAt()).isAfter(testCard.getCreatedAt());
     }
 
     @Test
     @DisplayName("Should set and get back text")
     void shouldSetAndGetBackText() {
         String newBackText = "New Back Text";
-        testFlashcard.setBackText(newBackText);
+        testCard.setBackText(newBackText);
 
-        assertThat(testFlashcard.getBackText()).isEqualTo(newBackText);
-        assertThat(testFlashcard.getUpdatedAt()).isAfter(testFlashcard.getCreatedAt());
+        assertThat(testCard.getBackText()).isEqualTo(newBackText);
+        assertThat(testCard.getUpdatedAt()).isAfter(testCard.getCreatedAt());
     }
 
     @Test
     @DisplayName("Should set and get example")
     void shouldSetAndGetExample() {
         String newExample = "New Example";
-        testFlashcard.setExample(newExample);
+        testCard.setExample(newExample);
 
-        assertThat(testFlashcard.getExample()).isEqualTo(newExample);
-        assertThat(testFlashcard.getUpdatedAt()).isAfter(testFlashcard.getCreatedAt());
+        assertThat(testCard.getExample()).isEqualTo(newExample);
+        assertThat(testCard.getUpdatedAt()).isAfter(testCard.getCreatedAt());
     }
 
     @Test
     @DisplayName("Should set and get image URL")
     void shouldSetAndGetImageUrl() {
         String imageUrl = "https://example.com/image.jpg";
-        testFlashcard.setImageUrl(imageUrl);
+        testCard.setImageUrl(imageUrl);
 
-        assertThat(testFlashcard.getImageUrl()).isEqualTo(imageUrl);
+        assertThat(testCard.getImageUrl()).isEqualTo(imageUrl);
     }
 
     @Test
     @DisplayName("Should handle null image URL")
     void shouldHandleNullImageUrl() {
-        testFlashcard.setImageUrl(null);
+        testCard.setImageUrl(null);
 
-        assertThat(testFlashcard.getImageUrl()).isNull();
+        assertThat(testCard.getImageUrl()).isNull();
     }
 
     @Test
@@ -184,8 +184,8 @@ class FlashcardTest {
         // @Size(max = 300) is JPA validation, not runtime validation
         String longFrontText = "A".repeat(301);
         // This should not throw exception as @Size is JPA validation, not runtime validation
-        testFlashcard.setFrontText(longFrontText);
-        assertThat(testFlashcard.getFrontText()).isEqualTo(longFrontText);
+        testCard.setFrontText(longFrontText);
+        assertThat(testCard.getFrontText()).isEqualTo(longFrontText);
     }
 
     @Test
@@ -194,8 +194,8 @@ class FlashcardTest {
         // @Size(max = 300) is JPA validation, not runtime validation
         String longBackText = "A".repeat(301);
         // This should not throw exception as @Size is JPA validation, not runtime validation
-        testFlashcard.setBackText(longBackText);
-        assertThat(testFlashcard.getBackText()).isEqualTo(longBackText);
+        testCard.setBackText(longBackText);
+        assertThat(testCard.getBackText()).isEqualTo(longBackText);
     }
 
     @Test
@@ -204,8 +204,8 @@ class FlashcardTest {
         // @Size(max = 500) is JPA validation, not runtime validation
         String longExample = "A".repeat(501);
         // This should not throw exception as @Size is JPA validation, not runtime validation
-        testFlashcard.setExample(longExample);
-        assertThat(testFlashcard.getExample()).isEqualTo(longExample);
+        testCard.setExample(longExample);
+        assertThat(testCard.getExample()).isEqualTo(longExample);
     }
 
     @Test
@@ -214,101 +214,101 @@ class FlashcardTest {
         // @Size(max = 2048) is JPA validation, not runtime validation
         String longImageUrl = "A".repeat(2049);
         // This should not throw exception as @Size is JPA validation, not runtime validation
-        testFlashcard.setImageUrl(longImageUrl);
-        assertThat(testFlashcard.getImageUrl()).isEqualTo(longImageUrl);
+        testCard.setImageUrl(longImageUrl);
+        assertThat(testCard.getImageUrl()).isEqualTo(longImageUrl);
     }
 
     @Test
     @DisplayName("Should handle special characters in text")
     void shouldHandleSpecialCharactersInText() {
         String specialText = "Text with special chars: @#$%^&*()_+-=[]{}|;':\",./<>?";
-        testFlashcard.setFrontText(specialText);
+        testCard.setFrontText(specialText);
 
-        assertThat(testFlashcard.getFrontText()).isEqualTo(specialText);
+        assertThat(testCard.getFrontText()).isEqualTo(specialText);
     }
 
     @Test
     @DisplayName("Should handle unicode characters in text")
     void shouldHandleUnicodeCharactersInText() {
         String unicodeText = "Text with unicode characters: 你好世界";
-        testFlashcard.setFrontText(unicodeText);
+        testCard.setFrontText(unicodeText);
 
-        assertThat(testFlashcard.getFrontText()).isEqualTo(unicodeText);
+        assertThat(testCard.getFrontText()).isEqualTo(unicodeText);
     }
 
     @Test
     @DisplayName("Should handle very long valid text")
     void shouldHandleVeryLongValidText() {
         String longText = "A".repeat(300); // Max allowed size
-        testFlashcard.setFrontText(longText);
+        testCard.setFrontText(longText);
 
-        assertThat(testFlashcard.getFrontText()).isEqualTo(longText);
+        assertThat(testCard.getFrontText()).isEqualTo(longText);
     }
 
     @Test
     @DisplayName("Should handle very long valid example")
     void shouldHandleVeryLongValidExample() {
         String longExample = "A".repeat(500); // Max allowed size
-        testFlashcard.setExample(longExample);
+        testCard.setExample(longExample);
 
-        assertThat(testFlashcard.getExample()).isEqualTo(longExample);
+        assertThat(testCard.getExample()).isEqualTo(longExample);
     }
 
     @Test
     @DisplayName("Should handle very long valid image URL")
     void shouldHandleVeryLongValidImageUrl() {
         String longUrl = "https://example.com/" + "A".repeat(2048); // Max allowed size
-        testFlashcard.setImageUrl(longUrl);
+        testCard.setImageUrl(longUrl);
 
-        assertThat(testFlashcard.getImageUrl()).isEqualTo(longUrl);
+        assertThat(testCard.getImageUrl()).isEqualTo(longUrl);
     }
 
     @Test
     @DisplayName("Should update timestamps when modifying content")
     void shouldUpdateTimestampsWhenModifyingContent() {
-        LocalDateTime originalUpdatedAt = testFlashcard.getUpdatedAt();
+        LocalDateTime originalUpdatedAt = testCard.getUpdatedAt();
 
         // Modify content to trigger timestamp update
-        testFlashcard.setFrontText("Updated Front");
-        testFlashcard.setBackText("Updated Back");
+        testCard.setFrontText("Updated Front");
+        testCard.setBackText("Updated Back");
 
         // Verify that timestamps were updated
-        assertThat(testFlashcard.getUpdatedAt()).isAfter(originalUpdatedAt);
-        assertThat(testFlashcard.getCreatedAt()).isBefore(testFlashcard.getUpdatedAt());
+        assertThat(testCard.getUpdatedAt()).isAfter(originalUpdatedAt);
+        assertThat(testCard.getCreatedAt()).isBefore(testCard.getUpdatedAt());
     }
 
     @Test
-    @DisplayName("Should handle flashcard with all fields set")
-    void shouldHandleFlashcardWithAllFieldsSet() {
-        Flashcard flashcard = new Flashcard();
-        flashcard.setId(1L);
-        flashcard.setDeckId(1L);
-        flashcard.setFrontText("Front");
-        flashcard.setBackText("Back");
-        flashcard.setExample("Example");
-        flashcard.setImageUrl("https://example.com/image.jpg");
+    @DisplayName("Should handle card with all fields set")
+    void shouldHandleCardWithAllFieldsSet() {
+        Card card = new Card();
+        card.setId(1L);
+        card.setDeckId(1L);
+        card.setFrontText("Front");
+        card.setBackText("Back");
+        card.setExample("Example");
+        card.setImageUrl("https://example.com/image.jpg");
 
-        assertThat(flashcard.getId()).isEqualTo(1L);
-        assertThat(flashcard.getDeckId()).isEqualTo(1L);
-        assertThat(flashcard.getFrontText()).isEqualTo("Front");
-        assertThat(flashcard.getBackText()).isEqualTo("Back");
-        assertThat(flashcard.getExample()).isEqualTo("Example");
-        assertThat(flashcard.getImageUrl()).isEqualTo("https://example.com/image.jpg");
+        assertThat(card.getId()).isEqualTo(1L);
+        assertThat(card.getDeckId()).isEqualTo(1L);
+        assertThat(card.getFrontText()).isEqualTo("Front");
+        assertThat(card.getBackText()).isEqualTo("Back");
+        assertThat(card.getExample()).isEqualTo("Example");
+        assertThat(card.getImageUrl()).isEqualTo("https://example.com/image.jpg");
     }
 
     @Test
-    @DisplayName("Should handle flashcard with minimal fields")
-    void shouldHandleFlashcardWithMinimalFields() {
-        Flashcard flashcard = new Flashcard();
-        flashcard.setDeckId(1L);
-        flashcard.setFrontText("Front");
-        flashcard.setBackText("Back");
+    @DisplayName("Should handle card with minimal fields")
+    void shouldHandleCardWithMinimalFields() {
+        Card card = new Card();
+        card.setDeckId(1L);
+        card.setFrontText("Front");
+        card.setBackText("Back");
 
-        assertThat(flashcard.getId()).isNull();
-        assertThat(flashcard.getDeckId()).isEqualTo(1L);
-        assertThat(flashcard.getFrontText()).isEqualTo("Front");
-        assertThat(flashcard.getBackText()).isEqualTo("Back");
-        assertThat(flashcard.getExample()).isNull();
-        assertThat(flashcard.getImageUrl()).isNull();
+        assertThat(card.getId()).isNull();
+        assertThat(card.getDeckId()).isEqualTo(1L);
+        assertThat(card.getFrontText()).isEqualTo("Front");
+        assertThat(card.getBackText()).isEqualTo("Back");
+        assertThat(card.getExample()).isNull();
+        assertThat(card.getImageUrl()).isNull();
     }
 }

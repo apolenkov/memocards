@@ -10,13 +10,13 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.util.Optional;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.views.practice.constants.PracticeConstants;
 
 /**
  * Card component for practice view.
- * Displays flashcard content with question, answer, and optional example.
+ * Displays card content with question, answer, and optional example.
  */
 public final class PracticeCard extends Composite<Div> {
 
@@ -44,13 +44,13 @@ public final class PracticeCard extends Composite<Div> {
     }
 
     /**
-     * Displays the question card with the current flashcard.
+     * Displays the question card with the current card.
      *
-     * @param currentCard the current flashcard to display
+     * @param currentCard the current card to display
      * @param direction the practice direction
      * @throws IllegalArgumentException if currentCard is null or direction is null
      */
-    public void displayQuestionCard(final Flashcard currentCard, final PracticeDirection direction) {
+    public void displayQuestionCard(final Card currentCard, final PracticeDirection direction) {
         if (currentCard == null) {
             throw new IllegalArgumentException("Current card cannot be null");
         }
@@ -72,11 +72,11 @@ public final class PracticeCard extends Composite<Div> {
     /**
      * Displays the answer card with question, divider, answer and optional example.
      *
-     * @param currentCard the current flashcard to display
+     * @param currentCard the current card to display
      * @param direction the practice direction
      * @throws IllegalArgumentException if currentCard is null or direction is null
      */
-    public void displayAnswerCard(final Flashcard currentCard, final PracticeDirection direction) {
+    public void displayAnswerCard(final Card currentCard, final PracticeDirection direction) {
         if (currentCard == null) {
             throw new IllegalArgumentException("Current card cannot be null");
         }
@@ -153,7 +153,7 @@ public final class PracticeCard extends Composite<Div> {
     }
 
     /**
-     * Creates a card layout for displaying flashcard content.
+     * Creates a card layout for displaying card content.
      *
      * @return configured card layout
      */
@@ -167,32 +167,32 @@ public final class PracticeCard extends Composite<Div> {
     /**
      * Gets the question text based on practice direction.
      *
-     * @param card the flashcard
+     * @param card the card
      * @param direction the practice direction
      * @return the question text
      */
-    private String getQuestionText(final Flashcard card, final PracticeDirection direction) {
+    private String getQuestionText(final Card card, final PracticeDirection direction) {
         return direction == PracticeDirection.BACK_TO_FRONT ? card.getBackText() : card.getFrontText();
     }
 
     /**
      * Gets the answer text based on practice direction.
      *
-     * @param card the flashcard
+     * @param card the card
      * @param direction the practice direction
      * @return the answer text
      */
-    private String getAnswerText(final Flashcard card, final PracticeDirection direction) {
+    private String getAnswerText(final Card card, final PracticeDirection direction) {
         return direction == PracticeDirection.BACK_TO_FRONT ? card.getFrontText() : card.getBackText();
     }
 
     /**
      * Adds example text to the card layout if present.
      *
-     * @param currentCard the current flashcard
+     * @param currentCard the current card
      * @param cardLayout the card layout to add example to
      */
-    private void addExampleIfPresent(final Flashcard currentCard, final VerticalLayout cardLayout) {
+    private void addExampleIfPresent(final Card currentCard, final VerticalLayout cardLayout) {
         if (currentCard.getExample() != null && !currentCard.getExample().isBlank()) {
             Span exampleText =
                     new Span(getTranslation(PracticeConstants.PRACTICE_EXAMPLE_PREFIX_KEY, currentCard.getExample()));

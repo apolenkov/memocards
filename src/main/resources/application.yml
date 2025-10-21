@@ -1,6 +1,6 @@
 spring:
   application:
-    name: flashcards
+    name: cards
   profiles:
     active: dev
   output:
@@ -21,7 +21,7 @@ spring:
       leak-detection-threshold: 60000  # Detect leaks after 60s
       idle-timeout: 300000
       max-lifetime: 1800000
-      pool-name: FlashcardsHikariPool
+      pool-name: CardsHikariPool
   flyway:
     enabled: true
     locations: classpath:db/migration

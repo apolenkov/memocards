@@ -293,7 +293,7 @@ class PaginationCountCacheTest {
         cache.getCount(deckId, "", FilterOption.KNOWN_ONLY, () -> 30L);
         cache.getCount(deckId, "", FilterOption.UNKNOWN_ONLY, () -> 70L);
 
-        // When: DeckModifiedEvent (flashcard added/deleted)
+        // When: DeckModifiedEvent (card added/deleted)
         DeckModifiedEvent event = new DeckModifiedEvent(this, null, deckId, ModificationType.UPDATED);
         cache.onDeckModified(event);
 

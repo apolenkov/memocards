@@ -1,4 +1,4 @@
--- V1: Core database schema for Flashcards application
+-- V1: Core database schema for Cards application
 -- This migration creates all core tables with proper relationships and constraints
 
 -- Users table - core user management
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS user_roles (
     PRIMARY KEY (user_id, role)
 );
 
--- Decks table - user's flashcard collections
+-- Decks table - user's card collections
 CREATE TABLE IF NOT EXISTS decks (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS decks (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Flashcards table - individual cards within decks
-CREATE TABLE IF NOT EXISTS flashcards (
+-- Cards table - individual cards within decks
+CREATE TABLE IF NOT EXISTS cards (
     id BIGSERIAL PRIMARY KEY,
     deck_id BIGINT NOT NULL REFERENCES decks(id) ON DELETE CASCADE,
     front_text VARCHAR(300) NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS deck_daily_stats (
 CREATE TABLE IF NOT EXISTS known_cards (
     id BIGSERIAL PRIMARY KEY,
     deck_id BIGINT NOT NULL REFERENCES decks(id) ON DELETE CASCADE,
-    card_id BIGINT NOT NULL REFERENCES flashcards(id) ON DELETE CASCADE
+    card_id BIGINT NOT NULL REFERENCES cards(id) ON DELETE CASCADE
 );
 
 -- Prevent duplicates for known cards
@@ -69,7 +69,7 @@ ADD CONSTRAINT uk_known_cards_deck_card UNIQUE (deck_id, card_id);
 
 -- Helpful indexes for performance
 CREATE INDEX IF NOT EXISTS idx_known_cards_deck ON known_cards (deck_id);
-CREATE INDEX IF NOT EXISTS idx_flashcards_deck_id ON flashcards (deck_id);
+CREATE INDEX IF NOT EXISTS idx_cards_deck_id ON cards (deck_id);
 CREATE INDEX IF NOT EXISTS idx_decks_user_id ON decks (user_id);
 
 -- News table - application announcements and updates

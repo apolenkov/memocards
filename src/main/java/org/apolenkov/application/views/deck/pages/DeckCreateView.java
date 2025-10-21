@@ -27,7 +27,7 @@ import org.apolenkov.application.views.shared.utils.NotificationHelper;
 import org.apolenkov.application.views.shared.utils.ValidationHelper;
 
 /**
- * View for creating new flashcard decks.
+ * View for creating new card decks.
  * Provides a form interface for users to create new decks with
  * name and description. Includes validation and navigation controls.
  */

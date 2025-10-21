@@ -3,7 +3,7 @@ package org.apolenkov.application.views.practice.business;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.Objects;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.views.practice.business.PracticeSessionRecords.SessionData;
 import org.apolenkov.application.views.practice.business.PracticeSessionRecords.SessionState;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +62,9 @@ public final class PracticeSessionManager {
      * Retrieves the current card in the practice session.
      *
      * @param session the session to get the current card from
-     * @return the current flashcard, or null if session is complete
+     * @return the current card, or null if session is complete
      */
-    public Flashcard currentCard(final PracticeSession session) {
+    public Card currentCard(final PracticeSession session) {
         if (isComplete(session)) {
             return null;
         }
@@ -120,7 +120,7 @@ public final class PracticeSessionManager {
             return session;
         }
 
-        Flashcard currentCard = Objects.requireNonNull(currentCard(session));
+        Card currentCard = Objects.requireNonNull(currentCard(session));
 
         // Update session data with known card
         SessionData newData = session.data().addKnownCard(currentCard.getId());
@@ -148,7 +148,7 @@ public final class PracticeSessionManager {
             return session;
         }
 
-        Flashcard currentCard = Objects.requireNonNull(currentCard(session));
+        Card currentCard = Objects.requireNonNull(currentCard(session));
 
         // Update session data with failed card
         SessionData newData = session.data().addFailedCard(currentCard.getId());
