@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Dialog component for editing existing flashcard decks.
+ * Dialog component for editing existing card decks.
  * Provides users with the ability to modify deck information
  * including title and description with form validation and error handling.
  */

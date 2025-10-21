@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.domain.port.CardRepository;
 import org.apolenkov.application.domain.port.DeckRepository;
-import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.domain.port.NewsRepository;
 import org.apolenkov.application.domain.port.UserRepository;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.News;
 import org.apolenkov.application.model.User;
 import org.apolenkov.application.service.seed.DataSeedService;
@@ -25,7 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Initializes demo data in development environment.
- * Creates sample decks, flashcards, and news items for development and testing.
+ * Creates sample decks, cards, and news items for development and testing.
  * Only runs in "dev" profile and creates data only if the system is empty.
  */
 @Configuration
@@ -97,13 +97,13 @@ public class DataInitializer {
 
     /**
      * Creates demo data initializer that runs after application startup.
-     * Creates three themed decks (Travel, IT, English) with relevant flashcards
+     * Creates three themed decks (Travel, IT, English) with relevant cards
      * and welcome news items. Also generates test data for load testing.
      * Only initializes if no existing data is found.
      *
      * @param users user repository for finding demo user
      * @param decks deck repository for creating decks
-     * @param cards flashcard repository for creating flashcards
+     * @param cards card repository for creating cards
      * @param news news repository for creating news items
      * @param dataSeedService service for generating test data
      * @return CommandLineRunner that initializes demo data
@@ -113,7 +113,7 @@ public class DataInitializer {
     public CommandLineRunner initDemoData(
             final UserRepository users,
             final DeckRepository decks,
-            final FlashcardRepository cards,
+            final CardRepository cards,
             final NewsRepository news,
             final DataSeedService dataSeedService) {
         return args -> {
@@ -149,15 +149,15 @@ public class DataInitializer {
     }
 
     /**
-     * Creates demo data (decks, flashcards, news) if not already present.
+     * Creates demo data (decks, cards, news) if not already present.
      *
      * @param user demo user
      * @param decks deck repository
-     * @param cards flashcard repository
+     * @param cards card repository
      * @param news news repository
      */
     private void createDemoDataIfNeeded(
-            final User user, final DeckRepository decks, final FlashcardRepository cards, final NewsRepository news) {
+            final User user, final DeckRepository decks, final CardRepository cards, final NewsRepository news) {
         if (!seedConfig.demo().enabled()) {
             LOGGER.info("Demo data creation disabled (app.seed.demo.enabled=false)");
             return;
@@ -175,13 +175,13 @@ public class DataInitializer {
     }
 
     /**
-     * Creates demo decks with flashcards.
+     * Creates demo decks with cards.
      *
      * @param user demo user
      * @param decks deck repository
-     * @param cards flashcard repository
+     * @param cards card repository
      */
-    private void createDemoDecks(final User user, final DeckRepository decks, final FlashcardRepository cards) {
+    private void createDemoDecks(final User user, final DeckRepository decks, final CardRepository cards) {
         final Deck travel = decks.save(new Deck(null, user.getId(), "Travel - phrases", "Short phrases for trips"));
         final Deck it = decks.save(new Deck(null, user.getId(), "IT - terms", "Core programming terms"));
         final Deck english = decks.save(new Deck(null, user.getId(), "English Basics", "Basic English words"));
@@ -198,38 +198,35 @@ public class DataInitializer {
     }
 
     /**
-     * Creates travel-themed flashcards.
+     * Creates travel-themed cards.
      *
      * @param travel travel deck
-     * @param cards flashcard repository
+     * @param cards card repository
      */
-    private void createTravelCards(final Deck travel, final FlashcardRepository cards) {
-        final List<Flashcard> travelCards = List.of(
-                new Flashcard(null, travel.getId(), "Hello", "Привет", "Hello, how are you?"),
-                new Flashcard(null, travel.getId(), "Thank you", "Спасибо", "Thank you very much!"),
-                new Flashcard(null, travel.getId(), "Excuse me", "Извините", "Excuse me, where is the station?"),
-                new Flashcard(null, travel.getId(), "How much?", "Сколько стоит?", "How much does this cost?"),
-                new Flashcard(null, travel.getId(), "Where is...?", "Где находится...?", "Where is the nearest bank?"));
+    private void createTravelCards(final Deck travel, final CardRepository cards) {
+        final List<Card> travelCards = List.of(
+                new Card(null, travel.getId(), "Hello", "Привет", "Hello, how are you?"),
+                new Card(null, travel.getId(), "Thank you", "Спасибо", "Thank you very much!"),
+                new Card(null, travel.getId(), "Excuse me", "Извините", "Excuse me, where is the station?"),
+                new Card(null, travel.getId(), "How much?", "Сколько стоит?", "How much does this cost?"),
+                new Card(null, travel.getId(), "Where is...?", "Где находится...?", "Where is the nearest bank?"));
         travelCards.forEach(cards::save);
     }
 
     /**
-     * Creates IT-themed flashcards.
+     * Creates IT-themed cards.
      *
      * @param it IT deck
-     * @param cards flashcard repository
+     * @param cards card repository
      */
-    private void createItCards(final Deck it, final FlashcardRepository cards) {
-        final List<Flashcard> itCards = List.of(
-                new Flashcard(
-                        null, it.getId(), "Algorithm", "Алгоритм", "A step-by-step procedure for solving a problem"),
-                new Flashcard(null, it.getId(), "Database", "База данных", "Organized collection of data"),
-                new Flashcard(
-                        null, it.getId(), "API", "Интерфейс программирования", "Application Programming Interface"),
-                new Flashcard(
-                        null, it.getId(), "Framework", "Фреймворк", "A platform for developing software applications"),
-                new Flashcard(null, it.getId(), "Bug", "Ошибка в программе", "An error in a computer program"),
-                new Flashcard(
+    private void createItCards(final Deck it, final CardRepository cards) {
+        final List<Card> itCards = List.of(
+                new Card(null, it.getId(), "Algorithm", "Алгоритм", "A step-by-step procedure for solving a problem"),
+                new Card(null, it.getId(), "Database", "База данных", "Organized collection of data"),
+                new Card(null, it.getId(), "API", "Интерфейс программирования", "Application Programming Interface"),
+                new Card(null, it.getId(), "Framework", "Фреймворк", "A platform for developing software applications"),
+                new Card(null, it.getId(), "Bug", "Ошибка в программе", "An error in a computer program"),
+                new Card(
                         null,
                         it.getId(),
                         "Version Control",
@@ -239,30 +236,30 @@ public class DataInitializer {
     }
 
     /**
-     * Creates English-themed flashcards.
+     * Creates English-themed cards.
      *
      * @param english English deck
-     * @param cards flashcard repository
+     * @param cards card repository
      */
-    private void createEnglishCards(final Deck english, final FlashcardRepository cards) {
-        final List<Flashcard> englishCards = List.of(
-                new Flashcard(null, english.getId(), "Apple", "Яблоко", "I eat an apple every day"),
-                new Flashcard(null, english.getId(), "Beautiful", "Красивый", "She has beautiful eyes"),
-                new Flashcard(null, english.getId(), "Computer", "Компьютер", "I work on my computer"),
-                new Flashcard(null, english.getId(), "Dog", "Собака", "My dog is very friendly"),
-                new Flashcard(null, english.getId(), "Education", "Образование", "Education is very important"));
+    private void createEnglishCards(final Deck english, final CardRepository cards) {
+        final List<Card> englishCards = List.of(
+                new Card(null, english.getId(), "Apple", "Яблоко", "I eat an apple every day"),
+                new Card(null, english.getId(), "Beautiful", "Красивый", "She has beautiful eyes"),
+                new Card(null, english.getId(), "Computer", "Компьютер", "I work on my computer"),
+                new Card(null, english.getId(), "Dog", "Собака", "My dog is very friendly"),
+                new Card(null, english.getId(), "Education", "Образование", "Education is very important"));
         englishCards.forEach(cards::save);
     }
 
     /**
-     * Creates 600 flashcards for performance testing of lazy loading and pagination.
+     * Creates 600 cards for performance testing of lazy loading and pagination.
      * Tests virtual scrolling, search, and filter performance with large datasets.
      *
      * @param performance performance test deck
-     * @param cards flashcard repository
+     * @param cards card repository
      */
-    private void createPerformanceTestCards(final Deck performance, final FlashcardRepository cards) {
-        LOGGER.info("Generating 600 flashcards for performance testing...");
+    private void createPerformanceTestCards(final Deck performance, final CardRepository cards) {
+        LOGGER.info("Generating 600 cards for performance testing...");
 
         final String[] topics = {"Animals", "Food", "Travel", "Technology", "Science", "Art", "Sports", "Music"};
         final String[] examples = {
@@ -277,7 +274,7 @@ public class DataInitializer {
             String topic = topics[i % topics.length];
             String example = examples[i % examples.length];
 
-            Flashcard card = new Flashcard(
+            Card card = new Card(
                     null,
                     performance.getId(),
                     String.format("%s #%d - Word", topic, i),
@@ -287,11 +284,11 @@ public class DataInitializer {
 
             // Log progress every 100 cards
             if (i % 100 == 0) {
-                LOGGER.info("Generated {}/600 flashcards...", i);
+                LOGGER.info("Generated {}/600 cards...", i);
             }
         }
 
-        LOGGER.info("Successfully generated 600 flashcards for performance testing");
+        LOGGER.info("Successfully generated 600 cards for performance testing");
     }
 
     /**
@@ -306,7 +303,7 @@ public class DataInitializer {
 
         news.save(new News(
                 null,
-                "Welcome to Flashcards!",
+                "Welcome to Cards!",
                 "Our app helps you efficiently learn new words and phrases. "
                         + "Create decks, practice, and track your progress.",
                 ADMIN_EMAIL,

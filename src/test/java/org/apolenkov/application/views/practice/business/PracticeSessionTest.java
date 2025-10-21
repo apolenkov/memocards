@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
 import java.util.List;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.model.Card;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +15,7 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should create PracticeSession with valid parameters")
     void shouldCreatePracticeSessionWithValidParameters() {
-        List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
         PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
 
@@ -36,7 +36,7 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should throw exception for invalid deck ID")
     void shouldThrowExceptionForInvalidDeckId() {
-        List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
         Instant now = Instant.now();
 
         assertThatThrownBy(() -> PracticeSession.create(0L, cards, now))
@@ -57,7 +57,7 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should throw exception for empty cards")
     void shouldThrowExceptionForEmptyCards() {
-        List<Flashcard> emptyCards = List.of();
+        List<Card> emptyCards = List.of();
         Instant now = Instant.now();
 
         assertThatThrownBy(() -> PracticeSession.create(1L, emptyCards, now))
@@ -68,7 +68,7 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should update session with new state")
     void shouldUpdateSessionWithNewState() {
-        List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
         PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
         PracticeSessionRecords.SessionState newState = PracticeSessionRecords.SessionState.initial()
@@ -87,7 +87,7 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should update session with new data")
     void shouldUpdateSessionWithNewData() {
-        List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
         PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
         PracticeSessionRecords.SessionData newData = PracticeSessionRecords.SessionData.create(2L, cards, Instant.now())
@@ -104,7 +104,7 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should throw exception for null state")
     void shouldThrowExceptionForNullState() {
-        List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
         PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
 
@@ -117,7 +117,7 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should throw exception for null data")
     void shouldThrowExceptionForNullData() {
-        List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
         PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
 
@@ -129,7 +129,7 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should access nested data through convenience methods")
     void shouldAccessNestedDataThroughConvenienceMethods() {
-        List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
         PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
 
@@ -153,7 +153,7 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should maintain immutability")
     void shouldMaintainImmutability() {
-        List<Flashcard> cards = List.of(new Flashcard(1L, 1L, "Front", "Back", "Example"));
+        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
         PracticeSession original = PracticeSession.create(1L, cards, Instant.now());
         PracticeSession updated =

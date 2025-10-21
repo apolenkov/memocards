@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Configuration;
  * It serves as the main entry point for Vaadin application configuration.
  */
 @Configuration
-@Theme(value = "flashcards")
-@PageTitle("Memocards - Smart Flashcards Learning")
+@Theme(value = "memocards")
+@PageTitle("Memocards - Smart Learning with Cards")
 @Push
 public class VaadinApplicationShell implements AppShellConfigurator {
 
@@ -63,8 +63,8 @@ public class VaadinApplicationShell implements AppShellConfigurator {
         settings.addFavIcon("apple-touch-icon", ResourcePaths.PIXEL_ICON, "180x180");
 
         // Add meta tags for better SEO and mobile experience
-        settings.addMetaTag("description", "Memocards - Smart flashcards for effective learning");
-        settings.addMetaTag("keywords", "flashcards, learning, education, memorization");
+        settings.addMetaTag("description", "Memocards - Smart cards for effective learning");
+        settings.addMetaTag("keywords", "cards, learning, education, memorization");
         settings.addMetaTag("author", "Memocards Team");
         settings.addMetaTag("viewport", "width=device-width, initial-scale=1.0");
     }

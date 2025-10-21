@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Dialog component for creating new decks.
- * Provides a form interface for creating flashcard decks with validation.
+ * Provides a form interface for creating card decks with validation.
  */
 public class CreateDeckDialog extends Dialog {
 

@@ -7,14 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apolenkov.application.domain.model.FilterOption;
-import org.apolenkov.application.domain.port.FlashcardRepository;
-import org.apolenkov.application.infrastructure.repository.jdbc.batch.FlashcardBatchOperations;
-import org.apolenkov.application.infrastructure.repository.jdbc.dto.FlashcardDto;
-import org.apolenkov.application.infrastructure.repository.jdbc.exception.FlashcardPersistenceException;
-import org.apolenkov.application.infrastructure.repository.jdbc.exception.FlashcardRetrievalException;
-import org.apolenkov.application.infrastructure.repository.jdbc.sql.FlashcardQueryBuilder;
-import org.apolenkov.application.infrastructure.repository.jdbc.sql.FlashcardSqlQueries;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.domain.port.CardRepository;
+import org.apolenkov.application.infrastructure.repository.jdbc.batch.CardBatchOperations;
+import org.apolenkov.application.infrastructure.repository.jdbc.dto.CardDto;
+import org.apolenkov.application.infrastructure.repository.jdbc.exception.CardPersistenceException;
+import org.apolenkov.application.infrastructure.repository.jdbc.exception.CardRetrievalException;
+import org.apolenkov.application.infrastructure.repository.jdbc.sql.CardQueryBuilder;
+import org.apolenkov.application.infrastructure.repository.jdbc.sql.CardSqlQueries;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.service.stats.PaginationCountCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,24 +25,24 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 /**
- * JDBC adapter for flashcard repository operations.
+ * JDBC adapter for card repository operations.
  *
- * <p>Implements FlashcardRepository using direct JDBC operations.
- * Provides CRUD operations for flashcards within decks.
+ * <p>Implements CardRepository using direct JDBC operations.
+ * Provides CRUD operations for cards within decks.
  * Active in JDBC profiles only.</p>
  */
 @Profile({"dev", "prod", "test"})
 @Repository
-public class FlashcardJdbcAdapter implements FlashcardRepository {
+public class CardJdbcAdapter implements CardRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlashcardJdbcAdapter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CardJdbcAdapter.class);
 
     // ==================== Row Mappers ====================
 
     /**
-     * RowMapper for FlashcardDto.
+     * RowMapper for CardDto.
      */
-    private static final RowMapper<FlashcardDto> FLASHCARD_ROW_MAPPER = (rs, rowNum) -> {
+    private static final RowMapper<CardDto> CARD_ROW_MAPPER = (rs, rowNum) -> {
         Long id = rs.getLong("id");
         long deckId = rs.getLong("deck_id");
         String frontText = rs.getString("front_text");
@@ -52,14 +52,14 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
         Timestamp createdAt = rs.getTimestamp("created_at");
         Timestamp updatedAt = rs.getTimestamp("updated_at");
 
-        return FlashcardDto.forExistingFlashcard(
+        return CardDto.forExistingCard(
                 id,
                 deckId,
                 frontText,
                 backText,
                 example,
                 imageUrl,
-                new FlashcardDto.FlashcardTimestamps(
+                new CardDto.CardTimestamps(
                         createdAt != null ? createdAt.toLocalDateTime() : null,
                         updatedAt != null ? updatedAt.toLocalDateTime() : null));
     };
@@ -79,9 +79,9 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      * @param paginationCountCacheValue cache for pagination COUNT queries
      * @throws IllegalArgumentException if jdbcTemplate is null
      */
-    public FlashcardJdbcAdapter(
+    public CardJdbcAdapter(
             final JdbcTemplate jdbcTemplateValue,
-            final FlashcardBatchOperations batchOperationsValue,
+            final CardBatchOperations batchOperationsValue,
             final PaginationCountCache paginationCountCacheValue) {
         if (jdbcTemplateValue == null) {
             throw new IllegalArgumentException("JdbcTemplate cannot be null");
@@ -97,122 +97,116 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
     }
 
     /**
-     * Converts FlashcardDto to domain Flashcard model.
+     * Converts CardDto to domain Card model.
      *
-     * @param flashcardDto DTO to convert
+     * @param cardDto DTO to convert
      * @return corresponding domain model
      */
-    private static Flashcard toModel(final FlashcardDto flashcardDto) {
-        final Flashcard flashcard = new Flashcard(
-                flashcardDto.id(), flashcardDto.deckId(), flashcardDto.frontText(), flashcardDto.backText());
-        flashcard.setExample(flashcardDto.example());
-        flashcard.setImageUrl(flashcardDto.imageUrl());
-        flashcard.setCreatedAt(flashcardDto.timestamps().createdAt());
-        flashcard.setUpdatedAt(flashcardDto.timestamps().updatedAt());
-        return flashcard;
+    private static Card toModel(final CardDto cardDto) {
+        final Card card = new Card(cardDto.id(), cardDto.deckId(), cardDto.frontText(), cardDto.backText());
+        card.setExample(cardDto.example());
+        card.setImageUrl(cardDto.imageUrl());
+        card.setCreatedAt(cardDto.timestamps().createdAt());
+        card.setUpdatedAt(cardDto.timestamps().updatedAt());
+        return card;
     }
 
     /**
-     * Retrieves all flashcards belonging to a specific deck.
+     * Retrieves all cards belonging to a specific deck.
      *
-     * @param deckId the ID of the deck whose flashcards to retrieve
-     * @return list of flashcards in the deck
+     * @param deckId the ID of the deck whose cards to retrieve
+     * @return list of cards in the deck
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Override
-    public List<Flashcard> findByDeckId(final long deckId) {
+    public List<Card> findByDeckId(final long deckId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive");
         }
 
-        LOGGER.debug("Retrieving flashcards for deck ID: {}", deckId);
+        LOGGER.debug("Retrieving cards for deck ID: {}", deckId);
         try {
-            List<FlashcardDto> flashcardDtos =
-                    jdbcTemplate.query(FlashcardSqlQueries.SELECT_FLASHCARDS_BY_DECK_ID, FLASHCARD_ROW_MAPPER, deckId);
-            return flashcardDtos.stream().map(FlashcardJdbcAdapter::toModel).toList();
+            List<CardDto> cardDtos =
+                    jdbcTemplate.query(CardSqlQueries.SELECT_CARDS_BY_DECK_ID, CARD_ROW_MAPPER, deckId);
+            return cardDtos.stream().map(CardJdbcAdapter::toModel).toList();
         } catch (DataAccessException e) {
-            throw new FlashcardRetrievalException("Failed to retrieve flashcards for deck ID: " + deckId, e);
+            throw new CardRetrievalException("Failed to retrieve cards for deck ID: " + deckId, e);
         }
     }
 
     /**
-     * Retrieves a flashcard by its unique identifier.
+     * Retrieves a card by its unique identifier.
      *
-     * @param id the unique identifier of the flashcard
-     * @return Optional containing the flashcard if found
+     * @param id the unique identifier of the card
+     * @return Optional containing the card if found
      */
     @Override
-    public Optional<Flashcard> findById(final long id) {
-        LOGGER.debug("Retrieving flashcard by ID: {}", id);
+    public Optional<Card> findById(final long id) {
+        LOGGER.debug("Retrieving card by ID: {}", id);
         try {
-            List<FlashcardDto> flashcards =
-                    jdbcTemplate.query(FlashcardSqlQueries.SELECT_FLASHCARD_BY_ID, FLASHCARD_ROW_MAPPER, id);
-            if (flashcards.isEmpty()) {
+            List<CardDto> cards = jdbcTemplate.query(CardSqlQueries.SELECT_CARD_BY_ID, CARD_ROW_MAPPER, id);
+            if (cards.isEmpty()) {
                 return Optional.empty();
             }
 
-            return Optional.of(toModel(flashcards.getFirst()));
+            return Optional.of(toModel(cards.getFirst()));
         } catch (DataAccessException e) {
-            throw new FlashcardRetrievalException("Failed to retrieve flashcard by ID: " + id, e);
+            throw new CardRetrievalException("Failed to retrieve card by ID: " + id, e);
         }
     }
 
     /**
-     * Saves a flashcard to the database.
+     * Saves a card to the database.
      *
-     * @param flashcard the flashcard to save
-     * @throws IllegalArgumentException if flashcard is null
+     * @param card the card to save
+     * @throws IllegalArgumentException if card is null
      */
     @Override
-    public void save(final Flashcard flashcard) {
-        if (flashcard == null) {
-            throw new IllegalArgumentException("Flashcard cannot be null");
+    public void save(final Card card) {
+        if (card == null) {
+            throw new IllegalArgumentException("Card cannot be null");
         }
 
-        boolean isNew = flashcard.getId() == null;
-        LOGGER.debug("Saving flashcard: frontText='{}', isNew={}", flashcard.getFrontText(), isNew);
+        boolean isNew = card.getId() == null;
+        LOGGER.debug("Saving card: frontText='{}', isNew={}", card.getFrontText(), isNew);
 
         try {
             if (isNew) {
-                createFlashcard(flashcard);
+                createCard(card);
             } else {
-                updateFlashcard(flashcard);
+                updateCard(card);
             }
-            LOGGER.debug(
-                    "Flashcard saved: id={}, frontText='{}', isNew={}",
-                    flashcard.getId(),
-                    flashcard.getFrontText(),
-                    isNew);
+            LOGGER.debug("Card saved: id={}, frontText='{}', isNew={}", card.getId(), card.getFrontText(), isNew);
         } catch (DataAccessException e) {
-            throw new FlashcardPersistenceException("Failed to save flashcard: " + flashcard.getFrontText(), e);
+            throw new CardPersistenceException("Failed to save card: " + card.getFrontText(), e);
         }
     }
 
     /**
-     * Deletes a flashcard by its unique identifier.
+     * Deletes a card by its unique identifier.
      *
-     * @param id the unique identifier of the flashcard to delete
+     * @param id the unique identifier of the card to delete
      */
     @Override
     public void deleteById(final long id) {
-        LOGGER.debug("Deleting flashcard by ID: {}", id);
+        LOGGER.debug("Deleting card by ID: {}", id);
         try {
-            int deleted = jdbcTemplate.update(FlashcardSqlQueries.DELETE_FLASHCARD, id);
+            int deleted = jdbcTemplate.update(CardSqlQueries.DELETE_CARD, id);
             if (deleted == 0) {
-                LOGGER.warn("No flashcard found with ID: {}", id);
+                LOGGER.warn("No card found with ID: {}", id);
             } else {
-                LOGGER.debug("Flashcard deleted from database: id={}", id);
+                LOGGER.debug("Card deleted from database: id={}", id);
             }
         } catch (DataAccessException e) {
-            throw new FlashcardPersistenceException("Failed to delete flashcard by ID: " + id, e);
+            throw new CardPersistenceException("Failed to delete card by ID: " + id, e);
         }
     }
 
     /**
-     * Counts the total number of flashcards in a specific deck.
+     * Counts the total number of cards in a specific deck.
      *
-     * @param deckId the ID of the deck to count flashcards for
-     * @return the total number of flashcards in the deck
+     * @param deckId the ID of the deck to count cards for
+     * @return the total number of cards in the deck
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Override
@@ -221,23 +215,23 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
             throw new IllegalArgumentException("Deck ID must be positive");
         }
 
-        LOGGER.debug("Counting flashcards for deck ID: {}", deckId);
+        LOGGER.debug("Counting cards for deck ID: {}", deckId);
         try {
             return jdbcTemplate
-                    .query(FlashcardSqlQueries.COUNT_FLASHCARDS_BY_DECK_ID, (rs, rowNum) -> rs.getLong(1), deckId)
+                    .query(CardSqlQueries.COUNT_CARDS_BY_DECK_ID, (rs, rowNum) -> rs.getLong(1), deckId)
                     .stream()
                     .findFirst()
                     .orElse(0L);
         } catch (DataAccessException e) {
-            throw new FlashcardRetrievalException("Failed to count flashcards for deck ID: " + deckId, e);
+            throw new CardRetrievalException("Failed to count cards for deck ID: " + deckId, e);
         }
     }
 
     /**
-     * Counts flashcards for multiple decks.
+     * Counts cards for multiple decks.
      *
      * @param deckIds collection of deck identifiers (non-null, may be empty)
-     * @return map of deck ID to flashcard count (decks with zero flashcards may be absent)
+     * @return map of deck ID to card count (decks with zero cards may be absent)
      */
     @Override
     public Map<Long, Long> countByDeckIds(final Collection<Long> deckIds) {
@@ -245,7 +239,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
             return Map.of();
         }
 
-        LOGGER.debug("Batch counting flashcards for {} decks using single query", deckIds.size());
+        LOGGER.debug("Batch counting cards for {} decks using single query", deckIds.size());
         try {
             String sql = buildInClauseSql(deckIds.size());
             Map<Long, Long> counts =
@@ -253,20 +247,20 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
 
             Map<Long, Long> safeCounts = (counts != null) ? counts : Map.of();
             LOGGER.debug(
-                    "Batch count completed: {} decks have flashcards (out of {} requested)",
+                    "Batch count completed: {} decks have cards (out of {} requested)",
                     safeCounts.size(),
                     deckIds.size());
             return safeCounts;
 
         } catch (DataAccessException e) {
-            throw new FlashcardRetrievalException("Failed to count flashcards for deck IDs: " + deckIds, e);
+            throw new CardRetrievalException("Failed to count cards for deck IDs: " + deckIds, e);
         }
     }
 
     /**
-     * Deletes all flashcards belonging to a specific deck.
+     * Deletes all cards belonging to a specific deck.
      *
-     * @param deckId the ID of the deck whose flashcards to delete
+     * @param deckId the ID of the deck whose cards to delete
      * @throws IllegalArgumentException if deckId is invalid
      */
     @Override
@@ -275,57 +269,53 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
             throw new IllegalArgumentException("Deck ID must be positive");
         }
 
-        LOGGER.debug("Deleting all flashcards for deck ID: {}", deckId);
+        LOGGER.debug("Deleting all cards for deck ID: {}", deckId);
         try {
-            int deleted = jdbcTemplate.update(FlashcardSqlQueries.DELETE_FLASHCARDS_BY_DECK_ID, deckId);
-            LOGGER.debug("Deleted {} flashcards for deck ID: {}", deleted, deckId);
+            int deleted = jdbcTemplate.update(CardSqlQueries.DELETE_CARDS_BY_DECK_ID, deckId);
+            LOGGER.debug("Deleted {} cards for deck ID: {}", deleted, deckId);
         } catch (DataAccessException e) {
-            throw new FlashcardPersistenceException("Failed to delete flashcards for deck ID: " + deckId, e);
+            throw new CardPersistenceException("Failed to delete cards for deck ID: " + deckId, e);
         }
     }
 
     /**
-     * Creates new flashcard in database.
+     * Creates new card in database.
      *
-     * @param flashcard flashcard to create
+     * @param card card to create
      */
-    private void createFlashcard(final Flashcard flashcard) {
-        FlashcardDto flashcardDto = FlashcardDto.forNewFlashcard(
-                flashcard.getDeckId(),
-                flashcard.getFrontText(),
-                flashcard.getBackText(),
-                flashcard.getExample(),
-                flashcard.getImageUrl());
+    private void createCard(final Card card) {
+        CardDto cardDto = CardDto.forNewCard(
+                card.getDeckId(), card.getFrontText(), card.getBackText(), card.getExample(), card.getImageUrl());
 
         Long generatedId = jdbcTemplate.queryForObject(
-                FlashcardSqlQueries.INSERT_FLASHCARD_RETURNING_ID,
+                CardSqlQueries.INSERT_CARD_RETURNING_ID,
                 Long.class,
-                flashcardDto.deckId(),
-                flashcardDto.frontText(),
-                flashcardDto.backText(),
-                flashcardDto.example(),
-                flashcardDto.imageUrl(),
-                flashcardDto.timestamps().createdAt(),
-                flashcardDto.timestamps().updatedAt());
+                cardDto.deckId(),
+                cardDto.frontText(),
+                cardDto.backText(),
+                cardDto.example(),
+                cardDto.imageUrl(),
+                cardDto.timestamps().createdAt(),
+                cardDto.timestamps().updatedAt());
 
-        flashcard.setId(generatedId);
+        card.setId(generatedId);
     }
 
     /**
-     * Updates existing flashcard in database.
+     * Updates existing card in database.
      *
-     * @param flashcard flashcard to update
+     * @param card card to update
      */
-    private void updateFlashcard(final Flashcard flashcard) {
+    private void updateCard(final Card card) {
         jdbcTemplate.update(
-                FlashcardSqlQueries.UPDATE_FLASHCARD,
-                flashcard.getDeckId(),
-                flashcard.getFrontText(),
-                flashcard.getBackText(),
-                flashcard.getExample(),
-                flashcard.getImageUrl(),
+                CardSqlQueries.UPDATE_CARD,
+                card.getDeckId(),
+                card.getFrontText(),
+                card.getBackText(),
+                card.getExample(),
+                card.getImageUrl(),
                 LocalDateTime.now(),
-                flashcard.getId());
+                card.getId());
     }
 
     /**
@@ -336,7 +326,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      */
     private String buildInClauseSql(final int paramCount) {
         String placeholders = "?,".repeat(Math.max(0, paramCount - 1)) + "?";
-        return String.format(FlashcardSqlQueries.COUNT_FLASHCARDS_BY_DECK_IDS_TEMPLATE, placeholders);
+        return String.format(CardSqlQueries.COUNT_CARDS_BY_DECK_IDS_TEMPLATE, placeholders);
     }
 
     /**
@@ -354,10 +344,10 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
     }
 
     /**
-     * Extracts flashcard counts by deck from ResultSet.
+     * Extracts card counts by deck from ResultSet.
      *
      * @param rs ResultSet to extract from
-     * @return map of deck ID to flashcard count
+     * @return map of deck ID to card count
      */
     private Map<Long, Long> extractCountsByDeck(final java.sql.ResultSet rs) throws java.sql.SQLException {
         Map<Long, Long> results = new java.util.HashMap<>();
@@ -373,7 +363,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      * {@inheritDoc}
      */
     @Override
-    public List<Flashcard> findFlashcardsWithFilter(
+    public List<Card> findCardsWithFilter(
             final long deckId,
             final String searchQuery,
             final FilterOption filterOption,
@@ -389,7 +379,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
         long offset = pageable.getOffset();
 
         LOGGER.debug(
-                "Finding flashcards with dynamic filter: deckId={}, searchQuery='{}', filterOption={}, limit={}, offset={}",
+                "Finding cards with dynamic filter: deckId={}, searchQuery='{}', filterOption={}, limit={}, offset={}",
                 deckId,
                 searchQuery,
                 filterOption,
@@ -397,7 +387,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 offset);
 
         try {
-            FlashcardQueryBuilder queryBuilder = new FlashcardQueryBuilder().withDeckId(deckId);
+            CardQueryBuilder queryBuilder = new CardQueryBuilder().withDeckId(deckId);
 
             if (searchQuery != null && !searchQuery.trim().isEmpty()) {
                 queryBuilder.withSearchQuery(searchQuery);
@@ -409,18 +399,17 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 queryBuilder.withUnknownStatus();
             }
 
-            String sql = queryBuilder.buildSelectQueryWithPagination(FlashcardSqlQueries.SELECT_FLASHCARDS_BASE);
+            String sql = queryBuilder.buildSelectQueryWithPagination(CardSqlQueries.SELECT_CARDS_BASE);
             Object[] params = queryBuilder.getParametersWithPagination(limit, offset);
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Dynamic SQL: {} | Parameters: {}", sql, java.util.Arrays.toString(params));
             }
 
-            List<FlashcardDto> flashcardDtos = jdbcTemplate.query(sql, FLASHCARD_ROW_MAPPER, params);
-            return flashcardDtos.stream().map(FlashcardJdbcAdapter::toModel).toList();
+            List<CardDto> cardDtos = jdbcTemplate.query(sql, CARD_ROW_MAPPER, params);
+            return cardDtos.stream().map(CardJdbcAdapter::toModel).toList();
         } catch (DataAccessException e) {
-            throw new FlashcardRetrievalException(
-                    "Failed to find flashcards with dynamic filter for deck ID: " + deckId, e);
+            throw new CardRetrievalException("Failed to find cards with dynamic filter for deck ID: " + deckId, e);
         }
     }
 
@@ -428,14 +417,13 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
      * {@inheritDoc}
      */
     @Override
-    public long countFlashcardsWithFilter(
-            final long deckId, final String searchQuery, final FilterOption filterOption) {
+    public long countCardsWithFilter(final long deckId, final String searchQuery, final FilterOption filterOption) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive");
         }
 
         LOGGER.debug(
-                "Counting flashcards with dynamic filter: deckId={}, searchQuery='{}', filterOption={}",
+                "Counting cards with dynamic filter: deckId={}, searchQuery='{}', filterOption={}",
                 deckId,
                 searchQuery,
                 filterOption);
@@ -443,7 +431,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
         // Use cache for COUNT queries (30 sec TTL + event-driven invalidation)
         return paginationCountCache.getCount(deckId, searchQuery, filterOption, () -> {
             try {
-                FlashcardQueryBuilder queryBuilder = new FlashcardQueryBuilder().withDeckId(deckId);
+                CardQueryBuilder queryBuilder = new CardQueryBuilder().withDeckId(deckId);
 
                 if (searchQuery != null && !searchQuery.trim().isEmpty()) {
                     queryBuilder.withSearchQuery(searchQuery);
@@ -455,7 +443,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                     queryBuilder.withUnknownStatus();
                 }
 
-                String sql = queryBuilder.buildCountQuery(FlashcardSqlQueries.COUNT_FLASHCARDS_BASE);
+                String sql = queryBuilder.buildCountQuery(CardSqlQueries.COUNT_CARDS_BASE);
                 Object[] params = queryBuilder.getParameters();
 
                 if (LOGGER.isDebugEnabled()) {
@@ -465,8 +453,7 @@ public class FlashcardJdbcAdapter implements FlashcardRepository {
                 Long count = jdbcTemplate.queryForObject(sql, Long.class, params);
                 return count != null ? count : 0L;
             } catch (DataAccessException e) {
-                throw new FlashcardRetrievalException(
-                        "Failed to count flashcards with dynamic filter for deck ID: " + deckId, e);
+                throw new CardRetrievalException("Failed to count cards with dynamic filter for deck ID: " + deckId, e);
             }
         });
     }

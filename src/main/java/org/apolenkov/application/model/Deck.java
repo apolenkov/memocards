@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Collection of flashcards belonging to a user.
+ * Collection of cards belonging to a user.
  */
 public final class Deck {
     private Long id;
@@ -27,7 +27,7 @@ public final class Deck {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<Flashcard> flashcards;
+    private List<Card> cards;
 
     /**
      * Creates empty deck with current timestamps.
@@ -35,7 +35,7 @@ public final class Deck {
     public Deck() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.flashcards = new ArrayList<>();
+        this.cards = new ArrayList<>();
     }
 
     /**
@@ -79,40 +79,40 @@ public final class Deck {
     }
 
     /**
-     * Returns number of flashcards in deck.
+     * Returns number of cards in deck.
      *
-     * @return number of flashcards
+     * @return number of cards
      */
-    public int getFlashcardCount() {
-        return flashcards != null ? flashcards.size() : 0;
+    public int getCardCount() {
+        return cards != null ? cards.size() : 0;
     }
 
     /**
-     * Adds flashcard to deck.
+     * Adds card to deck.
      *
-     * @param flashcard flashcard to add
-     * @throws IllegalArgumentException if flashcard is null
+     * @param card card to add
+     * @throws IllegalArgumentException if card is null
      */
-    public void addFlashcard(final Flashcard flashcard) {
-        if (flashcards == null) {
-            flashcards = new ArrayList<>();
+    public void addCard(final Card card) {
+        if (cards == null) {
+            cards = new ArrayList<>();
         }
-        if (flashcard == null) {
-            throw new IllegalArgumentException("flashcard is null");
+        if (card == null) {
+            throw new IllegalArgumentException("card is null");
         }
-        flashcards.add(flashcard);
-        flashcard.setDeckId(this.id);
+        cards.add(card);
+        card.setDeckId(this.id);
         this.updatedAt = LocalDateTime.now();
     }
 
     /**
-     * Removes flashcard from deck.
+     * Removes card from deck.
      *
-     * @param flashcard flashcard to remove
+     * @param card card to remove
      */
-    public void removeFlashcard(final Flashcard flashcard) {
-        if (flashcards != null) {
-            flashcards.remove(flashcard);
+    public void removeCard(final Card card) {
+        if (cards != null) {
+            cards.remove(card);
             this.updatedAt = LocalDateTime.now();
         }
     }
@@ -240,21 +240,21 @@ public final class Deck {
     }
 
     /**
-     * Returns unmodifiable list of flashcards.
+     * Returns unmodifiable list of cards.
      *
-     * @return unmodifiable list of flashcards, or empty list if none exist
+     * @return unmodifiable list of cards, or empty list if none exist
      */
-    public List<Flashcard> getFlashcards() {
-        return flashcards == null ? List.of() : Collections.unmodifiableList(flashcards);
+    public List<Card> getCards() {
+        return cards == null ? List.of() : Collections.unmodifiableList(cards);
     }
 
     /**
-     * Sets list of flashcards.
+     * Sets list of cards.
      *
-     * @param flashcardsList list of flashcards to set, or null for empty list
+     * @param cardsList list of cards to set, or null for empty list
      */
-    public void setFlashcards(final List<Flashcard> flashcardsList) {
-        this.flashcards = new ArrayList<>(flashcardsList != null ? flashcardsList : List.of());
+    public void setCards(final List<Card> cardsList) {
+        this.cards = new ArrayList<>(cardsList != null ? cardsList : List.of());
     }
 
     @Override
@@ -287,8 +287,8 @@ public final class Deck {
                 + ", description='"
                 + description
                 + '\''
-                + ", flashcardCount="
-                + getFlashcardCount()
+                + ", cardCount="
+                + getCardCount()
                 + ", createdAt="
                 + createdAt
                 + ", updatedAt="

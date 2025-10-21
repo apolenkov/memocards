@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.apolenkov.application.BaseIntegrationTest;
+import org.apolenkov.application.domain.port.CardRepository;
 import org.apolenkov.application.domain.port.DeckRepository;
-import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.domain.port.StatsRepository;
 import org.apolenkov.application.domain.port.UserRepository;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +34,7 @@ class BatchOperationsIntegrationTest extends BaseIntegrationTest {
     private DeckRepository deckRepository;
 
     @Autowired
-    private FlashcardRepository flashcardRepository;
+    private CardRepository cardRepository;
 
     @Autowired
     private StatsRepository statsRepository;
@@ -54,21 +54,21 @@ class BatchOperationsIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should count flashcards by multiple deck IDs in single query")
+    @DisplayName("Should count cards by multiple deck IDs in single query")
     void shouldCountByDeckIds() {
         // Given: 3 decks with different card counts
         Deck deck1 = createAndSaveDeck("Deck 1");
         Deck deck2 = createAndSaveDeck("Deck 2");
         Deck deck3 = createAndSaveDeck("Deck 3");
 
-        createFlashcards(deck1.getId(), 10);
-        createFlashcards(deck2.getId(), 20);
-        createFlashcards(deck3.getId(), 30);
+        createCards(deck1.getId(), 10);
+        createCards(deck2.getId(), 20);
+        createCards(deck3.getId(), 30);
 
         List<Long> deckIds = List.of(deck1.getId(), deck2.getId(), deck3.getId());
 
         // When: Batch count
-        Map<Long, Long> counts = flashcardRepository.countByDeckIds(deckIds);
+        Map<Long, Long> counts = cardRepository.countByDeckIds(deckIds);
 
         // Then: All counts returned correctly
         assertThat(counts)
@@ -82,26 +82,26 @@ class BatchOperationsIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should handle empty deck IDs list")
     void shouldHandleEmptyDeckIdsList() {
         // When: Empty list
-        Map<Long, Long> counts = flashcardRepository.countByDeckIds(List.of());
+        Map<Long, Long> counts = cardRepository.countByDeckIds(List.of());
 
         // Then: Empty map returned
         assertThat(counts).isEmpty();
     }
 
     @Test
-    @DisplayName("Should exclude decks with zero flashcards")
+    @DisplayName("Should exclude decks with zero cards")
     void shouldExcludeDecksWithZeroCards() {
         // Given: deck1 has 10 cards, deck2 has 0 cards
         Deck deck1 = createAndSaveDeck("Deck with cards");
         Deck deck2 = createAndSaveDeck("Empty deck");
 
-        createFlashcards(deck1.getId(), 10);
-        // deck2 has no flashcards
+        createCards(deck1.getId(), 10);
+        // deck2 has no cards
 
         List<Long> deckIds = List.of(deck1.getId(), deck2.getId());
 
         // When: Batch count
-        Map<Long, Long> counts = flashcardRepository.countByDeckIds(deckIds);
+        Map<Long, Long> counts = cardRepository.countByDeckIds(deckIds);
 
         // Then: Only deck1 in results
         assertThat(counts).hasSize(1).containsKey(deck1.getId()).doesNotContainKey(deck2.getId());
@@ -110,12 +110,12 @@ class BatchOperationsIntegrationTest extends BaseIntegrationTest {
     @Test
     @DisplayName("Should get known card IDs for multiple decks in batch")
     void shouldGetKnownCardIdsBatch() {
-        // Given: 2 decks with flashcards and known cards
+        // Given: 2 decks with cards and known cards
         Deck deck1 = createAndSaveDeck("Deck 1");
         Deck deck2 = createAndSaveDeck("Deck 2");
 
-        List<Long> deck1CardIds = createFlashcards(deck1.getId(), 5);
-        List<Long> deck2CardIds = createFlashcards(deck2.getId(), 3);
+        List<Long> deck1CardIds = createCards(deck1.getId(), 5);
+        List<Long> deck2CardIds = createCards(deck2.getId(), 3);
 
         // Mark some cards as known
         statsRepository.setCardKnown(deck1.getId(), deck1CardIds.get(0), true);
@@ -147,8 +147,8 @@ class BatchOperationsIntegrationTest extends BaseIntegrationTest {
         Deck deck1 = createAndSaveDeck("Deck with known");
         Deck deck2 = createAndSaveDeck("Deck without known");
 
-        List<Long> deck1CardIds = createFlashcards(deck1.getId(), 3);
-        createFlashcards(deck2.getId(), 3);
+        List<Long> deck1CardIds = createCards(deck1.getId(), 3);
+        createCards(deck2.getId(), 3);
 
         statsRepository.setCardKnown(deck1.getId(), deck1CardIds.getFirst(), true);
 
@@ -174,18 +174,18 @@ class BatchOperationsIntegrationTest extends BaseIntegrationTest {
     @Test
     @DisplayName("Should handle large batch of deck IDs efficiently")
     void shouldHandleLargeBatchOfDeckIds() {
-        // Given: 50 decks with varying flashcard counts
+        // Given: 50 decks with varying card counts
         List<Deck> decks = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             Deck deck = createAndSaveDeck("Deck " + i);
             decks.add(deck);
-            createFlashcards(deck.getId(), (i % 10) + 1); // 1-10 cards per deck
+            createCards(deck.getId(), (i % 10) + 1); // 1-10 cards per deck
         }
 
         List<Long> deckIds = decks.stream().map(Deck::getId).toList();
 
         // When: Batch count
-        Map<Long, Long> counts = flashcardRepository.countByDeckIds(deckIds);
+        Map<Long, Long> counts = cardRepository.countByDeckIds(deckIds);
 
         // Then: All 50 decks counted
         assertThat(counts).hasSize(50);
@@ -207,17 +207,17 @@ class BatchOperationsIntegrationTest extends BaseIntegrationTest {
     }
 
     /**
-     * Helper: Creates multiple flashcards for a deck.
+     * Helper: Creates multiple cards for a deck.
      *
-     * @param deckId deck ID to create flashcards for
-     * @param count number of flashcards to create
-     * @return list of created flashcard IDs
+     * @param deckId deck ID to create cards for
+     * @param count number of cards to create
+     * @return list of created card IDs
      */
-    private List<Long> createFlashcards(final long deckId, final int count) {
+    private List<Long> createCards(final long deckId, final int count) {
         List<Long> cardIds = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            Flashcard card = new Flashcard(null, deckId, "Front " + i, "Back " + i, "Example " + i);
-            flashcardRepository.save(card);
+            Card card = new Card(null, deckId, "Front " + i, "Back " + i, "Example " + i);
+            cardRepository.save(card);
             // ID is set directly on card object by save()
             cardIds.add(card.getId());
         }

@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.model.Card;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,13 +24,13 @@ class PracticeSessionManagerTest {
 
     private final PracticeSessionManager sessionManager = new PracticeSessionManager();
 
-    private List<Flashcard> testCards;
+    private List<Card> testCards;
     private PracticeSession testSession;
 
     @Test
     @DisplayName("Should detect complete session")
     void shouldDetectCompleteSession() {
-        testCards = List.of(new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"));
+        testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         // Session is complete when index >= cards.size()
@@ -43,7 +43,7 @@ class PracticeSessionManagerTest {
     @Test
     @DisplayName("Should detect incomplete session")
     void shouldDetectIncompleteSession() {
-        testCards = List.of(new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"));
+        testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         assertThat(sessionManager.isComplete(testSession)).isFalse();
@@ -52,7 +52,7 @@ class PracticeSessionManagerTest {
     @Test
     @DisplayName("Should return null for complete session current card")
     void shouldReturnNullForCompleteSessionCurrentCard() {
-        testCards = List.of(new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"));
+        testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         PracticeSession completeSession =
@@ -65,11 +65,10 @@ class PracticeSessionManagerTest {
     @DisplayName("Should return current card for incomplete session")
     void shouldReturnCurrentCardForIncompleteSession() {
         testCards = List.of(
-                new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"),
-                new Flashcard(2L, 1L, "Front 2", "Back 2", "Example 2"));
+                new Card(1L, 1L, "Front 1", "Back 1", "Example 1"), new Card(2L, 1L, "Front 2", "Back 2", "Example 2"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
-        Flashcard currentCard = sessionManager.currentCard(testSession);
+        Card currentCard = sessionManager.currentCard(testSession);
 
         assertThat(currentCard).isEqualTo(testCards.getFirst());
     }
@@ -77,7 +76,7 @@ class PracticeSessionManagerTest {
     @Test
     @DisplayName("Should start question and reset answer display")
     void shouldStartQuestionAndResetAnswerDisplay() {
-        testCards = List.of(new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"));
+        testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         PracticeSession updated = sessionManager.startQuestion(testSession);
@@ -90,7 +89,7 @@ class PracticeSessionManagerTest {
     @Test
     @DisplayName("Should reveal answer and calculate delay")
     void shouldRevealAnswerAndCalculateDelay() {
-        testCards = List.of(new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"));
+        testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         // Start question first
@@ -109,7 +108,7 @@ class PracticeSessionManagerTest {
     @Test
     @DisplayName("Should reveal answer without delay when no card show time")
     void shouldRevealAnswerWithoutDelayWhenNoCardShowTime() {
-        testCards = List.of(new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"));
+        testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         PracticeSession revealed = sessionManager.reveal(testSession);
@@ -122,8 +121,7 @@ class PracticeSessionManagerTest {
     @DisplayName("Should mark card as known and advance")
     void shouldMarkCardAsKnownAndAdvance() {
         testCards = List.of(
-                new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"),
-                new Flashcard(2L, 1L, "Front 2", "Back 2", "Example 2"));
+                new Card(1L, 1L, "Front 1", "Back 1", "Example 1"), new Card(2L, 1L, "Front 2", "Back 2", "Example 2"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         PracticeSession updated = sessionManager.markKnow(testSession);
@@ -140,8 +138,7 @@ class PracticeSessionManagerTest {
     @DisplayName("Should mark card as hard and advance")
     void shouldMarkCardAsHardAndAdvance() {
         testCards = List.of(
-                new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"),
-                new Flashcard(2L, 1L, "Front 2", "Back 2", "Example 2"));
+                new Card(1L, 1L, "Front 1", "Back 1", "Example 1"), new Card(2L, 1L, "Front 2", "Back 2", "Example 2"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         PracticeSession updated = sessionManager.markHard(testSession);
@@ -157,7 +154,7 @@ class PracticeSessionManagerTest {
     @Test
     @DisplayName("Should not advance for complete session")
     void shouldNotAdvanceForCompleteSession() {
-        testCards = List.of(new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"));
+        testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         PracticeSession completeSession =
@@ -172,9 +169,9 @@ class PracticeSessionManagerTest {
     @DisplayName("Should calculate progress correctly")
     void shouldCalculateProgressCorrectly() {
         testCards = List.of(
-                new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"),
-                new Flashcard(2L, 1L, "Front 2", "Back 2", "Example 2"),
-                new Flashcard(3L, 1L, "Front 3", "Back 3", "Example 3"));
+                new Card(1L, 1L, "Front 1", "Back 1", "Example 1"),
+                new Card(2L, 1L, "Front 2", "Back 2", "Example 2"),
+                new Card(3L, 1L, "Front 3", "Back 3", "Example 3"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         PracticeSession updated = testSession.withState(testSession
@@ -197,7 +194,7 @@ class PracticeSessionManagerTest {
     @Test
     @DisplayName("Should calculate progress for single card")
     void shouldCalculateProgressForSingleCard() {
-        testCards = List.of(new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"));
+        testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         PracticeSessionManager.Progress progress = sessionManager.progress(testSession);
@@ -210,7 +207,7 @@ class PracticeSessionManagerTest {
     @Test
     @DisplayName("Should record and persist session")
     void shouldRecordAndPersistSession() {
-        testCards = List.of(new Flashcard(1L, 1L, "Front 1", "Back 1", "Example 1"));
+        testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         PracticeSession completedSession = testSession

@@ -1,8 +1,8 @@
 package org.apolenkov.application.views.deck.components.dialogs;
 
 import java.util.function.Consumer;
+import org.apolenkov.application.domain.usecase.CardUseCase;
 import org.apolenkov.application.domain.usecase.DeckUseCase;
-import org.apolenkov.application.domain.usecase.FlashcardUseCase;
 import org.apolenkov.application.model.Deck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public final class DeckDeleteDialog {
 
     // Dependencies
     private final DeckUseCase deckUseCase;
-    private final FlashcardUseCase flashcardUseCase;
+    private final CardUseCase cardUseCase;
     private final Deck currentDeck;
 
     // Callbacks
@@ -35,17 +35,17 @@ public final class DeckDeleteDialog {
      * Creates a new DeckDeleteDialog factory with required dependencies.
      *
      * @param deckUseCaseParam use case for deck operations
-     * @param flashcardUseCaseParam use case for flashcard operations
+     * @param cardUseCaseParam use case for card operations
      * @param currentDeckParam the deck to delete
      * @param onDeckDeletedParam callback executed when deck is deleted
      */
     public DeckDeleteDialog(
             final DeckUseCase deckUseCaseParam,
-            final FlashcardUseCase flashcardUseCaseParam,
+            final CardUseCase cardUseCaseParam,
             final Deck currentDeckParam,
             final Consumer<Void> onDeckDeletedParam) {
         this.deckUseCase = deckUseCaseParam;
-        this.flashcardUseCase = flashcardUseCaseParam;
+        this.cardUseCase = cardUseCaseParam;
         this.currentDeck = currentDeckParam;
         this.onDeckDeleted = onDeckDeletedParam;
     }
@@ -60,8 +60,8 @@ public final class DeckDeleteDialog {
             return;
         }
 
-        // Check if deck is empty using flashcardUseCase.countByDeckId() for accurate count
-        int cardCount = (int) flashcardUseCase.countByDeckId(currentDeck.getId());
+        // Check if deck is empty using cardUseCase.countByDeckId() for accurate count
+        int cardCount = (int) cardUseCase.countByDeckId(currentDeck.getId());
         boolean isEmpty = cardCount == 0;
 
         LOGGER.debug(
@@ -90,7 +90,7 @@ public final class DeckDeleteDialog {
      */
     private void showComplexDialog() {
         DeckComplexDeleteDialog dialog =
-                new DeckComplexDeleteDialog(deckUseCase, flashcardUseCase, currentDeck, onDeckDeleted);
+                new DeckComplexDeleteDialog(deckUseCase, cardUseCase, currentDeck, onDeckDeleted);
         dialog.show();
     }
 }

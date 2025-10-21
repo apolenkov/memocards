@@ -23,7 +23,7 @@ import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.base.BaseView;
 
 /**
- * View for displaying and managing user's flashcard decks.
+ * View for displaying and managing user's card decks.
  * This view provides functionality for listing all user's decks,
  * searching through them, and creating new decks. It serves as the main
  * dashboard for deck management operations.
@@ -123,7 +123,7 @@ public final class DecksView extends BaseView implements AfterNavigationObserver
     /**
      * Opens the dialog for creating a new deck.
      * Creates and displays a dialog that allows users to input deck details
-     * and create new flashcard decks. After successful creation, the deck list
+     * and create new card decks. After successful creation, the deck list
      * is automatically refreshed to show the new deck.
      */
     private void openCreateDeckDialog() {

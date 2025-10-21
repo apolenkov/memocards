@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * Learning tool with front and back content.
  */
-public final class Flashcard {
+public final class Card {
     private Long id;
 
     @NotNull
@@ -33,24 +33,23 @@ public final class Flashcard {
     private LocalDateTime updatedAt;
 
     /**
-     * Creates flashcard with current timestamps.
+     * Creates card with current timestamps.
      */
-    public Flashcard() {
+    public Card() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
     /**
-     * Creates flashcard with basic fields.
+     * Creates card with basic fields.
      *
-     * @param idValue unique identifier for the flashcard
-     * @param deckIdValue ID of the deck this flashcard belongs to
+     * @param idValue unique identifier for the card
+     * @param deckIdValue ID of the deck this card belongs to
      * @param frontTextValue text displayed on the front of the card
      * @param backTextValue text displayed on the back of the card
      * @throws IllegalArgumentException if deckId is null, or if frontText/backText are null or empty
      */
-    public Flashcard(
-            final Long idValue, final long deckIdValue, final String frontTextValue, final String backTextValue) {
+    public Card(final Long idValue, final long deckIdValue, final String frontTextValue, final String backTextValue) {
         this();
         this.id = idValue;
         setDeckId(deckIdValue);
@@ -59,16 +58,16 @@ public final class Flashcard {
     }
 
     /**
-     * Creates flashcard with basic fields and example.
+     * Creates card with basic fields and example.
      *
-     * @param idValue unique identifier for the flashcard
-     * @param deckIdValue ID of the deck this flashcard belongs to
+     * @param idValue unique identifier for the card
+     * @param deckIdValue ID of the deck this card belongs to
      * @param frontTextValue text displayed on the front of the card
      * @param backTextValue text displayed on the back of the card
-     * @param exampleValue additional example or context for the flashcard
+     * @param exampleValue additional example or context for the card
      * @throws IllegalArgumentException if deckId is null, or if frontText/backText are null or empty
      */
-    public Flashcard(
+    public Card(
             final Long idValue,
             final long deckIdValue,
             final String frontTextValue,
@@ -79,25 +78,25 @@ public final class Flashcard {
     }
 
     /**
-     * Returns flashcard identifier.
+     * Returns card identifier.
      *
-     * @return flashcard ID, or null if not persisted
+     * @return card ID, or null if not persisted
      */
     public Long getId() {
         return id;
     }
 
     /**
-     * Sets flashcard identifier.
+     * Sets card identifier.
      *
-     * @param idValue flashcard ID to set
+     * @param idValue card ID to set
      */
     public void setId(final Long idValue) {
         this.id = idValue;
     }
 
     /**
-     * Gets ID of the deck this flashcard belongs to.
+     * Gets ID of the deck this card belongs to.
      *
      * @return deck ID
      */
@@ -241,7 +240,7 @@ public final class Flashcard {
     }
 
     /**
-     * Compares flashcards for equality based on ID.
+     * Compares cards for equality based on ID.
      *
      * @param o object to compare with
      * @return true if objects are equal
@@ -254,8 +253,8 @@ public final class Flashcard {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Flashcard flashcard = (Flashcard) o;
-        return Objects.equals(id, flashcard.id);
+        Card card = (Card) o;
+        return Objects.equals(id, card.id);
     }
 
     /**
@@ -275,7 +274,7 @@ public final class Flashcard {
      */
     @Override
     public String toString() {
-        return "Flashcard{"
+        return "Card{"
                 + "id="
                 + id
                 + ", deckId="

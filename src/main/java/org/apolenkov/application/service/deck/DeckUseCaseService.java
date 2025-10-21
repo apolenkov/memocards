@@ -6,8 +6,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apolenkov.application.domain.event.DeckModifiedEvent;
 import org.apolenkov.application.domain.event.DeckModifiedEvent.ModificationType;
+import org.apolenkov.application.domain.port.CardRepository;
 import org.apolenkov.application.domain.port.DeckRepository;
-import org.apolenkov.application.domain.port.FlashcardRepository;
 import org.apolenkov.application.domain.usecase.DeckUseCase;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.views.core.constants.CoreConstants;
@@ -29,7 +29,7 @@ public class DeckUseCaseService implements DeckUseCase {
     // ==================== Fields ====================
 
     private final DeckRepository deckRepository;
-    private final FlashcardRepository flashcardRepository;
+    private final CardRepository cardRepository;
     private final Validator validator;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -39,21 +39,21 @@ public class DeckUseCaseService implements DeckUseCase {
      * Creates service with required dependencies.
      *
      * @param deckRepositoryValue repository for deck operations
-     * @param flashcardRepositoryValue repository for flashcard operations
+     * @param cardRepositoryValue repository for card operations
      * @param validatorValue validator for input validation
      * @param eventPublisherValue event publisher for domain events
      * @throws IllegalArgumentException if any parameter is null
      */
     public DeckUseCaseService(
             final DeckRepository deckRepositoryValue,
-            final FlashcardRepository flashcardRepositoryValue,
+            final CardRepository cardRepositoryValue,
             final Validator validatorValue,
             final ApplicationEventPublisher eventPublisherValue) {
         if (deckRepositoryValue == null) {
             throw new IllegalArgumentException("DeckRepository cannot be null");
         }
-        if (flashcardRepositoryValue == null) {
-            throw new IllegalArgumentException("FlashcardRepository cannot be null");
+        if (cardRepositoryValue == null) {
+            throw new IllegalArgumentException("CardRepository cannot be null");
         }
         if (validatorValue == null) {
             throw new IllegalArgumentException("Validator cannot be null");
@@ -63,7 +63,7 @@ public class DeckUseCaseService implements DeckUseCase {
         }
 
         this.deckRepository = deckRepositoryValue;
-        this.flashcardRepository = flashcardRepositoryValue;
+        this.cardRepository = cardRepositoryValue;
         this.validator = validatorValue;
         this.eventPublisher = eventPublisherValue;
     }
@@ -183,7 +183,7 @@ public class DeckUseCaseService implements DeckUseCase {
     }
 
     /**
-     * Deletes deck and all associated flashcards.
+     * Deletes deck and all associated cards.
      *
      * @param id the unique identifier of the deck to delete
      * @throws IllegalArgumentException if id is invalid
@@ -203,9 +203,9 @@ public class DeckUseCaseService implements DeckUseCase {
 
         Deck deck = deckOpt.get();
 
-        // Delete associated flashcards first to maintain referential integrity
-        flashcardRepository.deleteByDeckId(id);
-        LOGGER.debug("Deleted flashcards for deck {}", id);
+        // Delete associated cards first to maintain referential integrity
+        cardRepository.deleteByDeckId(id);
+        LOGGER.debug("Deleted cards for deck {}", id);
 
         deckRepository.deleteById(id);
 

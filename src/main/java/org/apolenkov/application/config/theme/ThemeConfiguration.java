@@ -22,7 +22,7 @@ public class ThemeConfiguration {
      * Applies dynamic theme settings to the UI.
      *
      * <p>Currently applies Lumo dark theme as a dynamic addition
-     * to the base "flashcards" theme configured in AppShell.
+     * to the base "cards" theme configured in AppShell.
      *
      * @param ui the UI instance to apply the theme to (non-null)
      * @throws IllegalArgumentException if ui is null

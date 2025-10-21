@@ -78,7 +78,7 @@ class CacheInvalidationEventTest {
     @DisplayName("Should provide cache type for metrics tagging")
     void shouldProvideCacheTypeForMetricsTagging() {
         // When
-        CacheInvalidationEvent event = CacheInvalidationEvent.of("pagination-count", 123L, "flashcard-created");
+        CacheInvalidationEvent event = CacheInvalidationEvent.of("pagination-count", 123L, "card-created");
 
         // Then
         assertThat(event.getCacheType()).isEqualTo("pagination-count");
@@ -88,10 +88,10 @@ class CacheInvalidationEventTest {
     @DisplayName("Should provide reason for metrics tagging")
     void shouldProvideReasonForMetricsTagging() {
         // When
-        CacheInvalidationEvent event = CacheInvalidationEvent.of("cache-type", 123L, "flashcard-deleted");
+        CacheInvalidationEvent event = CacheInvalidationEvent.of("cache-type", 123L, "card-deleted");
 
         // Then
-        assertThat(event.getReason()).isEqualTo("flashcard-deleted");
+        assertThat(event.getReason()).isEqualTo("card-deleted");
     }
 
     @Test
@@ -122,13 +122,13 @@ class CacheInvalidationEventTest {
     @DisplayName("Should support different invalidation reasons")
     void shouldSupportDifferentInvalidationReasons() {
         // When
-        CacheInvalidationEvent createEvent = CacheInvalidationEvent.of("cache", 123L, "flashcard-created");
-        CacheInvalidationEvent updateEvent = CacheInvalidationEvent.of("cache", 123L, "flashcard-updated");
-        CacheInvalidationEvent deleteEvent = CacheInvalidationEvent.of("cache", 123L, "flashcard-deleted");
+        CacheInvalidationEvent createEvent = CacheInvalidationEvent.of("cache", 123L, "card-created");
+        CacheInvalidationEvent updateEvent = CacheInvalidationEvent.of("cache", 123L, "card-updated");
+        CacheInvalidationEvent deleteEvent = CacheInvalidationEvent.of("cache", 123L, "card-deleted");
 
         // Then
-        assertThat(createEvent.getReason()).isEqualTo("flashcard-created");
-        assertThat(updateEvent.getReason()).isEqualTo("flashcard-updated");
-        assertThat(deleteEvent.getReason()).isEqualTo("flashcard-deleted");
+        assertThat(createEvent.getReason()).isEqualTo("card-created");
+        assertThat(updateEvent.getReason()).isEqualTo("card-updated");
+        assertThat(deleteEvent.getReason()).isEqualTo("card-deleted");
     }
 }

@@ -56,11 +56,11 @@
     /* Add card button styling */
 }
 
-.flashcard-actions-menu {
-    /* Compact menu button in flashcard list */
+.card-actions-menu {
+    /* Compact menu button in card list */
 }
 
-.deck-flashcard-list {
+.deck-card-list {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -72,7 +72,7 @@
 /* VirtualList specific styles to prevent horizontal scroll */
 
 /* Use higher specificity instead of !important */
-.deck-flashcard-list > vaadin-virtual-list {
+.deck-card-list > vaadin-virtual-list {
     overflow-x: hidden;
     width: 100%;
     max-width: 100%;

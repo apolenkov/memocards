@@ -15,7 +15,7 @@ import org.apolenkov.application.views.deck.constants.DeckConstants;
 
 /**
  * Component for search and filter controls in the deck grid.
- * Provides search field, filter combobox, and add flashcard button.
+ * Provides search field, filter combobox, and add card button.
  */
 public final class DeckSearchControls extends Composite<HorizontalLayout> {
 

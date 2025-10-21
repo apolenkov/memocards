@@ -34,7 +34,7 @@ plugins {
 
 group = "org.apolenkov.application"
 version = "0.1"
-description = "flashcards" // Rename to memocards
+description = "Memocards application" // Rename to memocards
 
 idea {
     project {

@@ -57,7 +57,7 @@ public final class NavigationHelper {
      *
      * <p>Navigates to the practice session view for a specific deck.
      * This method provides quick access to start practicing with
-     * the selected deck's flashcards.</p>
+     * the selected deck's cards.</p>
      *
      * @param deckId the unique identifier of the deck to practice with
      * @throws IllegalArgumentException if deckId is null
@@ -73,7 +73,7 @@ public final class NavigationHelper {
      * Navigate to decks list
      *
      * <p>Navigates to the main decks listing page where users can
-     * view, manage, and organize their flashcard decks. This is
+     * view, manage, and organize their card decks. This is
      * typically the primary navigation destination for deck management.</p>
      */
     public static void navigateToDecks() {

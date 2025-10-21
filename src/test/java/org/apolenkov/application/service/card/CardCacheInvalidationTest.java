@@ -8,8 +8,8 @@ import static org.mockito.Mockito.when;
 import jakarta.validation.Validator;
 import java.util.Collections;
 import java.util.Optional;
-import org.apolenkov.application.domain.port.FlashcardRepository;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.domain.port.CardRepository;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.service.stats.PaginationCountCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,14 +20,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
- * Tests for cache invalidation when flashcards are created, updated, or deleted.
+ * Tests for cache invalidation when cards are created, updated, or deleted.
  * Ensures PaginationCountCache is properly invalidated to prevent stale count data.
  */
 @ExtendWith(MockitoExtension.class)
-class FlashcardCacheInvalidationTest {
+class CardCacheInvalidationTest {
 
     @Mock
-    private FlashcardRepository flashcardRepository;
+    private CardRepository cardRepository;
 
     @Mock
     private Validator validator;
@@ -38,86 +38,86 @@ class FlashcardCacheInvalidationTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
-    private FlashcardUseCaseService service;
+    private CardUseCaseService service;
 
     @BeforeEach
     void setUp() {
-        service = new FlashcardUseCaseService(flashcardRepository, validator, paginationCountCache, eventPublisher);
+        service = new CardUseCaseService(cardRepository, validator, paginationCountCache, eventPublisher);
     }
 
     @Test
-    @DisplayName("Should invalidate cache when creating new flashcard")
+    @DisplayName("Should invalidate cache when creating new card")
     void shouldInvalidateCacheOnCreate() {
         // Given
-        Flashcard newFlashcard = new Flashcard();
-        newFlashcard.setId(null); // New flashcard
-        newFlashcard.setDeckId(5L);
-        newFlashcard.setFrontText("Hello");
-        newFlashcard.setBackText("Привет");
+        Card newCard = new Card();
+        newCard.setId(null); // New card
+        newCard.setDeckId(5L);
+        newCard.setFrontText("Hello");
+        newCard.setBackText("Привет");
 
         when(validator.validate(any())).thenReturn(Collections.emptySet());
 
         // When
-        service.saveFlashcard(newFlashcard);
+        service.saveCard(newCard);
 
         // Then
-        verify(flashcardRepository, times(1)).save(newFlashcard);
+        verify(cardRepository, times(1)).save(newCard);
         verify(paginationCountCache, times(1)).invalidate(5L);
     }
 
     @Test
-    @DisplayName("Should invalidate cache when updating existing flashcard")
+    @DisplayName("Should invalidate cache when updating existing card")
     void shouldInvalidateCacheOnUpdate() {
         // Given
-        Flashcard existingFlashcard = new Flashcard();
-        existingFlashcard.setId(10L); // Existing flashcard
-        existingFlashcard.setDeckId(7L);
-        existingFlashcard.setFrontText("Updated");
-        existingFlashcard.setBackText("Обновлено");
+        Card existingCard = new Card();
+        existingCard.setId(10L); // Existing card
+        existingCard.setDeckId(7L);
+        existingCard.setFrontText("Updated");
+        existingCard.setBackText("Обновлено");
 
         when(validator.validate(any())).thenReturn(Collections.emptySet());
 
         // When
-        service.saveFlashcard(existingFlashcard);
+        service.saveCard(existingCard);
 
         // Then
-        verify(flashcardRepository, times(1)).save(existingFlashcard);
+        verify(cardRepository, times(1)).save(existingCard);
         verify(paginationCountCache, times(1)).invalidate(7L);
     }
 
     @Test
-    @DisplayName("Should invalidate cache when deleting flashcard")
+    @DisplayName("Should invalidate cache when deleting card")
     void shouldInvalidateCacheOnDelete() {
         // Given
-        long flashcardId = 15L;
-        Flashcard flashcard = new Flashcard();
-        flashcard.setId(flashcardId);
-        flashcard.setDeckId(3L);
-        flashcard.setFrontText("To be deleted");
-        flashcard.setBackText("Будет удалено");
+        long cardId = 15L;
+        Card card = new Card();
+        card.setId(cardId);
+        card.setDeckId(3L);
+        card.setFrontText("To be deleted");
+        card.setBackText("Будет удалено");
 
-        when(flashcardRepository.findById(flashcardId)).thenReturn(Optional.of(flashcard));
+        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
 
         // When
-        service.deleteFlashcard(flashcardId);
+        service.deleteCard(cardId);
 
         // Then
-        verify(flashcardRepository, times(1)).deleteById(flashcardId);
+        verify(cardRepository, times(1)).deleteById(cardId);
         verify(paginationCountCache, times(1)).invalidate(3L);
     }
 
     @Test
-    @DisplayName("Should not invalidate cache when flashcard not found on delete")
-    void shouldNotInvalidateCacheWhenFlashcardNotFound() {
+    @DisplayName("Should not invalidate cache when card not found on delete")
+    void shouldNotInvalidateCacheWhenCardNotFound() {
         // Given
-        long flashcardId = 99L;
-        when(flashcardRepository.findById(flashcardId)).thenReturn(Optional.empty());
+        long cardId = 99L;
+        when(cardRepository.findById(cardId)).thenReturn(Optional.empty());
 
         // When
-        service.deleteFlashcard(flashcardId);
+        service.deleteCard(cardId);
 
         // Then
-        verify(flashcardRepository, times(1)).deleteById(flashcardId);
+        verify(cardRepository, times(1)).deleteById(cardId);
         verify(paginationCountCache, times(0)).invalidate(any()); // NOT invalidated
     }
 
@@ -125,13 +125,13 @@ class FlashcardCacheInvalidationTest {
     @DisplayName("Should invalidate cache for correct deck ID")
     void shouldInvalidateCacheForCorrectDeck() {
         // Given - multiple decks
-        Flashcard deck1Card = new Flashcard();
+        Card deck1Card = new Card();
         deck1Card.setId(null);
         deck1Card.setDeckId(1L);
         deck1Card.setFrontText("Deck 1");
         deck1Card.setBackText("Колода 1");
 
-        Flashcard deck2Card = new Flashcard();
+        Card deck2Card = new Card();
         deck2Card.setId(null);
         deck2Card.setDeckId(2L);
         deck2Card.setFrontText("Deck 2");
@@ -140,8 +140,8 @@ class FlashcardCacheInvalidationTest {
         when(validator.validate(any())).thenReturn(Collections.emptySet());
 
         // When
-        service.saveFlashcard(deck1Card);
-        service.saveFlashcard(deck2Card);
+        service.saveCard(deck1Card);
+        service.saveCard(deck2Card);
 
         // Then - each deck invalidated separately
         verify(paginationCountCache, times(1)).invalidate(1L);
@@ -152,18 +152,18 @@ class FlashcardCacheInvalidationTest {
     @DisplayName("Should invalidate cache multiple times for multiple operations")
     void shouldInvalidateCacheMultipleTimes() {
         // Given
-        Flashcard flashcard = new Flashcard();
-        flashcard.setId(null);
-        flashcard.setDeckId(10L);
-        flashcard.setFrontText("Test");
-        flashcard.setBackText("Тест");
+        Card card = new Card();
+        card.setId(null);
+        card.setDeckId(10L);
+        card.setFrontText("Test");
+        card.setBackText("Тест");
 
         when(validator.validate(any())).thenReturn(Collections.emptySet());
 
         // When - add 3 cards to same deck
-        service.saveFlashcard(flashcard);
-        service.saveFlashcard(flashcard);
-        service.saveFlashcard(flashcard);
+        service.saveCard(card);
+        service.saveCard(card);
+        service.saveCard(card);
 
         // Then - cache invalidated 3 times
         verify(paginationCountCache, times(3)).invalidate(10L);

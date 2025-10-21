@@ -108,7 +108,7 @@ public class DataSeedService {
         // Step 1: Generate users
         List<User> users = userGenerator.generateUsers(limitUsers, batchSizeUsers, cachedPasswordHash);
 
-        // Step 2: Generate decks and flashcards
+        // Step 2: Generate decks and cards
         int[] deckAndCardCounts =
                 deckAndCardGenerator.generateDecksAndCards(users, limitDecksPerUser, limitCardsPerDeck, batchSizeUsers);
 
@@ -150,12 +150,12 @@ public class DataSeedService {
 
         LOGGER.info("=== Test data generation completed in {} ms ({} min {} sec) ===", duration, minutes, seconds % 60);
         LOGGER.info(
-                "Summary: {} users, {} decks, {} flashcards, {} statistics, {} news",
+                "Summary: {} users, {} decks, {} cards, {} statistics, {} news",
                 userCount,
                 deckCount,
                 cardCount,
                 statsCount,
                 newsCount);
-        LOGGER.info("Average speed: {} flashcards/sec", cardCount / Math.max(1, seconds));
+        LOGGER.info("Average speed: {} cards/sec", cardCount / Math.max(1, seconds));
     }
 }

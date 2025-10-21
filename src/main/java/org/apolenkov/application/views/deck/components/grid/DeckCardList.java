@@ -16,22 +16,22 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import org.apolenkov.application.domain.model.FilterOption;
-import org.apolenkov.application.domain.usecase.FlashcardUseCase;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.domain.usecase.CardUseCase;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.service.stats.StatsService;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.springframework.data.domain.PageRequest;
 
 /**
- * Component for displaying flashcards with explicit pagination controls.
+ * Component for displaying cards with explicit pagination controls.
  * Uses page-based loading to efficiently handle large collections (500+ cards).
- * Each flashcard is rendered as a card with front text, example, status, and actions.
+ * Each card is rendered as a card with front text, example, status, and actions.
  */
-public final class DeckFlashcardList extends VerticalLayout {
+public final class DeckCardList extends VerticalLayout {
 
     // Dependencies
     private final transient StatsService statsService;
-    private final transient FlashcardUseCase flashcardUseCase;
+    private final transient CardUseCase cardUseCase;
 
     // Configuration
     private final int pageSize;
@@ -52,13 +52,13 @@ public final class DeckFlashcardList extends VerticalLayout {
     private Span bottomPageInfo;
 
     // Callbacks (stored for rendering)
-    private transient Consumer<Flashcard> editFlashcardCallback;
-    private transient Consumer<Flashcard> deleteFlashcardCallback;
-    private transient Consumer<Flashcard> toggleKnownCallback;
+    private transient Consumer<Card> editCardCallback;
+    private transient Consumer<Card> deleteCardCallback;
+    private transient Consumer<Card> toggleKnownCallback;
 
     // State
     private transient Long currentDeckId;
-    private transient FlashcardFilter currentFilter;
+    private transient CardFilter currentFilter;
     private int currentPage = 0;
     private int totalPages = 0;
     private long totalItems = 0;
@@ -67,25 +67,23 @@ public final class DeckFlashcardList extends VerticalLayout {
     private boolean hasBeenInitialized = false;
 
     /**
-     * Creates a new DeckFlashcardList component with lazy loading.
+     * Creates a new DeckCardList component with lazy loading.
      *
      * @param statsServiceParam service for statistics tracking
-     * @param flashcardUseCaseParam use case for flashcard operations
+     * @param cardUseCaseParam use case for card operations
      * @param pageSizeParam number of items per page
      */
-    public DeckFlashcardList(
-            final StatsService statsServiceParam,
-            final FlashcardUseCase flashcardUseCaseParam,
-            final int pageSizeParam) {
+    public DeckCardList(
+            final StatsService statsServiceParam, final CardUseCase cardUseCaseParam, final int pageSizeParam) {
         this.statsService = statsServiceParam;
-        this.flashcardUseCase = flashcardUseCaseParam;
+        this.cardUseCase = cardUseCaseParam;
         this.pageSize = pageSizeParam;
-        this.currentFilter = new FlashcardFilter(null, FilterOption.UNKNOWN_ONLY);
+        this.currentFilter = new CardFilter(null, FilterOption.UNKNOWN_ONLY);
 
         setWidthFull();
         setPadding(false);
         setSpacing(true);
-        addClassName("deck-flashcard-list");
+        addClassName("deck-card-list");
     }
 
     /**
@@ -142,7 +140,7 @@ public final class DeckFlashcardList extends VerticalLayout {
 
         // Cards container
         cardsContainer = new Div();
-        cardsContainer.addClassName("deck-flashcard-list");
+        cardsContainer.addClassName("deck-card-list");
         cardsContainer.setWidthFull();
 
         // Bottom pagination controls
@@ -216,7 +214,7 @@ public final class DeckFlashcardList extends VerticalLayout {
     }
 
     /**
-     * Loads the current page of flashcards from the database.
+     * Loads the current page of cards from the database.
      * If current page is empty but items exist, automatically navigates to the last valid page.
      */
     private void loadCurrentPage() {
@@ -227,27 +225,27 @@ public final class DeckFlashcardList extends VerticalLayout {
         // Calculate total items and pages based on current filter
         calculatePagination();
 
-        // Load flashcards for current page
+        // Load cards for current page
         PageRequest pageRequest = PageRequest.of(currentPage, pageSize);
-        List<Flashcard> flashcards = loadFlashcardsForPage(pageRequest);
+        List<Card> cards = loadCardsForPage(pageRequest);
 
         // If current page is empty but we have items (page became empty after deletion),
         // fall back to last valid page
         // Note: This should rarely happen since updateFilter() resets to page 0
-        if (flashcards.isEmpty() && totalItems > 0 && currentPage > 0) {
+        if (cards.isEmpty() && totalItems > 0 && currentPage > 0) {
             currentPage = Math.max(0, totalPages - 1);
             calculatePagination();
             pageRequest = PageRequest.of(currentPage, pageSize);
-            flashcards = loadFlashcardsForPage(pageRequest);
+            cards = loadCardsForPage(pageRequest);
         }
 
-        // Load known card IDs once for all flashcards (prevents N+50 cache hits)
+        // Load known card IDs once for all cards (prevents N+50 cache hits)
         Set<Long> knownCardIds = currentDeckId != null ? statsService.getKnownCardIds(currentDeckId) : Set.of();
 
-        // Clear existing cards and render new ones
+        // Clear existing cards and render mnew ones
         cardsContainer.removeAll();
-        flashcards.forEach(flashcard -> {
-            Div cardDiv = createFlashcardCard(flashcard, knownCardIds);
+        cards.forEach(card -> {
+            Div cardDiv = createCardComponent(card, knownCardIds);
             cardsContainer.add(cardDiv);
         });
 
@@ -268,7 +266,7 @@ public final class DeckFlashcardList extends VerticalLayout {
 
         // ✅ Use dynamic SQL query builder - ONE method handles ALL combinations!
         String searchQuery = hasSearch ? currentFilter.searchQuery() : null;
-        totalItems = flashcardUseCase.countFlashcardsWithFilter(currentDeckId, searchQuery, filterOption);
+        totalItems = cardUseCase.countCardsWithFilter(currentDeckId, searchQuery, filterOption);
 
         totalPages = (int) Math.ceil((double) totalItems / pageSize);
 
@@ -282,13 +280,13 @@ public final class DeckFlashcardList extends VerticalLayout {
     }
 
     /**
-     * Loads flashcards for the specified page with current filter applied.
+     * Loads cards for the specified page with current filter applied.
      * Handles combinations of search query and known/unknown status filtering.
      *
      * @param pageRequest the page request
-     * @return list of flashcards matching current filter
+     * @return list of cards matching current filter
      */
-    private List<Flashcard> loadFlashcardsForPage(final PageRequest pageRequest) {
+    private List<Card> loadCardsForPage(final PageRequest pageRequest) {
         boolean hasSearch = currentFilter != null
                 && currentFilter.searchQuery() != null
                 && !currentFilter.searchQuery().trim().isEmpty();
@@ -297,7 +295,7 @@ public final class DeckFlashcardList extends VerticalLayout {
 
         // ✅ Use dynamic SQL query builder - ONE method handles ALL combinations!
         String searchQuery = hasSearch ? currentFilter.searchQuery() : null;
-        return flashcardUseCase.getFlashcardsWithFilter(currentDeckId, searchQuery, filterOption, pageRequest);
+        return cardUseCase.getCardsWithFilter(currentDeckId, searchQuery, filterOption, pageRequest);
     }
 
     /**
@@ -318,7 +316,7 @@ public final class DeckFlashcardList extends VerticalLayout {
         }
 
         // Check if deck is completely empty (no cards at all)
-        long totalCardsInDeck = flashcardUseCase.countByDeckId(currentDeckId);
+        long totalCardsInDeck = cardUseCase.countByDeckId(currentDeckId);
         if (totalCardsInDeck == 0) {
             return getTranslation("deck.pagination.no-items.all");
         }
@@ -482,21 +480,21 @@ public final class DeckFlashcardList extends VerticalLayout {
     }
 
     /**
-     * Sets the edit flashcard callback.
+     * Sets the edit card callback.
      *
-     * @param callback the callback to execute when editing a flashcard
+     * @param callback the callback to execute when editing a card
      */
-    public void setEditFlashcardCallback(final Consumer<Flashcard> callback) {
-        this.editFlashcardCallback = callback;
+    public void setEditCardCallback(final Consumer<Card> callback) {
+        this.editCardCallback = callback;
     }
 
     /**
-     * Sets the delete flashcard callback.
+     * Sets the delete card callback.
      *
-     * @param callback the callback to execute when deleting a flashcard
+     * @param callback the callback to execute when deleting a card
      */
-    public void setDeleteFlashcardCallback(final Consumer<Flashcard> callback) {
-        this.deleteFlashcardCallback = callback;
+    public void setDeleteCardCallback(final Consumer<Card> callback) {
+        this.deleteCardCallback = callback;
     }
 
     /**
@@ -504,7 +502,7 @@ public final class DeckFlashcardList extends VerticalLayout {
      *
      * @param callback the callback to execute when toggling known status
      */
-    public void setToggleKnownCallback(final Consumer<Flashcard> callback) {
+    public void setToggleKnownCallback(final Consumer<Card> callback) {
         this.toggleKnownCallback = callback;
     }
 
@@ -516,45 +514,45 @@ public final class DeckFlashcardList extends VerticalLayout {
      * @param filterOption filter option for known/unknown status
      */
     public void updateFilter(final String searchQuery, final FilterOption filterOption) {
-        this.currentFilter = new FlashcardFilter(searchQuery, filterOption);
+        this.currentFilter = new CardFilter(searchQuery, filterOption);
         // Reset to first page to avoid retry loop when filter reduces total items
         this.currentPage = 0;
         loadCurrentPage();
     }
 
     /**
-     * Creates a card component for a single flashcard.
+     * Creates a card component for a single card.
      * Called for each visible item in the current page.
      *
-     * @param flashcard the flashcard to create a card for
+     * @param card the card to create a card for
      * @param knownCardIds set of known card IDs (pre-loaded to avoid N cache hits)
      * @return the card component
      */
-    private Div createFlashcardCard(final Flashcard flashcard, final Set<Long> knownCardIds) {
-        Div card = new Div();
-        card.addClassName("flashcard-card");
+    private Div createCardComponent(final Card card, final Set<Long> knownCardIds) {
+        Div cardDiv = new Div();
+        cardDiv.addClassName("card-card");
 
         // Check known status from pre-loaded set (prevents N+50 cache hits per render)
-        boolean isKnown = knownCardIds.contains(flashcard.getId());
+        boolean isKnown = knownCardIds.contains(card.getId());
 
         // Note: Filter logic is handled in DataProvider to avoid breaking VirtualList scroll
         // Hiding items in the renderer breaks VirtualList's virtual scrolling
 
         // Add known/unknown class for styling (green/blue left border)
         if (isKnown) {
-            card.addClassName("flashcard-card--known");
+            cardDiv.addClassName("card-card--known");
         } else {
-            card.addClassName("flashcard-card--unknown");
+            cardDiv.addClassName("card-card--unknown");
         }
 
-        card.getStyle().set("width", "100%");
-        card.getStyle().set("max-width", "100%");
-        card.getStyle().set("cursor", "pointer"); // Indicate double-clickable
+        cardDiv.getStyle().set("width", "100%");
+        cardDiv.getStyle().set("max-width", "100%");
+        cardDiv.getStyle().set("cursor", "pointer"); // Indicate double-clickable
 
         // Add double-click listener to open edit dialog
-        card.getElement().addEventListener("dblclick", e -> {
-            if (editFlashcardCallback != null) {
-                editFlashcardCallback.accept(flashcard);
+        cardDiv.getElement().addEventListener("dblclick", e -> {
+            if (editCardCallback != null) {
+                editCardCallback.accept(card);
             }
         });
 
@@ -572,8 +570,8 @@ public final class DeckFlashcardList extends VerticalLayout {
                 com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.BETWEEN);
 
         // Front text (grows to fill space)
-        Span frontText = new Span(flashcard.getFrontText());
-        frontText.addClassName("flashcard-front");
+        Span frontText = new Span(card.getFrontText());
+        frontText.addClassName("card-front");
         frontText.getStyle().set("flex-grow", "1");
 
         // Right section: Known indicator + Actions
@@ -584,46 +582,46 @@ public final class DeckFlashcardList extends VerticalLayout {
         // Known indicator (checkmark if card is known) - hidden via CSS, replaced with border
         if (isKnown) {
             Span knownIndicator = new Span("✓");
-            knownIndicator.addClassName("flashcard-known-indicator");
+            knownIndicator.addClassName("card-known-indicator");
             rightSection.add(knownIndicator);
         }
 
         // Desktop: action buttons (visible only on desktop via CSS)
-        HorizontalLayout desktopActions = createDesktopActionButtons(flashcard, isKnown);
+        HorizontalLayout desktopActions = createDesktopActionButtons(card, isKnown);
         desktopActions.addClassName("desktop-only");
 
         // Mobile: same action buttons (visible only on mobile via CSS)
-        HorizontalLayout mobileActions = createDesktopActionButtons(flashcard, isKnown);
+        HorizontalLayout mobileActions = createDesktopActionButtons(card, isKnown);
         mobileActions.addClassName("mobile-only");
 
         rightSection.add(desktopActions, mobileActions);
         headerRow.add(frontText, rightSection);
 
         // Example row (if exists)
-        if (flashcard.getExample() != null && !flashcard.getExample().trim().isEmpty()) {
-            Span exampleText = new Span(flashcard.getExample());
-            exampleText.addClassName("flashcard-example");
+        if (card.getExample() != null && !card.getExample().trim().isEmpty()) {
+            Span exampleText = new Span(card.getExample());
+            exampleText.addClassName("card-example");
             cardContent.add(headerRow, exampleText);
         } else {
             cardContent.add(headerRow);
         }
 
-        card.add(cardContent);
-        return card;
+        cardDiv.add(cardContent);
+        return cardDiv;
     }
 
     /**
      * Creates desktop action buttons (icon buttons without text).
      *
-     * @param flashcard the flashcard to create actions for
-     * @param isKnown whether the flashcard is known (affects button styling)
+     * @param card the card to create actions for
+     * @param isKnown whether the card is known (affects button styling)
      * @return the actions buttons layout
      */
-    private HorizontalLayout createDesktopActionButtons(final Flashcard flashcard, final boolean isKnown) {
+    private HorizontalLayout createDesktopActionButtons(final Card card, final boolean isKnown) {
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSpacing(false);
         buttonsLayout.setPadding(false);
-        buttonsLayout.addClassName("flashcard-desktop-actions");
+        buttonsLayout.addClassName("card-desktop-actions");
 
         // Edit button
         com.vaadin.flow.component.button.Button editButton = new com.vaadin.flow.component.button.Button();
@@ -631,12 +629,10 @@ public final class DeckFlashcardList extends VerticalLayout {
         editButton.addThemeVariants(
                 com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY,
                 com.vaadin.flow.component.button.ButtonVariant.LUMO_ICON);
-        editButton
-                .getElement()
-                .setProperty(DeckConstants.TITLE_PROPERTY, getTranslation(DeckConstants.FLASHCARD_MENU_EDIT));
+        editButton.getElement().setProperty(DeckConstants.TITLE_PROPERTY, getTranslation(DeckConstants.CARD_MENU_EDIT));
         editButton.addClickListener(e -> {
-            if (editFlashcardCallback != null) {
-                editFlashcardCallback.accept(flashcard);
+            if (editCardCallback != null) {
+                editCardCallback.accept(card);
             }
         });
 
@@ -654,10 +650,10 @@ public final class DeckFlashcardList extends VerticalLayout {
 
         toggleButton
                 .getElement()
-                .setProperty(DeckConstants.TITLE_PROPERTY, getTranslation(DeckConstants.FLASHCARD_MENU_TOGGLE));
+                .setProperty(DeckConstants.TITLE_PROPERTY, getTranslation(DeckConstants.CARD_MENU_TOGGLE));
         toggleButton.addClickListener(e -> {
             if (toggleKnownCallback != null) {
-                toggleKnownCallback.accept(flashcard);
+                toggleKnownCallback.accept(card);
             }
         });
 
@@ -670,10 +666,10 @@ public final class DeckFlashcardList extends VerticalLayout {
                 com.vaadin.flow.component.button.ButtonVariant.LUMO_ICON);
         deleteButton
                 .getElement()
-                .setProperty(DeckConstants.TITLE_PROPERTY, getTranslation(DeckConstants.FLASHCARD_MENU_DELETE));
+                .setProperty(DeckConstants.TITLE_PROPERTY, getTranslation(DeckConstants.CARD_MENU_DELETE));
         deleteButton.addClickListener(e -> {
-            if (deleteFlashcardCallback != null) {
-                deleteFlashcardCallback.accept(flashcard);
+            if (deleteCardCallback != null) {
+                deleteCardCallback.accept(card);
             }
         });
 

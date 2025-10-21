@@ -87,7 +87,7 @@ public class PaginationCountCache {
      * @param searchQuery the search query (null or empty for no search)
      * @param filterOption the filter option
      * @param loader supplier to load count when cache miss occurs
-     * @return count of flashcards matching criteria
+     * @return count of cards matching criteria
      */
     public long getCount(
             final Long deckId, final String searchQuery, final FilterOption filterOption, final LongSupplier loader) {
@@ -141,7 +141,7 @@ public class PaginationCountCache {
 
     /**
      * Invalidates all cache entries for a specific deck.
-     * Called after flashcard create/update/delete or progress changes.
+     * Called after card create/update/delete or progress changes.
      * Publishes cache invalidation event for metrics collection.
      *
      * @param deckId the deck ID

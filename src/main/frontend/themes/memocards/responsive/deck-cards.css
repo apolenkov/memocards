@@ -1,7 +1,7 @@
-/* ==================== Flashcard Cards List ==================== */
+/* ==================== Card Cards List ==================== */
 
-/* Flashcard card styling */
-.flashcard-card {
+/* Card card styling */
+.card-card {
     position: relative;
     width: 100%;
     max-width: 100%;
@@ -17,35 +17,35 @@
     word-wrap: break-word; /* Break long words to prevent overflow */
 }
 
-/* Known flashcard - green left border */
-.flashcard-card--known {
+/* Known card - green left border */
+.card-card--known {
     border-left: 4px solid var(--lumo-success-color);
 }
 
-/* Unknown flashcard - light blue left border (like edit icon) */
-.flashcard-card--unknown {
+/* Unknown card - light blue left border (like edit icon) */
+.card-card--unknown {
     border-left: 4px solid var(--lumo-primary-color-50pct);
 }
 
 
-.flashcard-card:hover {
+.card-card:hover {
     border-color: var(--lumo-primary-color-30pct); /* Subtle border highlight */
     background: var(--lumo-contrast-5pct); /* Subtle background highlight */
     box-shadow: var(--lumo-box-shadow-m);
 }
 
-.flashcard-card:active {
+.card-card:active {
     background: var(--lumo-primary-color-10pct);
     transform: scale(0.98); /* Subtle press effect */
 }
 
-.flashcard-card:focus {
+.card-card:focus {
     outline: 2px solid var(--lumo-primary-color);
     outline-offset: 2px;
 }
 
 /* Front text styling */
-.flashcard-front {
+.card-front {
     flex-grow: 1;
     color: var(--lumo-body-text-color);
     font-size: var(--lumo-font-size-m);
@@ -55,7 +55,7 @@
 }
 
 /* Example text styling */
-.flashcard-example {
+.card-example {
     margin-top: var(--lumo-space-xs);
     color: var(--lumo-secondary-text-color);
     font-size: var(--lumo-font-size-s);
@@ -65,19 +65,19 @@
 }
 
 /* Known indicator (checkmark) - hidden, replaced with border */
-.flashcard-known-indicator {
+.card-known-indicator {
     display: none;
 }
 
 /* Desktop action buttons */
-.flashcard-desktop-actions {
+.card-desktop-actions {
     display: flex;
     align-items: center;
     gap: var(--lumo-space-xs);
 }
 
 /* Action buttons styling */
-.flashcard-desktop-actions button {
+.card-desktop-actions button {
     min-width: 44px;
     min-height: 44px;
 }
@@ -85,7 +85,7 @@
 /* Mobile action buttons - same as desktop but with mobile-specific styling */
 
 @media (max-width: 767px) {
-    .flashcard-desktop-actions button {
+    .card-desktop-actions button {
         min-width: 44px;
         min-height: 44px;
         padding: var(--lumo-space-xs);
@@ -95,15 +95,15 @@
 /* Mobile: Compact cards */
 
 @media (max-width: 767px) {
-    .flashcard-card {
+    .card-card {
         margin-bottom: var(--lumo-space-xs);
     }
     
-    .flashcard-front {
+    .card-front {
         font-size: var(--lumo-font-size-s);
     }
     
-    .flashcard-example {
+    .card-example {
         font-size: var(--lumo-font-size-xs);
     }
 }
@@ -234,7 +234,7 @@
 
 /* ==================== DeckGrid - Search Controls & Grid Actions ==================== */
 
-/* Flashcard actions menu - compact menu in table - styling via MenuButton */
+/* Card actions menu - compact menu in table - styling via MenuButton */
 
 /* Tablet and up: More spacing and larger text */
 

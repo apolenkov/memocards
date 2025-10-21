@@ -32,7 +32,7 @@
     <rect x="16" y="22" width="30" height="22" rx="5" />
   </g>
 
-  <!-- Lines on front card for the "flashcard" look -->
+  <!-- Lines on front card for the "memocard" look -->
   <g fill="#ffffff" opacity="0.95">
     <rect x="20" y="28" width="22" height="2" rx="1"/>
     <rect x="20" y="32" width="18" height="2" rx="1" opacity="0.8"/>

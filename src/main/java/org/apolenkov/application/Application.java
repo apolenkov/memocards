@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 /**
- * Main entry point for the Flashcards Spring Boot application.
+ * Main entry point for the Cards Spring Boot application.
  *
  * <p>This class is responsible for starting the Spring Boot application.
  * All initialization logic is delegated to ApplicationInitializer.
@@ -33,13 +33,13 @@ public final class Application {
      * @param args command line arguments passed to the application
      */
     public static void main(final String[] args) {
-        LOGGER.info("Starting Flashcards application...");
+        LOGGER.info("Starting Cards application...");
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Application arguments: {}", Arrays.toString(args));
         }
 
         SpringApplication.run(Application.class, args);
 
-        LOGGER.info("Flashcards application started successfully");
+        LOGGER.info("Cards application started successfully");
     }
 }

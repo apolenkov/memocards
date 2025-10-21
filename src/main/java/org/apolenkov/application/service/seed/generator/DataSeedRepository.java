@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import org.apolenkov.application.infrastructure.repository.jdbc.batch.FlashcardBatchOperations;
+import org.apolenkov.application.infrastructure.repository.jdbc.batch.CardBatchOperations;
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.DeckSqlQueries;
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.NewsSqlQueries;
 import org.apolenkov.application.infrastructure.repository.jdbc.sql.UserSqlQueries;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.News;
 import org.apolenkov.application.model.User;
 import org.slf4j.Logger;
@@ -38,18 +38,18 @@ public class DataSeedRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSeedRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
-    private final FlashcardBatchOperations flashcardBatchOperations;
+    private final CardBatchOperations cardBatchOperations;
 
     /**
      * Creates repository with required dependencies.
      *
      * @param jdbcTemplateValue JDBC template for database operations
-     * @param flashcardBatchOperationsValue helper for flashcard batch operations
+     * @param cardBatchOperationsValue helper for card batch operations
      */
     public DataSeedRepository(
-            final JdbcTemplate jdbcTemplateValue, final FlashcardBatchOperations flashcardBatchOperationsValue) {
+            final JdbcTemplate jdbcTemplateValue, final CardBatchOperations cardBatchOperationsValue) {
         this.jdbcTemplate = jdbcTemplateValue;
-        this.flashcardBatchOperations = flashcardBatchOperationsValue;
+        this.cardBatchOperations = cardBatchOperationsValue;
     }
 
     /**
@@ -170,18 +170,18 @@ public class DataSeedRepository {
     }
 
     /**
-     * Batch inserts flashcards for seed operations.
+     * Batch inserts cards for seed operations.
      *
-     * @param flashcards collection of flashcards to insert
+     * @param cards collection of cards to insert
      */
-    public void batchInsertFlashcards(final Collection<Flashcard> flashcards) {
-        if (flashcards == null || flashcards.isEmpty()) {
+    public void batchInsertCards(final Collection<Card> cards) {
+        if (cards == null || cards.isEmpty()) {
             return;
         }
 
-        LOGGER.debug("Batch inserting {} flashcards", flashcards.size());
-        flashcardBatchOperations.saveAll(jdbcTemplate, flashcards);
-        LOGGER.debug("Batch inserted flashcards successfully");
+        LOGGER.debug("Batch inserting {} cards", cards.size());
+        cardBatchOperations.saveAll(jdbcTemplate, cards);
+        LOGGER.debug("Batch inserted cards successfully");
     }
 
     /**

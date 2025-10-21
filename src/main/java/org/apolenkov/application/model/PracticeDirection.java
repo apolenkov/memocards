@@ -1,9 +1,9 @@
 package org.apolenkov.application.model;
 
 /**
- * Defines the direction of flashcard practice.
+ * Defines the direction of card practice.
  *
- * <p>Represents the two possible directions in which a user can practice flashcards.
+ * <p>Represents the two possible directions in which a user can practice cards.
  * Direction determines which side of the card is shown first and which side
  * the user needs to recall.</p>
  */
@@ -12,7 +12,7 @@ public enum PracticeDirection {
      * Practice from front to back.
      *
      * <p>Front side (question/prompt) is shown first, user must recall
-     * back side (answer/explanation). Traditional flashcard practice method.</p>
+     * back side (answer/explanation). Traditional card practice method.</p>
      */
     FRONT_TO_BACK,
 

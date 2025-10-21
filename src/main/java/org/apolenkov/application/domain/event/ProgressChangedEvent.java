@@ -3,7 +3,7 @@ package org.apolenkov.application.domain.event;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * Domain event published when flashcard progress changes.
+ * Domain event published when card progress changes.
  * Signals that a card's known/unknown status has been modified.
  *
  * <p>This event enables event-driven cache invalidation following Clean Architecture principles.

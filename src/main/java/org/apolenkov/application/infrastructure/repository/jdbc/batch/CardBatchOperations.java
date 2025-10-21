@@ -5,42 +5,40 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.apolenkov.application.infrastructure.repository.jdbc.sql.FlashcardSqlQueries;
-import org.apolenkov.application.model.Flashcard;
+import org.apolenkov.application.infrastructure.repository.jdbc.sql.CardSqlQueries;
+import org.apolenkov.application.model.Card;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Helper class for batch operations on flashcards.
+ * Helper class for batch operations on cards.
  * Separates batch logic from adapter for better maintainability.
  */
 @Component
-public class FlashcardBatchOperations {
+public class CardBatchOperations {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlashcardBatchOperations.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CardBatchOperations.class);
     private static final int DEFAULT_BATCH_SIZE = 1000;
 
     /**
-     * Performs batch save operations for flashcards.
+     * Performs batch save operations for cards.
      *
      * @param jdbcTemplate JDBC template for database operations
-     * @param flashcards collection of flashcards to save
+     * @param cards collection of cards to save
      */
-    public void saveAll(final JdbcTemplate jdbcTemplate, final Collection<Flashcard> flashcards) {
-        if (flashcards == null || flashcards.isEmpty()) {
+    public void saveAll(final JdbcTemplate jdbcTemplate, final Collection<Card> cards) {
+        if (cards == null || cards.isEmpty()) {
             return;
         }
 
-        LOGGER.debug("Batch saving {} flashcards", flashcards.size());
+        LOGGER.debug("Batch saving {} cards", cards.size());
 
         // Separate new cards from updates
-        List<Flashcard> newCards =
-                flashcards.stream().filter(f -> f.getId() == null).toList();
+        List<Card> newCards = cards.stream().filter(f -> f.getId() == null).toList();
 
-        List<Flashcard> existingCards =
-                flashcards.stream().filter(f -> f.getId() != null).toList();
+        List<Card> existingCards = cards.stream().filter(f -> f.getId() != null).toList();
 
         // Batch insert new cards
         if (!newCards.isEmpty()) {
@@ -52,19 +50,19 @@ public class FlashcardBatchOperations {
             batchUpdate(jdbcTemplate, existingCards);
         }
 
-        LOGGER.debug("Batch saved {} flashcards successfully", flashcards.size());
+        LOGGER.debug("Batch saved {} cards successfully", cards.size());
     }
 
     /**
-     * Batch inserts new flashcards in chunks for optimal performance.
-     * NOTE: Generated IDs are NOT set on flashcard objects due to Spring JDBC limitations.
+     * Batch inserts new cards in chunks for optimal performance.
+     * NOTE: Generated IDs are NOT set on card objects due to Spring JDBC limitations.
      * For seed operations this is acceptable as IDs are not needed after insert.
      * For production use cases that require IDs, use single save() in loop.
      *
      * @param jdbcTemplate JDBC template for database operations
-     * @param newCards list of new flashcards
+     * @param newCards list of new cards
      */
-    private void batchInsert(final JdbcTemplate jdbcTemplate, final List<Flashcard> newCards) {
+    private void batchInsert(final JdbcTemplate jdbcTemplate, final List<Card> newCards) {
         LocalDateTime now = LocalDateTime.now();
         long startTime = System.currentTimeMillis();
         int chunkCount = 0;
@@ -72,33 +70,32 @@ public class FlashcardBatchOperations {
         // Process in chunks to avoid memory issues
         for (int i = 0; i < newCards.size(); i += DEFAULT_BATCH_SIZE) {
             int end = Math.min(i + DEFAULT_BATCH_SIZE, newCards.size());
-            List<Flashcard> chunk = newCards.subList(i, end);
+            List<Card> chunk = newCards.subList(i, end);
 
             List<Object[]> batchArgs = prepareBatchInsertArgs(chunk, now);
 
             // NOTE: batchUpdate with RETURNING ID doesn't populate IDs back to objects
             // This is a Spring JDBC limitation - acceptable for seed operations
-            jdbcTemplate.batchUpdate(FlashcardSqlQueries.INSERT_FLASHCARD_RETURNING_ID, batchArgs);
+            jdbcTemplate.batchUpdate(CardSqlQueries.INSERT_CARD_RETURNING_ID, batchArgs);
             chunkCount++;
         }
 
         // Log summary after completion (no logging in loop)
         long duration = System.currentTimeMillis() - startTime;
-        LOGGER.debug(
-                "Batch insert completed: {} flashcards in {} chunks, took {}ms", newCards.size(), chunkCount, duration);
+        LOGGER.debug("Batch insert completed: {} cards in {} chunks, took {}ms", newCards.size(), chunkCount, duration);
     }
 
     /**
      * Prepares batch arguments for insert operation.
      *
-     * @param cards list of flashcards
+     * @param cards list of cards
      * @param timestamp timestamp for created_at and updated_at
      * @return list of batch arguments
      */
-    private List<Object[]> prepareBatchInsertArgs(final List<Flashcard> cards, final LocalDateTime timestamp) {
+    private List<Object[]> prepareBatchInsertArgs(final List<Card> cards, final LocalDateTime timestamp) {
         List<Object[]> batchArgs = new ArrayList<>(cards.size());
 
-        for (Flashcard card : cards) {
+        for (Card card : cards) {
             batchArgs.add(new Object[] {
                 card.getDeckId(),
                 card.getFrontText(),
@@ -114,33 +111,33 @@ public class FlashcardBatchOperations {
     }
 
     /**
-     * Batch updates existing flashcards.
+     * Batch updates existing cards.
      *
      * @param jdbcTemplate JDBC template for database operations
-     * @param existingCards list of flashcards to update
+     * @param existingCards list of cards to update
      */
-    private void batchUpdate(final JdbcTemplate jdbcTemplate, final List<Flashcard> existingCards) {
+    private void batchUpdate(final JdbcTemplate jdbcTemplate, final List<Card> existingCards) {
         long startTime = System.currentTimeMillis();
         LocalDateTime now = LocalDateTime.now();
         List<Object[]> batchArgs = prepareBatchUpdateArgs(existingCards, now);
-        jdbcTemplate.batchUpdate(FlashcardSqlQueries.UPDATE_FLASHCARD, batchArgs);
+        jdbcTemplate.batchUpdate(CardSqlQueries.UPDATE_CARD, batchArgs);
 
         // Log summary after completion (no logging in loop)
         long duration = System.currentTimeMillis() - startTime;
-        LOGGER.debug("Batch update completed: {} flashcards, took {}ms", existingCards.size(), duration);
+        LOGGER.debug("Batch update completed: {} cards, took {}ms", existingCards.size(), duration);
     }
 
     /**
      * Prepares batch arguments for update operation.
      *
-     * @param cards list of flashcards
+     * @param cards list of cards
      * @param timestamp timestamp for updated_at
      * @return list of batch arguments
      */
-    private List<Object[]> prepareBatchUpdateArgs(final List<Flashcard> cards, final LocalDateTime timestamp) {
+    private List<Object[]> prepareBatchUpdateArgs(final List<Card> cards, final LocalDateTime timestamp) {
         List<Object[]> batchArgs = new ArrayList<>(cards.size());
 
-        for (Flashcard card : cards) {
+        for (Card card : cards) {
             batchArgs.add(new Object[] {
                 card.getDeckId(),
                 card.getFrontText(),

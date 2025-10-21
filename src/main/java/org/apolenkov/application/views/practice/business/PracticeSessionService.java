@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
+import org.apolenkov.application.domain.usecase.CardUseCase;
 import org.apolenkov.application.domain.usecase.DeckUseCase;
-import org.apolenkov.application.domain.usecase.FlashcardUseCase;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.service.settings.PracticeSettingsService;
 import org.apolenkov.application.service.stats.StatsService;
@@ -26,7 +26,7 @@ public final class PracticeSessionService {
 
     // Dependencies
     private final DeckUseCase deckUseCase;
-    private final FlashcardUseCase flashcardUseCase;
+    private final CardUseCase cardUseCase;
     private final StatsService statsService;
     private final PracticeSettingsService practiceSettingsService;
 
@@ -34,22 +34,22 @@ public final class PracticeSessionService {
      * Creates a new PracticeSessionService with required dependencies.
      *
      * @param useCase service for deck operations (non-null)
-     * @param flashcardUseCaseValue service for flashcard operations (non-null)
+     * @param cardUseCaseValue service for card operations (non-null)
      * @param stats service for statistics recording (non-null)
      * @param practiceSettings service for practice configuration (non-null)
      * @throws IllegalArgumentException if any parameter is null
      */
     public PracticeSessionService(
             final DeckUseCase useCase,
-            final FlashcardUseCase flashcardUseCaseValue,
+            final CardUseCase cardUseCaseValue,
             final StatsService stats,
             final PracticeSettingsService practiceSettings) {
 
         if (useCase == null) {
             throw new IllegalArgumentException("DeckUseCase cannot be null");
         }
-        if (flashcardUseCaseValue == null) {
-            throw new IllegalArgumentException("FlashcardUseCase cannot be null");
+        if (cardUseCaseValue == null) {
+            throw new IllegalArgumentException("CardUseCase cannot be null");
         }
         if (stats == null) {
             throw new IllegalArgumentException("StatsService cannot be null");
@@ -59,7 +59,7 @@ public final class PracticeSessionService {
         }
 
         this.deckUseCase = useCase;
-        this.flashcardUseCase = flashcardUseCaseValue;
+        this.cardUseCase = cardUseCaseValue;
         this.statsService = stats;
         this.practiceSettingsService = practiceSettings;
     }
@@ -82,14 +82,14 @@ public final class PracticeSessionService {
      * Gets cards that are not yet marked as known in a deck.
      *
      * @param deckId the ID of the deck to check (must be positive)
-     * @return a list of flashcards not yet known by the user, never null (maybe empty)
+     * @return a list of cards not yet known by the user, never null (maybe empty)
      * @throws IllegalArgumentException if deckId is not positive
      */
-    public List<Flashcard> getNotKnownCards(final long deckId) {
+    public List<Card> getNotKnownCards(final long deckId) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
-        List<Flashcard> all = flashcardUseCase.getFlashcardsByDeckId(deckId);
+        List<Card> all = cardUseCase.getCardsByDeckId(deckId);
         Set<Long> known = statsService.getKnownCardIds(deckId);
         return all.stream().filter(fc -> !known.contains(fc.getId())).toList();
     }
@@ -118,7 +118,7 @@ public final class PracticeSessionService {
      * @return the number of cards to include in the practice session (1 to configured default)
      * @throws IllegalArgumentException if notKnownCards is null
      */
-    public int resolveDefaultCount(final List<Flashcard> notKnownCards) {
+    public int resolveDefaultCount(final List<Card> notKnownCards) {
         if (notKnownCards == null) {
             throw new IllegalArgumentException("notKnownCards cannot be null");
         }
@@ -154,11 +154,11 @@ public final class PracticeSessionService {
      * @param deckId the ID of the deck to practice
      * @param count the desired number of cards in the session
      * @param random whether to randomize the card order
-     * @return a list of flashcards prepared for the practice session
+     * @return a list of cards prepared for the practice session
      */
-    public List<Flashcard> prepareSession(final long deckId, final int count, final boolean random) {
+    public List<Card> prepareSession(final long deckId, final int count, final boolean random) {
         // Filter to only unknown cards for focused practice
-        List<Flashcard> filtered = new ArrayList<>(getNotKnownCards(deckId));
+        List<Card> filtered = new ArrayList<>(getNotKnownCards(deckId));
         if (filtered.isEmpty()) {
             return filtered;
         }
@@ -216,7 +216,7 @@ public final class PracticeSessionService {
      * @return a new Session instance ready for practice
      */
     public PracticeSession startSession(final long deckId, final int count, final boolean random) {
-        List<Flashcard> cards = prepareSession(deckId, count, random);
+        List<Card> cards = prepareSession(deckId, count, random);
         return PracticeSession.create(deckId, cards, Instant.now());
     }
 
@@ -232,7 +232,7 @@ public final class PracticeSessionService {
      * @throws IllegalArgumentException if deckId is not positive or preloadedCards is null
      */
     public PracticeSession startSessionWithCards(
-            final long deckId, final List<Flashcard> preloadedCards, final int count, final boolean random) {
+            final long deckId, final List<Card> preloadedCards, final int count, final boolean random) {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
@@ -240,7 +240,7 @@ public final class PracticeSessionService {
             throw new IllegalArgumentException("Preloaded cards cannot be null");
         }
 
-        List<Flashcard> cards = new ArrayList<>(preloadedCards);
+        List<Card> cards = new ArrayList<>(preloadedCards);
         if (cards.isEmpty()) {
             return PracticeSession.create(deckId, cards, Instant.now());
         }
@@ -282,14 +282,14 @@ public final class PracticeSessionService {
      *
      * @param deckId the deck ID
      * @param failedCardIds list of failed card IDs from session
-     * @return list of failed flashcards
+     * @return list of failed cards
      */
-    public List<Flashcard> getFailedCards(final long deckId, final List<Long> failedCardIds) {
+    public List<Card> getFailedCards(final long deckId, final List<Long> failedCardIds) {
         if (failedCardIds == null || failedCardIds.isEmpty()) {
             return List.of();
         }
 
-        List<Flashcard> notKnownCards = getNotKnownCards(deckId);
+        List<Card> notKnownCards = getNotKnownCards(deckId);
         return notKnownCards.stream()
                 .filter(fc -> failedCardIds.contains(fc.getId()))
                 .toList();
@@ -302,8 +302,8 @@ public final class PracticeSessionService {
      * @param failedCards list of failed cards to practice
      * @return new practice session
      */
-    public PracticeSession startRepeatSession(final long deckId, final List<Flashcard> failedCards) {
-        List<Flashcard> cards = new ArrayList<>(failedCards);
+    public PracticeSession startRepeatSession(final long deckId, final List<Card> failedCards) {
+        List<Card> cards = new ArrayList<>(failedCards);
         Collections.shuffle(cards);
         return PracticeSession.create(deckId, cards, Instant.now());
     }

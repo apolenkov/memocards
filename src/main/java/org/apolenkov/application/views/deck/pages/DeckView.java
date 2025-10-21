@@ -19,19 +19,19 @@ import java.util.Optional;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.config.ui.UIConfig;
+import org.apolenkov.application.domain.usecase.CardUseCase;
 import org.apolenkov.application.domain.usecase.DeckUseCase;
-import org.apolenkov.application.domain.usecase.FlashcardUseCase;
+import org.apolenkov.application.model.Card;
 import org.apolenkov.application.model.Deck;
-import org.apolenkov.application.model.Flashcard;
 import org.apolenkov.application.service.stats.StatsService;
 import org.apolenkov.application.views.core.exception.EntityNotFoundException;
 import org.apolenkov.application.views.core.layout.PublicLayout;
 import org.apolenkov.application.views.deck.components.DeckDetailHeader;
-import org.apolenkov.application.views.deck.components.detail.DeckFlashcardContainer;
+import org.apolenkov.application.views.deck.components.detail.DeckCardContainer;
+import org.apolenkov.application.views.deck.components.dialogs.DeckCardDeleteDialog;
+import org.apolenkov.application.views.deck.components.dialogs.DeckCardDialog;
 import org.apolenkov.application.views.deck.components.dialogs.DeckDeleteDialog;
 import org.apolenkov.application.views.deck.components.dialogs.DeckEditDialog;
-import org.apolenkov.application.views.deck.components.dialogs.DeckFlashcardDeleteDialog;
-import org.apolenkov.application.views.deck.components.dialogs.DeckFlashcardDialog;
 import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ public class DeckView extends Composite<VerticalLayout>
 
     // Dependencies
     private final transient DeckUseCase deckUseCase;
-    private final transient FlashcardUseCase flashcardUseCase;
+    private final transient CardUseCase cardUseCase;
     private final transient StatsService statsService;
     private final transient UIConfig uiConfig;
 
@@ -57,12 +57,12 @@ public class DeckView extends Composite<VerticalLayout>
 
     // UI Components
     private DeckDetailHeader detailHeader;
-    private DeckFlashcardContainer flashcardContainer;
+    private DeckCardContainer cardContainer;
 
     // Event Registrations
     private Registration practiceClickListenerRegistration;
     private Registration resetProgressClickListenerRegistration;
-    private Registration addFlashcardClickListenerRegistration;
+    private Registration addCardClickListenerRegistration;
     private Registration editDeckClickListenerRegistration;
     private Registration deleteDeckClickListenerRegistration;
     private Registration filterChangeListenerRegistration;
@@ -73,17 +73,17 @@ public class DeckView extends Composite<VerticalLayout>
      * Creates a new DeckView with required dependencies.
      *
      * @param deckUseCaseParam use case for deck operations
-     * @param flashcardUseCaseParam use case for flashcard operations
+     * @param cardUseCaseParam use case for card operations
      * @param statsServiceParam service for statistics tracking
      * @param uiConfigParam UI configuration settings
      */
     public DeckView(
             final DeckUseCase deckUseCaseParam,
-            final FlashcardUseCase flashcardUseCaseParam,
+            final CardUseCase cardUseCaseParam,
             final StatsService statsServiceParam,
             final UIConfig uiConfigParam) {
         this.deckUseCase = deckUseCaseParam;
-        this.flashcardUseCase = flashcardUseCaseParam;
+        this.cardUseCase = cardUseCaseParam;
         this.statsService = statsServiceParam;
         this.uiConfig = uiConfigParam;
     }
@@ -160,9 +160,9 @@ public class DeckView extends Composite<VerticalLayout>
             resetProgressClickListenerRegistration = null;
         }
 
-        if (addFlashcardClickListenerRegistration != null) {
-            addFlashcardClickListenerRegistration.remove();
-            addFlashcardClickListenerRegistration = null;
+        if (addCardClickListenerRegistration != null) {
+            addCardClickListenerRegistration.remove();
+            addCardClickListenerRegistration = null;
         }
 
         if (editDeckClickListenerRegistration != null) {
@@ -188,13 +188,13 @@ public class DeckView extends Composite<VerticalLayout>
      * Configures click handlers for practice, reset, add, edit and delete actions.
      */
     private void setupActionListeners() {
-        if (detailHeader == null || flashcardContainer == null) {
+        if (detailHeader == null || cardContainer == null) {
             return;
         }
 
         setupPracticeButtonListener();
         setupResetProgressButtonListener();
-        setupAddFlashcardButtonListener();
+        setupAddCardButtonListener();
         setupEditDeckButtonListener();
         setupDeleteDeckButtonListener();
         setupFilterChangeListener();
@@ -224,12 +224,11 @@ public class DeckView extends Composite<VerticalLayout>
     }
 
     /**
-     * Sets up the add flashcard button click listener from header actions.
+     * Sets up the add card button click listener from header actions.
      */
-    private void setupAddFlashcardButtonListener() {
-        if (addFlashcardClickListenerRegistration == null) {
-            addFlashcardClickListenerRegistration =
-                    detailHeader.addAddCardClickListener(e -> openFlashcardDialog(null));
+    private void setupAddCardButtonListener() {
+        if (addCardClickListenerRegistration == null) {
+            addCardClickListenerRegistration = detailHeader.addAddCardClickListener(e -> openCardDialog(null));
         }
     }
 
@@ -262,7 +261,7 @@ public class DeckView extends Composite<VerticalLayout>
      */
     private void setupFilterChangeListener() {
         if (filterChangeListenerRegistration == null) {
-            filterChangeListenerRegistration = flashcardContainer.addFilterChangeListener(
+            filterChangeListenerRegistration = cardContainer.addFilterChangeListener(
                     filterOption -> LOGGER.debug("Filter changed to: {}", filterOption));
         }
     }
@@ -346,18 +345,18 @@ public class DeckView extends Composite<VerticalLayout>
 
         // Create components
         detailHeader = new DeckDetailHeader();
-        flashcardContainer = new DeckFlashcardContainer(
+        cardContainer = new DeckCardContainer(
                 statsService,
-                flashcardUseCase,
+                cardUseCase,
                 uiConfig.search().debounceMs(),
                 uiConfig.pagination().pageSize());
 
         // Set callbacks
-        flashcardContainer.setEditFlashcardCallback(this::openFlashcardDialog);
-        flashcardContainer.setDeleteFlashcardCallback(this::deleteFlashcard);
+        cardContainer.setEditCardCallback(this::openCardDialog);
+        cardContainer.setDeleteCardCallback(this::deleteCard);
 
         // Add components to container
-        deckContainer.add(detailHeader, flashcardContainer);
+        deckContainer.add(detailHeader, cardContainer);
         contentContainer.add(deckContainer);
     }
 
@@ -384,8 +383,8 @@ public class DeckView extends Composite<VerticalLayout>
         updateDeckInfo();
 
         // Initialize data provider with current deck ID
-        if (currentDeck != null && flashcardContainer != null) {
-            flashcardContainer.setCurrentDeckId(currentDeck.getId());
+        if (currentDeck != null && cardContainer != null) {
+            cardContainer.setCurrentDeckId(currentDeck.getId());
         }
     }
 
@@ -400,7 +399,7 @@ public class DeckView extends Composite<VerticalLayout>
                     .filter(desc -> !desc.trim().isEmpty())
                     .orElse("");
 
-            long count = flashcardUseCase.countByDeckId(currentDeck.getId());
+            long count = cardUseCase.countByDeckId(currentDeck.getId());
             String statsText = description.isEmpty()
                     ? getTranslation(DeckConstants.DECK_COUNT, count)
                     : String.format("(%s) %s", description, getTranslation(DeckConstants.DECK_COUNT_SHORT, count));
@@ -412,48 +411,47 @@ public class DeckView extends Composite<VerticalLayout>
     // ==================== Dialog Handlers ====================
 
     /**
-     * Opens a dialog for creating or editing a flashcard.
+     * Opens a dialog for creating or editing a card.
      *
-     * @param flashcard the flashcard to edit, or null for creating new
+     * @param card the card to edit, or null for creating new
      */
-    private void openFlashcardDialog(final Flashcard flashcard) {
-        DeckFlashcardDialog dialog = new DeckFlashcardDialog(flashcardUseCase, currentDeck, savedFlashcard -> {
+    private void openCardDialog(final Card card) {
+        DeckCardDialog dialog = new DeckCardDialog(cardUseCase, currentDeck, savedCard -> {
             // Refresh grid data to reflect changes
-            if (flashcardContainer != null) {
-                if (flashcard == null) {
+            if (cardContainer != null) {
+                if (card == null) {
                     // New card added - reset to first page to show it
-                    flashcardContainer.refreshDataAndResetPage();
+                    cardContainer.refreshDataAndResetPage();
                 } else {
                     // Existing card updated - preserve current page
-                    flashcardContainer.refreshData();
+                    cardContainer.refreshData();
                 }
             }
             updateDeckInfo();
         });
 
-        if (flashcard == null) {
+        if (card == null) {
             dialog.openForCreate();
         } else {
-            dialog.openForEdit(flashcard);
+            dialog.openForEdit(card);
         }
     }
 
     /**
-     * Deletes a flashcard with confirmation dialog.
+     * Deletes a card with confirmation dialog.
      *
-     * @param flashcard the flashcard to delete
+     * @param card the card to delete
      */
-    private void deleteFlashcard(final Flashcard flashcard) {
-        DeckFlashcardDeleteDialog dialog =
-                new DeckFlashcardDeleteDialog(flashcardUseCase, flashcard, deletedFlashcardId -> {
-                    // Refresh grid data to reflect deletion, STAY on current page
-                    // (User convenience: don't reset to page 1 after deleting)
-                    if (flashcardContainer != null) {
-                        flashcardContainer.refreshData();
-                    }
-                    updateDeckInfo();
-                    LOGGER.info("Flashcard {} deleted successfully", deletedFlashcardId);
-                });
+    private void deleteCard(final Card card) {
+        DeckCardDeleteDialog dialog = new DeckCardDeleteDialog(cardUseCase, card, deletedCardId -> {
+            // Refresh grid data to reflect deletion, STAY on current page
+            // (User convenience: don't reset to page 1 after deleting)
+            if (cardContainer != null) {
+                cardContainer.refreshData();
+            }
+            updateDeckInfo();
+            LOGGER.info("Card {} deleted successfully", deletedCardId);
+        });
 
         UI.getCurrent().add(dialog);
         dialog.show();
@@ -470,7 +468,7 @@ public class DeckView extends Composite<VerticalLayout>
 
         DeckDeleteDialog dialog = new DeckDeleteDialog(
                 deckUseCase,
-                flashcardUseCase,
+                cardUseCase,
                 currentDeck,
                 deletedDeck -> LOGGER.info("Deck {} deleted successfully", currentDeck.getId()));
 
@@ -494,8 +492,8 @@ public class DeckView extends Composite<VerticalLayout>
 
         dialog.addConfirmListener(event -> {
             LOGGER.info("Reset progress confirmed by user");
-            if (flashcardContainer != null) {
-                flashcardContainer.resetProgress();
+            if (cardContainer != null) {
+                cardContainer.resetProgress();
                 org.apolenkov.application.views.shared.utils.NotificationHelper.showSuccessBottom(
                         getTranslation(DeckConstants.DECK_PROGRESS_RESET));
             }

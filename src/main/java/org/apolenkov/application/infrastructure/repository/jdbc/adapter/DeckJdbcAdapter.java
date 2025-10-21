@@ -22,7 +22,7 @@ import org.springframework.stereotype.Repository;
  * JDBC adapter for deck repository operations.
  *
  * <p>Implements DeckRepository using direct JDBC operations.
- * Provides CRUD operations for flashcard decks.
+ * Provides CRUD operations for card decks.
  * Active in JDBC profiles only.</p>
  */
 @Profile({"dev", "prod", "test"})
