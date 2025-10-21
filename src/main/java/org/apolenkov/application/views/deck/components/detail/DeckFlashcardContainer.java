@@ -184,6 +184,14 @@ public final class DeckFlashcardContainer extends Composite<VerticalLayout> {
     }
 
     /**
+     * Refreshes the data and resets to first page.
+     * Call after adding or removing cards to ensure proper pagination.
+     */
+    public void refreshDataAndResetPage() {
+        flashcardList.refreshDataAndResetPage();
+    }
+
+    /**
      * Sets the edit flashcard callback.
      *
      * @param callback the callback to execute when editing a flashcard

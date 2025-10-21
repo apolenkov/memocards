@@ -12,7 +12,6 @@ import org.apolenkov.application.views.stats.constants.StatsConstants;
 /**
  * UI component for displaying compact deck statistics in horizontal layout.
  * Shows deck title and multiple stat metrics in a single row for efficient space usage.
- * Used in the deck statistics list instead of full DeckStatCard.
  */
 public final class DeckStatCardCompact extends Composite<Div> {
 

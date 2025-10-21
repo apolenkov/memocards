@@ -24,13 +24,14 @@ public final class FlashcardSqlQueries {
 
     /**
      * SQL query to select flashcards by deck ID.
+     * Ordered by updated_at DESC to show newest cards first.
      */
     public static final String SELECT_FLASHCARDS_BY_DECK_ID =
             """
             SELECT f.id, f.deck_id, f.front_text, f.back_text, f.example, f.image_url, f.created_at, f.updated_at
             FROM flashcards f
             WHERE f.deck_id = ?
-            ORDER BY f.created_at ASC
+            ORDER BY f.created_at DESC
             """;
 
     /**

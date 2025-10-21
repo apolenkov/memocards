@@ -1,13 +1,13 @@
 ---
 alwaysApply: true
 autoFix: true
-version: "3.0.0"
+version: "4.0.0"
 ---
 
 # CACHING STRATEGY
 
 ## STACK
-@UIScope/@SessionScope | Spring Events | TTL | ConcurrentHashMap | AtomicLong
+@UIScope/@SessionScope | Spring Events | TTL | ConcurrentHashMap | AtomicLong | UI.access()
 
 ## CORE PATTERN
 ```java
@@ -45,9 +45,60 @@ public class EntityCache<T> {
 - **Logging**: DEBUG level with `if (LOGGER.isDebugEnabled())` wrap
 - **Bounded**: LRU eviction when cache.size() >= maxSize
 
+## REACTIVE UI UPDATES (with @Push)
+- **Cache Invalidation**: ALWAYS immediate (NO cooldown in cache layer!)
+- **UI Debouncing**: 300-500ms at UI level (beforeClientResponse/UI.access)
+- **Server Push**: Use `UI.access()` for immediate updates, NOT `beforeClientResponse()`
+- **Separation of Concerns**: Cache = data consistency, UI = debounce UX
+
+**✅ CORRECT Pattern:**
+```java
+// Cache Layer - immediate invalidation
+@EventListener
+public void onProgressChanged(ProgressChangedEvent event) {
+    invalidate(event.getDeckId()); // ✅ NO cooldown here!
+}
+
+// UI Layer - debounced refresh with server push
+public void refreshUI() {
+    if (refreshPending.compareAndSet(false, true)) {
+        getElement().getNode().runWhenAttached(ui -> 
+            ui.access(() -> { // ✅ UI.access() for server push!
+                if (refreshPending.compareAndSet(true, false)) {
+                    loadCurrentPage();
+                }
+            })
+        );
+    }
+}
+```
+
+**❌ WRONG Pattern:**
+```java
+// ❌ Cache Layer - cooldown blocks invalidation → stale data!
+@EventListener
+public void onProgressChanged(ProgressChangedEvent event) {
+    if (isInCooldown(event.getDeckId())) return; // ❌ BAD: 2s delay!
+    invalidate(event.getDeckId());
+}
+
+// ❌ UI Layer - beforeClientResponse() → NO server push!
+public void refreshUI() {
+    ui.beforeClientResponse(this, context -> loadCurrentPage()); // ❌ Updates only on next request!
+}
+```
+
+## COOLDOWN GUIDELINES
+- **Cache Invalidation**: 0ms (immediate) OR max 300ms for extreme high-frequency writes
+- **UI Refresh**: 300-500ms (debounce user interactions)
+- **Rule**: Cooldown at UI layer, NOT cache layer (data consistency > performance)
+
 ## CRITICAL ANTIPATTERNS
 1. Static cache → memory leak
 2. TTL only (no events) → stale after edits
 3. Unbounded cache → memory leak
 4. Logging in get() → performance overhead
 5. List.copyOf() in generic cache → compilation error
+6. ❌ **beforeClientResponse() instead of UI.access()** → NO server push!
+7. ❌ **Cooldown >500ms** → poor UX, stale data visible
+8. ❌ **Cooldown in cache invalidation** → data consistency violated

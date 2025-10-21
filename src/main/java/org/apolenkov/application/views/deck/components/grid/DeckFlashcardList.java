@@ -100,6 +100,11 @@ public final class DeckFlashcardList extends VerticalLayout {
         if (!hasBeenInitialized) {
             hasBeenInitialized = true;
             initializeLayout();
+
+            // Load data if deck ID was set before initialization
+            if (currentDeckId != null) {
+                loadCurrentPage();
+            }
         }
     }
 
@@ -171,10 +176,8 @@ public final class DeckFlashcardList extends VerticalLayout {
         // Add all components
         add(topPaginationInfo, topPagination, cardsContainer, bottomPagination, bottomPaginationInfo);
 
-        // Load data if deckId is already set
-        if (currentDeckId != null) {
-            loadCurrentPage();
-        }
+        // Data will be loaded in onAttach() if deckId is set
+        // OR when setCurrentDeckId() is called
     }
 
     /**
@@ -331,27 +334,48 @@ public final class DeckFlashcardList extends VerticalLayout {
 
     /**
      * Updates pagination info displays.
+     * Critical logic for avoiding duplicate messages:
+     * - No items: Show message ONLY at top (prevents duplicate visible text)
+     * - One page: Hide all messages (items visible, no explanation needed)
+     * - Multiple pages: Show pagination at top AND bottom (for navigation convenience)
      */
     private void updatePaginationInfo() {
+        // Case 1: No items after filtering
         if (totalItems == 0) {
             String noItemsText = getContextualEmptyMessage();
+
+            // ✅ Show message ONLY at top (prevents duplicate visible text)
             topPaginationInfo.setText(noItemsText);
+            topPaginationInfo.setVisible(true);
+
+            // ✅ Hide bottom message (no need to show same message twice)
+            bottomPaginationInfo.setText("");
+            bottomPaginationInfo.setVisible(false);
 
             // Hide pagination controls when no items
             hidePaginationControls();
             return;
         }
 
-        // Hide pagination controls if all items fit on one page
+        // Case 2: Items exist but all fit on one page (no pagination needed)
         if (totalPages <= 1) {
-            hidePaginationControls();
+            // Clear pagination info text - items are visible, no explanation needed
             topPaginationInfo.setText("");
             bottomPaginationInfo.setText("");
+            topPaginationInfo.setVisible(false);
+            bottomPaginationInfo.setVisible(false);
+
+            // Hide pagination controls
+            hidePaginationControls();
             return;
         }
 
-        // Show pagination controls when multiple pages exist
+        // Case 3: Multiple pages - show pagination controls and info
         showPaginationControls();
+
+        // Show pagination info at top AND bottom for navigation convenience
+        topPaginationInfo.setVisible(true);
+        bottomPaginationInfo.setVisible(true);
 
         int startItem = currentPage * pageSize + 1;
         int endItem = Math.min((currentPage + 1) * pageSize, (int) totalItems);
@@ -662,28 +686,65 @@ public final class DeckFlashcardList extends VerticalLayout {
      * Call this after status changes (known/unknown toggle).
      * Preserves current page position.
      *
-     * <p>Uses coalescing pattern to prevent multiple redundant refreshes in same server roundtrip.
-     * Vaadin's push/polling mechanism can trigger multiple refresh calls during state updates.
-     * This pattern ensures only one actual database query executes per roundtrip.
+     * <p>Uses UI.access() for immediate server push updates to ensure user sees changes instantly.
+     * AtomicBoolean flag prevents multiple redundant refreshes during rapid interactions.
+     * This pattern ensures thread-safe UI updates and immediate feedback in Practice Mode.
      *
-     * <p>Pattern: AtomicBoolean flag + UI.beforeClientResponse() callback
-     * Reference: Vaadin Flow common patterns for preventing duplicate operations
+     * <p>Pattern: AtomicBoolean flag + UI.access() for server push
+     * Reference: Vaadin Flow Server Push documentation
      *
      * @see <a href="https://vaadin.com/docs/latest/flow/advanced/server-push">Vaadin Server Push</a>
      */
     public void refreshStatusForCards() {
+        // Skip if not initialized yet
+        if (cardsContainer == null) {
+            return;
+        }
+
         if (refreshPending.compareAndSet(false, true)) {
             // Cancel previous timer if exists
             if (refreshTimer != null) {
                 refreshTimer.remove();
             }
 
-            // Use beforeClientResponse to coalesce multiple refresh calls
-            // All calls within same server roundtrip will be merged into one
+            // Use UI.access() for immediate push updates (thread-safe)
+            // This ensures UI updates happen immediately, not on next client request
             getElement()
                     .getNode()
-                    .runWhenAttached(ui -> ui.beforeClientResponse(this, context -> {
+                    .runWhenAttached(ui -> ui.access(() -> {
                         if (refreshPending.compareAndSet(true, false)) {
+                            loadCurrentPage();
+                            // No need for ui.push() - @Push annotation enables automatic push mode
+                        }
+                    }));
+        }
+    }
+
+    /**
+     * Refreshes the data and resets to first page.
+     * Call this after adding or removing cards to ensure proper pagination.
+     * Resets to page 0 to show newly added cards.
+     * Uses UI.access() for immediate server push updates.
+     */
+    public void refreshDataAndResetPage() {
+        // Skip if not initialized yet
+        if (cardsContainer == null) {
+            return;
+        }
+
+        if (refreshPending.compareAndSet(false, true)) {
+            // Cancel previous timer if exists
+            if (refreshTimer != null) {
+                refreshTimer.remove();
+            }
+
+            // Use UI.access() for immediate push updates (thread-safe)
+            getElement()
+                    .getNode()
+                    .runWhenAttached(ui -> ui.access(() -> {
+                        if (refreshPending.compareAndSet(true, false)) {
+                            // Reset to first page to show newly added cards
+                            currentPage = 0;
                             loadCurrentPage();
                         }
                     }));

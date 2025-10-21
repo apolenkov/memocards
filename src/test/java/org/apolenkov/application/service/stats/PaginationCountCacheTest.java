@@ -1,6 +1,7 @@
 package org.apolenkov.application.service.stats;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apolenkov.application.domain.event.DeckModifiedEvent;
@@ -8,9 +9,11 @@ import org.apolenkov.application.domain.event.DeckModifiedEvent.ModificationType
 import org.apolenkov.application.domain.event.ProgressChangedEvent;
 import org.apolenkov.application.domain.event.ProgressChangedEvent.ChangeType;
 import org.apolenkov.application.domain.model.FilterOption;
+import org.apolenkov.application.service.stats.metrics.CacheMetricsCollector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
@@ -25,7 +28,9 @@ class PaginationCountCacheTest {
 
     @BeforeEach
     void setUp() {
-        cache = new PaginationCountCache();
+        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+        CacheMetricsCollector metricsCollector = mock(CacheMetricsCollector.class);
+        cache = new PaginationCountCache(eventPublisher, metricsCollector);
         // Set @Value fields manually for unit tests
         ReflectionTestUtils.setField(cache, "ttlMs", 60000L); // 1 minute
         ReflectionTestUtils.setField(cache, "maxSize", 500);

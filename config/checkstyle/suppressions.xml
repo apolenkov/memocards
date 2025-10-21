@@ -14,6 +14,10 @@
     <suppress checks="LineLength" files=".*"/>
     <suppress checks="WhitespaceAround" files=".*"/>
 
+    <!-- Java 21 switch expressions with pattern matching -->
+    <!-- InnerAssignment conflicts with modern switch expression syntax -->
+    <suppress checks="InnerAssignment" files=".*"/>
+
     <!-- Exclude i18n files from nonEnglish character check -->
     <suppress checks="RegexpSingleline" files=".*i18n.*"/>
     <suppress checks="RegexpSingleline" files=".*messages_.*\.properties"/>

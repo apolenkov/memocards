@@ -82,8 +82,8 @@ public final class FlashcardQueryBuilder {
             sql.append(" WHERE ").append(String.join(" AND ", conditions));
         }
 
-        // Add ORDER BY
-        sql.append(" ORDER BY f.created_at ASC");
+        // Add ORDER BY (newest first for better UX)
+        sql.append(" ORDER BY f.created_at DESC");
 
         return sql.toString();
     }

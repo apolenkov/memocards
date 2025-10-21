@@ -418,9 +418,15 @@ public class DeckView extends Composite<VerticalLayout>
      */
     private void openFlashcardDialog(final Flashcard flashcard) {
         DeckFlashcardDialog dialog = new DeckFlashcardDialog(flashcardUseCase, currentDeck, savedFlashcard -> {
-            // Refresh grid data to reflect changes (lazy loading handles updates)
+            // Refresh grid data to reflect changes
             if (flashcardContainer != null) {
-                flashcardContainer.refreshData();
+                if (flashcard == null) {
+                    // New card added - reset to first page to show it
+                    flashcardContainer.refreshDataAndResetPage();
+                } else {
+                    // Existing card updated - preserve current page
+                    flashcardContainer.refreshData();
+                }
             }
             updateDeckInfo();
         });
@@ -440,7 +446,8 @@ public class DeckView extends Composite<VerticalLayout>
     private void deleteFlashcard(final Flashcard flashcard) {
         DeckFlashcardDeleteDialog dialog =
                 new DeckFlashcardDeleteDialog(flashcardUseCase, flashcard, deletedFlashcardId -> {
-                    // Refresh grid data to reflect deletion (lazy loading handles updates)
+                    // Refresh grid data to reflect deletion, STAY on current page
+                    // (User convenience: don't reset to page 1 after deleting)
                     if (flashcardContainer != null) {
                         flashcardContainer.refreshData();
                     }

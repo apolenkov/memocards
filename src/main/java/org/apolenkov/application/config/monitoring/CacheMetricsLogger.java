@@ -59,6 +59,8 @@ public class CacheMetricsLogger {
             } else {
                 LOGGER.debug("PaginationCountCache not available (no active session)");
             }
+        } catch (org.springframework.beans.factory.support.ScopeNotActiveException e) {
+            LOGGER.debug("PaginationCountCache not available (session scope not active)");
         } catch (Exception e) {
             LOGGER.error("Failed to retrieve PaginationCountCache metrics", e);
         }

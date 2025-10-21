@@ -15,23 +15,11 @@ public final class StatsConstants {
     public static final String DECK_STATS_CARD_CLASS = "deck-stats-card";
     public static final String DECK_STATS_CARD_HEADER_CLASS = "deck-stats-card__header";
     public static final String DECK_STATS_CARD_TITLE_CLASS = "deck-stats-card__title";
-    public static final String DECK_STATS_CARD_GRID_CLASS = "deck-stats-card__grid";
-
-    public static final String STATS_DECK_ITEM_CLASS = "stats-deck-item";
-    public static final String STATS_DECK_ITEM_TOTAL_CLASS = "stats-deck-item__total";
-    public static final String STATS_DECK_ITEM_TODAY_CLASS = "stats-deck-item__today";
-    public static final String STATS_DECK_ITEM_LABEL_CLASS = "stats-deck-item__label";
 
     public static final String STATS_SECTION_CLASS = "stats-section";
     public static final String STATS_SECTION_HEADER_CLASS = "stats-section__header";
     public static final String STATS_SECTION_TITLE_CLASS = "stats-section__title";
     public static final String CLICKABLE_TITLE_CLASS = "clickable-title";
-
-    public static final String STATS_OVERALL_GRID_CLASS = "stats-overall-grid";
-    public static final String STATS_TODAY_GRID_CLASS = "stats-today-grid";
-
-    public static final String STATS_PAGINATION_INDICATOR_CLASS = "stats-pagination__indicator";
-    public static final String STATS_CURRENT_DECK_CONTAINER_CLASS = "stats-current-deck__container";
 
     public static final String STATS_VIEW_CLASS = "stats-view";
     public static final String STATS_VIEW_TITLE_CLASS = "stats-view__title";
@@ -56,9 +44,6 @@ public final class StatsConstants {
 
     public static final String STATS_COLLAPSE_KEY = "stats.collapse";
     public static final String STATS_EXPAND_KEY = "stats.expand";
-    public static final String STATS_PREVIOUS_DECK_KEY = "stats.previousDeck";
-    public static final String STATS_NEXT_DECK_KEY = "stats.nextDeck";
-    public static final String STATS_DECK_PAGE_KEY = "stats.deckPage";
 
     // Private constructor to prevent instantiation
     private StatsConstants() {
