@@ -13,7 +13,8 @@ PROFILE_DEV := --spring.profiles.active=dev
         code-quality code-quality-full code-quality-chars \
         coverage coverage-verify deps npm-install vaadin-prepare dev-setup quality-check \
         lint-css lint-css-fix spotless-check sonarlint \
-        spotbugs checkstyle vaadin-build-frontend erase
+        spotbugs checkstyle vaadin-build-frontend erase \
+        jib jib-local jib-docker jib-tar jib-build jib-compose
 
 # =============================================================================
 # HELP
