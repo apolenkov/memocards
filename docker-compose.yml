@@ -17,23 +17,13 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # Application service (optional - use with --profile full-stack)
-  # Uncomment 'image' line to use published image from ghcr.io
-  # Or uncomment 'build' section to build locally
   app:
-    # Use published image:
-    # image: ghcr.io/apolenkov/memocards:latest
-    
-    # Or build locally:
-    build:
-      context: .
-      dockerfile: Dockerfile.local
-    
+    image: ghcr.io/apolenkov/memocards:latest
     container_name: memocards-app
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-dev}
+      SPRING_PROFILES_ACTIVE: dev
       DB_URL: jdbc:postgresql://postgres:5432/memocards
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
