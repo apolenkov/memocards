@@ -53,4 +53,6 @@ changelogs/
 
 # Environment variables
 .env
-.env.local
+
+# CI/CD
+.github/secrets/

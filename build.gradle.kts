@@ -30,6 +30,8 @@ plugins {
     id("checkstyle")
 
     id("jacoco")
+
+    id("com.google.cloud.tools.jib")
 }
 
 group = "org.apolenkov.application"
@@ -351,4 +353,50 @@ tasks.register("codeQualityFull") {
         "codeQuality",
         "lintCss",
     )
+}
+
+/*
+ * Jib containerization configuration
+ */
+jib {
+    from {
+        image = "eclipse-temurin:21-jre-alpine"
+        platforms {
+            platform {
+                architecture = "amd64"
+                os = "linux"
+            }
+            platform {
+                architecture = "arm64"
+                os = "linux"
+            }
+        }
+    }
+    to {
+        image = "ghcr.io/${System.getenv("GITHUB_REPOSITORY") ?: "apolenkov/memocards"}"
+        tags = setOf("latest", System.getenv("GITHUB_SHA")?.take(7) ?: "dev")
+        auth {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
+    container {
+        jvmFlags =
+            listOf(
+                "-XX:+UseContainerSupport",
+                "-XX:MaxRAMPercentage=75.0",
+                "-XX:+UseG1GC",
+                "-Dspring.profiles.active=prod",
+            )
+        ports = listOf("8080")
+        labels.set(
+            mapOf(
+                "org.opencontainers.image.source" to "https://github.com/${System.getenv("GITHUB_REPOSITORY") ?: "apolenkov/memocards"}",
+                "org.opencontainers.image.description" to "Memocards Application - Flashcards Learning Platform",
+                "org.opencontainers.image.licenses" to "MIT",
+                "org.opencontainers.image.version" to project.version.toString(),
+            ),
+        )
+        creationTime.set("USE_CURRENT_TIMESTAMP")
+    }
 }

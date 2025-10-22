@@ -1,0 +1,55 @@
+# Railway ignore file - exclude unnecessary files from deployment
+
+# Development
+.git/
+.github/
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Build artifacts (Railway will build its own)
+build/
+target/
+out/
+bin/
+.gradle/
+
+# Test reports
+build/reports/
+build/test-results/
+
+# Logs
+logs/
+*.log
+
+# Node modules (will be reinstalled)
+node_modules/
+
+# Environment files
+.env
+.env.*
+!env.example
+
+# Docker files (not needed for Railway)
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile*
+
+# Documentation
+*.md
+!README.md
+
+# Git files
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+
+# IDE
+.settings/
+.classpath
+.project
+
