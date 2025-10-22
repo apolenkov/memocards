@@ -8,6 +8,7 @@ pluginManagement {
     val springframeworkBoot: String by settings
     val spotless: String by settings
     val nodeVersion: String by settings
+    val jib: String by settings
 
     repositories {
         gradlePluginPortal()
@@ -27,6 +28,8 @@ pluginManagement {
         id("com.vaadin") version vaadinVersion
         id("com.github.node-gradle.node") version nodeVersion
         id("org.springframework.boot") version springframeworkBoot
+
+        id("com.google.cloud.tools.jib") version jib
     }
 }
 
