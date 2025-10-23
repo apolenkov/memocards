@@ -262,7 +262,7 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           railway login --token $RAILWAY_TOKEN
-          railway up --detach
+          railway up --detach --service memocards
           
       - name: Wait for deployment
         run: |
