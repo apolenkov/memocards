@@ -33,13 +33,13 @@ public final class Application {
      * @param args command line arguments passed to the application
      */
     public static void main(final String[] args) {
-        LOGGER.info("Starting Cards application...");
+        LOGGER.info("Starting Memocards application...");
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Application arguments: {}", Arrays.toString(args));
         }
 
         SpringApplication.run(Application.class, args);
 
-        LOGGER.info("Cards application started successfully");
+        LOGGER.info("Memocards application started successfully");
     }
 }
