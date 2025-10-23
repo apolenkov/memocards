@@ -267,30 +267,30 @@ tasks.withType<Test> {
 tasks.register<Test>("integrationTest") {
     group = JavaBasePlugin.VERIFICATION_GROUP
     description = "Run integration tests with TestContainers"
-    
+
     useJUnitPlatform()
     testClassesDirs = sourceSets["test"].output.classesDirs
     classpath = sourceSets["test"].runtimeClasspath
-    
+
     // Only run tests that extend BaseIntegrationTest
     include("**/*IntegrationTest.class")
     include("**/BaseIntegrationTest.class")
-    
+
     // Enable TestContainers reuse for CI
     systemProperty("testcontainers.reuse.enable", "true")
-    
+
     testLogging {
         events("passed", "skipped", "failed")
         showExceptions = true
         showCauses = true
         showStackTraces = true
     }
-    
+
     reports {
         junitXml.required.set(true)
         html.required.set(true)
     }
-    
+
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
