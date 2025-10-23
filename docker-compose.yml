@@ -4,8 +4,8 @@ services:
     container_name: memocards-postgres
     environment:
       POSTGRES_DB: memocards
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER:-memocards_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
       - "5432:5432"
     volumes:
@@ -17,17 +17,23 @@ services:
       retries: 5
     restart: unless-stopped
 
+  # Application
   app:
-    image: ghcr.io/apolenkov/memocards:latest
+    image: ${APP_IMAGE:-ghcr.io/apolenkov/memocards:latest}
     container_name: memocards-app
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      # Override Vaadin settings for containers
+      VAADIN_LAUNCH_BROWSER: false
+      VAADIN_PRODUCTION_MODE: true
+      # Override database URL for containers (required for Docker networking)
       DB_URL: jdbc:postgresql://postgres:5432/memocards
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JAVA_OPTS: ${JAVA_OPTS:--XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0}
+    volumes:
+      # Mount logs directory to container
+      - ./logs:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -38,8 +44,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
-    profiles:
-      - full-stack
 
 volumes:
   postgres_data:
