@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@polymer/polymer": "3.5.2",
-    "@vaadin/bundles": "24.7.5",
+    "@vaadin/bundles": "24.8.9",
     "@vaadin/common-frontend": "0.0.19",
     "@vaadin/polymer-legacy-adapter": "24.7.5",
     "@vaadin/react-components": "24.7.5",
@@ -79,7 +79,7 @@
   "vaadin": {
     "dependencies": {
       "@polymer/polymer": "3.5.2",
-      "@vaadin/bundles": "24.7.5",
+      "@vaadin/bundles": "24.8.9",
       "@vaadin/common-frontend": "0.0.19",
       "@vaadin/polymer-legacy-adapter": "24.7.5",
       "@vaadin/react-components": "24.7.5",
