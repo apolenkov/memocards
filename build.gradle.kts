@@ -129,7 +129,7 @@ configurations.all {
 
         // Existing force declarations
         force("commons-io:commons-io:2.18.0")
-        force("org.checkerframework:checker-qual:3.48.3")
+        force("org.checkerframework:checker-qual:3.51.1")
 
         // Resolve reported conflicts with latest versions
         force("org.apache.commons:commons-compress:1.27.1")
