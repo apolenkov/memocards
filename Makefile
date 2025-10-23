@@ -4,17 +4,15 @@
 GRADLE := ./gradlew
 DOCKER_COMPOSE := docker-compose
 APP_PORT := 8080
-PROFILE_DEV := --spring.profiles.active=dev
 
 # =============================================================================
 # PHONY TARGETS
 # =============================================================================
-.PHONY: help start stop restart logs clean build run dev prod test format check \
-        code-quality code-quality-full code-quality-chars \
-        coverage coverage-verify deps npm-install vaadin-prepare dev-setup quality-check \
-        lint-css lint-css-fix spotless-check sonarlint \
-        spotbugs checkstyle vaadin-build-frontend erase \
-        jib jib-local jib-docker jib-tar jib-build jib-compose
+.PHONY: help start stop restart logs clean build test format check \
+        code-quality coverage deps npm-install vaadin-prepare dev-setup \
+        lint-css spotless-check sonarlint spotbugs checkstyle \
+        vaadin-build-frontend erase docker docker-stop \
+        docker-logs docker-status jib jib-push
 
 # =============================================================================
 # HELP
@@ -60,11 +58,9 @@ clean: ## Clean up environment
 build: ## Build application
 	$(GRADLE) clean build
 
-run: start ## Start application with database
-	@echo "Starting application..."
-	$(GRADLE) bootRun
-
-
+build-prod: ## Build application for production
+	@echo "Building application for production..."
+	$(GRADLE) clean build -Pvaadin.productionMode=true
 
 # =============================================================================
 # DEVELOPMENT SETUP - Environment Preparation
@@ -132,8 +128,12 @@ npm-install: ## Install npm dependencies
 vaadin-prepare: ## Prepare Vaadin frontend
 	$(GRADLE) vaadinPrepareFrontend
 
-vaadin-build-frontend: ## Build Vaadin frontend bundle
+vaadin-build-frontend: ## Build Vaadin frontend bundle (dev mode)
 	$(GRADLE) vaadinBuildFrontend
+
+vaadin-build-prod: ## Build Vaadin frontend bundle for production
+	@echo "Building Vaadin frontend for production..."
+	$(GRADLE) clean vaadinBuildFrontend -Pvaadin.productionMode=true
 
 # =============================================================================
 # CODE ANALYSIS - Individual Tools
@@ -150,10 +150,78 @@ checkstyle: ## Run Checkstyle analysis for main and test classes
 # =============================================================================
 # DEVELOPMENT COMMANDS
 # =============================================================================
-dev: ## Start application in development mode
+dev: start ## Start application in development mode
 	@echo "Starting application in development mode..."
-	@$(GRADLE) bootRun --args="--spring.profiles.active=dev"
+	$(GRADLE) bootRun --args="--spring.profiles.active=dev"
 
-prod: start build ## Start application in production mode
+prod: start vaadin-build-prod ## Start application in production mode
 	@echo "Starting application in production mode..."
-	@$(GRADLE) bootRun --args="--spring.profiles.active=prod"
+	$(GRADLE) bootRun --args="--spring.profiles.active=prod"
+
+# =============================================================================
+# DIAGNOSTICS & VERIFICATION
+# =============================================================================
+check-app: ## Check if application is running
+	@echo "Checking application status..."
+	@curl -s -o /dev/null -w "%{http_code}" http://localhost:$(APP_PORT) || echo "Application not responding"
+
+logs-app: ## Show application logs
+	@tail -f logs/application.log
+
+logs-errors: ## Show error logs
+	@tail -f logs/errors.log
+
+status: ## Show application and database status
+	@echo "=== Application Status ==="
+	@curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" http://localhost:$(APP_PORT) || echo "Application: Not running"
+	@echo "=== Database Status ==="
+	@$(DOCKER_COMPOSE) exec -T postgres pg_isready -U postgres 2>/dev/null && echo "Database: Ready" || echo "Database: Not ready"
+
+# =============================================================================
+# DOCKER COMMANDS
+# =============================================================================
+docker: ## Start application with Docker Compose
+	@echo "Starting application with Docker Compose..."
+	$(DOCKER_COMPOSE) up -d
+	@echo "Application started!"
+	@echo "Application: http://localhost:$(APP_PORT)"
+	@echo "Database: localhost:5432"
+
+docker-stop: ## Stop all Docker Compose services
+	@echo "Stopping all Docker Compose services..."
+	$(DOCKER_COMPOSE) down
+	@echo "All services stopped!"
+
+docker-logs: ## Show Docker Compose logs
+	$(DOCKER_COMPOSE) logs -f app
+
+docker-status: ## Show Docker Compose services status
+	@echo "=== Docker Compose Services Status ==="
+	@$(DOCKER_COMPOSE) ps
+	@echo ""
+	@echo "=== Application Health Check ==="
+	@curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" http://localhost:$(APP_PORT) || echo "Application: Not responding"
+
+# =============================================================================
+# JIB CONTAINERIZATION COMMANDS
+# =============================================================================
+jib: ## Build Docker image with Jib (local)
+	@echo "Building Docker image locally..."
+	$(GRADLE) jibDockerBuild
+	@echo "Docker image built successfully!"
+
+jib-push: ## Build and push Docker image to registry
+	@echo "Building and pushing Docker image..."
+	@if [ -f .env ]; then \
+		set -a && \
+		. ./.env && \
+		set +a && \
+		$(GRADLE) jib \
+			-PGITHUB_TOKEN="$$GITHUB_TOKEN" \
+			-PGITHUB_ACTOR="$$GITHUB_ACTOR" \
+			-PGITHUB_REPOSITORY="$$GITHUB_REPOSITORY" \
+			-PGITHUB_SHA="$$GITHUB_SHA"; \
+	else \
+		$(GRADLE) jib; \
+	fi
+	@echo "Docker image pushed successfully!"

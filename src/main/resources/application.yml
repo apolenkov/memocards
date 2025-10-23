@@ -1,8 +1,8 @@
 spring:
   application:
-    name: cards
+    name: memocards
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   output:
     ansi:
       enabled: ALWAYS
@@ -30,14 +30,15 @@ spring:
 
 vaadin:
   allowed-packages: com.vaadin,org.vaadin,com.flowingcode,org.apolenkov.application
-  launch-browser: false  # Override in dev profile
-  productionMode: true # Override in dev profile
+  launch-browser: ${VAADIN_LAUNCH_BROWSER:true}   # Enable browser launch for local development
+  productionMode: ${VAADIN_PRODUCTION_MODE:false}  # Development mode for local development
 
 # Server configuration
 server:
+  port: ${SERVER_PORT:8080}
   compression:
-    enabled: true
-    min-response-size: 512
+    enabled: ${SERVER_COMPRESSION_ENABLED:true}
+    min-response-size: ${SERVER_COMPRESSION_MIN_SIZE:512}
     mime-types:
       - text/html
       - text/css
@@ -46,28 +47,28 @@ server:
       - image/svg+xml
       - application/xml
   http2:
-    enabled: true
+    enabled: ${SERVER_HTTP2_ENABLED:true}
 
 # Actuator endpoints
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: ${MANAGEMENT_ENDPOINTS:health,info,metrics,prometheus}
   endpoint:
     health:
-      show-details: when-authorized
-      show-components: when-authorized
+      show-details: ${MANAGEMENT_HEALTH_SHOW_DETAILS:when-authorized}
+      show-components: ${MANAGEMENT_HEALTH_SHOW_COMPONENTS:when-authorized}
   metrics:
     enable:
-      jvm: true
-      jdbc: true
-      hikaricp: true
-      logback: true
+      jvm: ${MANAGEMENT_METRICS_JVM:true}
+      jdbc: ${MANAGEMENT_METRICS_JDBC:true}
+      hikaricp: ${MANAGEMENT_METRICS_HIKARI:true}
+      logback: ${MANAGEMENT_METRICS_LOGBACK:true}
   prometheus:
     metrics:
       export:
-        enabled: true
+        enabled: ${MANAGEMENT_PROMETHEUS_ENABLED:true}
 
 app:
   cache:
@@ -106,10 +107,6 @@ spring:
   config:
     activate:
       on-profile: dev
-
-vaadin:
-  launch-browser: false
-  productionMode: false
 
 logging:
   level:
@@ -164,12 +161,3 @@ logging:
     org.flywaydb: INFO
     com.vaadin: WARN
     com.zaxxer.hikari: INFO
-
-# Production cache optimization: longer TTL with event-driven invalidation
-app:
-  cache:
-    pagination-count:
-      ttl-ms: 300000  # 5 minutes (longer TTL safe with event-driven invalidation)
-    known-cards:
-      ttl-ms: 600000  # 10 minutes (less volatile, event-driven invalidation ensures freshness)
-

@@ -355,9 +355,16 @@ tasks.register("codeQualityFull") {
     )
 }
 
-/*
- * Jib containerization configuration
- */
+// Ensure frontend is built for production mode before Jib
+tasks.named("jibDockerBuild") {
+    dependsOn("vaadinBuildFrontend")
+}
+
+tasks.named("jib") {
+    dependsOn("vaadinBuildFrontend")
+}
+
+// Jib configuration for different profiles
 jib {
     from {
         image = "eclipse-temurin:21-jre-alpine"
@@ -373,11 +380,11 @@ jib {
         }
     }
     to {
-        image = "ghcr.io/${System.getenv("GITHUB_REPOSITORY") ?: "apolenkov/memocards"}"
-        tags = setOf("latest", System.getenv("GITHUB_SHA")?.take(7) ?: "dev")
+        image = "ghcr.io/${project.findProperty("GITHUB_REPOSITORY") ?: "apolenkov/memocards"}"
+        tags = setOf("latest", System.getenv("GITHUB_SHA")?.take(7) ?: "latest")
         auth {
-            username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
+            username = project.findProperty("GITHUB_ACTOR")?.toString() ?: "anonymous"
+            password = project.findProperty("GITHUB_TOKEN")?.toString() ?: ""
         }
     }
     container {
@@ -386,15 +393,16 @@ jib {
                 "-XX:+UseContainerSupport",
                 "-XX:MaxRAMPercentage=75.0",
                 "-XX:+UseG1GC",
-                "-Dspring.profiles.active=prod",
             )
         ports = listOf("8080")
         labels.set(
             mapOf(
-                "org.opencontainers.image.source" to "https://github.com/${System.getenv("GITHUB_REPOSITORY") ?: "apolenkov/memocards"}",
+                "org.opencontainers.image.source" to
+                    "https://github.com/${project.findProperty("GITHUB_REPOSITORY") ?: "apolenkov/memocards"}",
                 "org.opencontainers.image.description" to "Memocards Application - Flashcards Learning Platform",
                 "org.opencontainers.image.licenses" to "MIT",
                 "org.opencontainers.image.version" to project.version.toString(),
+                "org.opencontainers.image.title" to "Memocards",
             ),
         )
         creationTime.set("USE_CURRENT_TIMESTAMP")
