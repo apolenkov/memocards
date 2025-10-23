@@ -9,7 +9,7 @@ WORKDIR /app
 COPY . ./
 
 # Build the app with Gradle
-RUN ./gradlew clean build -x test
+RUN ./gradlew clean build -x test -x check
 
-# Run the app by dynamically finding the JAR file in the build/libs directory
-CMD ["sh", "-c", "java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -jar build/libs/*.jar"]
+# Run the app with Spring Boot fat JAR (exclude plain JAR)
+CMD ["sh", "-c", "ls -la build/libs/ && JAR_FILE=$(find build/libs -name 'memocards-*.jar' ! -name '*-plain.jar' | head -1) && echo \"Using JAR: $JAR_FILE\" && java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -jar \"$JAR_FILE\""]

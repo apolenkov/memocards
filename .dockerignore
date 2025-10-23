@@ -2,7 +2,7 @@
 .gradle/
 build/
 !build/libs/
-!build/libs/*.jar
+!build/libs/memocards-*.jar
 
 # IDE
 .idea/
