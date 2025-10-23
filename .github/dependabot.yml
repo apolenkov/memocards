@@ -1,0 +1,65 @@
+version: 2
+updates:
+  # Enable version updates for Gradle
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "02:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "apolenkov"
+    assignees:
+      - "apolenkov"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # Enable version updates for npm (Vaadin frontend)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "02:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "apolenkov"
+    assignees:
+      - "apolenkov"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "02:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "apolenkov"
+    assignees:
+      - "apolenkov"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+
+  # Enable version updates for Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "02:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "apolenkov"
+    assignees:
+      - "apolenkov"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
