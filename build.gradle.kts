@@ -140,7 +140,7 @@ configurations.all {
         // Added to resolve the reported conflicts
         force("com.github.docker-java:docker-java-api:3.4.1")
         force("com.github.docker-java:docker-java-transport:3.4.1")
-        force("org.jetbrains:annotations:17.0.0")
+        force("org.jetbrains:annotations:26.0.2-1")
     }
 }
 
