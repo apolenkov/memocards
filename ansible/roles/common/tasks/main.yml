@@ -1,0 +1,158 @@
+---
+# =============================================================================
+# ROLE: common
+# Базовая настройка VPS (система, firewall, директории)
+# =============================================================================
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  tags: [common, system]
+
+- name: Upgrade all packages to latest version
+  apt:
+    upgrade: dist
+    autoremove: yes
+    autoclean: yes
+  tags: [common, system]
+
+- name: Install essential packages
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - vim
+      - htop
+      - net-tools
+      - ufw
+      - software-properties-common
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - locales
+      - cron
+    state: present
+  tags: [common, packages]
+
+- name: Set timezone
+  timezone:
+    name: "{{ vps_timezone }}"
+  tags: [common, system]
+
+- name: Set locale
+  locale_gen:
+    name: "{{ vps_locale }}"
+    state: present
+  tags: [common, system]
+
+- name: Check available memory
+  command: free -m
+  register: memory_info
+  changed_when: false
+  tags: [common, system]
+
+- name: Check if swap exists
+  stat:
+    path: /swapfile
+  register: swap_file
+  tags: [common, swap]
+
+- name: Create swap file if RAM < 2GB and swap doesn't exist
+  block:
+    - name: Allocate swap file (2GB)
+      command: fallocate -l 2G /swapfile
+      args:
+        creates: /swapfile
+
+    - name: Set swap file permissions
+      file:
+        path: /swapfile
+        mode: '0600'
+
+    - name: Make swap
+      command: mkswap /swapfile
+      when: swap_file.stat.exists == false
+
+    - name: Enable swap
+      command: swapon /swapfile
+      when: swap_file.stat.exists == false
+
+    - name: Add swap to fstab
+      lineinfile:
+        path: /etc/fstab
+        line: '/swapfile none swap sw 0 0'
+        state: present
+
+    - name: Set swappiness
+      sysctl:
+        name: vm.swappiness
+        value: '10'
+        state: present
+  when: not swap_file.stat.exists
+  tags: [common, swap]
+
+- name: Configure firewall (UFW)
+  block:
+    - name: Enable UFW
+      ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
+
+    - name: Allow SSH
+      ufw:
+        rule: allow
+        port: "22"
+        proto: tcp
+
+    - name: Allow HTTP
+      ufw:
+        rule: allow
+        port: "80"
+        proto: tcp
+
+    - name: Allow HTTPS
+      ufw:
+        rule: allow
+        port: "443"
+        proto: tcp
+
+    - name: Reload UFW
+      ufw:
+        state: reloaded
+  tags: [common, firewall]
+
+- name: Verify firewall status
+  command: ufw status
+  register: firewall_status
+  changed_when: false
+  tags: [common, firewall]
+
+- name: Create application directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  loop:
+    - "{{ app_deploy_path }}"
+    - "{{ app_deploy_path }}/logs"
+    - "{{ app_deploy_path }}/backups"
+  tags: [common, directories]
+
+- name: Display common role completion
+  debug:
+    msg: |
+      ✅ Common role completed:
+      - System packages updated
+      - Timezone: {{ vps_timezone }}
+      - Locale: {{ vps_locale }}
+      - Firewall configured (22, 80, 443)
+      - Directories created: {{ app_deploy_path }}
+      - Swap: {{ 'configured' if not swap_file.stat.exists else 'already exists' }}
+  tags: [common]
+

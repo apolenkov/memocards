@@ -147,6 +147,11 @@ spring:
   config:
     activate:
       on-profile: prod
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
 
 logging:
   level:

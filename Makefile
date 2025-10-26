@@ -208,7 +208,10 @@ docker-status: ## Show Docker Compose services status
 jib: ## Build Docker image with Jib (local)
 	@echo "Building Docker image locally..."
 	$(GRADLE) jibDockerBuild
+	@echo ""
 	@echo "Docker image built successfully!"
+	@echo "Available tags:"
+	@docker images ghcr.io/apolenkov/memocards --format "  - {{.Repository}}:{{.Tag}} ({{.ID}}, {{.CreatedSince}})"
 
 jib-push: ## Build and push Docker image to registry
 	@echo "Building and pushing Docker image..."
@@ -225,3 +228,12 @@ jib-push: ## Build and push Docker image to registry
 		$(GRADLE) jib; \
 	fi
 	@echo "Docker image pushed successfully!"
+
+docker-images: ## Show available Docker images
+	@echo "=== Available Memocards Images ==="
+	@docker images ghcr.io/apolenkov/memocards --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.CreatedAt}}"
+
+docker-clean: ## Remove old Docker images (keep latest 3)
+	@echo "Cleaning old Docker images..."
+	@docker images ghcr.io/apolenkov/memocards --format "{{.ID}}" | tail -n +4 | xargs -r docker rmi -f || true
+	@echo "Cleanup completed!"

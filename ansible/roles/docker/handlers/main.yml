@@ -1,0 +1,9 @@
+---
+# Docker role handlers
+# Обработчики для роли docker
+
+- name: restart docker
+  systemd:
+    name: docker
+    state: restarted
+

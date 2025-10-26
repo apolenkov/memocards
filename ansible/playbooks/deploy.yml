@@ -1,0 +1,125 @@
+---
+# =============================================================================
+# PLAYBOOK: deploy.yml
+# Быстрое развертывание новой версии Memocards приложения
+# =============================================================================
+#
+# Этот playbook выполняет быстрый деплой только приложения:
+# - Pull latest Docker image
+# - Recreate containers
+# - Health check
+#
+# Использование:
+#   ansible-playbook -i ../inventory/hosts.yml deploy.yml --ask-vault-pass
+#
+# С определенной версией:
+#   ansible-playbook -i ../inventory/hosts.yml deploy.yml --ask-vault-pass \
+#     --extra-vars "app_image=ghcr.io/apolenkov/memocards:v1.2.3"
+# =============================================================================
+
+- name: Deploy Memocards Application Update
+  hosts: vps
+  become: yes
+  gather_facts: no
+  
+  vars_files:
+    - ../secrets.yml
+  
+  tasks:
+    - name: Display deployment information
+      debug:
+        msg: |
+          ╔════════════════════════════════════════════════════════════╗
+          ║         Memocards Application Deployment Starting...      ║
+          ╚════════════════════════════════════════════════════════════╝
+          
+          🎯 Target: {{ inventory_hostname }}
+          🐳 Image: {{ app_image }}
+          🌐 Domain: {{ domain }}
+      tags: [always]
+
+    - name: Pull latest application image
+      community.docker.docker_image_pull:
+        name: "{{ app_image }}"
+      register: pull_result
+      tags: [deploy]
+
+    - name: Stop application containers
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_deploy_path }}"
+        files: docker-compose.prod.yml
+        state: stopped
+      tags: [deploy]
+
+    - name: Start application services
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_deploy_path }}"
+        files: docker-compose.prod.yml
+        state: present
+        recreate: always
+        pull: always
+      register: compose_result
+      tags: [deploy]
+
+    - name: Wait for PostgreSQL to be healthy
+      shell: docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-postgres-prod
+      register: postgres_health
+      retries: 30
+      delay: 2
+      until: postgres_health.stdout == "healthy"
+      changed_when: false
+      tags: [deploy, health]
+
+    - name: Wait for application to be ready
+      uri:
+        url: "http://localhost:{{ app_port }}/actuator/health"
+        method: GET
+        status_code: 200
+      retries: 60
+      delay: 5
+      register: health_check
+      until: health_check.status == 200
+      tags: [deploy, health]
+
+    - name: Get application version info
+      uri:
+        url: "http://localhost:{{ app_port }}/actuator/info"
+        method: GET
+        return_content: yes
+      register: app_info
+      failed_when: false
+      tags: [deploy, verify]
+
+    - name: Display deployment status
+      debug:
+        msg: |
+          ╔════════════════════════════════════════════════════════════╗
+          ║      🚀 Application Deployed Successfully!                ║
+          ╚════════════════════════════════════════════════════════════╝
+          
+          ✅ Status:
+          - Image pulled: {{ app_image }}
+          - Containers recreated: ✅
+          - Health check: {{ 'PASSED ✅' if health_check.status == 200 else 'FAILED ❌' }}
+          - PostgreSQL: {{ postgres_health.stdout }}
+          
+          🌐 Access:
+          - URL: https://{{ domain }}
+          - Health: https://{{ domain }}/actuator/health
+          
+          📋 Verify:
+          - Check application: curl https://{{ domain }}
+          - View logs: docker logs -f memocards-app-prod
+          - Check metrics: curl http://localhost:{{ app_port }}/actuator/metrics
+      tags: [always]
+
+    - name: Update deployment timestamp
+      copy:
+        content: |
+          Last deployment: {{ ansible_date_time.iso8601 }}
+          Deployed by: Ansible
+          Image: {{ app_image }}
+        dest: "{{ app_deploy_path }}/.last_deployment"
+        mode: '0644'
+      tags: [always]
+

@@ -1,39 +1,47 @@
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: memocards-postgres
+    container_name: ${POSTGRES_CONTAINER_NAME:-memocards-postgres}
     environment:
-      POSTGRES_DB: memocards
+      POSTGRES_DB: ${DB_NAME:-memocards}
       POSTGRES_USER: ${DB_USER:-memocards_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: ${POSTGRES_INITDB_ARGS:---auth-host=scram-sha-256}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-memocards_user} -d ${DB_NAME:-memocards}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: ${POSTGRES_HEALTHCHECK_START:-30s}
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${POSTGRES_MEMORY_LIMIT:-512m}
+        reservations:
+          memory: ${POSTGRES_MEMORY_RESERVATION:-256m}
+    networks:
+      - ${NETWORK_NAME:-memocards-network}
 
-  # Application
   app:
     image: ${APP_IMAGE:-ghcr.io/apolenkov/memocards:latest}
-    container_name: memocards-app
+    container_name: ${APP_CONTAINER_NAME:-memocards-app}
     ports:
-      - "8080:8080"
+      - "${APP_PORT:-8080}:8080"
     env_file:
       - .env
     environment:
       # Override Vaadin settings for containers
       VAADIN_LAUNCH_BROWSER: false
       VAADIN_PRODUCTION_MODE: true
-      # Override database URL for containers (required for Docker networking)
-      DB_URL: jdbc:postgresql://postgres:5432/memocards
+      # Override database URL for Docker networking
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-memocards}
     volumes:
-      # Mount logs directory to container
-      - ./logs:/app/logs
+      - ${APP_LOGS_PATH:-./logs}:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -43,8 +51,23 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: ${APP_HEALTHCHECK_START:-60s}
+    deploy:
+      resources:
+        limits:
+          memory: ${APP_MEMORY_LIMIT:-1500m}
+        reservations:
+          memory: ${APP_MEMORY_RESERVATION:-512m}
+    networks:
+      - ${NETWORK_NAME:-memocards-network}
 
 volumes:
   postgres_data:
     driver: local
+
+networks:
+  memocards-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${NETWORK_SUBNET:-172.20.0.0/16}

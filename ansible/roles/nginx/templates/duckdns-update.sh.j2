@@ -1,0 +1,23 @@
+#!/bin/bash
+# =============================================================================
+# DuckDNS IP Updater Script
+# Автоматическое обновление IP адреса в DuckDNS
+# =============================================================================
+
+DUCKDNS_DOMAIN="memocards"  # Fixed subdomain
+DUCKDNS_TOKEN="{{ vault_duckdns_token }}"
+LOG_FILE="/var/log/duckdns.log"
+
+# Get current public IP
+CURRENT_IP=$(curl -s https://api.ipify.org)
+
+# Update DuckDNS
+RESPONSE=$(curl -s "https://www.duckdns.org/update?domains=${DUCKDNS_DOMAIN}&token=${DUCKDNS_TOKEN}&ip=${CURRENT_IP}")
+
+# Log the result
+if [ "$RESPONSE" = "OK" ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - SUCCESS: Updated DuckDNS IP to ${CURRENT_IP}" >> "$LOG_FILE"
+else
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - ERROR: Failed to update DuckDNS. Response: ${RESPONSE}" >> "$LOG_FILE"
+fi
+
