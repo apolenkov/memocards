@@ -39,6 +39,10 @@ jobs:
   wait-for-image:
     name: Wait for Docker Image from main.yml
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read        # For repository access
+      packages: read        # For docker manifest inspect
     outputs:
       image_tag: ${{ steps.get_tag.outputs.tag }}
       full_image: ${{ steps.get_tag.outputs.full_image }}
@@ -89,6 +93,9 @@ jobs:
     name: Deploy to VPS with Ansible
     needs: wait-for-image
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read        # For checkout
     
     steps:
       - name: Checkout code

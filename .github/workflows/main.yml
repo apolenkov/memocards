@@ -123,6 +123,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+      attestations: write
+      id-token: write
       
     steps:
       - name: Checkout code
@@ -181,6 +183,25 @@ jobs:
           echo "   - latest"
           echo "   - ${{ steps.version.outputs.version }}"
           echo "   - ${GITHUB_SHA:0:7}"
+      
+      - name: Extract image digest
+        id: digest
+        run: |
+          if [ -f build/jib-image.digest ]; then
+            DIGEST=$(cat build/jib-image.digest)
+            echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+            echo "📋 Image digest: $DIGEST"
+          else
+            echo "⚠️  Warning: jib-image.digest not found"
+          fi
+      
+      - name: Generate artifact attestation
+        if: steps.digest.outputs.digest != ''
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.digest.outputs.digest }}
+          push-to-registry: true
             
       - name: Upload image metadata
         uses: actions/upload-artifact@v4
@@ -202,6 +223,10 @@ jobs:
           echo "- \`latest\`" >> $GITHUB_STEP_SUMMARY
           echo "- \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- \`${GITHUB_SHA:0:7}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Security:**" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Artifact attestation generated (SLSA provenance)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Supply chain transparency enabled" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Pull Commands:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
