@@ -5,6 +5,11 @@ on:
     branches: [master]
   workflow_dispatch:
 
+# Prevent concurrent runs on same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
   TESTCONTAINERS_REUSE_ENABLE: "true"
@@ -211,7 +216,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Extract metadata
         id: meta
@@ -237,7 +242,7 @@ jobs:
         run: |
           echo "🏗️  Building Docker image with multiple tags..."
           ./gradlew jib \
-            -PGITHUB_TOKEN="${{ secrets.GHCR_TOKEN }}" \
+            -PGITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
             -PGITHUB_ACTOR="${{ github.actor }}" \
             -PGITHUB_REPOSITORY="${{ github.repository }}" \
             -PGITHUB_SHA="${{ github.sha }}"
@@ -276,36 +281,3 @@ jobs:
           echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_SHA:0:7}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-
-  deploy-railway:
-    name: Deploy to Railway
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [docker-build]
-    if: github.ref == 'refs/heads/master'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        
-      - name: Install Railway CLI
-        run: |
-          curl -fsSL https://railway.app/install.sh | sh
-          echo "$HOME/.railway/bin" >> $GITHUB_PATH
-          
-      - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway login --token $RAILWAY_TOKEN
-          railway up --detach --service memocards
-          
-      - name: Wait for deployment
-        run: |
-          echo "Waiting for Railway deployment to complete..."
-          sleep 30
-          
-      - name: Health check
-        run: |
-          # Get Railway service URL (this would need to be configured based on your Railway setup)
-          echo "Deployment completed. Check Railway dashboard for service URL."

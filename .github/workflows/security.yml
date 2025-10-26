@@ -6,6 +6,11 @@ on:
     - cron: '0 2 * * 0'
   workflow_dispatch:
 
+# Prevent concurrent security scans
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
 
