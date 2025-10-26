@@ -151,7 +151,7 @@ jobs:
           chmod 600 .vault_pass
       
       - name: Create SSH key file (if using SSH key)
-        if: secrets.VPS_SSH_KEY != ''
+        if: ${{ secrets.VPS_SSH_KEY != '' }}
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
