@@ -29,7 +29,10 @@ services:
 
   app:
     image: ${APP_IMAGE:-ghcr.io/apolenkov/memocards:latest}
-    container_name: ${APP_CONTAINER_NAME:-memocards-app}
+    # Container name: use APP_CONTAINER_NAME for production, omit for development
+    # Omitting allows Docker Compose to auto-generate names (project_app_1)
+    # This enables running multiple versions simultaneously
+    container_name: ${APP_CONTAINER_NAME}
     ports:
       - "${APP_PORT:-8080}:8080"
     env_file:

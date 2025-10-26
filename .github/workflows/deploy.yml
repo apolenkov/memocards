@@ -11,6 +11,11 @@ on:
         type: choice
         options:
           - production
+      image_tag:
+        description: 'Docker image tag to deploy (leave empty for latest)'
+        required: false
+        default: ''
+        type: string
   
   # Automatic trigger on push to master
   push:
@@ -78,19 +83,29 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Build and push Docker image with Jib
+        env:
+          GITHUB_SHA: ${{ github.sha }}
         run: |
+          echo "🏗️  Building Docker image with multiple tags..."
           ./gradlew jib \
-            -Djib.to.image=ghcr.io/${{ github.repository_owner }}/memocards \
-            -Djib.to.tags=latest,${{ github.sha }} \
-            -Djib.to.auth.username=${{ github.actor }} \
-            -Djib.to.auth.password=${{ secrets.GITHUB_TOKEN }} \
-            -Djib.console=plain
+            -PGITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+            -PGITHUB_ACTOR="${{ github.actor }}" \
+            -PGITHUB_REPOSITORY="${{ github.repository }}" \
+            -PGITHUB_SHA="${{ github.sha }}"
+          
+          echo "✅ Image pushed successfully!"
+          echo "📦 Repository: ghcr.io/${{ github.repository_owner }}/memocards"
+          echo "🏷️  Tags:"
+          echo "   - latest"
+          echo "   - ${{ steps.version.outputs.version }}"
+          echo "   - ${GITHUB_SHA:0:7}"
       
-      - name: Image pushed successfully
+      - name: Save image tags for deployment
+        id: image_tags
         run: |
-          echo "✅ Docker image pushed successfully!"
-          echo "📦 Image: ghcr.io/${{ github.repository_owner }}/memocards:latest"
-          echo "🏷️  Tag: ${{ github.sha }}"
+          echo "latest=ghcr.io/${{ github.repository_owner }}/memocards:latest" >> $GITHUB_OUTPUT
+          echo "version=ghcr.io/${{ github.repository_owner }}/memocards:${{ steps.version.outputs.version }}" >> $GITHUB_OUTPUT
+          echo "sha=ghcr.io/${{ github.repository_owner }}/memocards:${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
 
   deploy:
     name: Deploy to VPS with Ansible
@@ -100,6 +115,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Determine image tag for deployment
+        id: deploy_tag
+        run: |
+          if [ -n "${{ inputs.image_tag }}" ]; then
+            TAG="${{ inputs.image_tag }}"
+            echo "Using manual tag: $TAG"
+          else
+            TAG="${GITHUB_SHA:0:7}"
+            echo "Using git SHA tag: $TAG"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "full_image=ghcr.io/${{ github.repository_owner }}/memocards:$TAG" >> $GITHUB_OUTPUT
+          
+          echo "## 🚀 Deployment Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`ghcr.io/${{ github.repository_owner }}/memocards:$TAG\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** \`${{ inputs.environment || 'production' }}\`" >> $GITHUB_STEP_SUMMARY
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -131,11 +164,15 @@ jobs:
       
       - name: Deploy application with Ansible
         working-directory: ./ansible
+        env:
+          DEPLOY_IMAGE_TAG: ${{ steps.deploy_tag.outputs.tag }}
         run: |
+          echo "🚀 Deploying image: ${{ steps.deploy_tag.outputs.full_image }}"
           ansible-playbook \
             -i inventory/hosts.yml \
             playbooks/deploy.yml \
             --vault-password-file ../.vault_pass \
+            --extra-vars "app_image=${{ steps.deploy_tag.outputs.full_image }}" \
             -v
       
       - name: Verify deployment
@@ -165,7 +202,8 @@ jobs:
           echo "║      🚀 Deployment Completed!                             ║"
           echo "╚════════════════════════════════════════════════════════════╝"
           echo ""
-          echo "📦 Image: ghcr.io/${{ github.repository_owner }}/memocards:latest"
+          echo "📦 Image: ${{ steps.deploy_tag.outputs.full_image }}"
+          echo "🏷️  Tag: ${{ steps.deploy_tag.outputs.tag }}"
           echo "🏷️  Commit: ${{ github.sha }}"
           echo "🌐 URL: https://memocards.duckdns.org"
           echo "💚 Health: https://memocards.duckdns.org/actuator/health"
@@ -173,4 +211,11 @@ jobs:
           echo "📋 Next steps:"
           echo "  - Verify application: curl -I https://memocards.duckdns.org"
           echo "  - Check logs: ssh root@185.239.48.254 'docker logs -f memocards-app-prod'"
+          echo ""
+          echo "## 🎉 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Status:** Completed" >> $GITHUB_STEP_SUMMARY
+          echo "📦 **Image:** \`${{ steps.deploy_tag.outputs.full_image }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "🌐 **URL:** [memocards.duckdns.org](https://memocards.duckdns.org)" >> $GITHUB_STEP_SUMMARY
+          echo "💚 **Health:** [/actuator/health](https://memocards.duckdns.org/actuator/health)" >> $GITHUB_STEP_SUMMARY
 

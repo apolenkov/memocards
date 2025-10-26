@@ -26,7 +26,7 @@ if [ "$HEALTH_STATUS" != "200" ]; then
         log_message "ERROR - Application container is not running. Attempting restart..."
         
         cd "$DEPLOY_PATH"
-        docker compose -f docker-compose.prod.yml restart app
+        docker compose -f docker-compose.yml restart app
         
         # Wait and recheck
         sleep 30
