@@ -16,6 +16,11 @@ vps_locale: "en_US.UTF-8"
 # APPLICATION CONFIGURATION
 # =============================================================================
 domain: "memocards.duckdns.org"
+# Default image (can be overridden with --extra-vars "app_image=...")
+# Examples:
+#   app_image: "ghcr.io/apolenkov/memocards:latest"        # Latest version
+#   app_image: "ghcr.io/apolenkov/memocards:0.1"           # Specific version
+#   app_image: "ghcr.io/apolenkov/memocards:abc1234"       # Specific commit
 app_image: "ghcr.io/apolenkov/memocards:latest"
 app_port: 8080
 app_deploy_path: "/opt/memocards"

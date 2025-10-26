@@ -14,7 +14,11 @@
 #
 # С определенной версией:
 #   ansible-playbook -i ../inventory/hosts.yml deploy.yml --ask-vault-pass \
-#     --extra-vars "app_image=ghcr.io/apolenkov/memocards:v1.2.3"
+#     --extra-vars "app_image=ghcr.io/apolenkov/memocards:0.1"
+#
+# С конкретным коммитом (из CI/CD):
+#   ansible-playbook -i ../inventory/hosts.yml deploy.yml --ask-vault-pass \
+#     --extra-vars "app_image=ghcr.io/apolenkov/memocards:abc1234"
 # =============================================================================
 
 - name: Deploy Memocards Application Update
@@ -47,14 +51,14 @@
     - name: Stop application containers
       community.docker.docker_compose_v2:
         project_src: "{{ app_deploy_path }}"
-        files: docker-compose.prod.yml
+        files: docker-compose.yml
         state: stopped
       tags: [deploy]
 
     - name: Start application services
       community.docker.docker_compose_v2:
         project_src: "{{ app_deploy_path }}"
-        files: docker-compose.prod.yml
+        files: docker-compose.yml
         state: present
         recreate: always
         pull: always

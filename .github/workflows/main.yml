@@ -223,13 +223,31 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
             
-      - name: Build and push Docker image with Jib
+      - name: Extract version from build.gradle.kts
+        id: version
         run: |
+          VERSION=$(grep -m 1 'version = ' build.gradle.kts | cut -d '"' -f 2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Project Version: $VERSION"
+          echo "🏷️  Git SHA: ${{ github.sha }}"
+          
+      - name: Build and push Docker image with Jib
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          echo "🏗️  Building Docker image with multiple tags..."
           ./gradlew jib \
             -PGITHUB_TOKEN="${{ secrets.GHCR_TOKEN }}" \
             -PGITHUB_ACTOR="${{ github.actor }}" \
             -PGITHUB_REPOSITORY="${{ github.repository }}" \
             -PGITHUB_SHA="${{ github.sha }}"
+          
+          echo "✅ Image pushed successfully!"
+          echo "📦 Repository: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          echo "🏷️  Tags:"
+          echo "   - latest"
+          echo "   - ${{ steps.version.outputs.version }}"
+          echo "   - ${GITHUB_SHA:0:7}"
             
       - name: Upload image metadata
         uses: actions/upload-artifact@v4
@@ -240,6 +258,24 @@ jobs:
             build/jib-image.id
             build/jib-image.json
           retention-days: 90
+          
+      - name: Create deployment summary
+        run: |
+          echo "## 🐳 Docker Image Built" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Available Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo "- \`latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${GITHUB_SHA:0:7}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Pull Commands:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_SHA:0:7}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
   deploy-railway:
     name: Deploy to Railway
