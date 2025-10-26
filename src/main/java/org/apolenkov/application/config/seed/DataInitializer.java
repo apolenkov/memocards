@@ -24,12 +24,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * Initializes demo data in development environment.
+ * Initializes demo data in environment.
  * Creates sample decks, cards, and news items for development and testing.
- * Only runs in "dev" profile and creates data only if the system is empty.
  */
 @Configuration
-@Profile({"dev"})
+@Profile({"dev", "test", "prod"})
 public class DataInitializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataInitializer.class);

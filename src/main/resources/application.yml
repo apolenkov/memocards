@@ -101,20 +101,7 @@ app:
     max-failed-attempts: ${MAX_FAILED_ATTEMPTS:5}
     failed-attempts-window-minutes: ${FAILED_ATTEMPTS_WINDOW:15}
 
----
-# Development Profile
-spring:
-  config:
-    activate:
-      on-profile: dev
-
-logging:
-  level:
-    org.springframework.jdbc.core: DEBUG
-    org.apolenkov.application: DEBUG
-
-# Data seeding configuration (dev profile only)
-app:
+  # Data seeding configuration (production profile)
   seed:
     demo:
       enabled: ${SEED_DEMO_DATA:true}
@@ -130,6 +117,17 @@ app:
         decks-per-user: ${LIMIT_DECKS:10}
         cards-per-deck: ${LIMIT_CARDS:50}
         news: ${LIMIT_NEWS:50}
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    org.springframework.jdbc.core: DEBUG
+    org.apolenkov.application: DEBUG
 
 ---
 # Test Profile
