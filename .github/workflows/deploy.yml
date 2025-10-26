@@ -150,12 +150,14 @@ jobs:
           echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
           chmod 600 .vault_pass
       
-      - name: Create SSH key file (if using SSH key)
-        if: ${{ secrets.VPS_SSH_KEY != '' }}
+      - name: Create SSH key file (if configured)
+        continue-on-error: true
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          if [ -n "${{ secrets.VPS_SSH_KEY }}" ]; then
+            mkdir -p ~/.ssh
+            echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+          fi
       
       - name: Test Ansible connectivity
         working-directory: ./ansible
