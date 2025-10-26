@@ -196,7 +196,7 @@ jobs:
           fi
       
       - name: Generate artifact attestation
-        if: steps.digest.outputs.digest != ''
+        if: steps.digest.outputs.digest != '' && github.event.repository.visibility == 'public'
         uses: actions/attest-build-provenance@v1
         with:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
@@ -225,8 +225,13 @@ jobs:
           echo "- \`${GITHUB_SHA:0:7}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Security:**" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Artifact attestation generated (SLSA provenance)" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Supply chain transparency enabled" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.repository.visibility }}" == "public" ]; then
+            echo "- ✅ Artifact attestation generated (SLSA provenance)" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Supply chain transparency enabled" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ℹ️ Artifact attestation skipped (only available for public repositories)" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Image signed and pushed to registry" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Pull Commands:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
