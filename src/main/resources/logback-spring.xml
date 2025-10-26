@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="LOG_PATH" value="logs"/>
+    <!-- Use LOGGING_FILE_PATH from environment, fallback to 'logs' -->
+    <property name="LOG_PATH" value="${LOGGING_FILE_PATH:-logs}"/>
     
     <!-- Console appender with professional color highlighting -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">

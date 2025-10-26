@@ -16,6 +16,7 @@ import org.apolenkov.application.model.User;
 import org.apolenkov.application.service.seed.DataSeedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -104,7 +105,7 @@ public class DataInitializer {
      * @param decks deck repository for creating decks
      * @param cards card repository for creating cards
      * @param news news repository for creating news items
-     * @param dataSeedService service for generating test data
+     * @param dataSeedServiceProvider provider for optional DataSeedService (available only in dev/test profiles)
      * @return CommandLineRunner that initializes demo data
      */
     @Bean
@@ -114,7 +115,7 @@ public class DataInitializer {
             final DeckRepository decks,
             final CardRepository cards,
             final NewsRepository news,
-            final DataSeedService dataSeedService) {
+            final ObjectProvider<DataSeedService> dataSeedServiceProvider) {
         return args -> {
             LOGGER.info("=== Initializing development data ===");
 
@@ -126,7 +127,7 @@ public class DataInitializer {
             }
 
             createDemoDataIfNeeded(user, decks, cards, news);
-            generateTestDataIfEnabled(dataSeedService);
+            dataSeedServiceProvider.ifAvailable(this::generateTestDataIfEnabled);
 
             LOGGER.info("=== Development data initialization completed ===");
         };

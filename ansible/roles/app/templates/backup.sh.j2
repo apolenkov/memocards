@@ -1,0 +1,51 @@
+#!/bin/bash
+# =============================================================================
+# Memocards Backup Script
+# Автоматический бэкап базы данных и логов
+# =============================================================================
+
+BACKUP_DIR="{{ app_deploy_path }}/backups"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+RETENTION_DAYS={{ backup_retention_days | default(7) }}
+
+# Create backup directory
+mkdir -p "$BACKUP_DIR"
+
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Starting backup..."
+
+# Backup PostgreSQL database
+echo "Backing up PostgreSQL database..."
+docker exec memocards-postgres-prod pg_dump -U {{ db_user }} {{ db_name }} > "$BACKUP_DIR/memocards_db_$TIMESTAMP.sql"
+
+if [ $? -eq 0 ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Database backup completed: memocards_db_$TIMESTAMP.sql"
+    
+    # Compress the backup
+    gzip "$BACKUP_DIR/memocards_db_$TIMESTAMP.sql"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Database backup compressed"
+else
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - ERROR: Database backup failed" >&2
+fi
+
+# Backup application logs (if exist)
+if [ -d "{{ app_deploy_path }}/logs" ]; then
+    echo "Backing up application logs..."
+    tar -czf "$BACKUP_DIR/memocards_logs_$TIMESTAMP.tar.gz" -C "{{ app_deploy_path }}/logs" . 2>/dev/null
+    
+    if [ $? -eq 0 ]; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Logs backup completed: memocards_logs_$TIMESTAMP.tar.gz"
+    fi
+fi
+
+# Cleanup old backups (keep last N days)
+echo "Cleaning up old backups (retention: $RETENTION_DAYS days)..."
+find "$BACKUP_DIR" -name "memocards_db_*.sql.gz" -mtime +$RETENTION_DAYS -delete
+find "$BACKUP_DIR" -name "memocards_logs_*.tar.gz" -mtime +$RETENTION_DAYS -delete
+
+# Log completion
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Backup completed successfully" >> /var/log/memocards-backup.log
+
+# Display backup size
+BACKUP_SIZE=$(du -sh "$BACKUP_DIR" | cut -f1)
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Total backup size: $BACKUP_SIZE"
+

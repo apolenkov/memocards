@@ -1,0 +1,26 @@
+# Ansible
+*.retry
+.vault_pass
+.vault_password
+
+# Секреты (зашифрованный файл не игнорируем, незашифрованный - да)
+secrets.yml.decrypted
+secrets.yml.bak
+
+# Временные файлы
+*.log
+.ansible/
+/tmp/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+

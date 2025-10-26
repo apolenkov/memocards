@@ -1,0 +1,70 @@
+#!/bin/bash
+# =============================================================================
+# Memocards Monitoring Script
+# Проверка здоровья приложения и автоматический перезапуск
+# =============================================================================
+
+LOG_FILE="/var/log/memocards-monitor.log"
+APP_URL="http://localhost:{{ app_port }}/actuator/health"
+DEPLOY_PATH="{{ app_deploy_path }}"
+
+# Function to log messages
+log_message() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+}
+
+# Check application health
+HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL" 2>/dev/null)
+
+if [ "$HEALTH_STATUS" != "200" ]; then
+    log_message "WARNING - Application health check failed (HTTP $HEALTH_STATUS)"
+    
+    # Check if containers are running
+    CONTAINER_STATUS=$(docker inspect -f '{% raw %}{{.State.Running}}{% endraw %}' memocards-app-prod 2>/dev/null)
+    
+    if [ "$CONTAINER_STATUS" != "true" ]; then
+        log_message "ERROR - Application container is not running. Attempting restart..."
+        
+        cd "$DEPLOY_PATH"
+        docker compose -f docker-compose.prod.yml restart app
+        
+        # Wait and recheck
+        sleep 30
+        RECHECK_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL" 2>/dev/null)
+        
+        if [ "$RECHECK_STATUS" == "200" ]; then
+            log_message "SUCCESS - Application restarted and health check passed"
+        else
+            log_message "ERROR - Application restart failed, manual intervention required"
+        fi
+    else
+        log_message "INFO - Container is running but not responding. Waiting for recovery..."
+    fi
+else
+    # Success - log only once per hour to avoid spam
+    HOUR=$(date +%H)
+    MINUTE=$(date +%M)
+    
+    if [ "$MINUTE" == "00" ] || [ "$MINUTE" == "05" ]; then
+        log_message "INFO - Application health check passed"
+    fi
+fi
+
+# Check disk space
+DISK_USAGE=$(df "$DEPLOY_PATH" | awk 'NR==2 {print $5}' | sed 's/%//')
+if [ "$DISK_USAGE" -gt 80 ]; then
+    log_message "WARNING - Disk usage is ${DISK_USAGE}%"
+fi
+
+# Check memory usage
+MEMORY_USAGE=$(free | awk 'NR==2{printf "%.0f", $3*100/$2}')
+if [ "$MEMORY_USAGE" -gt 90 ]; then
+    log_message "WARNING - Memory usage is ${MEMORY_USAGE}%"
+fi
+
+# Check database container
+DB_STATUS=$(docker inspect -f '{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-postgres-prod 2>/dev/null)
+if [ "$DB_STATUS" != "healthy" ]; then
+    log_message "WARNING - Database health status: $DB_STATUS"
+fi
+

@@ -1,0 +1,196 @@
+---
+# =============================================================================
+# ROLE: nginx
+# Установка Nginx, настройка SSL с Let's Encrypt и DuckDNS
+# =============================================================================
+
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+  tags: [nginx, install]
+
+- name: Start and enable Nginx service
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+  tags: [nginx, service]
+
+- name: Remove default Nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: restart nginx
+  tags: [nginx, config]
+
+- name: Create Nginx configuration for Memocards
+  template:
+    src: memocards.conf.j2
+    dest: /etc/nginx/sites-available/memocards.conf
+    mode: '0644'
+  notify: reload nginx
+  tags: [nginx, config]
+
+- name: Enable Memocards Nginx site
+  file:
+    src: /etc/nginx/sites-available/memocards.conf
+    dest: /etc/nginx/sites-enabled/memocards.conf
+    state: link
+  notify: reload nginx
+  tags: [nginx, config]
+
+- name: Test Nginx configuration
+  command: nginx -t
+  register: nginx_test
+  changed_when: false
+  tags: [nginx, config]
+
+- name: Install Certbot and Nginx plugin
+  apt:
+    name:
+      - certbot
+      - python3-certbot-nginx
+    state: present
+  tags: [nginx, ssl]
+
+- name: Fix urllib3 compatibility issue
+  pip:
+    name: urllib3
+    version: "<2"
+    state: present
+  tags: [nginx, ssl]
+
+- name: Install certbot-dns-duckdns plugin
+  pip:
+    name: certbot-dns-duckdns
+    state: present
+  tags: [nginx, ssl]
+
+- name: Create DuckDNS credentials file for Certbot
+  copy:
+    content: |
+      dns_duckdns_token = {{ vault_duckdns_token }}
+    dest: /root/.duckdns_credentials.ini
+    mode: '0600'
+    owner: root
+    group: root
+  tags: [nginx, ssl]
+
+- name: Create DuckDNS IP updater script
+  template:
+    src: duckdns-update.sh.j2
+    dest: /usr/local/bin/duckdns-update.sh
+    mode: '0755'
+  tags: [nginx, duckdns]
+
+- name: Install cron if not installed
+  apt:
+    name: cron
+    state: present
+  tags: [nginx, duckdns]
+
+- name: Run DuckDNS updater immediately
+  command: /usr/local/bin/duckdns-update.sh
+  register: duckdns_initial_update
+  changed_when: false
+  tags: [nginx, duckdns]
+
+- name: Create DuckDNS cron job
+  cron:
+    name: "DuckDNS IP updater"
+    minute: "*/5"
+    job: "/usr/local/bin/duckdns-update.sh"
+    user: root
+  tags: [nginx, duckdns]
+
+- name: Wait for DNS propagation
+  pause:
+    seconds: 30
+    prompt: "Waiting for DuckDNS DNS propagation..."
+  tags: [nginx, ssl]
+
+- name: Obtain SSL certificate with Certbot (DNS challenge)
+  command: >
+    certbot certonly
+    --non-interactive
+    --agree-tos
+    --email {{ ssl_email }}
+    --authenticator dns-duckdns
+    --dns-duckdns-credentials /root/.duckdns_credentials.ini
+    --dns-duckdns-propagation-seconds 60
+    --domains {{ domain }}
+    --expand
+    --debug
+  register: certbot_result
+  failed_when: false  # Не останавливаться при ошибке
+  changed_when: certbot_result.rc == 0
+  tags: [nginx, ssl]
+
+- name: Show certbot output on failure
+  debug:
+    msg: "{{ certbot_result.stdout_lines }}"
+  when: certbot_result.rc != 0
+  tags: [nginx, ssl]
+
+- name: Update Nginx config to use SSL
+  template:
+    src: memocards-ssl.conf.j2
+    dest: /etc/nginx/sites-available/memocards.conf
+    mode: '0644'
+  when: certbot_result.rc == 0
+  notify: reload nginx
+  tags: [nginx, ssl]
+
+- name: Keep HTTP config if SSL failed
+  template:
+    src: memocards.conf.j2
+    dest: /etc/nginx/sites-available/memocards.conf
+    mode: '0644'
+  when: certbot_result.rc != 0
+  notify: reload nginx
+  tags: [nginx, ssl]
+
+- name: Verify SSL certificate
+  stat:
+    path: "/etc/letsencrypt/live/{{ domain }}/fullchain.pem"
+  register: ssl_cert
+  tags: [nginx, ssl]
+
+- name: Apply SSL config if certificate exists
+  template:
+    src: memocards-ssl.conf.j2
+    dest: /etc/nginx/sites-available/memocards.conf
+    mode: '0644'
+  when: ssl_cert.stat.exists
+  tags: [nginx, ssl]
+
+- name: Always reload Nginx after SSL tasks
+  systemd:
+    name: nginx
+    state: reloaded
+  tags: [nginx, ssl]
+
+- name: Create Certbot renewal cron job
+  cron:
+    name: "Certbot SSL renewal"
+    minute: "0"
+    hour: "2"
+    job: "certbot renew --quiet --post-hook 'systemctl reload nginx'"
+    user: root
+  tags: [nginx, ssl]
+
+- name: Display Nginx role completion
+  debug:
+    msg: |
+      ✅ Nginx role completed:
+      - Nginx installed and running
+      - Configuration: /etc/nginx/sites-available/memocards.conf
+      - SSL Certificate: {{ 'Installed ✅' if ssl_cert.stat.exists else 'Pending (check logs)' }}
+      - DuckDNS updater: configured (every 5 minutes)
+      - SSL auto-renewal: configured (daily at 2:00 AM)
+      - Domain: {{ domain }}
+      - Access: {{ 'https://' if ssl_cert.stat.exists else 'http://' }}{{ domain }}
+  tags: [nginx]
+

@@ -56,3 +56,6 @@ changelogs/
 
 # CI/CD
 .github/secrets/
+
+# Ansible credentials
+ansible/.vault_pass
