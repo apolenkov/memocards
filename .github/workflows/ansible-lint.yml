@@ -12,6 +12,7 @@ jobs:
   ansible-lint:
     name: Ansible Syntax Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     
     env:
       # Make secret available as env var for consistent access in both direct and workflow_call modes

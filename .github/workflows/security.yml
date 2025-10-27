@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Download dependency check report
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v5
         with:
           name: dependency-check-report
           path: dependency-reports/
