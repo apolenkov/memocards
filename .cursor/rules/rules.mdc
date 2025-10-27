@@ -62,3 +62,5 @@ Java 21+ | Vaadin 24+ | Spring Boot 3.x | PostgreSQL
 ## COMMUNICATION
 - **English Code**: All code (names, comments, messages)
 - **Russian Chat**: Chat communication
+- **No Reports**: NO detailed progress reports after completing tasks - just do the work
+- **Brevity**: Acknowledge request → do work → confirm done (1-2 sentences max)

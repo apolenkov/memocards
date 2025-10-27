@@ -2,13 +2,12 @@
 # Nginx role handlers
 # Обработчики для роли nginx
 
-- name: restart nginx
-  systemd:
+- name: Restart nginx
+  ansible.builtin.systemd:
     name: nginx
     state: restarted
 
-- name: reload nginx
-  systemd:
+- name: Reload nginx
+  ansible.builtin.systemd:
     name: nginx
     state: reloaded
-

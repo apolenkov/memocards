@@ -1,0 +1,382 @@
+---
+name: Create Release
+
+# IMPORTANT: This workflow requires a Personal Access Token (PAT) to trigger other workflows!
+# 
+# Why? When using the default GITHUB_TOKEN, pushed tags/commits do NOT trigger other workflows
+# (security measure to prevent recursive workflow runs). To trigger main.yml and deploy.yml after
+# creating a release tag, we need to use a PAT instead.
+#
+# Setup Instructions:
+# 1. Create a Fine-grained PAT: https://github.com/settings/tokens?type=beta
+#    - Token name: MEMOCARDS_RELEASE_PAT
+#    - Repository access: Only apolenkov/memocards
+#    - Permissions: Contents (Read and write)
+# 2. Add to repository secrets: https://github.com/apolenkov/memocards/settings/secrets/actions
+#    - Name: PAT_GITHUB_TOKEN
+#    - Value: ghp_xxxxx (your PAT)
+#
+# Reference: https://docs.github.com/en/actions/security-guides/automatic-token-authentication
+#
+# VERSION MANAGEMENT:
+# - Project version is automatically managed by JGitver plugin (build.gradle.kts)
+# - JGitver reads version from Git tags (e.g., v1.0.0 → version = "1.0.0")
+# - This workflow creates Git tag → JGitver reads it → version is set automatically
+# - NO manual version update in build.gradle.kts needed!
+# - See: .github/VERSION_MANAGEMENT_BEST_PRACTICES.md
+
+# Manual trigger - auto-calculates version and generates changelog
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type (or specify custom version)'
+        required: true
+        type: choice
+        options:
+          - auto      # Auto-detect from commits (feat/fix/BREAKING)
+          - major     # 1.0.0 → 2.0.0 (breaking changes)
+          - minor     # 1.0.0 → 1.1.0 (new features)
+          - patch     # 1.0.0 → 1.0.1 (bug fixes)
+          - custom    # Specify exact version below
+        default: 'auto'
+      custom_version:
+        description: 'Custom version (only if version_type=custom, e.g., v1.5.0)'
+        required: false
+        type: string
+        default: ''
+      additional_notes:
+        description: 'Additional release notes (optional, appended to auto-generated changelog)'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: write  # Required to create tags and releases
+
+jobs:
+  create-release:
+    name: Create Release with Auto Versioning
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # Full history for versioning and changelog
+          token: ${{ secrets.PAT_GITHUB_TOKEN }}  # PAT to trigger other workflows
+
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          echo "📋 Latest tag: $LATEST_TAG"
+
+      - name: Calculate next version
+        id: calculate_version
+        run: |
+          LATEST_TAG="${{ steps.get_latest_tag.outputs.latest_tag }}"
+          VERSION_TYPE="${{ inputs.version_type }}"
+          CUSTOM_VERSION="${{ inputs.custom_version }}"
+          
+          # Parse current version
+          VERSION=${LATEST_TAG#v}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
+          
+          echo "📊 Current version: $MAJOR.$MINOR.$PATCH"
+          
+          # Determine bump type
+          if [ "$VERSION_TYPE" = "custom" ]; then
+            if [ -z "$CUSTOM_VERSION" ]; then
+              echo "❌ ERROR: custom_version is required when version_type=custom"
+              exit 1
+            fi
+            NEW_VERSION="$CUSTOM_VERSION"
+            if [[ ! "$NEW_VERSION" =~ ^v ]]; then
+              NEW_VERSION="v$NEW_VERSION"
+            fi
+            BUMP_TYPE="custom"
+          elif [ "$VERSION_TYPE" = "auto" ]; then
+            # Auto-detect from commit messages since last tag
+            COMMITS=$(git log $LATEST_TAG..HEAD --pretty=format:"%s")
+            
+            if echo "$COMMITS" | grep -qE "(^|: )BREAKING CHANGE|^[a-z]+\!:"; then
+              # Major version bump (breaking change)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              BUMP_TYPE="major (breaking changes detected)"
+            elif echo "$COMMITS" | grep -qE "^feat(\(|:)"; then
+              # Minor version bump (new features)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              BUMP_TYPE="minor (new features detected)"
+            else
+              # Patch version bump (fixes or chores)
+              PATCH=$((PATCH + 1))
+              BUMP_TYPE="patch (fixes/improvements detected)"
+            fi
+            NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+          else
+            # Explicit bump type
+            if [ "$VERSION_TYPE" = "major" ]; then
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+            elif [ "$VERSION_TYPE" = "minor" ]; then
+              MINOR=$((MINOR + 1))
+              PATCH=0
+            elif [ "$VERSION_TYPE" = "patch" ]; then
+              PATCH=$((PATCH + 1))
+            fi
+            NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+            BUMP_TYPE="$VERSION_TYPE (manual)"
+          fi
+          
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+          echo "✅ Next version: $NEW_VERSION ($BUMP_TYPE)"
+
+      - name: Check if tag already exists
+        run: |
+          NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
+          
+          if git rev-parse "$NEW_VERSION" >/dev/null 2>&1; then
+            echo "❌ ERROR: Tag $NEW_VERSION already exists!"
+            echo "   Please choose a different version or delete the existing tag."
+            exit 1
+          fi
+          
+          echo "✅ Tag $NEW_VERSION does not exist, safe to create"
+
+      - name: Generate changelog
+        id: generate_changelog
+        run: |
+          LATEST_TAG="${{ steps.get_latest_tag.outputs.latest_tag }}"
+          NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
+          BUMP_TYPE="${{ steps.calculate_version.outputs.bump_type }}"
+          
+          echo "## 🎉 Release $NEW_VERSION" > changelog.md
+          echo "" >> changelog.md
+          echo "**Type:** $BUMP_TYPE" >> changelog.md
+          echo "" >> changelog.md
+          
+          # Check if this is the first release
+          if git rev-parse "$LATEST_TAG" >/dev/null 2>&1; then
+            # Get commits since last tag
+            COMMITS=$(git log $LATEST_TAG..HEAD --pretty=format:"%s" 2>/dev/null || echo "")
+            
+            if [ -n "$COMMITS" ]; then
+              echo "### 📋 Changes since $LATEST_TAG" >> changelog.md
+              echo "" >> changelog.md
+              
+              # Categorize commits
+              FEATURES=$(echo "$COMMITS" | grep -E "^feat(\(|:)" || true)
+              FIXES=$(echo "$COMMITS" | grep -E "^fix(\(|:)" || true)
+              BREAKING=$(echo "$COMMITS" | grep -E "(^|: )BREAKING CHANGE|^[a-z]+\!:" || true)
+              OTHERS=$(echo "$COMMITS" | grep -vE "^(feat|fix)(\(|:)" || true)
+              
+              # Breaking changes first
+              if [ -n "$BREAKING" ]; then
+                echo "#### ⚠️ BREAKING CHANGES" >> changelog.md
+                echo "" >> changelog.md
+                echo "$BREAKING" | while read -r line; do
+                  HASH=$(git log --all --pretty=format:"%h %s" | grep "$line" | head -1 | cut -d' ' -f1)
+                  echo "- $line (\`$HASH\`)" >> changelog.md
+                done
+                echo "" >> changelog.md
+              fi
+              
+              # Features
+              if [ -n "$FEATURES" ]; then
+                echo "#### ✨ Features" >> changelog.md
+                echo "" >> changelog.md
+                echo "$FEATURES" | while read -r line; do
+                  HASH=$(git log --all --pretty=format:"%h %s" | grep "$line" | head -1 | cut -d' ' -f1)
+                  echo "- $line (\`$HASH\`)" >> changelog.md
+                done
+                echo "" >> changelog.md
+              fi
+              
+              # Bug fixes
+              if [ -n "$FIXES" ]; then
+                echo "#### 🐛 Bug Fixes" >> changelog.md
+                echo "" >> changelog.md
+                echo "$FIXES" | while read -r line; do
+                  HASH=$(git log --all --pretty=format:"%h %s" | grep "$line" | head -1 | cut -d' ' -f1)
+                  echo "- $line (\`$HASH\`)" >> changelog.md
+                done
+                echo "" >> changelog.md
+              fi
+              
+              # Other changes
+              if [ -n "$OTHERS" ]; then
+                echo "#### 🔧 Other Changes" >> changelog.md
+                echo "" >> changelog.md
+                echo "$OTHERS" | while read -r line; do
+                  HASH=$(git log --all --pretty=format:"%h %s" | grep "$line" | head -1 | cut -d' ' -f1)
+                  echo "- $line (\`$HASH\`)" >> changelog.md
+                done
+                echo "" >> changelog.md
+              fi
+            fi
+          else
+            echo "### 🎉 Initial Release" >> changelog.md
+            echo "" >> changelog.md
+            echo "First production release of Memocards application." >> changelog.md
+            echo "" >> changelog.md
+          fi
+          
+          # Add additional notes if provided
+          ADDITIONAL="${{ inputs.additional_notes }}"
+          if [ -n "$ADDITIONAL" ]; then
+            echo "### 📝 Additional Notes" >> changelog.md
+            echo "" >> changelog.md
+            echo "$ADDITIONAL" >> changelog.md
+            echo "" >> changelog.md
+          fi
+          
+          # Add deployment info
+          echo "---" >> changelog.md
+          echo "" >> changelog.md
+          echo "**Deployment:**" >> changelog.md
+          echo "- 🏗️ Built with GitHub Actions" >> changelog.md
+          echo "- 🐳 Docker image: \`ghcr.io/${{ github.repository }}:${NEW_VERSION#v}\`" >> changelog.md
+          echo "- 🚀 Auto-deployed to production" >> changelog.md
+          
+          cat changelog.md
+          echo "✅ Changelog generated"
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and push tag
+        run: |
+          NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
+          
+          echo "📋 Creating tag: $NEW_VERSION on current HEAD"
+          echo "   Current commit: $(git rev-parse --short HEAD)"
+          git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
+          
+          echo "🚀 Pushing tag to remote..."
+          git push origin "$NEW_VERSION"
+          
+          echo "✅ Tag pushed successfully!"
+          echo ""
+          echo "This will automatically trigger:"
+          echo "  • Main Branch Deployment (build + test + Docker push)"
+          echo "  • Deploy to VPS (ansible + deploy)"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
+        run: |
+          NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
+          
+          echo "📦 Creating GitHub Release..."
+          gh release create "$NEW_VERSION" \
+            --title "$NEW_VERSION" \
+            --notes-file changelog.md \
+            --latest
+          
+          echo "✅ GitHub Release created!"
+          echo "   View at: https://github.com/${{ github.repository }}/releases/tag/$NEW_VERSION"
+
+      - name: Wait for Docker image to be built
+        env:
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
+        run: |
+          NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
+          VERSION_NO_V="${NEW_VERSION#v}"
+          
+          echo "⏳ Waiting for main.yml workflow to build Docker image..."
+          echo "📦 Expected image: ghcr.io/${{ github.repository }}:$VERSION_NO_V"
+          echo ""
+          
+          # Wait up to 15 minutes for main.yml to complete
+          for i in {1..30}; do
+            # Check if main.yml completed successfully (latest run)
+            MAIN_STATUS=$(gh run list --workflow=main.yml --limit 1 \
+              --json status,conclusion --jq '.[0] | "\(.status):\(.conclusion)"' 2>/dev/null || echo "")
+            
+            if [ -n "$MAIN_STATUS" ]; then
+              STATUS=$(echo "$MAIN_STATUS" | cut -d: -f1)
+              CONCLUSION=$(echo "$MAIN_STATUS" | cut -d: -f2)
+              
+              if [ "$STATUS" = "completed" ]; then
+                if [ "$CONCLUSION" = "success" ]; then
+                  echo ""
+                  echo "✅ main.yml completed successfully!"
+                  echo "📦 Docker image is available: ghcr.io/${{ github.repository }}:$VERSION_NO_V"
+                  echo ""
+                  echo "🚀 Deploy workflow will start automatically"
+                  exit 0
+                else
+                  echo ""
+                  echo "❌ main.yml failed with conclusion: $CONCLUSION"
+                  echo "   Docker image was NOT created!"
+                  echo "   Check: https://github.com/${{ github.repository }}/actions/workflows/main.yml"
+                  echo ""
+                  echo "⚠️  Release was created but deployment will fail"
+                  echo "   Fix the issues and manually trigger deploy.yml when ready"
+                  exit 1
+                fi
+              fi
+            fi
+            
+            echo "⏳ Attempt $i/30: main.yml is $STATUS, waiting 30s..."
+            sleep 30
+          done
+          
+          echo ""
+          echo "❌ Timeout: main.yml did not complete within 15 minutes"
+          echo "   Release was created but Docker image might not be ready"
+          echo "   Check workflow status: https://github.com/${{ github.repository }}/actions/workflows/main.yml"
+          exit 1
+
+      - name: Deployment summary
+        run: |
+          NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
+          BUMP_TYPE="${{ steps.calculate_version.outputs.bump_type }}"
+          LATEST_TAG="${{ steps.get_latest_tag.outputs.latest_tag }}"
+          
+          echo "## 🎉 Release $NEW_VERSION Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Previous version:** \`$LATEST_TAG\`" >> $GITHUB_STEP_SUMMARY
+          echo "**New version:** \`$NEW_VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Bump type:** $BUMP_TYPE" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Changelog" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat changelog.md >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. ✅ Tag pushed to repository" >> $GITHUB_STEP_SUMMARY
+          echo "2. 🔄 [Main Branch Deployment](https://github.com/${{ github.repository }}/actions/workflows/main.yml) starting (~15 min)" >> $GITHUB_STEP_SUMMARY
+          echo "3. 🚀 [Deploy to VPS](https://github.com/${{ github.repository }}/actions/workflows/deploy.yml) starting after build (~10 min)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- [📦 Release Page](https://github.com/${{ github.repository }}/releases/tag/$NEW_VERSION)" >> $GITHUB_STEP_SUMMARY
+          echo "- [🔄 Workflows](https://github.com/${{ github.repository }}/actions)" >> $GITHUB_STEP_SUMMARY
+          echo "- [🏷️ All Tags](https://github.com/${{ github.repository }}/tags)" >> $GITHUB_STEP_SUMMARY
+          
+          echo ""
+          echo "╔════════════════════════════════════════════════════════════╗"
+          echo "║      🎉 Release $NEW_VERSION Created!                      ║"
+          echo "╚════════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "📋 Previous: $LATEST_TAG → New: $NEW_VERSION"
+          echo "🏷️  Bump type: $BUMP_TYPE"
+          echo "📝 Changelog: Auto-generated from commits"
+          echo "🔄 CI/CD: Starting automatically"
+          echo "🚀 ETA: ~25-30 minutes to production"
+          echo ""
+          echo "View release: https://github.com/${{ github.repository }}/releases/tag/$NEW_VERSION"
+

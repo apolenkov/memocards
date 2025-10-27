@@ -40,9 +40,6 @@ env:
   APP_DOMAIN: ${{ vars.APP_DOMAIN }}
   APP_PORT: "8080"
 
-  # Artifact retention (days)
-  ARTIFACT_RETENTION_DAYS: 90
-
 jobs:
   validate-config:
     name: Validate Configuration
@@ -104,14 +101,26 @@ jobs:
       - name: Determine image tag
         id: get_tag
         run: |
-          # Use manual tag if provided, otherwise git SHA (same as main.yml)
           if [ -n "${{ inputs.image_tag }}" ]; then
             TAG="${{ inputs.image_tag }}"
-            echo "📋 Using manual tag: $TAG"
+            
+            # Normalize: strip 'v' prefix if present (Jib creates tags without 'v')
+            # Example: v1.0.0 → 1.0.0
+            TAG="${TAG#v}"
+            
+            echo "📋 Using manual tag: $TAG (normalized from ${{ inputs.image_tag }})"
           else
             TAG="${GITHUB_SHA:0:7}"
             echo "📋 Using git SHA tag: $TAG"
           fi
+          
+          # Validate tag format
+          if [[ ! "$TAG" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+            echo "❌ ERROR: Invalid tag format: '$TAG'"
+            echo "Expected: alphanumeric with dots, dashes, underscores"
+            exit 1
+          fi
+          
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "full_image=ghcr.io/${{ github.repository_owner }}/memocards:$TAG" >> $GITHUB_OUTPUT
 
@@ -122,25 +131,84 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Wait for Docker image to be available
+      - name: Wait for Docker image with smart retry
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           IMAGE="ghcr.io/${{ github.repository_owner }}/memocards:${{ steps.get_tag.outputs.tag }}"
+          MAX_WAIT=1500  # 25 minutes
+          START_TIME=$(date +%s)
+          ATTEMPT=0
+          COMMIT_SHA="${GITHUB_SHA}"
+          
           echo "⏳ Waiting for image: $IMAGE"
-          echo "This image should be built by main.yml workflow..."
-
-          # Wait up to 25 minutes (50 attempts * 30 seconds)
-          for i in {1..50}; do
+          echo "📋 Commit: $COMMIT_SHA"
+          echo "🔄 Monitoring main.yml workflow progress..."
+          echo ""
+          
+          # Find the main.yml run for THIS specific commit
+          MAIN_RUN_ID=$(gh run list --workflow=main.yml --json headSha,databaseId,status \
+            --jq ".[] | select(.headSha == \"$COMMIT_SHA\") | .databaseId" | head -n 1)
+          
+          if [ -n "$MAIN_RUN_ID" ]; then
+            echo "🔍 Found main.yml run #$MAIN_RUN_ID for commit $COMMIT_SHA"
+          else
+            echo "⚠️  No main.yml run found for commit $COMMIT_SHA (might be manual trigger)"
+          fi
+          
+          while true; do
+            ATTEMPT=$((ATTEMPT + 1))
+            ELAPSED=$(($(date +%s) - START_TIME))
+            
+            # Check if main.yml workflow failed (early exit) - only for THIS commit
+            if [ -n "$MAIN_RUN_ID" ]; then
+              RUN_STATUS=$(gh run view "$MAIN_RUN_ID" --json status,conclusion \
+                --jq '"\(.status):\(.conclusion)"' 2>/dev/null || echo "")
+              
+              if [ -n "$RUN_STATUS" ]; then
+                STATUS=$(echo "$RUN_STATUS" | cut -d: -f1)
+                CONCLUSION=$(echo "$RUN_STATUS" | cut -d: -f2)
+                
+                if [ "$STATUS" = "completed" ] && [ "$CONCLUSION" = "failure" ]; then
+                  echo ""
+                  echo "❌ main.yml run #$MAIN_RUN_ID failed! Aborting wait."
+                  echo "   Check: https://github.com/${{ github.repository }}/actions/runs/$MAIN_RUN_ID"
+                  exit 1
+                fi
+              fi
+            fi
+            
+            # Check if image exists
             if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
-              echo "✅ Image found! Ready to deploy."
+              echo ""
+              echo "✅ Image found after ${ELAPSED}s (${ATTEMPT} attempts)"
+              echo "📦 Ready to deploy: $IMAGE"
               exit 0
             fi
-            echo "⏳ Attempt $i/50: Image not ready yet, waiting 30 seconds..."
-            sleep 30
+            
+            # Timeout check
+            if [ $ELAPSED -ge $MAX_WAIT ]; then
+              echo ""
+              echo "❌ Timeout after ${ELAPSED}s!"
+              echo "   Image was not available within 25 minutes."
+              echo "   Check main.yml workflow: https://github.com/${{ github.repository }}/actions/workflows/main.yml"
+              exit 1
+            fi
+            
+            # Progressive backoff: 10s (first 5min) → 30s (next 5min) → 60s (rest)
+            if [ $ELAPSED -lt 300 ]; then
+              SLEEP=10
+            elif [ $ELAPSED -lt 600 ]; then
+              SLEEP=30
+            else
+              SLEEP=60
+            fi
+            
+            REMAINING=$((MAX_WAIT - ELAPSED))
+            MAIN_INFO=$([ -n "$MAIN_STATUS" ] && echo " (main.yml: $(echo $MAIN_STATUS | cut -d: -f1))" || echo "")
+            echo "⏳ Attempt $ATTEMPT: Image not ready yet. Next check in ${SLEEP}s... (${REMAINING}s remaining)${MAIN_INFO}"
+            sleep $SLEEP
           done
-
-          echo "❌ ERROR: Image not found after 25 minutes!"
-          echo "Please check if main.yml workflow completed successfully."
-          exit 1
 
   deploy:
     name: Deploy to VPS with Ansible

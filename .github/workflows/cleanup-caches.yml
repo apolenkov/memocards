@@ -1,0 +1,95 @@
+---
+name: Cleanup PR Caches
+
+# Automatically cleanup caches when PR is closed to free up storage quota
+# This prevents accumulation of unused caches and keeps the cache size manageable
+#
+# Benefits:
+# - Reduces GitHub Actions storage usage
+# - Speeds up cache lookup (fewer entries to search)
+# - Saves costs for private repositories
+
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  actions: write  # Required to delete caches
+
+jobs:
+  cleanup:
+    name: Delete PR Caches
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Cleanup caches
+        run: |
+          echo "🧹 Cleaning up caches for PR #${{ github.event.pull_request.number }}"
+          echo "📋 Branch: ${{ github.event.pull_request.head.ref }}"
+          echo ""
+          
+          # Fetch list of cache keys for this PR branch
+          BRANCH="refs/pull/${{ github.event.pull_request.number }}/merge"
+          echo "🔍 Fetching cache list for $BRANCH (limit: 100)..."
+          
+          CACHE_KEYS=$(gh cache list --ref "$BRANCH" --limit 100 --json id --jq '.[].id' || echo "")
+          
+          if [ -z "$CACHE_KEYS" ]; then
+            echo "✅ No caches found for this PR - nothing to cleanup"
+            exit 0
+          fi
+          
+          # Count caches
+          CACHE_COUNT=$(echo "$CACHE_KEYS" | wc -l | tr -d ' ')
+          echo "📦 Found $CACHE_COUNT cache(s) to delete"
+          echo ""
+          
+          # Delete each cache (set +e to continue on errors)
+          set +e
+          DELETED=0
+          FAILED=0
+          
+          echo "🗑️  Deleting caches..."
+          while IFS= read -r cacheKey; do
+            if [ -n "$cacheKey" ]; then
+              if gh cache delete "$cacheKey" 2>/dev/null; then
+                DELETED=$((DELETED + 1))
+                echo "  ✅ Deleted cache: $cacheKey"
+              else
+                FAILED=$((FAILED + 1))
+                echo "  ⚠️  Failed to delete cache: $cacheKey (might be already deleted)"
+              fi
+            fi
+          done <<< "$CACHE_KEYS"
+          
+          echo ""
+          echo "╔════════════════════════════════════════╗"
+          echo "║      🧹 Cleanup Summary               ║"
+          echo "╚════════════════════════════════════════╝"
+          echo "Total found:    $CACHE_COUNT"
+          echo "Deleted:        $DELETED"
+          echo "Failed:         $FAILED"
+          echo ""
+          
+          if [ "$DELETED" -gt 0 ]; then
+            echo "✅ Successfully cleaned up $DELETED cache(s) for PR #${{ github.event.pull_request.number }}"
+          else
+            echo "ℹ️  No caches were deleted (might have been cleaned up already)"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 🧹 Cache Cleanup Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**PR:** #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.event.pull_request.head.ref }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Cache storage has been freed up for this PR branch." >> $GITHUB_STEP_SUMMARY
+
