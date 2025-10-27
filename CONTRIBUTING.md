@@ -27,17 +27,12 @@ This project follows a simple code of conduct:
 
 ## Getting Started
 
-1. **Fork the repository** on GitHub (for contribution purposes only)
-2. **Clone your fork** locally:
+1. **Clone the repository** locally:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/memocards.git
+   git clone https://github.com/apolenkov/memocards.git
    cd memocards
    ```
-3. **Add upstream remote**:
-   ```bash
-   git remote add upstream https://github.com/apolenkov/memocards.git
-   ```
-4. **Create a feature branch**:
+2. **Create a feature branch**:
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -262,10 +257,10 @@ Add section explaining how to run full stack with Docker Compose.
 
 ## Pull Request Process
 
-1. **Update your branch** with latest upstream changes:
+1. **Update your branch** with latest changes:
    ```bash
-   git fetch upstream
-   git rebase upstream/main
+   git fetch origin
+   git rebase origin/master
    ```
 
 2. **Ensure all checks pass**:
@@ -300,7 +295,7 @@ Before submitting your PR, verify:
 - [ ] Javadoc updated for public APIs
 - [ ] i18n messages added for UI strings
 - [ ] README updated if needed
-- [ ] No merge conflicts with main branch
+- [ ] No merge conflicts with master branch
 
 ## Testing Guidelines
 
