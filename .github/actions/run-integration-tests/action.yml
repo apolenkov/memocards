@@ -30,4 +30,4 @@ runs:
         path: |
           build/test-results/integrationTest/
           build/reports/tests/integrationTest/
-        retention-days: 7  # Integration test results - short retention
+        retention-days: 7  # Short retention (reviewed quickly)

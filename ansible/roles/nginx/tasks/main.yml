@@ -100,7 +100,7 @@
 - name: Create DuckDNS cron job
   ansible.builtin.cron:
     name: "DuckDNS IP updater"
-    minute: "*/5"
+    minute: "*/15"
     job: "/usr/local/bin/duckdns-update.sh"
     user: root
   tags: [nginx, duckdns]
@@ -188,7 +188,7 @@
       - Nginx installed and running
       - Configuration: /etc/nginx/sites-available/memocards.conf
       - SSL Certificate: {{ 'Installed ✅' if nginx_ssl_cert.stat.exists else 'Pending (check logs)' }}
-      - DuckDNS updater: configured (every 5 minutes)
+      - DuckDNS updater: configured (every 15 minutes)
       - SSL auto-renewal: configured (daily at 2:00 AM)
       - Domain: {{ domain }}
       - Access: {{ 'https://' if nginx_ssl_cert.stat.exists else 'http://' }}{{ domain }}

@@ -40,7 +40,7 @@ jobs:
           name: dependency-check-report
           path: |
             build/reports/dependency-check/
-          retention-days: 90  # Security reports - long retention (audit trail)
+          retention-days: 90  # Long retention (audit trail)
 
   vulnerability-summary:
     name: Generate Vulnerability Summary
@@ -84,4 +84,4 @@ jobs:
         with:
           name: security-audit-summary
           path: security-summary.md
-          retention-days: 90  # Security summaries - long retention
+          retention-days: 90  # Long retention (audit trail)

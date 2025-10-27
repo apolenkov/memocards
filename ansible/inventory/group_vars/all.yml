@@ -6,9 +6,8 @@
 
 # =============================================================================
 # VPS CONFIGURATION
+# Note: vps_ip and vps_user are defined in inventory/hosts.yml (single source of truth)
 # =============================================================================
-vps_ip: "185.239.48.55"
-vps_user: "root"
 vps_timezone: "Europe/Moscow"
 vps_locale: "en_US.UTF-8"
 
@@ -67,14 +66,7 @@ firewall_allowed_ports:
   - "443" # HTTPS
 
 # =============================================================================
-# BACKUP CONFIGURATION
+# MANAGEMENT CONFIGURATION
 # =============================================================================
-backup_enabled: true
-backup_schedule: "0 2 * * *" # Ежедневно в 2:00
-backup_retention_days: 7
-
-# =============================================================================
-# MONITORING CONFIGURATION
-# =============================================================================
-monitoring_enabled: true
-monitoring_schedule: "*/5 * * * *" # Каждые 5 минут
+# Backup and monitoring removed for MVP
+# Using Docker restart policy instead of cron monitoring

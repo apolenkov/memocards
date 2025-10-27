@@ -164,65 +164,12 @@ jobs:
           echo "**Type:** $BUMP_TYPE" >> changelog.md
           echo "" >> changelog.md
           
-          # Check if this is the first release
+          # Generate simple changelog from git log
           if git rev-parse "$LATEST_TAG" >/dev/null 2>&1; then
-            # Get commits since last tag
-            COMMITS=$(git log $LATEST_TAG..HEAD --pretty=format:"%s" 2>/dev/null || echo "")
-            
-            if [ -n "$COMMITS" ]; then
-              echo "### 📋 Changes since $LATEST_TAG" >> changelog.md
-              echo "" >> changelog.md
-              
-              # Categorize commits
-              FEATURES=$(echo "$COMMITS" | grep -E "^feat(\(|:)" || true)
-              FIXES=$(echo "$COMMITS" | grep -E "^fix(\(|:)" || true)
-              BREAKING=$(echo "$COMMITS" | grep -E "(^|: )BREAKING CHANGE|^[a-z]+\!:" || true)
-              OTHERS=$(echo "$COMMITS" | grep -vE "^(feat|fix)(\(|:)" || true)
-              
-              # Breaking changes first
-              if [ -n "$BREAKING" ]; then
-                echo "#### ⚠️ BREAKING CHANGES" >> changelog.md
-                echo "" >> changelog.md
-                echo "$BREAKING" | while read -r line; do
-                  HASH=$(git log --all --pretty=format:"%h %s" | grep "$line" | head -1 | cut -d' ' -f1)
-                  echo "- $line (\`$HASH\`)" >> changelog.md
-                done
-                echo "" >> changelog.md
-              fi
-              
-              # Features
-              if [ -n "$FEATURES" ]; then
-                echo "#### ✨ Features" >> changelog.md
-                echo "" >> changelog.md
-                echo "$FEATURES" | while read -r line; do
-                  HASH=$(git log --all --pretty=format:"%h %s" | grep "$line" | head -1 | cut -d' ' -f1)
-                  echo "- $line (\`$HASH\`)" >> changelog.md
-                done
-                echo "" >> changelog.md
-              fi
-              
-              # Bug fixes
-              if [ -n "$FIXES" ]; then
-                echo "#### 🐛 Bug Fixes" >> changelog.md
-                echo "" >> changelog.md
-                echo "$FIXES" | while read -r line; do
-                  HASH=$(git log --all --pretty=format:"%h %s" | grep "$line" | head -1 | cut -d' ' -f1)
-                  echo "- $line (\`$HASH\`)" >> changelog.md
-                done
-                echo "" >> changelog.md
-              fi
-              
-              # Other changes
-              if [ -n "$OTHERS" ]; then
-                echo "#### 🔧 Other Changes" >> changelog.md
-                echo "" >> changelog.md
-                echo "$OTHERS" | while read -r line; do
-                  HASH=$(git log --all --pretty=format:"%h %s" | grep "$line" | head -1 | cut -d' ' -f1)
-                  echo "- $line (\`$HASH\`)" >> changelog.md
-                done
-                echo "" >> changelog.md
-              fi
-            fi
+            echo "### 📋 Changes since $LATEST_TAG" >> changelog.md
+            echo "" >> changelog.md
+            git log $LATEST_TAG..HEAD --pretty=format:"- %s (\`%h\`)" >> changelog.md
+            echo "" >> changelog.md
           else
             echo "### 🎉 Initial Release" >> changelog.md
             echo "" >> changelog.md
@@ -233,17 +180,17 @@ jobs:
           # Add additional notes if provided
           ADDITIONAL="${{ inputs.additional_notes }}"
           if [ -n "$ADDITIONAL" ]; then
+            echo "" >> changelog.md
             echo "### 📝 Additional Notes" >> changelog.md
             echo "" >> changelog.md
             echo "$ADDITIONAL" >> changelog.md
-            echo "" >> changelog.md
           fi
           
           # Add deployment info
+          echo "" >> changelog.md
           echo "---" >> changelog.md
           echo "" >> changelog.md
           echo "**Deployment:**" >> changelog.md
-          echo "- 🏗️ Built with GitHub Actions" >> changelog.md
           echo "- 🐳 Docker image: \`ghcr.io/${{ github.repository }}:${NEW_VERSION#v}\`" >> changelog.md
           echo "- 🚀 Auto-deployed to production" >> changelog.md
           

@@ -73,8 +73,7 @@
           ✅ Nginx installed with SSL
           ✅ Application deployed and healthy
           ✅ PostgreSQL database running
-          ✅ Backup configured (daily at 2:00 AM)
-          ✅ Monitoring configured (every 5 minutes)
+          ✅ Auto-restart enabled (Docker restart policy)
 
           🌐 Access:
           - URL: https://{{ domain }}
