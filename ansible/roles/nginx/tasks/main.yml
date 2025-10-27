@@ -124,7 +124,7 @@
     --expand
     --debug
   register: nginx_certbot_result
-  failed_when: nginx_certbot_result.rc not in [0, 1]  # 0=success, 1=cert exists
+  failed_when: nginx_certbot_result.rc not in [0, 1] # 0=success, 1=cert exists
   changed_when: nginx_certbot_result.rc == 0
   tags: [nginx, ssl]
 
