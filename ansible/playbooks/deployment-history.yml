@@ -83,13 +83,27 @@
 
     - name: Parse recent deployments
       ansible.builtin.set_fact:
-        recent_deployments: "{{ recent_deployments_raw.results | map(attribute='content') | map('b64decode') | map('from_json') | list }}"
+        recent_deployments: >-
+          {{ recent_deployments_raw.results
+             | map(attribute='content')
+             | map('b64decode')
+             | map('from_json')
+             | list }}
 
     - name: Calculate deployment statistics
       ansible.builtin.set_fact:
         total_deployments: "{{ all_deployments.matched }}"
-        successful_deployments: "{{ recent_deployments | selectattr('status', 'equalto', 'success') | list | length }}"
-        failed_deployments: "{{ recent_deployments | selectattr('status', 'equalto', 'failure') | default([]) | list | length }}"
+        successful_deployments: >-
+          {{ recent_deployments
+             | selectattr('status', 'equalto', 'success')
+             | list
+             | length }}
+        failed_deployments: >-
+          {{ recent_deployments
+             | selectattr('status', 'equalto', 'failure')
+             | default([])
+             | list
+             | length }}
 
     - name: Display deployment history
       ansible.builtin.debug:

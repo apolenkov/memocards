@@ -56,7 +56,9 @@
 
 - name: Parse total RAM in MB
   ansible.builtin.set_fact:
-    common_total_ram_mb: "{{ (common_memory_info.stdout | regex_search('Mem:\\s+(\\d+)')).groups[0] | int | default(2048) }}"
+    common_total_ram_mb: >-
+      {{ (common_memory_info.stdout | regex_search('Mem:\\s+(\\d+)'))
+         .groups[0] | int | default(2048) }}
   tags: [common, system]
 
 - name: Check if swap exists
