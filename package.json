@@ -21,7 +21,7 @@
     "strip-css-comments": "5.0.0",
     "stylelint": "16.8.1",
     "stylelint-config-standard": "36.0.0",
-    "stylelint-order": "6.0.4",
+    "stylelint-order": "7.0.0",
     "transform-ast": "2.4.4",
     "typescript": "5.7.3",
     "vite": "^6.3.5",
