@@ -2,7 +2,7 @@
   "private": true,
   "devDependencies": {
     "@babel/preset-react": "7.26.3",
-    "@preact/signals-react-transform": "0.5.1",
+    "@preact/signals-react-transform": "0.6.0",
     "@rollup/plugin-replace": "6.0.2",
     "@rollup/pluginutils": "5.1.4",
     "@types/react": "18.3.20",
@@ -99,7 +99,7 @@
     },
     "devDependencies": {
       "@babel/preset-react": "7.26.3",
-      "@preact/signals-react-transform": "0.5.1",
+      "@preact/signals-react-transform": "0.6.0",
       "@rollup/plugin-replace": "6.0.2",
       "@rollup/pluginutils": "5.1.4",
       "@types/react": "18.3.20",
