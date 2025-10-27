@@ -1,7 +1,7 @@
 ---
 # =============================================================================
 # GLOBAL VARIABLES - Memocards Deployment
-# Глобальные переменные для развертывания приложения
+# Global variables for application deployment
 # =============================================================================
 
 # =============================================================================
@@ -30,13 +30,13 @@ app_deploy_path: "/opt/memocards"
 # =============================================================================
 db_name: "memocards"
 db_user: "memocards_user"
-# db_password хранится в secrets.yml (vault)
+# db_password stored in secrets.yml (vault)
 
 # =============================================================================
 # SSL CONFIGURATION
 # =============================================================================
 ssl_email: "apolenkov@gmail.com"
-# duckdns_token хранится в secrets.yml (vault)
+# duckdns_token stored in secrets.yml (vault)
 
 # =============================================================================
 # DOCKER CONFIGURATION
@@ -45,13 +45,13 @@ docker_compose_version: "v2.24.0"
 docker_install_method: "repository"
 
 # =============================================================================
-# GITHUB CONFIGURATION (для приватного GHCR)
+# GITHUB CONFIGURATION (for private GHCR)
 # =============================================================================
 github_actor: "apolenkov"
-# github_token хранится в secrets.yml (vault)
+# github_token stored in secrets.yml (vault)
 
 # =============================================================================
-# RESOURCE LIMITS (для VPS с 2GB RAM)
+# RESOURCE LIMITS (for VPS with 2GB RAM)
 # =============================================================================
 app_memory_limit: "1500m"
 postgres_memory_limit: "512m"
