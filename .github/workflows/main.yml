@@ -32,11 +32,16 @@ jobs:
       gradle-opts: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
       testcontainers-reuse: "true"
 
+  ansible-validation:
+    name: Ansible Quality Checks
+    uses: ./.github/workflows/ansible-lint.yml
+    secrets: inherit
+
   docker-build:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     timeout-minutes: 15 # Jib build and push to registry
-    needs: test
+    needs: [test, ansible-validation]
     permissions:
       contents: read       # Required: checkout code
       packages: write      # Required: push to GHCR
@@ -54,7 +59,7 @@ jobs:
         uses: ./.github/actions/setup-gradle
 
       - name: Cache npm dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}

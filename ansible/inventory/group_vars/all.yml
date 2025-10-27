@@ -6,7 +6,8 @@
 
 # =============================================================================
 # VPS CONFIGURATION
-# Note: vps_ip and vps_user are defined in inventory/hosts.yml (single source of truth)
+# Note: VPS IP and user are defined in inventory/hosts.yml via ansible_host and ansible_user
+# Access via: {{ hostvars[inventory_hostname]['ansible_host'] }} or {{ ansible_user }}
 # =============================================================================
 vps_timezone: "Europe/Moscow"
 vps_locale: "en_US.UTF-8"

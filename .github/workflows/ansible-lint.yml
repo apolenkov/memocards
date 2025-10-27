@@ -1,16 +1,8 @@
 name: Ansible Lint and Syntax Check
 
 on:
-  push:
-    branches: [ main, master, develop, security-performance-fixes ]
-    paths:
-      - 'ansible/**'
-      - '.github/workflows/ansible-lint.yml'
-  pull_request:
-    branches: [ main, master, develop ]
-    paths:
-      - 'ansible/**'
-  workflow_call:  # Allow this workflow to be called from other workflows
+  workflow_dispatch:  # Manual trigger
+  workflow_call:  # Called from main.yml (tags) and pr.yml
     secrets:
       ANSIBLE_VAULT_PASSWORD:
         required: false
@@ -27,10 +19,10 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.13'
           cache: 'pip'
@@ -41,7 +33,7 @@ jobs:
           pip install -r requirements.txt
       
       - name: Cache Ansible collections
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.ansible/collections
           key: ${{ runner.os }}-ansible-collections-${{ hashFiles('ansible/requirements.yml') }}
