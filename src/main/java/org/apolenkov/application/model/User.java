@@ -57,7 +57,7 @@ public final class User {
     /**
      * Returns user's unique identifier.
      *
-     * @return user ID
+     * @return user ID if persisted, null for new instances
      */
     public Long getId() {
         return id;
@@ -66,14 +66,14 @@ public final class User {
     /**
      * Sets user's unique identifier.
      *
-     * @param idValue user ID to set
+     * @param idValue user ID to set (null for new instances)
      */
     public void setId(final Long idValue) {
         this.id = idValue;
     }
 
     /**
-     * Returns user's email address.
+     * Returns user's email address for login and communication.
      *
      * @return email address
      */
@@ -82,9 +82,9 @@ public final class User {
     }
 
     /**
-     * Sets user's email address.
+     * Sets user's email address with validation and trimming.
      *
-     * @param emailValue email address to set
+     * @param emailValue email address to set (will be trimmed)
      * @throws IllegalArgumentException if email is null or blank
      */
     public void setEmail(final String emailValue) {

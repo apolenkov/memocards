@@ -78,9 +78,9 @@ public final class Card {
     }
 
     /**
-     * Returns card identifier.
+     * Returns unique card identifier.
      *
-     * @return card ID, or null if not persisted
+     * @return card ID if persisted, null for new instances
      */
     public Long getId() {
         return id;
@@ -89,14 +89,14 @@ public final class Card {
     /**
      * Sets card identifier.
      *
-     * @param idValue card ID to set
+     * @param idValue card ID to set (null for new instances)
      */
     public void setId(final Long idValue) {
         this.id = idValue;
     }
 
     /**
-     * Gets ID of the deck this card belongs to.
+     * Returns identifier of the deck this card belongs to.
      *
      * @return deck ID
      */
@@ -105,10 +105,10 @@ public final class Card {
     }
 
     /**
-     * Sets deck identifier.
+     * Sets identifier of the parent deck.
      *
      * @param deckIdValue deck ID to set
-     * @throws IllegalArgumentException if deckId is null
+     * @throws IllegalArgumentException if deckId is not positive
      */
     public void setDeckId(final long deckIdValue) {
         if (deckIdValue <= 0) {
@@ -118,7 +118,7 @@ public final class Card {
     }
 
     /**
-     * Returns front text content.
+     * Returns front-side text content of the card.
      *
      * @return front text content
      */
@@ -127,9 +127,9 @@ public final class Card {
     }
 
     /**
-     * Sets front text content.
+     * Sets front-side text with validation and trimming.
      *
-     * @param frontTextValue text to display on the front
+     * @param frontTextValue text to display on the front (will be trimmed)
      * @throws IllegalArgumentException if frontText is null or empty
      */
     public void setFrontText(final String frontTextValue) {
@@ -142,7 +142,7 @@ public final class Card {
     }
 
     /**
-     * Returns back text content.
+     * Returns back-side text content of the card.
      *
      * @return back text content
      */
@@ -151,9 +151,9 @@ public final class Card {
     }
 
     /**
-     * Sets back text content.
+     * Sets back-side text with validation and trimming.
      *
-     * @param backTextValue text to display on the back
+     * @param backTextValue text to display on the back (will be trimmed)
      * @throws IllegalArgumentException if backText is null or empty
      */
     public void setBackText(final String backTextValue) {

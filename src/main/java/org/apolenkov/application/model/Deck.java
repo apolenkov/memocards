@@ -118,9 +118,9 @@ public final class Deck {
     }
 
     /**
-     * Returns deck identifier.
+     * Returns unique deck identifier.
      *
-     * @return deck ID, or null if not persisted
+     * @return deck ID if persisted, null for new instances
      */
     public Long getId() {
         return id;
@@ -129,14 +129,14 @@ public final class Deck {
     /**
      * Sets deck identifier.
      *
-     * @param idValue deck ID to set
+     * @param idValue deck ID to set (null for new instances)
      */
     public void setId(final Long idValue) {
         this.id = idValue;
     }
 
     /**
-     * Returns user identifier.
+     * Returns identifier of the user who owns this deck.
      *
      * @return user ID
      */
@@ -145,10 +145,10 @@ public final class Deck {
     }
 
     /**
-     * Sets user identifier.
+     * Sets identifier of the deck owner.
      *
      * @param userIdValue user ID to set
-     * @throws IllegalArgumentException if userId is null
+     * @throws IllegalArgumentException if userId is not positive
      */
     public void setUserId(final long userIdValue) {
         if (userIdValue <= 0) {
@@ -158,7 +158,7 @@ public final class Deck {
     }
 
     /**
-     * Returns deck title.
+     * Returns deck title for display.
      *
      * @return deck title
      */
@@ -167,9 +167,9 @@ public final class Deck {
     }
 
     /**
-     * Sets deck title.
+     * Sets deck title with validation and trimming.
      *
-     * @param titleValue deck title to set
+     * @param titleValue deck title to set (will be trimmed)
      * @throws IllegalArgumentException if title is null or empty
      */
     public void setTitle(final String titleValue) {
@@ -249,7 +249,7 @@ public final class Deck {
     }
 
     /**
-     * Sets list of cards.
+     * Sets list of cards attached to this deck.
      *
      * @param cardsList list of cards to set, or null for empty list
      */
