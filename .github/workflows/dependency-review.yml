@@ -3,6 +3,10 @@ name: Dependency Review
 
 # Automatically checks all dependencies in PRs for known vulnerabilities
 # Blocks PRs with high/critical severity issues
+#
+# NOTE: This workflow only runs on PUBLIC repositories.
+# For private repositories, GitHub Advanced Security (paid) is required.
+# The workflow will be automatically skipped for private repos.
 
 on:
   pull_request:
@@ -15,6 +19,8 @@ jobs:
   dependency-review:
     name: Review Dependencies
     runs-on: ubuntu-latest
+    # Only run on public repositories (requires GitHub Advanced Security for private repos)
+    if: github.event.repository.visibility == 'public'
 
     steps:
       - name: Checkout code
