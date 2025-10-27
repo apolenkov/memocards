@@ -457,7 +457,7 @@ jib {
                 "org.opencontainers.image.source" to
                     "https://github.com/${project.findProperty("GITHUB_REPOSITORY") ?: "apolenkov/memocards"}",
                 "org.opencontainers.image.description" to "Memocards Application - Flashcards Learning Platform",
-                "org.opencontainers.image.licenses" to "MIT",
+                "org.opencontainers.image.licenses" to "Proprietary",
                 "org.opencontainers.image.version" to project.version.toString(),
                 "org.opencontainers.image.title" to "Memocards",
             ),
