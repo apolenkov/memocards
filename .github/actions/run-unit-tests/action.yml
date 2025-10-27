@@ -1,0 +1,40 @@
+---
+name: Run Unit Tests
+description: Runs unit tests and uploads results and coverage reports
+
+inputs:
+  gradle-opts:
+    description: "Gradle JVM options"
+    required: false
+    default: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
+  retention-days:
+    description: "Number of days to retain artifacts"
+    required: false
+    default: "90"
+
+runs:
+  using: composite
+  steps:
+    - name: Run unit tests (excluding integration tests)
+      shell: bash
+      env:
+        GRADLE_OPTS: ${{ inputs.gradle-opts }}
+      run: ./gradlew test -x integrationTest
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: unit-test-results
+        path: |
+          build/test-results/test/
+          build/reports/tests/test/
+        retention-days: ${{ inputs.retention-days }}
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: unit-test-coverage
+        path: build/reports/jacoco/test/html/
+        retention-days: ${{ inputs.retention-days }}

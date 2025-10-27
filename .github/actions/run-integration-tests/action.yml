@@ -1,0 +1,37 @@
+---
+name: Run Integration Tests
+description: Runs integration tests with TestContainers and uploads results
+
+inputs:
+  gradle-opts:
+    description: "Gradle JVM options"
+    required: false
+    default: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
+  testcontainers-reuse:
+    description: "Enable TestContainers reuse"
+    required: false
+    default: "true"
+  retention-days:
+    description: "Number of days to retain artifacts"
+    required: false
+    default: "90"
+
+runs:
+  using: composite
+  steps:
+    - name: Run integration tests with TestContainers
+      shell: bash
+      env:
+        GRADLE_OPTS: ${{ inputs.gradle-opts }}
+        TESTCONTAINERS_REUSE_ENABLE: ${{ inputs.testcontainers-reuse }}
+      run: ./gradlew integrationTest
+
+    - name: Upload integration test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: integration-test-results
+        path: |
+          build/test-results/integrationTest/
+          build/reports/tests/integrationTest/
+        retention-days: ${{ inputs.retention-days }}
