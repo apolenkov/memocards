@@ -10,7 +10,7 @@
     "@vitejs/plugin-react": "4.4.1",
     "async": "3.2.6",
     "autoprefixer": "10.4.19",
-    "cssnano": "6.1.2",
+    "cssnano": "7.1.1",
     "glob": "11.0.2",
     "postcss-custom-media": "10.0.5",
     "postcss-custom-properties": "^14.0.6",
