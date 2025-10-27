@@ -1,14 +1,14 @@
 ---
 version: 2
 updates:
-  # Enable version updates for Gradle
+  # Gradle (Java dependencies) - ALL IN ONE PR
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "sunday"
       time: "02:00"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 1  # Only 1 PR at a time
     reviewers:
       - "apolenkov"
     assignees:
@@ -16,15 +16,24 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
+    
+    # Group ALL Gradle dependencies into 1 PR
+    groups:
+      all-gradle:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
-  # Enable version updates for npm (Vaadin frontend)
+  # npm (Frontend dependencies) - ALL IN ONE PR
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "sunday"
       time: "02:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 1  # Only 1 PR at a time
     reviewers:
       - "apolenkov"
     assignees:
@@ -32,15 +41,24 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
+    
+    # Group ALL npm dependencies into 1 PR
+    groups:
+      all-npm:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
-  # Enable version updates for GitHub Actions
+  # GitHub Actions - ALL IN ONE PR
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "sunday"
       time: "02:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 1  # Only 1 PR at a time
     reviewers:
       - "apolenkov"
     assignees:
@@ -48,16 +66,21 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
+    
+    # Group ALL GitHub Actions into 1 PR
+    groups:
+      all-actions:
+        patterns:
+          - "*"
 
-  # Enable version updates for Docker Compose
-  # Tracks: postgres:15-alpine and other base images
+  # Docker - ALL IN ONE PR
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "sunday"
       time: "02:00"
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 1  # Only 1 PR at a time
     reviewers:
       - "apolenkov"
     assignees:
@@ -68,3 +91,9 @@ updates:
     # Ignore our own app image (built by Jib)
     ignore:
       - dependency-name: "ghcr.io/apolenkov/memocards"
+    
+    # Group ALL Docker images into 1 PR
+    groups:
+      all-docker:
+        patterns:
+          - "*"
