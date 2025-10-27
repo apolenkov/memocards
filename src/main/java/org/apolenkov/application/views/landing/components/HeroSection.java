@@ -8,9 +8,9 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
 import org.apolenkov.application.config.security.SecurityConstants;
+import org.apolenkov.application.config.vaadin.VaadinApplicationShell;
 import org.apolenkov.application.views.landing.constants.LandingConstants;
 import org.apolenkov.application.views.shared.utils.ButtonHelper;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
@@ -62,11 +62,9 @@ public final class HeroSection extends Composite<Div> {
         Div heroIcon = new Div();
         heroIcon.addClassName(LandingConstants.LANDING_HERO_ICON_CLASS);
 
-        Image hero = new Image(
-                new StreamResource(LandingConstants.PIXEL_ICON_NAME, () -> getClass()
-                        .getResourceAsStream(LandingConstants.PIXEL_ICON_PATH)),
-                getTranslation(LandingConstants.LANDING_HERO_ALT_KEY));
-
+        Image hero = new Image();
+        hero.setSrc(VaadinApplicationShell.ResourcePaths.PIXEL_ICON);
+        hero.setAlt(getTranslation(LandingConstants.LANDING_HERO_ALT_KEY));
         hero.addClassName(LandingConstants.LANDING_HERO_IMAGE_CLASS);
         heroImageClickListenerRegistration = hero.addClickListener(e -> handleHeroClick());
 

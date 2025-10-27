@@ -1,14 +1,18 @@
 package org.apolenkov.application.config.security;
 
-import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import com.vaadin.flow.spring.security.VaadinAwareSecurityContextHolderStrategyConfiguration;
+import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.logging.MdcFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -17,7 +21,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * Provides authentication, authorization, and security headers.
  */
 @Configuration(proxyBeanMethods = false)
-public class SecurityConfig extends VaadinWebSecurity {
+@EnableWebSecurity
+@Import(VaadinAwareSecurityContextHolderStrategyConfiguration.class)
+public class SecurityConfig {
 
     private final MdcFilter mdcFilter;
 
@@ -34,15 +40,18 @@ public class SecurityConfig extends VaadinWebSecurity {
      * Configures HTTP security including CSRF protection and security headers.
      *
      * @param http the HttpSecurity builder
+     * @return configured SecurityFilterChain
      * @throws Exception if configuration fails
      */
-    @Override
-    protected void configure(final HttpSecurity http) throws Exception {
-        setLoginView(http, RouteConstants.ROOT_PATH + RouteConstants.LOGIN_ROUTE);
-
-        // Configure actuator endpoints: health, info, metrics, env are public, others require authentication
-        // This must be configured BEFORE calling super.configure()
-        http.authorizeHttpRequests(auth -> auth.requestMatchers(
+    @Bean
+    public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
+        // Configure public resources and actuator endpoints
+        http.authorizeHttpRequests(auth -> auth
+                // Public static resources (icons, images, etc.)
+                .requestMatchers("/icons/**")
+                .permitAll()
+                // Actuator endpoints: health, info, metrics, env are public
+                .requestMatchers(
                         RouteConstants.ACTUATOR_HEALTH,
                         RouteConstants.ACTUATOR_INFO,
                         RouteConstants.ACTUATOR_METRICS,
@@ -51,8 +60,11 @@ public class SecurityConfig extends VaadinWebSecurity {
                 .requestMatchers(RouteConstants.ACTUATOR_BASE_PATH)
                 .authenticated());
 
-        // Call parent configuration which will add .anyRequest().authenticated()
-        super.configure(http);
+        // Configure Vaadin's security using VaadinSecurityConfigurer
+        http.with(
+                VaadinSecurityConfigurer.vaadin(),
+                configurer -> configurer.loginView(
+                        RouteConstants.ROOT_PATH + RouteConstants.LOGIN_ROUTE, RouteConstants.ROOT_PATH));
 
         // Authentication and access control
         http.exceptionHandling(ex -> ex.authenticationEntryPoint(
@@ -72,6 +84,8 @@ public class SecurityConfig extends VaadinWebSecurity {
 
         // Add filters for request processing
         http.addFilterBefore(mdcFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 
     /**

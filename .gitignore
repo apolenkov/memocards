@@ -64,3 +64,8 @@ ansible/vault_pass.txt
 ansible/.ansible_vault_password
 **/vault_pass*.txt
 **/.vault_pass*
+
+# Ansible temporary/dummy files
+ansible/secrets.yml.dummy
+ansible/secrets.yml.real
+ansible/secrets.yml.backup

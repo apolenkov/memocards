@@ -15,7 +15,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
-import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.vaadin.VaadinApplicationShell;
@@ -475,10 +474,9 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * @return configured favicon image
      */
     private Image createFavicon() {
-        Image favicon = new Image(
-                new StreamResource(VaadinApplicationShell.ResourcePaths.FAVICON_SVG_NAME, () -> getClass()
-                        .getResourceAsStream(VaadinApplicationShell.ResourcePaths.FAVICON_SVG_FULL_PATH)),
-                getTranslation(CoreConstants.APP_TITLE_KEY));
+        Image favicon = new Image();
+        favicon.setSrc(VaadinApplicationShell.ResourcePaths.FAVICON_SVG);
+        favicon.setAlt(getTranslation(CoreConstants.APP_TITLE_KEY));
         favicon.addClassName(CoreConstants.MOBILE_NAV_FAVICON_CLASS);
         return favicon;
     }

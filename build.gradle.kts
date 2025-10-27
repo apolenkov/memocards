@@ -64,7 +64,7 @@ repositories {
 }
 
 node {
-    version.set("20.18.0")
+    version.set("20.19.0")
     download.set(true)
 }
 
@@ -134,6 +134,7 @@ configurations.all {
         // Existing force declarations
         force("commons-io:commons-io:2.20.0")
         force("org.checkerframework:checker-qual:3.51.1")
+        force("org.ow2.asm:asm:9.7.1") // Vaadin 24.9.2 compatibility
 
         // Resolve reported conflicts with latest versions
         force("com.google.guava:guava:33.5.0-jre")
