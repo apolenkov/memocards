@@ -281,14 +281,13 @@ We welcome contributions from the community! This is a source-available educatio
 
 ### How to Contribute
 
-1. **Fork the repository** (for contribution purposes only)
-2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
-3. **Make your changes** following our coding standards
-4. **Run tests** (`./gradlew test`)
-5. **Run code quality checks** (`./gradlew codeQuality`)
-6. **Commit your changes** (`git commit -m 'Add amazing feature'`)
-7. **Push to your branch** (`git push origin feature/amazing-feature`)
-8. **Open a Pull Request** to the official repository
+1. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+2. **Make your changes** following our coding standards
+3. **Run tests** (`./gradlew test`)
+4. **Run code quality checks** (`./gradlew codeQuality`)
+5. **Commit your changes** (`git commit -m 'Add amazing feature'`)
+6. **Push to your branch** (`git push origin feature/amazing-feature`)
+7. **Open a Pull Request** to the official repository
 
 ### Coding Standards
 
