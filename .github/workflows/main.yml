@@ -2,9 +2,14 @@
 name: Main Branch Deployment
 
 on:
+  # Automatic on tag creation (releases)
   push:
-    branches: [master]
+    tags:
+      - 'v*.*.*'
+  
+  # Manual trigger only
   workflow_dispatch:
+
 # Prevent concurrent runs on same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
