@@ -7,25 +7,23 @@
 
 🌐 **[Live Demo](https://memocards.duckdns.org)** — Test with `user@example.com` / `user`
 
-Flashcard learning application built with **Java 21, Spring Boot 3.x, Vaadin 24+, and PostgreSQL**. 
-Demonstrates **Clean Architecture**, **multi-tier caching**, and modern Java patterns.
+Flashcard learning application. Built with Java 21, Spring Boot 3.x, Vaadin 24+, PostgreSQL.
 
-**Perfect for:** Junior developers learning enterprise patterns, teachers explaining architecture to students.
-
-**165+ Java classes, 35+ tests, deployed to production VPS.**
+**Tech:** Clean Architecture, multi-tier caching (Caffeine + @UIScope), Spring Data JDBC.
+**Stats:** 165 classes, 35 tests, production deployment.
 
 ---
 
 ## What's Inside?
 
-| Feature | Technology | Why |
-|---------|-----------|-----|
-| **Clean Architecture** | Hexagonal (Ports & Adapters) | Strict layer separation, zero circular dependencies |
-| **Java 21** | Virtual Threads, Records, Text Blocks | Modern Java features in production |
-| **Multi-tier Cache** | @UIScope + Caffeine | Fast UI, immediate invalidation |
-| **Security** | Spring Security + OWASP | SQL injection prevention, XSS protection |
-| **i18n** | 3 languages (en, es, ru) | Production-ready localization |
-| **DevOps** | Docker + Ansible | Automated deployment |
+| Feature | Technology | Implementation |
+|---------|-----------|---------------|
+| **Clean Architecture** | Hexagonal (Ports & Adapters) | Domain → Service → Infrastructure → Views |
+| **Java 21** | Virtual Threads, Records, Text Blocks | Records for DTOs, Text Blocks for SQL queries |
+| **Caching** | @UIScope + Caffeine | Per-tab isolation, event-driven invalidation |
+| **Security** | Spring Security | Form auth, @RolesAllowed, parameterized queries |
+| **i18n** | ResourceBundle | 3 languages: en, es, ru |
+| **Deployment** | Docker + Ansible | Automated VPS deployment |
 
 ## Project Structure
 
@@ -205,17 +203,17 @@ docker-compose logs -f app  # View logs
 
 ---
 
-## Why These Technologies?
+## Technical Decisions
 
-| Decision | Why (Simple Explanation) |
-|-----------|--------------------------|
-| **Spring Data JDBC** | You write SQL explicitly → see what happens, no N+1 surprises |
-| **Text Blocks** | SQL looks clean, not concatenated strings |
-| **@UIScope Cache** | Each browser tab has its own cache |
-| **Virtual Threads** | Java 21 feature for handling many concurrent requests |
-| **TestContainers** | Real PostgreSQL in tests (not mocks) → high confidence |
-| **Records** | Immutable DTOs with zero boilerplate |
-| **Spring Events** | Update cache immediately when data changes (no polling) |
+| Decision | Rationale |
+|-----------|-----------|
+| **Spring Data JDBC** | Explicit SQL control, no N+1 queries, easier debugging |
+| **Text Blocks** | Readable multi-line SQL, Java 15+ syntax |
+| **@UIScope Cache** | Per-browser-tab cache isolation (Vaadin-specific) |
+| **Virtual Threads** | Java 21 platform threads for concurrency |
+| **TestContainers** | Real PostgreSQL in tests, no database mocking |
+| **Records** | Immutable DTOs, reduced boilerplate |
+| **Spring Events** | Decoupled cache invalidation, no polling |
 
 <details>
 <summary><b>🔧 Development Workflow</b> — Common commands (click to expand)</summary>
@@ -249,71 +247,66 @@ docker-compose logs -f app  # View logs
 
 ---
 
-## Learning Path for Juniors
+## How to Study This Codebase
 
-**Start here if you're new to Java web development:**
+**Suggested order:**
 
-1. **Basic understanding** — Start with `views/` folder (UI)
-2. **Service layer** — See how `service/` implements business logic
-3. **Database access** — Learn `infrastructure/repository/` (JDBC adapters)
-4. **Domain model** — Study `model/` and `domain/` (business entities)
+1. `views/` — UI layer (Vaadin components)
+2. `service/` — Business logic (@Transactional boundaries)
+3. `infrastructure/repository/` — JDBC adapters (SQL execution)
+4. `model/` + `domain/` — Domain entities
 
-**Try these exercises:**
-- Add a new card field (note how changes propagate through layers)
-- Implement a new API endpoint (follow existing patterns)
-- Add cache invalidation for your feature (use Spring Events)
+**Suggested tasks:**
 
-## For Educators
+- Add a new field to Card entity (observe layer propagation)
+- Implement new REST endpoint (follow existing pattern)
+- Add cache invalidation (use Spring Events example)
 
-**This project is ideal for teaching:**
-- ✅ Clean Architecture in practice (not just theory)
-- ✅ How layers depend on each other
-- ✅ Transaction boundaries and service layer patterns
-- ✅ Testing strategies (unit + integration with real database)
-- ✅ Modern Java features (Records, Text Blocks, Pattern Matching)
+## For Teaching
 
-**Teaching tips:**
-1. Start with `DeckView` → see how UI calls services
-2. Trace flow: User clicks "Create Deck" → which service method? → which repository?
-3. Explain why `@Transactional` is on service, not repository
-4. Show how cache invalidation works via events (decoupled!)
+**Topics covered:**
+
+- Clean Architecture implementation (layers in practice)
+- Layer dependencies and separation
+- Transaction boundaries (@Transactional on services)
+- Testing: unit tests + integration tests with TestContainers
+- Java 21 features: Records, Text Blocks, Pattern Matching
+
+**Suggested flow for students:**
+
+1. Open `DeckView` → trace UI to service call
+2. Follow user action: "Create Deck" → `DeckService.create()` → `DeckRepository.save()`
+3. Explain `@Transactional` placement (service layer, not repository)
+4. Demonstrate cache invalidation: event → listener → cache.clear()
 
 ## About
 
-Built as a portfolio project to demonstrate:
-- Clean Architecture in real-world application
-- Java 21 features in production
-- Caching strategies and performance optimization
-- Full deployment cycle (code → Docker → VPS)
+Portfolio project demonstrating:
+- Clean Architecture applied to web application
+- Java 21 features used in production
+- Caching implementation (multi-tier strategy)
+- Deployment automation (Docker + Ansible to VPS)
 
-**Why source-available, not open-source?** This is a learning portfolio. Code is open for study and contributions, but forking would dilute the project's educational purpose.
+**License:** Source-available for learning and contributions. Forking not permitted. See [LICENSE](LICENSE).
 
 ---
 
 ## Contributing
 
-Contributions welcome:
-- 🐛 Bug reports → [GitHub Issues](../../issues)
-- 💻 Pull Requests → See [CONTRIBUTING.md](CONTRIBUTING.md)
-- 🌍 Translations (add new languages)
-- 💡 Feature suggestions
+- Bug reports → [GitHub Issues](../../issues)
+- Pull Requests → [CONTRIBUTING.md](CONTRIBUTING.md)
+- Translations → add new languages
+- Features → suggest improvements
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
 ## License
 
-**Source Available License** — You can view the code and contribute improvements, but independent forks and commercial use are not permitted.  
-See [LICENSE](LICENSE) for details.
+Source Available License. Code available for study and contributions. Forking and commercial use prohibited. See [LICENSE](LICENSE).
 
 ---
 
-<div align="center">
-
-⭐ Found this helpful for learning? Star the repo!
-
-[Live Demo](https://memocards.duckdns.org) • [Report Bug](../../issues) • [Learn More](CONTRIBUTING.md)
-
-</div>
+[Live Demo](https://memocards.duckdns.org) • [Issues](../../issues) • [Contributing](CONTRIBUTING.md)
 
