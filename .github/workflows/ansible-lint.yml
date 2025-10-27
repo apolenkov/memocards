@@ -10,11 +10,20 @@ on:
     branches: [ main, master, develop ]
     paths:
       - 'ansible/**'
+  workflow_call:  # Allow this workflow to be called from other workflows
+    secrets:
+      ANSIBLE_VAULT_PASSWORD:
+        required: false
+        description: 'Ansible Vault password for decrypting secrets.yml'
 
 jobs:
   ansible-lint:
     name: Ansible Syntax Check
     runs-on: ubuntu-latest
+    
+    env:
+      # Make secret available as env var for consistent access in both direct and workflow_call modes
+      VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
     
     steps:
       - name: Checkout code
@@ -31,18 +40,29 @@ jobs:
           cd ansible
           pip install -r requirements.txt
       
+      - name: Debug - Check vault password availability
+        run: |
+          if [ -n "$VAULT_PASSWORD" ]; then
+            echo "✅ VAULT_PASSWORD is available (length: ${#VAULT_PASSWORD} chars)"
+          else
+            echo "⚠️  VAULT_PASSWORD is NOT set or empty"
+          fi
+          echo "Workflow trigger: ${{ github.event_name }}"
+      
       - name: Create vault password file
         run: |
           # Create vault password file if secret is provided
-          if [ -n "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" ]; then
-            echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/vault_pass.txt
+          # Use VAULT_PASSWORD env var for consistent access in both direct and workflow_call modes
+          if [ -n "$VAULT_PASSWORD" ]; then
+            echo "$VAULT_PASSWORD" > /tmp/vault_pass.txt
             chmod 600 /tmp/vault_pass.txt
             echo "VAULT_FILE=/tmp/vault_pass.txt" >> $GITHUB_ENV
+            echo "✅ Vault password file created"
           else
-            echo "::warning::ANSIBLE_VAULT_PASSWORD secret is not set. Skipping vault decryption."
+            echo "::warning::ANSIBLE_VAULT_PASSWORD secret is not set. Will use dummy secrets for syntax check."
             echo "VAULT_FILE=" >> $GITHUB_ENV
           fi
-      
+
       - name: Run ansible-playbook syntax check
         run: |
           cd ansible
@@ -58,7 +78,7 @@ jobs:
               }
             fi
           done
-      
+
       - name: Cleanup vault password file
         if: always()
         run: |
