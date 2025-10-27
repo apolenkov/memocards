@@ -120,7 +120,7 @@
     - name: Update deployment timestamp
       copy:
         content: |
-          Last deployment: {{ ansible_date_time.iso8601 }}
+          Last deployment: {{ lookup('pipe', 'date -u +%Y-%m-%dT%H:%M:%SZ') }}
           Deployed by: Ansible
           Image: {{ app_image }}
         dest: "{{ app_deploy_path }}/.last_deployment"
