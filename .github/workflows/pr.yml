@@ -16,6 +16,21 @@ env:
   TESTCONTAINERS_REUSE_ENABLE: "true"
 
 jobs:
+  dependency-review:
+    name: Dependency Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+      
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
   test:
     name: Run Test Suite
     uses: ./.github/workflows/test.yml
