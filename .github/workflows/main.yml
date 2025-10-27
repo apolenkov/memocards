@@ -171,7 +171,7 @@ jobs:
           push-to-registry: true
 
       - name: Upload image metadata
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: docker-image-metadata
           path: |
