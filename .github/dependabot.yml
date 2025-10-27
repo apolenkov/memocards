@@ -73,27 +73,7 @@ updates:
         patterns:
           - "*"
 
-  # Docker - ALL IN ONE PR
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-      time: "02:00"
-    open-pull-requests-limit: 1  # Only 1 PR at a time
-    reviewers:
-      - "apolenkov"
-    assignees:
-      - "apolenkov"
-    commit-message:
-      prefix: "docker"
-      include: "scope"
-    # Ignore our own app image (built by Jib)
-    ignore:
-      - dependency-name: "ghcr.io/apolenkov/memocards"
-    
-    # Group ALL Docker images into 1 PR
-    groups:
-      all-docker:
-        patterns:
-          - "*"
+  # NOTE: Docker ecosystem disabled because:
+  # - We use Jib for building images (no Dockerfile)
+  # - Base images (postgres) are updated manually when needed
+  # - Dependabot can't find Dockerfile and fails
