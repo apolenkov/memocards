@@ -1,131 +1,95 @@
+---
 name: Pull Request Validation
 
 on:
   pull_request:
     branches: [master]
     types: [opened, synchronize, reopened]
-
 # Allow only one concurrent PR validation per PR
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 env:
+  # Build Configuration
   GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
   TESTCONTAINERS_REUSE_ENABLE: "true"
+
+  # Artifact retention (days) - shorter for PRs
+  ARTIFACT_RETENTION_DAYS: 7
 
 jobs:
   code-quality:
     name: Code Quality Checks
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
+    timeout-minutes: 10 # Linters and static analysis
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-      
+
       - name: Setup Gradle environment
         uses: ./.github/actions/setup-gradle
-      
-      - name: Cache node_modules
-        uses: actions/cache@v4
+
+      - name: Run code quality checks
+        uses: ./.github/actions/code-quality
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-            
-      - name: Run Spotless check
-        run: ./gradlew spotlessCheck
-        
-      - name: Run Checkstyle
-        run: ./gradlew checkstyleMain checkstyleTest
-        
-      - name: Run SpotBugs
-        run: ./gradlew spotbugsMain spotbugsTest
-        
-      - name: Run SonarLint
-        run: ./gradlew sonarlintMain sonarlintTest
-        
-      - name: Run CSS linting
-        run: ./gradlew lintCss
+          gradle-opts: ${{ env.GRADLE_OPTS }}
 
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 8
-    
+    timeout-minutes: 8 # Unit test execution
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-      
+
       - name: Setup Gradle environment
         uses: ./.github/actions/setup-gradle
-            
-      - name: Run unit tests (excluding integration tests)
-        run: ./gradlew test -x integrationTest
-        
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
+
+      - name: Run unit tests
+        uses: ./.github/actions/run-unit-tests
         with:
-          name: unit-test-results
-          path: |
-            build/test-results/test/
-            build/reports/tests/test/
-          retention-days: 7
-          
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: unit-test-coverage
-          path: build/reports/jacoco/test/html/
-          retention-days: 7
+          gradle-opts: ${{ env.GRADLE_OPTS }}
+          retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
 
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 12
-    
+    timeout-minutes: 12 # TestContainers + integration tests
+
     services:
       docker:
         image: docker:dind
         options: --privileged
-        
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-      
+
       - name: Setup Gradle environment
         uses: ./.github/actions/setup-gradle
-            
-      - name: Run integration tests with TestContainers
-        run: ./gradlew integrationTest
-        
-      - name: Upload integration test results
-        uses: actions/upload-artifact@v4
-        if: always()
+
+      - name: Run integration tests
+        uses: ./.github/actions/run-integration-tests
         with:
-          name: integration-test-results
-          path: |
-            build/test-results/integrationTest/
-            build/reports/tests/integrationTest/
-          retention-days: 7
+          gradle-opts: ${{ env.GRADLE_OPTS }}
+          testcontainers-reuse: ${{ env.TESTCONTAINERS_REUSE_ENABLE }}
+          retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
 
   build:
     name: Build Application
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 8 # Application build without tests
     needs: [code-quality, unit-tests, integration-tests]
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-      
+
       - name: Setup Gradle environment
         uses: ./.github/actions/setup-gradle
-      
+
       - name: Cache node_modules
         uses: actions/cache@v4
         with:
@@ -133,10 +97,10 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-            
+
       - name: Build application
         run: ./gradlew clean build -x test -x integrationTest
-        
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:

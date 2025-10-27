@@ -1,3 +1,4 @@
+---
 name: Deploy to VPS
 
 # This workflow deploys Docker images that are already built by main.yml
@@ -9,44 +10,95 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Deployment environment'
+        description: "Deployment environment"
         required: true
-        default: 'production'
+        default: "production"
         type: choice
         options:
           - production
       image_tag:
-        description: 'Docker image tag to deploy (leave empty for git SHA)'
+        description: "Docker image tag to deploy (leave empty for git SHA)"
         required: false
-        default: ''
+        default: ""
         type: string
-  
+
   # Automatic trigger on push to master
   push:
     branches:
       - master
     paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
+      - "**.md"
+      - "docs/**"
+      - ".gitignore"
 
 # Prevent concurrent production deployments (wait for completion)
 concurrency:
   group: production-deployment
   cancel-in-progress: false
 
+env:
+  # VPS Configuration (from GitHub Variables - REQUIRED!)
+  # Set in: Settings → Secrets and variables → Actions → Variables
+  VPS_IP: ${{ vars.VPS_IP }}
+  VPS_USER: ${{ vars.VPS_USER }}
+  APP_DOMAIN: ${{ vars.APP_DOMAIN }}
+  APP_PORT: "8080"
+
+  # Artifact retention (days)
+  ARTIFACT_RETENTION_DAYS: 90
+
 jobs:
+  validate-config:
+    name: Validate Configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+
+    steps:
+      - name: Check required GitHub Variables
+        run: |
+          echo "🔍 Validating GitHub Variables..."
+
+          if [ -z "${{ vars.VPS_IP }}" ]; then
+            echo "❌ ERROR: VPS_IP variable is not set!"
+            echo "📋 Please set it in: Settings → Secrets and variables → Actions → Variables"
+            echo "   Name: VPS_IP"
+            echo "   Value: YOUR_VPS_IP_ADDRESS"
+            exit 1
+          fi
+
+          if [ -z "${{ vars.VPS_USER }}" ]; then
+            echo "❌ ERROR: VPS_USER variable is not set!"
+            echo "📋 Please set it in: Settings → Secrets and variables → Actions → Variables"
+            echo "   Name: VPS_USER"
+            echo "   Value: root (or your user)"
+            exit 1
+          fi
+
+          if [ -z "${{ vars.APP_DOMAIN }}" ]; then
+            echo "❌ ERROR: APP_DOMAIN variable is not set!"
+            echo "📋 Please set it in: Settings → Secrets and variables → Actions → Variables"
+            echo "   Name: APP_DOMAIN"
+            echo "   Value: YOUR_DOMAIN"
+            exit 1
+          fi
+
+          echo "✅ All required variables are set:"
+          echo "   VPS_IP: ${{ vars.VPS_IP }}"
+          echo "   VPS_USER: ${{ vars.VPS_USER }}"
+          echo "   APP_DOMAIN: ${{ vars.APP_DOMAIN }}"
+
   wait-for-image:
+    needs: validate-config
     name: Wait for Docker Image from main.yml
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 30 # Time to wait for Docker image to be built
     permissions:
-      contents: read        # For repository access
-      packages: read        # For docker manifest inspect
+      contents: read # For repository access
+      packages: read # For docker manifest inspect
     outputs:
       image_tag: ${{ steps.get_tag.outputs.tag }}
       full_image: ${{ steps.get_tag.outputs.full_image }}
-    
+
     steps:
       - name: Determine image tag
         id: get_tag
@@ -61,20 +113,20 @@ jobs:
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "full_image=ghcr.io/${{ github.repository_owner }}/memocards:$TAG" >> $GITHUB_OUTPUT
-      
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Wait for Docker image to be available
         run: |
           IMAGE="ghcr.io/${{ github.repository_owner }}/memocards:${{ steps.get_tag.outputs.tag }}"
           echo "⏳ Waiting for image: $IMAGE"
           echo "This image should be built by main.yml workflow..."
-          
+
           # Wait up to 25 minutes (50 attempts * 30 seconds)
           for i in {1..50}; do
             if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
@@ -84,7 +136,7 @@ jobs:
             echo "⏳ Attempt $i/50: Image not ready yet, waiting 30 seconds..."
             sleep 30
           done
-          
+
           echo "❌ ERROR: Image not found after 25 minutes!"
           echo "Please check if main.yml workflow completed successfully."
           exit 1
@@ -93,57 +145,58 @@ jobs:
     name: Deploy to VPS with Ansible
     needs: wait-for-image
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 15 # Ansible deployment time
     permissions:
-      contents: read        # For checkout
-    
+      contents: read # For checkout
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v5
+
       - name: Deployment configuration
         id: deploy_tag
         run: |
           # Use image from wait-for-image job
           echo "tag=${{ needs.wait-for-image.outputs.image_tag }}" >> $GITHUB_OUTPUT
           echo "full_image=${{ needs.wait-for-image.outputs.full_image }}" >> $GITHUB_OUTPUT
-          
+
           echo "## 🚀 Deployment Configuration" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Image:** \`${{ needs.wait-for-image.outputs.full_image }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**Environment:** \`${{ inputs.environment || 'production' }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**Source:** Built by main.yml workflow" >> $GITHUB_STEP_SUMMARY
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      
+          python-version: "3.11"
+
       - name: Install Ansible and dependencies
         run: |
           python -m pip install --upgrade pip
           pip install ansible
           ansible-galaxy collection install community.docker
-      
+
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Add VPS to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ env.VPS_IP }} >> ~/.ssh/known_hosts
+
       - name: Create Ansible Vault password file
         run: |
           echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
           chmod 600 .vault_pass
-      
-      - name: Create SSH key file (if configured)
-        continue-on-error: true
-        run: |
-          if [ -n "${{ secrets.VPS_SSH_KEY }}" ]; then
-            mkdir -p ~/.ssh
-            echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
-            chmod 600 ~/.ssh/id_rsa
-          fi
-      
+
       - name: Test Ansible connectivity
         working-directory: ./ansible
         run: |
           ansible -i inventory/hosts.yml vps -m ping --vault-password-file ../.vault_pass
-      
+
       - name: Deploy application with Ansible
         working-directory: ./ansible
         env:
@@ -156,28 +209,27 @@ jobs:
             --vault-password-file ../.vault_pass \
             --extra-vars "app_image=${{ steps.deploy_tag.outputs.full_image }}" \
             -v
-      
+
       - name: Verify deployment
         run: |
           echo "⏳ Waiting for application to be ready..."
           sleep 30
-          
+
           # Check if application is responding
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://memocards.duckdns.org/actuator/health || echo "000")
-          
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.APP_DOMAIN }}/actuator/health || echo "000")
+
           if [ "$HTTP_STATUS" = "200" ]; then
             echo "✅ Deployment successful! Application is healthy."
           else
             echo "⚠️ Warning: Application returned HTTP $HTTP_STATUS"
             echo "This might be normal if the application is still starting up."
           fi
-      
+
       - name: Clean up
         if: always()
         run: |
           rm -f .vault_pass
-          rm -f ~/.ssh/id_rsa
-      
+
       - name: Deployment summary
         run: |
           echo "╔════════════════════════════════════════════════════════════╗"
@@ -187,17 +239,16 @@ jobs:
           echo "📦 Image: ${{ steps.deploy_tag.outputs.full_image }}"
           echo "🏷️  Tag: ${{ steps.deploy_tag.outputs.tag }}"
           echo "🏷️  Commit: ${{ github.sha }}"
-          echo "🌐 URL: https://memocards.duckdns.org"
-          echo "💚 Health: https://memocards.duckdns.org/actuator/health"
+          echo "🌐 URL: https://${{ env.APP_DOMAIN }}"
+          echo "💚 Health: https://${{ env.APP_DOMAIN }}/actuator/health"
           echo ""
           echo "📋 Next steps:"
-          echo "  - Verify application: curl -I https://memocards.duckdns.org"
-          echo "  - Check logs: ssh root@185.239.48.254 'docker logs -f memocards-app-prod'"
+          echo "  - Verify application: curl -I https://${{ env.APP_DOMAIN }}"
+          echo "  - Check logs: ssh ${{ env.VPS_USER }}@${{ env.VPS_IP }} 'docker logs -f memocards-app-prod'"
           echo ""
           echo "## 🎉 Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ **Status:** Completed" >> $GITHUB_STEP_SUMMARY
           echo "📦 **Image:** \`${{ steps.deploy_tag.outputs.full_image }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "🌐 **URL:** [memocards.duckdns.org](https://memocards.duckdns.org)" >> $GITHUB_STEP_SUMMARY
-          echo "💚 **Health:** [/actuator/health](https://memocards.duckdns.org/actuator/health)" >> $GITHUB_STEP_SUMMARY
-
+          echo "🌐 **URL:** [${{ env.APP_DOMAIN }}](https://${{ env.APP_DOMAIN }})" >> $GITHUB_STEP_SUMMARY
+          echo "💚 **Health:** [/actuator/health](https://${{ env.APP_DOMAIN }}/actuator/health)" >> $GITHUB_STEP_SUMMARY

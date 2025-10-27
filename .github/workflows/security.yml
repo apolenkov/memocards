@@ -1,35 +1,41 @@
+---
 name: Security Audit
 
 on:
   schedule:
     # Run every Sunday at 2 AM UTC
-    - cron: '0 2 * * 0'
+    - cron: "0 2 * * 0"
   workflow_dispatch:
-
 # Prevent concurrent security scans
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
 
 env:
+  # Build Configuration
   GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
+
+  # Artifact retention (days)
+  ARTIFACT_RETENTION_DAYS: 30
 
 jobs:
   dependency-check:
     name: OWASP Dependency Check
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    
+    timeout-minutes: 15 # OWASP dependency analysis
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-      
+
       - name: Setup Gradle environment
         uses: ./.github/actions/setup-gradle
-            
+
       - name: Run OWASP Dependency Check
+        env:
+          GRADLE_OPTS: ${{ env.GRADLE_OPTS }}
         run: ./gradlew dependencyCheckAnalyze
-        
+
       - name: Upload dependency check report
         uses: actions/upload-artifact@v4
         if: always()
@@ -37,23 +43,25 @@ jobs:
           name: dependency-check-report
           path: |
             build/reports/dependency-check/
-          retention-days: 30
+          retention-days: ${{ fromJSON(env.ARTIFACT_RETENTION_DAYS) }}
 
   security-analysis:
     name: Security Analysis
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
+    timeout-minutes: 10 # SpotBugs security scan
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-      
+
       - name: Setup Gradle environment
         uses: ./.github/actions/setup-gradle
-            
+
       - name: Run SpotBugs security analysis
+        env:
+          GRADLE_OPTS: ${{ env.GRADLE_OPTS }}
         run: ./gradlew spotbugsMain spotbugsTest
-        
+
       - name: Upload SpotBugs security report
         uses: actions/upload-artifact@v4
         if: always()
@@ -61,40 +69,40 @@ jobs:
           name: spotbugs-security-report
           path: |
             build/reports/spotbugs/
-          retention-days: 30
+          retention-days: ${{ fromJSON(env.ARTIFACT_RETENTION_DAYS) }}
 
   vulnerability-summary:
     name: Generate Vulnerability Summary
     runs-on: ubuntu-latest
     needs: [dependency-check, security-analysis]
     if: always()
-    
+
     steps:
       - name: Download dependency check report
         uses: actions/download-artifact@v4
         with:
           name: dependency-check-report
           path: dependency-reports/
-          
+
       - name: Download SpotBugs report
         uses: actions/download-artifact@v4
         with:
           name: spotbugs-security-report
           path: spotbugs-reports/
-          
+
       - name: Generate summary
         run: |
           echo "# Security Audit Summary" > security-summary.md
           echo "Generated on: $(date)" >> security-summary.md
           echo "" >> security-summary.md
-          
+
           echo "## Dependency Vulnerabilities" >> security-summary.md
           if [ -f "dependency-reports/dependency-check-report.html" ]; then
             echo "✅ Dependency check completed. Check the HTML report for details." >> security-summary.md
           else
             echo "❌ Dependency check report not found." >> security-summary.md
           fi
-          
+
           echo "" >> security-summary.md
           echo "## Static Analysis Security Issues" >> security-summary.md
           if [ -f "spotbugs-reports/main.xml" ] || [ -f "spotbugs-reports/test.xml" ]; then
@@ -102,16 +110,16 @@ jobs:
           else
             echo "❌ SpotBugs security report not found." >> security-summary.md
           fi
-          
+
           echo "" >> security-summary.md
           echo "## Next Steps" >> security-summary.md
           echo "1. Review the generated reports" >> security-summary.md
           echo "2. Address any HIGH or CRITICAL vulnerabilities" >> security-summary.md
           echo "3. Update dependencies if needed" >> security-summary.md
-          
+
       - name: Upload security summary
         uses: actions/upload-artifact@v4
         with:
           name: security-audit-summary
           path: security-summary.md
-          retention-days: 30
+          retention-days: ${{ fromJSON(env.ARTIFACT_RETENTION_DAYS) }}
