@@ -139,7 +139,8 @@ jobs:
           echo "**Type:** $BUMP_TYPE" >> changelog.md
           echo "" >> changelog.md
           
-          if [ "$LATEST_TAG" != "v0.0.0" ]; then
+          # Check if this is the first release
+          if git rev-parse "$LATEST_TAG" >/dev/null 2>&1; then
             # Get commits since last tag
             COMMITS=$(git log $LATEST_TAG..HEAD --pretty=format:"%s" 2>/dev/null || echo "")
             
@@ -229,11 +230,39 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Update version in build.gradle.kts
+        run: |
+          NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
+          VERSION_NUMBER="${NEW_VERSION#v}"  # Remove 'v' prefix
+          
+          echo "📝 Updating version in build.gradle.kts to $VERSION_NUMBER"
+          
+          # Update version line in build.gradle.kts
+          sed -i "s/^version = \".*\"/version = \"$VERSION_NUMBER\"/" build.gradle.kts
+          
+          # Show the change
+          echo "Current version line:"
+          grep "^version = " build.gradle.kts
+          
+          # Commit the version bump
+          if git diff --quiet build.gradle.kts; then
+            echo "ℹ️  No version change needed (already at $VERSION_NUMBER)"
+          else
+            git add build.gradle.kts
+            git commit -m "chore: bump version to $VERSION_NUMBER"
+            git push origin master
+            echo "✅ Version bumped to $VERSION_NUMBER and pushed to master"
+            
+            # Pull to update HEAD to the new commit
+            git pull origin master
+          fi
+
       - name: Create and push tag
         run: |
           NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
           
-          echo "📋 Creating tag: $NEW_VERSION"
+          echo "📋 Creating tag: $NEW_VERSION on current HEAD"
+          echo "   Current commit: $(git rev-parse --short HEAD)"
           git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
           
           echo "🚀 Pushing tag to remote..."
