@@ -1,7 +1,7 @@
 ---
 # =============================================================================
 # ROLE: common
-# Базовая настройка VPS (система, firewall, директории)
+# Basic VPS configuration (system, firewall, directories)
 # =============================================================================
 
 - name: Update apt cache
@@ -48,10 +48,15 @@
     state: present
   tags: [common, system]
 
-- name: Check available memory
+- name: Get system memory information
   ansible.builtin.command: free -m
   register: common_memory_info
   changed_when: false
+  tags: [common, system]
+
+- name: Parse total RAM in MB
+  ansible.builtin.set_fact:
+    common_total_ram_mb: "{{ (common_memory_info.stdout | regex_search('Mem:\\s+(\\d+)')).groups[0] | int | default(2048) }}"
   tags: [common, system]
 
 - name: Check if swap exists
@@ -60,8 +65,18 @@
   register: common_swap_file
   tags: [common, swap]
 
-- name: Create swap file if RAM < 2GB and swap doesn't exist
-  when: not common_swap_file.stat.exists
+- name: Display RAM information
+  ansible.builtin.debug:
+    msg: |
+      System RAM: {{ common_total_ram_mb }} MB ({{ (common_total_ram_mb / 1024) | round(2) }} GB)
+      Swap file exists: {{ common_swap_file.stat.exists }}
+      Will create swap: {{ not common_swap_file.stat.exists and common_total_ram_mb | int < 2048 }}
+  tags: [common, swap]
+
+- name: Create swap file for systems with < 2GB RAM
+  when:
+    - not common_swap_file.stat.exists
+    - common_total_ram_mb | int < 2048
   tags: [common, swap]
   block:
     - name: Allocate swap file (2GB)
@@ -95,6 +110,16 @@
         name: vm.swappiness
         value: "10"
         state: present
+
+    - name: Log swap creation
+      ansible.builtin.debug:
+        msg: "✅ Created 2GB swap file (system has {{ common_total_ram_mb }} MB RAM)"
+
+- name: Skip swap creation (sufficient RAM)
+  ansible.builtin.debug:
+    msg: "ℹ️  Swap creation skipped: system has {{ common_total_ram_mb }} MB RAM (≥ 2GB)"
+  when: common_total_ram_mb | int >= 2048
+  tags: [common, swap]
 
 - name: Configure firewall (UFW)
   tags: [common, firewall]

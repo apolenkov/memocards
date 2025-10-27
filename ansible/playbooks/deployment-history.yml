@@ -1,0 +1,143 @@
+---
+# =============================================================================
+# PLAYBOOK: deployment-history.yml
+# View application deployment history
+# =============================================================================
+#
+# This playbook shows deployment history from JSON logs:
+# - Last N deployments
+# - Deployment statistics
+# - Specific deployment details
+#
+# Usage:
+#   # Show last 10 deployments
+#   ansible-playbook -i ../inventory/hosts.yml deployment-history.yml
+#
+#   # Show last 20 deployments
+#   ansible-playbook -i ../inventory/hosts.yml deployment-history.yml -e "limit=20"
+#
+#   # Show specific deployment by timestamp
+#   ansible-playbook -i ../inventory/hosts.yml deployment-history.yml -e "show_deployment=1730000000"
+# =============================================================================
+
+- name: View Deployment History
+  hosts: vps
+  become: false
+  gather_facts: false
+
+  vars:
+    limit: 10 # Number of recent deployments to show
+
+  vars_files:
+    - ../inventory/group_vars/all.yml
+
+  tasks:
+    - name: Check if deployments directory exists
+      ansible.builtin.stat:
+        path: "{{ app_deploy_path }}/deployments"
+      register: deployments_dir
+
+    - name: Fail if no deployment history found
+      ansible.builtin.fail:
+        msg: |
+          ❌ Deployment history not found!
+          Directory: {{ app_deploy_path }}/deployments
+
+          This directory is created after the first deployment.
+          Please run deploy.yml first.
+      when: not deployments_dir.stat.exists
+
+    - name: Get all deployment files
+      ansible.builtin.find:
+        paths: "{{ app_deploy_path }}/deployments"
+        patterns: "*.json"
+        excludes: "latest.json"
+      register: all_deployments
+
+    - name: Get latest deployment
+      ansible.builtin.slurp:
+        src: "{{ app_deploy_path }}/deployments/latest.json"
+      register: latest_deployment_raw
+      when: deployments_dir.stat.exists
+
+    - name: Parse latest deployment
+      ansible.builtin.set_fact:
+        latest_deployment: "{{ latest_deployment_raw.content | b64decode | from_json }}"
+      when: deployments_dir.stat.exists
+
+    - name: Get recent deployments list
+      ansible.builtin.shell: |
+        set -o pipefail
+        cd {{ app_deploy_path }}/deployments
+        ls -1t *.json | grep -v latest.json | head -n {{ limit }}
+      register: recent_deployments_list
+      changed_when: false
+      args:
+        executable: /bin/bash
+
+    - name: Read recent deployments
+      ansible.builtin.slurp:
+        src: "{{ app_deploy_path }}/deployments/{{ item }}"
+      loop: "{{ recent_deployments_list.stdout_lines }}"
+      register: recent_deployments_raw
+
+    - name: Parse recent deployments
+      ansible.builtin.set_fact:
+        recent_deployments: "{{ recent_deployments_raw.results | map(attribute='content') | map('b64decode') | map('from_json') | list }}"
+
+    - name: Calculate deployment statistics
+      ansible.builtin.set_fact:
+        total_deployments: "{{ all_deployments.matched }}"
+        successful_deployments: "{{ recent_deployments | selectattr('status', 'equalto', 'success') | list | length }}"
+        failed_deployments: "{{ recent_deployments | selectattr('status', 'equalto', 'failure') | default([]) | list | length }}"
+
+    - name: Display deployment history
+      ansible.builtin.debug:
+        msg: |
+          ╔════════════════════════════════════════════════════════════╗
+          ║              📊 Deployment History                         ║
+          ╚════════════════════════════════════════════════════════════╝
+
+          📈 Statistics:
+          - Total deployments: {{ total_deployments }}
+          - Recent successful: {{ successful_deployments }}/{{ limit }}
+          - Recent failed: {{ failed_deployments }}/{{ limit }}
+
+          🕐 Latest Deployment:
+          - Time: {{ latest_deployment.timestamp }}
+          - Image: {{ latest_deployment.image }}
+          - By: {{ latest_deployment.deployed_by }}
+          - Status: {{ latest_deployment.status | upper }}
+          - Health: {{ latest_deployment.health_check.application | upper }}
+
+          📋 Recent Deployments (last {{ limit }}):
+          {% for deploy in recent_deployments %}
+          {{ loop.index }}. {{ deploy.timestamp }} - {{ deploy.image }}
+             Status: {{ deploy.status }}, Health: {{ deploy.health_check.application }}
+          {% endfor %}
+
+          💡 Commands:
+          - View latest: cat {{ app_deploy_path }}/deployments/latest.json | jq .
+          - View all: ls -lht {{ app_deploy_path }}/deployments/
+          - View specific: cat {{ app_deploy_path }}/deployments/<timestamp>.json | jq .
+
+    - name: Show specific deployment details
+      when: show_deployment is defined
+      block:
+        - name: Read specific deployment
+          ansible.builtin.slurp:
+            src: "{{ app_deploy_path }}/deployments/{{ show_deployment }}.json"
+          register: specific_deployment_raw
+
+        - name: Parse specific deployment
+          ansible.builtin.set_fact:
+            specific_deployment: "{{ specific_deployment_raw.content | b64decode | from_json }}"
+
+        - name: Display specific deployment details
+          ansible.builtin.debug:
+            msg: |
+              ╔════════════════════════════════════════════════════════════╗
+              ║         📝 Deployment Details: {{ show_deployment }}              ║
+              ╚════════════════════════════════════════════════════════════╝
+
+              {{ specific_deployment | to_nice_json }}

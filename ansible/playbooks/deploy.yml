@@ -1,22 +1,22 @@
 ---
 # =============================================================================
 # PLAYBOOK: deploy.yml
-# Быстрое развертывание новой версии Memocards приложения
+# Fast deployment of new Memocards application version
 # =============================================================================
 #
-# Этот playbook выполняет быстрый деплой только приложения:
+# This playbook performs quick application-only deployment:
 # - Pull latest Docker image
 # - Recreate containers
 # - Health check
 #
-# Использование:
+# Usage:
 #   ansible-playbook -i ../inventory/hosts.yml deploy.yml --ask-vault-pass
 #
-# С определенной версией:
+# With specific version:
 #   ansible-playbook -i ../inventory/hosts.yml deploy.yml --ask-vault-pass \
 #     --extra-vars "app_image=ghcr.io/apolenkov/memocards:0.1"
 #
-# С конкретным коммитом (из CI/CD):
+# With specific commit (from CI/CD):
 #   ansible-playbook -i ../inventory/hosts.yml deploy.yml --ask-vault-pass \
 #     --extra-vars "app_image=ghcr.io/apolenkov/memocards:abc1234"
 # =============================================================================
@@ -68,6 +68,54 @@
         success_msg: "✅ Deployment configuration validated: {{ app_image }}"
       tags: [always, deploy]
 
+    # =============================================================================
+    # Pre-deployment checks - Verify system readiness before deployment
+    # =============================================================================
+    - name: Pre-deployment checks
+      tags: [deploy, preflight]
+      block:
+        - name: Check disk space
+          ansible.builtin.command: df -BG /opt
+          register: disk_space_check
+          changed_when: false
+
+        - name: Parse available disk space
+          ansible.builtin.set_fact:
+            available_space_gb: "{{ (disk_space_check.stdout_lines | last).split()[3] | regex_replace('G','') | int }}"
+
+        - name: Fail if disk space < 5GB
+          ansible.builtin.fail:
+            msg: |
+              ❌ Insufficient disk space!
+              Available: {{ available_space_gb }} GB
+              Required: 5 GB minimum
+
+              Please free up disk space before deploying.
+          when: available_space_gb | int < 5
+
+        - name: Check if Docker daemon is running
+          ansible.builtin.command: docker info
+          register: docker_status
+          changed_when: false
+          failed_when: false
+
+        - name: Fail if Docker is not running
+          ansible.builtin.fail:
+            msg: "❌ Docker daemon is not running. Please start Docker service."
+          when: docker_status.rc != 0
+
+        - name: Display pre-deployment summary
+          ansible.builtin.debug:
+            msg: |
+              ╔════════════════════════════════════════╗
+              ║   Pre-Deployment Checks - PASSED      ║
+              ╚════════════════════════════════════════╝
+
+              ✅ Disk space: {{ available_space_gb }} GB available
+              ✅ Docker daemon: Running
+
+              Ready to deploy: {{ app_image }}
+
     - name: Update Docker Compose configuration
       copy:
         src: "{{ playbook_dir }}/../../docker-compose.yml"
@@ -83,56 +131,129 @@
         backup: yes
       tags: [deploy, config]
 
-    - name: Pull latest application image
-      community.docker.docker_image_pull:
-        name: "{{ app_image }}"
-      register: pull_result
+    # =============================================================================
+    # Deployment with automatic rollback on failure
+    # =============================================================================
+    - name: Deploy application with rollback capability
       tags: [deploy]
+      block:
+        # Save current state for potential rollback
+        - name: Get current running image
+          ansible.builtin.command: >
+            docker inspect memocards-app-prod 
+            --format {% raw %}{{.Config.Image}}{% endraw %}
+          register: current_image_backup
+          failed_when: false
+          changed_when: false
 
-    - name: Stop application containers
-      community.docker.docker_compose_v2:
-        project_src: "{{ app_deploy_path }}"
-        files: docker-compose.yml
-        state: stopped
-      tags: [deploy]
+        - name: Pull latest application image
+          community.docker.docker_image_pull:
+            name: "{{ app_image }}"
+          register: pull_result
 
-    - name: Start application services
-      community.docker.docker_compose_v2:
-        project_src: "{{ app_deploy_path }}"
-        files: docker-compose.yml
-        state: present
-        recreate: always
-        pull: always
-      register: compose_result
-      tags: [deploy]
+        - name: Stop application containers
+          community.docker.docker_compose_v2:
+            project_src: "{{ app_deploy_path }}"
+            files: docker-compose.yml
+            state: stopped
 
-    - name: Clean up old application images
-      shell: |
-        # Remove old memocards images (keep current and one previous)
-        docker images 'ghcr.io/apolenkov/memocards' --format '{% raw %}{{.ID}} {{.Tag}}{% endraw %}' | \
-        tail -n +3 | awk '{print $1}' | xargs -r docker rmi -f || true
-      changed_when: false
-      tags: [deploy, cleanup]
+        - name: Start application services
+          community.docker.docker_compose_v2:
+            project_src: "{{ app_deploy_path }}"
+            files: docker-compose.yml
+            state: present
+            recreate: always
+            pull: always
+          register: compose_result
 
-    - name: Wait for PostgreSQL to be healthy
-      shell: docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-postgres-prod
-      register: postgres_health
-      retries: 30
-      delay: 2
-      until: postgres_health.stdout == "healthy"
-      changed_when: false
-      tags: [deploy, health]
+        - name: Get list of memocards images
+          ansible.builtin.command: >
+            docker images ghcr.io/apolenkov/memocards 
+            --format {% raw %}{{.ID}}|{{.Tag}}{% endraw %}
+          register: docker_images_list
+          changed_when: false
 
-    - name: Wait for application to be ready
-      uri:
-        url: "http://localhost:{{ app_port }}/actuator/health"
-        method: GET
-        status_code: 200
-      retries: 60
-      delay: 5
-      register: health_check
-      until: health_check.status == 200
-      tags: [deploy, health]
+        - name: Parse and sort images
+          ansible.builtin.set_fact:
+            sorted_images: "{{ docker_images_list.stdout_lines | default([]) }}"
+          when: docker_images_list.stdout_lines | length > 0
+
+        - name: Remove old images (keep 3 most recent)
+          ansible.builtin.command: docker rmi -f {{ item.split('|')[0] }}
+          loop: "{{ sorted_images[:-3] | default([]) }}"
+          when: sorted_images | length > 3
+          register: cleanup_result
+          failed_when: "{{ cleanup_result.rc not in [0, 1] }}"
+          changed_when: "{{ cleanup_result.rc == 0 }}"
+
+        - name: Log cleanup results
+          ansible.builtin.debug:
+            msg: |
+              Docker image cleanup completed:
+              - Total images: {{ sorted_images | length }}
+              - Kept: 3 most recent
+              - Removed: {{ sorted_images[:-3] | length if sorted_images | length > 3 else 0 }} old images
+          when: sorted_images | length > 3
+
+        - name: Wait for PostgreSQL to be healthy
+          ansible.builtin.shell: docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-postgres-prod
+          register: postgres_health
+          retries: 30
+          delay: 2
+          until: postgres_health.stdout == "healthy"
+          changed_when: false
+
+        - name: Wait for application to be ready
+          ansible.builtin.uri:
+            url: "http://localhost:{{ app_port }}/actuator/health"
+            method: GET
+            status_code: 200
+          retries: 60
+          delay: 5
+          register: health_check
+          until: health_check.status == 200
+
+      # Rollback procedure if deployment fails
+      rescue:
+        - name: Log deployment failure
+          ansible.builtin.debug:
+            msg: |
+              ╔════════════════════════════════════════════╗
+              ║        ⚠️  DEPLOYMENT FAILED ⚠️            ║
+              ║    Initiating Automatic Rollback...        ║
+              ╚════════════════════════════════════════════╝
+
+        - name: Rollback to previous image
+          community.docker.docker_compose_v2:
+            project_src: "{{ app_deploy_path }}"
+            files: docker-compose.yml
+            state: present
+            recreate: always
+          when: current_image_backup.stdout != ""
+
+        - name: Wait for rollback health check
+          ansible.builtin.uri:
+            url: "http://localhost:{{ app_port }}/actuator/health"
+            method: GET
+            status_code: 200
+          retries: 30
+          delay: 5
+          register: rollback_health
+          failed_when: false
+
+        - name: Fail playbook after rollback attempt
+          ansible.builtin.fail:
+            msg: |
+              Deployment failed and rollback {{ 'completed' if rollback_health.status == 200 else 'FAILED' }}.
+
+              Failed image: {{ app_image }}
+              {% if rollback_health.status == 200 %}
+              Restored image: {{ current_image_backup.stdout }}
+              {% else %}
+              MANUAL INTERVENTION REQUIRED!
+              {% endif %}
+
+              Check logs: docker logs memocards-app-prod
 
     - name: Get application version info
       uri:
@@ -167,12 +288,74 @@
           - Check metrics: curl http://localhost:{{ app_port }}/actuator/metrics
       tags: [always]
 
-    - name: Update deployment timestamp
-      copy:
-        content: |
-          Last deployment: {{ lookup('pipe', 'date -u +%Y-%m-%dT%H:%M:%SZ') }}
-          Deployed by: Ansible
-          Image: {{ app_image }}
-        dest: "{{ app_deploy_path }}/.last_deployment"
+    # =============================================================================
+    # Deployment History - Structured logging for tracking
+    # =============================================================================
+    - name: Create deployments history directory
+      ansible.builtin.file:
+        path: "{{ app_deploy_path }}/deployments"
+        state: directory
+        mode: "0755"
+      tags: [always, history]
+
+    - name: Get remote user info
+      ansible.builtin.command: whoami
+      register: remote_user_info
+      changed_when: false
+      tags: [always, history]
+
+    - name: Generate deployment metadata
+      ansible.builtin.set_fact:
+        deployment_metadata:
+          timestamp: "{{ lookup('pipe', 'date -u +%Y-%m-%dT%H:%M:%SZ') }}"
+          epoch: "{{ lookup('pipe', 'date +%s') }}"
+          image: "{{ app_image }}"
+          deployed_by: "{{ remote_user_info.stdout }}@{{ inventory_hostname }}"
+          deployment_method: "ansible"
+          status: "success"
+          health_check:
+            postgres: "{{ postgres_health.stdout | default('unknown') }}"
+            application: "{{ 'healthy' if health_check.status == 200 else 'unhealthy' }}"
+          version_info: "{{ app_info.json | default({}) }}"
+      tags: [always, history]
+
+    - name: Save deployment history (JSON)
+      ansible.builtin.copy:
+        content: "{{ deployment_metadata | to_nice_json }}"
+        dest: "{{ app_deploy_path }}/deployments/{{ deployment_metadata.epoch }}.json"
         mode: "0644"
-      tags: [always]
+      tags: [always, history]
+
+    - name: Update latest deployment symlink
+      ansible.builtin.file:
+        src: "{{ app_deploy_path }}/deployments/{{ deployment_metadata.epoch }}.json"
+        dest: "{{ app_deploy_path }}/deployments/latest.json"
+        state: link
+        force: true
+      tags: [always, history]
+
+    - name: Get recent deployments count
+      ansible.builtin.find:
+        paths: "{{ app_deploy_path }}/deployments"
+        patterns: "*.json"
+        excludes: "latest.json"
+      register: deployment_files
+      tags: [always, history]
+
+    - name: Cleanup old deployment logs (keep last 50)
+      ansible.builtin.shell: |
+        cd {{ app_deploy_path }}/deployments
+        ls -1t *.json | grep -v latest.json | tail -n +51 | xargs -r rm -f
+      when: deployment_files.matched > 50
+      changed_when: false
+      tags: [always, history, cleanup]
+
+    - name: Display deployment history summary
+      ansible.builtin.debug:
+        msg: |
+          📊 Deployment History:
+          - Current deployment: {{ deployment_metadata.timestamp }}
+          - Total deployments: {{ deployment_files.matched }}
+          - History location: {{ app_deploy_path }}/deployments/
+          - Latest: {{ app_deploy_path }}/deployments/latest.json
+      tags: [always, history]

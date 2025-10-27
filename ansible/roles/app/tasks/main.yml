@@ -1,7 +1,7 @@
 ---
 # =============================================================================
 # ROLE: app
-# Развертывание Memocards приложения через Docker Compose
+# Memocards application deployment via Docker Compose
 # =============================================================================
 
 - name: Copy Docker Compose configuration
@@ -68,10 +68,13 @@
 
 - name: Clean up old application images
   ansible.builtin.shell: |
+    set -o pipefail
     # Remove old memocards images (keep current and one previous)
     docker images 'ghcr.io/apolenkov/memocards' --format '{% raw %}{{.ID}} {{.Tag}}{% endraw %}' | \
     tail -n +3 | awk '{print $1}' | xargs -r docker rmi -f || true
   changed_when: false
+  args:
+    executable: /bin/bash
   tags: [app, cleanup]
 
 # Backup removed - not needed for MVP
