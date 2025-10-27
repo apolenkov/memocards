@@ -101,11 +101,24 @@ jobs:
 
       - name: Check for hardcoded credentials
         run: |
-          echo "Checking for hardcoded passwords, tokens, keys..."
-          ! grep -r -i -E "(password|token|secret|key)\s*[:=]\s*['\"]?[a-zA-Z0-9]{8,}" ansible/ \
+          echo "Checking for hardcoded passwords, tokens, keys in Ansible files..."
+          
+          # Find hardcoded credentials (exclude only Jinja2 variables and vault file)
+          FOUND=$(grep -r -i -E "(password|token|secret|key)\s*[:=]\s*['\"]?[a-zA-Z0-9]{8,}" ansible/ \
             --exclude-dir=.git \
             --exclude=secrets.yml \
-            || (echo "⚠️ Potential hardcoded credentials found!" && exit 1)
+            | grep -v '{{.*}}' \
+            || true)
+          
+          if [ -n "$FOUND" ]; then
+            echo "❌ Hardcoded credentials found:"
+            echo "$FOUND"
+            echo ""
+            echo "💡 All secrets must be in ansible/secrets.yml (encrypted with Ansible Vault)"
+            exit 1
+          fi
+          
+          echo "✅ No hardcoded credentials detected"
 
   summary:
     name: Quality Summary
