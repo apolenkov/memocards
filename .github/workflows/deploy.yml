@@ -22,14 +22,10 @@ on:
         default: ""
         type: string
 
-  # Automatic trigger on push to master
+  # Automatic trigger on tag creation (releases)
   push:
-    branches:
-      - master
-    paths-ignore:
-      - "**.md"
-      - "docs/**"
-      - ".gitignore"
+    tags:
+      - 'v*.*.*'
 
 # Prevent concurrent production deployments (wait for completion)
 concurrency:
@@ -87,8 +83,13 @@ jobs:
           echo "   VPS_USER: ${{ vars.VPS_USER }}"
           echo "   APP_DOMAIN: ${{ vars.APP_DOMAIN }}"
 
-  wait-for-image:
+  ansible-lint:
+    name: Ansible Quality Checks
     needs: validate-config
+    uses: ./.github/workflows/ansible-lint.yml
+
+  wait-for-image:
+    needs: ansible-lint
     name: Wait for Docker Image from main.yml
     runs-on: ubuntu-latest
     timeout-minutes: 30 # Time to wait for Docker image to be built
