@@ -1,7 +1,5 @@
 package org.apolenkov.application.views.landing.constants;
 
-import org.apolenkov.application.config.vaadin.VaadinApplicationShell;
-
 /**
  * Constants for landing page components.
  * Centralizes all string constants, CSS class names, and translation keys.
@@ -36,8 +34,4 @@ public final class LandingConstants {
     public static final String LANDING_NEWS_CARD_TITLE_CLASS = "landing-news__card-title";
     public static final String LANDING_NEWS_CARD_CONTENT_CLASS = "landing-news__card-content";
     public static final String LANDING_NEWS_CARD_ACCENT_CLASS = "landing-news__card-accent";
-
-    // Resource Paths
-    public static final String PIXEL_ICON_PATH = VaadinApplicationShell.ResourcePaths.PIXEL_ICON_FULL_PATH;
-    public static final String PIXEL_ICON_NAME = VaadinApplicationShell.ResourcePaths.PIXEL_ICON_NAME;
 }

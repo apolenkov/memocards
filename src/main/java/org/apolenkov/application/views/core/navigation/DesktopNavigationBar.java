@@ -9,7 +9,6 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
-import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.vaadin.VaadinApplicationShell;
@@ -174,10 +173,9 @@ public class DesktopNavigationBar extends HorizontalLayout implements LocaleChan
     private Anchor createTitleAnchor() {
         Anchor anchor = new Anchor(RouteConstants.ROOT_PATH, "");
 
-        Image navIcon = new Image(
-                new StreamResource(VaadinApplicationShell.ResourcePaths.LOGO_ICON_NAME, () -> getClass()
-                        .getResourceAsStream(VaadinApplicationShell.ResourcePaths.LOGO_ICON_FULL_PATH)),
-                getTranslation(CoreConstants.APP_TITLE_KEY));
+        Image navIcon = new Image();
+        navIcon.setSrc(VaadinApplicationShell.ResourcePaths.LOGO_ICON);
+        navIcon.setAlt(getTranslation(CoreConstants.APP_TITLE_KEY));
         anchor.add(navIcon);
         return anchor;
     }

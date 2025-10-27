@@ -11,7 +11,7 @@ APP_PORT := 8080
 .PHONY: help start stop restart logs clean build test format check \
         code-quality coverage deps npm-install vaadin-prepare dev-setup \
         lint-css lint-yaml spotless-check sonarlint spotbugs checkstyle \
-        vaadin-build-frontend erase docker docker-stop \
+        vaadin-build-frontend vaadin-clean erase docker docker-stop \
         docker-logs docker-status jib jib-push
 
 # =============================================================================
@@ -140,6 +140,9 @@ vaadin-build-frontend: ## Build Vaadin frontend bundle (dev mode)
 vaadin-build-prod: ## Build Vaadin frontend bundle for production
 	@echo "Building Vaadin frontend for production..."
 	$(GRADLE) clean vaadinBuildFrontend -Pvaadin.productionMode=true
+
+vaadin-clean: ## Clean Vaadin generated files
+	$(GRADLE) vaadinClean
 
 # =============================================================================
 # CODE ANALYSIS - Individual Tools
