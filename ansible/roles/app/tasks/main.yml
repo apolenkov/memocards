@@ -8,14 +8,14 @@
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../docker-compose.yml"
     dest: "{{ app_deploy_path }}/docker-compose.yml"
-    mode: '0644'
+    mode: "0644"
   tags: [app, config]
 
 - name: Generate production environment file from template
   ansible.builtin.template:
     src: env.prod.j2
     dest: "{{ app_deploy_path }}/.env"
-    mode: '0600'
+    mode: "0600"
     backup: true
   tags: [app, config]
 
@@ -45,7 +45,8 @@
 
 - name: Wait for PostgreSQL to be healthy
   ansible.builtin.shell: |
-    STATUS=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-postgres-prod 2>/dev/null || echo "not_found")
+    STATUS=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' \
+      memocards-postgres-prod 2>/dev/null || echo "not_found")
     [ "$STATUS" = "healthy" ]
   register: app_postgres_health
   retries: 30
@@ -69,7 +70,7 @@
   ansible.builtin.template:
     src: backup.sh.j2
     dest: /usr/local/bin/memocards-backup.sh
-    mode: '0755'
+    mode: "0755"
   when: backup_enabled | default(true) | bool
   tags: [app, backup]
 
@@ -87,7 +88,7 @@
   ansible.builtin.template:
     src: monitor.sh.j2
     dest: /usr/local/bin/memocards-monitor.sh
-    mode: '0755'
+    mode: "0755"
   when: monitoring_enabled | default(true) | bool
   tags: [app, monitoring]
 

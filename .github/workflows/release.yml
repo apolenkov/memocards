@@ -287,58 +287,6 @@ jobs:
           echo "✅ GitHub Release created!"
           echo "   View at: https://github.com/${{ github.repository }}/releases/tag/$NEW_VERSION"
 
-      - name: Wait for Docker image to be built
-        env:
-          GH_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
-        run: |
-          NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
-          VERSION_NO_V="${NEW_VERSION#v}"
-          
-          echo "⏳ Waiting for main.yml workflow to build Docker image..."
-          echo "📦 Expected image: ghcr.io/${{ github.repository }}:$VERSION_NO_V"
-          echo ""
-          
-          # Wait up to 15 minutes for main.yml to complete
-          for i in {1..30}; do
-            # Check if main.yml completed successfully (latest run)
-            MAIN_STATUS=$(gh run list --workflow=main.yml --limit 1 \
-              --json status,conclusion --jq '.[0] | "\(.status):\(.conclusion)"' 2>/dev/null || echo "")
-            
-            if [ -n "$MAIN_STATUS" ]; then
-              STATUS=$(echo "$MAIN_STATUS" | cut -d: -f1)
-              CONCLUSION=$(echo "$MAIN_STATUS" | cut -d: -f2)
-              
-              if [ "$STATUS" = "completed" ]; then
-                if [ "$CONCLUSION" = "success" ]; then
-                  echo ""
-                  echo "✅ main.yml completed successfully!"
-                  echo "📦 Docker image is available: ghcr.io/${{ github.repository }}:$VERSION_NO_V"
-                  echo ""
-                  echo "🚀 Deploy workflow will start automatically"
-                  exit 0
-                else
-                  echo ""
-                  echo "❌ main.yml failed with conclusion: $CONCLUSION"
-                  echo "   Docker image was NOT created!"
-                  echo "   Check: https://github.com/${{ github.repository }}/actions/workflows/main.yml"
-                  echo ""
-                  echo "⚠️  Release was created but deployment will fail"
-                  echo "   Fix the issues and manually trigger deploy.yml when ready"
-                  exit 1
-                fi
-              fi
-            fi
-            
-            echo "⏳ Attempt $i/30: main.yml is $STATUS, waiting 30s..."
-            sleep 30
-          done
-          
-          echo ""
-          echo "❌ Timeout: main.yml did not complete within 15 minutes"
-          echo "   Release was created but Docker image might not be ready"
-          echo "   Check workflow status: https://github.com/${{ github.repository }}/actions/workflows/main.yml"
-          exit 1
-
       - name: Deployment summary
         run: |
           NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
@@ -355,11 +303,19 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           cat changelog.md >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Automated Workflows Triggered" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "1. ✅ Tag pushed to repository" >> $GITHUB_STEP_SUMMARY
-          echo "2. 🔄 [Main Branch Deployment](https://github.com/${{ github.repository }}/actions/workflows/main.yml) starting (~15 min)" >> $GITHUB_STEP_SUMMARY
-          echo "3. 🚀 [Deploy to VPS](https://github.com/${{ github.repository }}/actions/workflows/deploy.yml) starting after build (~10 min)" >> $GITHUB_STEP_SUMMARY
+          echo "The following workflows will run automatically in parallel:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. 🔄 **[Main Branch Deployment](https://github.com/${{ github.repository }}/actions/workflows/main.yml)**" >> $GITHUB_STEP_SUMMARY
+          echo "   - Runs tests and quality checks" >> $GITHUB_STEP_SUMMARY
+          echo "   - Builds and pushes Docker image" >> $GITHUB_STEP_SUMMARY
+          echo "   - Duration: ~15 minutes" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "2. 🚀 **[Deploy to VPS](https://github.com/${{ github.repository }}/actions/workflows/deploy.yml)**" >> $GITHUB_STEP_SUMMARY
+          echo "   - Waits for Docker image to be ready" >> $GITHUB_STEP_SUMMARY
+          echo "   - Deploys to production via Ansible" >> $GITHUB_STEP_SUMMARY
+          echo "   - Duration: ~25-30 minutes (includes wait time)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -375,8 +331,10 @@ jobs:
           echo "📋 Previous: $LATEST_TAG → New: $NEW_VERSION"
           echo "🏷️  Bump type: $BUMP_TYPE"
           echo "📝 Changelog: Auto-generated from commits"
-          echo "🔄 CI/CD: Starting automatically"
-          echo "🚀 ETA: ~25-30 minutes to production"
+          echo ""
+          echo "🔄 Triggered workflows:"
+          echo "  • main.yml - Build & Test (~15 min)"
+          echo "  • deploy.yml - Deploy to VPS (~25-30 min total)"
           echo ""
           echo "View release: https://github.com/${{ github.repository }}/releases/tag/$NEW_VERSION"
 

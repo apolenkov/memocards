@@ -1,0 +1,18 @@
+---
+# Prettier configuration for YAML files
+printWidth: 120
+tabWidth: 2
+useTabs: false
+proseWrap: preserve
+endOfLine: lf
+
+overrides:
+  - files: "*.yml"
+    options:
+      printWidth: 120
+      tabWidth: 2
+  - files: "ansible/**/*.yml"
+    options:
+      printWidth: 120
+      tabWidth: 2
+

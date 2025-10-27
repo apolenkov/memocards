@@ -31,7 +31,7 @@
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
-    mode: '0755'
+    mode: "0755"
   tags: [docker, install]
 
 - name: Add Docker GPG key
@@ -95,7 +95,7 @@
         }
       }
     dest: /etc/docker/daemon.json
-    mode: '0644'
+    mode: "0644"
   notify: Restart docker
   tags: [docker, config]
 
@@ -166,5 +166,6 @@
       - Docker Compose: {{ docker_compose_version_output.stdout }}
       - Docker service: running and enabled
       - User {{ ansible_user }} added to docker group
-      - GHCR login: {{ 'configured' if (vault_github_token is defined and vault_github_token != '') else 'skipped (no token)' }}
+      - GHCR login: {{ 'configured' if (vault_github_token is defined and
+        vault_github_token != '') else 'skipped (no token)' }}
   tags: [docker]

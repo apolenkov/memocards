@@ -379,14 +379,29 @@ tasks.register<com.github.gradle.node.npm.task.NpmTask>("lintCssFix") {
     args.set(listOf("run", "lint:css:fix"))
 }
 
+tasks.register<com.github.gradle.node.npm.task.NpmTask>("lintYaml") {
+    description = "Run yamllint for Ansible YAML files"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn("npmInstall")
+    args.set(listOf("run", "lint:yaml"))
+}
+
+tasks.register<com.github.gradle.node.npm.task.NpmTask>("lintYamlFix") {
+    description = "Run prettier --write and yamllint for Ansible YAML files"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn("npmInstall")
+    args.set(listOf("run", "lint:yaml:fix"))
+}
+
 // Complete code quality check (everything)
 tasks.register("codeQualityFull") {
-    description = "Runs all code quality checks including CSS linting and i18n"
+    description = "Runs all code quality checks including CSS and YAML linting"
     group = JavaBasePlugin.VERIFICATION_GROUP
 
     dependsOn(
         "codeQuality",
         "lintCss",
+        "lintYaml",
     )
 }
 
