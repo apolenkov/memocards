@@ -105,3 +105,4 @@ jobs:
     needs: check-ansible-changes
     if: needs.check-ansible-changes.outputs.ansible_changed == 'true'
     uses: ./.github/workflows/ansible-lint.yml
+    secrets: inherit

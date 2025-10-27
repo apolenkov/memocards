@@ -84,6 +84,7 @@ jobs:
     name: Ansible Quality Checks
     needs: validate-config
     uses: ./.github/workflows/ansible-lint.yml
+    secrets: inherit
 
   wait-for-image:
     needs: ansible-lint
