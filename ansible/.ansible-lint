@@ -1,0 +1,25 @@
+---
+# Ansible Lint Configuration
+
+# Skip rules that are not critical or require vault password
+skip_list:
+  - 'internal-error'  # Vault password issues in CI/CD
+
+# Warn only for these rules
+warn_list:
+  - 'var-naming[no-role-prefix]'  # Allow short var names in some cases
+  - 'yaml[line-length]'  # Allow slightly longer lines
+
+# Do not check these paths
+exclude_paths:
+  - .git/
+  - .github/
+  - .cache/
+  - node_modules/
+
+# Allowed vars that don't need role prefix
+var_naming_pattern: "^[a-z_][a-z0-9_]*$"
+
+# Use production profile
+profile: production
+
