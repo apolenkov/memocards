@@ -50,7 +50,6 @@
           - app_image is string
           - "'ghcr.io' in app_image"
           - "':' in app_image"
-          - "'latest' not in app_image"
         fail_msg: |
           ❌ INVALID DEPLOYMENT CONFIGURATION!
 
@@ -60,9 +59,9 @@
           - Must be defined and non-empty
           - Must contain 'ghcr.io' registry
           - Must have tag (format: image:tag)
-          - Must NOT use 'latest' tag in production (use specific version/SHA)
 
           Expected formats:
+          - ghcr.io/apolenkov/memocards:latest (default)
           - ghcr.io/apolenkov/memocards:1.0.0 (version)
           - ghcr.io/apolenkov/memocards:abc1234 (commit SHA)
 

@@ -25,68 +25,18 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  code-quality:
-    name: Code Quality Checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 10 # Linters and static analysis
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Gradle environment
-        uses: ./.github/actions/setup-gradle
-
-      - name: Run code quality checks
-        uses: ./.github/actions/code-quality
-        with:
-          gradle-opts: ${{ env.GRADLE_OPTS }}
-
-  unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 8 # Unit test execution
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Gradle environment
-        uses: ./.github/actions/setup-gradle
-
-      - name: Run unit tests
-        uses: ./.github/actions/run-unit-tests
-        with:
-          gradle-opts: ${{ env.GRADLE_OPTS }}
-
-  integration-tests:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 12 # TestContainers + integration tests
-
-    services:
-      docker:
-        image: docker:dind
-        options: --privileged
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Gradle environment
-        uses: ./.github/actions/setup-gradle
-
-      - name: Run integration tests
-        uses: ./.github/actions/run-integration-tests
-        with:
-          gradle-opts: ${{ env.GRADLE_OPTS }}
-          testcontainers-reuse: ${{ env.TESTCONTAINERS_REUSE_ENABLE }}
+  test:
+    name: Run Test Suite
+    uses: ./.github/workflows/test.yml
+    with:
+      gradle-opts: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
+      testcontainers-reuse: "true"
 
   docker-build:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     timeout-minutes: 15 # Jib build and push to registry
-    needs: [code-quality, unit-tests, integration-tests]
+    needs: test
     permissions:
       contents: read       # Required: checkout code
       packages: write      # Required: push to GHCR
@@ -198,7 +148,7 @@ jobs:
             build/jib-image.digest
             build/jib-image.id
             build/jib-image.json
-          retention-days: 90
+          retention-days: 90  # Long retention (release artifacts)
 
       - name: Create deployment summary
         run: |

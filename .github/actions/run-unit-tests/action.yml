@@ -25,7 +25,7 @@ runs:
         path: |
           build/test-results/test/
           build/reports/tests/test/
-        retention-days: 7  # Test results - short retention (reviewed quickly)
+        retention-days: 7  # Short retention (reviewed quickly)
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v4
@@ -33,4 +33,4 @@ runs:
       with:
         name: unit-test-coverage
         path: build/reports/jacoco/test/html/
-        retention-days: 30  # Coverage - medium retention (for trend analysis)
+        retention-days: 30  # Medium retention (trend analysis)
