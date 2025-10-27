@@ -1,0 +1,68 @@
+---
+name: Breaking Changes Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [master]
+
+jobs:
+  check-breaking-changes:
+    name: Check for Breaking Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      
+      - name: Get PR commits
+        id: commits
+        run: |
+          COMMITS=$(git log origin/${{ github.base_ref }}..HEAD --pretty=format:"%s")
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Check for breaking changes markers
+        id: check
+        run: |
+          COMMITS="${{ steps.commits.outputs.commits }}"
+          
+          if echo "$COMMITS" | grep -qE "BREAKING CHANGE|!:"; then
+            echo "has_breaking=true" >> $GITHUB_OUTPUT
+            echo "⚠️  **BREAKING CHANGES detected!**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "This PR contains breaking changes and will trigger a **major version bump**." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Breaking commits:" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$COMMITS" | grep -E "BREAKING CHANGE|!:" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "has_breaking=false" >> $GITHUB_OUTPUT
+            echo "✅ No breaking changes detected" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Comment on PR if breaking changes found
+        if: steps.check.outputs.has_breaking == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ **Warning: This PR contains BREAKING CHANGES**\n\n' +
+                    'When merged and released, this will trigger a **major version bump** ' +
+                    '(e.g., 1.x.x → 2.0.0).\n\n' +
+                    'Please ensure:\n' +
+                    '- [ ] Documentation is updated\n' +
+                    '- [ ] Migration guide is provided\n' +
+                    '- [ ] All stakeholders are notified'
+            })
+
+
