@@ -128,7 +128,7 @@ configurations.all {
         failOnVersionConflict()
 
         // Existing force declarations
-        force("commons-io:commons-io:2.18.0")
+        force("commons-io:commons-io:2.20.0")
         force("org.checkerframework:checker-qual:3.51.1")
 
         // Resolve reported conflicts with latest versions
