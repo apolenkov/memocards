@@ -32,7 +32,7 @@ jobs:
         uses: ./.github/actions/setup-gradle
 
       - name: Cache npm dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
@@ -85,11 +85,8 @@ jobs:
     name: Integration Tests
     runs-on: ubuntu-latest
     timeout-minutes: 12
-
-    services:
-      docker:
-        image: docker:dind
-        options: --privileged
+    # Note: TestContainers works with GitHub Actions' host Docker daemon directly
+    # No need for docker:dind service - it's automatically available
 
     steps:
       - name: Checkout code
