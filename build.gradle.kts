@@ -132,8 +132,8 @@ configurations.all {
         force("org.checkerframework:checker-qual:3.51.1")
 
         // Resolve reported conflicts with latest versions
+        force("com.google.guava:guava:33.5.0-jre")
         force("org.apache.commons:commons-compress:1.28.0")
-        force("com.google.guava:guava:33.4.5-jre")
         force("com.google.errorprone:error_prone_annotations:2.43.0")
         force("io.github.classgraph:classgraph:4.8.184")
 
