@@ -12,7 +12,7 @@
     "autoprefixer": "10.4.19",
     "cssnano": "6.1.2",
     "glob": "11.0.2",
-    "postcss-custom-media": "10.0.5",
+    "postcss-custom-media": "11.0.6",
     "postcss-custom-properties": "^14.0.6",
     "postcss-functions": "^4.0.2",
     "postcss-nesting": "^13.0.2",
