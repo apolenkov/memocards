@@ -29,7 +29,7 @@
   ansible.builtin.template:
     src: memocards.conf.j2
     dest: /etc/nginx/sites-available/memocards.conf
-    mode: '0644'
+    mode: "0644"
   notify: Reload nginx
   tags: [nginx, config]
 
@@ -73,7 +73,7 @@
     content: |
       dns_duckdns_token = {{ vault_duckdns_token }}
     dest: /root/.duckdns_credentials.ini
-    mode: '0600'
+    mode: "0600"
     owner: root
     group: root
   tags: [nginx, ssl]
@@ -82,7 +82,7 @@
   ansible.builtin.template:
     src: duckdns-update.sh.j2
     dest: /usr/local/bin/duckdns-update.sh
-    mode: '0755'
+    mode: "0755"
   tags: [nginx, duckdns]
 
 - name: Install cron if not installed
@@ -124,7 +124,7 @@
     --expand
     --debug
   register: nginx_certbot_result
-  failed_when: false  # Не останавливаться при ошибке
+  failed_when: false # Не останавливаться при ошибке
   changed_when: nginx_certbot_result.rc == 0
   tags: [nginx, ssl]
 
@@ -138,7 +138,7 @@
   ansible.builtin.template:
     src: memocards-ssl.conf.j2
     dest: /etc/nginx/sites-available/memocards.conf
-    mode: '0644'
+    mode: "0644"
   when: nginx_certbot_result.rc == 0
   notify: Reload nginx
   tags: [nginx, ssl]
@@ -147,7 +147,7 @@
   ansible.builtin.template:
     src: memocards.conf.j2
     dest: /etc/nginx/sites-available/memocards.conf
-    mode: '0644'
+    mode: "0644"
   when: nginx_certbot_result.rc != 0
   notify: Reload nginx
   tags: [nginx, ssl]
@@ -162,7 +162,7 @@
   ansible.builtin.template:
     src: memocards-ssl.conf.j2
     dest: /etc/nginx/sites-available/memocards.conf
-    mode: '0644'
+    mode: "0644"
   when: nginx_ssl_cert.stat.exists
   tags: [nginx, ssl]
 

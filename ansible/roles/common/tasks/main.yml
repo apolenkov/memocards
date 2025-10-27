@@ -72,7 +72,7 @@
     - name: Set swap file permissions
       ansible.builtin.file:
         path: /swapfile
-        mode: '0600'
+        mode: "0600"
 
     - name: Make swap
       ansible.builtin.command: mkswap /swapfile
@@ -87,13 +87,13 @@
     - name: Add swap to fstab
       ansible.builtin.lineinfile:
         path: /etc/fstab
-        line: '/swapfile none swap sw 0 0'
+        line: "/swapfile none swap sw 0 0"
         state: present
 
     - name: Set swappiness
       ansible.posix.sysctl:
         name: vm.swappiness
-        value: '10'
+        value: "10"
         state: present
 
 - name: Configure firewall (UFW)
@@ -137,7 +137,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
     owner: root
     group: root
   loop:

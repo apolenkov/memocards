@@ -3,7 +3,7 @@
 # PLAYBOOK: setup.yml
 # Полная установка инфраструктуры Memocards на VPS
 # =============================================================================
-# 
+#
 # Этот playbook выполняет первичную установку всей инфраструктуры:
 # - Базовая настройка системы (common)
 # - Установка Docker (docker)
@@ -21,15 +21,11 @@
   hosts: vps
   become: yes
   gather_facts: yes
-  
+
   vars_files:
-    - ../group_vars/all.yml
+    - ../inventory/group_vars/all.yml
     - ../secrets.yml
-  
-  vars:
-    ansible_ssh_pass: "{{ vault_vps_password }}"
-    ansible_become_pass: "{{ vault_vps_password }}"
-  
+
   pre_tasks:
     - name: Display deployment information
       debug:
@@ -37,7 +33,7 @@
           ╔════════════════════════════════════════════════════════════╗
           ║     Memocards Infrastructure Deployment Starting...        ║
           ╚════════════════════════════════════════════════════════════╝
-          
+
           🎯 Target: {{ inventory_hostname }}
           🐧 Starting deployment...
           ⏱️  This will take approximately 10-15 minutes...
@@ -53,13 +49,13 @@
   roles:
     - role: common
       tags: [common, setup]
-    
+
     - role: docker
       tags: [docker, setup]
-    
+
     - role: nginx
       tags: [nginx, setup]
-    
+
     - role: app
       tags: [app, setup]
 
@@ -70,7 +66,7 @@
           ╔════════════════════════════════════════════════════════════╗
           ║    🎉 Memocards Infrastructure Deployed Successfully!     ║
           ╚════════════════════════════════════════════════════════════╝
-          
+
           📦 Components:
           ✅ System configured (firewall, swap, directories)
           ✅ Docker Engine installed and running
@@ -79,16 +75,16 @@
           ✅ PostgreSQL database running
           ✅ Backup configured (daily at 2:00 AM)
           ✅ Monitoring configured (every 5 minutes)
-          
+
           🌐 Access:
           - URL: https://{{ domain }}
           - Health: https://{{ domain }}/actuator/health
-          
+
           📋 Next Steps:
           1. Test application: curl -I https://{{ domain }}
           2. Check logs: docker logs -f memocards-app-prod
           3. For updates: ansible-playbook -i ../inventory/hosts.yml deploy.yml --ask-vault-pass
-          
+
           📚 Documentation: ../README.md
       tags: [always]
 
@@ -99,6 +95,5 @@
           Deployed by: {{ ansible_user_id }}@{{ ansible_hostname }}
           Version: {{ app_image }}
         dest: "{{ app_deploy_path }}/.deployment_info"
-        mode: '0644'
+        mode: "0644"
       tags: [always]
-

@@ -62,19 +62,19 @@ postgres_effective_cache_size: "512MB"
 # FIREWALL CONFIGURATION
 # =============================================================================
 firewall_allowed_ports:
-  - "22"   # SSH
-  - "80"   # HTTP
-  - "443"  # HTTPS
+  - "22" # SSH
+  - "80" # HTTP
+  - "443" # HTTPS
 
 # =============================================================================
 # BACKUP CONFIGURATION
 # =============================================================================
 backup_enabled: true
-backup_schedule: "0 2 * * *"  # Ежедневно в 2:00
+backup_schedule: "0 2 * * *" # Ежедневно в 2:00
 backup_retention_days: 7
 
 # =============================================================================
 # MONITORING CONFIGURATION
 # =============================================================================
 monitoring_enabled: true
-monitoring_schedule: "*/5 * * * *"  # Каждые 5 минут
+monitoring_schedule: "*/5 * * * *" # Каждые 5 минут
