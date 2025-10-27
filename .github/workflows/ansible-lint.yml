@@ -31,6 +31,9 @@ jobs:
       run:
         working-directory: ansible
 
+    env:
+      ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -80,7 +83,7 @@ jobs:
         run: |
           for playbook in playbooks/*.yml; do
             echo "Checking $playbook..."
-            ansible-playbook --syntax-check "$playbook" --vault-password-file <(echo "dummy")
+            ansible-playbook --syntax-check "$playbook" --vault-password-file <(echo "$ANSIBLE_VAULT_PASSWORD")
           done
 
   ansible-security:
