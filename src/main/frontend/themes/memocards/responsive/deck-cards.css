@@ -14,7 +14,7 @@
     box-sizing: border-box; /* Include padding/border in width calculation */
     box-shadow: var(--lumo-box-shadow-s);
     overflow-x: hidden; /* Prevent horizontal scroll */
-    word-wrap: break-word; /* Break long words to prevent overflow */
+    overflow-wrap: break-word; /* Break long words to prevent overflow */
 }
 
 /* Known card - green left border */
@@ -515,7 +515,6 @@
 }
 
 .news-card__content {
-    word-wrap: break-word;
     overflow-wrap: break-word;
 }
 
