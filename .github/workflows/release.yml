@@ -76,10 +76,15 @@ jobs:
 
       - name: Calculate next version
         id: calculate_version
+        env:
+          LATEST_TAG: ${{ steps.get_latest_tag.outputs.latest_tag }}
+          VERSION_TYPE: ${{ inputs.version_type }}
+          CUSTOM_VERSION: ${{ inputs.custom_version }}
         run: |
-          LATEST_TAG="${{ steps.get_latest_tag.outputs.latest_tag }}"
-          VERSION_TYPE="${{ inputs.version_type }}"
-          CUSTOM_VERSION="${{ inputs.custom_version }}"
+          # Security: Use env vars to prevent script injection
+          LATEST_TAG="$LATEST_TAG"
+          VERSION_TYPE="$VERSION_TYPE"
+          CUSTOM_VERSION="$CUSTOM_VERSION"
           
           # Parse current version
           VERSION=${LATEST_TAG#v}
@@ -155,10 +160,16 @@ jobs:
 
       - name: Generate changelog
         id: generate_changelog
+        env:
+          LATEST_TAG: ${{ steps.get_latest_tag.outputs.latest_tag }}
+          NEW_VERSION: ${{ steps.calculate_version.outputs.new_version }}
+          BUMP_TYPE: ${{ steps.calculate_version.outputs.bump_type }}
+          ADDITIONAL_NOTES: ${{ inputs.additional_notes }}
         run: |
-          LATEST_TAG="${{ steps.get_latest_tag.outputs.latest_tag }}"
-          NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
-          BUMP_TYPE="${{ steps.calculate_version.outputs.bump_type }}"
+          # Security: Use env vars to prevent script injection
+          LATEST_TAG="$LATEST_TAG"
+          NEW_VERSION="$NEW_VERSION"
+          BUMP_TYPE="$BUMP_TYPE"
           
           echo "## 🎉 Release $NEW_VERSION" > changelog.md
           echo "" >> changelog.md
@@ -179,12 +190,11 @@ jobs:
           fi
           
           # Add additional notes if provided
-          ADDITIONAL="${{ inputs.additional_notes }}"
-          if [ -n "$ADDITIONAL" ]; then
+          if [ -n "$ADDITIONAL_NOTES" ]; then
             echo "" >> changelog.md
             echo "### 📝 Additional Notes" >> changelog.md
             echo "" >> changelog.md
-            echo "$ADDITIONAL" >> changelog.md
+            echo "$ADDITIONAL_NOTES" >> changelog.md
           fi
           
           # Add deployment info

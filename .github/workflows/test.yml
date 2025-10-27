@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Setup Gradle environment
         uses: ./.github/actions/setup-gradle
@@ -44,6 +46,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Setup Gradle environment
         uses: ./.github/actions/setup-gradle
@@ -63,6 +67,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Setup Gradle environment
         uses: ./.github/actions/setup-gradle
