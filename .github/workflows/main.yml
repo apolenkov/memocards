@@ -46,10 +46,7 @@ jobs:
       contents: read       # Required: checkout code
       packages: write      # Required: push to GHCR
       attestations: write  # Required: generate SLSA provenance
-      id-token: write      # Required: OIDC token for attestation signing
-                           # Note: May not be needed if using GITHUB_TOKEN (not OIDC provider)
-                           # Test by removing this permission - if attestation still works, can delete
-                           # See: https://github.com/actions/attest-build-provenance
+                           # Note: id-token NOT needed when using GITHUB_TOKEN (not OIDC provider)
 
     steps:
       - name: Checkout code
