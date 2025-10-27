@@ -138,8 +138,8 @@ configurations.all {
         force("io.github.classgraph:classgraph:4.8.184")
 
         // Added to resolve the reported conflicts
-        force("com.github.docker-java:docker-java-api:3.4.1")
-        force("com.github.docker-java:docker-java-transport:3.4.1")
+        force("com.github.docker-java:docker-java-api:3.6.0")
+        force("com.github.docker-java:docker-java-transport:3.6.0")
         force("org.jetbrains:annotations:26.0.2-1")
     }
 }
