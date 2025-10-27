@@ -1,21 +1,7 @@
 package org.apolenkov.application.views.deck.pages;
 
-import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.DetachEvent;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.shared.Registration;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.security.RolesAllowed;
 import java.util.Optional;
+
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.config.ui.UIConfig;
@@ -36,6 +22,23 @@ import org.apolenkov.application.views.deck.constants.DeckConstants;
 import org.apolenkov.application.views.shared.utils.NavigationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.Registration;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = RouteConstants.DECK_ROUTE, layout = PublicLayout.class)
 @RolesAllowed(SecurityConstants.ROLE_USER)
@@ -394,7 +397,7 @@ public class DeckView extends Composite<VerticalLayout>
     private void updateDeckInfo() {
         if (currentDeck != null && detailHeader != null) {
             detailHeader.setDeckTitle(currentDeck.getTitle());
-            // New format: "(description) X карточки"
+            // New format: "(description) X cards"
             String description = Optional.ofNullable(currentDeck.getDescription())
                     .filter(desc -> !desc.trim().isEmpty())
                     .orElse("");

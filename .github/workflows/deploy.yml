@@ -101,15 +101,25 @@ jobs:
     steps:
       - name: Determine image tag
         id: get_tag
+        env:
+          INPUT_TAG: ${{ inputs.image_tag }}
         run: |
-          if [ -n "${{ inputs.image_tag }}" ]; then
-            TAG="${{ inputs.image_tag }}"
+          # Security: Use env var to prevent script injection
+          if [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
+            
+            # Validate tag format (semantic versioning with optional 'v' prefix)
+            if [[ ! "$TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]]; then
+              echo "❌ ERROR: Invalid tag format: '$TAG'"
+              echo "Expected: v1.0.0 or 1.0.0 or 1.0.0-beta"
+              exit 1
+            fi
             
             # Normalize: strip 'v' prefix if present (Jib creates tags without 'v')
             # Example: v1.0.0 → 1.0.0
             TAG="${TAG#v}"
             
-            echo "📋 Using manual tag: $TAG (normalized from ${{ inputs.image_tag }})"
+            echo "📋 Using manual tag: $TAG (validated and normalized from input)"
           else
             TAG="${GITHUB_SHA:0:7}"
             echo "📋 Using git SHA tag: $TAG"
@@ -167,6 +177,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Deployment configuration
         id: deploy_tag
@@ -212,7 +224,15 @@ jobs:
       - name: Add VPS to known hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ env.VPS_IP }} >> ~/.ssh/known_hosts
+          # Security: Use pre-verified SSH host key instead of ssh-keyscan (MITM vulnerable)
+          # Generate with: ssh-keyscan -H YOUR_VPS_IP
+          # Store in GitHub Secrets as VPS_SSH_HOST_KEY
+          if [ -n "${{ secrets.VPS_SSH_HOST_KEY }}" ]; then
+            echo "${{ secrets.VPS_SSH_HOST_KEY }}" >> ~/.ssh/known_hosts
+          else
+            echo "::warning::VPS_SSH_HOST_KEY not set. Falling back to ssh-keyscan (not recommended for production)"
+            ssh-keyscan -H ${{ env.VPS_IP }} >> ~/.ssh/known_hosts
+          fi
 
       - name: Create Ansible Vault password file
         run: |
@@ -252,10 +272,13 @@ jobs:
             echo "This might be normal if the application is still starting up."
           fi
 
-      - name: Clean up
+      - name: Clean up sensitive files
         if: always()
         run: |
-          rm -f .vault_pass
+          # Security: Shred vault password file to prevent recovery
+          if [ -f .vault_pass ]; then
+            shred -u .vault_pass 2>/dev/null || rm -f .vault_pass
+          fi
 
       - name: Deployment summary
         run: |
