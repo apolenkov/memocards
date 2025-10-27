@@ -1,7 +1,8 @@
 package org.apolenkov.application.infrastructure.repository.jdbc;
 
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
 import org.apolenkov.application.BaseIntegrationTest;
 import org.apolenkov.application.domain.model.FilterOption;
 import org.apolenkov.application.domain.port.CardRepository;
@@ -11,7 +12,6 @@ import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.model.Card;
 import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.User;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,23 +63,23 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
 
         // Create test cards
         // "apple" - will be marked as KNOWN
-        Card card1 = new Card(null, testDeck.getId(), "apple", "pomme", "I like apples");
+        Card card1 = new Card(null, testDeck.getId(), "apple", "manzana", "I like apples");
         cardRepository.save(card1);
 
         // "banana" - will be marked as KNOWN
-        Card card2 = new Card(null, testDeck.getId(), "banana", "banane", "Yellow banana");
+        Card card2 = new Card(null, testDeck.getId(), "banana", "banana", "Yellow banana");
         cardRepository.save(card2);
 
         // "cherry" - will remain UNKNOWN
-        Card card3 = new Card(null, testDeck.getId(), "cherry", "cerise", "Red cherry");
+        Card card3 = new Card(null, testDeck.getId(), "cherry", "cereza", "Red cherry");
         cardRepository.save(card3);
 
         // "date" - will remain UNKNOWN
-        Card card4 = new Card(null, testDeck.getId(), "date", "datte", "Sweet date");
+        Card card4 = new Card(null, testDeck.getId(), "date", "dátil", "Sweet date");
         cardRepository.save(card4);
 
         // "elderberry" - will remain UNKNOWN
-        Card card5 = new Card(null, testDeck.getId(), "elderberry", "sureau", "Dark elderberry");
+        Card card5 = new Card(null, testDeck.getId(), "elderberry", "saúco", "Dark elderberry");
         cardRepository.save(card5);
 
         // Mark card1 and card2 as KNOWN
@@ -163,12 +163,12 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     @Test
     @DisplayName("Should count cards matching search query")
     void testCountAllSearchQuery() {
-        // Given: Search query "an" (should match "banana")
+        // Given: Search query "an" (should match "banana" and "manzana")
         // When: Counting matching cards
         long count = cardRepository.countCardsWithFilter(testDeck.getId(), "an", FilterOption.ALL);
 
-        // Then: Should count 1 card
-        assertThat(count).isEqualTo(1);
+        // Then: Should count 2 cards
+        assertThat(count).isEqualTo(2);
     }
 
     @Test
@@ -296,7 +296,7 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
         anotherDeck.setDescription("Another Description");
         anotherDeck = deckRepository.save(anotherDeck);
 
-        Card anotherCard = new Card(null, anotherDeck.getId(), "grape", "raisin", "Purple grape");
+        Card anotherCard = new Card(null, anotherDeck.getId(), "grape", "uva", "Purple grape");
         cardRepository.save(anotherCard);
 
         PageRequest pageRequest = PageRequest.of(0, 10);

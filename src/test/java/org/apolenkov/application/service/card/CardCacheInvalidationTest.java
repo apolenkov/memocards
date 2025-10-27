@@ -1,8 +1,13 @@
 package org.apolenkov.application.service.card;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import jakarta.validation.Validator;
 import java.util.Collections;
 import java.util.Optional;
-
 import org.apolenkov.application.domain.port.CardRepository;
 import org.apolenkov.application.model.Card;
 import org.apolenkov.application.service.stats.PaginationCountCache;
@@ -10,15 +15,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.ArgumentMatchers.any;
 import org.mockito.Mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
-
-import jakarta.validation.Validator;
 
 /**
  * Tests for cache invalidation when cards are created, updated, or deleted.
