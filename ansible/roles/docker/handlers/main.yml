@@ -1,6 +1,5 @@
 ---
 # Docker role handlers
-# Обработчики для роли docker
 
 - name: Restart docker
   ansible.builtin.systemd:

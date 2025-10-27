@@ -1,6 +1,5 @@
 ---
 # Nginx role handlers
-# Обработчики для роли nginx
 
 - name: Restart nginx
   ansible.builtin.systemd:

@@ -3,11 +3,11 @@
 .vault_pass
 .vault_password
 
-# Секреты (зашифрованный файл не игнорируем, незашифрованный - да)
+# Secrets (encrypted file is tracked, decrypted is ignored)
 secrets.yml.decrypted
 secrets.yml.bak
 
-# Временные файлы
+# Temporary files
 *.log
 .ansible/
 /tmp/

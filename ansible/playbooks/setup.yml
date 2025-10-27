@@ -1,19 +1,19 @@
 ---
 # =============================================================================
 # PLAYBOOK: setup.yml
-# Полная установка инфраструктуры Memocards на VPS
+# Complete Memocards infrastructure setup on VPS
 # =============================================================================
 #
-# Этот playbook выполняет первичную установку всей инфраструктуры:
-# - Базовая настройка системы (common)
-# - Установка Docker (docker)
-# - Установка и настройка Nginx с SSL (nginx)
-# - Развертывание приложения (app)
+# This playbook performs initial installation of the entire infrastructure:
+# - Basic system configuration (common)
+# - Docker installation (docker)
+# - Nginx installation and SSL configuration (nginx)
+# - Application deployment (app)
 #
-# Использование:
+# Usage:
 #   ansible-playbook -i ../inventory/hosts.yml setup.yml --ask-vault-pass
 #
-# Или с сухим запуском (проверка без изменений):
+# Or with dry run (check without changes):
 #   ansible-playbook -i ../inventory/hosts.yml setup.yml --ask-vault-pass --check
 # =============================================================================
 

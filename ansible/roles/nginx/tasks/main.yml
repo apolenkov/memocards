@@ -1,7 +1,7 @@
 ---
 # =============================================================================
 # ROLE: nginx
-# Установка Nginx, настройка SSL с Let's Encrypt и DuckDNS
+# Nginx installation, SSL configuration with Let's Encrypt and DuckDNS
 # =============================================================================
 
 - name: Install Nginx
