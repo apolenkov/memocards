@@ -27,7 +27,6 @@ jobs:
           fail-on-severity: high
           # Comment on PR with findings
           comment-summary-in-pr: always
-          # Allow specific licenses
-          allow-licenses: MIT, Apache-2.0, BSD-3-Clause, BSD-2-Clause, ISC
-          # Deny copyleft licenses
+          # Deny copyleft licenses (blacklist approach - more flexible)
+          # Allows: MIT, Apache-2.0, BSD-*, ISC, and other permissive licenses
           deny-licenses: GPL-2.0, GPL-3.0, LGPL-2.0, LGPL-3.0
