@@ -35,7 +35,7 @@ plugins {
 }
 
 group = "org.apolenkov.application"
-version = "0.1.0"
+version = "0.1.1"
 description = "Memocards application" // Rename to memocards
 
 idea {
