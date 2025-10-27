@@ -48,44 +48,34 @@ jobs:
           cd ansible
           ansible-galaxy collection install -r requirements.yml
       
-      - name: Debug - Check vault password availability
-        run: |
-          if [ -n "$VAULT_PASSWORD" ]; then
-            echo "✅ VAULT_PASSWORD is available (length: ${#VAULT_PASSWORD} chars)"
-          else
-            echo "⚠️  VAULT_PASSWORD is NOT set or empty"
-          fi
-          echo "Workflow trigger: ${{ github.event_name }}"
-      
       - name: Create vault password file
+        if: env.VAULT_PASSWORD != ''
         run: |
-          # Create vault password file if secret is provided
-          # Use VAULT_PASSWORD env var for consistent access in both direct and workflow_call modes
-          if [ -n "$VAULT_PASSWORD" ]; then
-            echo "$VAULT_PASSWORD" > /tmp/vault_pass.txt
-            chmod 600 /tmp/vault_pass.txt
-            echo "VAULT_FILE=/tmp/vault_pass.txt" >> $GITHUB_ENV
-            echo "✅ Vault password file created"
-          else
-            echo "::warning::ANSIBLE_VAULT_PASSWORD secret is not set. Will use dummy secrets for syntax check."
-            echo "VAULT_FILE=" >> $GITHUB_ENV
-          fi
+          echo "$VAULT_PASSWORD" > /tmp/vault_pass.txt
+          chmod 600 /tmp/vault_pass.txt
 
       - name: Run ansible-playbook syntax check
         run: |
           cd ansible
+          VAULT_ARG=""
+          [ -f /tmp/vault_pass.txt ] && VAULT_ARG="--vault-password-file /tmp/vault_pass.txt"
+          
+          EXIT_CODE=0
           for playbook in playbooks/*.yml; do
-            echo "Checking $playbook..."
-            if [ -n "$VAULT_FILE" ]; then
-              ansible-playbook --syntax-check "$playbook" --vault-password-file "$VAULT_FILE"
+            echo "🔍 Checking $playbook..."
+            if ansible-playbook --syntax-check "$playbook" $VAULT_ARG; then
+              echo "  ✅ $playbook - OK"
             else
-              # Try without vault password (will fail if vault is required)
-              ansible-playbook --syntax-check "$playbook" || {
-                echo "::warning::Syntax check failed. This might be due to missing ANSIBLE_VAULT_PASSWORD secret."
-                exit 1
-              }
+              echo "  ❌ $playbook - FAILED"
+              [ -z "$VAULT_ARG" ] && echo "::warning::Missing ANSIBLE_VAULT_PASSWORD secret"
+              EXIT_CODE=1
             fi
           done
+          
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "✅ All playbooks passed syntax check"
+          fi
+          exit $EXIT_CODE
 
       - name: Cleanup vault password file
         if: always()

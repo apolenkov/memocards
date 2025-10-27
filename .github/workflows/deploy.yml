@@ -171,6 +171,13 @@ jobs:
     needs: wait-for-image
     runs-on: ubuntu-latest
     timeout-minutes: 15 # Ansible deployment time
+    
+    # GitHub Environment for production deployment
+    # Provides: deployment history, required reviewers, protection rules
+    environment:
+      name: production
+      url: https://${{ vars.APP_DOMAIN }}
+    
     permissions:
       contents: read # For checkout
 

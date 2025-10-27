@@ -137,12 +137,23 @@ jobs:
           fi
 
       - name: Generate artifact attestation
-        if: steps.digest.outputs.digest != '' && github.event.repository.visibility == 'public'
+        id: attest
+        if: steps.digest.outputs.digest != ''
         uses: actions/attest-build-provenance@v3
+        continue-on-error: true
         with:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.digest.outputs.digest }}
           push-to-registry: true
+
+      - name: Log attestation status
+        if: always()
+        run: |
+          if [ "${{ steps.attest.outcome }}" = "success" ]; then
+            echo "✅ Artifact attestation generated successfully"
+          else
+            echo "⚠️  Artifact attestation skipped (may not be available for private repos)"
+          fi
 
       - name: Upload image metadata
         uses: actions/upload-artifact@v5
