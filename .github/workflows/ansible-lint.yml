@@ -37,11 +37,12 @@ jobs:
         with:
           python-version: '3.13'
           cache: 'pip'
+          cache-dependency-path: 'ansible/requirements.txt'
 
       - name: Install Ansible and Collections
         run: |
           pip install --upgrade pip
-          pip install ansible-core ansible-lint
+          pip install -r requirements.txt
           ansible-galaxy collection install community.docker ansible.posix community.general
 
       - name: Verify installations

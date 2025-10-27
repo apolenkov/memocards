@@ -49,7 +49,8 @@ updates:
       prefix: "ci"
       include: "scope"
 
-  # Enable version updates for Docker
+  # Enable version updates for Docker Compose
+  # Tracks: postgres:15-alpine and other base images
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
@@ -64,3 +65,6 @@ updates:
     commit-message:
       prefix: "docker"
       include: "scope"
+    # Ignore our own app image (built by Jib)
+    ignore:
+      - dependency-name: "ghcr.io/apolenkov/memocards"
