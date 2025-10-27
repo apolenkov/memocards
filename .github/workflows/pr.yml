@@ -77,35 +77,3 @@ jobs:
           gradle-opts: ${{ env.GRADLE_OPTS }}
           testcontainers-reuse: ${{ env.TESTCONTAINERS_REUSE_ENABLE }}
           retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
-
-  build:
-    name: Build Application
-    runs-on: ubuntu-latest
-    timeout-minutes: 8 # Application build without tests
-    needs: [code-quality, unit-tests, integration-tests]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Gradle environment
-        uses: ./.github/actions/setup-gradle
-
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Build application
-        run: ./gradlew clean build -x test -x integrationTest
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v5
-        with:
-          name: build-artifacts
-          path: |
-            build/libs/
-            build/reports/
-          retention-days: 7
