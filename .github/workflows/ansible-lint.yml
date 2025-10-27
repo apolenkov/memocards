@@ -1,23 +1,19 @@
 ---
 name: Ansible Quality Checks
 
+# This workflow is designed to be called by other workflows (primarily deploy.yml)
+# It does NOT run automatically on push/PR to avoid unnecessary runs
+# It only validates Ansible code quality before actual deployment
+#
+# Usage:
+#   - Automatically: Called by deploy.yml before deployment
+#   - Manually: Via workflow_dispatch in GitHub Actions UI
+
 on:
-  # Automatic on push/PR with Ansible changes
-  push:
-    branches: [master]
-    paths:
-      - 'ansible/**'
-      - '.github/workflows/ansible-lint.yml'
-  pull_request:
-    branches: [master]
-    paths:
-      - 'ansible/**'
-      - '.github/workflows/ansible-lint.yml'
-  
-  # Manual trigger
+  # Manual trigger only
   workflow_dispatch:
-  
-  # Called by other workflows (e.g., deploy.yml)
+
+  # Called by other workflows (e.g., deploy.yml before deployment)
   workflow_call:
 
 # Only one concurrent ansible-lint run per branch/PR
