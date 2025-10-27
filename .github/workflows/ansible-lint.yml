@@ -2,6 +2,7 @@
 name: Ansible Quality Checks
 
 on:
+  # Automatic on push/PR with Ansible changes
   push:
     branches: [master]
     paths:
@@ -12,6 +13,12 @@ on:
     paths:
       - 'ansible/**'
       - '.github/workflows/ansible-lint.yml'
+  
+  # Manual trigger
+  workflow_dispatch:
+  
+  # Called by other workflows (e.g., deploy.yml)
+  workflow_call:
 
 # Only one concurrent ansible-lint run per branch/PR
 concurrency:
