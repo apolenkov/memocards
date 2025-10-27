@@ -133,7 +133,7 @@ configurations.all {
 
         // Resolve reported conflicts with latest versions
         force("org.apache.commons:commons-compress:1.27.1")
-        force("com.google.guava:guava:33.4.5-jre")
+        force("com.google.guava:guava:33.5.0-jre")
         force("com.google.errorprone:error_prone_annotations:2.43.0")
         force("io.github.classgraph:classgraph:4.8.184")
 
