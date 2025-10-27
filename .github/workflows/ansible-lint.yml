@@ -127,23 +127,91 @@ jobs:
           
           echo "✅ No hardcoded credentials detected"
 
+  validate-secrets:
+    name: Validate Secrets Structure
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Check secrets.yml exists and is encrypted
+        run: |
+          echo "🔍 Validating ansible/secrets.yml..."
+          
+          if [ ! -f ansible/secrets.yml ]; then
+            echo "❌ ERROR: ansible/secrets.yml not found!"
+            exit 1
+          fi
+          
+          if ! head -n 1 ansible/secrets.yml | grep -q 'ANSIBLE_VAULT'; then
+            echo "❌ ERROR: ansible/secrets.yml is not encrypted!"
+            echo "   Run: ansible-vault encrypt ansible/secrets.yml"
+            exit 1
+          fi
+          
+          FILE_SIZE=$(stat -f%z ansible/secrets.yml 2>/dev/null || stat -c%s ansible/secrets.yml)
+          if [ "$FILE_SIZE" -lt 100 ]; then
+            echo "❌ ERROR: secrets.yml seems too small ($FILE_SIZE bytes)"
+            exit 1
+          fi
+          
+          echo "✅ ansible/secrets.yml exists and is encrypted ($FILE_SIZE bytes)"
+
+      - name: Validate required vault variables are used
+        run: |
+          echo "🔍 Checking vault variable usage..."
+          
+          # List of required vault variables
+          REQUIRED_VARS=(
+            "vault_db_password"
+            "vault_github_token"
+            "vault_duckdns_token"
+            "vault_demo_admin_password"
+            "vault_demo_user_password"
+            "vault_test_user_password"
+          )
+          
+          WARNINGS=0
+          
+          for VAR in "${REQUIRED_VARS[@]}"; do
+            if ! grep -r "$VAR" ansible/playbooks/ ansible/roles/ > /dev/null 2>&1; then
+              echo "⚠️  WARNING: $VAR might not be used anywhere"
+              WARNINGS=$((WARNINGS + 1))
+            else
+              echo "✅ $VAR is referenced in playbooks/roles"
+            fi
+          done
+          
+          if [ $WARNINGS -gt 0 ]; then
+            echo ""
+            echo "⚠️  Found $WARNINGS potentially unused vault variables"
+            echo "   This is not an error, but consider reviewing if they are still needed"
+          fi
+          
+          echo ""
+          echo "✅ Secrets validation completed"
+
   summary:
     name: Quality Summary
     runs-on: ubuntu-latest
-    needs: [ansible-lint, ansible-security]
+    needs: [ansible-lint, ansible-security, validate-secrets]
     if: always()
 
     steps:
       - name: Check results
         run: |
           if [ "${{ needs.ansible-lint.result }}" == "success" ] && \
-             [ "${{ needs.ansible-security.result }}" == "success" ]; then
+             [ "${{ needs.ansible-security.result }}" == "success" ] && \
+             [ "${{ needs.validate-secrets.result }}" == "success" ]; then
             echo "✅ All Ansible quality checks passed!"
             exit 0
           else
             echo "❌ Some checks failed:"
             echo "  - ansible-lint: ${{ needs.ansible-lint.result }}"
             echo "  - ansible-security: ${{ needs.ansible-security.result }}"
+            echo "  - validate-secrets: ${{ needs.validate-secrets.result }}"
             exit 1
           fi
 

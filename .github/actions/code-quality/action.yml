@@ -11,13 +11,13 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Cache node_modules
+    - name: Cache npm dependencies
       uses: actions/cache@v4
       with:
-        path: node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-node-
+          ${{ runner.os }}-npm-
 
     - name: Run Spotless check
       shell: bash

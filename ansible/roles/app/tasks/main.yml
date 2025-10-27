@@ -5,24 +5,24 @@
 # =============================================================================
 
 - name: Copy Docker Compose configuration
-  copy:
+  ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../docker-compose.yml"
     dest: "{{ app_deploy_path }}/docker-compose.yml"
     mode: '0644'
   tags: [app, config]
 
 - name: Generate production environment file from template
-  template:
+  ansible.builtin.template:
     src: env.prod.j2
     dest: "{{ app_deploy_path }}/.env"
     mode: '0600'
-    backup: yes
+    backup: true
   tags: [app, config]
 
 - name: Pull application image from GHCR
   community.docker.docker_image_pull:
     name: "{{ app_image }}"
-  register: image_pull_result
+  register: app_image_pull_result
   tags: [app, deploy]
 
 - name: Stop existing containers (if any)
@@ -30,7 +30,7 @@
     project_src: "{{ app_deploy_path }}"
     files: docker-compose.yml
     state: stopped
-  ignore_errors: yes
+  failed_when: false
   tags: [app, deploy]
 
 - name: Start application services
@@ -40,23 +40,22 @@
     state: present
     recreate: always
     pull: always
-  register: compose_result
+  register: app_compose_result
   tags: [app, deploy]
 
 - name: Wait for PostgreSQL to be healthy
-  shell: |
-    docker inspect memocards-postgres-prod | grep -q '"Status": "healthy"' || \
-    docker inspect memocards-postgres-prod | grep -q '"State":{"Status":"running"}' || \
-    echo "waiting..."
-  register: postgres_health
+  ansible.builtin.shell: |
+    STATUS=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-postgres-prod 2>/dev/null || echo "not_found")
+    [ "$STATUS" = "healthy" ]
+  register: app_postgres_health
   retries: 30
   delay: 2
-  until: postgres_health.rc == 0
+  until: app_postgres_health.rc == 0
   changed_when: false
   tags: [app, health]
 
 - name: Wait for application to be ready
-  uri:
+  ansible.builtin.uri:
     url: "http://localhost:{{ app_port }}/actuator/health"
     method: GET
     status_code: 200
@@ -67,7 +66,7 @@
   tags: [app, health]
 
 - name: Create backup script
-  template:
+  ansible.builtin.template:
     src: backup.sh.j2
     dest: /usr/local/bin/memocards-backup.sh
     mode: '0755'
@@ -75,7 +74,7 @@
   tags: [app, backup]
 
 - name: Create backup cron job
-  cron:
+  ansible.builtin.cron:
     name: "Memocards database backup"
     minute: "0"
     hour: "2"
@@ -85,7 +84,7 @@
   tags: [app, backup]
 
 - name: Create monitoring script
-  template:
+  ansible.builtin.template:
     src: monitor.sh.j2
     dest: /usr/local/bin/memocards-monitor.sh
     mode: '0755'
@@ -93,7 +92,7 @@
   tags: [app, monitoring]
 
 - name: Create monitoring cron job
-  cron:
+  ansible.builtin.cron:
     name: "Memocards health monitoring"
     minute: "*/5"
     job: "/usr/local/bin/memocards-monitor.sh"
@@ -102,34 +101,33 @@
   tags: [app, monitoring]
 
 - name: Get container status
-  command: docker compose -f {{ app_deploy_path }}/docker-compose.yml ps
-  register: container_status
+  ansible.builtin.command: docker compose -f {{ app_deploy_path }}/docker-compose.yml ps
+  register: app_container_status
   changed_when: false
   tags: [app, verify]
 
 - name: Display application deployment status
-  debug:
+  ansible.builtin.debug:
     msg: |
       ✅ Application role completed:
-      
+
       📦 Deployment:
       - Application image: {{ app_image }}
       - Health check: {{ 'PASSED ✅' if app_health_check.status == 200 else 'FAILED ❌' }}
       - Database: PostgreSQL (containerized)
       - Deploy path: {{ app_deploy_path }}
-      
+
       🔧 Management:
       - Backup: {{ 'Configured (daily at 2:00 AM)' if backup_enabled | default(true) | bool else 'Disabled' }}
       - Monitoring: {{ 'Configured (every 5 minutes)' if monitoring_enabled | default(true) | bool else 'Disabled' }}
       - Logs: {{ app_deploy_path }}/logs
-      
+
       🌐 Access:
       - URL: https://{{ domain }}
       - Health: http://{{ domain }}/actuator/health
-      
+
       📋 Useful commands:
       - View logs: docker logs -f memocards-app-prod
       - Restart app: docker compose -f {{ app_deploy_path }}/docker-compose.yml restart app
       - Check status: docker compose -f {{ app_deploy_path }}/docker-compose.yml ps
   tags: [app]
-

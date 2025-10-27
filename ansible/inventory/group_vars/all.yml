@@ -78,4 +78,3 @@ backup_retention_days: 7
 # =============================================================================
 monitoring_enabled: true
 monitoring_schedule: "*/5 * * * *"  # Каждые 5 минут
-

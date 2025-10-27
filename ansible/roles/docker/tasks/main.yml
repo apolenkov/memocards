@@ -5,7 +5,7 @@
 # =============================================================================
 
 - name: Remove old Docker versions if present
-  apt:
+  ansible.builtin.apt:
     name:
       - docker
       - docker-engine
@@ -16,7 +16,7 @@
   tags: [docker, install]
 
 - name: Install Docker dependencies
-  apt:
+  ansible.builtin.apt:
     name:
       - apt-transport-https
       - ca-certificates
@@ -24,45 +24,47 @@
       - gnupg
       - lsb-release
     state: present
-    update_cache: yes
+    update_cache: true
   tags: [docker, install]
 
 - name: Create directory for Docker GPG key
-  file:
+  ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
     mode: '0755'
   tags: [docker, install]
 
 - name: Add Docker GPG key
-  apt_key:
+  ansible.builtin.apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     keyring: /etc/apt/keyrings/docker.gpg
     state: present
   tags: [docker, install]
 
 - name: Get system architecture
-  command: dpkg --print-architecture
-  register: system_arch
+  ansible.builtin.command: dpkg --print-architecture
+  register: docker_system_arch
   changed_when: false
   tags: [docker, install]
 
 - name: Get Ubuntu codename
-  command: lsb_release -cs
-  register: ubuntu_codename
+  ansible.builtin.command: lsb_release -cs
+  register: docker_ubuntu_codename
   changed_when: false
   tags: [docker, install]
 
 - name: Add Docker repository
-  apt_repository:
-    repo: "deb [arch={{ system_arch.stdout }} signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu {{ ubuntu_codename.stdout }} stable"
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [arch={{ docker_system_arch.stdout }} signed-by=/etc/apt/keyrings/docker.gpg]
+      https://download.docker.com/linux/ubuntu {{ docker_ubuntu_codename.stdout }} stable
     state: present
     filename: docker
-    update_cache: yes
+    update_cache: true
   tags: [docker, install]
 
 - name: Install Docker Engine and plugins
-  apt:
+  ansible.builtin.apt:
     name:
       - docker-ce
       - docker-ce-cli
@@ -73,7 +75,7 @@
   tags: [docker, install]
 
 - name: Configure Docker daemon
-  copy:
+  ansible.builtin.copy:
     content: |
       {
         "log-driver": "json-file",
@@ -94,41 +96,41 @@
       }
     dest: /etc/docker/daemon.json
     mode: '0644'
-  notify: restart docker
+  notify: Restart docker
   tags: [docker, config]
 
 - name: Start and enable Docker service
-  systemd:
+  ansible.builtin.systemd:
     name: docker
     state: started
-    enabled: yes
+    enabled: true
   tags: [docker, service]
 
 - name: Add user to docker group
-  user:
+  ansible.builtin.user:
     name: "{{ ansible_user }}"
     groups: docker
-    append: yes
+    append: true
   tags: [docker, config]
 
 - name: Wait for Docker to be ready
-  command: docker info
-  register: docker_info
+  ansible.builtin.command: docker info
+  register: docker_docker_info
   retries: 5
   delay: 3
-  until: docker_info.rc == 0
+  until: docker_docker_info.rc == 0
   changed_when: false
   tags: [docker, service]
 
 - name: Install pip
-  apt:
+  ansible.builtin.apt:
     name:
       - python3-pip
     state: present
   tags: [docker, ghcr]
 
 - name: Install Python dependencies for Docker module
-  pip:
+  ansible.builtin.pip:
     name:
       - requests
       - docker
@@ -140,24 +142,24 @@
     registry: ghcr.io
     username: "{{ github_actor }}"
     password: "{{ vault_github_token }}"
-    reauthorize: yes
+    reauthorize: true
   when: vault_github_token is defined and vault_github_token != ""
   tags: [docker, ghcr]
 
 - name: Verify Docker installation
-  command: docker --version
+  ansible.builtin.command: docker --version
   register: docker_version_output
   changed_when: false
   tags: [docker, verify]
 
 - name: Verify Docker Compose installation
-  command: docker compose version
+  ansible.builtin.command: docker compose version
   register: docker_compose_version_output
   changed_when: false
   tags: [docker, verify]
 
 - name: Display Docker role completion
-  debug:
+  ansible.builtin.debug:
     msg: |
       ✅ Docker role completed:
       - Docker Engine: {{ docker_version_output.stdout }}
@@ -166,4 +168,3 @@
       - User {{ ansible_user }} added to docker group
       - GHCR login: {{ 'configured' if (vault_github_token is defined and vault_github_token != '') else 'skipped (no token)' }}
   tags: [docker]
-

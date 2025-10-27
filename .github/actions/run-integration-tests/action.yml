@@ -11,10 +11,6 @@ inputs:
     description: "Enable TestContainers reuse"
     required: false
     default: "true"
-  retention-days:
-    description: "Number of days to retain artifacts"
-    required: false
-    default: "90"
 
 runs:
   using: composite
@@ -34,4 +30,4 @@ runs:
         path: |
           build/test-results/integrationTest/
           build/reports/tests/integrationTest/
-        retention-days: ${{ inputs.retention-days }}
+        retention-days: 7  # Integration test results - short retention
