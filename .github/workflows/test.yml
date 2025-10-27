@@ -31,38 +31,10 @@ jobs:
       - name: Setup Gradle environment
         uses: ./.github/actions/setup-gradle
 
-      - name: Cache npm dependencies
-        uses: actions/cache@v4
+      - name: Run code quality checks
+        uses: ./.github/actions/code-quality
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-
-      - name: Run Spotless check
-        env:
-          GRADLE_OPTS: ${{ inputs.gradle-opts }}
-        run: ./gradlew spotlessCheck
-
-      - name: Run Checkstyle
-        env:
-          GRADLE_OPTS: ${{ inputs.gradle-opts }}
-        run: ./gradlew checkstyleMain checkstyleTest
-
-      - name: Run SpotBugs
-        env:
-          GRADLE_OPTS: ${{ inputs.gradle-opts }}
-        run: ./gradlew spotbugsMain spotbugsTest
-
-      - name: Run SonarLint
-        env:
-          GRADLE_OPTS: ${{ inputs.gradle-opts }}
-        run: ./gradlew sonarlintMain sonarlintTest
-
-      - name: Run CSS linting
-        env:
-          GRADLE_OPTS: ${{ inputs.gradle-opts }}
-        run: ./gradlew lintCss
+          gradle-opts: ${{ inputs.gradle-opts }}
 
   unit-tests:
     name: Unit Tests

@@ -58,6 +58,7 @@ jobs:
   create-release:
     name: Create Release with Auto Versioning
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     
     steps:
       - name: Checkout code
