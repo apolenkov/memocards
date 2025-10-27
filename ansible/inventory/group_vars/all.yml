@@ -6,9 +6,9 @@
 
 # =============================================================================
 # VPS CONFIGURATION
+# Note: VPS IP and user are defined in inventory/hosts.yml via ansible_host and ansible_user
+# Access via: {{ hostvars[inventory_hostname]['ansible_host'] }} or {{ ansible_user }}
 # =============================================================================
-vps_ip: "185.239.48.55"
-vps_user: "root"
 vps_timezone: "Europe/Moscow"
 vps_locale: "en_US.UTF-8"
 
@@ -62,20 +62,12 @@ postgres_effective_cache_size: "512MB"
 # FIREWALL CONFIGURATION
 # =============================================================================
 firewall_allowed_ports:
-  - "22"   # SSH
-  - "80"   # HTTP
-  - "443"  # HTTPS
+  - "22" # SSH
+  - "80" # HTTP
+  - "443" # HTTPS
 
 # =============================================================================
-# BACKUP CONFIGURATION
+# MANAGEMENT CONFIGURATION
 # =============================================================================
-backup_enabled: true
-backup_schedule: "0 2 * * *"  # Ежедневно в 2:00
-backup_retention_days: 7
-
-# =============================================================================
-# MONITORING CONFIGURATION
-# =============================================================================
-monitoring_enabled: true
-monitoring_schedule: "*/5 * * * *"  # Каждые 5 минут
-
+# Backup and monitoring removed for MVP
+# Using Docker restart policy instead of cron monitoring

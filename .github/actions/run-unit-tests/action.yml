@@ -7,10 +7,6 @@ inputs:
     description: "Gradle JVM options"
     required: false
     default: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
-  retention-days:
-    description: "Number of days to retain artifacts"
-    required: false
-    default: "90"
 
 runs:
   using: composite
@@ -22,19 +18,19 @@ runs:
       run: ./gradlew test -x integrationTest
 
     - name: Upload test results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: always()
       with:
         name: unit-test-results
         path: |
           build/test-results/test/
           build/reports/tests/test/
-        retention-days: ${{ inputs.retention-days }}
+        retention-days: 7  # Short retention (reviewed quickly)
 
     - name: Upload coverage report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: always()
       with:
         name: unit-test-coverage
         path: build/reports/jacoco/test/html/
-        retention-days: ${{ inputs.retention-days }}
+        retention-days: 30  # Medium retention (trend analysis)

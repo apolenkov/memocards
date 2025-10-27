@@ -40,9 +40,6 @@ env:
   APP_DOMAIN: ${{ vars.APP_DOMAIN }}
   APP_PORT: "8080"
 
-  # Artifact retention (days)
-  ARTIFACT_RETENTION_DAYS: 90
-
 jobs:
   validate-config:
     name: Validate Configuration
@@ -87,6 +84,7 @@ jobs:
     name: Ansible Quality Checks
     needs: validate-config
     uses: ./.github/workflows/ansible-lint.yml
+    secrets: inherit
 
   wait-for-image:
     needs: ansible-lint
@@ -104,14 +102,26 @@ jobs:
       - name: Determine image tag
         id: get_tag
         run: |
-          # Use manual tag if provided, otherwise git SHA (same as main.yml)
           if [ -n "${{ inputs.image_tag }}" ]; then
             TAG="${{ inputs.image_tag }}"
-            echo "📋 Using manual tag: $TAG"
+            
+            # Normalize: strip 'v' prefix if present (Jib creates tags without 'v')
+            # Example: v1.0.0 → 1.0.0
+            TAG="${TAG#v}"
+            
+            echo "📋 Using manual tag: $TAG (normalized from ${{ inputs.image_tag }})"
           else
             TAG="${GITHUB_SHA:0:7}"
             echo "📋 Using git SHA tag: $TAG"
           fi
+          
+          # Validate tag format
+          if [[ ! "$TAG" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+            echo "❌ ERROR: Invalid tag format: '$TAG'"
+            echo "Expected: alphanumeric with dots, dashes, underscores"
+            exit 1
+          fi
+          
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "full_image=ghcr.io/${{ github.repository_owner }}/memocards:$TAG" >> $GITHUB_OUTPUT
 
@@ -122,24 +132,28 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Wait for Docker image to be available
+      - name: Wait for Docker image
         run: |
           IMAGE="ghcr.io/${{ github.repository_owner }}/memocards:${{ steps.get_tag.outputs.tag }}"
+          MAX_ATTEMPTS=50  # 50 attempts * 30s = 25 minutes
+          
           echo "⏳ Waiting for image: $IMAGE"
-          echo "This image should be built by main.yml workflow..."
-
-          # Wait up to 25 minutes (50 attempts * 30 seconds)
-          for i in {1..50}; do
+          
+          for i in $(seq 1 $MAX_ATTEMPTS); do
             if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
-              echo "✅ Image found! Ready to deploy."
+              echo "✅ Image found after $((i * 30))s (attempt $i/$MAX_ATTEMPTS)"
+              echo "📦 Ready to deploy: $IMAGE"
               exit 0
             fi
-            echo "⏳ Attempt $i/50: Image not ready yet, waiting 30 seconds..."
-            sleep 30
+            
+            if [ $i -lt $MAX_ATTEMPTS ]; then
+              echo "⏳ Attempt $i/$MAX_ATTEMPTS: Image not ready yet, waiting 30s..."
+              sleep 30
+            fi
           done
-
-          echo "❌ ERROR: Image not found after 25 minutes!"
-          echo "Please check if main.yml workflow completed successfully."
+          
+          echo "❌ Timeout after $((MAX_ATTEMPTS * 30))s!"
+          echo "   Check main.yml workflow: https://github.com/${{ github.repository }}/actions/workflows/main.yml"
           exit 1
 
   deploy:
@@ -176,7 +190,19 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install ansible
-          ansible-galaxy collection install community.docker
+
+      - name: Cache Ansible collections
+        uses: actions/cache@v4
+        with:
+          path: ~/.ansible/collections
+          key: ${{ runner.os }}-ansible-collections-${{ hashFiles('ansible/requirements.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-ansible-collections-
+
+      - name: Install Ansible collections
+        run: |
+          cd ansible
+          ansible-galaxy collection install -r requirements.yml
 
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.1

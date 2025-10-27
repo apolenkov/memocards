@@ -15,65 +15,59 @@ env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
   TESTCONTAINERS_REUSE_ENABLE: "true"
 
-  # Artifact retention (days) - shorter for PRs
-  ARTIFACT_RETENTION_DAYS: 7
-
 jobs:
-  code-quality:
-    name: Code Quality Checks
+  dependency-review:
+    name: Dependency Security Scan
     runs-on: ubuntu-latest
-    timeout-minutes: 10 # Linters and static analysis
-
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-
-      - name: Setup Gradle environment
-        uses: ./.github/actions/setup-gradle
-
-      - name: Run code quality checks
-        uses: ./.github/actions/code-quality
+      
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
         with:
-          gradle-opts: ${{ env.GRADLE_OPTS }}
+          fail-on-severity: high
 
-  unit-tests:
-    name: Unit Tests
+  test:
+    name: Run Test Suite
+    uses: ./.github/workflows/test.yml
+    with:
+      gradle-opts: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
+      testcontainers-reuse: "true"
+
+  # Check if Ansible files were changed in this PR
+  check-ansible-changes:
+    name: Check Ansible Changes
     runs-on: ubuntu-latest
-    timeout-minutes: 8 # Unit test execution
-
+    outputs:
+      ansible_changed: ${{ steps.check.outputs.changed }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-
-      - name: Setup Gradle environment
-        uses: ./.github/actions/setup-gradle
-
-      - name: Run unit tests
-        uses: ./.github/actions/run-unit-tests
         with:
-          gradle-opts: ${{ env.GRADLE_OPTS }}
-          retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+          fetch-depth: 0
 
-  integration-tests:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 12 # TestContainers + integration tests
+      - name: Check if Ansible files modified
+        id: check
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          
+          if echo "$CHANGED_FILES" | grep -q "^ansible/"; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "✅ Ansible files were modified - will run quality checks"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "⏭️  No Ansible files changed - skipping validation"
+          fi
 
-    services:
-      docker:
-        image: docker:dind
-        options: --privileged
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Gradle environment
-        uses: ./.github/actions/setup-gradle
-
-      - name: Run integration tests
-        uses: ./.github/actions/run-integration-tests
-        with:
-          gradle-opts: ${{ env.GRADLE_OPTS }}
-          testcontainers-reuse: ${{ env.TESTCONTAINERS_REUSE_ENABLE }}
-          retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+  # Reuse the full ansible-lint.yml workflow (DRY principle!)
+  ansible-validation:
+    name: Ansible Quality Checks
+    needs: check-ansible-changes
+    if: needs.check-ansible-changes.outputs.ansible_changed == 'true'
+    uses: ./.github/workflows/ansible-lint.yml
+    secrets: inherit

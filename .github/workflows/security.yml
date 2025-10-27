@@ -15,9 +15,6 @@ env:
   # Build Configuration
   GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
 
-  # Artifact retention (days)
-  ARTIFACT_RETENTION_DAYS: 30
-
 jobs:
   dependency-check:
     name: OWASP Dependency Check
@@ -43,7 +40,7 @@ jobs:
           name: dependency-check-report
           path: |
             build/reports/dependency-check/
-          retention-days: ${{ fromJSON(env.ARTIFACT_RETENTION_DAYS) }}
+          retention-days: 90  # Long retention (audit trail)
 
   vulnerability-summary:
     name: Generate Vulnerability Summary
@@ -87,4 +84,4 @@ jobs:
         with:
           name: security-audit-summary
           path: security-summary.md
-          retention-days: ${{ fromJSON(env.ARTIFACT_RETENTION_DAYS) }}
+          retention-days: 90  # Long retention (audit trail)

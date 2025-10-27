@@ -10,8 +10,8 @@ APP_PORT := 8080
 # =============================================================================
 .PHONY: help start stop restart logs clean build test format check \
         code-quality coverage deps npm-install vaadin-prepare dev-setup \
-        lint-css spotless-check sonarlint spotbugs checkstyle \
-        vaadin-build-frontend erase docker docker-stop \
+        lint-css lint-yaml spotless-check sonarlint spotbugs checkstyle \
+        vaadin-build-frontend vaadin-clean erase docker docker-stop \
         docker-logs docker-status jib jib-push
 
 # =============================================================================
@@ -86,7 +86,13 @@ lint-css: ## Run CSS linter (stylelint via Gradle)
 lint-css-fix: ## Run CSS linter with auto-fix
 	$(GRADLE) lintCssFix
 
-code-quality-full: ## Run all code quality checks including CSS linting
+lint-yaml: ## Run YAML linter for Ansible files
+	$(GRADLE) lintYaml
+
+lint-yaml-fix: ## Run YAML linter with auto-fix (prettier + yamllint)
+	$(GRADLE) lintYamlFix
+
+code-quality-full: ## Run all code quality checks including CSS and YAML linting
 	$(GRADLE) codeQualityFull
 
 # =============================================================================
@@ -134,6 +140,9 @@ vaadin-build-frontend: ## Build Vaadin frontend bundle (dev mode)
 vaadin-build-prod: ## Build Vaadin frontend bundle for production
 	@echo "Building Vaadin frontend for production..."
 	$(GRADLE) clean vaadinBuildFrontend -Pvaadin.productionMode=true
+
+vaadin-clean: ## Clean Vaadin generated files
+	$(GRADLE) vaadinClean
 
 # =============================================================================
 # CODE ANALYSIS - Individual Tools

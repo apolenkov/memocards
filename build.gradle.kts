@@ -35,8 +35,12 @@ plugins {
 }
 
 group = "org.apolenkov.application"
-version = "0.1"
-description = "Memocards application" // Rename to memocards
+// version is automatically managed by JGitver plugin from Git tags (see line 228)
+// For tagged commits: version = "1.0.0"
+// For non-tagged commits: version = "1.0.0-5-g8a9b2c1-SNAPSHOT"
+// For feature branches: version = "1.0.0-5-g8a9b2c1-feature-xyz-SNAPSHOT"
+// To check current version: ./gradlew properties | grep "version:"
+description = "Memocards application"
 
 idea {
     project {
@@ -60,7 +64,7 @@ repositories {
 }
 
 node {
-    version.set("20.18.0")
+    version.set("20.19.0")
     download.set(true)
 }
 
@@ -130,6 +134,7 @@ configurations.all {
         // Existing force declarations
         force("commons-io:commons-io:2.20.0")
         force("org.checkerframework:checker-qual:3.51.1")
+        force("org.ow2.asm:asm:9.7.1") // Vaadin 24.9.2 compatibility
 
         // Resolve reported conflicts with latest versions
         force("com.google.guava:guava:33.5.0-jre")
@@ -375,14 +380,29 @@ tasks.register<com.github.gradle.node.npm.task.NpmTask>("lintCssFix") {
     args.set(listOf("run", "lint:css:fix"))
 }
 
+tasks.register<com.github.gradle.node.npm.task.NpmTask>("lintYaml") {
+    description = "Run yamllint for Ansible YAML files"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn("npmInstall")
+    args.set(listOf("run", "lint:yaml"))
+}
+
+tasks.register<com.github.gradle.node.npm.task.NpmTask>("lintYamlFix") {
+    description = "Run prettier --write and yamllint for Ansible YAML files"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn("npmInstall")
+    args.set(listOf("run", "lint:yaml:fix"))
+}
+
 // Complete code quality check (everything)
 tasks.register("codeQualityFull") {
-    description = "Runs all code quality checks including CSS linting and i18n"
+    description = "Runs all code quality checks including CSS and YAML linting"
     group = JavaBasePlugin.VERIFICATION_GROUP
 
     dependsOn(
         "codeQuality",
         "lintCss",
+        "lintYaml",
     )
 }
 
@@ -412,7 +432,13 @@ jib {
     }
     to {
         image = "ghcr.io/${project.findProperty("GITHUB_REPOSITORY") ?: "apolenkov/memocards"}"
-        tags = setOf("latest", System.getenv("GITHUB_SHA")?.take(7) ?: "latest")
+        // Tags: latest, version (from JGitver), git SHA
+        tags =
+            setOf(
+                "latest",
+                project.version.toString(), // Automatically from JGitver (e.g., "1.0.0")
+                System.getenv("GITHUB_SHA")?.take(7) ?: "latest",
+            )
         auth {
             username = project.findProperty("GITHUB_ACTOR")?.toString() ?: "anonymous"
             password = project.findProperty("GITHUB_TOKEN")?.toString() ?: ""

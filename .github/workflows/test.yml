@@ -1,0 +1,103 @@
+---
+name: Test Suite
+
+# Reusable workflow for running all tests and quality checks
+# Used by both main.yml and pr.yml to avoid duplication
+
+on:
+  workflow_call:
+    inputs:
+      gradle-opts:
+        description: "Gradle JVM options"
+        required: false
+        default: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
+        type: string
+      testcontainers-reuse:
+        description: "Enable TestContainers reuse"
+        required: false
+        default: "true"
+        type: string
+
+jobs:
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Gradle environment
+        uses: ./.github/actions/setup-gradle
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Run Spotless check
+        env:
+          GRADLE_OPTS: ${{ inputs.gradle-opts }}
+        run: ./gradlew spotlessCheck
+
+      - name: Run Checkstyle
+        env:
+          GRADLE_OPTS: ${{ inputs.gradle-opts }}
+        run: ./gradlew checkstyleMain checkstyleTest
+
+      - name: Run SpotBugs
+        env:
+          GRADLE_OPTS: ${{ inputs.gradle-opts }}
+        run: ./gradlew spotbugsMain spotbugsTest
+
+      - name: Run SonarLint
+        env:
+          GRADLE_OPTS: ${{ inputs.gradle-opts }}
+        run: ./gradlew sonarlintMain sonarlintTest
+
+      - name: Run CSS linting
+        env:
+          GRADLE_OPTS: ${{ inputs.gradle-opts }}
+        run: ./gradlew lintCss
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Gradle environment
+        uses: ./.github/actions/setup-gradle
+
+      - name: Run unit tests
+        uses: ./.github/actions/run-unit-tests
+        with:
+          gradle-opts: ${{ inputs.gradle-opts }}
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    # Note: TestContainers works with GitHub Actions' host Docker daemon directly
+    # No need for docker:dind service - it's automatically available
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Gradle environment
+        uses: ./.github/actions/setup-gradle
+
+      - name: Run integration tests
+        uses: ./.github/actions/run-integration-tests
+        with:
+          gradle-opts: ${{ inputs.gradle-opts }}
+          testcontainers-reuse: ${{ inputs.testcontainers-reuse }}
+

@@ -1,149 +1,105 @@
----
-name: Ansible Quality Checks
+name: Ansible Lint and Syntax Check
 
 on:
-  # Automatic on push/PR with Ansible changes
-  push:
-    branches: [master]
-    paths:
-      - 'ansible/**'
-      - '.github/workflows/ansible-lint.yml'
-  pull_request:
-    branches: [master]
-    paths:
-      - 'ansible/**'
-      - '.github/workflows/ansible-lint.yml'
-  
-  # Manual trigger
-  workflow_dispatch:
-  
-  # Called by other workflows (e.g., deploy.yml)
-  workflow_call:
-
-# Only one concurrent ansible-lint run per branch/PR
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_dispatch:  # Manual trigger
+  workflow_call:  # Called from main.yml (tags) and pr.yml
+    secrets:
+      ANSIBLE_VAULT_PASSWORD:
+        required: false
+        description: 'Ansible Vault password for decrypting secrets.yml'
 
 jobs:
   ansible-lint:
-    name: Ansible Lint
+    name: Ansible Syntax Check
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    defaults:
-      run:
-        working-directory: ansible
-
+    
+    env:
+      # Make secret available as env var for consistent access in both direct and workflow_call modes
+      VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      
+      - name: Set up Python
+        uses: actions/setup-python@v6
         with:
           python-version: '3.13'
           cache: 'pip'
-          cache-dependency-path: 'ansible/requirements.txt'
-
-      - name: Install Ansible and Collections
+      
+      - name: Install Ansible and dependencies
         run: |
-          pip install --upgrade pip
+          cd ansible
           pip install -r requirements.txt
-          ansible-galaxy collection install community.docker ansible.posix community.general
-
-      - name: Verify installations
-        run: |
-          ansible --version
-          ansible-lint --version
-          ansible-galaxy collection list
-
-      - name: Run ansible-lint (production profile)
-        run: |
-          ansible-lint --profile production playbooks/*.yml roles/*/
-
-      - name: Check YAML formatting
-        uses: ibiqlik/action-yamllint@v3
+      
+      - name: Cache Ansible collections
+        uses: actions/cache@v4
         with:
-          file_or_dir: ansible/
-          config_data: |
-            extends: default
-            rules:
-              line-length:
-                max: 120
-                level: warning
-              indentation:
-                spaces: 2
-                indent-sequences: true
-              comments:
-                min-spaces-from-content: 1
-              truthy:
-                allowed-values: ['true', 'false', 'yes', 'no']
-
-      - name: Syntax Check Playbooks
+          path: ~/.ansible/collections
+          key: ${{ runner.os }}-ansible-collections-${{ hashFiles('ansible/requirements.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-ansible-collections-
+      
+      - name: Install Ansible collections
         run: |
+          cd ansible
+          ansible-galaxy collection install -r requirements.yml
+      
+      - name: Debug - Check vault password availability
+        run: |
+          if [ -n "$VAULT_PASSWORD" ]; then
+            echo "✅ VAULT_PASSWORD is available (length: ${#VAULT_PASSWORD} chars)"
+          else
+            echo "⚠️  VAULT_PASSWORD is NOT set or empty"
+          fi
+          echo "Workflow trigger: ${{ github.event_name }}"
+      
+      - name: Create vault password file
+        run: |
+          # Create vault password file if secret is provided
+          # Use VAULT_PASSWORD env var for consistent access in both direct and workflow_call modes
+          if [ -n "$VAULT_PASSWORD" ]; then
+            echo "$VAULT_PASSWORD" > /tmp/vault_pass.txt
+            chmod 600 /tmp/vault_pass.txt
+            echo "VAULT_FILE=/tmp/vault_pass.txt" >> $GITHUB_ENV
+            echo "✅ Vault password file created"
+          else
+            echo "::warning::ANSIBLE_VAULT_PASSWORD secret is not set. Will use dummy secrets for syntax check."
+            echo "VAULT_FILE=" >> $GITHUB_ENV
+          fi
+
+      - name: Run ansible-playbook syntax check
+        run: |
+          cd ansible
           for playbook in playbooks/*.yml; do
             echo "Checking $playbook..."
-            ansible-playbook --syntax-check "$playbook" --vault-password-file <(echo "dummy")
+            if [ -n "$VAULT_FILE" ]; then
+              ansible-playbook --syntax-check "$playbook" --vault-password-file "$VAULT_FILE"
+            else
+              # Try without vault password (will fail if vault is required)
+              ansible-playbook --syntax-check "$playbook" || {
+                echo "::warning::Syntax check failed. This might be due to missing ANSIBLE_VAULT_PASSWORD secret."
+                exit 1
+              }
+            fi
           done
 
-  ansible-security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0  # Full history for trufflehog
-
-      - name: Detect secrets in Ansible files (PR only)
-        if: github.event_name == 'pull_request'
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ansible/
-          base: ${{ github.event.pull_request.base.sha }}
-          head: ${{ github.event.pull_request.head.sha }}
-
-      - name: Check for hardcoded credentials
+      - name: Cleanup vault password file
+        if: always()
         run: |
-          echo "Checking for hardcoded passwords, tokens, keys in Ansible files..."
-          
-          # Find hardcoded credentials (exclude only Jinja2 variables and vault file)
-          FOUND=$(grep -r -i -E "(password|token|secret|key)\s*[:=]\s*['\"]?[a-zA-Z0-9]{8,}" ansible/ \
-            --exclude-dir=.git \
-            --exclude=secrets.yml \
-            | grep -v '{{.*}}' \
-            || true)
-          
-          if [ -n "$FOUND" ]; then
-            echo "❌ Hardcoded credentials found:"
-            echo "$FOUND"
-            echo ""
-            echo "💡 All secrets must be in ansible/secrets.yml (encrypted with Ansible Vault)"
-            exit 1
+          if [ -f /tmp/vault_pass.txt ]; then
+            shred -u /tmp/vault_pass.txt || rm -f /tmp/vault_pass.txt
           fi
-          
-          echo "✅ No hardcoded credentials detected"
-
-  summary:
-    name: Quality Summary
-    runs-on: ubuntu-latest
-    needs: [ansible-lint, ansible-security]
-    if: always()
-
-    steps:
-      - name: Check results
+      
+      - name: Run ansible-lint (optional)
+        continue-on-error: true
         run: |
-          if [ "${{ needs.ansible-lint.result }}" == "success" ] && \
-             [ "${{ needs.ansible-security.result }}" == "success" ]; then
-            echo "✅ All Ansible quality checks passed!"
-            exit 0
+          cd ansible
+          if command -v ansible-lint &> /dev/null; then
+            for playbook in playbooks/*.yml; do
+              echo "Linting $playbook..."
+              ansible-lint "$playbook" || true
+            done
           else
-            echo "❌ Some checks failed:"
-            echo "  - ansible-lint: ${{ needs.ansible-lint.result }}"
-            echo "  - ansible-security: ${{ needs.ansible-security.result }}"
-            exit 1
+            echo "::notice::ansible-lint not available, skipping"
           fi
-

@@ -24,79 +24,29 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
-  # Artifact retention (days)
-  ARTIFACT_RETENTION_DAYS: 90
-
 jobs:
-  code-quality:
-    name: Code Quality Checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 10 # Linters and static analysis
+  test:
+    name: Run Test Suite
+    uses: ./.github/workflows/test.yml
+    with:
+      gradle-opts: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
+      testcontainers-reuse: "true"
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Gradle environment
-        uses: ./.github/actions/setup-gradle
-
-      - name: Run code quality checks
-        uses: ./.github/actions/code-quality
-        with:
-          gradle-opts: ${{ env.GRADLE_OPTS }}
-
-  unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 8 # Unit test execution
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Gradle environment
-        uses: ./.github/actions/setup-gradle
-
-      - name: Run unit tests
-        uses: ./.github/actions/run-unit-tests
-        with:
-          gradle-opts: ${{ env.GRADLE_OPTS }}
-          retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
-
-  integration-tests:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 12 # TestContainers + integration tests
-
-    services:
-      docker:
-        image: docker:dind
-        options: --privileged
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Gradle environment
-        uses: ./.github/actions/setup-gradle
-
-      - name: Run integration tests
-        uses: ./.github/actions/run-integration-tests
-        with:
-          gradle-opts: ${{ env.GRADLE_OPTS }}
-          testcontainers-reuse: ${{ env.TESTCONTAINERS_REUSE_ENABLE }}
-          retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+  ansible-validation:
+    name: Ansible Quality Checks
+    uses: ./.github/workflows/ansible-lint.yml
+    secrets: inherit
 
   docker-build:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     timeout-minutes: 15 # Jib build and push to registry
-    needs: [code-quality, unit-tests, integration-tests]
+    needs: [test, ansible-validation]
     permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
+      contents: read       # Required: checkout code
+      packages: write      # Required: push to GHCR
+      attestations: write  # Required: generate SLSA provenance
+                           # Note: id-token NOT needed when using GITHUB_TOKEN (not OIDC provider)
 
     steps:
       - name: Checkout code
@@ -105,13 +55,13 @@ jobs:
       - name: Setup Gradle environment
         uses: ./.github/actions/setup-gradle
 
-      - name: Cache node_modules
+      - name: Cache npm dependencies
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-npm-
 
       - name: Log in to Container Registry
         uses: docker/login-action@v3
@@ -122,7 +72,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v5.8
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -130,12 +80,29 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Extract version from build.gradle.kts
+      - name: Get project version from JGitver
         id: version
         run: |
-          VERSION=$(grep -m 1 'version = ' build.gradle.kts | cut -d '"' -f 2)
+          # JGitver automatically computes version from Git tags
+          # Use --console=plain to avoid ANSI codes and warnings
+          VERSION=$(./gradlew properties -q --console=plain | grep "^version:" | head -n 1 | awk '{print $2}')
+          
+          # Validate version format (semantic versioning)
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
+            echo "❌ ERROR: Invalid version format: '$VERSION'"
+            echo ""
+            echo "Expected semantic version like:"
+            echo "  - 1.0.0"
+            echo "  - 1.0.0-SNAPSHOT"
+            echo "  - 1.0.0-5-g8a9b2c1-SNAPSHOT"
+            echo ""
+            echo "Debug: Full gradle output:"
+            ./gradlew properties -q --console=plain | grep "version"
+            exit 1
+          fi
+          
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "📦 Project Version: $VERSION"
+          echo "✅ Project Version: $VERSION (validated)"
           echo "🏷️  Git SHA: ${{ github.sha }}"
 
       - name: Build and push Docker image with Jib
@@ -151,10 +118,10 @@ jobs:
 
           echo "✅ Image pushed successfully!"
           echo "📦 Repository: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          echo "🏷️  Tags:"
-          echo "   - latest"
-          echo "   - ${{ steps.version.outputs.version }}"
-          echo "   - ${GITHUB_SHA:0:7}"
+          echo "🏷️  Tags (automatically from Jib config):"
+          echo "   - latest (always)"
+          echo "   - ${{ steps.version.outputs.version }} (from JGitver)"
+          echo "   - ${GITHUB_SHA:0:7} (git commit)"
 
       - name: Extract image digest
         id: digest
@@ -183,7 +150,7 @@ jobs:
             build/jib-image.digest
             build/jib-image.id
             build/jib-image.json
-          retention-days: 90
+          retention-days: 90  # Long retention (release artifacts)
 
       - name: Create deployment summary
         run: |
@@ -192,9 +159,9 @@ jobs:
           echo "**Repository:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Available Tags:**" >> $GITHUB_STEP_SUMMARY
-          echo "- \`latest\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${GITHUB_SHA:0:7}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`latest\` (always)" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ steps.version.outputs.version }}\` (from JGitver)" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${GITHUB_SHA:0:7}\` (git commit)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Security:**" >> $GITHUB_STEP_SUMMARY
           if [ "${{ github.event.repository.visibility }}" == "public" ]; then
