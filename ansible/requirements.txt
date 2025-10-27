@@ -1,0 +1,6 @@
+# Ansible dependencies for CI/CD
+# Used by .github/workflows/ansible-lint.yml
+
+ansible-core>=2.15.0
+ansible-lint>=6.20.0
+
