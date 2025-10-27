@@ -35,8 +35,12 @@ plugins {
 }
 
 group = "org.apolenkov.application"
-version = "0.1.1"
-description = "Memocards application" // Rename to memocards
+// version is automatically managed by JGitver plugin from Git tags (see line 228)
+// For tagged commits: version = "1.0.0"
+// For non-tagged commits: version = "1.0.0-5-g8a9b2c1-SNAPSHOT"
+// For feature branches: version = "1.0.0-5-g8a9b2c1-feature-xyz-SNAPSHOT"
+// To check current version: ./gradlew properties | grep "version:"
+description = "Memocards application"
 
 idea {
     project {
@@ -412,7 +416,13 @@ jib {
     }
     to {
         image = "ghcr.io/${project.findProperty("GITHUB_REPOSITORY") ?: "apolenkov/memocards"}"
-        tags = setOf("latest", System.getenv("GITHUB_SHA")?.take(7) ?: "latest")
+        // Tags: latest, version (from JGitver), git SHA
+        tags =
+            setOf(
+                "latest",
+                project.version.toString(), // Automatically from JGitver (e.g., "1.0.0")
+                System.getenv("GITHUB_SHA")?.take(7) ?: "latest",
+            )
         auth {
             username = project.findProperty("GITHUB_ACTOR")?.toString() ?: "anonymous"
             password = project.findProperty("GITHUB_TOKEN")?.toString() ?: ""

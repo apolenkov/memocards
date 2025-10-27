@@ -5,50 +5,50 @@
 # =============================================================================
 
 - name: Install Nginx
-  apt:
+  ansible.builtin.apt:
     name: nginx
     state: present
-    update_cache: yes
+    update_cache: true
   tags: [nginx, install]
 
 - name: Start and enable Nginx service
-  systemd:
+  ansible.builtin.systemd:
     name: nginx
     state: started
-    enabled: yes
+    enabled: true
   tags: [nginx, service]
 
 - name: Remove default Nginx site
-  file:
+  ansible.builtin.file:
     path: /etc/nginx/sites-enabled/default
     state: absent
-  notify: restart nginx
+  notify: Restart nginx
   tags: [nginx, config]
 
 - name: Create Nginx configuration for Memocards
-  template:
+  ansible.builtin.template:
     src: memocards.conf.j2
     dest: /etc/nginx/sites-available/memocards.conf
     mode: '0644'
-  notify: reload nginx
+  notify: Reload nginx
   tags: [nginx, config]
 
 - name: Enable Memocards Nginx site
-  file:
+  ansible.builtin.file:
     src: /etc/nginx/sites-available/memocards.conf
     dest: /etc/nginx/sites-enabled/memocards.conf
     state: link
-  notify: reload nginx
+  notify: Reload nginx
   tags: [nginx, config]
 
 - name: Test Nginx configuration
-  command: nginx -t
-  register: nginx_test
+  ansible.builtin.command: nginx -t
+  register: nginx_nginx_test
   changed_when: false
   tags: [nginx, config]
 
 - name: Install Certbot and Nginx plugin
-  apt:
+  ansible.builtin.apt:
     name:
       - certbot
       - python3-certbot-nginx
@@ -56,20 +56,20 @@
   tags: [nginx, ssl]
 
 - name: Fix urllib3 compatibility issue
-  pip:
+  ansible.builtin.pip:
     name: urllib3
     version: "<2"
     state: present
   tags: [nginx, ssl]
 
 - name: Install certbot-dns-duckdns plugin
-  pip:
+  ansible.builtin.pip:
     name: certbot-dns-duckdns
     state: present
   tags: [nginx, ssl]
 
 - name: Create DuckDNS credentials file for Certbot
-  copy:
+  ansible.builtin.copy:
     content: |
       dns_duckdns_token = {{ vault_duckdns_token }}
     dest: /root/.duckdns_credentials.ini
@@ -79,26 +79,26 @@
   tags: [nginx, ssl]
 
 - name: Create DuckDNS IP updater script
-  template:
+  ansible.builtin.template:
     src: duckdns-update.sh.j2
     dest: /usr/local/bin/duckdns-update.sh
     mode: '0755'
   tags: [nginx, duckdns]
 
 - name: Install cron if not installed
-  apt:
+  ansible.builtin.apt:
     name: cron
     state: present
   tags: [nginx, duckdns]
 
 - name: Run DuckDNS updater immediately
-  command: /usr/local/bin/duckdns-update.sh
-  register: duckdns_initial_update
+  ansible.builtin.command: /usr/local/bin/duckdns-update.sh
+  register: nginx_duckdns_initial_update
   changed_when: false
   tags: [nginx, duckdns]
 
 - name: Create DuckDNS cron job
-  cron:
+  ansible.builtin.cron:
     name: "DuckDNS IP updater"
     minute: "*/5"
     job: "/usr/local/bin/duckdns-update.sh"
@@ -106,13 +106,13 @@
   tags: [nginx, duckdns]
 
 - name: Wait for DNS propagation
-  pause:
+  ansible.builtin.pause:
     seconds: 30
     prompt: "Waiting for DuckDNS DNS propagation..."
   tags: [nginx, ssl]
 
 - name: Obtain SSL certificate with Certbot (DNS challenge)
-  command: >
+  ansible.builtin.command: >
     certbot certonly
     --non-interactive
     --agree-tos
@@ -123,57 +123,57 @@
     --domains {{ domain }}
     --expand
     --debug
-  register: certbot_result
+  register: nginx_certbot_result
   failed_when: false  # Не останавливаться при ошибке
-  changed_when: certbot_result.rc == 0
+  changed_when: nginx_certbot_result.rc == 0
   tags: [nginx, ssl]
 
 - name: Show certbot output on failure
-  debug:
-    msg: "{{ certbot_result.stdout_lines }}"
-  when: certbot_result.rc != 0
+  ansible.builtin.debug:
+    msg: "{{ nginx_certbot_result.stdout_lines }}"
+  when: nginx_certbot_result.rc != 0
   tags: [nginx, ssl]
 
 - name: Update Nginx config to use SSL
-  template:
+  ansible.builtin.template:
     src: memocards-ssl.conf.j2
     dest: /etc/nginx/sites-available/memocards.conf
     mode: '0644'
-  when: certbot_result.rc == 0
-  notify: reload nginx
+  when: nginx_certbot_result.rc == 0
+  notify: Reload nginx
   tags: [nginx, ssl]
 
 - name: Keep HTTP config if SSL failed
-  template:
+  ansible.builtin.template:
     src: memocards.conf.j2
     dest: /etc/nginx/sites-available/memocards.conf
     mode: '0644'
-  when: certbot_result.rc != 0
-  notify: reload nginx
+  when: nginx_certbot_result.rc != 0
+  notify: Reload nginx
   tags: [nginx, ssl]
 
 - name: Verify SSL certificate
-  stat:
+  ansible.builtin.stat:
     path: "/etc/letsencrypt/live/{{ domain }}/fullchain.pem"
-  register: ssl_cert
+  register: nginx_ssl_cert
   tags: [nginx, ssl]
 
 - name: Apply SSL config if certificate exists
-  template:
+  ansible.builtin.template:
     src: memocards-ssl.conf.j2
     dest: /etc/nginx/sites-available/memocards.conf
     mode: '0644'
-  when: ssl_cert.stat.exists
+  when: nginx_ssl_cert.stat.exists
   tags: [nginx, ssl]
 
 - name: Always reload Nginx after SSL tasks
-  systemd:
+  ansible.builtin.systemd:
     name: nginx
     state: reloaded
   tags: [nginx, ssl]
 
 - name: Create Certbot renewal cron job
-  cron:
+  ansible.builtin.cron:
     name: "Certbot SSL renewal"
     minute: "0"
     hour: "2"
@@ -182,15 +182,14 @@
   tags: [nginx, ssl]
 
 - name: Display Nginx role completion
-  debug:
+  ansible.builtin.debug:
     msg: |
       ✅ Nginx role completed:
       - Nginx installed and running
       - Configuration: /etc/nginx/sites-available/memocards.conf
-      - SSL Certificate: {{ 'Installed ✅' if ssl_cert.stat.exists else 'Pending (check logs)' }}
+      - SSL Certificate: {{ 'Installed ✅' if nginx_ssl_cert.stat.exists else 'Pending (check logs)' }}
       - DuckDNS updater: configured (every 5 minutes)
       - SSL auto-renewal: configured (daily at 2:00 AM)
       - Domain: {{ domain }}
-      - Access: {{ 'https://' if ssl_cert.stat.exists else 'http://' }}{{ domain }}
+      - Access: {{ 'https://' if nginx_ssl_cert.stat.exists else 'http://' }}{{ domain }}
   tags: [nginx]
-

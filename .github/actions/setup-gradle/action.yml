@@ -20,12 +20,23 @@ runs:
       with:
         java-version: ${{ inputs.java-version }}
         distribution: ${{ inputs.distribution }}
-        cache: "gradle"
+        # Note: cache is handled by gradle/actions/setup-gradle below
 
-    - name: Setup Gradle
+    - name: Setup Gradle with caching
       uses: gradle/actions/setup-gradle@v3
       with:
         cache-read-only: false
+        # Provides: dependency caching, build caching, build scan integration
+
+    - name: Cache Vaadin frontend build
+      uses: actions/cache@v4
+      with:
+        path: |
+          build/vaadin-generated
+          node_modules
+        key: ${{ runner.os }}-vaadin-${{ hashFiles('**/package-lock.json', 'frontend/**') }}
+        restore-keys: |
+          ${{ runner.os }}-vaadin-
 
     - name: Make gradlew executable
       shell: bash

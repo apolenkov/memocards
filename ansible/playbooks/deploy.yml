@@ -42,6 +42,46 @@
           🌐 Domain: {{ domain }}
       tags: [always]
 
+    - name: Validate deployment configuration
+      assert:
+        that:
+          - app_image is defined
+          - app_image != ""
+          - app_image is string
+          - "'ghcr.io' in app_image"
+          - "':' in app_image"
+          - "'latest' not in app_image or inventory_hostname != 'memocards-production'"
+        fail_msg: |
+          ❌ INVALID DEPLOYMENT CONFIGURATION!
+          
+          app_image: {{ app_image | default('UNDEFINED') }}
+          
+          Requirements:
+          - Must be defined and non-empty
+          - Must contain 'ghcr.io' registry
+          - Must have tag (format: image:tag)
+          - Must NOT use 'latest' tag in production (use specific version)
+          
+          Expected format: ghcr.io/apolenkov/memocards:1.0.0
+          
+        success_msg: "✅ Deployment configuration validated: {{ app_image }}"
+      tags: [always, deploy]
+
+    - name: Update Docker Compose configuration
+      copy:
+        src: "{{ playbook_dir }}/../../docker-compose.yml"
+        dest: "{{ app_deploy_path }}/docker-compose.yml"
+        mode: '0644'
+      tags: [deploy, config]
+
+    - name: Update production environment file
+      template:
+        src: "{{ playbook_dir }}/../roles/app/templates/env.prod.j2"
+        dest: "{{ app_deploy_path }}/.env"
+        mode: '0600'
+        backup: yes
+      tags: [deploy, config]
+
     - name: Pull latest application image
       community.docker.docker_image_pull:
         name: "{{ app_image }}"

@@ -17,6 +17,13 @@ name: Create Release
 #    - Value: ghp_xxxxx (your PAT)
 #
 # Reference: https://docs.github.com/en/actions/security-guides/automatic-token-authentication
+#
+# VERSION MANAGEMENT:
+# - Project version is automatically managed by JGitver plugin (build.gradle.kts)
+# - JGitver reads version from Git tags (e.g., v1.0.0 → version = "1.0.0")
+# - This workflow creates Git tag → JGitver reads it → version is set automatically
+# - NO manual version update in build.gradle.kts needed!
+# - See: .github/VERSION_MANAGEMENT_BEST_PRACTICES.md
 
 # Manual trigger - auto-calculates version and generates changelog
 on:
@@ -248,33 +255,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Update version in build.gradle.kts
-        run: |
-          NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
-          VERSION_NUMBER="${NEW_VERSION#v}"  # Remove 'v' prefix
-          
-          echo "📝 Updating version in build.gradle.kts to $VERSION_NUMBER"
-          
-          # Update version line in build.gradle.kts
-          sed -i "s/^version = \".*\"/version = \"$VERSION_NUMBER\"/" build.gradle.kts
-          
-          # Show the change
-          echo "Current version line:"
-          grep "^version = " build.gradle.kts
-          
-          # Commit the version bump
-          if git diff --quiet build.gradle.kts; then
-            echo "ℹ️  No version change needed (already at $VERSION_NUMBER)"
-          else
-            git add build.gradle.kts
-            git commit -m "chore: bump version to $VERSION_NUMBER"
-            git push origin master
-            echo "✅ Version bumped to $VERSION_NUMBER and pushed to master"
-            
-            # Pull to update HEAD to the new commit
-            git pull origin master
-          fi
-
       - name: Create and push tag
         run: |
           NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
@@ -306,6 +286,58 @@ jobs:
           
           echo "✅ GitHub Release created!"
           echo "   View at: https://github.com/${{ github.repository }}/releases/tag/$NEW_VERSION"
+
+      - name: Wait for Docker image to be built
+        env:
+          GH_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
+        run: |
+          NEW_VERSION="${{ steps.calculate_version.outputs.new_version }}"
+          VERSION_NO_V="${NEW_VERSION#v}"
+          
+          echo "⏳ Waiting for main.yml workflow to build Docker image..."
+          echo "📦 Expected image: ghcr.io/${{ github.repository }}:$VERSION_NO_V"
+          echo ""
+          
+          # Wait up to 15 minutes for main.yml to complete
+          for i in {1..30}; do
+            # Check if main.yml completed successfully (latest run)
+            MAIN_STATUS=$(gh run list --workflow=main.yml --limit 1 \
+              --json status,conclusion --jq '.[0] | "\(.status):\(.conclusion)"' 2>/dev/null || echo "")
+            
+            if [ -n "$MAIN_STATUS" ]; then
+              STATUS=$(echo "$MAIN_STATUS" | cut -d: -f1)
+              CONCLUSION=$(echo "$MAIN_STATUS" | cut -d: -f2)
+              
+              if [ "$STATUS" = "completed" ]; then
+                if [ "$CONCLUSION" = "success" ]; then
+                  echo ""
+                  echo "✅ main.yml completed successfully!"
+                  echo "📦 Docker image is available: ghcr.io/${{ github.repository }}:$VERSION_NO_V"
+                  echo ""
+                  echo "🚀 Deploy workflow will start automatically"
+                  exit 0
+                else
+                  echo ""
+                  echo "❌ main.yml failed with conclusion: $CONCLUSION"
+                  echo "   Docker image was NOT created!"
+                  echo "   Check: https://github.com/${{ github.repository }}/actions/workflows/main.yml"
+                  echo ""
+                  echo "⚠️  Release was created but deployment will fail"
+                  echo "   Fix the issues and manually trigger deploy.yml when ready"
+                  exit 1
+                fi
+              fi
+            fi
+            
+            echo "⏳ Attempt $i/30: main.yml is $STATUS, waiting 30s..."
+            sleep 30
+          done
+          
+          echo ""
+          echo "❌ Timeout: main.yml did not complete within 15 minutes"
+          echo "   Release was created but Docker image might not be ready"
+          echo "   Check workflow status: https://github.com/${{ github.repository }}/actions/workflows/main.yml"
+          exit 1
 
       - name: Deployment summary
         run: |
