@@ -79,13 +79,13 @@ jobs:
 
     steps:
       - name: Download dependency check report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: dependency-check-report
           path: dependency-reports/
 
       - name: Download SpotBugs report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: spotbugs-security-report
           path: spotbugs-reports/
