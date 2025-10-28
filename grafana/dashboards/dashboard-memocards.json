@@ -1,5 +1,5 @@
 {
-    "uid": "memocards-app-metrics",
+  "dashboard": {
     "title": "Memocards - Application Metrics",
     "tags": ["memocards", "spring-boot", "production"],
     "timezone": "browser",
@@ -197,5 +197,6 @@
     "refresh": "30s",
     "schemaVersion": 16,
     "version": 1
+  }
 }
 
