@@ -19,8 +19,8 @@
 
 - name: Deploy Memocards Infrastructure on VPS
   hosts: vps
-  become: yes
-  gather_facts: yes
+  become: true
+  gather_facts: true
 
   vars_files:
     - ../inventory/group_vars/all.yml
@@ -28,7 +28,7 @@
 
   pre_tasks:
     - name: Display deployment information
-      debug:
+      ansible.builtin.debug:
         msg: |
           ╔════════════════════════════════════════════════════════════╗
           ║     Memocards Infrastructure Deployment Starting...        ║
@@ -41,8 +41,8 @@
       when: ansible_facts is defined
 
     - name: Update package cache
-      apt:
-        update_cache: yes
+      ansible.builtin.apt:
+        update_cache: true
         cache_valid_time: 3600
       tags: [always]
 
@@ -61,7 +61,7 @@
 
   post_tasks:
     - name: Display deployment summary
-      debug:
+      ansible.builtin.debug:
         msg: |
           ╔════════════════════════════════════════════════════════════╗
           ║    🎉 Memocards Infrastructure Deployed Successfully!     ║
@@ -88,7 +88,7 @@
       tags: [always]
 
     - name: Save deployment timestamp
-      copy:
+      ansible.builtin.copy:
         content: |
           Deployment completed: {{ ansible_date_time.iso8601 }}
           Deployed by: {{ ansible_user_id }}@{{ ansible_hostname }}

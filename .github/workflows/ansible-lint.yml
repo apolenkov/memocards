@@ -51,23 +51,22 @@ jobs:
       - name: Create vault password file
         if: env.VAULT_PASSWORD != ''
         run: |
-          echo "$VAULT_PASSWORD" > /tmp/vault_pass.txt
-          chmod 600 /tmp/vault_pass.txt
+          cd ansible
+          echo "$VAULT_PASSWORD" > .vault_pass
+          chmod 600 .vault_pass
 
       - name: Run ansible-playbook syntax check
         run: |
           cd ansible
-          VAULT_ARG=""
-          [ -f /tmp/vault_pass.txt ] && VAULT_ARG="--vault-password-file /tmp/vault_pass.txt"
           
           EXIT_CODE=0
           for playbook in playbooks/*.yml; do
             echo "🔍 Checking $playbook..."
-            if ansible-playbook --syntax-check "$playbook" $VAULT_ARG; then
+            if ansible-playbook --syntax-check "$playbook"; then
               echo "  ✅ $playbook - OK"
             else
               echo "  ❌ $playbook - FAILED"
-              [ -z "$VAULT_ARG" ] && echo "::warning::Missing ANSIBLE_VAULT_PASSWORD secret"
+              [ ! -f .vault_pass ] && echo "::warning::Missing ANSIBLE_VAULT_PASSWORD secret"
               EXIT_CODE=1
             fi
           done
@@ -77,15 +76,7 @@ jobs:
           fi
           exit $EXIT_CODE
 
-      - name: Cleanup vault password file
-        if: always()
-        run: |
-          if [ -f /tmp/vault_pass.txt ]; then
-            shred -u /tmp/vault_pass.txt || rm -f /tmp/vault_pass.txt
-          fi
-      
-      - name: Run ansible-lint (optional)
-        continue-on-error: true
+      - name: Run ansible-lint
         run: |
           cd ansible
           if command -v ansible-lint &> /dev/null; then
@@ -96,3 +87,12 @@ jobs:
           else
             echo "::notice::ansible-lint not available, skipping"
           fi
+
+      - name: Cleanup vault password file
+        if: always()
+        run: |
+          cd ansible
+          if [ -f .vault_pass ]; then
+            shred -u .vault_pass || rm -f .vault_pass
+          fi
+      
