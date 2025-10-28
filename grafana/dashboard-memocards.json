@@ -1,0 +1,202 @@
+{
+  "dashboard": {
+    "title": "Memocards - Application Metrics",
+    "tags": ["memocards", "spring-boot", "production"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Application Overview",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "spring_application_uptime_seconds{application=\"memocards\"}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "title": "HikariCP - Active Connections",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "hikari_connections_active{pool=\"CardsHikariPool\"}",
+            "legendFormat": "Active",
+            "refId": "A"
+          },
+          {
+            "expr": "hikari_connections_idle{pool=\"CardsHikariPool\"}",
+            "legendFormat": "Idle",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "short"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "title": "HikariCP - Connection Pool Usage",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "hikari_connections{pool=\"CardsHikariPool\"} / hikari_connections_max{pool=\"CardsHikariPool\"} * 100",
+            "legendFormat": "Pool Usage %",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "percent", "max": 100, "min": 0},
+          {"format": "short"}
+        ]
+      },
+      {
+        "title": "JVM - Heap Memory",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "jvm_memory_used_bytes{area=\"heap\"}",
+            "legendFormat": "Used",
+            "refId": "A"
+          },
+          {
+            "expr": "jvm_memory_max_bytes{area=\"heap\"}",
+            "legendFormat": "Max",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "bytes"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "title": "JVM - Threads",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "jvm_threads_live_threads",
+            "legendFormat": "Live Threads",
+            "refId": "A"
+          },
+          {
+            "expr": "jvm_threads_peak_threads",
+            "legendFormat": "Peak Threads",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "title": "Cache - Hit Rate (Caffeine)",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "cache_gets_total{cache=\"users\",result=\"hit\"} / (cache_gets_total{cache=\"users\"}) * 100",
+            "legendFormat": "Users Cache Hit %",
+            "refId": "A"
+          },
+          {
+            "expr": "cache_gets_total{cache=\"usersByEmail\",result=\"hit\"} / (cache_gets_total{cache=\"usersByEmail\"}) * 100",
+            "legendFormat": "UsersByEmail Cache Hit %",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "percent", "max": 100, "min": 0},
+          {"format": "short"}
+        ]
+      },
+      {
+        "title": "Cache - Evictions",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "cache_evictions_total{cache=\"users\"}",
+            "legendFormat": "Users Cache",
+            "refId": "A"
+          },
+          {
+            "expr": "cache_evictions_total{cache=\"usersByEmail\"}",
+            "legendFormat": "UsersByEmail Cache",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "title": "HTTP - Request Rate",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32},
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_server_requests_seconds_count[5m])",
+            "legendFormat": "Requests/sec",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "title": "HTTP - Response Times (p95)",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32},
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m]))",
+            "legendFormat": "p95",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(http_server_requests_seconds_bucket[5m]))",
+            "legendFormat": "p99",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "s"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "title": "Database - Query Duration",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 40},
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "jdbc_connections_acquiring_duration_seconds_sum",
+            "legendFormat": "Connection Wait",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "s"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "title": "GC - Pause Time",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 40},
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "jvm_gc_pause_seconds_max",
+            "legendFormat": "GC Pause (max)",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "s"},
+          {"format": "short"}
+        ]
+      }
+    ],
+    "refresh": "30s",
+    "schemaVersion": 16,
+    "version": 1
+  }
+}
+

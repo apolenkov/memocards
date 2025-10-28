@@ -1,0 +1,75 @@
+---
+# =============================================================================
+# Monitoring Role - Deploy Prometheus and Grafana Configuration
+# =============================================================================
+
+- name: Create Prometheus configuration directory
+  ansible.builtin.file:
+    path: "{{ app_deploy_path }}/prometheus"
+    state: directory
+    mode: "0755"
+  tags: [monitoring, config]
+
+- name: Deploy Prometheus configuration
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: "{{ app_deploy_path }}/prometheus/prometheus.yml"
+    mode: "0644"
+  tags: [monitoring, config]
+
+- name: Create Promtail configuration directory
+  ansible.builtin.file:
+    path: "{{ app_deploy_path }}/promtail"
+    state: directory
+    mode: "0755"
+  tags: [monitoring, config]
+
+- name: Deploy Promtail configuration
+  ansible.builtin.template:
+    src: promtail.yml.j2
+    dest: "{{ app_deploy_path }}/promtail/promtail.yml"
+    mode: "0644"
+  tags: [monitoring, config]
+  when: promtail_enabled
+
+- name: Get monitoring containers status
+  ansible.builtin.command:
+    cmd: >
+      docker ps -a
+      --format "{{ table }}|{{ names }}|{{ status }}"
+      --filter "name={{ prometheus_container_name }},{{ grafana_container_name }}"
+  register: monitoring_containers
+  changed_when: false
+  tags: [monitoring, status]
+
+- name: Display monitoring status
+  ansible.builtin.debug:
+    msg: |
+      ╔════════════════════════════════════════════╗
+      ║      Monitoring Configuration Deployed      ║
+      ╚════════════════════════════════════════════╝
+
+      📊 Prometheus: {{ prometheus_enabled | ternary('ENABLED', 'DISABLED') }}
+      - Port: {{ prometheus_port }}
+      - Container: {{ prometheus_container_name }}
+
+      📋 Loki: {{ loki_enabled | ternary('ENABLED', 'DISABLED') }}
+      - Port: {{ loki_port }}
+      - Container: {{ loki_container_name }}
+
+      📝 Promtail: {{ promtail_enabled | ternary('ENABLED', 'DISABLED') }}
+      - Container: {{ promtail_container_name }}
+      📈 Grafana: {{ grafana_enabled | ternary('ENABLED', 'DISABLED') }}
+      - Port: {{ grafana_port }}
+      - Container: {{ grafana_container_name }}
+      - Admin user: {{ grafana_admin_user }}
+
+      🔗 Access (SSH tunnel):
+      - Prometheus: ssh -L 9090:localhost:9090 root@{{ ansible_host }}
+      - Grafana: ssh -L 3000:localhost:3000 root@{{ ansible_host }}
+
+      📋 Next steps:
+      1. Start services: docker compose up -d
+      2. Configure Grafana data source in UI
+      3. Import dashboard from grafana/dashboard-memocards.json
+  tags: [monitoring, status]

@@ -29,6 +29,10 @@
   vars_files:
     - ../secrets.yml
 
+  roles:
+    - role: monitoring
+      tags: [monitoring, config]
+
   tasks:
     - name: Display deployment information
       ansible.builtin.debug:
@@ -122,6 +126,24 @@
         dest: "{{ app_deploy_path }}/docker-compose.yml"
         mode: "0644"
       tags: [deploy, config]
+
+    - name: Copy Prometheus configuration
+      ansible.builtin.copy:
+        src: "{{ app_deploy_path }}/prometheus/prometheus.yml"
+        dest: "{{ app_deploy_path }}/prometheus/prometheus.yml"
+        remote_src: true
+        mode: "0644"
+      tags: [deploy, monitoring]
+      when: prometheus_enabled
+
+    - name: Copy Promtail configuration
+      ansible.builtin.copy:
+        src: "{{ app_deploy_path }}/promtail/promtail.yml"
+        dest: "{{ app_deploy_path }}/promtail/promtail.yml"
+        remote_src: true
+        mode: "0644"
+      tags: [deploy, monitoring]
+      when: promtail_enabled
 
     - name: Update production environment file
       ansible.builtin.template:
