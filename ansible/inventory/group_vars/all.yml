@@ -59,8 +59,36 @@ postgres_shared_buffers: "256MB"
 postgres_effective_cache_size: "512MB"
 
 # =============================================================================
+# MONITORING CONFIGURATION
+# =============================================================================
+# Grafana settings
+grafana_enabled: true
+grafana_port: 127.0.0.1:3000
+grafana_admin_user: "admin"
+# grafana_admin_password stored in secrets.yml (vault)
+
+# Prometheus settings
+prometheus_enabled: true
+prometheus_port: 127.0.0.1:9090
+
+# Loki settings
+loki_enabled: true
+loki_port: 127.0.0.1:3100
+
+# Promtail settings
+promtail_enabled: true
+
+# Monitoring container names
+prometheus_container_name: "memocards-prometheus-prod"
+grafana_container_name: "memocards-grafana-prod"
+loki_container_name: "memocards-loki-prod"
+promtail_container_name: "memocards-promtail-prod"
+
+# =============================================================================
 # FIREWALL CONFIGURATION
 # =============================================================================
+# Note: Monitoring ports (3000, 9090) are NOT exposed to internet
+# Access via localhost only for security
 firewall_allowed_ports:
   - "22" # SSH
   - "80" # HTTP

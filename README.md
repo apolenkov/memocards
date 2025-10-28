@@ -13,14 +13,15 @@ Flashcard learning application. Built with Java 21, Spring Boot 3.x, Vaadin 24+,
 
 ## What's Inside?
 
-| Feature | Technology | Implementation |
-|---------|-----------|---------------|
-| **Clean Architecture** | Hexagonal (Ports & Adapters) | Domain → Service → Infrastructure → Views |
-| **Java 21** | Virtual Threads, Records, Text Blocks | Records for DTOs, Text Blocks for SQL queries |
-| **Caching** | @UIScope + Caffeine | Per-tab isolation, event-driven invalidation |
-| **Security** | Spring Security | Form auth, @RolesAllowed, parameterized queries |
-| **i18n** | ResourceBundle | 3 languages: en, es, ru |
-| **Deployment** | Docker + Ansible | Automated VPS deployment |
+| Feature                | Technology                            | Implementation                                        |
+|------------------------|---------------------------------------|-------------------------------------------------------|
+| **Clean Architecture** | Hexagonal (Ports & Adapters)          | Domain → Service → Infrastructure → Views             |
+| **Java 21**            | Virtual Threads, Records, Text Blocks | Records for DTOs, Text Blocks for SQL queries         |
+| **Caching**            | @UIScope + Caffeine                   | Per-tab isolation, event-driven invalidation          |
+| **Security**           | Spring Security                       | Form auth, @RolesAllowed, parameterized queries       |
+| **i18n**               | ResourceBundle                        | 3 languages: en, es, ru                               |
+| **Monitoring**         | Grafana + Prometheus + Loki           | Real-time metrics & logs dashboard (admin-only, tabs) |
+| **Deployment**         | Docker + Ansible                      | Automated VPS deployment                              |
 
 ## Project Structure
 
@@ -135,6 +136,7 @@ docker-compose up -d postgres
 ```
 
 **Docker Compose (full stack):**
+
 ```bash
 ./gradlew jibDockerBuild    # Build image
 docker-compose up -d        # Run everything
@@ -147,6 +149,7 @@ docker-compose logs -f app  # View logs
 <summary><b>Testing & Configuration</b> (click to expand)</summary>
 
 **Run tests:**
+
 ```bash
 ./gradlew test              # Unit tests
 ./gradlew integrationTest   # Integration (requires Docker)
@@ -154,6 +157,7 @@ docker-compose logs -f app  # View logs
 ```
 
 **Configuration via `.env` file** (see `env.sample`):
+
 - Cache TTL/size settings
 - UI debounce & pagination
 - Security thresholds
@@ -165,15 +169,15 @@ docker-compose logs -f app  # View logs
 
 ## Technical Decisions
 
-| Decision | Rationale |
-|-----------|-----------|
+| Decision             | Rationale                                              |
+|----------------------|--------------------------------------------------------|
 | **Spring Data JDBC** | Explicit SQL control, no N+1 queries, easier debugging |
-| **Text Blocks** | Readable multi-line SQL, Java 15+ syntax |
-| **@UIScope Cache** | Per-browser-tab cache isolation (Vaadin-specific) |
-| **Virtual Threads** | Java 21 platform threads for concurrency |
-| **TestContainers** | Real PostgreSQL in tests, no database mocking |
-| **Records** | Immutable DTOs, reduced boilerplate |
-| **Spring Events** | Decoupled cache invalidation, no polling |
+| **Text Blocks**      | Readable multi-line SQL, Java 15+ syntax               |
+| **@UIScope Cache**   | Per-browser-tab cache isolation (Vaadin-specific)      |
+| **Virtual Threads**  | Java 21 platform threads for concurrency               |
+| **TestContainers**   | Real PostgreSQL in tests, no database mocking          |
+| **Records**          | Immutable DTOs, reduced boilerplate                    |
+| **Spring Events**    | Decoupled cache invalidation, no polling               |
 
 <details>
 <summary><b>🔧 Development Workflow</b> — Common commands (click to expand)</summary>
@@ -219,7 +223,6 @@ docker-compose logs -f app  # View logs
 - Add a new field to Card entity (observe layer propagation)
 - Implement new REST endpoint (follow existing pattern)
 - Add cache invalidation (use Spring Events example)
-
 
 **Topics covered:**
 
