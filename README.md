@@ -110,41 +110,6 @@ src/main/java/org/apolenkov/application/
 
 </details>
 
-<details>
-<summary><b>📂 Project Structure</b> — Clean Architecture layers (click to expand)</summary>
-
-```
-src/main/java/org/apolenkov/application/
-├── domain/           # Pure business logic (ports, events, enums)
-├── model/            # Domain entities (Card, Deck, User, News)
-├── service/          # Use cases (@Transactional boundaries)
-├── infrastructure/   # JDBC adapters + SQL queries (text blocks)
-├── views/            # Vaadin UI layer (auth, deck, practice, stats)
-└── config/           # Spring configuration (security, cache, PWA)
-```
-
-</details>
-
-<details>
-<summary><b>⚡ Key Features</b> — Multi-tier caching, security, i18n (click to expand)</summary>
-
-**Multi-Tier Caching:**
-- @SessionScope (user data across tabs) + @UIScope (deck data per tab)
-- Caffeine for pagination counts
-- Event-driven invalidation (Spring Events) + TTL fallback (1-5min)
-
-**Security:**
-- Spring Security (form auth + remember-me)
-- @RolesAllowed on routes (USER, ADMIN)
-- OWASP compliance (SQL injection prevention, XSS protection)
-
-**Internationalization:**
-- 3 languages (en, es, ru) via ResourceBundle
-- Real-time language switcher
-- Vaadin getTranslation() integration
-
-</details>
-
 ---
 
 ## 🚀 Quick Start
@@ -271,32 +236,20 @@ docker-compose logs -f app  # View logs
 3. Explain `@Transactional` placement (service layer, not repository)
 4. Demonstrate cache invalidation: event → listener → cache.clear()
 
-## About
-
-Portfolio project demonstrating:
-- Clean Architecture applied to web application
-- Java 21 features used in production
-- Caching implementation (multi-tier strategy)
-- Deployment automation (Docker + Ansible to VPS)
-
-**License:** Source-available for learning and contributions. Forking not permitted. See [LICENSE](LICENSE).
-
 ---
 
 ## Contributing
 
 - Bug reports → [GitHub Issues](../../issues)
-- Pull Requests → [CONTRIBUTING.md](CONTRIBUTING.md)
+- Pull Requests → See [CONTRIBUTING.md](CONTRIBUTING.md)
 - Translations → add new languages
 - Features → suggest improvements
-
-See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
 ## License
 
-Source Available License. Code available for study and contributions. Forking and commercial use prohibited. See [LICENSE](LICENSE).
+Source-available for learning and contributions. Forking and commercial use prohibited. See [LICENSE](LICENSE).
 
 ---
 
