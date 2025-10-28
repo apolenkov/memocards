@@ -55,6 +55,17 @@ jobs:
           echo "$VAULT_PASSWORD" > .vault_pass
           chmod 600 .vault_pass
 
+      - name: Create empty vault pass if missing
+        run: |
+          cd ansible
+          # Ansible will look for .vault_pass due to ansible.cfg
+          # Create empty file to avoid "file not found" error
+          if [ ! -f .vault_pass ]; then
+            touch .vault_pass
+            chmod 600 .vault_pass
+            echo "::warning::ANSIBLE_VAULT_PASSWORD secret not set - using empty vault password"
+          fi
+
       - name: Run ansible-playbook syntax check
         run: |
           cd ansible
@@ -62,11 +73,13 @@ jobs:
           EXIT_CODE=0
           for playbook in playbooks/*.yml; do
             echo "🔍 Checking $playbook..."
-            if ansible-playbook --syntax-check "$playbook"; then
+            if ansible-playbook --syntax-check "$playbook" 2>&1; then
               echo "  ✅ $playbook - OK"
             else
               echo "  ❌ $playbook - FAILED"
-              [ ! -f .vault_pass ] && echo "::warning::Missing ANSIBLE_VAULT_PASSWORD secret"
+              if [ ! -s .vault_pass ]; then
+                echo "::warning::Missing ANSIBLE_VAULT_PASSWORD secret - playbooks with vault may fail"
+              fi
               EXIT_CODE=1
             fi
           done
