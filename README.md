@@ -9,9 +9,6 @@
 
 Flashcard learning application. Built with Java 21, Spring Boot 3.x, Vaadin 24+, PostgreSQL.
 
-**Tech:** Clean Architecture, multi-tier caching (Caffeine + @UIScope), Spring Data JDBC.
-**Stats:** 165 classes, 35 tests, production deployment.
-
 ---
 
 ## What's Inside?
@@ -67,7 +64,7 @@ src/main/java/org/apolenkov/application/
 
 - **Java 21**: Virtual Threads, Records, Pattern Matching, Text Blocks
 - **Spring Boot 3.x**: DI, Security, Transactions
-- **Spring Data JDBC**: Explicit SQL control (JPA alternative for simpler projects)
+- **Spring Data JDBC**: Explicit SQL control
 - **PostgreSQL 16**: Flyway migrations
 - **Caffeine**: High-performance caching
 - **Spring Events**: Decoupled cache invalidation
@@ -125,8 +122,6 @@ src/main/java/org/apolenkov/application/
 ├── views/            # Vaadin UI layer (auth, deck, practice, stats)
 └── config/           # Spring configuration (security, cache, PWA)
 ```
-
-**165+ classes** with strict layer separation and zero circular dependencies.
 
 </details>
 
@@ -236,8 +231,6 @@ docker-compose logs -f app  # View logs
 <details>
 <summary>Future enhancements (click to expand)</summary>
 
-- [ ] Spaced repetition algorithm (SM-2, Anki-style)
-- [ ] Audio pronunciation + Image uploads
 - [ ] Deck sharing & import/export
 - [ ] AI-powered card generation (GPT-4 API)
 - [ ] Progress analytics dashboard
@@ -262,7 +255,6 @@ docker-compose logs -f app  # View logs
 - Implement new REST endpoint (follow existing pattern)
 - Add cache invalidation (use Spring Events example)
 
-## For Teaching
 
 **Topics covered:**
 
