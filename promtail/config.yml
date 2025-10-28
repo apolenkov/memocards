@@ -17,3 +17,4 @@ scrape_configs:
           job: memocards
           __path__: /var/log/app/*.log
 
+

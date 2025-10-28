@@ -280,6 +280,32 @@
 
               Check logs: docker logs memocards-app-prod
 
+    # =============================================================================
+    # Post-deployment verification - Verify all services are running
+    # =============================================================================
+    - name: Verify monitoring services
+      tags: [verify]
+      block:
+        - name: Wait for Grafana to be ready
+          ansible.builtin.shell: |
+            for i in {1..30}; do
+              if docker exec memocards-grafana-prod curl -f http://localhost:3000/api/health 2>/dev/null; then
+                exit 0
+              fi
+              sleep 2
+            done
+            exit 1
+          register: grafana_health_check
+          changed_when: false
+          failed_when: false
+          when: grafana_enabled
+
+        - name: Display monitoring verification results
+          ansible.builtin.debug:
+            msg: |
+              📊 Monitoring Services Verification:
+              - Grafana: {% if grafana_enabled and grafana_health_check is defined %}{{ grafana_health_check.rc == 0 | ternary('READY ✅', 'NOT READY ⚠️') }}{% elif grafana_enabled %}DISABLED{% else %}DISABLED{% endif %}
+
     - name: Get application version info
       ansible.builtin.uri:
         url: "http://localhost:{{ app_port }}/actuator/info"
@@ -300,8 +326,8 @@
           - Image pulled: {{ app_image }}
           - Containers recreated: ✅
           - Old images cleaned: ✅
-          - Health check: {{ 'PASSED ✅' if health_check.status == 200 else 'FAILED ❌' }}
-          - PostgreSQL: {{ postgres_health.stdout }}
+          - Health check: {% if health_check is defined %}{{ 'PASSED ✅' if health_check.status == 200 else 'FAILED ❌' }}{% else %}NOT RUN ⏭️{% endif %}
+          - PostgreSQL: {% if postgres_health is defined %}{{ postgres_health.stdout }}{% else %}NOT CHECKED ⏭️{% endif %}
 
           🌐 Access:
           - URL: https://{{ domain }}
@@ -339,8 +365,8 @@
           deployment_method: "ansible"
           status: "success"
           health_check:
-            postgres: "{{ postgres_health.stdout | default('unknown') }}"
-            application: "{{ 'healthy' if health_check.status == 200 else 'unhealthy' }}"
+            postgres: "{{ postgres_health.stdout | default('unknown') if postgres_health is defined else 'unknown' }}"
+            application: "{{ 'healthy' if (health_check is defined and health_check.status == 200) else 'unknown' }}"
           version_info: "{{ app_info.json | default({}) }}"
       tags: [always, history]
 

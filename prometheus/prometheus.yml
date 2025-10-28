@@ -12,3 +12,4 @@ scrape_configs:
           application: 'memocards'
           environment: 'production'
 
+

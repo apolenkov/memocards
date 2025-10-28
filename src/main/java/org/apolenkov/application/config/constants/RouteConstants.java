@@ -98,6 +98,8 @@ public final class RouteConstants {
 
     public static final String ACTUATOR_ENV = "/actuator/env";
 
+    public static final String ACTUATOR_PROMETHEUS = "/actuator/prometheus";
+
     /**
      * Actuator base path for authenticated endpoints.
      */

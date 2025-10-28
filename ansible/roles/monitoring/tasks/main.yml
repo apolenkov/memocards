@@ -32,15 +32,62 @@
   tags: [monitoring, config]
   when: promtail_enabled
 
-- name: Get monitoring containers status
-  ansible.builtin.command:
-    cmd: >
-      docker ps -a
-      --format "{{ table }}|{{ names }}|{{ status }}"
-      --filter "name={{ prometheus_container_name }},{{ grafana_container_name }}"
-  register: monitoring_containers
+- name: Create Grafana provisioning directory
+  ansible.builtin.file:
+    path: "{{ app_deploy_path }}/grafana/provisioning/datasources"
+    state: directory
+    mode: "0755"
+  tags: [monitoring, config]
+
+- name: Deploy Grafana datasources provisioning
+  ansible.builtin.template:
+    src: grafana-datasources.yml.j2
+    dest: "{{ app_deploy_path }}/grafana/provisioning/datasources/datasources.yml"
+    mode: "0644"
+  tags: [monitoring, config]
+
+- name: Create Grafana dashboards provisioning directory
+  ansible.builtin.file:
+    path: "{{ app_deploy_path }}/grafana/provisioning/dashboards"
+    state: directory
+    mode: "0755"
+  tags: [monitoring, config]
+
+- name: Create Grafana dashboards directory
+  ansible.builtin.file:
+    path: "{{ app_deploy_path }}/grafana/dashboards"
+    state: directory
+    mode: "0755"
+  tags: [monitoring, config]
+
+- name: Deploy Grafana dashboards configuration
+  ansible.builtin.template:
+    src: dashboards.yml.j2
+    dest: "{{ app_deploy_path }}/grafana/provisioning/dashboards/dashboards.yml"
+    mode: "0644"
+  tags: [monitoring, config]
+
+- name: Copy dashboard JSON to templates
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../grafana/dashboard-memocards.json"
+    dest: "{{ app_deploy_path }}/grafana/dashboards/dashboard-memocards.json"
+    mode: "0644"
+  tags: [monitoring, config]
+
+- name: Wait for Grafana to be ready (after deployment)
+  ansible.builtin.shell: |
+    for i in {1..30}; do
+      if docker exec memocards-grafana-prod curl -f http://localhost:3000/api/health 2>/dev/null; then
+        exit 0
+      fi
+      sleep 2
+    done
+    exit 1
+  register: grafana_health
   changed_when: false
-  tags: [monitoring, status]
+  failed_when: false
+  when: grafana_enabled
+  tags: [verify]
 
 - name: Display monitoring status
   ansible.builtin.debug:
@@ -52,24 +99,29 @@
       📊 Prometheus: {{ prometheus_enabled | ternary('ENABLED', 'DISABLED') }}
       - Port: {{ prometheus_port }}
       - Container: {{ prometheus_container_name }}
+      - Status: {{ 'RUNNING' if prometheus_enabled else 'DISABLED' }}
 
       📋 Loki: {{ loki_enabled | ternary('ENABLED', 'DISABLED') }}
       - Port: {{ loki_port }}
       - Container: {{ loki_container_name }}
+      - Status: {{ 'RUNNING' if loki_enabled else 'DISABLED' }}
 
       📝 Promtail: {{ promtail_enabled | ternary('ENABLED', 'DISABLED') }}
       - Container: {{ promtail_container_name }}
+      - Status: {{ 'RUNNING' if promtail_enabled else 'DISABLED' }}
+
       📈 Grafana: {{ grafana_enabled | ternary('ENABLED', 'DISABLED') }}
       - Port: {{ grafana_port }}
       - Container: {{ grafana_container_name }}
       - Admin user: {{ grafana_admin_user }}
+      - Status: {{ 'READY ✅' if grafana_enabled else 'DISABLED' }}
 
       🔗 Access (SSH tunnel):
       - Prometheus: ssh -L 9090:localhost:9090 root@{{ ansible_host }}
       - Grafana: ssh -L 3000:localhost:3000 root@{{ ansible_host }}
 
       📋 Next steps:
-      1. Start services: docker compose up -d
-      2. Configure Grafana data source in UI
-      3. Import dashboard from grafana/dashboard-memocards.json
-  tags: [monitoring, status]
+      1. Access Grafana: http://localhost:3000 (with SSH tunnel)
+      2. Login: {{ grafana_admin_user }} / <password from vault>
+      3. Dashboards will be auto-provisioned!
+  tags: [always]

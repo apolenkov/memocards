@@ -50,12 +50,13 @@ public class SecurityConfig {
                 // Public static resources (icons, images, etc.)
                 .requestMatchers("/icons/**")
                 .permitAll()
-                // Actuator endpoints: health, info, metrics, env are public
+                // Actuator endpoints: health, info, metrics, env, prometheus are public
                 .requestMatchers(
                         RouteConstants.ACTUATOR_HEALTH,
                         RouteConstants.ACTUATOR_INFO,
                         RouteConstants.ACTUATOR_METRICS,
-                        RouteConstants.ACTUATOR_ENV)
+                        RouteConstants.ACTUATOR_ENV,
+                        RouteConstants.ACTUATOR_PROMETHEUS)
                 .permitAll()
                 .requestMatchers(RouteConstants.ACTUATOR_BASE_PATH)
                 .authenticated());
