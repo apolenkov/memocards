@@ -7,7 +7,7 @@
 
   tasks:
     - name: Check Docker containers status
-      ansible.builtin.shell: docker ps --format "table {% raw %}{{.Names}}\t{{.Status}}\t{{.Ports}}{% endraw %}" --filter "name=memocards"
+      ansible.builtin.command: docker ps --format "table {% raw %}{{.Names}}\t{{.Status}}\t{{.Ports}}{% endraw %}" --filter "name=memocards"
       register: container_status
       changed_when: false
 
@@ -73,4 +73,3 @@
           - "Prometheus: {{ 'UP' if prometheus_targets.status == 200 else 'DOWN' }}"
           - "Metrics: {{ 'AVAILABLE' if metrics_check.status == 200 else 'NOT AVAILABLE' }}"
           - "Grafana DS: {{ 'CONFIGURED' if 'Prometheus' in grafana_datasources.stdout else 'NOT CONFIGURED' }}"
-
