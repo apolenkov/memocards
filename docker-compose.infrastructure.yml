@@ -25,7 +25,7 @@ services:
         reservations:
           memory: 128m
     networks:
-      - ${NETWORK_NAME:-memocards-network}
+      - memocards_memocards-network
 
   loki:
     image: grafana/loki:latest
@@ -43,7 +43,7 @@ services:
         reservations:
           memory: 96m
     networks:
-      - ${NETWORK_NAME:-memocards-network}
+      - memocards_memocards-network
     environment:
       - JAEGER_AGENT_HOST=localhost
 
@@ -62,7 +62,7 @@ services:
         reservations:
           memory: 48m
     networks:
-      - ${NETWORK_NAME:-memocards-network}
+      - memocards_memocards-network
     depends_on:
       - loki
 
@@ -93,7 +93,7 @@ services:
         reservations:
           memory: 96m
     networks:
-      - ${NETWORK_NAME:-memocards-network}
+      - memocards_memocards-network
 
 volumes:
   prometheus_data:
@@ -104,6 +104,6 @@ volumes:
     driver: local
 
 networks:
-  memocards-network:
+  memocards_memocards-network:
     external: true
 
