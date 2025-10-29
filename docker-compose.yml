@@ -68,6 +68,12 @@ services:
           memory: ${APP_MEMORY_RESERVATION:-512m}
     networks:
       - memocards-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`memocards.duckdns.org`) && !PathPrefix(`/grafana`) && !PathPrefix(`/prometheus`) && !PathPrefix(`/traefik`)"
+      - "traefik.http.routers.app.entrypoints=web"
+      - "traefik.http.services.app.loadbalancer.server.port=8080"
+      - "traefik.http.routers.app.priority=1"
 
 volumes:
   postgres_data:
@@ -80,3 +86,5 @@ networks:
     ipam:
       config:
         - subnet: ${NETWORK_SUBNET:-172.20.0.0/16}
+    # Note: This network is created by docker-compose.yml first
+    # It's used as external by docker-compose.infrastructure.yml

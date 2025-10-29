@@ -25,19 +25,18 @@
   register: app_image_pull_result
   tags: [app, deploy]
 
-- name: Stop existing containers (if any)
+- name: Deploy application services
   ansible.builtin.command:
-    cmd: docker compose -p memocards-prod -f docker-compose.yml stop
-    chdir: "{{ app_deploy_path }}"
-  failed_when: false
-  tags: [app, deploy]
-
-- name: Start application services
-  ansible.builtin.command:
-    cmd: docker compose -p memocards-prod -f docker-compose.yml up -d --remove-orphans --force-recreate --pull always
+    cmd: docker compose -p memocards-prod -f docker-compose.yml up -d --pull always --remove-orphans
     chdir: "{{ app_deploy_path }}"
   register: app_compose_result
+  changed_when: >-
+    'Created' in app_compose_result.stdout or
+    'Started' in app_compose_result.stdout or
+    'Recreated' in app_compose_result.stdout or
+    'Pulled' in app_compose_result.stdout
   tags: [app, deploy]
+  # NOTE: Recreates containers if config/images changed
 
 - name: Wait for PostgreSQL to be healthy
   ansible.builtin.shell: |
@@ -62,16 +61,28 @@
   until: app_health_check.status is defined and app_health_check.status == 200
   tags: [app, health]
 
-- name: Clean up old application images
+- name: Clean up old application images (keep last 3)
   ansible.builtin.shell: |
     set -o pipefail
-    # Remove old memocards images (keep current and one previous)
-    docker images 'ghcr.io/apolenkov/memocards' --format '{% raw %}{{.ID}} {{.Tag}}{% endraw %}' | \
-    tail -n +3 | awk '{print $1}' | xargs -r docker rmi -f || true
-  changed_when: false
+    # Keep last N images, remove older ones
+    docker images 'ghcr.io/apolenkov/memocards' --format '{% raw %}{{.ID}}|{{.Tag}}|{{.CreatedAt}}{% endraw %}' | \
+    sort -t'|' -k3 -r | tail -n +4 | cut -d'|' -f1 | xargs -r docker rmi -f || true
   args:
     executable: /bin/bash
+  register: image_cleanup_result
+  changed_when: image_cleanup_result.stdout != ""
+  failed_when: false
   tags: [app, cleanup]
+
+- name: Prune unused Docker resources (periodic cleanup, prevents disk accumulation)
+  ansible.builtin.command:
+    cmd: docker system prune -f --filter "until=168h"
+  register: docker_prune_result
+  changed_when: "'reclaimed' in docker_prune_result.stdout.lower()"
+  failed_when: false
+  tags: [app, cleanup]
+  # NOTE: Removes unused containers/networks/images older than 7 days
+  # Volumes and running containers are NOT affected
 
 # Backup removed - not needed for MVP
 # Monitoring removed - using Docker restart policy (restart: unless-stopped)

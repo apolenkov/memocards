@@ -83,6 +83,16 @@
     force: true
   tags: [monitoring, config]
 
+- name: Ensure memocards-network exists (required for infrastructure)
+  ansible.builtin.shell: |
+    docker network inspect memocards-network >/dev/null 2>&1 || \
+      docker network create --driver bridge --subnet 172.20.0.0/16 memocards-network
+  args:
+    executable: /bin/bash
+  changed_when: false
+  failed_when: false
+  tags: [monitoring, config]
+
 - name: Copy Docker Compose configuration (infrastructure)
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../docker-compose.infrastructure.yml"
@@ -90,11 +100,26 @@
     mode: "0644"
   tags: [monitoring, config]
 
-- name: Start infrastructure services
+- name: Stop and remove infrastructure containers (handles conflicts)
   ansible.builtin.command:
-    cmd: docker compose -p memocards-prod -f docker-compose.infrastructure.yml up -d --remove-orphans --force-recreate
+    cmd: docker compose -p memocards-prod -f docker-compose.infrastructure.yml down --remove-orphans
+    chdir: "{{ app_deploy_path }}"
+  register: monitoring_down_result
+  changed_when: "'Removed' in monitoring_down_result.stdout or 'Stopped' in monitoring_down_result.stdout"
+  failed_when: false
+  tags: [monitoring, deploy]
+  # NOTE: Removes containers/networks, preserves volumes
+
+- name: Deploy infrastructure services
+  ansible.builtin.command:
+    cmd: docker compose -p memocards-prod -f docker-compose.infrastructure.yml up -d --pull always --remove-orphans
     chdir: "{{ app_deploy_path }}"
   register: monitoring_infrastructure_compose_result
+  changed_when: >-
+    'Created' in monitoring_infrastructure_compose_result.stdout or
+    'Started' in monitoring_infrastructure_compose_result.stdout or
+    'Recreated' in monitoring_infrastructure_compose_result.stdout or
+    'Pulled' in monitoring_infrastructure_compose_result.stdout
   tags: [monitoring, deploy]
 
 - name: Wait for Grafana to be ready (after deployment)
@@ -111,17 +136,39 @@
   failed_when: false
   tags: [monitoring, verify]
 
+- name: Wait for Traefik to be ready (check routing)
+  ansible.builtin.shell: |
+    for i in {1..30}; do
+      if curl -sf http://localhost:8080/api/overview >/dev/null 2>&1; then
+        exit 0
+      fi
+      sleep 2
+    done
+    exit 1
+  register: monitoring_traefik_health_check
+  changed_when: false
+  failed_when: false
+  tags: [monitoring, verify]
+
 - name: Display monitoring status
   ansible.builtin.debug:
     msg: |
       ✅ Infrastructure deployed:
 
+      🔄 Traefik: {{ 'READY ✅' if monitoring_traefik_health_check.rc == 0 else 'STARTING...' }}
       📊 Prometheus: localhost:9090
       📋 Loki: localhost:3100
       📝 Promtail: running
       📈 Grafana: localhost:3000
 
-      🔗 Access via SSH tunnel:
+      🌐 External Access (via Nginx → Traefik):
+      - Application: https://{{ domain }}
+      - Grafana: https://{{ domain }}/grafana
+      - Prometheus: https://{{ domain }}/prometheus
+      - Traefik Dashboard: https://{{ domain }}/traefik
+
+      🔗 Direct Access via SSH tunnel:
       - ssh -L 9090:localhost:9090 root@{{ ansible_host }}
       - ssh -L 3000:localhost:3000 root@{{ ansible_host }}
+      - ssh -L 8080:localhost:8080 root@{{ ansible_host }} (Traefik API)
   tags: [monitoring]
