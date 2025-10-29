@@ -135,6 +135,23 @@ docker-compose up -d postgres
 # Login: user@example.com / user
 ```
 
+**Docker (app only, no monitoring):**
+
+```bash
+# 1. Clone & configure
+git clone <repository-url> && cd memo
+cp env.sample .env  # Edit: set DB_PASSWORD, demo passwords
+
+# 2. Start application (app + postgres)
+docker-compose up -d
+
+# 3. Open http://localhost:8080
+# Login: user@example.com / user
+
+# Stop:
+# docker-compose down
+```
+
 **Docker Compose (full stack):**
 
 ```bash
