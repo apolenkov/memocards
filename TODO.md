@@ -6,21 +6,76 @@
 
 ## 🎯 Planned Tasks
 
-### High Priority
+### High Priority (Critical - Blocking Issues)
+
+#### Core Functionality
+
+- [ ] Fix statistics reset issue
+- [ ] Fix sorting - updated cards shouldn't move to end (sort by ID/date adding on UI)
+- [ ] Fix admin content display and access control
+- [ ] Fix delete button activation on character input
+- [ ] Fix statistics section expansion on title click
+
+#### Security & Data Integrity
+
+- [ ] Improve deck deletion - confirmation for filled decks with backend validation
+- [ ] User existence validation and duplicate card/deck name checks in UI
+- [ ] Add validation error messages on user edit form
+- [ ] Password reset email functionality with link expiration time
+
+#### Essential Features
 
 - [ ] Implement deck-level source and target language fields
 - [ ] Add flashcard-level transcription and example fields
 - [ ] Make audio and images optional for flashcards
+- [ ] Google API integration with caching for transcription
+
+### Medium Priority (Important - UX Improvements)
+
+#### User Experience
+
 - [ ] Update UI to be more modern with Material Design-inspired calm palette
 - [ ] Prioritize world-class attractive UX
+- [ ] Card preview on grid row click
+- [ ] User self-editing through modal window
+- [ ] Statistics redesign for better display
+- [ ] Statistics by decks - sort by last game date
 
-### Medium Priority
+#### Game Features
 
-- [ ] 
+- [ ] Time statistics expansion and display in game
+- [ ] Auto-scroll settings in game - transition to next card when time expires
 
-### Low Priority
+#### Technical Improvements
 
-- [ ] 
+- [ ] Remove all inline styles
+- [ ] Break down views into parts and extract logic to use cases
+- [ ] Migrate to environment variables
+- [ ] Audit logging coverage
+- [ ] Add @Slf4j for logging
+
+### Low Priority (Nice to Have - Technical Debt)
+
+#### Code Quality & Refactoring
+
+- [ ] Remove version field from deck_daily_stats
+- [ ] Audit CSS classes existence in views
+- [ ] General database structure review
+- [ ] Limit users to single role
+- [ ] Remove isKnow field - unnecessary
+- [ ] Remove deleteExpiredTokens method
+- [ ] Rename flashcard to memo
+- [ ] Remove auto commit
+- [ ] Optimize Lombok usage in base and adjust checkstyle
+- [ ] Remove redundant tests
+
+#### Additional Features
+
+- [ ] Additional test coverage
+- [ ] API with Swagger UI
+- [ ] Full-text search implementation
+- [ ] Database settings (language switcher)
+- [ ] Create changelog
 
 ---
 
@@ -63,25 +118,7 @@
 
 ---
 
-## 🚫 Won't Do
-
-- ~~Multi-region deployment~~ (not needed for MVP)
-- ~~Kubernetes migration~~ (overkill for current scale)
-- ~~Microservices architecture~~ (monolith works great)
-
----
-
 ## 🐛 Known Issues
-
-### Minor
-
-- [ ] IDE warnings for Ansible Jinja2 expressions (doesn't affect functionality)
-
-### Won't Fix
-
-- Dependabot doesn't monitor Docker images (we use Jib, no Dockerfile)
-
----
 
 ## 💡 Notes
 
@@ -106,13 +143,6 @@
 - **Documentation**: Docs, guides, ADRs
 - **Security**: Vulnerabilities, compliance, hardening
 - **Performance**: Optimization, caching, speed
-
----
-
-## 📊 Statistics
-
-- **Active tasks:** 5 (High priority)
-- **Backlog ideas:** 15+
 
 ---
 
