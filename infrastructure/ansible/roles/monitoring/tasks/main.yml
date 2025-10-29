@@ -9,20 +9,20 @@
     state: directory
     mode: "0755"
   loop:
-    - "{{ app_deploy_path }}/../infrastructure/grafana"
-    - "{{ app_deploy_path }}/../infrastructure/grafana/config"
-    - "{{ app_deploy_path }}/../infrastructure/grafana/dashboards"
-    - "{{ app_deploy_path }}/../infrastructure/grafana/provisioning"
-    - "{{ app_deploy_path }}/../infrastructure/prometheus"
-    - "{{ app_deploy_path }}/../infrastructure/promtail"
+    - "{{ app_deploy_path }}/infrastructure/grafana"
+    - "{{ app_deploy_path }}/infrastructure/grafana/config"
+    - "{{ app_deploy_path }}/infrastructure/grafana/dashboards"
+    - "{{ app_deploy_path }}/infrastructure/grafana/provisioning"
+    - "{{ app_deploy_path }}/infrastructure/prometheus"
+    - "{{ app_deploy_path }}/infrastructure/promtail"
   tags: [monitoring, config]
 
 - name: Copy Grafana configuration files
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../infrastructure/grafana/{{ item }}"
-    dest: "{{ app_deploy_path }}/../infrastructure/grafana/{{ item }}"
+    dest: "{{ app_deploy_path }}/infrastructure/grafana/{{ item }}"
     mode: "0644"
-    directory_mode: "0755"
+    force: true
   loop:
     - "config/grafana.ini"
     - "dashboard-memocards.json"
@@ -33,15 +33,17 @@
 - name: Copy Prometheus configuration
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../infrastructure/prometheus/prometheus.yml"
-    dest: "{{ app_deploy_path }}/../infrastructure/prometheus/prometheus.yml"
+    dest: "{{ app_deploy_path }}/infrastructure/prometheus/prometheus.yml"
     mode: "0644"
+    force: true
   tags: [monitoring, config]
 
 - name: Copy Promtail configuration files
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../infrastructure/promtail/{{ item }}"
-    dest: "{{ app_deploy_path }}/../infrastructure/promtail/{{ item }}"
+    dest: "{{ app_deploy_path }}/infrastructure/promtail/{{ item }}"
     mode: "0644"
+    force: true
   loop:
     - "config.yml"
     - "promtail.yml"
