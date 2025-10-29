@@ -39,6 +39,83 @@ server {
         proxy_read_timeout 60s;
     }
 
+    # Traefik dashboard - accessible via /traefik/
+    location /traefik/ {
+        proxy_pass http://127.0.0.1:8080/;
+        proxy_http_version 1.1;
+        
+        # WebSocket support
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        
+        # Standard proxy headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Prefix /traefik;
+        
+        # Timeouts
+        proxy_read_timeout 300;
+        proxy_connect_timeout 300;
+        proxy_send_timeout 300;
+        
+        # Disable buffering
+        proxy_buffering off;
+    }
+
+    # Grafana monitoring - served from subpath /grafana/
+    location /grafana/ {
+        proxy_pass http://127.0.0.1:3000/;
+        proxy_http_version 1.1;
+        
+        # WebSocket support (required for Grafana Live and Loki live tailing)
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        
+        # Standard proxy headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        
+        # Timeouts
+        proxy_read_timeout 300;
+        proxy_connect_timeout 300;
+        proxy_send_timeout 300;
+        
+        # Disable buffering
+        proxy_buffering off;
+    }
+    
+    # Grafana Live WebSocket connections
+    location /grafana/api/live/ {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://127.0.0.1:3000/api/live/;
+        proxy_buffering off;
+    }
+    
+    # Loki live tailing WebSocket connections
+    location ~ ^/grafana/api/datasources/proxy/\d+/loki/api/v1/tail {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://127.0.0.1:3000$request_uri;
+        proxy_buffering off;
+    }
+
     # Health check endpoint (bypass auth)
     location /actuator/health {
         proxy_pass http://127.0.0.1:{{ app_port }}/actuator/health;

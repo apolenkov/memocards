@@ -86,6 +86,12 @@ grafana_container_name: "memocards-grafana-prod"
 loki_container_name: "memocards-loki-prod"
 promtail_container_name: "memocards-promtail-prod"
 
+# Traefik dashboard settings
+traefik_dashboard_user: "admin"
+# traefik_dashboard_password_hash stored in secrets.yml (vault)
+# Generate hash: htpasswd -nb admin YOUR_PASSWORD | cut -d: -f2
+# Or: echo -n "YOUR_PASSWORD" | openssl passwd -apr1 -stdin
+
 # =============================================================================
 # FIREWALL CONFIGURATION
 # =============================================================================

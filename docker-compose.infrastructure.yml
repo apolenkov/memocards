@@ -1,9 +1,34 @@
 ---
-# Infrastructure monitoring services (Prometheus, Loki, Promtail, Grafana)
+# Infrastructure monitoring services (Prometheus, Loki, Promtail, Grafana, Traefik)
 # NOTE: Requires docker-compose.yml to be started first to create the network
 # Usage: docker compose -f docker-compose.infrastructure.yml up -d
 
 services:
+  traefik:
+    image: traefik:v3.0
+    container_name: ${TRAEFIK_CONTAINER_NAME:-memocards-traefik}
+    ports:
+      # Dashboard available via Nginx proxy at /traefik/ (port 8080 for localhost access)
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./infrastructure/traefik/traefik.yml:/etc/traefik/traefik.yml
+      - ./infrastructure/traefik/dynamic:/etc/traefik/dynamic
+      # ACME volume not needed - Nginx handles SSL certificates
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+        reservations:
+          memory: 64m
+    networks:
+      - ${NETWORK_NAME:-memocards-network}
+    labels:
+      # Traefik dashboard accessible only via localhost:8080
+      # Nginx on host handles external traffic (80/443)
+      - "traefik.enable=true"
+
   prometheus:
     image: prom/prometheus:latest
     container_name: ${PROMETHEUS_CONTAINER_NAME:-memocards-prometheus}
@@ -15,8 +40,16 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--storage.tsdb.retention.size=10GB'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
     deploy:
       resources:
@@ -25,16 +58,23 @@ services:
         reservations:
           memory: 128m
     networks:
-      - memocards_memocards-network
+      - ${NETWORK_NAME:-memocards-network}
 
   loki:
     image: grafana/loki:latest
     container_name: ${LOKI_CONTAINER_NAME:-memocards-loki}
     ports:
       - "127.0.0.1:${LOKI_PORT:-3100}:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/loki.yml
     volumes:
       - loki_data:/loki
+      - ./infrastructure/loki/loki.yml:/etc/loki/loki.yml
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
     deploy:
       resources:
@@ -43,7 +83,7 @@ services:
         reservations:
           memory: 96m
     networks:
-      - memocards_memocards-network
+      - ${NETWORK_NAME:-memocards-network}
     environment:
       - JAEGER_AGENT_HOST=localhost
 
@@ -53,7 +93,14 @@ services:
     volumes:
       - ${APP_LOGS_PATH:-./logs}:/var/log/app:ro
       - ./infrastructure/promtail:/etc/promtail
+      - promtail_positions:/var/lib/promtail
     command: -config.file=/etc/promtail/promtail.yml
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9080/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
     deploy:
       resources:
@@ -62,30 +109,41 @@ services:
         reservations:
           memory: 48m
     networks:
-      - memocards_memocards-network
+      - ${NETWORK_NAME:-memocards-network}
     depends_on:
-      - loki
+      loki:
+        condition: service_healthy
 
   grafana:
     image: grafana/grafana:latest
     container_name: ${GRAFANA_CONTAINER_NAME:-memocards-grafana}
     ports:
-      - "0.0.0.0:${GRAFANA_PORT:-3000}:3000"
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
     env_file:
       - .env
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
       GF_USERS_ALLOW_SIGN_UP: false
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-https://memocards.duckdns.org/grafana/}
+      GF_SERVER_PROTOCOL: http
     volumes:
       - grafana_data:/var/lib/grafana
       - ./infrastructure/grafana/provisioning:/etc/grafana/provisioning
       - ./infrastructure/grafana/dashboards:/var/lib/grafana/dashboards
       - ./infrastructure/grafana/config/grafana.ini:/etc/grafana/grafana.ini
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
     depends_on:
-      - prometheus
-      - loki
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -93,7 +151,11 @@ services:
         reservations:
           memory: 96m
     networks:
-      - memocards_memocards-network
+      - ${NETWORK_NAME:-memocards-network}
+    labels:
+      # Grafana is proxied via Nginx on host, not directly via Traefik
+      # Nginx handles routing to Grafana on localhost:3000
+      - "traefik.enable=false"
 
 volumes:
   prometheus_data:
@@ -102,8 +164,12 @@ volumes:
     driver: local
   grafana_data:
     driver: local
+  promtail_positions:
+    driver: local
+  # traefik_acme removed - Nginx handles SSL on host
 
 networks:
-  memocards_memocards-network:
+  memocards-network:
+    name: ${NETWORK_NAME:-memocards-network}
     external: true
 
