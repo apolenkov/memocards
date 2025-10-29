@@ -1,0 +1,78 @@
+---
+# =============================================================================
+# PLAYBOOK: check-docker-status.yml
+# Check current Docker state on production server
+# =============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/hosts.yml playbooks/check-docker-status.yml
+# =============================================================================
+
+- name: Check Docker Status on Production
+  hosts: vps
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Check running containers
+      ansible.builtin.shell: |
+        docker ps --format "table {% raw %}{{.Names}}\t{{.Status}}\t{{.Image}}{% endraw %}"
+      register: running_containers
+      changed_when: false
+
+    - name: Check all containers (including stopped)
+      ansible.builtin.shell: |
+        docker ps -a --format "table {% raw %}{{.Names}}\t{{.Status}}\t{{.Image}}{% endraw %}" | head -20
+      register: all_containers
+      changed_when: false
+
+    - name: Check Docker volumes
+      ansible.builtin.command:
+        cmd: docker volume ls --filter "name=memocards"
+      register: volumes
+      changed_when: false
+
+    - name: Check Docker networks
+      ansible.builtin.command:
+        cmd: docker network ls --filter "name=memocards"
+      register: networks
+      changed_when: false
+
+    - name: Check Docker images
+      ansible.builtin.shell: |
+        docker images --filter "reference=*memocards*" --filter "reference=*traefik*" --filter "reference=*grafana*" --filter "reference=*prometheus*" --filter "reference=*loki*" --format "table {% raw %}{{.Repository}}\t{{.Tag}}\t{{.Size}}{% endraw %}"
+      register: images
+      changed_when: false
+
+    - name: Check disk usage
+      ansible.builtin.command:
+        cmd: docker system df
+      register: disk_usage
+      changed_when: false
+
+    - name: Display Docker status summary
+      ansible.builtin.debug:
+        msg: |
+          ╔════════════════════════════════════════════════════════════╗
+          ║           Docker Status on Production Server               ║
+          ╚════════════════════════════════════════════════════════════╝
+
+          🐳 RUNNING CONTAINERS:
+          {{ running_containers.stdout }}
+
+          📦 ALL CONTAINERS (including stopped):
+          {{ all_containers.stdout }}
+
+          💾 VOLUMES (data preserved):
+          {{ volumes.stdout if volumes.stdout_lines else 'No volumes found' }}
+
+          🌐 NETWORKS:
+          {{ networks.stdout if networks.stdout_lines else 'No networks found' }}
+
+          🖼️  IMAGES:
+          {{ images.stdout if images.stdout_lines else 'No images found' }}
+
+          💽 DISK USAGE:
+          {{ disk_usage.stdout }}
+      tags: [always]
+
