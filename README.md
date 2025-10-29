@@ -165,6 +165,7 @@ make infra-up        # Start infrastructure (uses existing network)
 ```
 
 **Project Structure:**
+
 - `docker-compose.yml` — application (app + postgres) **creates network**
 - `docker-compose.infrastructure.yml` — monitoring (prometheus + loki + promtail + grafana) **uses network**
 - `infrastructure/` — monitoring configuration files
@@ -272,9 +273,17 @@ make infra-up        # Start infrastructure (uses existing network)
 ## Contributing
 
 - Bug reports → [GitHub Issues](../../issues)
-- Pull Requests → See [CONTRIBUTING.md](CONTRIBUTING.md)
+- Pull Requests → See [CONTRIBUTING.md](docs/CONTRIBUTING.md)
 - Translations → add new languages
 - Features → suggest improvements
+
+---
+
+## 📚 Documentation
+
+- **[Architecture](docs/architecture.md)** — System architecture, C4 diagrams, layer separation
+- **[Contributing Guide](docs/CONTRIBUTING.md)** — Development setup, coding standards, PR process
+- **[TODO](docs/TODO.md)** — Planned features, known issues, roadmap
 
 ---
 
@@ -284,5 +293,4 @@ Source-available for learning and contributions. Forking and commercial use proh
 
 ---
 
-[Live Demo](https://memocards.duckdns.org) • [Issues](../../issues) • [Contributing](CONTRIBUTING.md)
-
+[Live Demo](https://memocards.duckdns.org) • [Issues](../../issues) • [Contributing](docs/CONTRIBUTING.md) • [Docs](docs/)
