@@ -1,3 +1,11 @@
+# EntryPoints - Traefik API/dashboard entrypoint
+# Nginx on host handles 80/443 (external traffic)
+entryPoints:
+  traefik:
+    address: ":8082"
+    # Internal API/dashboard entrypoint (mapped to host:8081 via docker-compose)
+    # External access via Nginx at /traefik/
+
 api:
   dashboard: true
   insecure: true  # Required for subpath access via Nginx (auth handled by Nginx basic auth)
@@ -5,14 +13,7 @@ api:
   # Dashboard accessible via Nginx at /traefik/
   # Note: insecure: true allows access without direct auth
   # Nginx basic auth middleware protects access
-
-# EntryPoints - dashboard only for internal access
-# Nginx on host handles 80/443 (external traffic)
-entryPoints:
-  dashboard:
-    address: ":8080"
-    # Internal dashboard entrypoint (mapped to host:8081)
-    # External access via Nginx at /traefik/
+  # API is automatically available on the "traefik" entryPoint
 
 providers:
   docker:

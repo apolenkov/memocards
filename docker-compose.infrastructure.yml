@@ -9,7 +9,7 @@ services:
     container_name: ${TRAEFIK_CONTAINER_NAME:-memocards-traefik}
     ports:
       # Dashboard available via Nginx proxy at /traefik/ (port 8081 for localhost access)
-      - "127.0.0.1:8081:8080"
+      - "127.0.0.1:8081:8082"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./infrastructure/traefik/traefik.yml:/etc/traefik/traefik.yml
@@ -45,9 +45,9 @@ services:
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
       - '--web.external-url=https://memocards.duckdns.org/prometheus/'
-      - '--web.route-prefix=/'
+      - '--web.route-prefix=/prometheus/'
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/prometheus/-/healthy || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

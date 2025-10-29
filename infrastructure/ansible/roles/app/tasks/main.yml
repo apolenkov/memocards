@@ -26,20 +26,16 @@
   tags: [app, deploy]
 
 - name: Stop existing containers (if any)
-  community.docker.docker_compose_v2:
-    project_src: "{{ app_deploy_path }}"
-    files: docker-compose.yml
-    state: stopped
+  ansible.builtin.command:
+    cmd: docker compose -p memocards-prod -f docker-compose.yml stop
+    chdir: "{{ app_deploy_path }}"
   failed_when: false
   tags: [app, deploy]
 
 - name: Start application services
-  community.docker.docker_compose_v2:
-    project_src: "{{ app_deploy_path }}"
-    files: docker-compose.yml
-    state: present
-    recreate: always
-    pull: always
+  ansible.builtin.command:
+    cmd: docker compose -p memocards-prod -f docker-compose.yml up -d --remove-orphans --force-recreate --pull always
+    chdir: "{{ app_deploy_path }}"
   register: app_compose_result
   tags: [app, deploy]
 
@@ -81,7 +77,7 @@
 # Monitoring removed - using Docker restart policy (restart: unless-stopped)
 
 - name: Get container status
-  ansible.builtin.command: docker compose -f {{ app_deploy_path }}/docker-compose.yml ps
+  ansible.builtin.command: docker compose -p memocards-prod -f {{ app_deploy_path }}/docker-compose.yml ps
   register: app_container_status
   changed_when: false
   tags: [app, verify]
@@ -109,6 +105,6 @@
 
       📋 Useful commands:
       - View logs: docker logs -f memocards-app-prod
-      - Restart app: docker compose -f {{ app_deploy_path }}/docker-compose.yml restart app
-      - Check status: docker compose -f {{ app_deploy_path }}/docker-compose.yml ps
+      - Restart app: docker compose -p memocards-prod -f {{ app_deploy_path }}/docker-compose.yml restart app
+      - Check status: docker compose -p memocards-prod -f {{ app_deploy_path }}/docker-compose.yml ps
   tags: [app]

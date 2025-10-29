@@ -91,12 +91,9 @@
   tags: [monitoring, config]
 
 - name: Start infrastructure services
-  community.docker.docker_compose_v2:
-    project_src: "{{ app_deploy_path }}"
-    files:
-      - docker-compose.infrastructure.yml
-    state: present
-    recreate: always
+  ansible.builtin.command:
+    cmd: docker compose -p memocards-prod -f docker-compose.infrastructure.yml up -d --remove-orphans --force-recreate
+    chdir: "{{ app_deploy_path }}"
   register: monitoring_infrastructure_compose_result
   tags: [monitoring, deploy]
 
