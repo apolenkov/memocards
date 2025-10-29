@@ -30,7 +30,7 @@ services:
         reservations:
           memory: ${POSTGRES_MEMORY_RESERVATION:-256m}
     networks:
-      - ${NETWORK_NAME:-memocards-network}
+      - memocards-network
 
   app:
     image: ${APP_IMAGE:-ghcr.io/apolenkov/memocards:latest}
@@ -67,7 +67,7 @@ services:
         reservations:
           memory: ${APP_MEMORY_RESERVATION:-512m}
     networks:
-      - ${NETWORK_NAME:-memocards-network}
+      - memocards-network
 
 volumes:
   postgres_data:
@@ -75,7 +75,7 @@ volumes:
 
 networks:
   memocards-network:
-    name: ${NETWORK_NAME:-memocards-network}
+    name: memocards-network
     driver: bridge
     ipam:
       config:
