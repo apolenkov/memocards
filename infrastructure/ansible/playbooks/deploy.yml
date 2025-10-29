@@ -153,18 +153,15 @@
           register: pull_result
 
         - name: Stop application containers
-          community.docker.docker_compose_v2:
-            project_src: "{{ app_deploy_path }}"
-            files: docker-compose.yml
-            state: stopped
+          ansible.builtin.command:
+            cmd: docker compose -p memocards-prod -f docker-compose.yml stop
+            chdir: "{{ app_deploy_path }}"
+          failed_when: false
 
         - name: Start application services
-          community.docker.docker_compose_v2:
-            project_src: "{{ app_deploy_path }}"
-            files: docker-compose.yml
-            state: present
-            recreate: always
-            pull: always
+          ansible.builtin.command:
+            cmd: docker compose -p memocards-prod -f docker-compose.yml up -d --remove-orphans --force-recreate --pull always
+            chdir: "{{ app_deploy_path }}"
           register: compose_result
 
         - name: Get list of memocards images
@@ -227,11 +224,9 @@
               ╚════════════════════════════════════════════╝
 
         - name: Rollback to previous image
-          community.docker.docker_compose_v2:
-            project_src: "{{ app_deploy_path }}"
-            files: docker-compose.yml
-            state: present
-            recreate: always
+          ansible.builtin.command:
+            cmd: docker compose -p memocards-prod -f docker-compose.yml up -d --remove-orphans --force-recreate
+            chdir: "{{ app_deploy_path }}"
           when: current_image_backup.stdout != ""
 
         - name: Wait for rollback health check
