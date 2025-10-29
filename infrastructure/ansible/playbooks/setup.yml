@@ -56,11 +56,11 @@
     - role: nginx
       tags: [nginx, setup]
 
-    - role: monitoring
-      tags: [monitoring, setup]
-
     - role: app
       tags: [app, setup]
+
+    - role: monitoring
+      tags: [monitoring, setup]
 
   post_tasks:
     - name: Display deployment summary
