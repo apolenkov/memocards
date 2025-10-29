@@ -1,0 +1,111 @@
+---
+# =============================================================================
+# PLAYBOOK: cleanup-docker.yml
+# Complete Docker cleanup for initial deployment
+# =============================================================================
+#
+# USE WITH CAUTION: This removes ALL containers and networks
+# Volumes are preserved (data safe)
+#
+# Usage (manual run before initial deployment):
+#   ansible-playbook -i inventory/hosts.yml playbooks/cleanup-docker.yml --ask-vault-pass
+#
+# WARNING: Only use on fresh setup or when you need to clean everything
+# =============================================================================
+
+- name: Complete Docker Cleanup (Initial Setup)
+  hosts: vps
+  become: true
+  gather_facts: false
+
+  vars_files:
+    - ../inventory/group_vars/all.yml
+    - ../secrets.yml
+
+  tasks:
+    - name: Stop and remove all memocards containers
+      ansible.builtin.shell: |
+        set -e
+        # Stop and remove all containers with memocards in name
+        docker ps -a --filter "name=memocards" --format '{{ '{{' }}.Names{{ '}}' }}' | \
+        xargs -r docker rm -f || true
+      register: cleanup_containers_result
+      changed_when: cleanup_containers_result.stdout != ""
+      failed_when: false
+
+    - name: Remove memocards networks (will be recreated by compose)
+      ansible.builtin.shell: |
+        set -e
+        # Remove networks (containers must be removed first)
+        docker network ls --filter "name=memocards" --format '{{ '{{' }}.ID{{ '}}' }}' | \
+        xargs -r docker network rm || true
+      register: cleanup_networks_result
+      changed_when: cleanup_networks_result.stdout != ""
+      failed_when: false
+
+    - name: Prune unused Docker images (frees disk space)
+      ansible.builtin.command:
+        cmd: docker image prune -af
+      register: image_prune_result
+      changed_when: "'reclaimed' in image_prune_result.stdout.lower() or image_prune_result.stdout_lines | length > 1"
+      failed_when: false
+
+    - name: Prune unused build cache
+      ansible.builtin.command:
+        cmd: docker builder prune -af
+      register: builder_prune_result
+      changed_when: "'reclaimed' in builder_prune_result.stdout.lower() or builder_prune_result.stdout_lines | length > 1"
+      failed_when: false
+
+    - name: "Remove all memocards volumes (WARNING: Deletes ALL data)"
+      ansible.builtin.shell: |
+        set -e
+        # Remove all volumes with memocards in name
+        docker volume ls --filter "name=memocards" --format '{{ '{{' }}.Name{{ '}}' }}' | \
+        xargs -r docker volume rm || true
+      register: cleanup_volumes_result
+      changed_when: cleanup_volumes_result.stdout != ""
+      failed_when: false
+
+    - name: Verify volumes status
+      ansible.builtin.command:
+        cmd: docker volume ls --filter "name=memocards"
+      register: volumes_check
+      changed_when: false
+      failed_when: false
+
+    - name: Check disk usage after cleanup
+      ansible.builtin.command:
+        cmd: docker system df
+      register: disk_usage_after
+      changed_when: false
+
+    - name: Display cleanup summary
+      ansible.builtin.debug:
+        msg: |
+          ✅ Docker cleanup completed
+
+          🐳 Removed containers:
+          {{ cleanup_containers_result.stdout if cleanup_containers_result.stdout else 'None' }}
+
+          🌐 Removed networks:
+          {{ cleanup_networks_result.stdout if cleanup_networks_result.stdout else 'None' }}
+
+          🖼️  Images pruned:
+          {{ image_prune_result.stdout if image_prune_result.changed else 'No unused images found' }}
+
+          🧹 Build cache pruned:
+          {{ builder_prune_result.stdout if builder_prune_result.changed else 'No cache found' }}
+
+          💾 Volumes removed:
+          {{ cleanup_volumes_result.stdout if cleanup_volumes_result.stdout else 'None' }}
+          {{ '⚠️ ALL DATA DELETED!' if cleanup_volumes_result.stdout else 'No volumes found' }}
+
+          📊 Remaining volumes:
+          {{ volumes_check.stdout if volumes_check.stdout_lines else 'None' }}
+
+          💽 Disk usage after cleanup:
+          {{ disk_usage_after.stdout }}
+
+          📋 Next step: Run setup.yml for fresh deployment
+
