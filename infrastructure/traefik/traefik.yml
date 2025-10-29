@@ -1,10 +1,12 @@
-# EntryPoints - Traefik API/dashboard entrypoint
-# Nginx on host handles 80/443 (external traffic)
+# EntryPoints - Internal routing entrypoint
+# Nginx on host handles 80/443 (external traffic, SSL termination)
 entryPoints:
+  web:
+    address: ":8080"
+    # Main entrypoint for internal routing (Nginx proxies all traffic here)
   traefik:
     address: ":8082"
-    # Internal API/dashboard entrypoint (mapped to host:8081 via docker-compose)
-    # External access via Nginx at /traefik/
+    # Internal API/dashboard entrypoint (mapped to host:8081 via docker-compose for direct access)
 
 api:
   dashboard: true

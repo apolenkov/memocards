@@ -48,6 +48,11 @@ graph TB
         UI[Vaadin 24.9<br/>Server-Side UI<br/>@Push<br/>@UIScope Cache]
     end
     
+    subgraph "Infrastructure Layer (Host)"
+        Nginx[Nginx<br/>Edge Proxy<br/>SSL Termination]
+        Traefik[Traefik<br/>Internal Router<br/>Docker Labels]
+    end
+    
     subgraph "Application Container"
         subgraph "Views Layer"
             DeckView[Deck Views]
@@ -73,7 +78,16 @@ graph TB
         PG[(PostgreSQL 16<br/>HikariCP Pool)]
     end
     
-    UI --> DeckView
+    subgraph "Monitoring Containers"
+        Prometheus[Prometheus<br/>Metrics Scraping]
+        Grafana[Grafana<br/>Dashboards]
+        Loki[Loki<br/>Log Aggregation]
+    end
+    
+    UI -->|HTTPS| Nginx
+    Nginx -->|HTTP :8080| Traefik
+    Traefik -->|Route Matching| DeckView
+    
     DeckView --> DeckService
     DeckService --> JDBC
     JDBC --> PG
@@ -82,17 +96,28 @@ graph TB
     Events --> Cache
     Cache --> StatsService
     
+    CardService -->|/actuator/prometheus| Prometheus
+    Prometheus --> Grafana
+    Loki --> Grafana
+    Traefik -->|/grafana| Grafana
+    Traefik -->|/prometheus| Prometheus
+    
+    style Nginx fill:#009639,stroke:#007028,stroke-width:2px
+    style Traefik fill:#24a1c1,stroke:#1a7c94,stroke-width:2px
     style CardService fill:#4caf50,stroke:#388e3c,stroke-width:2px
     style Cache fill:#ff9800,stroke:#f57c00,stroke-width:2px
     style PG fill:#336791,stroke:#245a7c,stroke-width:2px
 ```
 
 **Technologies:**
+- **Edge Proxy**: Nginx (SSL termination, security headers)
+- **Internal Router**: Traefik v3.0 (dynamic service discovery)
 - **UI**: Vaadin 24.9 with server push
 - **Business Logic**: Spring Boot services with @Transactional
 - **Data Access**: Spring Data JDBC with explicit SQL control
 - **Cache**: Caffeine + custom @UIScope/@SessionScope caches
 - **Events**: Spring Events for decoupled cache invalidation
+- **Monitoring**: Prometheus, Grafana, Loki, Promtail
 
 ---
 
@@ -100,46 +125,81 @@ graph TB
 
 ```mermaid
 graph TB
+    subgraph "Infrastructure Layer (External)"
+        Nginx[Nginx<br/>Edge Proxy]
+        Traefik[Traefik Router<br/>Docker Labels]
+    end
+    
     subgraph "Views Layer"
         DeckPages[Deck Pages<br/>DeckListView<br/>DeckEditorView<br/>CardManagementView]
         PracticePages[Practice Pages<br/>PracticeView<br/>PracticeSession]
         StatsPages[Stats Pages<br/>DashboardView]
+        AdminPages[Admin Pages<br/>NewsManagementView]
     end
     
     subgraph "Domain Layer"
-        Ports[Repository Interfaces<br/>CardRepository<br/>DeckRepository<br/>StatsRepository]
+        Ports[Repository Interfaces<br/>CardRepository<br/>DeckRepository<br/>StatsRepository<br/>NewsRepository]
         Events[Domain Events<br/>ProgressChangedEvent<br/>DeckModifiedEvent]
-        Models[Domain Models<br/>Card, Deck, User<br/>PracticeDirection]
+        Models[Domain Models<br/>Card, Deck, User<br/>News, PracticeDirection]
     end
     
     subgraph "Service Layer"
         CardUseCase[CardUseCaseService<br/>+ Validation<br/>+ Event Publishing]
         DeckUseCase[DeckUseCaseService<br/>+ CRUD Operations]
         StatsUseCase[StatsService<br/>+ Caching Strategy]
+        NewsUseCase[NewsService<br/>+ Content Management]
+        AuthUseCase[AuthService<br/>+ Password Reset]
     end
     
-    subgraph "Infrastructure"
-        Adapters[JDBC Adapters<br/>CardJdbcAdapter<br/>DeckJdbcAdapter<br/>StatsJdbcAdapter]
+    subgraph "Infrastructure (Internal)"
+        Adapters[JDBC Adapters<br/>CardJdbcAdapter<br/>DeckJdbcAdapter<br/>StatsJdbcAdapter<br/>NewsJdbcAdapter<br/>UserJdbcAdapter]
         CacheLayer[Cache Layer<br/>KnownCardsCache<br/>UserDecksCache<br/>PaginationCountCache]
     end
     
+    subgraph "Database & Monitoring"
+        PG[(PostgreSQL 16)]
+        Prometheus[Prometheus]
+        Grafana[Grafana]
+    end
+    
+    Nginx --> Traefik
+    Traefik --> DeckPages
+    Traefik --> PracticePages
+    Traefik --> StatsPages
+    Traefik --> AdminPages
+    
     DeckPages --> CardUseCase
+    PracticePages --> CardUseCase
+    StatsPages --> StatsUseCase
+    AdminPages --> NewsUseCase
+    
     CardUseCase --> Ports
+    DeckUseCase --> Ports
+    StatsUseCase --> Ports
+    NewsUseCase --> Ports
+    
     Ports --> Adapters
+    Adapters --> PG
     
     CardUseCase --> Events
     Events --> CacheLayer
     CacheLayer --> StatsUseCase
     
+    CardUseCase -->|Metrics| Prometheus
+    Prometheus --> Grafana
+    
+    style Traefik fill:#24a1c1,stroke:#1a7c94,stroke-width:2px
     style CardUseCase fill:#4caf50,stroke:#388e3c,stroke-width:2px
     style Events fill:#ff9800,stroke:#f57c00,stroke-width:2px
     style CacheLayer fill:#ff9800,stroke:#f57c00,stroke-width:2px
+    style PG fill:#336791,stroke:#245a7c,stroke-width:2px
 ```
 
 **Key Components:**
 - **UseCase Services**: Business logic, validation, transaction boundaries
 - **JDBC Adapters**: Data access with explicit SQL control
 - **Cache Layer**: Event-driven invalidation, multi-scope (UI/Session)
+- **Infrastructure**: Nginx (edge) + Traefik (internal routing)
 
 ---
 
@@ -206,6 +266,64 @@ erDiagram
 - `Users` → `Decks` (1:N): User owns multiple decks
 - `Decks` → `Cards` (1:N): Deck contains multiple cards
 - `Users` + `Cards` → `CardProgress` (N:M): Tracks user progress per card
+
+---
+
+## Infrastructure Components
+
+### C4 Level 2: Infrastructure Containers
+
+```mermaid
+graph TB
+    subgraph "Edge Layer (Host)"
+        Nginx[Nginx<br/>Port 80/443<br/>SSL Termination<br/>Security Headers]
+    end
+    
+    subgraph "Docker Network: memocards-network"
+        subgraph "Routing Layer"
+            Traefik[Traefik v3.0<br/>Port 8080<br/>Docker Provider<br/>Auto-Discovery]
+        end
+        
+        subgraph "Application Services"
+            App[Memocards App<br/>Port 8080<br/>Spring Boot 3.5]
+            Postgres[PostgreSQL 16<br/>Port 5432<br/>SCRAM-SHA-256]
+        end
+        
+        subgraph "Monitoring Stack"
+            Prometheus[Prometheus<br/>Port 9090<br/>/prometheus<br/>Metrics Storage]
+            Grafana[Grafana<br/>Port 3000<br/>/grafana<br/>Dashboards]
+            Loki[Loki<br/>Port 3100<br/>Log Storage]
+            Promtail[Promtail<br/>Log Shipper]
+        end
+    end
+    
+    Nginx -->|All Traffic<br/>proxy_pass :8080| Traefik
+    
+    Traefik -->|Host + !PathPrefix<br/>Priority 1| App
+    Traefik -->|PathPrefix /grafana<br/>Priority 10<br/>stripPrefix| Grafana
+    Traefik -->|PathPrefix /prometheus<br/>Priority 10| Prometheus
+    Traefik -->|PathPrefix /traefik<br/>Priority 10| Traefik
+    
+    App -->|JDBC| Postgres
+    Promtail -->|HTTP Push| Loki
+    App -->|/actuator/prometheus<br/>Scrape 15s| Prometheus
+    Prometheus -->|Query API| Grafana
+    Loki -->|Query API| Grafana
+    
+    style Nginx fill:#009639,stroke:#007028,stroke-width:3px
+    style Traefik fill:#24a1c1,stroke:#1a7c94,stroke-width:3px
+    style App fill:#4285f4,stroke:#357ae8,stroke-width:2px
+    style Postgres fill:#336791,stroke:#245a7c,stroke-width:2px
+    style Grafana fill:#f46800,stroke:#e55600,stroke-width:2px
+    style Prometheus fill:#e6522c,stroke:#c94526,stroke-width:2px
+    style Loki fill:#0080ff,stroke:#0066cc,stroke-width:2px
+```
+
+**Infrastructure Components:**
+- **Nginx**: Edge proxy, SSL termination (Let's Encrypt), security headers
+- **Traefik**: Internal reverse proxy, automatic service discovery via Docker labels
+- **Application Services**: Memocards app, PostgreSQL database
+- **Monitoring Stack**: Prometheus (metrics), Grafana (visualization), Loki (logs), Promtail (log shipping)
 
 ---
 
@@ -282,42 +400,118 @@ sequenceDiagram
 
 ## Deployment Architecture
 
+### Hybrid Architecture (Production)
+
 ```mermaid
 graph TB
     subgraph "User Browser"
         Browser[Chrome/Firefox<br/>PWA Installed]
     end
     
-    subgraph "VPS Server"
-        Nginx[Nginx Reverse Proxy<br/>SSL/TLS]
+    subgraph "VPS Server (Host)"
+        Nginx[Nginx<br/>SSL Termination<br/>Port 80/443<br/>Security Headers]
+    end
+    
+    subgraph "Docker Network: memocards-network"
+        Traefik[Traefik v3.0<br/>Internal Router<br/>Port 8080<br/>Docker Labels Auto-Discovery]
         
-        subgraph "Docker Network"
-            App[Memocards App<br/>:8080]
+        subgraph "Application Services"
+            App[Memocards App<br/>:8080<br/>Traefik Labels]
             Postgres[PostgreSQL 16<br/>:5432]
+        end
+        
+        subgraph "Monitoring Services"
+            Grafana[Grafana<br/>:3000<br/>/grafana<br/>Traefik Labels]
+            Prometheus[Prometheus<br/>:9090<br/>/prometheus<br/>Traefik Labels]
+            Loki[Loki<br/>:3100<br/>Log Aggregation]
+            Promtail[Promtail<br/>Log Shipping]
         end
     end
     
-    subgraph "Monitoring"
-        Prometheus[Prometheus<br/>Metrics Scraping]
-        Grafana[Grafana<br/>Dashboards]
-    end
-    
     Browser -->|HTTPS 443| Nginx
-    Nginx -->|HTTP| App
+    Nginx -->|HTTP :8080<br/>Single Proxy Pass| Traefik
+    
+    Traefik -->|PathPrefix /<br/>Host memocards.duckdns.org| App
+    Traefik -->|PathPrefix /grafana<br/>StripPrefix Middleware| Grafana
+    Traefik -->|PathPrefix /prometheus| Prometheus
+    Traefik -->|PathPrefix /traefik| Traefik[Traefik Dashboard<br/>:8082]
+    
     App -->|JDBC| Postgres
-    
     App -->|/actuator/prometheus| Prometheus
+    Promtail -->|Logs| Loki
     Prometheus --> Grafana
+    Loki --> Grafana
     
+    style Nginx fill:#009639,stroke:#007028,stroke-width:2px
+    style Traefik fill:#24a1c1,stroke:#1a7c94,stroke-width:2px
     style App fill:#4285f4,stroke:#357ae8,stroke-width:2px
     style Postgres fill:#336791,stroke:#245a7c,stroke-width:2px
+    style Grafana fill:#f46800,stroke:#e55600,stroke-width:2px
 ```
 
-**Deployment Stack:**
-- **Reverse Proxy**: Nginx (SSL termination)
+**Deployment Stack (Hybrid Architecture):**
+- **Edge Proxy**: Nginx (SSL termination, security headers, rate limiting)
+- **Internal Router**: Traefik v3.0 (dynamic routing via Docker labels)
 - **Application**: Docker container (Jib multi-arch image)
 - **Database**: PostgreSQL 16 with SCRAM-SHA-256
-- **Monitoring**: Prometheus + Grafana
+- **Monitoring**: Prometheus + Grafana + Loki + Promtail
+
+**Architecture Benefits:**
+- ✅ Nginx: Stable SSL termination, security, edge proxy
+- ✅ Traefik: Dynamic service discovery, automatic routing
+- ✅ No Nginx reloads: Adding services only requires Traefik labels
+- ✅ Best of both worlds: Stability + Automation
+
+---
+
+## Internal Routing Architecture
+
+### Request Flow
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Nginx as Nginx (Host)
+    participant Traefik as Traefik (Docker)
+    participant Services as Services (Docker)
+    
+    Browser->>Nginx: HTTPS Request<br/>https://memocards.duckdns.org/grafana
+    Nginx->>Nginx: SSL Termination<br/>Security Headers<br/>Rate Limiting
+    Nginx->>Traefik: HTTP Proxy Pass<br/>127.0.0.1:8080<br/>X-Forwarded-* Headers
+    Traefik->>Traefik: Route Matching<br/>PathPrefix(`/grafana`)
+    Traefik->>Traefik: Apply Middleware<br/>stripPrefix(/grafana)
+    Traefik->>Services: Forward to Grafana<br/>memocards-network<br/>:3000
+    Services-->>Traefik: HTTP Response
+    Traefik-->>Nginx: HTTP Response
+    Nginx-->>Browser: HTTPS Response<br/>with Headers
+```
+
+### Traefik Routing Rules
+
+| Service | Rule | Priority | Middleware |
+|---------|------|----------|------------|
+| **App** | `Host(memocards.duckdns.org) && !PathPrefix(/grafana\|/prometheus\|/traefik)` | 1 | None (fallback) |
+| **Grafana** | `PathPrefix(/grafana)` | 10 | `stripPrefix(/grafana)` |
+| **Prometheus** | `PathPrefix(/prometheus)` | 10 | None |
+| **Traefik Dashboard** | `PathPrefix(/traefik) \|\| PathPrefix(/api)` | 10 | None |
+
+### Service Discovery
+
+All services use **Docker labels** for automatic Traefik discovery:
+
+```yaml
+labels:
+  - "traefik.enable=true"
+  - "traefik.http.routers.service-name.rule=PathPrefix(`/service`)"
+  - "traefik.http.routers.service-name.entrypoints=web"
+  - "traefik.http.services.service-name.loadbalancer.server.port=8080"
+```
+
+**Advantages:**
+- ✅ No manual Nginx configuration
+- ✅ Dynamic routing without reloads
+- ✅ Easy to add new services
+- ✅ Automatic health checks
 
 ---
 
@@ -332,7 +526,8 @@ graph TB
 | **Cache** | Caffeine + Custom | Multi-layer caching |
 | **Events** | Spring Events | Decoupled invalidation |
 | **Security** | Spring Security | Authentication, authorization |
-| **Monitoring** | Actuator + Prometheus | Metrics, health checks |
+| **Monitoring** | Actuator + Prometheus + Grafana + Loki | Metrics, logs, dashboards |
+| **Reverse Proxy** | Nginx + Traefik (Hybrid) | SSL termination + internal routing |
 | **Deployment** | Docker + Ansible | Automated deployment |
 | **CI/CD** | GitHub Actions | Automated testing, building |
 

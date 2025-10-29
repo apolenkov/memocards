@@ -63,6 +63,17 @@
       tags: [monitoring, setup]
 
   post_tasks:
+    - name: Verify all containers are running
+      ansible.builtin.shell: |
+        set -o pipefail
+        docker ps --format "table {{ '{{' }}.Names{{ '}}' }}\t{{ '{{' }}.Status{{ '}}' }}" | grep -E "(NAMES|memocards)" || echo "No containers found"
+      args:
+        executable: /bin/bash
+      register: container_status
+      changed_when: false
+      failed_when: false
+      tags: [always, verify]
+
     - name: Display deployment summary
       ansible.builtin.debug:
         msg: |
@@ -73,22 +84,30 @@
           📦 Components:
           ✅ System configured (firewall, swap, directories)
           ✅ Docker Engine installed and running
-          ✅ Nginx installed with SSL
-          ✅ Infrastructure deployed (Prometheus, Loki, Promtail, Grafana)
+          ✅ Nginx installed with SSL (hybrid architecture: Nginx → Traefik → Services)
+          ✅ Infrastructure deployed (Traefik, Prometheus, Loki, Promtail, Grafana)
           ✅ Application deployed and healthy
           ✅ PostgreSQL database running
           ✅ Auto-restart enabled (Docker restart policy)
 
           🌐 Access:
-          - URL: https://{{ domain }}
+          - Application: https://{{ domain }}
+          - Grafana: https://{{ domain }}/grafana
+          - Prometheus: https://{{ domain }}/prometheus
+          - Traefik Dashboard: https://{{ domain }}/traefik
           - Health: https://{{ domain }}/actuator/health
 
           📋 Next Steps:
           1. Test application: curl -I https://{{ domain }}
-          2. Check logs: docker logs -f memocards-app-prod
-          3. For updates: ansible-playbook -i ../inventory/hosts.yml deploy.yml --ask-vault-pass
+          2. Test Grafana: curl -I https://{{ domain }}/grafana
+          3. Check logs: docker logs -f memocards-app-prod
+          4. For updates: ansible-playbook -i ../inventory/hosts.yml deploy.yml --ask-vault-pass
 
           📚 Documentation: ../README.md
+          🔧 Architecture: Hybrid (Nginx SSL + Traefik routing)
+
+          🐳 Container Status:
+          {{ container_status.stdout }}
       tags: [always]
 
     - name: Save deployment timestamp

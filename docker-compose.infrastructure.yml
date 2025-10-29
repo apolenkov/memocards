@@ -8,7 +8,9 @@ services:
     image: traefik:v3.0
     container_name: ${TRAEFIK_CONTAINER_NAME:-memocards-traefik}
     ports:
-      # Dashboard available via Nginx proxy at /traefik/ (port 8081 for localhost access)
+      # Main entrypoint for Nginx proxy (all traffic from Nginx goes here)
+      - "127.0.0.1:8080:8080"
+      # Dashboard API entrypoint (for direct localhost access)
       - "127.0.0.1:8081:8082"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -25,9 +27,12 @@ services:
     networks:
       - memocards-network
     labels:
-      # Traefik dashboard accessible only via localhost:8080
-      # Nginx on host handles external traffic (80/443)
+      # Traefik dashboard accessible via /traefik/ path
       - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=PathPrefix(`/traefik`) || PathPrefix(`/api`)"
+      - "traefik.http.routers.traefik.entrypoints=web"
+      - "traefik.http.routers.traefik.priority=10"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8082"
 
   prometheus:
     image: prom/prometheus:latest
@@ -61,6 +66,12 @@ services:
           memory: 128m
     networks:
       - memocards-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=PathPrefix(`/prometheus`)"
+      - "traefik.http.routers.prometheus.entrypoints=web"
+      - "traefik.http.routers.prometheus.priority=10"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
   loki:
     image: grafana/loki:latest
@@ -155,9 +166,13 @@ services:
     networks:
       - memocards-network
     labels:
-      # Grafana is proxied via Nginx on host, not directly via Traefik
-      # Nginx handles routing to Grafana on localhost:3000
-      - "traefik.enable=false"
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.routers.grafana.priority=10"
+      - "traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana"
+      - "traefik.http.routers.grafana.middlewares=grafana-stripprefix"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
 volumes:
   prometheus_data:

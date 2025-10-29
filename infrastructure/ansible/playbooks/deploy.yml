@@ -152,17 +152,17 @@
             name: "{{ app_image }}"
           register: pull_result
 
-        - name: Stop application containers
+        - name: Deploy application services
           ansible.builtin.command:
-            cmd: docker compose -p memocards-prod -f docker-compose.yml stop
-            chdir: "{{ app_deploy_path }}"
-          failed_when: false
-
-        - name: Start application services
-          ansible.builtin.command:
-            cmd: docker compose -p memocards-prod -f docker-compose.yml up -d --remove-orphans --force-recreate --pull always
+            cmd: docker compose -p memocards-prod -f docker-compose.yml up -d --pull always --remove-orphans
             chdir: "{{ app_deploy_path }}"
           register: compose_result
+          changed_when: >-
+            'Created' in compose_result.stdout or
+            'Started' in compose_result.stdout or
+            'Recreated' in compose_result.stdout or
+            'Pulled' in compose_result.stdout
+          # NOTE: Recreates containers if config/images changed
 
         - name: Get list of memocards images
           ansible.builtin.command:
@@ -227,6 +227,11 @@
           ansible.builtin.command:
             cmd: docker compose -p memocards-prod -f docker-compose.yml up -d --remove-orphans --force-recreate
             chdir: "{{ app_deploy_path }}"
+          register: rollback_result
+          changed_when: >-
+            'Created' in rollback_result.stdout or
+            'Started' in rollback_result.stdout or
+            'Recreated' in rollback_result.stdout
           when: current_image_backup.stdout != ""
 
         - name: Wait for rollback health check
