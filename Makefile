@@ -212,6 +212,62 @@ docker-status: ## Show Docker Compose services status
 	@curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" http://localhost:$(APP_PORT) || echo "Application: Not responding"
 
 # =============================================================================
+# INFRASTRUCTURE COMMANDS - Monitoring (Prometheus, Loki, Promtail, Grafana)
+# =============================================================================
+infra-up: ## Start infrastructure monitoring services
+	@echo "Starting infrastructure services..."
+	docker compose -f docker-compose.infrastructure.yml up -d
+	@echo "Infrastructure services started!"
+	@echo "Grafana: http://localhost:3000"
+	@echo "Prometheus: http://localhost:9090"
+
+infra-down: ## Stop infrastructure monitoring services
+	@echo "Stopping infrastructure services..."
+	docker compose -f docker-compose.infrastructure.yml down
+	@echo "Infrastructure services stopped!"
+
+infra-logs: ## Show infrastructure services logs
+	docker compose -f docker-compose.infrastructure.yml logs -f
+
+infra-status: ## Show infrastructure services status
+	@echo "=== Infrastructure Services Status ==="
+	@docker compose -f docker-compose.infrastructure.yml ps
+
+# =============================================================================
+# FULL STACK COMMANDS - Application + Infrastructure
+# =============================================================================
+stack-up: ## Start full stack (app creates network, then infrastructure)
+	@echo "Starting full stack..."
+	@echo "Step 1: Starting application (creates network)..."
+	@make docker
+	@echo "Step 2: Starting infrastructure (uses network)..."
+	@make infra-up
+	@echo "✅ Full stack started!"
+
+stack-down: ## Stop full stack (infrastructure first, then app)
+	@echo "Stopping full stack..."
+	@echo "Step 1: Stopping infrastructure..."
+	@make infra-down
+	@echo "Step 2: Stopping application..."
+	@make docker-stop
+	@echo "✅ Full stack stopped!"
+
+stack-status: ## Show full stack status
+	@make docker-status
+	@echo ""
+	@make infra-status
+
+network-create: ## Create shared Docker network (manual, usually not needed)
+	@echo "Creating shared Docker network..."
+	@docker network create memocards-network --subnet=172.20.0.0/16 --driver=bridge 2>/dev/null || echo "Network already exists"
+	@echo "Network created! (Note: network will be created automatically by docker-compose.yml)"
+
+network-rm: ## Remove shared Docker network
+	@echo "Removing shared Docker network..."
+	@docker network rm memocards-network 2>/dev/null || echo "Network does not exist"
+	@echo "Network removed!"
+
+# =============================================================================
 # JIB CONTAINERIZATION COMMANDS
 # =============================================================================
 jib: ## Build Docker image with Jib (local)

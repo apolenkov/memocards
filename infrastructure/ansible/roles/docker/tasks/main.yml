@@ -196,6 +196,9 @@
     user: root
   tags: [docker, cleanup]
 
+# Network creation removed - docker-compose.yml creates the network automatically
+# The network will be created when docker-compose.yml is first started
+
 - name: Display Docker role completion
   ansible.builtin.debug:
     msg: |
@@ -206,5 +209,6 @@
       - User {{ ansible_user }} added to docker group
       - GHCR login: {{ 'configured' if (vault_github_token is defined and
         vault_github_token != '') else 'skipped (no token)' }}
+      - Network: will be created by docker-compose.yml on first run
       - Cleanup: weekly cron job (Sundays at 3:00 AM)
   tags: [docker]
