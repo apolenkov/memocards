@@ -282,7 +282,15 @@
           ansible.builtin.debug:
             msg: |
               📊 Monitoring Services Verification:
-              - Grafana: {% if grafana_enabled and grafana_health_check is defined %}{{ grafana_health_check.rc == 0 | ternary('READY ✅', 'NOT READY ⚠️') }}{% elif grafana_enabled %}DISABLED{% else %}DISABLED{% endif %}
+              - Grafana: {%
+                if grafana_enabled and grafana_health_check is defined
+              %}{{ grafana_health_check.rc == 0 | ternary('READY ✅', 'NOT READY ⚠️') }}{%
+                elif grafana_enabled
+              %}DISABLED{%
+                else
+              %}DISABLED{%
+                endif
+              %}
 
     - name: Get application version info
       ansible.builtin.uri:

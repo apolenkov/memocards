@@ -10,16 +10,24 @@
     mode: "0755"
   loop:
     - "{{ app_deploy_path }}/../infrastructure/grafana"
+    - "{{ app_deploy_path }}/../infrastructure/grafana/config"
+    - "{{ app_deploy_path }}/../infrastructure/grafana/dashboards"
+    - "{{ app_deploy_path }}/../infrastructure/grafana/provisioning"
     - "{{ app_deploy_path }}/../infrastructure/prometheus"
     - "{{ app_deploy_path }}/../infrastructure/promtail"
   tags: [monitoring, config]
 
-- name: Copy Grafana configuration
-  ansible.builtin.synchronize:
-    src: "{{ playbook_dir }}/../../../infrastructure/grafana/"
-    dest: "{{ app_deploy_path }}/../infrastructure/grafana/"
-    delete: yes
-    recursive: yes
+- name: Copy Grafana configuration files
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../infrastructure/grafana/{{ item }}"
+    dest: "{{ app_deploy_path }}/../infrastructure/grafana/{{ item }}"
+    mode: "0644"
+    directory_mode: "0755"
+  loop:
+    - "config/grafana.ini"
+    - "dashboard-memocards.json"
+    - "dashboards/dashboard-memocards.json"
+    - "provisioning/dashboards.yml"
   tags: [monitoring, config]
 
 - name: Copy Prometheus configuration
@@ -29,12 +37,14 @@
     mode: "0644"
   tags: [monitoring, config]
 
-- name: Copy Promtail configuration
-  ansible.builtin.synchronize:
-    src: "{{ playbook_dir }}/../../../infrastructure/promtail/"
-    dest: "{{ app_deploy_path }}/../infrastructure/promtail/"
-    delete: yes
-    recursive: yes
+- name: Copy Promtail configuration files
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../infrastructure/promtail/{{ item }}"
+    dest: "{{ app_deploy_path }}/../infrastructure/promtail/{{ item }}"
+    mode: "0644"
+  loop:
+    - "config.yml"
+    - "promtail.yml"
   tags: [monitoring, config]
 
 - name: Copy Docker Compose configuration (infrastructure)
@@ -51,7 +61,7 @@
       - docker-compose.infrastructure.yml
     state: present
     recreate: always
-  register: infrastructure_compose_result
+  register: monitoring_infrastructure_compose_result
   tags: [monitoring, deploy]
 
 - name: Wait for Grafana to be ready (after deployment)
@@ -63,7 +73,7 @@
       sleep 2
     done
     exit 1
-  register: grafana_health
+  register: monitoring_grafana_health
   changed_when: false
   failed_when: false
   tags: [monitoring, verify]
@@ -72,12 +82,12 @@
   ansible.builtin.debug:
     msg: |
       ✅ Infrastructure deployed:
-      
+
       📊 Prometheus: localhost:9090
       📋 Loki: localhost:3100
       📝 Promtail: running
       📈 Grafana: localhost:3000
-      
+
       🔗 Access via SSH tunnel:
       - ssh -L 9090:localhost:9090 root@{{ ansible_host }}
       - ssh -L 3000:localhost:3000 root@{{ ansible_host }}
