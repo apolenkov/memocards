@@ -1,0 +1,76 @@
+---
+# Quick status check playbook for production
+- name: Check Production Status
+  hosts: vps
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Check Docker containers status
+      ansible.builtin.shell: docker ps --format "table {% raw %}{{.Names}}\t{{.Status}}\t{{.Ports}}{% endraw %}" --filter "name=memocards"
+      register: container_status
+      changed_when: false
+
+    - name: Display container status
+      ansible.builtin.debug:
+        var: container_status.stdout_lines
+
+    - name: Check Prometheus targets
+      ansible.builtin.uri:
+        url: "http://localhost:9090/api/v1/targets"
+        method: GET
+        return_content: true
+      register: prometheus_targets
+      failed_when: false
+      changed_when: false
+
+    - name: Parse Prometheus targets
+      ansible.builtin.set_fact:
+        targets_up: "{{ prometheus_targets.json.data.activeTargets | selectattr('health', 'equalto', 'up') | list | length }}"
+        targets_down: "{{ prometheus_targets.json.data.activeTargets | selectattr('health', 'equalto', 'down') | list | length }}"
+
+    - name: Display Prometheus status
+      ansible.builtin.debug:
+        msg:
+          - "Prometheus Targets:"
+          - "  UP: {{ targets_up }}"
+          - "  DOWN: {{ targets_down }}"
+      when: prometheus_targets.status == 200
+
+    - name: Check application metrics endpoint
+      ansible.builtin.uri:
+        url: "http://localhost:8080/actuator/prometheus"
+        method: GET
+        return_content: false
+        status_code: [200, 404, 503]
+      register: metrics_check
+      failed_when: false
+      changed_when: false
+
+    - name: Display metrics status
+      ansible.builtin.debug:
+        msg: "Application metrics: {{ 'AVAILABLE' if metrics_check.status == 200 else 'NOT AVAILABLE (HTTP ' + metrics_check.status | string + ')' }}"
+
+    - name: Check Grafana datasources
+      ansible.builtin.shell: |
+        docker exec memocards-grafana-prod cat /etc/grafana/provisioning/datasources/prometheus.yml 2>/dev/null || echo "NOT FOUND"
+      register: grafana_datasources
+      failed_when: false
+      changed_when: false
+
+    - name: Display Grafana datasources status
+      ansible.builtin.debug:
+        msg: "Grafana datasources: {{ 'CONFIGURED' if 'Prometheus' in grafana_datasources.stdout else 'NOT CONFIGURED' }}"
+
+    - name: Summary
+      ansible.builtin.debug:
+        msg:
+          - "╔════════════════════════════════════════╗"
+          - "║   Production Status Summary            ║"
+          - "╚════════════════════════════════════════╝"
+          - ""
+          - "Containers: Check docker ps output above"
+          - "Prometheus: {{ 'UP' if prometheus_targets.status == 200 else 'DOWN' }}"
+          - "Metrics: {{ 'AVAILABLE' if metrics_check.status == 200 else 'NOT AVAILABLE' }}"
+          - "Grafana DS: {{ 'CONFIGURED' if 'Prometheus' in grafana_datasources.stdout else 'NOT CONFIGURED' }}"
+

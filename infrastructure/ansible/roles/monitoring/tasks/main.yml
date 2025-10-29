@@ -13,8 +13,12 @@
     - "{{ app_deploy_path }}/infrastructure/grafana/config"
     - "{{ app_deploy_path }}/infrastructure/grafana/dashboards"
     - "{{ app_deploy_path }}/infrastructure/grafana/provisioning"
+    - "{{ app_deploy_path }}/infrastructure/grafana/provisioning/datasources"
     - "{{ app_deploy_path }}/infrastructure/prometheus"
     - "{{ app_deploy_path }}/infrastructure/promtail"
+    - "{{ app_deploy_path }}/infrastructure/traefik"
+    - "{{ app_deploy_path }}/infrastructure/traefik/dynamic"
+    - "{{ app_deploy_path }}/infrastructure/loki"
   tags: [monitoring, config]
 
 - name: Copy Grafana configuration files
@@ -25,9 +29,16 @@
     force: true
   loop:
     - "config/grafana.ini"
-    - "dashboard-memocards.json"
     - "dashboards/dashboard-memocards.json"
     - "provisioning/dashboards.yml"
+  tags: [monitoring, config]
+
+- name: Create Grafana datasources from template
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../roles/monitoring/templates/grafana-datasources.yml.j2"
+    dest: "{{ app_deploy_path }}/infrastructure/grafana/provisioning/datasources/prometheus.yml"
+    mode: "0644"
+    force: true
   tags: [monitoring, config]
 
 - name: Copy Prometheus configuration
@@ -38,15 +49,39 @@
     force: true
   tags: [monitoring, config]
 
-- name: Copy Promtail configuration files
+- name: Copy Promtail configuration file
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/../../../infrastructure/promtail/{{ item }}"
-    dest: "{{ app_deploy_path }}/infrastructure/promtail/{{ item }}"
+    src: "{{ playbook_dir }}/../../../infrastructure/promtail/promtail.yml"
+    dest: "{{ app_deploy_path }}/infrastructure/promtail/promtail.yml"
+    mode: "0644"
+    force: true
+  tags: [monitoring, config]
+
+- name: Copy Traefik static configuration files
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../infrastructure/traefik/{{ item }}"
+    dest: "{{ app_deploy_path }}/infrastructure/traefik/{{ item }}"
     mode: "0644"
     force: true
   loop:
-    - "config.yml"
-    - "promtail.yml"
+    - "traefik.yml"
+    - "dynamic/https-redirect.yml"
+  tags: [monitoring, config]
+
+- name: Generate Traefik dashboard auth from template
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../roles/monitoring/templates/dashboard-auth.yml.j2"
+    dest: "{{ app_deploy_path }}/infrastructure/traefik/dynamic/dashboard-auth.yml"
+    mode: "0644"
+    force: true
+  tags: [monitoring, config]
+
+- name: Copy Loki configuration file
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../infrastructure/loki/loki.yml"
+    dest: "{{ app_deploy_path }}/infrastructure/loki/loki.yml"
+    mode: "0644"
+    force: true
   tags: [monitoring, config]
 
 - name: Copy Docker Compose configuration (infrastructure)

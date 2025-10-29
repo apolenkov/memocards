@@ -1,0 +1,37 @@
+api:
+  dashboard: true
+  insecure: false  # Use middleware for auth (via Nginx proxy)
+  debug: true
+  # Dashboard accessible via Nginx at /traefik/ with basic auth
+  basePath: /traefik  # Custom base path for API and Dashboard
+
+# EntryPoints disabled - Nginx on host handles 80/443
+# Traefik used only for internal Docker service routing
+entryPoints:
+  dashboard:
+    address: ":8080"
+    # No redirects - internal only
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: ${NETWORK_NAME:-memocards-network}
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+
+log:
+  level: INFO
+
+accessLog: {}
+
+# Certificate resolver not needed - Nginx handles SSL on host
+# certificatesResolvers:
+#   letsencrypt:
+#     acme:
+#       email: ${ACME_EMAIL:-apolenkov@gmail.com}
+#       storage: /etc/traefik/acme.json
+#       httpChallenge:
+#         entryPoint: web
+

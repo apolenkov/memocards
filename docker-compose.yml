@@ -75,6 +75,7 @@ volumes:
 
 networks:
   memocards-network:
+    name: ${NETWORK_NAME:-memocards-network}
     driver: bridge
     ipam:
       config:

@@ -1,15 +1,30 @@
 ---
 global:
   scrape_interval: 15s
+  scrape_timeout: 10s
   evaluation_interval: 15s
+  external_labels:
+    cluster: 'memocards-production'
+    environment: 'production'
 
 scrape_configs:
+  # Scrape Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          instance: 'prometheus'
+
+  # Scrape application metrics
   - job_name: 'memocards'
+    scrape_interval: 15s
+    scrape_timeout: 10s
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['app:8080']
         labels:
           application: 'memocards'
           environment: 'production'
+          service: 'application'
 
 
