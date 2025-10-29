@@ -1,8 +1,11 @@
 # Contributing to Memocards
 
-Thank you for your interest in contributing to Memocards! This document provides guidelines for contributing to this source-available educational project.
+Thank you for your interest in contributing to Memocards! This document provides guidelines for contributing to this
+source-available educational project.
 
-**Note on License**: This project uses a proprietary Source Available License. You can view the code and contribute improvements via Pull Requests, but forking for independent use or redistribution is not permitted. See [LICENSE](LICENSE) for complete details.
+**Note on License**: This project uses a proprietary Source Available License. You can view the code and contribute
+improvements via Pull Requests, but forking for independent use or redistribution is not permitted.
+See [LICENSE](../LICENSE) for complete details.
 
 ## Table of Contents
 
@@ -40,12 +43,14 @@ This project follows a simple code of conduct:
 ## Development Setup
 
 ### Prerequisites
+
 - Java 21+ (Eclipse Temurin or Amazon Corretto recommended)
 - Docker + Docker Compose
 - Git
 - (Optional) Node.js 20+ for frontend development
 
 ### Initial Setup
+
 ```bash
 # 1. Copy environment template
 cp env.sample .env
@@ -62,6 +67,7 @@ docker-compose up -d postgres
 ```
 
 ### Verify Setup
+
 ```bash
 # Run tests
 ./gradlew test
@@ -78,6 +84,7 @@ docker-compose up -d postgres
 ### Reporting Bugs
 
 When reporting bugs, please include:
+
 - **Summary**: Clear, descriptive title
 - **Steps to reproduce**: Detailed steps to trigger the issue
 - **Expected behavior**: What should happen
@@ -88,6 +95,7 @@ When reporting bugs, please include:
 ### Suggesting Features
 
 When suggesting features:
+
 - Check existing issues to avoid duplicates
 - Explain the problem you're trying to solve
 - Describe your proposed solution
@@ -97,6 +105,7 @@ When suggesting features:
 ### Code Contributions
 
 We welcome contributions in these areas:
+
 - **Bug fixes**: Resolve reported issues
 - **Features**: Implement new functionality from roadmap
 - **Tests**: Improve test coverage
@@ -109,6 +118,7 @@ We welcome contributions in these areas:
 ### Java Code Style
 
 This project follows strict coding standards enforced by:
+
 - **Spotless**: Auto-formatting (Palantir Java Format)
 - **Checkstyle**: Style rules (config/checkstyle/checkstyle.xml)
 - **SpotBugs**: Bug detection
@@ -133,10 +143,10 @@ This project follows strict coding standards enforced by:
 ### Project-Specific Rules
 
 1. **Clean Architecture**: Respect layer boundaries
-   - `domain/`: Pure business logic, no external dependencies
-   - `service/`: Use cases implementation
-   - `infrastructure/`: Technical implementations (JDBC, etc.)
-   - `views/`: UI layer (Vaadin components)
+    - `domain/`: Pure business logic, no external dependencies
+    - `service/`: Use cases implementation
+    - `infrastructure/`: Technical implementations (JDBC, etc.)
+    - `views/`: UI layer (Vaadin components)
 
 2. **Dependency Injection**: Constructor injection only
    ```java
@@ -223,6 +233,7 @@ Follow conventional commits format:
 ```
 
 ### Types
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -232,6 +243,7 @@ Follow conventional commits format:
 - `chore`: Maintenance tasks
 
 ### Examples
+
 ```
 feat(deck): add card filtering by status
 
@@ -269,25 +281,26 @@ Add section explaining how to run full stack with Docker Compose.
    ```
 
 3. **Update documentation** if needed:
-   - README.md for user-facing changes
-   - Javadoc for API changes
-   - CHANGELOG.md with your changes
+    - README.md for user-facing changes
+    - Javadoc for API changes
+    - CHANGELOG.md with your changes
 
 4. **Create Pull Request**:
-   - Use descriptive title
-   - Reference related issues
-   - Describe what changed and why
-   - Include screenshots for UI changes
-   - List breaking changes if any
+    - Use descriptive title
+    - Reference related issues
+    - Describe what changed and why
+    - Include screenshots for UI changes
+    - List breaking changes if any
 
 5. **Respond to feedback**:
-   - Address review comments promptly
-   - Push updates to same branch
-   - Be open to suggestions
+    - Address review comments promptly
+    - Push updates to same branch
+    - Be open to suggestions
 
 ### PR Checklist
 
 Before submitting your PR, verify:
+
 - [ ] Code follows project style (Spotless applied)
 - [ ] All tests pass (`./gradlew test`)
 - [ ] New tests added for new features
@@ -312,20 +325,21 @@ Before submitting your PR, verify:
 class CardUseCaseServiceTest {
     @Test
     @DisplayName("Should save card with valid data")
-    void shouldSaveCardWithValidData() { ... }
+    void shouldSaveCardWithValidData() { ...}
 }
 
 // Integration test
 class CardJdbcAdapterIntegrationTest extends BaseIntegrationTest {
     @Test
     @DisplayName("Should persist card to database")
-    void shouldPersistCardToDatabase() { ... }
+    void shouldPersistCardToDatabase() { ...}
 }
 ```
 
 ### Test Coverage
 
 Aim for:
+
 - **Service layer**: 80%+ coverage
 - **Repository layer**: Integration tests for all operations
 - **Critical paths**: 100% coverage (authentication, payments, etc.)
@@ -335,11 +349,13 @@ Aim for:
 ### Javadoc Requirements
 
 Required for:
+
 - All public classes
 - All public methods
 - All public fields (constants)
 
 Not required for:
+
 - Private methods
 - Test classes
 - Getters/setters (unless behavior is non-obvious)
@@ -349,7 +365,7 @@ Not required for:
 ```java
 /**
  * Validates and saves a card to the repository.
- * 
+ *
  * <p>This method performs validation using Jakarta Validation
  * and invalidates relevant caches after successful save.</p>
  *
@@ -358,7 +374,7 @@ Not required for:
  * @throws DataAccessException if database operation fails
  */
 @Transactional
-public void saveCard(Card card) { ... }
+public void saveCard(Card card) { ...}
 ```
 
 ## Questions?
