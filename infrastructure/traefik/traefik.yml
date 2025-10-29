@@ -1,16 +1,18 @@
 api:
   dashboard: true
-  insecure: false  # Use middleware for auth (via Nginx proxy)
+  insecure: true  # Required for subpath access via Nginx (auth handled by Nginx basic auth)
   debug: true
   # Dashboard accessible via Nginx at /traefik/
-  # Nginx handles subpath routing with X-Forwarded-Prefix header
+  # Note: insecure: true allows access without direct auth
+  # Nginx basic auth middleware protects access
 
-# EntryPoints disabled - Nginx on host handles 80/443
-# Traefik used only for internal Docker service routing
+# EntryPoints - dashboard only for internal access
+# Nginx on host handles 80/443 (external traffic)
 entryPoints:
   dashboard:
     address: ":8080"
-    # No redirects - internal only
+    # Internal dashboard entrypoint (mapped to host:8081)
+    # External access via Nginx at /traefik/
 
 providers:
   docker:

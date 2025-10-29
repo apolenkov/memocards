@@ -70,6 +70,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Prefix /traefik;
+        proxy_set_header X-Forwarded-Port $server_port;
         
         # Timeouts
         proxy_read_timeout 300;
@@ -78,6 +79,11 @@ server {
         
         # Disable buffering for real-time updates
         proxy_buffering off;
+    }
+    
+    # Redirect /traefik to /traefik/ (trailing slash required)
+    location = /traefik {
+        return 301 https://$host/traefik/;
     }
 
     # Grafana monitoring - served from subpath /grafana/
@@ -95,6 +101,8 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
+        # Grafana requires X-Script-Name for subpath
+        proxy_set_header X-Script-Name /grafana;
         
         # Timeouts (Grafana dashboards can take time to load)
         proxy_read_timeout 300;
@@ -103,6 +111,11 @@ server {
         
         # Disable buffering for real-time updates
         proxy_buffering off;
+    }
+    
+    # Redirect /grafana to /grafana/ (trailing slash required)
+    location = /grafana {
+        return 301 https://$host/grafana/;
     }
     
     # Grafana Live WebSocket connections
@@ -127,8 +140,38 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Prefix /grafana;
         proxy_pass http://127.0.0.1:3000$request_uri;
         proxy_buffering off;
+    }
+    
+    # Prometheus - accessible via /prometheus/
+    location /prometheus/ {
+        proxy_pass http://127.0.0.1:9090/;
+        proxy_http_version 1.1;
+        
+        # Standard proxy headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        
+        # Prometheus needs to know about the external URL
+        proxy_set_header X-Forwarded-Prefix /prometheus;
+        
+        # Timeouts
+        proxy_read_timeout 300;
+        proxy_connect_timeout 300;
+        proxy_send_timeout 300;
+        
+        # Disable buffering for real-time metrics
+        proxy_buffering off;
+    }
+    
+    # Redirect /prometheus to /prometheus/ (trailing slash required)
+    location = /prometheus {
+        return 301 https://$host/prometheus/;
     }
 
     # Health check endpoint (bypass auth)
