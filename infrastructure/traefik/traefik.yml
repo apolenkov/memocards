@@ -2,8 +2,8 @@ api:
   dashboard: true
   insecure: false  # Use middleware for auth (via Nginx proxy)
   debug: true
-  # Dashboard accessible via Nginx at /traefik/ with basic auth
-  basePath: /traefik  # Custom base path for API and Dashboard
+  # Dashboard accessible via Nginx at /traefik/
+  # Nginx handles subpath routing with X-Forwarded-Prefix header
 
 # EntryPoints disabled - Nginx on host handles 80/443
 # Traefik used only for internal Docker service routing
@@ -16,7 +16,7 @@ providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
-    network: ${NETWORK_NAME:-memocards-network}
+    network: memocards-network
   file:
     directory: /etc/traefik/dynamic
     watch: true

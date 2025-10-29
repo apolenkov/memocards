@@ -8,8 +8,8 @@ services:
     image: traefik:v3.0
     container_name: ${TRAEFIK_CONTAINER_NAME:-memocards-traefik}
     ports:
-      # Dashboard available via Nginx proxy at /traefik/ (port 8080 for localhost access)
-      - "127.0.0.1:8080:8080"
+      # Dashboard available via Nginx proxy at /traefik/ (port 8081 for localhost access)
+      - "127.0.0.1:8081:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./infrastructure/traefik/traefik.yml:/etc/traefik/traefik.yml
@@ -23,7 +23,7 @@ services:
         reservations:
           memory: 64m
     networks:
-      - ${NETWORK_NAME:-memocards-network}
+      - memocards-network
     labels:
       # Traefik dashboard accessible only via localhost:8080
       # Nginx on host handles external traffic (80/443)
@@ -58,7 +58,7 @@ services:
         reservations:
           memory: 128m
     networks:
-      - ${NETWORK_NAME:-memocards-network}
+      - memocards-network
 
   loki:
     image: grafana/loki:latest
@@ -83,7 +83,7 @@ services:
         reservations:
           memory: 96m
     networks:
-      - ${NETWORK_NAME:-memocards-network}
+      - memocards-network
     environment:
       - JAEGER_AGENT_HOST=localhost
 
@@ -109,7 +109,7 @@ services:
         reservations:
           memory: 48m
     networks:
-      - ${NETWORK_NAME:-memocards-network}
+      - memocards-network
     depends_on:
       loki:
         condition: service_healthy
@@ -151,7 +151,7 @@ services:
         reservations:
           memory: 96m
     networks:
-      - ${NETWORK_NAME:-memocards-network}
+      - memocards-network
     labels:
       # Grafana is proxied via Nginx on host, not directly via Traefik
       # Nginx handles routing to Grafana on localhost:3000
@@ -170,6 +170,5 @@ volumes:
 
 networks:
   memocards-network:
-    name: ${NETWORK_NAME:-memocards-network}
     external: true
 
