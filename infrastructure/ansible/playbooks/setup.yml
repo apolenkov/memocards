@@ -56,6 +56,9 @@
     - role: nginx
       tags: [nginx, setup]
 
+    - role: monitoring
+      tags: [monitoring, setup]
+
     - role: app
       tags: [app, setup]
 
@@ -71,6 +74,7 @@
           ✅ System configured (firewall, swap, directories)
           ✅ Docker Engine installed and running
           ✅ Nginx installed with SSL
+          ✅ Infrastructure deployed (Prometheus, Loki, Promtail, Grafana)
           ✅ Application deployed and healthy
           ✅ PostgreSQL database running
           ✅ Auto-restart enabled (Docker restart policy)

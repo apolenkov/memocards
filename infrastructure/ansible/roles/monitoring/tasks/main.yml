@@ -1,0 +1,84 @@
+---
+# =============================================================================
+# Monitoring Role - Deploy Infrastructure (Prometheus, Loki, Promtail, Grafana)
+# =============================================================================
+
+- name: Create infrastructure directories on server
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ app_deploy_path }}/../infrastructure/grafana"
+    - "{{ app_deploy_path }}/../infrastructure/prometheus"
+    - "{{ app_deploy_path }}/../infrastructure/promtail"
+  tags: [monitoring, config]
+
+- name: Copy Grafana configuration
+  ansible.builtin.synchronize:
+    src: "{{ playbook_dir }}/../../../infrastructure/grafana/"
+    dest: "{{ app_deploy_path }}/../infrastructure/grafana/"
+    delete: yes
+    recursive: yes
+  tags: [monitoring, config]
+
+- name: Copy Prometheus configuration
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../infrastructure/prometheus/prometheus.yml"
+    dest: "{{ app_deploy_path }}/../infrastructure/prometheus/prometheus.yml"
+    mode: "0644"
+  tags: [monitoring, config]
+
+- name: Copy Promtail configuration
+  ansible.builtin.synchronize:
+    src: "{{ playbook_dir }}/../../../infrastructure/promtail/"
+    dest: "{{ app_deploy_path }}/../infrastructure/promtail/"
+    delete: yes
+    recursive: yes
+  tags: [monitoring, config]
+
+- name: Copy Docker Compose configuration (infrastructure)
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../docker-compose.infrastructure.yml"
+    dest: "{{ app_deploy_path }}/docker-compose.infrastructure.yml"
+    mode: "0644"
+  tags: [monitoring, config]
+
+- name: Start infrastructure services
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_deploy_path }}"
+    files:
+      - docker-compose.infrastructure.yml
+    state: present
+    recreate: always
+  register: infrastructure_compose_result
+  tags: [monitoring, deploy]
+
+- name: Wait for Grafana to be ready (after deployment)
+  ansible.builtin.shell: |
+    for i in {1..30}; do
+      if docker exec {{ grafana_container_name | default('memocards-grafana') }} curl -f http://localhost:3000/api/health 2>/dev/null; then
+        exit 0
+      fi
+      sleep 2
+    done
+    exit 1
+  register: grafana_health
+  changed_when: false
+  failed_when: false
+  tags: [monitoring, verify]
+
+- name: Display monitoring status
+  ansible.builtin.debug:
+    msg: |
+      ✅ Infrastructure deployed:
+      
+      📊 Prometheus: localhost:9090
+      📋 Loki: localhost:3100
+      📝 Promtail: running
+      📈 Grafana: localhost:3000
+      
+      🔗 Access via SSH tunnel:
+      - ssh -L 9090:localhost:9090 root@{{ ansible_host }}
+      - ssh -L 3000:localhost:3000 root@{{ ansible_host }}
+  tags: [monitoring]

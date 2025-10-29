@@ -1,0 +1,109 @@
+---
+# Infrastructure monitoring services (Prometheus, Loki, Promtail, Grafana)
+# NOTE: Requires docker-compose.yml to be started first to create the network
+# Usage: docker compose -f docker-compose.infrastructure.yml up -d
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ${PROMETHEUS_CONTAINER_NAME:-memocards-prometheus}
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+        reservations:
+          memory: 128m
+    networks:
+      - ${NETWORK_NAME:-memocards-network}
+
+  loki:
+    image: grafana/loki:latest
+    container_name: ${LOKI_CONTAINER_NAME:-memocards-loki}
+    ports:
+      - "127.0.0.1:${LOKI_PORT:-3100}:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki_data:/loki
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 192m
+        reservations:
+          memory: 96m
+    networks:
+      - ${NETWORK_NAME:-memocards-network}
+    environment:
+      - JAEGER_AGENT_HOST=localhost
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: ${PROMTAIL_CONTAINER_NAME:-memocards-promtail}
+    volumes:
+      - ${APP_LOGS_PATH:-./logs}:/var/log/app:ro
+      - ./infrastructure/promtail:/etc/promtail
+    command: -config.file=/etc/promtail/promtail.yml
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 96m
+        reservations:
+          memory: 48m
+    networks:
+      - ${NETWORK_NAME:-memocards-network}
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ${GRAFANA_CONTAINER_NAME:-memocards-grafana}
+    ports:
+      - "0.0.0.0:${GRAFANA_PORT:-3000}:3000"
+    env_file:
+      - .env
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infrastructure/grafana/provisioning:/etc/grafana/provisioning
+      - ./infrastructure/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./infrastructure/grafana/config/grafana.ini:/etc/grafana/grafana.ini
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+      - loki
+    deploy:
+      resources:
+        limits:
+          memory: 192m
+        reservations:
+          memory: 96m
+    networks:
+      - ${NETWORK_NAME:-memocards-network}
+
+volumes:
+  prometheus_data:
+    driver: local
+  loki_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  memocards-network:
+    external: true
+

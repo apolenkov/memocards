@@ -43,6 +43,7 @@ ssl_email: "apolenkov@gmail.com"
 # =============================================================================
 docker_compose_version: "v2.24.0"
 docker_install_method: "repository"
+network_subnet: "172.20.0.0/16"
 
 # =============================================================================
 # GITHUB CONFIGURATION (for private GHCR)

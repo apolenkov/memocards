@@ -138,10 +138,21 @@ docker-compose up -d postgres
 **Docker Compose (full stack):**
 
 ```bash
-./gradlew jibDockerBuild    # Build image
-docker-compose up -d        # Run everything
-docker-compose logs -f app  # View logs
+# Start everything at once (recommended):
+make stack-up
+# This will: 1) start app (creates network), 2) start infrastructure (uses network)
+
+# Or manually:
+make docker          # Start app (creates memocards-network)
+make infra-up        # Start infrastructure (uses existing network)
 ```
+
+**Project Structure:**
+- `docker-compose.yml` — application (app + postgres) **creates network**
+- `docker-compose.infrastructure.yml` — monitoring (prometheus + loki + promtail + grafana) **uses network**
+- `infrastructure/` — monitoring configuration files
+- `infrastructure/ansible/` — deployment automation (playbooks, roles, inventory)
+- Shared network: `memocards-network` (created by docker-compose.yml, used by infrastructure)
 
 </details>
 
