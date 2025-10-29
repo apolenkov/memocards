@@ -65,7 +65,6 @@
     force: true
   loop:
     - "traefik.yml"
-    - "dynamic/https-redirect.yml"
   tags: [monitoring, config]
 
 - name: Generate Traefik dashboard auth from template
