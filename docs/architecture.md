@@ -45,7 +45,7 @@ graph TB
 ```mermaid
 graph TB
     subgraph "Browser"
-        UI[Vaadin 24.9<br/>Server-Side UI<br/>@Push<br/>@UIScope Cache]
+        UI[Vaadin 24.9<br/>Server-Side UI<br/>@Push<br/>@SessionScope Cache]
     end
     
     subgraph "Infrastructure Layer (Host)"
@@ -269,7 +269,9 @@ erDiagram
 
 ---
 
-## Infrastructure Components
+## Infrastructure
+
+This project uses a hybrid edge + dynamic routing setup. See Deployment Architecture below for the single authoritative infrastructure diagram. Routing specifics are documented in the Routing Rules table.
 
 ### C4 Level 2: Infrastructure Containers
 
@@ -466,26 +468,6 @@ graph TB
 
 ## Internal Routing Architecture
 
-### Request Flow
-
-```mermaid
-sequenceDiagram
-    participant Browser
-    participant Nginx as Nginx (Host)
-    participant Traefik as Traefik (Docker)
-    participant Services as Services (Docker)
-    
-    Browser->>Nginx: HTTPS Request<br/>https://memocards.duckdns.org/grafana
-    Nginx->>Nginx: SSL Termination<br/>Security Headers<br/>Rate Limiting
-    Nginx->>Traefik: HTTP Proxy Pass<br/>127.0.0.1:8080<br/>X-Forwarded-* Headers
-    Traefik->>Traefik: Route Matching<br/>PathPrefix(`/grafana`)
-    Traefik->>Traefik: Apply Middleware<br/>stripPrefix(/grafana)
-    Traefik->>Services: Forward to Grafana<br/>memocards-network<br/>:3000
-    Services-->>Traefik: HTTP Response
-    Traefik-->>Nginx: HTTP Response
-    Nginx-->>Browser: HTTPS Response<br/>with Headers
-```
-
 ### Traefik Routing Rules
 
 | Service | Rule | Priority | Middleware |
@@ -561,7 +543,25 @@ labels:
 
 ## Files
 
-- `docs/architecture.md` - This document
+### Documentation Index
+
+- Architecture Overview (this file)
+- SLO/SLI/SLA: `docs/architecture/slo.md`
+- Non-functional Requirements: `docs/architecture/non-functional-requirements.md`
+- Observability: `docs/architecture/observability.md`
+- Security & Privacy: `docs/architecture/security.md`
+- Data Lifecycle: `docs/architecture/data-lifecycle.md`
+- API Contracts: `docs/architecture/api-contracts.md`
+- Release & Environments: `docs/architecture/release-and-environments.md`
+- CI/CD: `docs/architecture/ci-cd.md`
+- Testing Strategy: `docs/architecture/testing-strategy.md`
+- Operations Runbooks: `docs/architecture/operations-runbooks.md`
+- UX/i18n/a11y: `docs/architecture/ux-i18n-a11y.md`
+- ADRs: `docs/architecture/adr/`
+- Glossary: `docs/architecture/glossary.md`
+- Ownership: `docs/architecture/ownership.md`
+
+Other:
 - `grafana/dashboard-memocards.json` - Monitoring dashboard
 - `README.md` - Project overview
 - `CONTRIBUTING.md` - Contributor guide

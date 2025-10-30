@@ -17,17 +17,21 @@
 
     - name: Check Prometheus targets
       ansible.builtin.uri:
-        url: "http://localhost:9090/api/v1/targets"
+        url: "http://localhost:9090/prometheus/api/v1/targets"
         method: GET
         return_content: true
+        headers:
+          Accept: application/json
+        status_code: 200
       register: prometheus_targets
       failed_when: false
       changed_when: false
 
     - name: Parse Prometheus targets
       ansible.builtin.set_fact:
-        targets_up: "{{ prometheus_targets.json.data.activeTargets | selectattr('health', 'equalto', 'up') | list | length }}"
-        targets_down: "{{ prometheus_targets.json.data.activeTargets | selectattr('health', 'equalto', 'down') | list | length }}"
+        targets_up: "{{ (prometheus_targets.json | default({})).data.activeTargets | default([]) | selectattr('health', 'equalto', 'up') | list | length }}"
+        targets_down: "{{ (prometheus_targets.json | default({})).data.activeTargets | default([]) | selectattr('health', 'equalto', 'down') | list | length }}"
+      when: prometheus_targets is defined and prometheus_targets.status | default(0) == 200
 
     - name: Display Prometheus status
       ansible.builtin.debug:
@@ -35,7 +39,7 @@
           - "Prometheus Targets:"
           - "  UP: {{ targets_up }}"
           - "  DOWN: {{ targets_down }}"
-      when: prometheus_targets.status == 200
+      when: prometheus_targets is defined and prometheus_targets.status | default(0) == 200
 
     - name: Check application metrics endpoint
       ansible.builtin.uri:
