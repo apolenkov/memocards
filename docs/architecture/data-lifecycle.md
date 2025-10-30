@@ -9,6 +9,17 @@
 - Restore test: monthly verification of restore process.
 - Objectives: RTO 30 min; RPO 15 min.
 
+### Restore Steps (compose)
+1. Stop app access (maintenance)
+2. Create fresh Postgres container with restore volume
+3. Restore dump into target DB
+4. Point app to restored DB or swap volumes
+5. Verify smoke tests; reopen traffic
+
 ## Data Evolution
 - Backward-compatible migrations preferred; index management tracked.
 - Large changes: plan with maintenance window.
+
+## Links
+- Flyway SQL: `src/main/resources/db/migration/`
+- JDBC adapters: `src/main/java/org/apolenkov/application/infrastructure/repository/jdbc/adapter/`

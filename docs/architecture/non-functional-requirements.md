@@ -13,6 +13,11 @@
 - Vertical first (container limits); horizontal feasible behind Traefik.
 - Stateful DB scales vertically; read replicas considered later.
 
+## Capacity & Budgets
+- App container: memory limit 1500m, reservation 512m (compose)
+- DB container: memory limit 512m, reservation 256m (compose)
+- Expected users: N active/day; peak sessions: N; adjust per SLO review
+
 ## Security
 - See `security.md`.
 

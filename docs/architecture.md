@@ -4,6 +4,8 @@
 
 Memocards is a flashcard learning application built with Clean Architecture principles, leveraging Spring Boot 3.5, Vaadin 24.9, and PostgreSQL 16.
 
+Note: Diagrams are Mermaid blocks maintained in this file. Update inline and review via IDE preview or MR diffs (include date of change in commit message).
+
 ---
 
 ## C4 Model Diagrams
@@ -560,6 +562,7 @@ labels:
 - ADRs: `docs/architecture/adr/`
 - Glossary: `docs/architecture/glossary.md`
 - Ownership: `docs/architecture/ownership.md`
+- Config Matrix: `docs/architecture/config-matrix.md`
 
 Other:
 - `grafana/dashboard-memocards.json` - Monitoring dashboard

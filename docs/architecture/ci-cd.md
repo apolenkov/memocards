@@ -13,3 +13,10 @@
 
 ## Policies
 - Mandatory green pipeline for main; conventional commits or similar.
+
+## Quality Gates
+- Unit + integration tests must pass
+- Coverage ≥ 70% (adjust per module)
+- OWASP Dependency Check: no HIGH/Critical vulns
+- Image scan: no HIGH/Critical
+- Lint: zero errors (Spotless/Checkstyle/SpotBugs)
