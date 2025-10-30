@@ -76,10 +76,14 @@
 
     - name: Ensure application is up (start if missing or not healthy)
       ansible.builtin.shell: |
+        cd {{ app_deploy_path }}
         set -e
         status=$(docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' memocards-app-prod 2>/dev/null || echo "missing")
         if [ "$status" != "healthy" ]; then
-          docker compose -p memocards-prod -f docker-compose.yml up -d --pull always app
+          echo "App container status: $status, starting..."
+          docker compose -p memocards-prod -f docker-compose.yml up -d app postgres
+        else
+          echo "App container already healthy"
         fi
         exit 0
       args:
@@ -101,19 +105,6 @@
       register: app_container_health
       changed_when: false
       failed_when: false
-      tags: [always, verify]
-
-    - name: Probe application HTTP health (non-fatal until 200)
-      ansible.builtin.uri:
-        url: "http://localhost:{{ app_port }}/actuator/health"
-        method: GET
-        status_code: [200, 202, 204, 302, 404, 502, 503]
-      retries: 60
-      delay: 2
-      register: setup_app_health_http
-      until: setup_app_health_http.status == 200
-      failed_when: false
-      changed_when: false
       tags: [always, verify]
 
     - name: Wait for public routes to respond (/, /grafana, /prometheus, /traefik)

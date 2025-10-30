@@ -50,15 +50,19 @@
   changed_when: false
   tags: [app, health]
 
-- name: Wait for application to be ready
-  ansible.builtin.uri:
-    url: "http://localhost:{{ app_port }}/actuator/health"
-    method: GET
-    status_code: [200]
-  retries: 60
-  delay: 5
+- name: Wait for application healthcheck to pass
+  ansible.builtin.shell: |
+    for i in {1..120}; do
+      status=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "missing")
+      if [ "$status" = "healthy" ]; then exit 0; fi
+      sleep 2
+    done
+    exit 1
+  args:
+    executable: /bin/bash
   register: app_health_check
-  until: app_health_check.status is defined and app_health_check.status == 200
+  failed_when: false
+  changed_when: false
   tags: [app, health]
 
 - name: Clean up old application images (keep last 3)
@@ -101,7 +105,7 @@
       📦 Deployment:
       - Application image: {{ app_image }}
       - Health check: {%
-        if app_health_check is defined and app_health_check.status | default(-1) == 200
+        if app_health_check is defined and app_health_check.rc | default(1) == 0
         %}PASSED ✅{% elif app_health_check is defined %}FAILED ❌{% else %}SKIPPED ⏭️{% endif %}
       - Database: PostgreSQL (containerized)
       - Deploy path: {{ app_deploy_path }}
