@@ -21,6 +21,15 @@
     - "{{ app_deploy_path }}/infrastructure/loki"
   tags: [monitoring, config]
 
+- name: Write Traefik .htpasswd from Vault variables (no generation)
+  ansible.builtin.copy:
+    dest: "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
+    mode: "0640"
+    content: |
+      {{ monitoring_basicauth_user }}:{PLAIN}{{ monitoring_basicauth_password }}
+  when: monitoring_basicauth_user is defined and monitoring_basicauth_password is defined
+  tags: [monitoring, config]
+
 - name: Copy Grafana configuration files
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../infrastructure/grafana/{{ item }}"
