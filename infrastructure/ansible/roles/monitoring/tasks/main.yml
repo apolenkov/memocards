@@ -27,7 +27,7 @@
     mode: "0640"
     content: |
       {{ monitoring_basicauth_user }}:{PLAIN}{{ monitoring_basicauth_password }}
-  when: monitoring_basicauth_user is defined and monitoring_basicauth_password is defined
+  when: monitoring_basicauth_htpasswd is not defined and (monitoring_basicauth_user is defined and monitoring_basicauth_password is defined)
   tags: [monitoring, config]
 
 - name: Write Traefik .htpasswd from pre-hashed Vault line (preferred)
@@ -37,6 +37,30 @@
     content: |
       {{ monitoring_basicauth_htpasswd }}
   when: monitoring_basicauth_htpasswd is defined and monitoring_basicauth_htpasswd | length > 0
+  tags: [monitoring, config]
+
+- name: Ensure Traefik .htpasswd generated with bcrypt when only user/password provided
+  ansible.builtin.shell: |
+    set -euo pipefail
+    which htpasswd >/dev/null 2>&1 || (apt-get update -y && apt-get install -y apache2-utils)
+    htpasswd -nbB '{{ monitoring_basicauth_user }}' '{{ monitoring_basicauth_password }}' > "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
+    chmod 0640 "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
+  args:
+    executable: /bin/bash
+  when: monitoring_basicauth_htpasswd is not defined and (monitoring_basicauth_user is defined and monitoring_basicauth_password is defined)
+  changed_when: true
+  tags: [monitoring, config]
+
+- name: Fix incorrectly prefixed {PLAIN} in .htpasswd if present
+  ansible.builtin.shell: |
+    if grep -q "{PLAIN}" "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"; then
+      sed -i 's/{PLAIN}//g' "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd";
+      changed=1; else changed=0; fi; exit $changed
+  args:
+    executable: /bin/bash
+  register: htpasswd_plain_fix
+  changed_when: htpasswd_plain_fix.rc == 1
+  failed_when: false
   tags: [monitoring, config]
 
 - name: Copy Grafana configuration files

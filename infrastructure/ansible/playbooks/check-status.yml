@@ -15,6 +15,21 @@
       ansible.builtin.debug:
         var: container_status.stdout_lines
 
+    - name: Check public routes HTTP status (root/grafana/prometheus/traefik)
+      ansible.builtin.shell: |
+        printf "root %s\n"     "$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/)"
+        printf "grafana %s\n"  "$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/grafana/)"
+        printf "prometheus %s\n" "$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/prometheus/)"
+        printf "traefik %s\n"  "$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/traefik/)"
+      args:
+        executable: /bin/bash
+      register: route_status
+      changed_when: false
+
+    - name: Display public routes HTTP status
+      ansible.builtin.debug:
+        var: route_status.stdout_lines
+
     - name: Check Prometheus targets
       ansible.builtin.uri:
         url: "http://localhost:9090/prometheus/api/v1/targets"

@@ -38,8 +38,6 @@ services:
     # Omitting allows Docker Compose to auto-generate names (project_app_1)
     # This enables running multiple versions simultaneously
     container_name: ${APP_CONTAINER_NAME}
-    ports:
-      - "${APP_PORT:-8080}:8080"
     env_file:
       - .env
     environment:
@@ -54,6 +52,7 @@ services:
       postgres:
         condition: service_healthy
     restart: unless-stopped
+    # No external port publication for 8080: served via Traefik on the same Docker network
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
       interval: 30s

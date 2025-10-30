@@ -88,16 +88,53 @@
       failed_when: false
       tags: [always, verify]
 
-    - name: Wait for application health endpoint
+    - name: Wait for application container health=healthy
+      ansible.builtin.shell: |
+        for i in {1..120}; do
+          status=$(docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' memocards-app-prod 2>/dev/null || echo missing)
+          if [ "$status" = "healthy" ]; then exit 0; fi
+          sleep 2
+        done
+        exit 1
+      args:
+        executable: /bin/bash
+      register: app_container_health
+      changed_when: false
+      failed_when: false
+      tags: [always, verify]
+
+    - name: Probe application HTTP health (non-fatal until 200)
       ansible.builtin.uri:
         url: "http://localhost:{{ app_port }}/actuator/health"
         method: GET
-        status_code: 200
-      retries: 30
+        status_code: [200, 202, 204, 302, 404, 502, 503]
+      retries: 60
       delay: 2
-      register: setup_app_health
-      until: setup_app_health.status == 200
+      register: setup_app_health_http
+      until: setup_app_health_http.status == 200
       failed_when: false
+      changed_when: false
+      tags: [always, verify]
+
+    - name: Wait for public routes to respond (/, /grafana, /prometheus, /traefik)
+      ansible.builtin.shell: |
+        for i in {1..60}; do
+          root=$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/)
+          gf=$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/grafana/)
+          pr=$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/prometheus/)
+          tr=$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/traefik/)
+          # Expect: root=200, grafana=200/302, prom/traefik=401 (basic auth)
+          if [ "$root" = "200" ] && { [ "$gf" = "200" ] || [ "$gf" = "302" ]; } && [ "$pr" = "401" ] && [ "$tr" = "401" ]; then
+            echo "OK: root=$root grafana=$gf prom=$pr traefik=$tr"; exit 0;
+          fi
+          sleep 2
+        done
+        echo "Last: root=$root grafana=$gf prom=$pr traefik=$tr"; exit 1
+      args:
+        executable: /bin/bash
+      register: public_routes_check
+      changed_when: false
+      failed_when: public_routes_check.rc != 0
       tags: [always, verify]
 
     - name: Display deployment summary
