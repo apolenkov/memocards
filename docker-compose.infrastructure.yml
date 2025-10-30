@@ -16,6 +16,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./infrastructure/traefik/traefik.yml:/etc/traefik/traefik.yml
       - ./infrastructure/traefik/dynamic:/etc/traefik/dynamic
+      - ./infrastructure/traefik/.htpasswd:/etc/traefik/.htpasswd:ro
       # ACME volume not needed - Nginx handles SSL certificates
     restart: unless-stopped
     deploy:
@@ -34,7 +35,8 @@ services:
       - "traefik.http.routers.traefik.priority=10"
       - "traefik.http.services.traefik.loadbalancer.server.port=8082"
       - "traefik.http.middlewares.traefik-stripprefix.stripprefix.prefixes=/traefik"
-      - "traefik.http.routers.traefik.middlewares=traefik-stripprefix"
+      - "traefik.http.routers.traefik.middlewares=traefik-stripprefix,basicauth@docker"
+      - "traefik.http.middlewares.basicauth.basicauth.usersfile=/etc/traefik/.htpasswd"
       # Redirect common typo /traefic -> /traefik/
       - "traefik.http.middlewares.traefic-redirect.redirectregex.regex=^/traefic/?(.*)"
       - "traefik.http.middlewares.traefic-redirect.redirectregex.replacement=/traefik/$1"
@@ -81,6 +83,7 @@ services:
       - "traefik.http.routers.prometheus.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/prometheus`)"
       - "traefik.http.routers.prometheus.entrypoints=web"
       - "traefik.http.routers.prometheus.priority=10"
+      - "traefik.http.routers.prometheus.middlewares=basicauth@docker"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
   loki:
