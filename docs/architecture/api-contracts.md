@@ -18,4 +18,4 @@
 - Backward-compatible changes preferred; breaking changes gated by version.
 
 ## Links
-- Error handling config: `src/main/java/org/apolenkov/application/config/error/ErrorHandlingConfiguration.java`
+- Error handling config: [ErrorHandlingConfiguration.java](../../src/main/java/org/apolenkov/application/config/error/ErrorHandlingConfiguration.java)

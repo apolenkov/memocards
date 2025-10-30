@@ -275,7 +275,6 @@ erDiagram
 
 This project uses a hybrid edge + dynamic routing setup. See Deployment Architecture below for the single authoritative infrastructure diagram. Routing specifics are documented in the Routing Rules table.
 
-
 ## Cache Invalidation Flow
 
 ```mermaid
@@ -493,23 +492,23 @@ labels:
 ### Documentation Index
 
 - Architecture Overview (this file)
-- SLO/SLI/SLA: `docs/architecture/slo.md`
-- Non-functional Requirements: `docs/architecture/non-functional-requirements.md`
-- Observability: `docs/architecture/observability.md`
-- Security & Privacy: `docs/architecture/security.md`
-- Data Lifecycle: `docs/architecture/data-lifecycle.md`
-- API Contracts: `docs/architecture/api-contracts.md`
-- Release & Environments: `docs/architecture/release-and-environments.md`
-- CI/CD: `docs/architecture/ci-cd.md`
-- Testing Strategy: `docs/architecture/testing-strategy.md`
-- Operations Runbooks: `docs/architecture/operations-runbooks.md`
-- UX/i18n/a11y: `docs/architecture/ux-i18n-a11y.md`
-- ADRs: `docs/architecture/adr/`
-- Glossary: `docs/architecture/glossary.md`
-- Ownership: `docs/architecture/ownership.md`
-- Config Matrix: `docs/architecture/config-matrix.md`
+- SLO/SLI/SLA: [slo.md](./slo.md)
+- Non-functional Requirements: [non-functional-requirements.md](./non-functional-requirements.md)
+- Observability: [observability.md](./observability.md)
+- Security & Privacy: [security.md](./security.md)
+- Data Lifecycle: [data-lifecycle.md](./data-lifecycle.md)
+- API Contracts: [api-contracts.md](./api-contracts.md)
+- Release & Environments: [release-and-environments.md](./release-and-environments.md)
+- CI/CD: [ci-cd.md](./ci-cd.md)
+- Testing Strategy: [testing-strategy.md](./testing-strategy.md)
+- Operations Runbooks: [operations-runbooks.md](./operations-runbooks.md)
+- UX/i18n/a11y: [ux-i18n-a11y.md](./ux-i18n-a11y.md)
+- ADRs: [adr/](./adr/)
+- Glossary: [glossary.md](./glossary.md)
+- Ownership: [ownership.md](./ownership.md)
+- Config Matrix: [config-matrix.md](./config-matrix.md)
 
 Other:
-- `grafana/dashboard-memocards.json` - Monitoring dashboard
-- `README.md` - Project overview
-- `CONTRIBUTING.md` - Contributor guide
+- Grafana dashboard JSON: [dashboard-memocards.json](../grafana/dashboard-memocards.json)
+- Project overview: [README.md](../README.md)
+- Contributor guide: [CONTRIBUTING.md](../CONTRIBUTING.md)
