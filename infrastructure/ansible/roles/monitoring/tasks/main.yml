@@ -30,6 +30,15 @@
   when: monitoring_basicauth_user is defined and monitoring_basicauth_password is defined
   tags: [monitoring, config]
 
+- name: Write Traefik .htpasswd from pre-hashed Vault line (preferred)
+  ansible.builtin.copy:
+    dest: "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
+    mode: "0640"
+    content: |
+      {{ monitoring_basicauth_htpasswd }}
+  when: monitoring_basicauth_htpasswd is defined and monitoring_basicauth_htpasswd | length > 0
+  tags: [monitoring, config]
+
 - name: Copy Grafana configuration files
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../infrastructure/grafana/{{ item }}"
