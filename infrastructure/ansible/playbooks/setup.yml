@@ -74,6 +74,32 @@
       failed_when: false
       tags: [always, verify]
 
+    - name: Ensure application is up (start if missing or not healthy)
+      ansible.builtin.shell: |
+        set -e
+        status=$(docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' memocards-app-prod 2>/dev/null || echo "missing")
+        if [ "$status" != "healthy" ]; then
+          docker compose -p memocards-prod -f docker-compose.yml up -d --pull always app
+        fi
+        exit 0
+      args:
+        executable: /bin/bash
+      changed_when: false
+      failed_when: false
+      tags: [always, verify]
+
+    - name: Wait for application health endpoint
+      ansible.builtin.uri:
+        url: "http://localhost:{{ app_port }}/actuator/health"
+        method: GET
+        status_code: 200
+      retries: 30
+      delay: 2
+      register: setup_app_health
+      until: setup_app_health.status == 200
+      failed_when: false
+      tags: [always, verify]
+
     - name: Display deployment summary
       ansible.builtin.debug:
         msg: |

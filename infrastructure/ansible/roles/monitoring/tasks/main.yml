@@ -110,15 +110,7 @@
     mode: "0644"
   tags: [monitoring, config]
 
-- name: Stop and remove infrastructure containers (handles conflicts)
-  ansible.builtin.command:
-    cmd: docker compose -p memocards-prod -f docker-compose.infrastructure.yml down --remove-orphans
-    chdir: "{{ app_deploy_path }}"
-  register: monitoring_down_result
-  changed_when: "'Removed' in monitoring_down_result.stdout or 'Stopped' in monitoring_down_result.stdout"
-  failed_when: false
-  tags: [monitoring, deploy]
-  # NOTE: Removes containers/networks, preserves volumes
+# NOTE: Avoid full downtime; do not call compose down. We'll update services in-place below.
 
 - name: Deploy infrastructure services
   ansible.builtin.command:
@@ -156,6 +148,22 @@
     done
     exit 1
   register: monitoring_traefik_health_check
+  changed_when: false
+  failed_when: false
+  tags: [monitoring, verify]
+
+- name: Wait for Grafana/Prometheus/Traefik routes to register in Traefik
+  ansible.builtin.shell: |
+    for i in {1..30}; do
+      g=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/grafana/)
+      p=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/prometheus/)
+      t=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/traefik/)
+      if [ "$g" != "404" ] && [ "$p" != "404" ] && [ "$t" != "404" ]; then
+        exit 0
+      fi
+      sleep 2
+    done
+    exit 1
   changed_when: false
   failed_when: false
   tags: [monitoring, verify]
