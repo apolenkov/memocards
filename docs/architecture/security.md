@@ -18,7 +18,7 @@
 
 ## Data Protection
 - PII minimal in logs; redaction for emails/user ids when required.
-- Data retention: see `data-lifecycle.md`.
+- Data retention: see [data-lifecycle.md](./data-lifecycle.md).
 
 ## Security Checklist (pre-prod)
 - TLS: valid cert; HSTS enabled; strong ciphers
@@ -31,5 +31,5 @@
 - Logs: no PII; requestId/userId in MDC
 
 ## Links
-- Security config: `src/main/java/org/apolenkov/application/config/security/SecurityConfig.java`
-- Audit aspect: `src/main/java/org/apolenkov/application/config/security/SecurityAuditAspect.java`
+- Security config: [SecurityConfig.java](../../src/main/java/org/apolenkov/application/config/security/SecurityConfig.java)
+- Audit aspect: [SecurityAuditAspect.java](../../src/main/java/org/apolenkov/application/config/security/SecurityAuditAspect.java)

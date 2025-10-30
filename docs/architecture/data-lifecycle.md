@@ -21,5 +21,5 @@
 - Large changes: plan with maintenance window.
 
 ## Links
-- Flyway SQL: `src/main/resources/db/migration/`
-- JDBC adapters: `src/main/java/org/apolenkov/application/infrastructure/repository/jdbc/adapter/`
+- Flyway SQL: [db/migration](../../src/main/resources/db/migration/)
+- JDBC adapters: [`*JdbcAdapter`](../../src/main/java/org/apolenkov/application/infrastructure/repository/jdbc/adapter/)
