@@ -29,10 +29,20 @@ services:
     labels:
       # Traefik dashboard accessible via /traefik/ path
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=PathPrefix(`/traefik`) || PathPrefix(`/api`)"
+      - "traefik.http.routers.traefik.rule=Host(`memocards.duckdns.org`) && (PathPrefix(`/traefik`) || PathPrefix(`/api`))"
       - "traefik.http.routers.traefik.entrypoints=web"
       - "traefik.http.routers.traefik.priority=10"
       - "traefik.http.services.traefik.loadbalancer.server.port=8082"
+      - "traefik.http.middlewares.traefik-stripprefix.stripprefix.prefixes=/traefik"
+      - "traefik.http.routers.traefik.middlewares=traefik-stripprefix"
+      # Redirect common typo /traefic -> /traefik/
+      - "traefik.http.middlewares.traefic-redirect.redirectregex.regex=^/traefic/?(.*)"
+      - "traefik.http.middlewares.traefic-redirect.redirectregex.replacement=/traefik/$1"
+      - "traefik.http.routers.traefic-redirect.rule=PathPrefix(`/traefic`)"
+      - "traefik.http.routers.traefic-redirect.entrypoints=web"
+      - "traefik.http.routers.traefic-redirect.priority=20"
+      - "traefik.http.routers.traefic-redirect.middlewares=traefic-redirect"
+      - "traefik.http.routers.traefic-redirect.service=traefik"
 
   prometheus:
     image: prom/prometheus:latest
@@ -68,7 +78,7 @@ services:
       - memocards-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.prometheus.rule=PathPrefix(`/prometheus`)"
+      - "traefik.http.routers.prometheus.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/prometheus`)"
       - "traefik.http.routers.prometheus.entrypoints=web"
       - "traefik.http.routers.prometheus.priority=10"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
@@ -109,7 +119,7 @@ services:
       - promtail_positions:/var/lib/promtail
     command: -config.file=/etc/promtail/promtail.yml
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9080/ready || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9080/metrics || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -140,6 +150,7 @@ services:
       GF_USERS_ALLOW_SIGN_UP: false
       GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-https://memocards.duckdns.org/grafana/}
       GF_SERVER_PROTOCOL: http
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./infrastructure/grafana/provisioning:/etc/grafana/provisioning
@@ -167,11 +178,9 @@ services:
       - memocards-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)"
+      - "traefik.http.routers.grafana.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/grafana`)"
       - "traefik.http.routers.grafana.entrypoints=web"
       - "traefik.http.routers.grafana.priority=10"
-      - "traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana"
-      - "traefik.http.routers.grafana.middlewares=grafana-stripprefix"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
 volumes:
