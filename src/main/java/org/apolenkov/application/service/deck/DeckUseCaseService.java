@@ -1,0 +1,218 @@
+package org.apolenkov.application.service.deck;
+
+import jakarta.validation.Validator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.apolenkov.application.domain.event.DeckModifiedEvent;
+import org.apolenkov.application.domain.event.DeckModifiedEvent.ModificationType;
+import org.apolenkov.application.domain.port.CardRepository;
+import org.apolenkov.application.domain.port.DeckRepository;
+import org.apolenkov.application.domain.usecase.DeckUseCase;
+import org.apolenkov.application.model.Deck;
+import org.apolenkov.application.views.core.constants.CoreConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * Service implementation for deck-related business operations.
+ */
+@Service
+public class DeckUseCaseService implements DeckUseCase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeckUseCaseService.class);
+    private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
+
+    // ==================== Fields ====================
+
+    private final DeckRepository deckRepository;
+    private final CardRepository cardRepository;
+    private final Validator validator;
+    private final ApplicationEventPublisher eventPublisher;
+
+    // ==================== Constructor ====================
+
+    /**
+     * Creates service with required dependencies.
+     *
+     * @param deckRepositoryValue repository for deck operations
+     * @param cardRepositoryValue repository for card operations
+     * @param validatorValue validator for input validation
+     * @param eventPublisherValue event publisher for domain events
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    public DeckUseCaseService(
+            final DeckRepository deckRepositoryValue,
+            final CardRepository cardRepositoryValue,
+            final Validator validatorValue,
+            final ApplicationEventPublisher eventPublisherValue) {
+        if (deckRepositoryValue == null) {
+            throw new IllegalArgumentException("DeckRepository cannot be null");
+        }
+        if (cardRepositoryValue == null) {
+            throw new IllegalArgumentException("CardRepository cannot be null");
+        }
+        if (validatorValue == null) {
+            throw new IllegalArgumentException("Validator cannot be null");
+        }
+        if (eventPublisherValue == null) {
+            throw new IllegalArgumentException("ApplicationEventPublisher cannot be null");
+        }
+
+        this.deckRepository = deckRepositoryValue;
+        this.cardRepository = cardRepositoryValue;
+        this.validator = validatorValue;
+        this.eventPublisher = eventPublisherValue;
+    }
+
+    // ==================== Public API ====================
+
+    /**
+     * Returns all decks in the system.
+     *
+     * @return a list of all decks in the system, or empty list if none exist
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Deck> getAllDecks() {
+        return deckRepository.findAll();
+    }
+
+    /**
+     * Returns decks owned by specific user.
+     *
+     * @param userId the ID of the user whose decks to retrieve
+     * @return a list of decks owned by the specified user, or empty list if none exist
+     * @throws IllegalArgumentException if userId is invalid
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Deck> getDecksByUserId(final long userId) {
+        return deckRepository.findByUserId(userId);
+    }
+
+    /**
+     * Searches decks owned by specific user matching search query.
+     * Performs case-insensitive search in title and description fields.
+     *
+     * @param userId the ID of the user whose decks to search
+     * @param searchQuery the search query (case-insensitive)
+     * @return a list of decks matching search criteria, or empty list if none found
+     * @throws IllegalArgumentException if userId is invalid or searchQuery is null/blank
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Deck> searchDecksByUserId(final long userId, final String searchQuery) {
+        if (searchQuery == null || searchQuery.isBlank()) {
+            LOGGER.debug("Empty search query for user {}, returning all decks", userId);
+            return deckRepository.findByUserId(userId);
+        }
+        LOGGER.debug("Searching decks for user {}, query: '{}'", userId, searchQuery);
+        return deckRepository.findByUserIdAndSearch(userId, searchQuery);
+    }
+
+    /**
+     * Returns deck by ID.
+     *
+     * @param id the unique identifier of the deck to retrieve
+     * @return an Optional containing the deck if found, or empty Optional if not found
+     * @throws IllegalArgumentException if id is null
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Deck> getDeckById(final long id) {
+        return deckRepository.findById(id);
+    }
+
+    /**
+     * Saves deck to system with validation.
+     *
+     * @param deck the deck to save (create or update)
+     * @return the saved deck with updated fields
+     * @throws IllegalArgumentException if deck is null or validation fails
+     * @throws RuntimeException if database operation fails
+     */
+    @Override
+    @Transactional
+    public Deck saveDeck(final Deck deck) {
+        if (deck == null) {
+            throw new IllegalArgumentException("The object to be validated must not be null");
+        }
+
+        LOGGER.debug("Saving deck: title='{}', userId={}", deck.getTitle(), deck.getUserId());
+
+        var violations = validator.validate(deck);
+        if (!violations.isEmpty()) {
+            String message = violations.stream()
+                    .map(v -> v.getPropertyPath() + CoreConstants.SEPARATOR_SPACE + v.getMessage())
+                    .collect(Collectors.joining(", "));
+            LOGGER.warn("Deck validation failed: {}", message);
+            throw new IllegalArgumentException("Validation failed: " + message);
+        }
+
+        boolean isNew = deck.getId() == null;
+        Deck savedDeck = deckRepository.save(deck);
+
+        // Audit log (writes to both audit.log and application.log)
+        if (isNew) {
+            AUDIT_LOGGER.info(
+                    "Deck created: deckId={}, title='{}', userId={}",
+                    savedDeck.getId(),
+                    savedDeck.getTitle(),
+                    savedDeck.getUserId());
+
+            // Publish event to invalidate UI caches
+            eventPublisher.publishEvent(
+                    new DeckModifiedEvent(this, savedDeck.getUserId(), savedDeck.getId(), ModificationType.CREATED));
+        } else {
+            AUDIT_LOGGER.info(
+                    "Deck updated: deckId={}, title='{}', userId={}",
+                    savedDeck.getId(),
+                    savedDeck.getTitle(),
+                    savedDeck.getUserId());
+
+            // Publish event to invalidate UI caches
+            eventPublisher.publishEvent(
+                    new DeckModifiedEvent(this, savedDeck.getUserId(), savedDeck.getId(), ModificationType.UPDATED));
+        }
+
+        return savedDeck;
+    }
+
+    /**
+     * Deletes deck and all associated cards.
+     *
+     * @param id the unique identifier of the deck to delete
+     * @throws IllegalArgumentException if id is invalid
+     * @throws RuntimeException if database operation fails or deck doesn't exist
+     */
+    @Override
+    @Transactional
+    public void deleteDeck(final long id) {
+        LOGGER.debug("Deleting deck with ID {}", id);
+
+        // Get deck info before deletion for logging
+        Optional<Deck> deckOpt = deckRepository.findById(id);
+        if (deckOpt.isEmpty()) {
+            LOGGER.warn("Attempted to delete non-existent deck {}", id);
+            return;
+        }
+
+        Deck deck = deckOpt.get();
+
+        // Delete associated cards first to maintain referential integrity
+        cardRepository.deleteByDeckId(id);
+        LOGGER.debug("Deleted cards for deck {}", id);
+
+        deckRepository.deleteById(id);
+
+        // Audit log (writes to both audit.log and application.log)
+        AUDIT_LOGGER.warn("Deck deleted: id={}, title='{}', userId={}", id, deck.getTitle(), deck.getUserId());
+
+        // Publish event to invalidate UI caches
+        eventPublisher.publishEvent(new DeckModifiedEvent(this, deck.getUserId(), id, ModificationType.DELETED));
+    }
+}
