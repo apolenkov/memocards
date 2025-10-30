@@ -85,14 +85,6 @@
     - "traefik.yml"
   tags: [monitoring, config]
 
-- name: Generate Traefik dashboard auth from template
-  ansible.builtin.template:
-    src: "{{ playbook_dir }}/../roles/monitoring/templates/dashboard-auth.yml.j2"
-    dest: "{{ app_deploy_path }}/infrastructure/traefik/dynamic/dashboard-auth.yml"
-    mode: "0644"
-    force: true
-  tags: [monitoring, config]
-
 - name: Copy Loki configuration file
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../infrastructure/loki/loki.yml"
