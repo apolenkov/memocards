@@ -275,61 +275,6 @@ erDiagram
 
 This project uses a hybrid edge + dynamic routing setup. See Deployment Architecture below for the single authoritative infrastructure diagram. Routing specifics are documented in the Routing Rules table.
 
-### C4 Level 2: Infrastructure Containers
-
-```mermaid
-graph TB
-    subgraph "Edge Layer (Host)"
-        Nginx[Nginx<br/>Port 80/443<br/>SSL Termination<br/>Security Headers]
-    end
-    
-    subgraph "Docker Network: memocards-network"
-        subgraph "Routing Layer"
-            Traefik[Traefik v3.0<br/>Port 8080<br/>Docker Provider<br/>Auto-Discovery]
-        end
-        
-        subgraph "Application Services"
-            App[Memocards App<br/>Port 8080<br/>Spring Boot 3.5]
-            Postgres[PostgreSQL 16<br/>Port 5432<br/>SCRAM-SHA-256]
-        end
-        
-        subgraph "Monitoring Stack"
-            Prometheus[Prometheus<br/>Port 9090<br/>/prometheus<br/>Metrics Storage]
-            Grafana[Grafana<br/>Port 3000<br/>/grafana<br/>Dashboards]
-            Loki[Loki<br/>Port 3100<br/>Log Storage]
-            Promtail[Promtail<br/>Log Shipper]
-        end
-    end
-    
-    Nginx -->|All Traffic<br/>proxy_pass :8080| Traefik
-    
-    Traefik -->|Host + !PathPrefix<br/>Priority 1| App
-    Traefik -->|PathPrefix /grafana<br/>Priority 10<br/>stripPrefix| Grafana
-    Traefik -->|PathPrefix /prometheus<br/>Priority 10| Prometheus
-    Traefik -->|PathPrefix /traefik<br/>Priority 10| Traefik
-    
-    App -->|JDBC| Postgres
-    Promtail -->|HTTP Push| Loki
-    App -->|/actuator/prometheus<br/>Scrape 15s| Prometheus
-    Prometheus -->|Query API| Grafana
-    Loki -->|Query API| Grafana
-    
-    style Nginx fill:#009639,stroke:#007028,stroke-width:3px
-    style Traefik fill:#24a1c1,stroke:#1a7c94,stroke-width:3px
-    style App fill:#4285f4,stroke:#357ae8,stroke-width:2px
-    style Postgres fill:#336791,stroke:#245a7c,stroke-width:2px
-    style Grafana fill:#f46800,stroke:#e55600,stroke-width:2px
-    style Prometheus fill:#e6522c,stroke:#c94526,stroke-width:2px
-    style Loki fill:#0080ff,stroke:#0066cc,stroke-width:2px
-```
-
-**Infrastructure Components:**
-- **Nginx**: Edge proxy, SSL termination (Let's Encrypt), security headers
-- **Traefik**: Internal reverse proxy, automatic service discovery via Docker labels
-- **Application Services**: Memocards app, PostgreSQL database
-- **Monitoring Stack**: Prometheus (metrics), Grafana (visualization), Loki (logs), Promtail (log shipping)
-
----
 
 ## Cache Invalidation Flow
 
