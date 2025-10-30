@@ -35,8 +35,8 @@
   "scripts": {
     "lint:css": "stylelint \"src/main/frontend/themes/**/*.css\"",
     "lint:css:fix": "stylelint \"src/main/frontend/themes/**/*.css\" --fix",
-    "lint:yaml": "yamllint 'ansible/**/*.yml'",
-    "lint:yaml:fix": "prettier --write 'ansible/**/*.yml' && yamllint 'ansible/**/*.yml'"
+    "lint:yaml": "yamllint 'infrastructure/ansible/**/*.yml'",
+    "lint:yaml:fix": "prettier --write 'infrastructure/ansible/**/*.yml' && yamllint 'infrastructure/ansible/**/*.yml'"
   },
   "dependencies": {
     "@polymer/polymer": "3.5.2",
