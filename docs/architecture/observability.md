@@ -20,6 +20,14 @@
   - Instance down
 - Runbooks: see `operations-runbooks.md`.
 
+## Grafana Dashboards (links)
+- Overview: `https://memocards.duckdns.org/grafana/d/<overview-uid>/<overview-slug>`
+- Application (HTTP/Cache): `https://memocards.duckdns.org/grafana/d/<app-uid>/<app-slug>`
+- Database (PostgreSQL): `https://memocards.duckdns.org/grafana/d/<db-uid>/<db-slug>`
+- Logs (Loki Explore): `https://memocards.duckdns.org/grafana/explore?left=%5B%22now-1h%22,%22now%22,%22Loki%22,%7B%7D%5D`
+
+Replace <...-uid>/<...-slug> with real dashboard UID/slug (напишите — подставлю сразу).
+
 ## Links
 - Cache metrics collector: `src/main/java/org/apolenkov/application/service/stats/metrics/CacheMetricsCollector.java`
 - Cache metrics logger: `src/main/java/org/apolenkov/application/config/monitoring/CacheMetricsLogger.java`
