@@ -41,7 +41,7 @@
     owner: "1000"
     group: "1000"
   tags: [app, config]
-  
+
 - name: Ensure logs subdirectories have correct permissions
   ansible.builtin.file:
     path: "{{ app_deploy_path }}/logs/{{ item }}"
@@ -107,7 +107,10 @@
 
 - name: Deploy application services
   ansible.builtin.command:
-    cmd: docker compose -p memocards-prod -f docker-compose.yml -f docker-compose.infrastructure.yml -f docker-compose.prod.yml --profile prod up -d --pull always --remove-orphans
+    cmd: >-
+      docker compose -p memocards-prod -f docker-compose.yml
+      -f docker-compose.infrastructure.yml
+      -f docker-compose.prod.yml --profile prod up -d --pull always --remove-orphans
     chdir: "{{ app_deploy_path }}"
   register: app_compose_result
   changed_when: >-
@@ -173,16 +176,16 @@
     sort -t'|' -k3 -r | tail -n +4 | cut -d'|' -f1 | xargs -r docker rmi -f || true
   args:
     executable: /bin/bash
-  register: image_cleanup_result
-  changed_when: image_cleanup_result.stdout != ""
+  register: app_image_cleanup_result
+  changed_when: app_image_cleanup_result.stdout != ""
   failed_when: false
   tags: [app, cleanup]
 
 - name: Prune unused Docker resources (periodic cleanup, prevents disk accumulation)
   ansible.builtin.command:
     cmd: docker system prune -f --filter "until=168h"
-  register: docker_prune_result
-  changed_when: "'reclaimed' in docker_prune_result.stdout.lower()"
+  register: app_docker_prune_result
+  changed_when: "'reclaimed' in app_docker_prune_result.stdout.lower()"
   failed_when: false
   tags: [app, cleanup]
   # NOTE: Removes unused containers/networks/images older than 7 days
@@ -192,7 +195,12 @@
 # Monitoring removed - using Docker restart policy (restart: unless-stopped)
 
 - name: Get container status
-  ansible.builtin.command: docker compose -p memocards-prod -f {{ app_deploy_path }}/docker-compose.yml -f {{ app_deploy_path }}/docker-compose.infrastructure.yml -f {{ app_deploy_path }}/docker-compose.prod.yml --profile prod ps
+  ansible.builtin.command:
+    cmd: >-
+      docker compose -p memocards-prod
+      -f {{ app_deploy_path }}/docker-compose.yml
+      -f {{ app_deploy_path }}/docker-compose.infrastructure.yml
+      -f {{ app_deploy_path }}/docker-compose.prod.yml --profile prod ps
   register: app_container_status
   changed_when: false
   tags: [app, verify]

@@ -23,7 +23,7 @@ domain: "memocards.duckdns.org"
 #   app_image: "ghcr.io/apolenkov/memocards:abc1234"       # Specific commit
 # Version pinning: Set APP_VERSION to pin specific version (recommended for production)
 app_image: "ghcr.io/apolenkov/memocards"
-app_version: "latest"  # Default to latest, but should be pinned in production
+app_version: "latest" # Default to latest, but should be pinned in production
 app_port: 8080
 app_deploy_path: "/opt/memocards"
 

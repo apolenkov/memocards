@@ -42,8 +42,11 @@
 - name: Ensure Traefik .htpasswd generated with bcrypt when only user/password provided
   ansible.builtin.shell: |
     set -euo pipefail
-    which htpasswd >/dev/null 2>&1 || (apt-get update -y && apt-get install -y apache2-utils)
-    htpasswd -nbB '{{ monitoring_basicauth_user }}' '{{ monitoring_basicauth_password }}' > "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
+    which htpasswd >/dev/null 2>&1 || \
+      (apt-get update -y && apt-get install -y apache2-utils)
+    htpasswd -nbB '{{ monitoring_basicauth_user }}' \
+      '{{ monitoring_basicauth_password }}' > \
+      "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
     chmod 0640 "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
   args:
     executable: /bin/bash
@@ -58,8 +61,8 @@
       changed=1; else changed=0; fi; exit $changed
   args:
     executable: /bin/bash
-  register: htpasswd_plain_fix
-  changed_when: htpasswd_plain_fix.rc == 1
+  register: monitoring_htpasswd_plain_fix
+  changed_when: monitoring_htpasswd_plain_fix.rc == 1
   failed_when: false
   tags: [monitoring, config]
 
@@ -140,7 +143,10 @@
 
 - name: Deploy infrastructure services
   ansible.builtin.command:
-    cmd: docker compose -p memocards-prod -f docker-compose.yml -f docker-compose.infrastructure.yml -f docker-compose.prod.yml --profile prod up -d --pull always --remove-orphans
+    cmd: >-
+      docker compose -p memocards-prod -f docker-compose.yml
+      -f docker-compose.infrastructure.yml
+      -f docker-compose.prod.yml --profile prod up -d --pull always --remove-orphans
     chdir: "{{ app_deploy_path }}"
   register: monitoring_infrastructure_compose_result
   changed_when: >-
@@ -202,7 +208,11 @@
     msg: |
       ✅ Infrastructure deployed:
 
-      🔄 Traefik: {% if monitoring_traefik_health_check is defined and monitoring_traefik_health_check.rc is defined and monitoring_traefik_health_check.rc == 0 %}READY ✅{% else %}STARTING...{% endif %}
+      🔄 Traefik:
+        {% if monitoring_traefik_health_check is defined
+        and monitoring_traefik_health_check.rc is defined
+        and monitoring_traefik_health_check.rc == 0 %}READY ✅
+        {% else %}STARTING...{% endif %}
       📊 Prometheus: localhost:9090
       📋 Loki: localhost:3100
       📝 Promtail: running
@@ -217,5 +227,6 @@
       🔗 Direct Access via SSH tunnel:
       - ssh -L 9090:localhost:9090 root@{{ ansible_host }}
       - ssh -L 3000:localhost:3000 root@{{ ansible_host }}
-      - ssh -L 8080:localhost:8080 root@{{ ansible_host }} (Traefik API)
+      - ssh -L 8080:localhost:8080 root@{{ ansible_host }}
+        (Traefik API)
   tags: [monitoring]

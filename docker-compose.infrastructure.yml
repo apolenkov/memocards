@@ -28,12 +28,14 @@ services:
     labels:
       # Traefik dashboard accessible via /traefik/ path
       - "traefik.enable=true"
+      # Router for /traefik/ - catch-all for dashboard and API
+      # Use api@internal service (special Traefik service for API/dashboard)
       - "traefik.http.routers.traefik.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/traefik`)"
       - "traefik.http.routers.traefik.entrypoints=web"
       - "traefik.http.routers.traefik.priority=10"
-      - "traefik.http.services.traefik.loadbalancer.server.port=8082"
-      - "traefik.http.middlewares.traefik-stripprefix.stripprefix.prefixes=/traefik"
-      - "traefik.http.routers.traefik.middlewares=traefik-stripprefix,basicauth@docker"
+      - "traefik.http.routers.traefik.service=api@internal"
+      # No stripPrefix needed - basePath in traefik.yml handles /traefik path
+      - "traefik.http.routers.traefik.middlewares=basicauth@docker"
       - "traefik.http.middlewares.basicauth.basicauth.usersfile=/etc/traefik/.htpasswd"
       # Redirect common typo /traefic -> /traefik/
       - "traefik.http.middlewares.traefic-redirect.redirectregex.regex=^/traefic/?(.*)"

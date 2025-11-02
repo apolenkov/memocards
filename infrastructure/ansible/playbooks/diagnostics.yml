@@ -40,7 +40,11 @@
     # =============================================================================
     - name: Check all memocards containers
       ansible.builtin.command:
-        cmd: 'docker ps -a --filter "name=memocards" --format "table {% raw %}{{.Names}}{% endraw %}\t{% raw %}{{.Status}}{% endraw %}\t{% raw %}{{.Image}}{% endraw %}"'
+        cmd: >-
+          docker ps -a --filter "name=memocards"
+          --format "table {% raw %}{{.Names}}{% endraw %}\t
+          {% raw %}{{.Status}}{% endraw %}\t
+          {% raw %}{{.Image}}{% endraw %}"
       register: containers_status
       changed_when: false
       failed_when: false
@@ -53,7 +57,13 @@
 
     - name: Get application container detailed status
       ansible.builtin.command:
-        cmd: "docker inspect --format='Status: {% raw %}{{.State.Status}}{% endraw %}, Health: {% raw %}{{.State.Health.Status}}{% endraw %}, ExitCode: {% raw %}{{.State.ExitCode}}{% endraw %}, RestartCount: {% raw %}{{.RestartCount}}{% endraw %}, StartedAt: {% raw %}{{.State.StartedAt}}{% endraw %}' memocards-app-prod"
+        cmd: >-
+          docker inspect --format='Status: {% raw %}{{.State.Status}}{% endraw %},
+          Health: {% raw %}{{.State.Health.Status}}{% endraw %},
+          ExitCode: {% raw %}{{.State.ExitCode}}{% endraw %},
+          RestartCount: {% raw %}{{.RestartCount}}{% endraw %},
+          StartedAt: {% raw %}{{.State.StartedAt}}{% endraw %}'
+          memocards-app-prod
       register: app_container_status
       changed_when: false
       failed_when: false
@@ -134,11 +144,11 @@
       ansible.builtin.debug:
         msg: |
           🌐 HTTP Health Check Results:
-          
+
           /actuator/health:
           Status: {{ http_health.status | default('N/A') }}
           Response: {{ http_health.content | default('N/A') | truncate(500) }}
-          
+
           /health (alternative):
           Status: {{ http_health_alt.status | default('N/A') }}
           Response: {{ http_health_alt.content | default('N/A') | truncate(500) }}
@@ -177,7 +187,11 @@
     # =============================================================================
     - name: Check container resource usage
       ansible.builtin.command:
-        cmd: 'docker stats memocards-app-prod --no-stream --format "CPU: {% raw %}{{.CPUPerc}}{% endraw %}, Memory: {% raw %}{{.MemUsage}}{% endraw %}, Memory Limit: {% raw %}{{.MemPerc}}{% endraw %}"'
+        cmd: >-
+          docker stats memocards-app-prod --no-stream
+          --format "CPU: {% raw %}{{.CPUPerc}}{% endraw %},
+          Memory: {% raw %}{{.MemUsage}}{% endraw %},
+          Memory Limit: {% raw %}{{.MemPerc}}{% endraw %}"
       register: container_stats
       changed_when: false
       failed_when: false
@@ -245,12 +259,11 @@
 
           Container Status: {{ app_container_status.stdout | default('Unknown') }}
           HTTP Health: {{ http_health.status | default('N/A') }}
-          Port Listening: {{ 'Yes' if ':' + app_port|string in port_check.stdout else 'No' }}
-          
+          Port Listening: {{ 'Yes' if ':' + app_port | string in port_check.stdout else 'No' }}
+
           📋 Next Steps:
           1. Review logs above for errors
           2. Check database connectivity if health check fails
           3. Verify environment configuration
           4. Check resource limits (memory/CPU)
       tags: [always]
-

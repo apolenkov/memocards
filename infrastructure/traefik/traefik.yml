@@ -12,10 +12,13 @@ api:
   dashboard: true
   insecure: false
   debug: true
-  # Dashboard accessible via Nginx at /traefik/
-  # Note: insecure: true allows access without direct auth
-  # Nginx basic auth middleware protects access
-  # API is automatically available on the "traefik" entryPoint
+  # Custom base path for API and dashboard
+  # API will be served under /traefik/api and dashboard under /traefik/dashboard
+  basePath: /traefik
+  # Dashboard accessible via Nginx at /traefik/dashboard/
+  # Note: insecure: false requires auth (handled by basicauth middleware)
+  # API is automatically available on the "traefik" entryPoint (:8082)
+  # Dashboard path: /dashboard/ (with trailing slash in Traefik v3)
 
 providers:
   docker:

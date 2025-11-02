@@ -22,6 +22,7 @@
 
     - name: Check all containers (including stopped)
       ansible.builtin.shell: |
+        set -o pipefail
         docker ps -a --format "table {% raw %}{{.Names}}\t{{.Status}}\t{{.Image}}{% endraw %}" | head -20
       register: all_containers
       changed_when: false
@@ -40,7 +41,13 @@
 
     - name: Check Docker images
       ansible.builtin.shell: |
-        docker images --filter "reference=*memocards*" --filter "reference=*traefik*" --filter "reference=*grafana*" --filter "reference=*prometheus*" --filter "reference=*loki*" --format "table {% raw %}{{.Repository}}\t{{.Tag}}\t{{.Size}}{% endraw %}"
+        docker images \
+          --filter "reference=*memocards*" \
+          --filter "reference=*traefik*" \
+          --filter "reference=*grafana*" \
+          --filter "reference=*prometheus*" \
+          --filter "reference=*loki*" \
+          --format "table {% raw %}{{.Repository}}\t{{.Tag}}\t{{.Size}}{% endraw %}"
       register: images
       changed_when: false
 
@@ -75,4 +82,3 @@
           💽 DISK USAGE:
           {{ disk_usage.stdout }}
       tags: [always]
-

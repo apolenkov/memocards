@@ -3338,7 +3338,7 @@
     }
   ],
   "refresh": "30s",
-  "schemaVersion": 38,
+  "schemaVersion": 39,
   "style": "dark",
   "tags": [
     "memocards",
@@ -3356,7 +3356,7 @@
   "timezone": "browser",
   "title": "Memocards - Application Metrics (v6.0 - Best Practices 2025)",
   "uid": "memocards-app-metrics",
-  "version": 10,
+  "version": 11,
   "weekStart": "",
-  "description": "Professional dashboard following RED/USE methodologies and 2025 best practices. HTTP metrics displayed on separate rows for better horizontal visibility. Includes: SLO Compliance, HTTP metrics with histogram percentiles (P50, P95, P99), SQL/Database metrics with P95 histogram (enabled via management.metrics.distribution.percentiles-histogram), resource utilization, cache metrics, JVM metrics, Container metrics (cAdvisor), OS metrics (Node Exporter), and comprehensive Loki logs. Ready for Prometheus alerting."
+  "description": "Professional dashboard following RED/USE methodologies and 2025 best practices. Organized into clear sections: HTTP metrics (RED), SLO compliance, Resource utilization (USE), SQL/Database, JVM, Cache, Container, OS metrics, and comprehensive Loki logs. Ready for Prometheus alerting."
 }
