@@ -242,6 +242,7 @@ jobs:
           fi
 
       - name: Create Ansible Vault password file
+        working-directory: ./infrastructure/ansible
         run: |
           echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
           chmod 600 .vault_pass
@@ -249,7 +250,7 @@ jobs:
       - name: Test Ansible connectivity
         working-directory: ./infrastructure/ansible
         run: |
-          ansible -i inventory/hosts.yml vps -m ping --vault-password-file ../.vault_pass
+          ansible -i inventory/hosts.yml vps -m ping --vault-password-file .vault_pass
 
       - name: Deploy application with Ansible
         working-directory: ./infrastructure/ansible
@@ -260,7 +261,7 @@ jobs:
           ansible-playbook \
             -i inventory/hosts.yml \
             playbooks/deploy.yml \
-            --vault-password-file ../.vault_pass \
+            --vault-password-file .vault_pass \
             --extra-vars "app_image=${{ steps.deploy_tag.outputs.full_image }}" \
             -v
 
@@ -281,6 +282,7 @@ jobs:
 
       - name: Clean up sensitive files
         if: always()
+        working-directory: ./infrastructure/ansible
         run: |
           # Security: Shred vault password file to prevent recovery
           if [ -f .vault_pass ]; then
