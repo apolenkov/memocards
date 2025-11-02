@@ -1,0 +1,256 @@
+---
+# =============================================================================
+# PLAYBOOK: diagnostics.yml
+# Diagnostic playbook for troubleshooting deployment issues
+# =============================================================================
+#
+# This playbook performs comprehensive diagnostics:
+# - Container status
+# - Application logs
+# - Health checks
+# - Network connectivity
+# - Resource usage
+#
+# Usage:
+#   ansible-playbook -i ../inventory/hosts.yml diagnostics.yml --ask-vault-pass
+# =============================================================================
+
+- name: Diagnostics - Application Health Check
+  hosts: vps
+  become: true
+  gather_facts: false
+
+  vars_files:
+    - ../secrets.yml
+
+  tasks:
+    - name: Display diagnostic information
+      ansible.builtin.debug:
+        msg: |
+          ╔════════════════════════════════════════════════════════════╗
+          ║     🔍 Application Diagnostics                            ║
+          ╚════════════════════════════════════════════════════════════╝
+
+          🎯 Target: {{ inventory_hostname }}
+          🐳 Checking application status...
+      tags: [always]
+
+    # =============================================================================
+    # Container Status
+    # =============================================================================
+    - name: Check all memocards containers
+      ansible.builtin.command:
+        cmd: 'docker ps -a --filter "name=memocards" --format "table {% raw %}{{.Names}}{% endraw %}\t{% raw %}{{.Status}}{% endraw %}\t{% raw %}{{.Image}}{% endraw %}"'
+      register: containers_status
+      changed_when: false
+      failed_when: false
+
+    - name: Display containers status
+      ansible.builtin.debug:
+        msg: |
+          📦 Containers Status:
+          {{ containers_status.stdout }}
+
+    - name: Get application container detailed status
+      ansible.builtin.command:
+        cmd: "docker inspect --format='Status: {% raw %}{{.State.Status}}{% endraw %}, Health: {% raw %}{{.State.Health.Status}}{% endraw %}, ExitCode: {% raw %}{{.State.ExitCode}}{% endraw %}, RestartCount: {% raw %}{{.RestartCount}}{% endraw %}, StartedAt: {% raw %}{{.State.StartedAt}}{% endraw %}' memocards-app-prod"
+      register: app_container_status
+      changed_when: false
+      failed_when: false
+
+    - name: Display application container status
+      ansible.builtin.debug:
+        msg: |
+          📊 Application Container Status:
+          {{ app_container_status.stdout | default('Container not found') }}
+
+    # =============================================================================
+    # Application Logs
+    # =============================================================================
+    - name: Get application logs (last 100 lines)
+      ansible.builtin.command:
+        cmd: docker logs --tail 100 memocards-app-prod 2>&1 || echo "Could not retrieve logs"
+      register: app_logs
+      changed_when: false
+      failed_when: false
+
+    - name: Display application logs
+      ansible.builtin.debug:
+        msg: |
+          📋 Application Logs (last 100 lines):
+          {{ app_logs.stdout_lines | default(['No logs available']) | join('\n') }}
+
+    # =============================================================================
+    # Health Checks
+    # =============================================================================
+    - name: Check Docker health status
+      ansible.builtin.command:
+        cmd: "docker inspect --format='{% raw %}{{.State.Health}}{% endraw %}' memocards-app-prod"
+      register: docker_health
+      changed_when: false
+      failed_when: false
+
+    - name: Display Docker health status
+      ansible.builtin.debug:
+        msg: |
+          💚 Docker Health Status:
+          {{ docker_health.stdout | default('Health check not configured') }}
+
+    - name: Check available Actuator endpoints
+      ansible.builtin.uri:
+        url: "http://localhost:{{ app_port }}/actuator"
+        method: GET
+        timeout: 10
+        return_content: true
+      register: actuator_root
+      failed_when: false
+
+    - name: Display available Actuator endpoints
+      ansible.builtin.debug:
+        msg: |
+          🔗 Available Actuator Endpoints:
+          {{ actuator_root.content | default('Could not retrieve endpoints') | truncate(1000) }}
+      when: actuator_root.status == 200
+
+    - name: Check application HTTP health endpoint (/actuator/health)
+      ansible.builtin.uri:
+        url: "http://localhost:{{ app_port }}/actuator/health"
+        method: GET
+        timeout: 10
+        return_content: true
+      register: http_health
+      failed_when: false
+
+    - name: Check alternative health endpoint (/health)
+      ansible.builtin.uri:
+        url: "http://localhost:{{ app_port }}/health"
+        method: GET
+        timeout: 10
+        return_content: true
+      register: http_health_alt
+      failed_when: false
+
+    - name: Display HTTP health check results
+      ansible.builtin.debug:
+        msg: |
+          🌐 HTTP Health Check Results:
+          
+          /actuator/health:
+          Status: {{ http_health.status | default('N/A') }}
+          Response: {{ http_health.content | default('N/A') | truncate(500) }}
+          
+          /health (alternative):
+          Status: {{ http_health_alt.status | default('N/A') }}
+          Response: {{ http_health_alt.content | default('N/A') | truncate(500) }}
+
+    # =============================================================================
+    # Network Connectivity
+    # =============================================================================
+    - name: Check if port is listening
+      ansible.builtin.command:
+        cmd: "netstat -tlnp | grep :{{ app_port }} || ss -tlnp | grep :{{ app_port }} || echo 'Port {{ app_port }} not listening'"
+      register: port_check
+      changed_when: false
+      failed_when: false
+
+    - name: Display port status
+      ansible.builtin.debug:
+        msg: |
+          🔌 Port Status:
+          {{ port_check.stdout }}
+
+    - name: Check database connectivity from container
+      ansible.builtin.command:
+        cmd: docker exec memocards-app-prod sh -c "nc -zv postgres 5432 2>&1 || echo 'Database connection failed'"
+      register: db_connectivity
+      changed_when: false
+      failed_when: false
+
+    - name: Display database connectivity
+      ansible.builtin.debug:
+        msg: |
+          🗄️  Database Connectivity:
+          {{ db_connectivity.stdout | default('Could not check connectivity') }}
+
+    # =============================================================================
+    # Resource Usage
+    # =============================================================================
+    - name: Check container resource usage
+      ansible.builtin.command:
+        cmd: 'docker stats memocards-app-prod --no-stream --format "CPU: {% raw %}{{.CPUPerc}}{% endraw %}, Memory: {% raw %}{{.MemUsage}}{% endraw %}, Memory Limit: {% raw %}{{.MemPerc}}{% endraw %}"'
+      register: container_stats
+      changed_when: false
+      failed_when: false
+
+    - name: Display container resource usage
+      ansible.builtin.debug:
+        msg: |
+          📊 Container Resource Usage:
+          {{ container_stats.stdout | default('Stats not available') }}
+
+    - name: Check disk space
+      ansible.builtin.command:
+        cmd: df -h /opt/memocards
+      register: disk_space
+      changed_when: false
+
+    - name: Display disk space
+      ansible.builtin.debug:
+        msg: |
+          💾 Disk Space:
+          {{ disk_space.stdout_lines | join('\n') }}
+
+    # =============================================================================
+    # Docker Compose Status
+    # =============================================================================
+    - name: Check Docker Compose services
+      ansible.builtin.command:
+        cmd: docker compose -p memocards-prod -f docker-compose.yml -f docker-compose.infrastructure.yml -f docker-compose.prod.yml --profile prod ps
+        chdir: "{{ app_deploy_path }}"
+      register: compose_ps
+      changed_when: false
+      failed_when: false
+
+    - name: Display Docker Compose services
+      ansible.builtin.debug:
+        msg: |
+          🐳 Docker Compose Services:
+          {{ compose_ps.stdout | default('Could not retrieve compose status') }}
+
+    # =============================================================================
+    # Environment Configuration
+    # =============================================================================
+    - name: Check application environment variables
+      ansible.builtin.command:
+        cmd: docker exec memocards-app-prod env | grep -E "(DB_|APP_|SERVER_|MANAGEMENT_)" | sort || echo "Could not retrieve environment"
+      register: app_env
+      changed_when: false
+      failed_when: false
+
+    - name: Display application environment
+      ansible.builtin.debug:
+        msg: |
+          ⚙️  Application Environment (key variables):
+          {{ app_env.stdout | default('Environment not available') | truncate(1000) }}
+
+    # =============================================================================
+    # Summary
+    # =============================================================================
+    - name: Diagnostic summary
+      ansible.builtin.debug:
+        msg: |
+          ╔════════════════════════════════════════════════════════════╗
+          ║     📊 Diagnostic Summary                                   ║
+          ╚════════════════════════════════════════════════════════════╝
+
+          Container Status: {{ app_container_status.stdout | default('Unknown') }}
+          HTTP Health: {{ http_health.status | default('N/A') }}
+          Port Listening: {{ 'Yes' if ':' + app_port|string in port_check.stdout else 'No' }}
+          
+          📋 Next Steps:
+          1. Review logs above for errors
+          2. Check database connectivity if health check fails
+          3. Verify environment configuration
+          4. Check resource limits (memory/CPU)
+      tags: [always]
+

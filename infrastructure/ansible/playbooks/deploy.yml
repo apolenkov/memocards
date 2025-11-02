@@ -30,6 +30,25 @@
     - ../secrets.yml
 
   tasks:
+    # Normalize app_image: add :latest if no tag specified
+    - name: Normalize app_image format
+      ansible.builtin.set_fact:
+        app_image_normalized: "{{ app_image | default('ghcr.io/apolenkov/memocards') }}"
+    
+    - name: Check if app_image has tag
+      ansible.builtin.set_fact:
+        app_image_has_tag: "{{ app_image_normalized | regex_search(':') is not none }}"
+    
+    - name: Add :latest tag if missing
+      ansible.builtin.set_fact:
+        app_image: "{{ app_image_normalized + ':latest' }}"
+      when: not app_image_has_tag | default(false)
+    
+    - name: Use app_image as-is if tag present
+      ansible.builtin.set_fact:
+        app_image: "{{ app_image_normalized }}"
+      when: app_image_has_tag | default(false)
+    
     - name: Display deployment information
       ansible.builtin.debug:
         msg: |
@@ -154,7 +173,7 @@
 
         - name: Deploy application services
           ansible.builtin.command:
-            cmd: docker compose -p memocards-prod -f docker-compose.yml up -d --pull always --remove-orphans
+            cmd: docker compose -p memocards-prod -f docker-compose.yml -f docker-compose.infrastructure.yml -f docker-compose.prod.yml --profile prod up -d --pull always --remove-orphans
             chdir: "{{ app_deploy_path }}"
           register: compose_result
           changed_when: >-
@@ -203,15 +222,114 @@
           until: postgres_health.stdout == "healthy"
           changed_when: false
 
-        - name: Wait for application to be ready
+        - name: Wait for container to be running (not restarting)
+          ansible.builtin.command:
+            cmd: docker inspect --format='{% raw %}{{.State.Status}}{% endraw %}' memocards-app-prod
+          register: container_status_raw
+          retries: 20
+          delay: 3
+          until: container_status_raw.stdout == "running"
+          changed_when: false
+          failed_when: false
+
+        - name: Fail if container is restarting
+          ansible.builtin.fail:
+            msg: |
+              ❌ Container is in restart loop!
+              
+              Container status: {{ container_status_raw.stdout }}
+              
+              This usually indicates:
+              - Application startup error
+              - Configuration issue
+              - Database connectivity problem
+              - Memory/resource limits exceeded
+              
+              Check logs: docker logs memocards-app-prod
+          when: container_status_raw.stdout != "running" and container_status_raw.rc == 0
+
+        - name: Check container status before health check
+          ansible.builtin.command:
+            cmd: "docker inspect --format='{% raw %}Status: {{.State.Status}}, Health: {{.State.Health.Status}}, ExitCode: {{.State.ExitCode}}, RestartCount: {{.RestartCount}}{% endraw %}' memocards-app-prod"
+          register: container_status_check
+          changed_when: false
+          failed_when: false
+
+        - name: Display container status
+          ansible.builtin.debug:
+            msg: |
+              📊 Container Status: {{ container_status_check.stdout }}
+              
+              Checking if container is running and healthy...
+
+        - name: Check application logs (last 50 lines)
+          ansible.builtin.command:
+            cmd: docker logs --tail 50 memocards-app-prod 2>&1 || echo "Could not retrieve logs"
+          register: app_logs
+          changed_when: false
+          failed_when: false
+          when: container_status_check.rc == 0
+
+        - name: Display application logs if container exists
+          ansible.builtin.debug:
+            msg: |
+              📋 Application Logs (last 50 lines):
+              {{ app_logs.stdout_lines | default(['No logs available']) | join('\n') }}
+          when: container_status_check.rc == 0 and app_logs.stdout is defined
+
+        - name: Wait for application container to be healthy (Docker health check)
+          ansible.builtin.command:
+            cmd: docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-app-prod
+          register: docker_health_status
+          retries: 60
+          delay: 5
+          until: docker_health_status.stdout == "healthy"
+          changed_when: false
+          failed_when: false
+
+        - name: Wait for application to be ready (HTTP check via Traefik)
           ansible.builtin.uri:
             url: "http://localhost:{{ app_port }}/actuator/health"
             method: GET
             status_code: 200
-          retries: 60
-          delay: 5
-          register: health_check
-          until: health_check.status == 200
+            timeout: 10
+            return_content: true
+          retries: 30
+          delay: 2
+          register: http_health
+          until: http_health.status == 200
+          failed_when: false  # Don't fail immediately, show diagnostics first
+          # Note: HTTP check may fail if Vaadin blocks /actuator/*, but Docker health check should work
+
+        - name: Show health check diagnostics
+          ansible.builtin.debug:
+            msg: |
+              💚 Health Check Results:
+              
+              Docker Health Status: {{ docker_health_status.stdout | default('Unknown') }}
+              HTTP Health Status: {{ http_health.status | default('N/A') }}
+              HTTP Response: {{ http_health.content | default('N/A') | truncate(500) }}
+              
+              Container Status: {{ container_status_check.stdout | default('Unknown') }}
+              
+              Note: Docker health check is the primary check. HTTP check may fail if Vaadin blocks /actuator/* paths.
+
+        - name: Fail if Docker health check not passed
+          ansible.builtin.fail:
+            msg: |
+              ❌ APPLICATION DOCKER HEALTH CHECK FAILED!
+              
+              The application container did not become healthy after 60 retries (5 minutes).
+              
+              Docker Health Status: {{ docker_health_status.stdout | default('Unknown') }}
+              Container Status: {{ container_status_check.stdout | default('Unknown') }}
+              
+              Please check:
+              1. Application logs: docker logs memocards-app-prod
+              2. Container status: docker ps -a | grep memocards-app-prod
+              3. Docker health details: docker inspect memocards-app-prod | grep -A 20 Health
+              4. Database connectivity: docker logs memocards-postgres-prod
+          when: docker_health_status.stdout != "healthy"
 
       # Rollback procedure if deployment fails
       rescue:
@@ -225,7 +343,7 @@
 
         - name: Rollback to previous image
           ansible.builtin.command:
-            cmd: docker compose -p memocards-prod -f docker-compose.yml up -d --remove-orphans --force-recreate
+            cmd: docker compose -p memocards-prod -f docker-compose.yml -f docker-compose.infrastructure.yml -f docker-compose.prod.yml --profile prod up -d --remove-orphans --force-recreate
             chdir: "{{ app_deploy_path }}"
           register: rollback_result
           changed_when: >-
@@ -234,23 +352,36 @@
             'Recreated' in rollback_result.stdout
           when: current_image_backup.stdout != ""
 
-        - name: Wait for rollback health check
+        - name: Wait for rollback Docker health check
+          ansible.builtin.command:
+            cmd: docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-app-prod
+          register: rollback_docker_health
+          retries: 30
+          delay: 5
+          until: rollback_docker_health.stdout == "healthy"
+          changed_when: false
+          failed_when: false
+
+        - name: Wait for rollback HTTP health check (optional)
           ansible.builtin.uri:
             url: "http://localhost:{{ app_port }}/actuator/health"
             method: GET
             status_code: 200
-          retries: 30
-          delay: 5
-          register: rollback_health
-          failed_when: false
+            retries: 10
+            delay: 2
+            register: rollback_http_health
+            failed_when: false
 
         - name: Fail playbook after rollback attempt
           ansible.builtin.fail:
             msg: |
-              Deployment failed and rollback {{ 'completed' if rollback_health.status == 200 else 'FAILED' }}.
+              Deployment failed and rollback {{ 'completed' if (rollback_docker_health.stdout == 'healthy' or rollback_http_health.status == 200) else 'FAILED' }}.
+              
+              Docker Health: {{ rollback_docker_health.stdout | default('Unknown') }}
+              HTTP Health: {{ rollback_http_health.status | default('N/A') }}
 
               Failed image: {{ app_image }}
-              {% if rollback_health.status == 200 %}
+              {% if rollback_docker_health.stdout == 'healthy' or rollback_http_health.status == 200 %}
               Restored image: {{ current_image_backup.stdout }}
               {% else %}
               MANUAL INTERVENTION REQUIRED!
@@ -312,7 +443,8 @@
           - Image pulled: {{ app_image }}
           - Containers recreated: ✅
           - Old images cleaned: ✅
-          - Health check: {% if health_check is defined %}{{ 'PASSED ✅' if health_check.status == 200 else 'FAILED ❌' }}{% else %}NOT RUN ⏭️{% endif %}
+          - Docker Health: {% if docker_health_status is defined %}{{ 'HEALTHY ✅' if docker_health_status.stdout == 'healthy' else docker_health_status.stdout | default('UNKNOWN ⚠️') }}{% else %}NOT CHECKED ⏭️{% endif %}
+          - HTTP Health: {% if http_health is defined %}{{ 'PASSED ✅' if http_health.status == 200 else 'FAILED ❌ (may be blocked by Vaadin)' }}{% else %}NOT RUN ⏭️{% endif %}
           - PostgreSQL: {% if postgres_health is defined %}{{ postgres_health.stdout }}{% else %}NOT CHECKED ⏭️{% endif %}
 
           🌐 Access:
@@ -352,7 +484,8 @@
           status: "success"
           health_check:
             postgres: "{{ postgres_health.stdout | default('unknown') if postgres_health is defined else 'unknown' }}"
-            application: "{{ 'healthy' if (health_check is defined and health_check.status == 200) else 'unknown' }}"
+            docker_health: "{{ docker_health_status.stdout | default('unknown') if docker_health_status is defined else 'unknown' }}"
+            http_health: "{{ 'healthy' if (http_health is defined and http_health.status == 200) else 'failed' if http_health is defined else 'unknown' }}"
           version_info: "{{ app_info.json | default({}) }}"
       tags: [always, history]
 

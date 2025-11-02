@@ -79,7 +79,7 @@ jobs:
             echo "ℹ️  No caches were deleted (might have been cleaned up already)"
           fi
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
       - name: Summary

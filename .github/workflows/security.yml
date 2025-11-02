@@ -117,7 +117,7 @@ jobs:
           }
       
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.29.0
         continue-on-error: true
         with:
           image-ref: 'ghcr.io/${{ github.repository }}:latest'

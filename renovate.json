@@ -1,0 +1,26 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":pinDigestsDisabled"
+  ],
+  "enabledManagers": ["docker-compose"],
+  "packageRules": [
+    {
+      "matchManagers": ["docker-compose"],
+      "matchDatasources": ["docker"],
+      "groupName": "infrastructure images",
+      "matchPackageNames": [
+        "traefik",
+        "prom/prometheus",
+        "grafana/loki",
+        "grafana/promtail",
+        "grafana/grafana",
+        "postgres"
+      ],
+      "automerge": false,
+      "rangeStrategy": "replace"
+    }
+  ]
+}
+

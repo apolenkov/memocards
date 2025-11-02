@@ -11,6 +11,9 @@ datasources:
     jsonData:
       timeInterval: 30s
       httpMethod: GET
+      # Prometheus is configured with --web.route-prefix=/ (internal) and --web.external-url with /prometheus/ path
+      # Traefik strips /prometheus prefix when routing to Prometheus
+      # Grafana accesses Prometheus directly via internal Docker network, so no pathPrefix needed
 
   - name: Loki
     uid: loki
@@ -19,7 +22,13 @@ datasources:
     url: http://{{ loki_container_name }}:3100
     editable: false
     jsonData:
-      timeout: 60
-      maxLines: 1000
+      timeout: 300  # 5 minutes (aligned with Loki query_timeout)
+      maxLines: 5000  # Increased for better log display
+      # Query limits to prevent "too many outstanding requests"
+      maxConcurrent: 10  # Limit concurrent queries from Grafana
+      # Enable query result caching
+      queryResultCaching: true
+      # Reduce time range for queries
+      derivedFields: []
 
 

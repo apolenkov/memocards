@@ -16,12 +16,14 @@ vps_locale: "en_US.UTF-8"
 # APPLICATION CONFIGURATION
 # =============================================================================
 domain: "memocards.duckdns.org"
-# Default image (can be overridden with --extra-vars "app_image=...")
+# Default image and version (can be overridden with --extra-vars "app_image=...")
 # Examples:
 #   app_image: "ghcr.io/apolenkov/memocards:latest"        # Latest version
 #   app_image: "ghcr.io/apolenkov/memocards:0.1"           # Specific version
 #   app_image: "ghcr.io/apolenkov/memocards:abc1234"       # Specific commit
-app_image: "ghcr.io/apolenkov/memocards:latest"
+# Version pinning: Set APP_VERSION to pin specific version (recommended for production)
+app_image: "ghcr.io/apolenkov/memocards"
+app_version: "latest"  # Default to latest, but should be pinned in production
 app_port: 8080
 app_deploy_path: "/opt/memocards"
 
@@ -105,5 +107,8 @@ firewall_allowed_ports:
 # =============================================================================
 # MANAGEMENT CONFIGURATION
 # =============================================================================
-# Backup and monitoring removed for MVP
-# Using Docker restart policy instead of cron monitoring
+# Backup configuration
+backup_path: "/opt/memocards/backups"
+backup_retention_days: 30
+# restic_repository: "s3:https://s3.example.com/bucket"  # Optional: remote backup
+# restic_password stored in secrets.yml (vault)

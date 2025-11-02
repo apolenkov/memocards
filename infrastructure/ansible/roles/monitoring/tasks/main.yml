@@ -27,7 +27,40 @@
     mode: "0640"
     content: |
       {{ monitoring_basicauth_user }}:{PLAIN}{{ monitoring_basicauth_password }}
-  when: monitoring_basicauth_user is defined and monitoring_basicauth_password is defined
+  when: monitoring_basicauth_htpasswd is not defined and (monitoring_basicauth_user is defined and monitoring_basicauth_password is defined)
+  tags: [monitoring, config]
+
+- name: Write Traefik .htpasswd from pre-hashed Vault line (preferred)
+  ansible.builtin.copy:
+    dest: "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
+    mode: "0640"
+    content: |
+      {{ monitoring_basicauth_htpasswd }}
+  when: monitoring_basicauth_htpasswd is defined and monitoring_basicauth_htpasswd | length > 0
+  tags: [monitoring, config]
+
+- name: Ensure Traefik .htpasswd generated with bcrypt when only user/password provided
+  ansible.builtin.shell: |
+    set -euo pipefail
+    which htpasswd >/dev/null 2>&1 || (apt-get update -y && apt-get install -y apache2-utils)
+    htpasswd -nbB '{{ monitoring_basicauth_user }}' '{{ monitoring_basicauth_password }}' > "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
+    chmod 0640 "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
+  args:
+    executable: /bin/bash
+  when: monitoring_basicauth_htpasswd is not defined and (monitoring_basicauth_user is defined and monitoring_basicauth_password is defined)
+  changed_when: true
+  tags: [monitoring, config]
+
+- name: Fix incorrectly prefixed {PLAIN} in .htpasswd if present
+  ansible.builtin.shell: |
+    if grep -q "{PLAIN}" "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"; then
+      sed -i 's/{PLAIN}//g' "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd";
+      changed=1; else changed=0; fi; exit $changed
+  args:
+    executable: /bin/bash
+  register: htpasswd_plain_fix
+  changed_when: htpasswd_plain_fix.rc == 1
+  failed_when: false
   tags: [monitoring, config]
 
 - name: Copy Grafana configuration files
@@ -35,67 +68,61 @@
     src: "{{ playbook_dir }}/../../../infrastructure/grafana/{{ item }}"
     dest: "{{ app_deploy_path }}/infrastructure/grafana/{{ item }}"
     mode: "0644"
-    force: true
   loop:
     - "config/grafana.ini"
     - "dashboards/dashboard-memocards.json"
-    - "provisioning/dashboards.yml"
-  tags: [monitoring, config]
+    - "provisioning/dashboards/dashboards.yml"
+  tags: [monitoring, config, grafana]
+  # Ansible automatically skips unchanged files using checksums (default behavior, no need to specify)
 
 - name: Create Grafana datasources from template
   ansible.builtin.template:
     src: "{{ playbook_dir }}/../roles/monitoring/templates/grafana-datasources.yml.j2"
     dest: "{{ app_deploy_path }}/infrastructure/grafana/provisioning/datasources/prometheus.yml"
     mode: "0644"
-    force: true
-  tags: [monitoring, config]
+  tags: [monitoring, config, grafana]
 
 - name: Copy Prometheus configuration
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../infrastructure/prometheus/prometheus.yml"
     dest: "{{ app_deploy_path }}/infrastructure/prometheus/prometheus.yml"
     mode: "0644"
-    force: true
-  tags: [monitoring, config]
+  tags: [monitoring, config, prometheus]
+
+- name: Copy Prometheus alerting rules
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../infrastructure/prometheus/alerts.yml"
+    dest: "{{ app_deploy_path }}/infrastructure/prometheus/alerts.yml"
+    mode: "0644"
+  tags: [monitoring, config, prometheus]
 
 - name: Copy Promtail configuration file
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../infrastructure/promtail/promtail.yml"
     dest: "{{ app_deploy_path }}/infrastructure/promtail/promtail.yml"
     mode: "0644"
-    force: true
-  tags: [monitoring, config]
+  tags: [monitoring, config, promtail]
 
 - name: Copy Traefik static configuration files
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../infrastructure/traefik/{{ item }}"
     dest: "{{ app_deploy_path }}/infrastructure/traefik/{{ item }}"
     mode: "0644"
-    force: true
   loop:
     - "traefik.yml"
-  tags: [monitoring, config]
-
-- name: Generate Traefik dashboard auth from template
-  ansible.builtin.template:
-    src: "{{ playbook_dir }}/../roles/monitoring/templates/dashboard-auth.yml.j2"
-    dest: "{{ app_deploy_path }}/infrastructure/traefik/dynamic/dashboard-auth.yml"
-    mode: "0644"
-    force: true
-  tags: [monitoring, config]
+  tags: [monitoring, config, traefik]
 
 - name: Copy Loki configuration file
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../infrastructure/loki/loki.yml"
     dest: "{{ app_deploy_path }}/infrastructure/loki/loki.yml"
     mode: "0644"
-    force: true
-  tags: [monitoring, config]
+  tags: [monitoring, config, loki]
 
-- name: Ensure memocards-network exists (required for infrastructure)
+- name: Ensure memocards-internal network exists (required for infrastructure)
   ansible.builtin.shell: |
-    docker network inspect memocards-network >/dev/null 2>&1 || \
-      docker network create --driver bridge --subnet 172.20.0.0/16 memocards-network
+    docker network inspect memocards-internal >/dev/null 2>&1 || \
+      docker network create --driver bridge --subnet 172.20.0.0/16 memocards-internal
   args:
     executable: /bin/bash
   changed_when: false
@@ -109,19 +136,11 @@
     mode: "0644"
   tags: [monitoring, config]
 
-- name: Stop and remove infrastructure containers (handles conflicts)
-  ansible.builtin.command:
-    cmd: docker compose -p memocards-prod -f docker-compose.infrastructure.yml down --remove-orphans
-    chdir: "{{ app_deploy_path }}"
-  register: monitoring_down_result
-  changed_when: "'Removed' in monitoring_down_result.stdout or 'Stopped' in monitoring_down_result.stdout"
-  failed_when: false
-  tags: [monitoring, deploy]
-  # NOTE: Removes containers/networks, preserves volumes
+# NOTE: Avoid full downtime; do not call compose down. We'll update services in-place below.
 
 - name: Deploy infrastructure services
   ansible.builtin.command:
-    cmd: docker compose -p memocards-prod -f docker-compose.infrastructure.yml up -d --pull always --remove-orphans
+    cmd: docker compose -p memocards-prod -f docker-compose.yml -f docker-compose.infrastructure.yml -f docker-compose.prod.yml --profile prod up -d --pull always --remove-orphans
     chdir: "{{ app_deploy_path }}"
   register: monitoring_infrastructure_compose_result
   changed_when: >-
@@ -143,7 +162,8 @@
   register: monitoring_grafana_health
   changed_when: false
   failed_when: false
-  tags: [monitoring, verify]
+  tags: [monitoring, verify, healthcheck]
+  when: "'quick' not in ansible_run_tags"
 
 - name: Wait for Traefik to be ready (check routing)
   ansible.builtin.shell: |
@@ -157,14 +177,32 @@
   register: monitoring_traefik_health_check
   changed_when: false
   failed_when: false
-  tags: [monitoring, verify]
+  tags: [monitoring, verify, healthcheck]
+  when: "'quick' not in ansible_run_tags"
+
+- name: Wait for Grafana/Prometheus/Traefik routes to register in Traefik
+  ansible.builtin.shell: |
+    for i in {1..30}; do
+      g=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/grafana/)
+      p=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/prometheus/)
+      t=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/traefik/)
+      if [ "$g" != "404" ] && [ "$p" != "404" ] && [ "$t" != "404" ]; then
+        exit 0
+      fi
+      sleep 2
+    done
+    exit 1
+  changed_when: false
+  failed_when: false
+  tags: [monitoring, verify, healthcheck]
+  when: "'quick' not in ansible_run_tags"
 
 - name: Display monitoring status
   ansible.builtin.debug:
     msg: |
       ✅ Infrastructure deployed:
 
-      🔄 Traefik: {{ 'READY ✅' if monitoring_traefik_health_check.rc == 0 else 'STARTING...' }}
+      🔄 Traefik: {% if monitoring_traefik_health_check is defined and monitoring_traefik_health_check.rc is defined and monitoring_traefik_health_check.rc == 0 %}READY ✅{% else %}STARTING...{% endif %}
       📊 Prometheus: localhost:9090
       📋 Loki: localhost:3100
       📝 Promtail: running

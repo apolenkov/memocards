@@ -27,37 +27,37 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.13'
+          python-version: '3.11'
           cache: 'pip'
       
       - name: Install Ansible and dependencies
+        working-directory: ./infrastructure/ansible
         run: |
-          cd ansible
           pip install -r requirements.txt
       
       - name: Cache Ansible collections
         uses: actions/cache@v4
         with:
           path: ~/.ansible/collections
-          key: ${{ runner.os }}-ansible-collections-${{ hashFiles('ansible/requirements.yml') }}
+          key: ${{ runner.os }}-ansible-collections-${{ hashFiles('infrastructure/ansible/requirements.yml') }}
           restore-keys: |
             ${{ runner.os }}-ansible-collections-
       
       - name: Install Ansible collections
+        working-directory: ./infrastructure/ansible
         run: |
-          cd ansible
           ansible-galaxy collection install -r requirements.yml
       
       - name: Create vault password file
         if: env.VAULT_PASSWORD != ''
+        working-directory: ./infrastructure/ansible
         run: |
-          cd ansible
           echo "$VAULT_PASSWORD" > .vault_pass
           chmod 600 .vault_pass
 
       - name: Create empty vault pass if missing
+        working-directory: ./infrastructure/ansible
         run: |
-          cd ansible
           # Ansible will look for .vault_pass due to ansible.cfg
           # Create empty file to avoid "file not found" error
           if [ ! -f .vault_pass ]; then
@@ -67,9 +67,8 @@ jobs:
           fi
 
       - name: Run ansible-playbook syntax check
+        working-directory: ./infrastructure/ansible
         run: |
-          cd ansible
-          
           EXIT_CODE=0
           for playbook in playbooks/*.yml; do
             echo "🔍 Checking $playbook..."
@@ -90,8 +89,8 @@ jobs:
           exit $EXIT_CODE
 
       - name: Run ansible-lint
+        working-directory: ./infrastructure/ansible
         run: |
-          cd ansible
           if command -v ansible-lint &> /dev/null; then
             for playbook in playbooks/*.yml; do
               echo "Linting $playbook..."
@@ -103,8 +102,8 @@ jobs:
 
       - name: Cleanup vault password file
         if: always()
+        working-directory: ./infrastructure/ansible
         run: |
-          cd ansible
           if [ -f .vault_pass ]; then
             shred -u .vault_pass || rm -f .vault_pass
           fi

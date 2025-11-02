@@ -1,0 +1,232 @@
+groups:
+  - name: application_alerts
+    interval: 30s
+    rules:
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: |
+          (sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m])) 
+          / sum(rate(http_server_requests_seconds_count[5m]))) * 100 > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: application
+        annotations:
+          summary: "High error rate detected ({{ $value | humanizePercentage }})"
+          description: "Error rate is above 1% for the last 5 minutes. Current: {{ $value | humanizePercentage }}"
+          
+      # Critical Error Rate
+      - alert: CriticalErrorRate
+        expr: |
+          (sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m])) 
+          / sum(rate(http_server_requests_seconds_count[5m]))) * 100 > 5
+        for: 2m
+        labels:
+          severity: critical
+          service: application
+        annotations:
+          summary: "Critical error rate detected ({{ $value | humanizePercentage }})"
+          description: "Error rate is above 5% for the last 2 minutes. Current: {{ $value | humanizePercentage }}"
+          
+      # High Response Time (P95)
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le)) * 1000 > 500
+        for: 10m
+        labels:
+          severity: warning
+          service: application
+        annotations:
+          summary: "High response time detected (P95: {{ $value | humanize }}ms)"
+          description: "P95 response time is above 500ms for the last 10 minutes. Current: {{ $value | humanize }}ms"
+          
+      # Critical Response Time (P95)
+      - alert: CriticalResponseTime
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le)) * 1000 > 1000
+        for: 5m
+        labels:
+          severity: critical
+          service: application
+        annotations:
+          summary: "Critical response time detected (P95: {{ $value | humanize }}ms)"
+          description: "P95 response time is above 1000ms for the last 5 minutes. Current: {{ $value | humanize }}ms"
+
+  - name: resource_alerts
+    interval: 30s
+    rules:
+      # HikariCP Pool Exhaustion
+      # Note: Using active + idle connections as hikaricp_connections metric may not exist
+      # Spring Boot Actuator exposes hikaricp_connections_active and hikaricp_connections_idle separately
+      - alert: HikariCPPoolExhaustion
+        expr: |
+          ((sum(hikaricp_connections_active) + sum(hikaricp_connections_idle)) / sum(hikaricp_connections_max)) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "HikariCP pool exhaustion detected ({{ $value | humanizePercentage }})"
+          description: "Connection pool usage is above 90% for the last 5 minutes. Current: {{ $value | humanizePercentage }}"
+          
+      # HikariCP Pool Warning
+      - alert: HikariCPPoolWarning
+        expr: |
+          ((sum(hikaricp_connections_active) + sum(hikaricp_connections_idle)) / sum(hikaricp_connections_max)) * 100 > 70
+        for: 10m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "HikariCP pool usage high ({{ $value | humanizePercentage }})"
+          description: "Connection pool usage is above 70% for the last 10 minutes. Current: {{ $value | humanizePercentage }}"
+          
+      # Connection Timeouts
+      - alert: ConnectionTimeouts
+        expr: |
+          increase(hikaricp_connections_timeout_total[5m]) > 0
+        for: 2m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "Connection timeouts detected ({{ $value }})"
+          description: "Connection acquisition timeouts occurred in the last 5 minutes. Count: {{ $value }}"
+          
+      # JVM Heap High
+      - alert: JVMHeapHigh
+        expr: |
+          (sum(jvm_memory_used_bytes{area="heap"}) / sum(jvm_memory_max_bytes{area="heap"})) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+          service: application
+        annotations:
+          summary: "JVM heap usage high ({{ $value | humanizePercentage }})"
+          description: "JVM heap usage is above 90% for the last 5 minutes. Current: {{ $value | humanizePercentage }}"
+          
+      # JVM Heap Warning
+      - alert: JVMHeapWarning
+        expr: |
+          (sum(jvm_memory_used_bytes{area="heap"}) / sum(jvm_memory_max_bytes{area="heap"})) * 100 > 80
+        for: 10m
+        labels:
+          severity: warning
+          service: application
+        annotations:
+          summary: "JVM heap usage elevated ({{ $value | humanizePercentage }})"
+          description: "JVM heap usage is above 80% for the last 10 minutes. Current: {{ $value | humanizePercentage }}"
+
+  - name: infrastructure_alerts
+    interval: 30s
+    rules:
+      # CPU Usage High
+      # Formula: (1 - idle_time) * 100 to get CPU usage percentage
+      # Best practice: use rate() instead of irate() for more stable values
+      - alert: CPUUsageHigh
+        expr: |
+          (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+          service: infrastructure
+        annotations:
+          summary: "CPU usage high ({{ $value | humanizePercentage }})"
+          description: "CPU usage is above 90% for the last 5 minutes. Current: {{ $value | humanizePercentage }}"
+          
+      # Memory Usage High
+      - alert: MemoryUsageHigh
+        expr: |
+          (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+          service: infrastructure
+        annotations:
+          summary: "Memory usage high ({{ $value | humanizePercentage }})"
+          description: "Memory usage is above 90% for the last 5 minutes. Current: {{ $value | humanizePercentage }}"
+          
+      # Disk Usage High
+      - alert: DiskUsageHigh
+        expr: |
+          (1 - (node_filesystem_avail_bytes{mountpoint="/",fstype!="rootfs"} 
+          / node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs"})) * 100 > 95
+        for: 5m
+        labels:
+          severity: critical
+          service: infrastructure
+        annotations:
+          summary: "Disk usage critical ({{ $value | humanizePercentage }})"
+          description: "Disk usage is above 95% for the last 5 minutes. Current: {{ $value | humanizePercentage }}"
+          
+      # Disk Usage Warning
+      - alert: DiskUsageWarning
+        expr: |
+          (1 - (node_filesystem_avail_bytes{mountpoint="/",fstype!="rootfs"} 
+          / node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs"})) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          service: infrastructure
+        annotations:
+          summary: "Disk usage elevated ({{ $value | humanizePercentage }})"
+          description: "Disk usage is above 85% for the last 10 minutes. Current: {{ $value | humanizePercentage }}"
+
+  - name: monitoring_alerts
+    interval: 30s
+    rules:
+      # Promtail Unhealthy
+      - alert: PromtailUnhealthy
+        expr: up{job="promtail"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          service: promtail
+        annotations:
+          summary: "Promtail is down or unreachable"
+          description: "Promtail metrics endpoint has been unreachable for more than 2 minutes. Log collection may be affected."
+          
+      # Promtail High Error Rate
+      - alert: PromtailHighErrorRate
+        expr: rate(promtail_read_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: promtail
+        annotations:
+          summary: "Promtail is experiencing high error rate"
+          description: "Promtail has {{ $value | humanize }} read errors per second (threshold: 0.1/s)"
+          
+      # Loki Unhealthy
+      - alert: LokiUnhealthy
+        expr: up{job="loki"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: loki
+        annotations:
+          summary: "Loki is down or unreachable"
+          description: "Loki metrics endpoint has been unreachable for more than 2 minutes. Log storage may be affected."
+          
+      # Prometheus Unhealthy
+      - alert: PrometheusUnhealthy
+        expr: up{job="prometheus"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: prometheus
+        annotations:
+          summary: "Prometheus is down or unreachable"
+          description: "Prometheus metrics endpoint has been unreachable for more than 2 minutes. Metrics collection may be affected."
+          
+      # Grafana Unhealthy
+      - alert: GrafanaUnhealthy
+        expr: up{job="grafana"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          service: grafana
+        annotations:
+          summary: "Grafana is down or unreachable"
+          description: "Grafana metrics endpoint has been unreachable for more than 2 minutes. Dashboards may be unavailable."
+

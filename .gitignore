@@ -47,6 +47,7 @@ src/main/frontend/generated
 
 # Project
 logs/
+.cursor/plans/*
 changelogs/
 .refactoring/
 *.bundle

@@ -16,6 +16,23 @@ env:
   TESTCONTAINERS_REUSE_ENABLE: "true"
 
 jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          deny-licenses: GPL-3.0, AGPL-3.0
+
   test:
     name: Run Test Suite
     uses: ./.github/workflows/test.yml
@@ -43,7 +60,7 @@ jobs:
           git fetch origin ${{ github.base_ref }}
           CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
           
-          if echo "$CHANGED_FILES" | grep -q "^ansible/"; then
+          if echo "$CHANGED_FILES" | grep -qE "^infrastructure/ansible/|^ansible/"; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "✅ Ansible files were modified - will run quality checks"
           else
@@ -58,3 +75,44 @@ jobs:
     if: needs.check-ansible-changes.outputs.ansible_changed == 'true'
     uses: ./.github/workflows/ansible-lint.yml
     secrets: inherit
+
+  docker-compose-validation:
+    name: Docker Compose Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Validate docker-compose.yml
+        run: |
+          docker compose -f docker-compose.yml config > /dev/null || {
+            echo "::error::docker-compose.yml is invalid"
+            exit 1
+          }
+      
+      - name: Validate docker-compose.infrastructure.yml
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.infrastructure.yml config > /dev/null || {
+            echo "::error::docker-compose.infrastructure.yml is invalid"
+            exit 1
+          }
+      
+      - name: Validate docker-compose.prod.yml
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml config > /dev/null || {
+            echo "::error::docker-compose.prod.yml is invalid"
+            exit 1
+          }
+      
+      - name: Validate docker-compose.dev.yml
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.dev.yml config > /dev/null || {
+            echo "::error::docker-compose.dev.yml is invalid"
+            exit 1
+          }

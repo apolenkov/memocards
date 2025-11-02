@@ -214,13 +214,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.ansible/collections
-          key: ${{ runner.os }}-ansible-collections-${{ hashFiles('ansible/requirements.yml') }}
+          key: ${{ runner.os }}-ansible-collections-${{ hashFiles('infrastructure/ansible/requirements.yml') }}
           restore-keys: |
             ${{ runner.os }}-ansible-collections-
 
       - name: Install Ansible collections
+        working-directory: ./infrastructure/ansible
         run: |
-          cd ansible
           ansible-galaxy collection install -r requirements.yml
 
       - name: Setup SSH Agent
@@ -247,12 +247,12 @@ jobs:
           chmod 600 .vault_pass
 
       - name: Test Ansible connectivity
-        working-directory: ./ansible
+        working-directory: ./infrastructure/ansible
         run: |
           ansible -i inventory/hosts.yml vps -m ping --vault-password-file ../.vault_pass
 
       - name: Deploy application with Ansible
-        working-directory: ./ansible
+        working-directory: ./infrastructure/ansible
         env:
           DEPLOY_IMAGE_TAG: ${{ steps.deploy_tag.outputs.tag }}
         run: |

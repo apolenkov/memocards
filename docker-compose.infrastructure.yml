@@ -5,8 +5,10 @@
 
 services:
   traefik:
-    image: traefik:v3.0
+    image: ${TRAEFIK_IMAGE:-traefik:v3.0}
     container_name: ${TRAEFIK_CONTAINER_NAME:-memocards-traefik}
+    profiles:
+      - prod
     ports:
       # Main entrypoint for Nginx proxy (all traffic from Nginx goes here)
       - "127.0.0.1:8080:8080"
@@ -19,18 +21,14 @@ services:
       - ./infrastructure/traefik/.htpasswd:/etc/traefik/.htpasswd:ro
       # ACME volume not needed - Nginx handles SSL certificates
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 128m
-        reservations:
-          memory: 64m
+    mem_limit: 128m
+    cpus: ${TRAEFIK_CPUS:-0.25}
     networks:
-      - memocards-network
+      - internal
     labels:
       # Traefik dashboard accessible via /traefik/ path
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`memocards.duckdns.org`) && (PathPrefix(`/traefik`) || PathPrefix(`/api`))"
+      - "traefik.http.routers.traefik.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/traefik`)"
       - "traefik.http.routers.traefik.entrypoints=web"
       - "traefik.http.routers.traefik.priority=10"
       - "traefik.http.services.traefik.loadbalancer.server.port=8082"
@@ -47,12 +45,15 @@ services:
       - "traefik.http.routers.traefic-redirect.service=traefik"
 
   prometheus:
-    image: prom/prometheus:latest
+    image: ${PROMETHEUS_IMAGE:-prom/prometheus:v2.53.0}
     container_name: ${PROMETHEUS_CONTAINER_NAME:-memocards-prometheus}
+    profiles:
+      - prod
     ports:
       - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
     volumes:
       - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./infrastructure/prometheus/alerts.yml:/etc/prometheus/alerts.yml
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -62,33 +63,32 @@ services:
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
       - '--web.external-url=https://memocards.duckdns.org/prometheus/'
-      - '--web.route-prefix=/prometheus/'
+      - '--web.route-prefix=/'
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/prometheus/-/healthy || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 256m
-        reservations:
-          memory: 128m
+    mem_limit: 256m
+    cpus: ${PROMETHEUS_CPUS:-0.5}
     networks:
-      - memocards-network
+      - internal
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/prometheus`)"
       - "traefik.http.routers.prometheus.entrypoints=web"
       - "traefik.http.routers.prometheus.priority=10"
-      - "traefik.http.routers.prometheus.middlewares=basicauth@docker"
+      - "traefik.http.routers.prometheus.middlewares=prometheus-stripprefix,basicauth@docker"
+      - "traefik.http.middlewares.prometheus-stripprefix.stripprefix.prefixes=/prometheus"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
   loki:
-    image: grafana/loki:latest
+    image: ${LOKI_IMAGE:-grafana/loki:2.9.8}
     container_name: ${LOKI_CONTAINER_NAME:-memocards-loki}
+    profiles:
+      - prod
     ports:
       - "127.0.0.1:${LOKI_PORT:-3100}:3100"
     command: -config.file=/etc/loki/loki.yml
@@ -102,47 +102,47 @@ services:
       retries: 3
       start_period: 10s
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 192m
-        reservations:
-          memory: 96m
+    mem_limit: 512m  # Increased from 192m to handle concurrent queries
+    cpus: ${LOKI_CPUS:-1.0}  # Increased from 0.5 to handle concurrent queries
     networks:
-      - memocards-network
+      - internal
     environment:
       - JAEGER_AGENT_HOST=localhost
 
   promtail:
-    image: grafana/promtail:latest
+    image: ${PROMTAIL_IMAGE:-grafana/promtail:2.9.8}
     container_name: ${PROMTAIL_CONTAINER_NAME:-memocards-promtail}
+    profiles:
+      - prod
     volumes:
-      - ${APP_LOGS_PATH:-./logs}:/var/log/app:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - ./infrastructure/promtail:/etc/promtail
       - promtail_positions:/var/lib/promtail
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     command: -config.file=/etc/promtail/promtail.yml
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9080/metrics || exit 1"]
+      # Promtail health check: verify HTTP endpoint is accessible
+      # Using curl via sh (Promtail container doesn't have wget)
+      # Check /ready endpoint first (Promtail 2.9+), fallback to /metrics
+      test: ["CMD-SHELL", "sh -c 'exec 3<>/dev/tcp/localhost/9080 && echo -e \"GET /ready HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n\" >&3 && head -1 <&3 | grep -q \"HTTP\" || (exec 3<>/dev/tcp/localhost/9080 && echo -e \"GET /metrics HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n\" >&3 && head -1 <&3 | grep -q \"HTTP\"); exec 3<&-; exec 3>&-' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 15s  # Increased to allow Promtail to discover Docker containers
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 96m
-        reservations:
-          memory: 48m
+    mem_limit: 96m
+    cpus: ${PROMTAIL_CPUS:-0.25}
     networks:
-      - memocards-network
+      - internal
     depends_on:
       loki:
         condition: service_healthy
 
   grafana:
-    image: grafana/grafana:latest
+    image: ${GRAFANA_IMAGE:-grafana/grafana:11.2.0}
     container_name: ${GRAFANA_CONTAINER_NAME:-memocards-grafana}
+    profiles:
+      - prod
     ports:
       - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
     env_file:
@@ -172,20 +172,48 @@ services:
         condition: service_healthy
       loki:
         condition: service_healthy
-    deploy:
-      resources:
-        limits:
-          memory: 192m
-        reservations:
-          memory: 96m
+    mem_limit: 192m
+    cpus: ${GRAFANA_CPUS:-0.5}
     networks:
-      - memocards-network
+      - internal
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/grafana`)"
       - "traefik.http.routers.grafana.entrypoints=web"
       - "traefik.http.routers.grafana.priority=10"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.1
+    container_name: ${NODE_EXPORTER_CONTAINER_NAME:-memocards-node-exporter}
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    volumes:
+      - '/:/host:ro,rslave'
+    restart: unless-stopped
+    profiles:
+      - prod
+    networks:
+      - internal
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: ${CADVISOR_CONTAINER_NAME:-memocards-cadvisor}
+    devices:
+      - /dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /cgroup:/cgroup:ro
+    restart: unless-stopped
+    profiles:
+      - prod
+    networks:
+      - internal
+
 
 volumes:
   prometheus_data:
@@ -199,6 +227,7 @@ volumes:
   # traefik_acme removed - Nginx handles SSL on host
 
 networks:
-  memocards-network:
-    external: true
+  internal:
+    name: memocards-internal
+    external: false
 

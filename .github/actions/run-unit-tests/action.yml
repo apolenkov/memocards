@@ -34,3 +34,14 @@ runs:
         name: unit-test-coverage
         path: build/reports/jacoco/test/html/
         retention-days: 30  # Medium retention (trend analysis)
+
+    - name: Verify coverage threshold (≥70%)
+      shell: bash
+      env:
+        GRADLE_OPTS: ${{ inputs.gradle-opts }}
+      run: |
+        ./gradlew jacocoTestCoverageVerification || {
+          echo "::error::Coverage threshold not met (required: ≥70%)"
+          echo "Check build/reports/jacoco/test/html/index.html for details"
+          exit 1
+        }

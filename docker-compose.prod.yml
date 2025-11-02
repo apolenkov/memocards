@@ -1,0 +1,9 @@
+services:
+  app:
+    profiles:
+      - prod
+
+  postgres:
+    profiles:
+      - prod
+

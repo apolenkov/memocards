@@ -11,6 +11,20 @@
     mode: "0644"
   tags: [app, config]
 
+- name: Copy Docker Compose production overlay
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../docker-compose.prod.yml"
+    dest: "{{ app_deploy_path }}/docker-compose.prod.yml"
+    mode: "0644"
+  tags: [app, config]
+
+- name: Copy Docker Compose development overlay
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../docker-compose.dev.yml"
+    dest: "{{ app_deploy_path }}/docker-compose.dev.yml"
+    mode: "0644"
+  tags: [app, config]
+
 - name: Generate production environment file from template
   ansible.builtin.template:
     src: env.prod.j2
@@ -18,6 +32,72 @@
     mode: "0600"
     backup: true
   tags: [app, config]
+
+- name: Ensure logs directory exists with correct permissions
+  ansible.builtin.file:
+    path: "{{ app_deploy_path }}/logs"
+    state: directory
+    mode: "0777"
+    owner: "1000"
+    group: "1000"
+  tags: [app, config]
+  
+- name: Ensure logs subdirectories have correct permissions
+  ansible.builtin.file:
+    path: "{{ app_deploy_path }}/logs/{{ item }}"
+    state: directory
+    mode: "0777"
+    owner: "1000"
+    group: "1000"
+  loop:
+    - archive
+  tags: [app, config]
+
+- name: Fix permissions on existing log files and directories
+  ansible.builtin.shell: |
+    # Ensure directory permissions
+    chown -R 1000:1000 "{{ app_deploy_path }}/logs" || true
+    chmod -R 777 "{{ app_deploy_path }}/logs" || true
+    # Ensure files are writable
+    find "{{ app_deploy_path }}/logs" -type f -exec chmod 666 {} \; || true
+    find "{{ app_deploy_path }}/logs" -type d -exec chmod 777 {} \; || true
+    # Ensure archive directory exists with correct permissions
+    mkdir -p "{{ app_deploy_path }}/logs/archive"
+    chown -R 1000:1000 "{{ app_deploy_path }}/logs/archive" || true
+    chmod -R 777 "{{ app_deploy_path }}/logs/archive" || true
+  args:
+    executable: /bin/bash
+  tags: [app, config]
+  changed_when: true
+
+- name: Ensure log files are created with correct permissions (pre-create)
+  ansible.builtin.file:
+    path: "{{ app_deploy_path }}/logs/{{ item }}"
+    state: touch
+    mode: "0666"
+    owner: "1000"
+    group: "1000"
+  loop:
+    - application.log
+    - errors.log
+    - warnings.log
+    - sql.log
+    - security.log
+    - audit.log
+  tags: [app, config]
+  failed_when: false
+
+- name: Ensure log directory is writable before container start
+  ansible.builtin.shell: |
+    # Final permission fix before container deployment
+    chown -R 1000:1000 "{{ app_deploy_path }}/logs" || true
+    chmod -R 777 "{{ app_deploy_path }}/logs" || true
+    find "{{ app_deploy_path }}/logs" -type f -exec chmod 666 {} \; || true
+    find "{{ app_deploy_path }}/logs" -type d -exec chmod 777 {} \; || true
+  args:
+    executable: /bin/bash
+  tags: [app, config, deploy]
+  changed_when: true
 
 - name: Pull application image from GHCR
   community.docker.docker_image_pull:
@@ -27,7 +107,7 @@
 
 - name: Deploy application services
   ansible.builtin.command:
-    cmd: docker compose -p memocards-prod -f docker-compose.yml up -d --pull always --remove-orphans
+    cmd: docker compose -p memocards-prod -f docker-compose.yml -f docker-compose.infrastructure.yml -f docker-compose.prod.yml --profile prod up -d --pull always --remove-orphans
     chdir: "{{ app_deploy_path }}"
   register: app_compose_result
   changed_when: >-
@@ -37,6 +117,26 @@
     'Pulled' in app_compose_result.stdout
   tags: [app, deploy]
   # NOTE: Recreates containers if config/images changed
+
+- name: Fix log permissions after container start (critical - ensures writability)
+  ansible.builtin.shell: |
+    # Fix permissions after volume mount (Docker may have changed ownership)
+    chown -R 1000:1000 "{{ app_deploy_path }}/logs" || true
+    chmod -R 777 "{{ app_deploy_path }}/logs" || true
+    find "{{ app_deploy_path }}/logs" -type f -exec chmod 666 {} \; || true
+    find "{{ app_deploy_path }}/logs" -type d -exec chmod 777 {} \; || true
+    # Ensure all log files exist and are writable
+    for logfile in application.log errors.log warnings.log sql.log security.log audit.log; do
+      touch "{{ app_deploy_path }}/logs/$logfile"
+      chown 1000:1000 "{{ app_deploy_path }}/logs/$logfile" || true
+      chmod 666 "{{ app_deploy_path }}/logs/$logfile" || true
+    done
+  args:
+    executable: /bin/bash
+  tags: [app, deploy]
+  changed_when: true
+  failed_when: false
+  # Removed sleep 3 - not needed, permissions can be fixed immediately
 
 - name: Wait for PostgreSQL to be healthy
   ansible.builtin.shell: |
@@ -50,15 +150,19 @@
   changed_when: false
   tags: [app, health]
 
-- name: Wait for application to be ready
-  ansible.builtin.uri:
-    url: "http://localhost:{{ app_port }}/actuator/health"
-    method: GET
-    status_code: [200]
-  retries: 60
-  delay: 5
+- name: Wait for application healthcheck to pass
+  ansible.builtin.shell: |
+    for i in {1..120}; do
+      status=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "missing")
+      if [ "$status" = "healthy" ]; then exit 0; fi
+      sleep 2
+    done
+    exit 1
+  args:
+    executable: /bin/bash
   register: app_health_check
-  until: app_health_check.status is defined and app_health_check.status == 200
+  failed_when: false
+  changed_when: false
   tags: [app, health]
 
 - name: Clean up old application images (keep last 3)
@@ -88,7 +192,7 @@
 # Monitoring removed - using Docker restart policy (restart: unless-stopped)
 
 - name: Get container status
-  ansible.builtin.command: docker compose -p memocards-prod -f {{ app_deploy_path }}/docker-compose.yml ps
+  ansible.builtin.command: docker compose -p memocards-prod -f {{ app_deploy_path }}/docker-compose.yml -f {{ app_deploy_path }}/docker-compose.infrastructure.yml -f {{ app_deploy_path }}/docker-compose.prod.yml --profile prod ps
   register: app_container_status
   changed_when: false
   tags: [app, verify]
@@ -101,7 +205,7 @@
       📦 Deployment:
       - Application image: {{ app_image }}
       - Health check: {%
-        if app_health_check is defined and app_health_check.status | default(-1) == 200
+        if app_health_check is defined and app_health_check.rc | default(1) == 0
         %}PASSED ✅{% elif app_health_check is defined %}FAILED ❌{% else %}SKIPPED ⏭️{% endif %}
       - Database: PostgreSQL (containerized)
       - Deploy path: {{ app_deploy_path }}

@@ -10,7 +10,7 @@ entryPoints:
 
 api:
   dashboard: true
-  insecure: true  # Required for subpath access via Nginx (auth handled by Nginx basic auth)
+  insecure: false
   debug: true
   # Dashboard accessible via Nginx at /traefik/
   # Note: insecure: true allows access without direct auth
@@ -21,7 +21,7 @@ providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
-    network: memocards-network
+    network: memocards-internal
   file:
     directory: /etc/traefik/dynamic
     watch: true
