@@ -285,8 +285,8 @@
           gf=$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/grafana/)
           pr=$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/prometheus/)
           tr=$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/traefik/)
-          # Expect: root=200, grafana=200/302, prom/traefik=401 (basic auth)
-          if [ "$root" = "200" ] && { [ "$gf" = "200" ] || [ "$gf" = "302" ]; } && [ "$pr" = "401" ] && [ "$tr" = "401" ]; then
+          # Expect: root=200, grafana=200/301/302 (redirects are OK), prom/traefik=401 (basic auth)
+          if [ "$root" = "200" ] && { [ "$gf" = "200" ] || [ "$gf" = "301" ] || [ "$gf" = "302" ]; } && [ "$pr" = "401" ] && [ "$tr" = "401" ]; then
             echo "OK: root=$root grafana=$gf prom=$pr traefik=$tr"; exit 0;
           fi
           sleep 2
