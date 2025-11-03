@@ -124,9 +124,9 @@ services:
     command: -config.file=/etc/promtail/promtail.yml
     healthcheck:
       # Promtail health check: verify HTTP endpoint is accessible
-      # Using curl via sh (Promtail container doesn't have wget)
-      # Check /ready endpoint first (Promtail 2.9+), fallback to /metrics
-      test: ["CMD-SHELL", "sh -c 'exec 3<>/dev/tcp/localhost/9080 && echo -e \"GET /ready HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n\" >&3 && head -1 <&3 | grep -q \"HTTP\" || (exec 3<>/dev/tcp/localhost/9080 && echo -e \"GET /metrics HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n\" >&3 && head -1 <&3 | grep -q \"HTTP\"); exec 3<&-; exec 3>&-' || exit 1"]
+      # Using simple HTTP check via /proc/net/tcp (available in all containers)
+      # Promtail listens on port 9080 (hex: 2388, little-endian: 8823)
+      test: ["CMD-SHELL", "grep -qE ':(2388|8823)' /proc/net/tcp || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -183,6 +183,8 @@ services:
       - "traefik.http.routers.grafana.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/grafana`)"
       - "traefik.http.routers.grafana.entrypoints=web"
       - "traefik.http.routers.grafana.priority=10"
+      - "traefik.http.routers.grafana.middlewares=grafana-stripprefix"
+      - "traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
   node-exporter:

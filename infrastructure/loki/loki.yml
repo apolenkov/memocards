@@ -39,6 +39,10 @@ limits_config:
   # Per-tenant limits
   max_query_length: 721h  # 30 days + 1 hour buffer
   max_query_lookback: 721h  # 30 days + 1 hour buffer
+  # Allow old log entries (up to 24 hours) to prevent "entry too far behind" errors
+  # This helps when containers are restarted and Promtail tries to send old logs
+  rejection_old_samples_max_age: 24h
+  rejection_old_samples_limit: 0  # 0 = disabled limit, rely on max_age only
 
 storage_config:
   boltdb_shipper:

@@ -1,0 +1,33 @@
+---
+# =============================================================================
+# PLAYBOOK: check-logs.yml
+# Check all container logs for errors
+# =============================================================================
+
+- name: Check Container Logs for Errors
+  hosts: vps
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Get list of running containers
+      ansible.builtin.shell: docker ps --format "{{ '{{' }}.Names{{ '}}' }}"
+      register: containers_list
+      changed_when: false
+
+    - name: Check logs for each container
+      ansible.builtin.shell: |
+        container="{{ item }}"
+        echo "=== Checking $container ==="
+        docker logs --tail 100 "$container" 2>&1 | grep -iE "(error|exception|failed|fatal|panic|unhealthy|warn)" | tail -10 || echo "No errors found in last 100 lines"
+      loop: "{{ containers_list.stdout_lines }}"
+      when: "'memocards' in item"
+      changed_when: false
+      register: log_errors
+
+    - name: Display error summary
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop: "{{ log_errors.results }}"
+      when: item.stdout is defined and item.stdout | length > 0
+
