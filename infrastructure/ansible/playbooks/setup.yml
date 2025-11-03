@@ -240,20 +240,32 @@
       tags: [always, verify]
       when: container_status is not defined or 'verify' in ansible_run_tags
 
-    - name: Ensure application is up (start if missing or not healthy)
+    - name: Ensure all services are up (start infrastructure if missing)
       ansible.builtin.shell: |
         cd {{ app_deploy_path }}
         set -e
-        status=$(docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' memocards-app-prod 2>/dev/null || echo "missing")
-        if [ "$status" != "healthy" ]; then
-          echo "App container status: $status, starting..."
+        # Check if infrastructure services are running
+        app_status=$(docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' memocards-app-prod 2>/dev/null || echo "missing")
+        grafana_status=$(docker inspect --format='{{ '{{' }}.State.Status{{ '}}' }}' memocards-grafana-prod 2>/dev/null || echo "missing")
+        traefik_status=$(docker inspect --format='{{ '{{' }}.State.Status{{ '}}' }}' memocards-traefik 2>/dev/null || echo "missing")
+        
+        # If infrastructure services are missing, start all services
+        if [ "$grafana_status" = "missing" ] || [ "$traefik_status" = "missing" ]; then
+          echo "Infrastructure services missing, starting all services with profile prod..."
+          docker compose -p memocards-prod \
+            -f docker-compose.yml \
+            -f docker-compose.infrastructure.yml \
+            -f docker-compose.prod.yml \
+            --profile prod up -d --pull always --remove-orphans
+        elif [ "$app_status" != "healthy" ]; then
+          echo "App container status: $app_status, starting app and postgres..."
           docker compose -p memocards-prod \
             -f docker-compose.yml \
             -f docker-compose.infrastructure.yml \
             -f docker-compose.prod.yml \
             --profile prod up -d app postgres
         else
-          echo "App container already healthy"
+          echo "All services already running"
         fi
         exit 0
       args:

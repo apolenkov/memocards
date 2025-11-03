@@ -141,25 +141,30 @@
 
 # NOTE: Avoid full downtime; do not call compose down. We'll update services in-place below.
 
-- name: Deploy infrastructure services
+- name: Deploy infrastructure services (all services with prod profile)
   ansible.builtin.command:
     cmd: >-
-      docker compose -p memocards-prod -f docker-compose.yml
+      docker compose -p memocards-prod
+      -f docker-compose.yml
       -f docker-compose.infrastructure.yml
-      -f docker-compose.prod.yml --profile prod up -d --pull always --remove-orphans
+      -f docker-compose.prod.yml
+      --profile prod
+      up -d --pull always --remove-orphans
     chdir: "{{ app_deploy_path }}"
   register: monitoring_infrastructure_compose_result
   changed_when: >-
     'Created' in monitoring_infrastructure_compose_result.stdout or
     'Started' in monitoring_infrastructure_compose_result.stdout or
     'Recreated' in monitoring_infrastructure_compose_result.stdout or
-    'Pulled' in monitoring_infrastructure_compose_result.stdout
+    'Pulled' in monitoring_infrastructure_compose_result.stdout or
+    monitoring_infrastructure_compose_result.rc == 0
   tags: [monitoring, deploy]
 
 - name: Wait for Grafana to be ready (after deployment)
   ansible.builtin.shell: |
     for i in {1..30}; do
-      if docker exec {{ grafana_container_name | default('memocards-grafana') }} curl -f http://localhost:3000/api/health 2>/dev/null; then
+      # Use container name from docker-compose (memocards-grafana-prod for prod profile)
+      if docker exec memocards-grafana-prod curl -f http://localhost:3000/api/health 2>/dev/null; then
         exit 0
       fi
       sleep 2
