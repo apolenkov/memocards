@@ -94,6 +94,8 @@
           ansible.builtin.shell: |
             set -o pipefail
             df -BG / | tail -1 | awk '{print $4}'
+          args:
+            executable: /bin/bash
           register: disk_free
           changed_when: false
           tags: [always, prerequisites]

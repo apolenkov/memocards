@@ -24,6 +24,8 @@
       ansible.builtin.shell: |
         set -o pipefail
         docker ps -a --format "table {% raw %}{{.Names}}\t{{.Status}}\t{{.Image}}{% endraw %}" | head -20
+      args:
+        executable: /bin/bash
       register: all_containers
       changed_when: false
 

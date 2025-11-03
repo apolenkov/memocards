@@ -70,10 +70,10 @@
         set -o pipefail
         cd {{ app_deploy_path }}/deployments
         ls -1t *.json | grep -v latest.json | head -n {{ limit }}
-      register: recent_deployments_list
-      changed_when: false
       args:
         executable: /bin/bash
+      register: recent_deployments_list
+      changed_when: false
 
     - name: Read recent deployments
       ansible.builtin.slurp:

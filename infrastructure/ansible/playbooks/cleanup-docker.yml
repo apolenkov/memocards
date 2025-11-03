@@ -30,6 +30,8 @@
         # Stop and remove all containers with memocards in name
         docker ps -a --filter "name=memocards" --format '{{ '{{' }}.Names{{ '}}' }}' | \
         xargs -r docker rm -f || true
+      args:
+        executable: /bin/bash
       register: cleanup_containers_result
       changed_when: cleanup_containers_result.stdout != ""
       failed_when: false
@@ -41,6 +43,8 @@
         # Remove networks (containers must be removed first)
         docker network ls --filter "name=memocards" --format '{{ '{{' }}.ID{{ '}}' }}' | \
         xargs -r docker network rm || true
+      args:
+        executable: /bin/bash
       register: cleanup_networks_result
       changed_when: cleanup_networks_result.stdout != ""
       failed_when: false
@@ -66,6 +70,8 @@
         # Remove all volumes with memocards in name
         docker volume ls --filter "name=memocards" --format '{{ '{{' }}.Name{{ '}}' }}' | \
         xargs -r docker volume rm || true
+      args:
+        executable: /bin/bash
       register: cleanup_volumes_result
       changed_when: cleanup_volumes_result.stdout != ""
       failed_when: false
