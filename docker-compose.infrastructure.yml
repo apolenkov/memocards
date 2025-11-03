@@ -192,9 +192,12 @@ services:
     container_name: ${NODE_EXPORTER_CONTAINER_NAME:-memocards-node-exporter}
     command:
       - '--path.rootfs=/host'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     pid: host
     volumes:
       - '/:/host:ro,rslave'
+      # Mount udev directory to fix "Failed to open directory /run/udev/data" warning
+      - '/run/udev:/host/run/udev:ro'
     restart: unless-stopped
     profiles:
       - prod

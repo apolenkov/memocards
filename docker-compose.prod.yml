@@ -6,4 +6,7 @@ services:
   postgres:
     profiles:
       - prod
+    # Security: Remove port mapping in production (only accessible via Docker network)
+    # This prevents external access and brute force attacks
+    ports: []
 

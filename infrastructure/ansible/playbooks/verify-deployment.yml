@@ -1,0 +1,125 @@
+---
+# =============================================================================
+# PLAYBOOK: verify-deployment.yml
+# Verify that all services are working correctly after deployment
+# =============================================================================
+
+- name: Verify Deployment Status
+  hosts: vps
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Check all containers are running
+      ansible.builtin.shell: |
+        docker ps --format "{{ '{{' }}.Names{{ '}}' }}: {{ '{{' }}.Status{{ '}}' }}" | grep memocards
+      register: running_containers
+      changed_when: false
+
+    - name: Display container status
+      ansible.builtin.debug:
+        msg: "{{ running_containers.stdout_lines }}"
+
+    - name: Check unhealthy containers
+      ansible.builtin.shell: |
+        docker ps --format "{{ '{{' }}.Names{{ '}}' }}: {{ '{{' }}.Status{{ '}}' }}" | grep -i unhealthy || echo "No unhealthy containers"
+      register: unhealthy_containers
+      changed_when: false
+      failed_when: false
+
+    - name: Display unhealthy containers
+      ansible.builtin.debug:
+        msg: "{{ unhealthy_containers.stdout }}"
+      when: unhealthy_containers.stdout | length > 0 and "No unhealthy" not in unhealthy_containers.stdout
+
+    - name: Check application health endpoint
+      ansible.builtin.uri:
+        url: "http://localhost:8080/actuator/health"
+        method: GET
+        status_code: [200, 503]
+      register: app_health
+      changed_when: false
+      failed_when: false
+
+    - name: Display application health
+      ansible.builtin.debug:
+        msg: |
+          Application Health: {{ app_health.status }}
+          {% if app_health.status == 200 %}✅ Healthy{% else %}⚠️ Unhealthy{% endif %}
+
+    - name: Check Grafana is accessible
+      ansible.builtin.uri:
+        url: "http://localhost:3000/api/health"
+        method: GET
+        status_code: [200, 503]
+      register: grafana_health
+      changed_when: false
+      failed_when: false
+
+    - name: Display Grafana health
+      ansible.builtin.debug:
+        msg: |
+          Grafana Health: {{ grafana_health.status }}
+          {% if grafana_health.status == 200 %}✅ Healthy{% else %}⚠️ Unhealthy{% endif %}
+
+    - name: Check Prometheus is accessible
+      ansible.builtin.uri:
+        url: "http://localhost:9090/-/healthy"
+        method: GET
+        status_code: [200, 503]
+      register: prometheus_health
+      changed_when: false
+      failed_when: false
+
+    - name: Display Prometheus health
+      ansible.builtin.debug:
+        msg: |
+          Prometheus Health: {{ prometheus_health.status }}
+          {% if prometheus_health.status == 200 %}✅ Healthy{% else %}⚠️ Unhealthy{% endif %}
+
+    - name: Check Loki is accessible
+      ansible.builtin.uri:
+        url: "http://localhost:3100/ready"
+        method: GET
+        status_code: [200, 503]
+      register: loki_health
+      changed_when: false
+      failed_when: false
+
+    - name: Display Loki health
+      ansible.builtin.debug:
+        msg: |
+          Loki Health: {{ loki_health.status }}
+          {% if loki_health.status == 200 %}✅ Healthy{% else %}⚠️ Unhealthy{% endif %}
+
+    - name: Verify PostgreSQL is not exposed externally
+      ansible.builtin.shell: |
+        docker port memocards-postgres-prod 5432 2>&1 | grep -q "Error" && echo "✅ Port not exposed" || echo "⚠️ Port is exposed externally"
+      register: postgres_port_check
+      changed_when: false
+      failed_when: false
+
+    - name: Display PostgreSQL port status
+      ansible.builtin.debug:
+        msg: "{{ postgres_port_check.stdout }}"
+
+    - name: Display deployment summary
+      ansible.builtin.debug:
+        msg: |
+          ╔════════════════════════════════════════════════════════════╗
+          ║              Deployment Verification Summary               ║
+          ╚════════════════════════════════════════════════════════════╝
+          
+          📊 Container Status:
+          {{ running_containers.stdout }}
+          
+          🏥 Health Checks:
+          - Application: {{ '✅ Healthy' if app_health.status == 200 else '⚠️ Unhealthy' }}
+          - Grafana: {{ '✅ Healthy' if grafana_health.status == 200 else '⚠️ Unhealthy' }}
+          - Prometheus: {{ '✅ Healthy' if prometheus_health.status == 200 else '⚠️ Unhealthy' }}
+          - Loki: {{ '✅ Healthy' if loki_health.status == 200 else '⚠️ Unhealthy' }}
+          
+          🔒 Security:
+          - PostgreSQL: {{ postgres_port_check.stdout }}
+      tags: [always]
+
