@@ -248,7 +248,7 @@
         app_status=$(docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' memocards-app-prod 2>/dev/null || echo "missing")
         grafana_status=$(docker inspect --format='{{ '{{' }}.State.Status{{ '}}' }}' memocards-grafana-prod 2>/dev/null || echo "missing")
         traefik_status=$(docker inspect --format='{{ '{{' }}.State.Status{{ '}}' }}' memocards-traefik 2>/dev/null || echo "missing")
-        
+
         # If infrastructure services are missing, start all services
         if [ "$grafana_status" = "missing" ] || [ "$traefik_status" = "missing" ]; then
           echo "Infrastructure services missing, starting all services with profile prod..."
