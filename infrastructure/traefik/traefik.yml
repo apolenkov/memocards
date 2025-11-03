@@ -12,13 +12,11 @@ api:
   dashboard: true
   insecure: false
   debug: true
-  # Custom base path for API and dashboard
-  # API will be served under /traefik/api and dashboard under /traefik/dashboard
-  basePath: /traefik
+  # Note: basePath is not supported in static config in Traefik v3.0
+  # Base path is configured via dynamic routing labels in docker-compose.infrastructure.yml
   # Dashboard accessible via Nginx at /traefik/dashboard/
   # Note: insecure: false requires auth (handled by basicauth middleware)
   # API is automatically available on the "traefik" entryPoint (:8082)
-  # Dashboard path: /dashboard/ (with trailing slash in Traefik v3)
 
 providers:
   docker:

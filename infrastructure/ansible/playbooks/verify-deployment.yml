@@ -12,8 +12,9 @@
   tasks:
     - name: Check all containers are running
       ansible.builtin.shell: |
-        set -o pipefail
-        docker ps --format "{{ '{{' }}.Names{{ '}}' }}: {{ '{{' }}.Status{{ '}}' }}" | grep memocards
+        docker ps --format "{{ '{{' }}.Names{{ '}}' }}: {{ '{{' }}.Status{{ '}}' }}" | grep memocards || echo "No containers found"
+      args:
+        executable: /bin/bash
       register: running_containers
       changed_when: false
 
@@ -23,8 +24,9 @@
 
     - name: Check unhealthy containers
       ansible.builtin.shell: |
-        set -o pipefail
         docker ps --format "{{ '{{' }}.Names{{ '}}' }}: {{ '{{' }}.Status{{ '}}' }}" | grep -i unhealthy || echo "No unhealthy containers"
+      args:
+        executable: /bin/bash
       register: unhealthy_containers
       changed_when: false
       failed_when: false
@@ -96,8 +98,9 @@
 
     - name: Verify PostgreSQL is not exposed externally
       ansible.builtin.shell: |
-        set -o pipefail
         docker port memocards-postgres-prod 5432 2>&1 | grep -q "Error" && echo "✅ Port not exposed" || echo "⚠️ Port is exposed externally"
+      args:
+        executable: /bin/bash
       register: postgres_port_check
       changed_when: false
       failed_when: false

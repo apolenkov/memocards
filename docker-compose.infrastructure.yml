@@ -34,7 +34,7 @@ services:
       - "traefik.http.routers.traefik.entrypoints=web"
       - "traefik.http.routers.traefik.priority=10"
       - "traefik.http.routers.traefik.service=api@internal"
-      # No stripPrefix needed - basePath in traefik.yml handles /traefik path
+      # Traefik API/dashboard is accessible at /traefik/ via routing rule above
       - "traefik.http.routers.traefik.middlewares=basicauth@docker"
       - "traefik.http.middlewares.basicauth.basicauth.usersfile=/etc/traefik/.htpasswd"
       # Redirect common typo /traefic -> /traefik/
