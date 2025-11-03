@@ -189,11 +189,9 @@ services:
       - "traefik.http.routers.grafana.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/grafana`)"
       - "traefik.http.routers.grafana.entrypoints=web"
       - "traefik.http.routers.grafana.priority=10"
-      # stripPrefix removes /grafana before forwarding to Grafana
-      # Grafana with serve_from_sub_path=true expects requests WITHOUT /grafana prefix
-      # Grafana uses root_url to generate correct URLs with /grafana prefix
-      - "traefik.http.routers.grafana.middlewares=grafana-stripprefix,grafana-headers"
-      - "traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana"
+      # Note: stripPrefix removed - Grafana with serve_from_sub_path=true expects requests WITH /grafana prefix
+      # Grafana handles the /grafana prefix internally based on root_url configuration
+      - "traefik.http.routers.grafana.middlewares=grafana-headers"
       - "traefik.http.middlewares.grafana-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
