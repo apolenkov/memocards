@@ -532,6 +532,8 @@
         cd {{ app_deploy_path }}/deployments
         set -o pipefail
         ls -1t *.json | grep -v latest.json | tail -n +51 | xargs -r rm -f
+      args:
+        executable: /bin/bash
       when: deployment_files.matched > 50
       changed_when: false
       tags: [always, history, cleanup]
