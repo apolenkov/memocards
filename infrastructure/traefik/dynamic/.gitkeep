@@ -1,3 +1,2 @@
-# This directory is used by Traefik's file provider for dynamic configuration
-# Currently using Docker provider (labels) for routing, but file provider is enabled
-# for future middleware configurations or dynamic settings
+# This directory is used by Traefik's file provider for dynamic configurations
+# Files placed here will be automatically loaded by Traefik
