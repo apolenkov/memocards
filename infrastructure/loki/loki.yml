@@ -19,12 +19,12 @@ common:
 schema_config:
   configs:
     - from: 2020-10-24
-      store: boltdb-shipper
+      store: tsdb
       object_store: filesystem
-      schema: v11
+      schema: v12
       index:
         prefix: index_
-        period: 24h  # 24 hours (required for boltdb-shipper)
+        period: 24h
 
 compactor:
   working_directory: /loki/compactor
@@ -39,10 +39,6 @@ limits_config:
   # Per-tenant limits
   max_query_length: 721h  # 30 days + 1 hour buffer
   max_query_lookback: 721h  # 30 days + 1 hour buffer
-  # Allow old log entries (up to 24 hours) to prevent "entry too far behind" errors
-  # This helps when containers are restarted and Promtail tries to send old logs
-  rejection_old_samples_max_age: 24h
-  rejection_old_samples_limit: 0  # 0 = disabled limit, rely on max_age only
   # Increase concurrent query limits to prevent "too many outstanding requests" (429)
   # Default max_query_parallelism (32) is often too low for Grafana dashboards with multiple panels
   # Increased to 64 to handle concurrent queries from Grafana
@@ -51,9 +47,9 @@ limits_config:
   ingestion_burst_size_mb: 32  # Burst size for ingestion (32 MB)
 
 storage_config:
-  boltdb_shipper:
-    active_index_directory: /loki/boltdb-shipper-active
-    cache_location: /loki/boltdb-shipper-cache
+  tsdb_shipper:
+    active_index_directory: /loki/tsdb-index
+    cache_location: /loki/tsdb-cache
     cache_ttl: 24h
   filesystem:
     directory: /loki/chunks

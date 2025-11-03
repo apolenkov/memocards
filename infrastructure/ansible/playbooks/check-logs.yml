@@ -17,9 +17,12 @@
 
     - name: Check logs for each container
       ansible.builtin.shell: |
+        set -o pipefail
         container="{{ item }}"
         echo "=== Checking $container ==="
-        docker logs --tail 100 "$container" 2>&1 | grep -iE "(error|exception|failed|fatal|panic|unhealthy|warn)" | tail -10 || echo "No errors found in last 100 lines"
+        docker logs --tail 100 "$container" 2>&1 | \
+          grep -iE "(error|exception|failed|fatal|panic|unhealthy|warn)" | \
+          tail -10 || echo "No errors found in last 100 lines"
       loop: "{{ containers_list.stdout_lines }}"
       when: "'memocards' in item"
       changed_when: false
@@ -30,4 +33,3 @@
         msg: "{{ item }}"
       loop: "{{ log_errors.results }}"
       when: item.stdout is defined and item.stdout | length > 0
-

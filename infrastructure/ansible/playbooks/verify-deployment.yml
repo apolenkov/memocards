@@ -12,6 +12,7 @@
   tasks:
     - name: Check all containers are running
       ansible.builtin.shell: |
+        set -o pipefail
         docker ps --format "{{ '{{' }}.Names{{ '}}' }}: {{ '{{' }}.Status{{ '}}' }}" | grep memocards
       register: running_containers
       changed_when: false
@@ -22,6 +23,7 @@
 
     - name: Check unhealthy containers
       ansible.builtin.shell: |
+        set -o pipefail
         docker ps --format "{{ '{{' }}.Names{{ '}}' }}: {{ '{{' }}.Status{{ '}}' }}" | grep -i unhealthy || echo "No unhealthy containers"
       register: unhealthy_containers
       changed_when: false
@@ -94,6 +96,7 @@
 
     - name: Verify PostgreSQL is not exposed externally
       ansible.builtin.shell: |
+        set -o pipefail
         docker port memocards-postgres-prod 5432 2>&1 | grep -q "Error" && echo "✅ Port not exposed" || echo "⚠️ Port is exposed externally"
       register: postgres_port_check
       changed_when: false
@@ -109,17 +112,16 @@
           ╔════════════════════════════════════════════════════════════╗
           ║              Deployment Verification Summary               ║
           ╚════════════════════════════════════════════════════════════╝
-          
+
           📊 Container Status:
           {{ running_containers.stdout }}
-          
+
           🏥 Health Checks:
           - Application: {{ '✅ Healthy' if app_health.status == 200 else '⚠️ Unhealthy' }}
           - Grafana: {{ '✅ Healthy' if grafana_health.status == 200 else '⚠️ Unhealthy' }}
           - Prometheus: {{ '✅ Healthy' if prometheus_health.status == 200 else '⚠️ Unhealthy' }}
           - Loki: {{ '✅ Healthy' if loki_health.status == 200 else '⚠️ Unhealthy' }}
-          
+
           🔒 Security:
           - PostgreSQL: {{ postgres_port_check.stdout }}
       tags: [always]
-
