@@ -35,8 +35,9 @@ services:
       - "traefik.http.routers.traefik.priority=10"
       - "traefik.http.routers.traefik.service=api@internal"
       # Traefik API/dashboard is accessible at /traefik/ via routing rule above
-      - "traefik.http.routers.traefik.middlewares=basicauth@docker"
-      - "traefik.http.middlewares.basicauth.basicauth.usersfile=/etc/traefik/.htpasswd"
+      # Basic auth middleware - usersfile must be accessible from Traefik container
+      - "traefik.http.routers.traefik.middlewares=traefik-basicauth"
+      - "traefik.http.middlewares.traefik-basicauth.basicauth.usersfile=/etc/traefik/.htpasswd"
       # Redirect common typo /traefic -> /traefik/
       - "traefik.http.middlewares.traefic-redirect.redirectregex.regex=^/traefic/?(.*)"
       - "traefik.http.middlewares.traefic-redirect.redirectregex.replacement=/traefik/$1"
