@@ -76,7 +76,9 @@ services:
     mem_limit: 256m
     cpus: ${PROMETHEUS_CPUS:-0.5}
     networks:
-      - internal
+      internal:
+        aliases:
+          - prometheus
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/prometheus`)"
@@ -107,7 +109,9 @@ services:
     mem_limit: 512m  # Increased from 192m to handle concurrent queries
     cpus: ${LOKI_CPUS:-1.0}  # Increased from 0.5 to handle concurrent queries
     networks:
-      - internal
+      internal:
+        aliases:
+          - loki
     environment:
       - JAEGER_AGENT_HOST=localhost
 
@@ -135,7 +139,9 @@ services:
     mem_limit: 96m
     cpus: ${PROMTAIL_CPUS:-0.25}
     networks:
-      - internal
+      internal:
+        aliases:
+          - promtail
     depends_on:
       loki:
         condition: service_healthy
@@ -202,7 +208,9 @@ services:
     profiles:
       - prod
     networks:
-      - internal
+      internal:
+        aliases:
+          - node-exporter
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
@@ -219,7 +227,9 @@ services:
     profiles:
       - prod
     networks:
-      - internal
+      internal:
+        aliases:
+          - cadvisor
 
 
 volumes:

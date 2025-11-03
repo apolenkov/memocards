@@ -4,6 +4,7 @@ datasources:
   - name: Prometheus
     type: prometheus
     access: proxy
+    # Using service name via network alias (container_name: memocards-prometheus)
     url: http://prometheus:9090
     isDefault: true
     jsonData:
@@ -13,6 +14,7 @@ datasources:
   - name: Loki
     type: loki
     access: proxy
+    # Using service name via network alias (container_name: memocards-loki)
     url: http://loki:3100
     jsonData:
       maxLines: 500
