@@ -291,6 +291,21 @@
           changed_when: false
           failed_when: false
 
+        - name: Wait for Traefik to be ready (required for HTTP health check)
+          ansible.builtin.uri:
+            url: "http://localhost:{{ app_port }}"
+            method: GET
+            status_code: [200, 404, 503]  # Accept various status codes, just check if Traefik responds
+            timeout: 5
+            headers:
+              Host: "{{ domain }}"
+          retries: 10
+          delay: 2
+          register: traefik_check
+          failed_when: false
+          changed_when: false
+          # Note: Traefik must be running for HTTP health check to work
+
         - name: Wait for application to be ready (HTTP check via Traefik)
           ansible.builtin.uri:
             url: "http://localhost:{{ app_port }}/actuator/health"
@@ -298,12 +313,14 @@
             status_code: 200
             timeout: 10
             return_content: true
+            headers:
+              Host: "{{ domain }}"
           retries: 30
           delay: 2
           register: http_health
           until: http_health.status == 200
           failed_when: false # Don't fail immediately, show diagnostics first
-          # Note: HTTP check may fail if Vaadin blocks /actuator/*, but Docker health check should work
+          # Note: HTTP check requires Host header for Traefik routing (Host rule in docker-compose.yml)
 
         - name: Show health check diagnostics
           ansible.builtin.debug:
@@ -311,12 +328,13 @@
               💚 Health Check Results:
 
               Docker Health Status: {{ docker_health_status.stdout | default('Unknown') }}
+              Traefik Status: {{ 'READY ✅' if (traefik_check is defined and traefik_check.status in [200, 404, 503]) else 'NOT READY ⚠️' }}
               HTTP Health Status: {{ http_health.status | default('N/A') }}
               HTTP Response: {{ http_health.content | default('N/A') | truncate(500) }}
 
               Container Status: {{ container_status_check.stdout | default('Unknown') }}
 
-              Note: Docker health check is the primary check. HTTP check may fail if Vaadin blocks /actuator/* paths.
+              Note: Docker health check is the primary check. HTTP check requires Traefik to be running and Host header to match Traefik routing rules.
 
         - name: Fail if Docker health check not passed
           ansible.builtin.fail:
@@ -372,6 +390,8 @@
             url: "http://localhost:{{ app_port }}/actuator/health"
             method: GET
             status_code: 200
+            headers:
+              Host: "{{ domain }}"
             retries: 10
             delay: 2
             register: rollback_http_health
@@ -435,6 +455,8 @@
         url: "http://localhost:{{ app_port }}/actuator/info"
         method: GET
         return_content: true
+        headers:
+          Host: "{{ domain }}"
       register: app_info
       failed_when: false
       tags: [deploy, verify]
