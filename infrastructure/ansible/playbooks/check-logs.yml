@@ -23,6 +23,8 @@
         docker logs --tail 100 "$container" 2>&1 | \
           grep -iE "(error|exception|failed|fatal|panic|unhealthy|warn)" | \
           tail -10 || echo "No errors found in last 100 lines"
+      args:
+        executable: /bin/bash
       loop: "{{ containers_list.stdout_lines }}"
       when: "'memocards' in item"
       changed_when: false
