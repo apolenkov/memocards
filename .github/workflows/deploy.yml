@@ -94,6 +94,7 @@ jobs:
     permissions:
       contents: read # For repository access
       packages: read # For docker manifest inspect
+      id-token: write # Required: OIDC authentication for docker/login-action@v3
     outputs:
       image_tag: ${{ steps.get_tag.outputs.tag }}
       full_image: ${{ steps.get_tag.outputs.full_image }}

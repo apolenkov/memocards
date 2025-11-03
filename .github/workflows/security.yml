@@ -95,6 +95,7 @@ jobs:
     permissions:
       contents: read
       security-events: write  # For uploading to Security tab
+      id-token: write  # Required: OIDC authentication for docker/login-action@v3
     
     steps:
       - name: Checkout code

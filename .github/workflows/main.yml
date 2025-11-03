@@ -46,7 +46,7 @@ jobs:
       contents: read       # Required: checkout code
       packages: write      # Required: push to GHCR
       attestations: write  # Required: generate SLSA provenance
-                           # Note: id-token NOT needed when using GITHUB_TOKEN (not OIDC provider)
+      id-token: write      # Required: OIDC authentication for docker/login-action@v3
 
     steps:
       - name: Checkout code
