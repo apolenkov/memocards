@@ -291,24 +291,23 @@
       when: "'quick' not in ansible_run_tags"
 
     - name: Wait for public routes to respond (/, /grafana, /prometheus, /traefik)
-      ansible.builtin.shell: |
-        for i in {1..60}; do
-          root=$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/)
-          gf=$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/grafana/)
-          pr=$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/prometheus/)
-          tr=$(curl -ks -o /dev/null -w '%{http_code}' https://{{ domain }}/traefik/)
-          # Expect: root=200, grafana=200/301/302 (redirects are OK), prom/traefik=401 (basic auth)
-          if [ "$root" = "200" ] && { [ "$gf" = "200" ] || [ "$gf" = "301" ] || [ "$gf" = "302" ]; } && [ "$pr" = "401" ] && [ "$tr" = "401" ]; then
-            echo "OK: root=$root grafana=$gf prom=$pr traefik=$tr"; exit 0;
-          fi
-          sleep 2
-        done
-        echo "Last: root=$root grafana=$gf prom=$pr traefik=$tr"; exit 1
-      args:
-        executable: /bin/bash
+      ansible.builtin.uri:
+        url: "{{ item.url }}"
+        method: GET
+        status_code: "{{ item.expected_status }}"
+        timeout: 10
+        validate_certs: false
       register: public_routes_check
+      until: public_routes_check.status in item.expected_status
+      retries: 60
+      delay: 2
       changed_when: false
-      failed_when: public_routes_check.rc != 0
+      failed_when: false
+      loop:
+        - { url: "https://{{ domain }}/", expected_status: [200] }
+        - { url: "https://{{ domain }}/grafana/", expected_status: [200, 301, 302] }
+        - { url: "https://{{ domain }}/prometheus/", expected_status: [401, 403] }
+        - { url: "https://{{ domain }}/traefik/", expected_status: [401, 403] }
       tags: [always, verify, healthcheck]
       when: "'quick' not in ansible_run_tags"
 

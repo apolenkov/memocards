@@ -21,15 +21,6 @@
     - "{{ app_deploy_path }}/infrastructure/loki"
   tags: [monitoring, config]
 
-- name: Write Traefik .htpasswd from Vault variables (no generation)
-  ansible.builtin.copy:
-    dest: "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
-    mode: "0644"
-    content: |
-      {{ monitoring_basicauth_user }}:{PLAIN}{{ monitoring_basicauth_password }}
-  when: monitoring_basicauth_htpasswd is not defined and (monitoring_basicauth_user is defined and monitoring_basicauth_password is defined)
-  tags: [monitoring, config]
-
 - name: Write Traefik .htpasswd from pre-hashed Vault line (preferred)
   ansible.builtin.copy:
     dest: "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
@@ -39,7 +30,7 @@
   when: monitoring_basicauth_htpasswd is defined and monitoring_basicauth_htpasswd | length > 0
   tags: [monitoring, config]
 
-- name: Ensure Traefik .htpasswd generated with bcrypt when only user/password provided
+- name: Generate Traefik .htpasswd with bcrypt when only user/password provided
   ansible.builtin.shell: |
     set -euo pipefail
     which htpasswd >/dev/null 2>&1 || \
@@ -50,20 +41,11 @@
     chmod 0644 "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
   args:
     executable: /bin/bash
-  when: monitoring_basicauth_htpasswd is not defined and (monitoring_basicauth_user is defined and monitoring_basicauth_password is defined)
+  when: >-
+    monitoring_basicauth_htpasswd is not defined and
+    (monitoring_basicauth_user is defined and
+     monitoring_basicauth_password is defined)
   changed_when: true
-  tags: [monitoring, config]
-
-- name: Fix incorrectly prefixed {PLAIN} in .htpasswd if present
-  ansible.builtin.shell: |
-    if grep -q "{PLAIN}" "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"; then
-      sed -i 's/{PLAIN}//g' "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd";
-      changed=1; else changed=0; fi; exit $changed
-  args:
-    executable: /bin/bash
-  register: monitoring_htpasswd_plain_fix
-  changed_when: monitoring_htpasswd_plain_fix.rc == 1
-  failed_when: false
   tags: [monitoring, config]
 
 - name: Copy Grafana configuration files
@@ -115,6 +97,9 @@
     - "traefik.yml"
   tags: [monitoring, config, traefik]
 
+# Traefik dashboard routing is now configured via Docker labels in docker-compose.infrastructure.yml
+# No file provider needed - removed to simplify configuration
+
 - name: Copy Loki configuration file
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/../../../infrastructure/loki/loki.yml"
@@ -161,50 +146,51 @@
   tags: [monitoring, deploy]
 
 - name: Wait for Grafana to be ready (after deployment)
-  ansible.builtin.shell: |
-    for i in {1..30}; do
-      # Use container name from docker-compose (memocards-grafana-prod for prod profile)
-      if docker exec memocards-grafana-prod curl -f http://localhost:3000/api/health 2>/dev/null; then
-        exit 0
-      fi
-      sleep 2
-    done
-    exit 1
+  ansible.builtin.uri:
+    url: "http://localhost:3000/api/health"
+    method: GET
+    status_code: 200
+    timeout: 5
   register: monitoring_grafana_health
+  until: monitoring_grafana_health.status == 200
+  retries: 30
+  delay: 2
   changed_when: false
   failed_when: false
   tags: [monitoring, verify, healthcheck]
   when: "'quick' not in ansible_run_tags"
 
 - name: Wait for Traefik to be ready (check routing)
-  ansible.builtin.shell: |
-    for i in {1..30}; do
-      if curl -sf http://localhost:8080/api/overview >/dev/null 2>&1; then
-        exit 0
-      fi
-      sleep 2
-    done
-    exit 1
+  ansible.builtin.uri:
+    url: "http://localhost:8080/api/overview"
+    method: GET
+    status_code: 200
+    timeout: 5
   register: monitoring_traefik_health_check
+  until: monitoring_traefik_health_check.status == 200
+  retries: 30
+  delay: 2
   changed_when: false
   failed_when: false
   tags: [monitoring, verify, healthcheck]
   when: "'quick' not in ansible_run_tags"
 
 - name: Wait for Grafana/Prometheus/Traefik routes to register in Traefik
-  ansible.builtin.shell: |
-    for i in {1..30}; do
-      g=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/grafana/)
-      p=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/prometheus/)
-      t=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/traefik/)
-      if [ "$g" != "404" ] && [ "$p" != "404" ] && [ "$t" != "404" ]; then
-        exit 0
-      fi
-      sleep 2
-    done
-    exit 1
+  ansible.builtin.uri:
+    url: "{{ item.url }}"
+    method: GET
+    status_code: "{{ item.expected_status }}"
+    timeout: 5
+  register: monitoring_route_check
+  until: monitoring_route_check.status == item.expected_status
+  retries: 30
+  delay: 2
   changed_when: false
   failed_when: false
+  loop:
+    - { url: "http://localhost:8080/grafana/", expected_status: [200, 301, 302] }
+    - { url: "http://localhost:8080/prometheus/", expected_status: [401, 403] }
+    - { url: "http://localhost:8080/traefik/", expected_status: [401, 403] }
   tags: [monitoring, verify, healthcheck]
   when: "'quick' not in ansible_run_tags"
 

@@ -28,51 +28,104 @@ scrape_configs:
         labels:
           instance: 'prometheus'
 
-  # Scrape application metrics
-  # Note: When container_name is set, Docker Compose doesn't create DNS entry for service name
-  # We use container_name directly - Prometheus will resolve it to IP address automatically
+  # Application metrics via Docker service discovery
   - job_name: 'memocards'
     scrape_interval: 15s
     scrape_timeout: 10s
     metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: ['memocards-app-prod:8080']
-        labels:
-          application: 'memocards'
-          environment: 'production'
-          service: 'application'
-          instance: 'memocards-app'
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 15s
+    relabel_configs:
+      # Keep only app containers
+      - source_labels: ['__meta_docker_container_name']
+        regex: 'memocards-app.*'
+        action: keep
+      # Use container IP and exposed port 8080
+      - source_labels: ['__meta_docker_container_ip', '__meta_docker_container_port_private_8080']
+        regex: '(.+):(\d+)'
+        target_label: '__address__'
+        replacement: '${1}:${2}'
+      # Set labels
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'
+      - target_label: 'application'
+        replacement: 'memocards'
+      - target_label: 'environment'
+        replacement: 'production'
+      - target_label: 'instance'
+        replacement: 'memocards-app'
 
-  # Loki metrics
-  # Note: Using container_name for DNS reliability (Docker Compose creates DNS entries for container_name)
+  # Loki metrics via Docker service discovery
   - job_name: 'loki'
+    scrape_interval: 15s
+    scrape_timeout: 10s
     metrics_path: '/metrics'
-    static_configs:
-      - targets: ['memocards-loki:3100']
-        labels:
-          service: 'loki'
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 30s  # Infrastructure services change less frequently
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: 'memocards-loki.*'
+        action: keep
+      - source_labels: ['__meta_docker_container_ip']
+        regex: '(.+)'
+        target_label: '__address__'
+        replacement: '${1}:3100'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'
 
-  # Promtail metrics
-  # Note: Using container_name for DNS reliability
+  # Promtail metrics via Docker service discovery
   - job_name: 'promtail'
+    scrape_interval: 15s
+    scrape_timeout: 10s
     metrics_path: '/metrics'
-    static_configs:
-      - targets: ['memocards-promtail:9080']
-        labels:
-          service: 'promtail'
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 30s  # Infrastructure services change less frequently
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: 'memocards-promtail.*'
+        action: keep
+      - source_labels: ['__meta_docker_container_ip']
+        regex: '(.+)'
+        target_label: '__address__'
+        replacement: '${1}:9080'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'
 
-  # Node exporter
-  # Note: Using container_name for DNS reliability
+  # Node exporter metrics via Docker service discovery
   - job_name: 'node-exporter'
-    static_configs:
-      - targets: ['memocards-node-exporter:9100']
-        labels:
-          service: 'node'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 30s  # Infrastructure services change less frequently
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: 'memocards-node-exporter.*'
+        action: keep
+      - source_labels: ['__meta_docker_container_ip']
+        regex: '(.+)'
+        target_label: '__address__'
+        replacement: '${1}:9100'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'
 
-  # cAdvisor
-  # Note: Using container_name for DNS reliability
+  # cAdvisor metrics via Docker service discovery
   - job_name: 'cadvisor'
-    static_configs:
-      - targets: ['memocards-cadvisor:8080']
-        labels:
-          service: 'cadvisor'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 30s  # Infrastructure services change less frequently
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: 'memocards-cadvisor.*'
+        action: keep
+      - source_labels: ['__meta_docker_container_ip']
+        regex: '(.+)'
+        target_label: '__address__'
+        replacement: '${1}:8080'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'

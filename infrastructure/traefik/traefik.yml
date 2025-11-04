@@ -4,31 +4,22 @@ entryPoints:
   web:
     address: ":8080"
     # Main entrypoint for internal routing (Nginx proxies all traffic here)
-  traefik:
-    address: ":8082"
-    # Internal API/dashboard entrypoint (mapped to host:8081 via docker-compose for direct access)
 
 api:
   dashboard: true
-  insecure: true  # Allow unauthenticated access on traefik entryPoint (auth handled by Nginx)
-  debug: true
-  # Note: basePath is not supported in static config in Traefik v3.0
-  # Base path is configured via dynamic routing labels in docker-compose.infrastructure.yml
-  # Dashboard accessible via Nginx at /traefik/dashboard/
-  # Note: insecure: true allows unauthenticated access on traefik entryPoint
-  # Nginx handles authentication before proxying to Traefik
-  # API is automatically available on the "traefik" entryPoint (:8082)
-  # In Traefik v3.0, api@internal service expects paths without subpath
-  # Dashboard is accessible at /dashboard/ (not /api/dashboard/)
+  insecure: false  # Secure mode - use Docker labels for routing with basic auth
+  debug: false  # Enable debug mode via environment variable TRAEFIK_DEBUG=true if needed
+  # Note: api@internal service works only on explicit routes, not on redirect middleware
 
 providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
     network: memocards-internal
-  file:
-    directory: /etc/traefik/dynamic
-    watch: true
+    # Filter containers by Docker Compose project label
+    # This improves performance by only processing relevant containers
+    # Project name is set via -p memocards-prod in Ansible deployment
+    constraints: "Label(`com.docker.compose.project`, `memocards-prod`)"
 
 log:
   level: INFO

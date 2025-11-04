@@ -156,7 +156,8 @@
 - name: Wait for application healthcheck to pass
   ansible.builtin.shell: |
     for i in {1..120}; do
-      status=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "missing")
+      status=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' \
+        memocards-app-prod 2>/dev/null || echo "missing")
       if [ "$status" = "healthy" ]; then exit 0; fi
       sleep 2
     done

@@ -5,10 +5,11 @@
   vars:
     prometheus_user: "{{ vault_monitoring_basicauth_user }}"
     prometheus_password: "{{ vault_monitoring_basicauth_password }}"
-  
+
   tasks:
     - name: Check running containers
       ansible.builtin.shell: |
+        set -o pipefail
         docker ps --format "table {{ '{{' }}.Names{{ '}}' }}\t{{ '{{' }}.Status{{ '}}' }}" | grep -E "memocards|prometheus|cadvisor"
       register: running_containers
       changed_when: false
@@ -28,6 +29,7 @@
 
     - name: Check if container_cpu_usage_seconds_total exists in cAdvisor
       ansible.builtin.shell: |
+        set -o pipefail
         echo "{{ cadvisor_metrics.content }}" | grep -c "container_cpu_usage_seconds_total" || echo "0"
       register: cpu_metrics_count
       changed_when: false
@@ -40,6 +42,7 @@
 
     - name: Check container labels in cAdvisor metrics
       ansible.builtin.shell: |
+        set -o pipefail
         echo "{{ cadvisor_metrics.content }}" | grep "container_cpu_usage_seconds_total" | grep -oE '(name|id|container_label_com_docker_compose_service)="[^"]*"' | sort -u | head -20
       register: container_labels
       changed_when: false
@@ -63,4 +66,3 @@
       ansible.builtin.debug:
         var: prometheus_query.json
       when: prometheus_query.status == 200 and prometheus_query.json is defined
-

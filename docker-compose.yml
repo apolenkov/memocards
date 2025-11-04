@@ -83,7 +83,7 @@ services:
           - app
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.app.rule=Host(`memocards.duckdns.org`) && !PathPrefix(`/grafana`) && !PathPrefix(`/prometheus`) && !PathPrefix(`/traefik`)"
+      - "traefik.http.routers.app.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && !PathPrefix(`/grafana`) && !PathPrefix(`/prometheus`) && !PathPrefix(`/traefik`)"
       - "traefik.http.routers.app.entrypoints=web"
       - "traefik.http.services.app.loadbalancer.server.port=8080"
       - "traefik.http.routers.app.priority=1"

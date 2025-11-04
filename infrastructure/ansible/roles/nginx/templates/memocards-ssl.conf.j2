@@ -54,14 +54,9 @@ server {
     # Client body size limit
     client_max_body_size 10M;
 
-    # Health check endpoint (bypass Traefik, direct to app)
-    location /actuator/health {
-        proxy_pass http://127.0.0.1:{{ app_port }}/actuator/health;
-        access_log off;
-    }
-
-    # All traffic proxied to Traefik web entryPoint
-    # Traefik handles all routing and authentication based on Docker labels
+    # All traffic proxied to Traefik for internal routing
+    # Traefik handles routing based on Docker labels (PathPrefix rules)
+    # Including /actuator/health - routed through Traefik to app service
     location / {
         proxy_pass http://127.0.0.1:8080;
         proxy_http_version 1.1;
