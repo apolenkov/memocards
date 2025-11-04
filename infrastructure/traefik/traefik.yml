@@ -18,8 +18,8 @@ providers:
     network: memocards-internal
     # Filter containers by Docker Compose project label
     # This improves performance by only processing relevant containers
-    # Project name is set via -p memocards-prod in Ansible deployment
-    constraints: "Label(`com.docker.compose.project`, `memocards-prod`)"
+    # Project name is set via docker compose (default: directory name)
+    constraints: "Label(`com.docker.compose.project`, `memocards`)"
 
 log:
   level: INFO

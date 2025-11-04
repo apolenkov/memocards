@@ -94,6 +94,11 @@ traefik_dashboard_user: "admin"
 # Generate hash: htpasswd -nb admin YOUR_PASSWORD | cut -d: -f2
 # Or: echo -n "YOUR_PASSWORD" | openssl passwd -apr1 -stdin
 
+# Basic authentication for Traefik/Prometheus (via vault secrets.yml)
+# monitoring_basicauth_user stored in secrets.yml (vault)
+# monitoring_basicauth_password stored in secrets.yml (vault)
+# Alternative: monitoring_basicauth_htpasswd (pre-hashed) in secrets.yml
+
 # =============================================================================
 # FIREWALL CONFIGURATION
 # =============================================================================

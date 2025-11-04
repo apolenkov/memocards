@@ -54,6 +54,9 @@ services:
       - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./infrastructure/prometheus/alerts.yml:/etc/prometheus/alerts.yml
       - prometheus_data:/prometheus
+      # Mount Docker socket for Docker Service Discovery
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    user: "0:999"  # Run as root with docker group to access Docker socket
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'

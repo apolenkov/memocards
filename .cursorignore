@@ -1,0 +1,21 @@
+# Build artifacts
+/target/
+/build/
+.gradle/
+
+# IDE
+.idea/
+.vscode/
+.settings/
+.project
+.classpath
+*.iml
+
+# OS
+.DS_Store
+
+# Vaadin generated files
+node_modules/
+src/main/frontend/generated/
+vite.generated.ts
+
