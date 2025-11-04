@@ -28,16 +28,35 @@ services:
     labels:
       # Traefik dashboard accessible via /traefik/ path
       - "traefik.enable=true"
-      # Router for /traefik/ - catch-all for dashboard and API
-      # Use api@internal service (special Traefik service for API/dashboard)
-      - "traefik.http.routers.traefik.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/traefik`)"
-      - "traefik.http.routers.traefik.entrypoints=web"
-      - "traefik.http.routers.traefik.priority=10"
-      - "traefik.http.routers.traefik.service=api@internal"
-      # Traefik API/dashboard is accessible at /traefik/ via routing rule above
+      # Router for /traefik/ - API and dashboard
+      # Note: api@internal service expects paths /api and /dashboard (without /traefik prefix)
+      # Use stripPrefix to remove /traefik prefix before forwarding to api@internal
+      # API router
+      - "traefik.http.routers.traefik-api.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/traefik/api`)"
+      - "traefik.http.routers.traefik-api.entrypoints=web"
+      - "traefik.http.routers.traefik-api.priority=10"
+      - "traefik.http.routers.traefik-api.service=api@internal"
+      - "traefik.http.routers.traefik-api.middlewares=traefik-api-stripprefix,traefik-basicauth"
+      - "traefik.http.middlewares.traefik-api-stripprefix.stripprefix.prefixes=/traefik"
+      # Dashboard router - use traefik entryPoint directly (api@internal only works on traefik entryPoint)
+      # Note: api@internal service is only available on "traefik" entryPoint (:8082), not on "web" entryPoint (:8080)
+      # We need to use a different approach - expose traefik entryPoint via Nginx or use file provider
+      # For now, use direct access via port 8081 or configure via file provider
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/traefik/dashboard`)"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=web"
+      - "traefik.http.routers.traefik-dashboard.priority=10"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      - "traefik.http.routers.traefik-dashboard.middlewares=traefik-dashboard-stripprefix,traefik-basicauth"
+      - "traefik.http.middlewares.traefik-dashboard-stripprefix.stripprefix.prefixes=/traefik"
       # Basic auth middleware - usersfile must be accessible from Traefik container
-      - "traefik.http.routers.traefik.middlewares=traefik-basicauth"
       - "traefik.http.middlewares.traefik-basicauth.basicauth.usersfile=/etc/traefik/.htpasswd"
+      # Redirect /traefik/ to /traefik/dashboard/
+      - "traefik.http.routers.traefik-redirect.rule=Host(`memocards.duckdns.org`) && (Path(`/traefik`) || Path(`/traefik/`))"
+      - "traefik.http.routers.traefik-redirect.entrypoints=web"
+      - "traefik.http.routers.traefik-redirect.priority=15"
+      - "traefik.http.routers.traefik-redirect.middlewares=traefik-redirect-to-dashboard"
+      - "traefik.http.middlewares.traefik-redirect-to-dashboard.redirectregex.regex=^/traefik/?$"
+      - "traefik.http.middlewares.traefik-redirect-to-dashboard.redirectregex.replacement=/traefik/dashboard/"
       # Redirect common typo /traefic -> /traefik/
       - "traefik.http.middlewares.traefic-redirect.redirectregex.regex=^/traefic/?(.*)"
       - "traefik.http.middlewares.traefic-redirect.redirectregex.replacement=/traefik/$1"
@@ -45,7 +64,7 @@ services:
       - "traefik.http.routers.traefic-redirect.entrypoints=web"
       - "traefik.http.routers.traefic-redirect.priority=20"
       - "traefik.http.routers.traefic-redirect.middlewares=traefic-redirect"
-      - "traefik.http.routers.traefic-redirect.service=traefik"
+      - "traefik.http.routers.traefic-redirect.service=api@internal"
 
   prometheus:
     image: ${PROMETHEUS_IMAGE:-prom/prometheus:v2.53.0}
@@ -85,7 +104,8 @@ services:
       - "traefik.http.routers.prometheus.rule=Host(`memocards.duckdns.org`) && PathPrefix(`/prometheus`)"
       - "traefik.http.routers.prometheus.entrypoints=web"
       - "traefik.http.routers.prometheus.priority=10"
-      - "traefik.http.routers.prometheus.middlewares=prometheus-stripprefix,basicauth@docker"
+      - "traefik.http.routers.prometheus.middlewares=prometheus-stripprefix,prometheus-basicauth"
+      - "traefik.http.middlewares.prometheus-basicauth.basicauth.usersfile=/etc/traefik/.htpasswd"
       - "traefik.http.middlewares.prometheus-stripprefix.stripprefix.prefixes=/prometheus"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 

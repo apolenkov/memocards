@@ -6,7 +6,9 @@ services:
   postgres:
     profiles:
       - prod
-    # Security: Remove port mapping in production (only accessible via Docker network)
+    # Security: No port mapping in production (only accessible via Docker network)
     # This prevents external access and brute force attacks
+    # Base docker-compose.yml has ports: [] (empty), so no override needed
+    # Ports are only added in docker-compose.dev.yml for local development
     ports: []
 

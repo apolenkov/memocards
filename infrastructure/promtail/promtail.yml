@@ -6,8 +6,9 @@ positions:
   filename: /var/lib/promtail/positions.yaml
 
 clients:
-  # Using container_name for DNS reliability (service name 'loki' is also available via network alias)
-  - url: http://memocards-loki:3100/loki/api/v1/push
+  # Using network alias 'loki' for DNS reliability (defined in docker-compose.infrastructure.yml)
+  # Container name: memocards-loki-prod (with prod profile)
+  - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
   # Docker Service Discovery - автоматическое обнаружение контейнеров

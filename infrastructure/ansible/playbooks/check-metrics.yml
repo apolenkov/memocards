@@ -1,0 +1,66 @@
+---
+- name: Check metrics availability
+  hosts: vps
+  gather_facts: false
+  vars:
+    prometheus_user: "{{ vault_monitoring_basicauth_user }}"
+    prometheus_password: "{{ vault_monitoring_basicauth_password }}"
+  
+  tasks:
+    - name: Check running containers
+      ansible.builtin.shell: |
+        docker ps --format "table {{ '{{' }}.Names{{ '}}' }}\t{{ '{{' }}.Status{{ '}}' }}" | grep -E "memocards|prometheus|cadvisor"
+      register: running_containers
+      changed_when: false
+
+    - name: Display running containers
+      ansible.builtin.debug:
+        var: running_containers.stdout_lines
+
+    - name: Check cAdvisor metrics endpoint
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:8080/metrics"
+        method: GET
+        return_content: true
+      register: cadvisor_metrics
+      failed_when: false
+      changed_when: false
+
+    - name: Check if container_cpu_usage_seconds_total exists in cAdvisor
+      ansible.builtin.shell: |
+        echo "{{ cadvisor_metrics.content }}" | grep -c "container_cpu_usage_seconds_total" || echo "0"
+      register: cpu_metrics_count
+      changed_when: false
+      when: cadvisor_metrics.status == 200
+
+    - name: Display CPU metrics count
+      ansible.builtin.debug:
+        var: cpu_metrics_count
+      when: cpu_metrics_count is defined
+
+    - name: Check container labels in cAdvisor metrics
+      ansible.builtin.shell: |
+        echo "{{ cadvisor_metrics.content }}" | grep "container_cpu_usage_seconds_total" | grep -oE '(name|id|container_label_com_docker_compose_service)="[^"]*"' | sort -u | head -20
+      register: container_labels
+      changed_when: false
+      when: cadvisor_metrics.status == 200
+
+    - name: Display container labels
+      ansible.builtin.debug:
+        var: container_labels.stdout_lines
+      when: cadvisor_metrics.status == 200 and container_labels is defined
+
+    - name: Check Prometheus query for memocards-app
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:9090/api/v1/query?query=container_cpu_usage_seconds_total"
+        method: GET
+        return_content: true
+      register: prometheus_query
+      failed_when: false
+      changed_when: false
+
+    - name: Display Prometheus query result
+      ansible.builtin.debug:
+        var: prometheus_query.json
+      when: prometheus_query.status == 200 and prometheus_query.json is defined
+

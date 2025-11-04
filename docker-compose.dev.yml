@@ -12,7 +12,7 @@ services:
   postgres:
     profiles:
       - dev
-    # Keep port mapping for local development access
+    # Override ports: add port mapping for local development access
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
 

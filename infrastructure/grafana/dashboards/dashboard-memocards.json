@@ -23,7 +23,7 @@
   "liveNow": false,
   "panels": [
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -504,7 +504,7 @@
       "description": "Average, percentiles (P50, P95, P99), and maximum server response time to client. Shows latency from server perspective. P95 target: \u2264400ms (SLO)."
     },
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -533,16 +533,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "green",
                 "value": null
               },
               {
                 "color": "yellow",
-                "value": 95
+                "value": 400
               },
               {
-                "color": "green",
-                "value": 99
+                "color": "red",
+                "value": 600
               }
             ]
           },
@@ -601,16 +601,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "green",
                 "value": null
               },
               {
                 "color": "yellow",
-                "value": 95
+                "value": 0.5
               },
               {
-                "color": "green",
-                "value": 99.5
+                "color": "red",
+                "value": 1
               }
             ]
           },
@@ -669,16 +669,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "green",
                 "value": null
               },
               {
                 "color": "yellow",
-                "value": 95
+                "value": 50
               },
               {
-                "color": "green",
-                "value": 99
+                "color": "red",
+                "value": 75
               }
             ]
           },
@@ -1666,7 +1666,7 @@
       "type": "timeseries"
     },
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1947,7 +1947,7 @@
       "description": "Current size of Spring Cache (users, usersByEmail). Shows number of cached entries."
     },
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -2374,8 +2374,8 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum without(cpu, id)(rate(container_cpu_usage_seconds_total{name=~\"memocards-app.*\"}[1m])) by (container_name) * 100",
-          "legendFormat": "{{container_name}}",
+          "expr": "process_cpu_usage{application=\"memocards\"} * 100",
+          "legendFormat": "{{instance}}",
           "refId": "A"
         }
       ],

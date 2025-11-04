@@ -24,7 +24,7 @@
 - name: Write Traefik .htpasswd from Vault variables (no generation)
   ansible.builtin.copy:
     dest: "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
-    mode: "0640"
+    mode: "0644"
     content: |
       {{ monitoring_basicauth_user }}:{PLAIN}{{ monitoring_basicauth_password }}
   when: monitoring_basicauth_htpasswd is not defined and (monitoring_basicauth_user is defined and monitoring_basicauth_password is defined)
@@ -33,7 +33,7 @@
 - name: Write Traefik .htpasswd from pre-hashed Vault line (preferred)
   ansible.builtin.copy:
     dest: "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
-    mode: "0640"
+    mode: "0644"
     content: |
       {{ monitoring_basicauth_htpasswd }}
   when: monitoring_basicauth_htpasswd is defined and monitoring_basicauth_htpasswd | length > 0
@@ -47,7 +47,7 @@
     htpasswd -nbB '{{ monitoring_basicauth_user }}' \
       '{{ monitoring_basicauth_password }}' > \
       "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
-    chmod 0640 "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
+    chmod 0644 "{{ app_deploy_path }}/infrastructure/traefik/.htpasswd"
   args:
     executable: /bin/bash
   when: monitoring_basicauth_htpasswd is not defined and (monitoring_basicauth_user is defined and monitoring_basicauth_password is defined)

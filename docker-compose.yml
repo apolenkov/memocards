@@ -17,8 +17,10 @@ services:
       POSTGRES_USER: ${DB_USER:-memocards_user}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_INITDB_ARGS: ${POSTGRES_INITDB_ARGS:---auth-host=scram-sha-256}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+    # Port mapping: removed from base config for security
+    # Ports are added only in docker-compose.dev.yml for local development
+    # In production: no port mapping (accessible only via Docker network)
+    ports: []
     volumes:
       - postgres_data:/var/lib/postgresql/data
     mem_limit: ${POSTGRES_MEMORY_LIMIT:-512m}

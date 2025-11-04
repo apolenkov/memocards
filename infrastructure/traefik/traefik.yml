@@ -10,13 +10,16 @@ entryPoints:
 
 api:
   dashboard: true
-  insecure: false
+  insecure: true  # Allow unauthenticated access on traefik entryPoint (auth handled by Nginx)
   debug: true
   # Note: basePath is not supported in static config in Traefik v3.0
   # Base path is configured via dynamic routing labels in docker-compose.infrastructure.yml
   # Dashboard accessible via Nginx at /traefik/dashboard/
-  # Note: insecure: false requires auth (handled by basicauth middleware)
+  # Note: insecure: true allows unauthenticated access on traefik entryPoint
+  # Nginx handles authentication before proxying to Traefik
   # API is automatically available on the "traefik" entryPoint (:8082)
+  # In Traefik v3.0, api@internal service expects paths without subpath
+  # Dashboard is accessible at /dashboard/ (not /api/dashboard/)
 
 providers:
   docker:
