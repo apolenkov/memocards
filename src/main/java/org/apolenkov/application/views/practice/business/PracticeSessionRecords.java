@@ -12,6 +12,15 @@ import org.apolenkov.application.model.Card;
 public final class PracticeSessionRecords {
 
     /**
+     * Returns the class name for debugging and logging purposes.
+     *
+     * @return the simple class name
+     */
+    public static String getClassName() {
+        return PracticeSessionRecords.class.getSimpleName();
+    }
+
+    /**
      * Immutable session state record.
      * Represents the current state of a practice session.
      *

@@ -202,7 +202,8 @@ public class PaginationCountCache {
      * Checks if deck is in invalidation cooldown period.
      * Prevents excessive invalidations during rapid user interactions (practice mode).
      *
-     * <p>Note: Cooldown uses {@value org.apolenkov.application.domain.constants.BusinessConstants#CACHE_INVALIDATION_COOLDOWN_MS}ms
+     * <p>Note: Cooldown uses
+     * {@value org.apolenkov.application.domain.constants.BusinessConstants#CACHE_INVALIDATION_COOLDOWN_MS}ms
      * for better UX (was 2s). This ensures counts update quickly enough while still preventing DB spam.
      * UI-level debouncing (beforeClientResponse/UI.access) provides additional protection.
      *
