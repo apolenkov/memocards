@@ -16,7 +16,7 @@ services:
       # Allow only necessary operations for Prometheus Service Discovery
       CONTAINERS: 1      # Read container information (required for Service Discovery)
       IMAGES: 0         # No access to images
-      NETWORKS: 0       # No access to networks
+      NETWORKS: 1       # Read network information (required for Service Discovery to get container IPs)
       VOLUMES: 0        # No access to volumes
       EXEC: 0           # No access to exec (no container control)
       EVENTS: 1         # Docker events (required for Service Discovery)
@@ -118,7 +118,9 @@ services:
       - prometheus_data:/prometheus
       # Docker socket proxy for security (instead of direct Docker socket access)
       # No direct Docker socket mount - use docker-socket-proxy instead
-    user: "nobody"  # Run as non-root user (security improvement)
+    # Note: Prometheus requires write access to /prometheus for queries.active file
+    # Using nobody:nobody (65534:65534) - ensure volume permissions are correct
+    user: "65534:65534"  # nobody:nobody (non-root user for security)
     environment:
       # Use docker-socket-proxy instead of direct Docker socket
       DOCKER_HOST: tcp://docker-socket-proxy:2375
