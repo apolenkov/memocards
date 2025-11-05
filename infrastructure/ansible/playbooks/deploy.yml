@@ -171,6 +171,18 @@
             name: "{{ app_image }}"
           register: pull_result
 
+        - name: Clean up stopped containers (fixes cAdvisor duplicates)
+          ansible.builtin.command:
+            cmd: docker container prune -f
+          register: container_cleanup
+          changed_when: "'Total reclaimed space' in container_cleanup.stdout or 'No space reclaimed' not in container_cleanup.stdout"
+          failed_when: false
+
+        - name: Display container cleanup results
+          ansible.builtin.debug:
+            msg: "🧹 Container cleanup: {{ container_cleanup.stdout | default('No stopped containers found') }}"
+          when: container_cleanup.stdout is defined
+
         - name: Deploy application services
           ansible.builtin.command:
             cmd: docker compose -p memocards-prod -f docker-compose.yml -f docker-compose.infrastructure.yml -f docker-compose.prod.yml --profile prod up -d

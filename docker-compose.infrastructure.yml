@@ -70,21 +70,23 @@ services:
       # Traefik dashboard routing via Docker labels
       # Note: In Traefik v3.0, basePath is not supported - routing must be explicit via PathPrefix
       # API endpoints: /api/*, Dashboard: /dashboard/*
-      # We need to route /traefik/api and /traefik/dashboard to api@internal without stripprefix
+      # We need to route /traefik/api and /traefik/dashboard to api@internal
       - "traefik.enable=true"
-      # API router - routes /traefik/api/* and /api/* to api@internal
-      # Note: api@internal expects /api/* paths
-      # For /traefik/api/*: use stripprefix to remove /traefik
-      # For /api/*: no stripprefix needed (direct path)
-      # Dashboard JS client makes requests to /api/* (relative from /traefik/dashboard/)
-      - "traefik.http.routers.traefik-api.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && (PathPrefix(`/traefik/api`) || PathPrefix(`/api`))"
-      - "traefik.http.routers.traefik-api.entrypoints=web"
-      - "traefik.http.routers.traefik-api.priority=10"
-      - "traefik.http.routers.traefik-api.service=api@internal"
-      - "traefik.http.routers.traefik-api.middlewares=traefik-api-stripprefix,traefik-basicauth"
-      # Stripprefix only removes /traefik from /traefik/api/*, not from /api/*
-      # Traefik applies stripprefix only if path matches prefix, so /api/* is passed through unchanged
+      # API router for /traefik/api/* - needs stripprefix to remove /traefik
+      # Note: api@internal expects /api/* paths, so /traefik/api -> /api
+      - "traefik.http.routers.traefik-api-prefixed.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && PathPrefix(`/traefik/api`)"
+      - "traefik.http.routers.traefik-api-prefixed.entrypoints=web"
+      - "traefik.http.routers.traefik-api-prefixed.priority=10"
+      - "traefik.http.routers.traefik-api-prefixed.service=api@internal"
+      - "traefik.http.routers.traefik-api-prefixed.middlewares=traefik-api-stripprefix,traefik-basicauth"
       - "traefik.http.middlewares.traefik-api-stripprefix.stripprefix.prefixes=/traefik"
+      # API router for /api/* - direct path, no stripprefix needed
+      # Dashboard JS client makes requests to /api/* (relative from /traefik/dashboard/)
+      - "traefik.http.routers.traefik-api-direct.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.traefik-api-direct.entrypoints=web"
+      - "traefik.http.routers.traefik-api-direct.priority=10"
+      - "traefik.http.routers.traefik-api-direct.service=api@internal"
+      - "traefik.http.routers.traefik-api-direct.middlewares=traefik-basicauth"
       # Dashboard router - routes /traefik/dashboard/* and static assets to api@internal with stripprefix
       # Dashboard serves HTML, JS, CSS, and other assets from /dashboard/* and /assets/*, /icons/*, etc.
       - "traefik.http.routers.traefik-dashboard.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && (PathPrefix(`/traefik/dashboard`) || PathPrefix(`/traefik/assets`) || PathPrefix(`/traefik/icons`) || PathPrefix(`/traefik/app-logo`))"
@@ -354,6 +356,11 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /cgroup:/cgroup:ro
+    command:
+      # Filter to show only Docker containers (excludes system containers)
+      - --docker_only=true
+      # Store only last 2 minutes of data to reduce memory usage
+      - --storage_duration=2m
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/healthz || exit 1"]
       interval: 30s
@@ -369,6 +376,19 @@ services:
       internal:
         aliases:
           - cadvisor
+    labels:
+      # Note: Duplicate containers in cAdvisor dashboard may indicate:
+      # 1. Multiple containers with same name from different compose projects
+      # 2. Old stopped containers not cleaned up
+      # 3. Containers restarted/recreated (cAdvisor shows both old and new)
+      # Solution: Clean up old containers with: docker container prune -f
+      - "traefik.enable=true"
+      - "traefik.http.routers.cadvisor.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && PathPrefix(`/cadvisor`)"
+      - "traefik.http.routers.cadvisor.entrypoints=web"
+      - "traefik.http.routers.cadvisor.priority=10"
+      - "traefik.http.routers.cadvisor.middlewares=cadvisor-stripprefix"
+      - "traefik.http.middlewares.cadvisor-stripprefix.stripprefix.prefixes=/cadvisor"
+      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
 
 
 volumes:

@@ -243,6 +243,20 @@
       tags: [always, verify]
       when: container_status is not defined or 'verify' in ansible_run_tags
 
+    - name: Clean up stopped containers (fixes cAdvisor duplicates)
+      ansible.builtin.command:
+        cmd: docker container prune -f
+      register: container_cleanup
+      changed_when: "'Total reclaimed space' in container_cleanup.stdout or 'No space reclaimed' not in container_cleanup.stdout"
+      failed_when: false
+      tags: [always, verify]
+
+    - name: Display container cleanup results
+      ansible.builtin.debug:
+        msg: "🧹 Container cleanup: {{ container_cleanup.stdout | default('No stopped containers found') }}"
+      when: container_cleanup.stdout is defined
+      tags: [always, verify]
+
     - name: Ensure all services are up (start infrastructure if missing)
       ansible.builtin.shell: |
         cd {{ app_deploy_path }}

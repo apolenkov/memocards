@@ -134,6 +134,20 @@
 
 # NOTE: Avoid full downtime; do not call compose down. We'll update services in-place below.
 
+- name: Clean up stopped containers before deploying infrastructure (fixes cAdvisor duplicates)
+  ansible.builtin.command:
+    cmd: docker container prune -f
+  register: container_cleanup
+  changed_when: "'Total reclaimed space' in container_cleanup.stdout or 'No space reclaimed' not in container_cleanup.stdout"
+  failed_when: false
+  tags: [monitoring, deploy]
+
+- name: Display container cleanup results
+  ansible.builtin.debug:
+    msg: "🧹 Container cleanup: {{ container_cleanup.stdout | default('No stopped containers found') }}"
+  when: container_cleanup.stdout is defined
+  tags: [monitoring, deploy]
+
 - name: Deploy infrastructure services (all services with prod profile)
   ansible.builtin.command:
     cmd: >-
