@@ -56,10 +56,11 @@
 
 - name: Check if cron job exists
   ansible.builtin.shell: |
+    set -o pipefail
     crontab -l 2>/dev/null | grep -q "backup-db.sh" || echo "not_found"
   args:
     executable: /bin/bash
-  register: cron_check
+  register: backup_cron_check
   changed_when: false
   failed_when: false
   tags: [backup, cron]
@@ -71,7 +72,7 @@
     hour: "2"
     job: "{{ backup_path }}/backup-db.sh daily >> {{ backup_path }}/logs/backup.log 2>&1"
     user: root
-  when: cron_check.stdout == "not_found"
+  when: backup_cron_check.stdout == "not_found"
   tags: [backup, cron]
 
 - name: Add weekly backup cron job (Sunday 3 AM)
@@ -82,7 +83,7 @@
     weekday: "0"
     job: "{{ backup_path }}/backup-db.sh weekly >> {{ backup_path }}/logs/backup.log 2>&1"
     user: root
-  when: cron_check.stdout == "not_found"
+  when: backup_cron_check.stdout == "not_found"
   tags: [backup, cron]
 
 - name: Add monthly backup cron job (1st day of month, 4 AM)
@@ -93,7 +94,7 @@
     day: "1"
     job: "{{ backup_path }}/backup-db.sh monthly >> {{ backup_path }}/logs/backup.log 2>&1"
     user: root
-  when: cron_check.stdout == "not_found"
+  when: backup_cron_check.stdout == "not_found"
   tags: [backup, cron]
 
 - name: Add cleanup cron job (daily at 5 AM)
@@ -116,4 +117,3 @@
       - Monthly backup: 1st day 04:00 UTC
       - Cleanup: Daily 05:00 UTC
   tags: [backup]
-

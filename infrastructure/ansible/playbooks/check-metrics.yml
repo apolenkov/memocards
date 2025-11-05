@@ -43,7 +43,11 @@
     - name: Check container labels in cAdvisor metrics
       ansible.builtin.shell: |
         set -o pipefail
-        echo "{{ cadvisor_metrics.content }}" | grep "container_cpu_usage_seconds_total" | grep -oE '(name|id|container_label_com_docker_compose_service)="[^"]*"' | sort -u | head -20
+        echo "{{ cadvisor_metrics.content }}" \
+          | grep "container_cpu_usage_seconds_total" \
+          | grep -oE '(name|id|container_label_com_docker_compose_service)="[^"]*"' \
+          | sort -u \
+          | head -20
       register: container_labels
       changed_when: false
       when: cadvisor_metrics.status == 200
