@@ -41,7 +41,7 @@ public class SecurityConfig {
      *
      * @param http the HttpSecurity builder
      * @return configured SecurityFilterChain
-     * @throws Exception if configuration fails
+     * @throws Exception if configuration fails (Spring Security API requirement)
      */
     @Bean
     public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {

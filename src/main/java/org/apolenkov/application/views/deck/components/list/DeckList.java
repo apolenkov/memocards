@@ -17,7 +17,7 @@ public final class DeckList extends Composite<VerticalLayout> {
 
     @Override
     protected VerticalLayout initContent() {
-        VerticalLayout deckList = new VerticalLayout();
+        final VerticalLayout deckList = new VerticalLayout();
         deckList.setPadding(false);
         deckList.setSpacing(true);
         deckList.setWidthFull();
@@ -48,7 +48,7 @@ public final class DeckList extends Composite<VerticalLayout> {
      * Shows a localized message indicating no search results.
      */
     private void showEmptyState() {
-        Span emptyMessage = new Span(getTranslation(DeckConstants.HOME_SEARCH_NO_RESULTS));
+        final Span emptyMessage = new Span(getTranslation(DeckConstants.HOME_SEARCH_NO_RESULTS));
         emptyMessage.addClassName(DeckConstants.DECKS_EMPTY_MESSAGE_CLASS);
         getContent().add(emptyMessage);
     }

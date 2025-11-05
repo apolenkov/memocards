@@ -72,11 +72,11 @@ public final class MenuButton extends Composite<Button> {
      * @param menuItem the menu item to add
      */
     private void addMenuItem(final MenuItem menuItem) {
-        com.vaadin.flow.component.contextmenu.MenuItem item = contextMenu.addItem(menuItem.label());
+        final com.vaadin.flow.component.contextmenu.MenuItem item = contextMenu.addItem(menuItem.label());
 
         // Add icon if provided
         if (menuItem.icon() != null) {
-            Icon icon = menuItem.icon().create();
+            final Icon icon = menuItem.icon().create();
             item.addComponentAsFirst(icon);
         }
 

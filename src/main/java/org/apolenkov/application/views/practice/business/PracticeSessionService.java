@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apolenkov.application.domain.constants.BusinessConstants;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.usecase.CardUseCase;
 import org.apolenkov.application.domain.usecase.DeckUseCase;
@@ -89,8 +90,8 @@ public final class PracticeSessionService {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
-        List<Card> all = cardUseCase.getCardsByDeckId(deckId);
-        Set<Long> known = statsService.getKnownCardIds(deckId);
+        final List<Card> all = cardUseCase.getCardsByDeckId(deckId);
+        final Set<Long> known = statsService.getKnownCardIds(deckId);
         return all.stream().filter(fc -> !known.contains(fc.getId())).toList();
     }
 
@@ -105,8 +106,8 @@ public final class PracticeSessionService {
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive, got: " + deckId);
         }
-        int configured = practiceSettingsService.getDefaultCount();
-        int notKnown = getNotKnownCards(deckId).size();
+        final int configured = practiceSettingsService.getDefaultCount();
+        final int notKnown = getNotKnownCards(deckId).size();
         return Math.clamp(notKnown, 1, configured);
     }
 
@@ -122,8 +123,8 @@ public final class PracticeSessionService {
         if (notKnownCards == null) {
             throw new IllegalArgumentException("notKnownCards cannot be null");
         }
-        int configured = practiceSettingsService.getDefaultCount();
-        int notKnown = notKnownCards.size();
+        final int configured = practiceSettingsService.getDefaultCount();
+        final int notKnown = notKnownCards.size();
         return Math.clamp(notKnown, 1, configured);
     }
 
@@ -158,7 +159,7 @@ public final class PracticeSessionService {
      */
     public List<Card> prepareSession(final long deckId, final int count, final boolean random) {
         // Filter to only unknown cards for focused practice
-        List<Card> filtered = new ArrayList<>(getNotKnownCards(deckId));
+        final List<Card> filtered = new ArrayList<>(getNotKnownCards(deckId));
         if (filtered.isEmpty()) {
             return filtered;
         }
@@ -194,7 +195,7 @@ public final class PracticeSessionService {
             final Duration sessionDuration,
             final long totalAnswerDelayMs,
             final List<Long> knownCardIdsDelta) {
-        SessionStatsDto sessionData = SessionStatsDto.builder()
+        final SessionStatsDto sessionData = SessionStatsDto.builder()
                 .deckId(deckId)
                 .viewed(totalViewed)
                 .correct(correct)
@@ -216,7 +217,7 @@ public final class PracticeSessionService {
      * @return a new Session instance ready for practice
      */
     public PracticeSession startSession(final long deckId, final int count, final boolean random) {
-        List<Card> cards = prepareSession(deckId, count, random);
+        final List<Card> cards = prepareSession(deckId, count, random);
         return PracticeSession.create(deckId, cards, Instant.now());
     }
 
@@ -265,14 +266,17 @@ public final class PracticeSessionService {
      * @return completion metrics record
      */
     public SessionCompletionMetrics calculateCompletionMetrics(final PracticeSession session) {
-        int totalCards = (session.getCards() != null) ? session.getCards().size() : session.getTotalViewed();
-        long sessionDurationSec =
+        final int totalCards = (session.getCards() != null) ? session.getCards().size() : session.getTotalViewed();
+        final long sessionDurationSec =
                 Instant.now().getEpochSecond() - session.getSessionStart().getEpochSecond();
-        long sessionMinutes = Math.clamp(sessionDurationSec / 60, 1L, Integer.MAX_VALUE);
+        final long sessionMinutes =
+                Math.clamp(sessionDurationSec / BusinessConstants.MINUTE_SECONDS, 1L, Integer.MAX_VALUE);
 
-        double denom = Math.clamp(session.getTotalViewed(), 1.0, Double.MAX_VALUE);
-        long avgSeconds =
-                Math.clamp(Math.round((session.getTotalAnswerDelayMs() / denom) / 1000.0), 1L, Long.MAX_VALUE);
+        final double denom = Math.clamp(session.getTotalViewed(), 1.0, Double.MAX_VALUE);
+        final long avgSeconds = Math.clamp(
+                Math.round(session.getTotalAnswerDelayMs() / denom / BusinessConstants.SECOND_MILLIS),
+                1L,
+                Long.MAX_VALUE);
 
         return new SessionCompletionMetrics(totalCards, sessionMinutes, avgSeconds);
     }
@@ -289,7 +293,7 @@ public final class PracticeSessionService {
             return List.of();
         }
 
-        List<Card> notKnownCards = getNotKnownCards(deckId);
+        final List<Card> notKnownCards = getNotKnownCards(deckId);
         return notKnownCards.stream()
                 .filter(fc -> failedCardIds.contains(fc.getId()))
                 .toList();
@@ -303,7 +307,7 @@ public final class PracticeSessionService {
      * @return new practice session
      */
     public PracticeSession startRepeatSession(final long deckId, final List<Card> failedCards) {
-        List<Card> cards = new ArrayList<>(failedCards);
+        final List<Card> cards = new ArrayList<>(failedCards);
         Collections.shuffle(cards);
         return PracticeSession.create(deckId, cards, Instant.now());
     }

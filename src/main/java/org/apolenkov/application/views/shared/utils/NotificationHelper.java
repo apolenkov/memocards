@@ -40,7 +40,7 @@ public final class NotificationHelper {
      * @param duration the duration in milliseconds to show the notification
      */
     public static void showSuccess(final String message, final int duration) {
-        Notification notification = Notification.show(message, duration, DEFAULT_POSITION);
+        final Notification notification = Notification.show(message, duration, DEFAULT_POSITION);
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
@@ -51,7 +51,7 @@ public final class NotificationHelper {
      * @param message the success message to display
      */
     public static void showSuccessBottom(final String message) {
-        Notification notification = Notification.show(message, SHORT_DURATION, BOTTOM_POSITION);
+        final Notification notification = Notification.show(message, SHORT_DURATION, BOTTOM_POSITION);
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
@@ -73,7 +73,7 @@ public final class NotificationHelper {
      * @param duration the duration in milliseconds to show the notification
      */
     public static void showError(final String message, final int duration) {
-        Notification notification = Notification.show(message, duration, DEFAULT_POSITION);
+        final Notification notification = Notification.show(message, duration, DEFAULT_POSITION);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 
@@ -85,7 +85,7 @@ public final class NotificationHelper {
      * @param message the error message to display
      */
     public static void showErrorLong(final String message) {
-        Notification notification = Notification.show(message, LONG_DURATION, DEFAULT_POSITION);
+        final Notification notification = Notification.show(message, LONG_DURATION, DEFAULT_POSITION);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 
@@ -96,7 +96,7 @@ public final class NotificationHelper {
      * @param message the informational message to display
      */
     public static void showInfo(final String message) {
-        Notification notification = Notification.show(message, DEFAULT_DURATION, DEFAULT_POSITION);
+        final Notification notification = Notification.show(message, DEFAULT_DURATION, DEFAULT_POSITION);
         notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
     }
 
@@ -128,7 +128,7 @@ public final class NotificationHelper {
             final int duration,
             final Notification.Position position,
             final NotificationVariant variant) {
-        Notification notification = Notification.show(message, duration, position);
+        final Notification notification = Notification.show(message, duration, position);
         if (variant != null) {
             notification.addThemeVariants(variant);
         }

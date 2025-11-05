@@ -27,12 +27,12 @@ public final class NewsSection extends Composite<Div> {
 
     @Override
     protected Div initContent() {
-        Div content = new Div();
+        final Div content = new Div();
         content.addClassName(LandingConstants.SURFACE_PANEL_CLASS);
         content.addClassName(LandingConstants.LANDING_NEWS_SECTION_CLASS);
 
-        H3 newsTitle = createNewsTitle();
-        Div newsList = createNewsList();
+        final H3 newsTitle = createNewsTitle();
+        final Div newsList = createNewsList();
 
         content.add(newsTitle, newsList);
         return content;
@@ -44,7 +44,7 @@ public final class NewsSection extends Composite<Div> {
      * @return H3 element with the news title
      */
     private H3 createNewsTitle() {
-        H3 newsTitle = new H3(getTranslation(LandingConstants.LANDING_NEWS_KEY));
+        final H3 newsTitle = new H3(getTranslation(LandingConstants.LANDING_NEWS_KEY));
         newsTitle.addClassName(LandingConstants.LANDING_NEWS_TITLE_CLASS);
         return newsTitle;
     }
@@ -55,11 +55,11 @@ public final class NewsSection extends Composite<Div> {
      * @return Div containing all news cards
      */
     private Div createNewsList() {
-        Div newsList = new Div();
+        final Div newsList = new Div();
         newsList.addClassName(LandingConstants.LANDING_NEWS_LIST_CLASS);
 
-        for (News item : newsService.getAllNews()) {
-            Div card = createNewsCard(item);
+        for (final News item : newsService.getAllNews()) {
+            final Div card = createNewsCard(item);
             newsList.add(card);
         }
 
@@ -73,13 +73,13 @@ public final class NewsSection extends Composite<Div> {
      * @return Div representing the news card
      */
     private Div createNewsCard(final News item) {
-        Div card = new Div();
+        final Div card = new Div();
         card.addClassName(LandingConstants.SURFACE_CARD_CLASS);
         card.addClassName(LandingConstants.LANDING_NEWS_CARD_CLASS);
 
-        H3 cardTitle = createCardTitle(item);
-        Paragraph cardContent = createCardContent(item);
-        Div accent = createCardAccent();
+        final H3 cardTitle = createCardTitle(item);
+        final Paragraph cardContent = createCardContent(item);
+        final Div accent = createCardAccent();
 
         card.add(cardTitle, cardContent, accent);
         return card;
@@ -92,7 +92,7 @@ public final class NewsSection extends Composite<Div> {
      * @return H3 element with the card title
      */
     private H3 createCardTitle(final News item) {
-        H3 cardTitle = new H3(item.getTitle());
+        final H3 cardTitle = new H3(item.getTitle());
         cardTitle.addClassName(LandingConstants.LANDING_NEWS_CARD_TITLE_CLASS);
         return cardTitle;
     }
@@ -104,7 +104,7 @@ public final class NewsSection extends Composite<Div> {
      * @return Paragraph element with the card content
      */
     private Paragraph createCardContent(final News item) {
-        Paragraph cardContent = new Paragraph(item.getContent());
+        final Paragraph cardContent = new Paragraph(item.getContent());
         cardContent.addClassName(LandingConstants.LANDING_NEWS_CARD_CONTENT_CLASS);
         return cardContent;
     }
@@ -115,7 +115,7 @@ public final class NewsSection extends Composite<Div> {
      * @return Div element for card accent
      */
     private Div createCardAccent() {
-        Div accent = new Div();
+        final Div accent = new Div();
         accent.addClassName(LandingConstants.LANDING_NEWS_CARD_ACCENT_CLASS);
         return accent;
     }

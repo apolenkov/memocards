@@ -54,13 +54,13 @@ public class JdbcRegistrationService implements RegistrationService {
             throw new IllegalArgumentException("User already exists");
         });
 
-        User user = new User();
+        final User user = new User();
         user.setEmail(email);
         user.setName(name);
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
         user.addRole(SecurityConstants.ROLE_USER);
 
-        User savedUser = userRepository.save(user);
+        final User savedUser = userRepository.save(user);
 
         AUDIT_LOGGER.info("New user registered: email={}, name={}, userId={}", email, name, savedUser.getId());
     }

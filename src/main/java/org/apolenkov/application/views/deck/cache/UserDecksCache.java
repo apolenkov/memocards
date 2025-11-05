@@ -59,7 +59,7 @@ public class UserDecksCache {
             return List.of();
         }
 
-        CachedDecks cached = cache.get(userId);
+        final CachedDecks cached = cache.get(userId);
 
         if (cached != null && cached.isValid(ttlMs)) {
             hitCount.incrementAndGet();
@@ -69,7 +69,7 @@ public class UserDecksCache {
 
         missCount.incrementAndGet();
         LOGGER.debug("Cache MISS: Loading decks for userId={}", userId);
-        List<Deck> decks = loader.get();
+        final List<Deck> decks = loader.get();
 
         // Evict the oldest entry if cache is full
         if (cache.size() >= maxSize) {
@@ -110,8 +110,8 @@ public class UserDecksCache {
      */
     public void logStats() {
         if (LOGGER.isDebugEnabled()) {
-            CacheStats stats = getStats();
-            String hitRate = String.format("%.1f%%", stats.hitRate() * 100);
+            final CacheStats stats = getStats();
+            final String hitRate = String.format("%.1f%%", stats.hitRate() * 100);
             LOGGER.debug(
                     "Cache stats: hits={}, misses={}, hitRate={}, size={}, maxSize={}",
                     stats.hits(),
@@ -184,7 +184,7 @@ public class UserDecksCache {
          * @return hit rate percentage as double
          */
         public double hitRate() {
-            long total = hits + misses;
+            final long total = hits + misses;
             return total > 0 ? (double) hits / total : 0.0;
         }
     }

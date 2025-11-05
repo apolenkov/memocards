@@ -21,7 +21,7 @@ class UserTest {
     @Test
     @DisplayName("Should create user with valid parameters")
     void shouldCreateUserWithValidParameters() {
-        User user = new User(1L, "user@example.com", "Full Name");
+        final User user = new User(1L, "user@example.com", "Full Name");
 
         assertThat(user).isNotNull();
         assertThat(user.getId()).isEqualTo(1L);
@@ -33,7 +33,7 @@ class UserTest {
     @Test
     @DisplayName("Should create user with minimal parameters")
     void shouldCreateUserWithMinimalParameters() {
-        User user = new User();
+        final User user = new User();
         user.setEmail("user@example.com");
         user.setName("User Name");
 
@@ -44,7 +44,7 @@ class UserTest {
     @Test
     @DisplayName("Should set and get id")
     void shouldSetAndGetId() {
-        Long newId = 999L;
+        final Long newId = 999L;
         testUser.setId(newId);
 
         assertThat(testUser.getId()).isEqualTo(newId);
@@ -53,7 +53,7 @@ class UserTest {
     @Test
     @DisplayName("Should set and get email")
     void shouldSetAndGetEmail() {
-        String newEmail = "newemail@example.com";
+        final String newEmail = "newemail@example.com";
         testUser.setEmail(newEmail);
 
         assertThat(testUser.getEmail()).isEqualTo(newEmail);
@@ -62,7 +62,7 @@ class UserTest {
     @Test
     @DisplayName("Should set and get name")
     void shouldSetAndGetName() {
-        String newName = "New User Name";
+        final String newName = "New User Name";
         testUser.setName(newName);
 
         assertThat(testUser.getName()).isEqualTo(newName);
@@ -70,8 +70,7 @@ class UserTest {
 
     @Test
     @DisplayName("Should throw exception for null name")
-    @SuppressWarnings("DataFlowIssue")
-    // Intentionally testing null validation
+    @SuppressWarnings("DataFlowIssue") // Intentionally testing null validation
     void shouldThrowExceptionForNullName() {
         assertThatThrownBy(() -> testUser.setName(null))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -122,7 +121,7 @@ class UserTest {
     @Test
     @DisplayName("Should set and get password hash")
     void shouldSetAndGetPasswordHash() {
-        String passwordHash = "hashedPassword123";
+        final String passwordHash = "hashedPassword123";
         testUser.setPasswordHash(passwordHash);
 
         assertThat(testUser.getPasswordHash()).isEqualTo(passwordHash);
@@ -147,7 +146,7 @@ class UserTest {
     @Test
     @DisplayName("Should set and get roles")
     void shouldSetAndGetRoles() {
-        Set<String> roles = Set.of("USER", "ADMIN");
+        final Set<String> roles = Set.of("USER", "ADMIN");
         testUser.setRoles(roles);
 
         assertThat(testUser.getRoles()).hasSize(2);
@@ -208,7 +207,7 @@ class UserTest {
     @Test
     @DisplayName("Should handle user with special characters")
     void shouldHandleUserWithSpecialCharacters() {
-        String specialName = "User @#$%^&*()_+-=[]{}|;':\",./<>?";
+        final String specialName = "User @#$%^&*()_+-=[]{}|;':\",./<>?";
         testUser.setName(specialName);
 
         assertThat(testUser.getName()).isEqualTo(specialName);
@@ -217,7 +216,7 @@ class UserTest {
     @Test
     @DisplayName("Should handle user with unicode characters")
     void shouldHandleUserWithUnicodeCharacters() {
-        String unicodeName = "User with unicode characters: 你好世界";
+        final String unicodeName = "User with unicode characters: 你好世界";
         testUser.setName(unicodeName);
 
         assertThat(testUser.getName()).isEqualTo(unicodeName);
@@ -227,13 +226,13 @@ class UserTest {
     @DisplayName("Should handle user constraints")
     void shouldHandleUserConstraints() {
         // Test email length constraint - @Size(max = 255) is JPA validation, not runtime
-        String longEmail = "a".repeat(256) + "@example.com";
+        final String longEmail = "a".repeat(256) + "@example.com";
         // This should not throw exception as @Size is JPA validation, not runtime validation
         testUser.setEmail(longEmail);
         assertThat(testUser.getEmail()).isEqualTo(longEmail);
 
         // Test name length constraint - @Size(max = 120) is JPA validation, not runtime
-        String longName = "a".repeat(121);
+        final String longName = "a".repeat(121);
         // This should not throw exception as @Size is JPA validation, not runtime validation
         testUser.setName(longName);
         assertThat(testUser.getName()).isEqualTo(longName);
@@ -242,9 +241,9 @@ class UserTest {
     @Test
     @DisplayName("Should handle user equality and hash code")
     void shouldHandleUserEqualityAndHashCode() {
-        User user1 = new User(1L, "user@example.com", "User Name");
-        User user2 = new User(1L, "user@example.com", "User Name");
-        User user3 = new User(2L, "other@example.com", "Other Name");
+        final User user1 = new User(1L, "user@example.com", "User Name");
+        final User user2 = new User(1L, "user@example.com", "User Name");
+        final User user3 = new User(2L, "other@example.com", "Other Name");
 
         assertThat(user1).isEqualTo(user2).isNotEqualTo(user3).hasSameHashCodeAs(user2);
         assertThat(user1.hashCode()).isNotEqualTo(user3.hashCode());
@@ -253,7 +252,7 @@ class UserTest {
     @Test
     @DisplayName("Should handle user string representation")
     void shouldHandleUserStringRepresentation() {
-        String userString = testUser.toString();
+        final String userString = testUser.toString();
 
         assertThat(userString).contains("test@example.com").contains("Test User");
     }
@@ -261,7 +260,7 @@ class UserTest {
     @Test
     @DisplayName("Should handle user with maximum allowed values")
     void shouldHandleUserWithMaximumAllowedValues() {
-        String maxName = "A".repeat(120); // Maximum allowed name length
+        final String maxName = "A".repeat(120); // Maximum allowed name length
 
         testUser.setName(maxName);
         assertThat(testUser.getName()).isEqualTo(maxName);
@@ -270,7 +269,7 @@ class UserTest {
     @Test
     @DisplayName("Should handle user with minimum allowed values")
     void shouldHandleUserWithMinimumAllowedValues() {
-        String minName = "A"; // Minimum valid name length
+        final String minName = "A"; // Minimum valid name length
         testUser.setName(minName);
 
         assertThat(testUser.getName()).isEqualTo(minName);
@@ -279,7 +278,7 @@ class UserTest {
     @Test
     @DisplayName("Should handle user creation with null values")
     void shouldHandleUserCreationWithNullValues() {
-        User user = new User();
+        final User user = new User();
         user.setId(1L);
         user.setEmail("user@example.com");
         // Cannot set null name as it throws exception

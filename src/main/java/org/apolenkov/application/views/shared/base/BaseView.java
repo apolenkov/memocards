@@ -17,7 +17,7 @@ public abstract class BaseView extends VerticalLayout implements HasDynamicTitle
      * @return a configured VerticalLayout with centered content alignment
      */
     protected VerticalLayout createCenteredVerticalLayout() {
-        VerticalLayout layout = new VerticalLayout();
+        final VerticalLayout layout = new VerticalLayout();
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         layout.setSizeFull();

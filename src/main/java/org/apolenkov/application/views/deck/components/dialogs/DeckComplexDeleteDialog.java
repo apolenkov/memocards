@@ -84,7 +84,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
         }
 
         configureDialog();
-        VerticalLayout layout = createDialogLayout();
+        final VerticalLayout layout = createDialogLayout();
         add(layout);
         open();
     }
@@ -104,17 +104,17 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured VerticalLayout
      */
     private VerticalLayout createDialogLayout() {
-        VerticalLayout layout = createBaseLayout();
+        final VerticalLayout layout = createBaseLayout();
 
         layout.add(createWarningIcon());
         layout.add(createTitle());
         layout.add(createDescription());
         layout.add(createDeckInfo());
 
-        TextField confirmInput = createConfirmationInput();
+        final TextField confirmInput = createConfirmationInput();
         layout.add(confirmInput);
 
-        HorizontalLayout buttons = createButtons(confirmInput);
+        final HorizontalLayout buttons = createButtons(confirmInput);
         layout.add(buttons);
 
         return layout;
@@ -126,7 +126,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured VerticalLayout
      */
     private VerticalLayout createBaseLayout() {
-        VerticalLayout layout = new VerticalLayout();
+        final VerticalLayout layout = new VerticalLayout();
         layout.setSpacing(true);
         layout.setPadding(true);
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -139,7 +139,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured Div with warning icon
      */
     private Div createWarningIcon() {
-        Div warningIcon = new Div();
+        final Div warningIcon = new Div();
         warningIcon.add(VaadinIcon.WARNING.create());
         warningIcon.addClassName(DeckConstants.DECK_DELETE_CONFIRM_WARNING_ICON_CLASS);
         return warningIcon;
@@ -151,7 +151,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured H3 title
      */
     private H3 createTitle() {
-        H3 title = new H3(getTranslation(DeckConstants.DECK_DELETE_CONFIRM_TITLE));
+        final H3 title = new H3(getTranslation(DeckConstants.DECK_DELETE_CONFIRM_TITLE));
         title.addClassName(DeckConstants.DECK_DELETE_CONFIRM_TITLE_CLASS);
         return title;
     }
@@ -162,7 +162,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured Span description
      */
     private Span createDescription() {
-        Span description = new Span(getTranslation(DeckConstants.DECK_DELETE_CONFIRM_DESCRIPTION));
+        final Span description = new Span(getTranslation(DeckConstants.DECK_DELETE_CONFIRM_DESCRIPTION));
         description.addClassName(DeckConstants.DECK_DELETE_CONFIRM_DESCRIPTION_CLASS);
         return description;
     }
@@ -173,15 +173,15 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured Div with deck info
      */
     private Div createDeckInfo() {
-        Div deckInfoDiv = new Div();
+        final Div deckInfoDiv = new Div();
         deckInfoDiv.addClassName(DeckConstants.DECK_DELETE_CONFIRM_INFO_CLASS);
         deckInfoDiv.addClassName(DeckConstants.GLASS_MD_CLASS);
 
-        Span deckName = new Span(currentDeck.getTitle());
+        final Span deckName = new Span(currentDeck.getTitle());
         deckName.addClassName(DeckConstants.DECK_DELETE_CONFIRM_DECK_NAME_CLASS);
 
-        long actualCardCount = cardUseCase.countByDeckId(currentDeck.getId());
-        Span cardCount = new Span(getTranslation(DeckConstants.DECK_DELETE_CARD_COUNT, actualCardCount));
+        final long actualCardCount = cardUseCase.countByDeckId(currentDeck.getId());
+        final Span cardCount = new Span(getTranslation(DeckConstants.DECK_DELETE_CARD_COUNT, actualCardCount));
         cardCount.addClassName(DeckConstants.DECK_DELETE_CONFIRM_CARD_COUNT_CLASS);
 
         deckInfoDiv.add(deckName, cardCount);
@@ -194,7 +194,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured TextField
      */
     private TextField createConfirmationInput() {
-        TextField confirmInput = new TextField(getTranslation(DeckConstants.DECK_DELETE_CONFIRM_INPUT));
+        final TextField confirmInput = new TextField(getTranslation(DeckConstants.DECK_DELETE_CONFIRM_INPUT));
         confirmInput.setPlaceholder(currentDeck.getTitle());
         confirmInput.setWidthFull();
         confirmInput.setRequired(true);
@@ -208,10 +208,10 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured HorizontalLayout with buttons
      */
     private HorizontalLayout createButtons(final TextField confirmInput) {
-        HorizontalLayout buttons = DialogHelper.createButtonLayout();
+        final HorizontalLayout buttons = DialogHelper.createButtonLayout();
 
-        Button confirmButton = createConfirmButton();
-        Button cancelButton = createCancelButton();
+        final Button confirmButton = createConfirmButton();
+        final Button cancelButton = createCancelButton();
 
         setupInputValidation(confirmInput, confirmButton);
         setupDeletionHandler(confirmButton);
@@ -226,7 +226,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * @return configured Button (initially disabled)
      */
     private Button createConfirmButton() {
-        Button confirmButton = ButtonHelper.createButton(
+        final Button confirmButton = ButtonHelper.createButton(
                 getTranslation(DeckConstants.DECK_DELETE_CONFIRM),
                 VaadinIcon.TRASH,
                 e -> {
@@ -284,7 +284,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
             handleSuccessfulDeletion();
         } catch (IllegalArgumentException ex) {
             handleValidationError();
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
             handleDeletionError(ex);
         }
     }

@@ -3,6 +3,7 @@ package org.apolenkov.application.views.deck.pages;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -103,7 +104,7 @@ public class DeckView extends Composite<VerticalLayout>
         getContent().setWidthFull();
 
         // Create content layout with same structure as DecksView
-        VerticalLayout content = new VerticalLayout();
+        final VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         content.setPadding(true);
         content.setSpacing(true);
@@ -275,7 +276,7 @@ public class DeckView extends Composite<VerticalLayout>
     @Override
     public void setParameter(final BeforeEvent event, final String parameter) {
         try {
-            long deckId = Long.parseLong(parameter);
+            final long deckId = Long.parseLong(parameter);
             loadDeck(deckId);
         } catch (NumberFormatException e) {
             LOGGER.warn("Invalid deck ID parameter: {}", parameter);
@@ -295,7 +296,7 @@ public class DeckView extends Composite<VerticalLayout>
     private void showLoadingState(final VerticalLayout contentContainer) {
         contentContainer.removeAll();
 
-        VerticalLayout loadingContainer = new VerticalLayout();
+        final VerticalLayout loadingContainer = new VerticalLayout();
         loadingContainer.setSpacing(true);
         loadingContainer.setWidthFull();
         loadingContainer.addClassName(DeckConstants.CONTAINER_MD_CLASS);
@@ -303,7 +304,7 @@ public class DeckView extends Composite<VerticalLayout>
         loadingContainer.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
         loadingContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        VerticalLayout loadingSection = new VerticalLayout();
+        final VerticalLayout loadingSection = new VerticalLayout();
         loadingSection.setSpacing(true);
         loadingSection.setPadding(true);
         loadingSection.setWidthFull();
@@ -311,7 +312,7 @@ public class DeckView extends Composite<VerticalLayout>
         loadingSection.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
         loadingSection.addClassName(DeckConstants.CONTAINER_MD_CLASS);
 
-        H2 loadingTitle = new H2(getTranslation(DeckConstants.DECK_LOADING_STATE));
+        final H2 loadingTitle = new H2(getTranslation(DeckConstants.DECK_LOADING_STATE));
         loadingTitle.addClassName(DeckConstants.DECK_VIEW_TITLE_CLASS);
 
         loadingSection.add(loadingTitle);
@@ -326,7 +327,7 @@ public class DeckView extends Composite<VerticalLayout>
      */
     private void createDeckContent() {
         // Get the content container from init()
-        VerticalLayout contentContainer =
+        final VerticalLayout contentContainer =
                 (VerticalLayout) getContent().getChildren().findFirst().orElse(null);
         if (contentContainer == null) {
             return;
@@ -335,7 +336,7 @@ public class DeckView extends Composite<VerticalLayout>
         contentContainer.removeAll();
 
         // Main content container with same structure as DeckContainer
-        VerticalLayout deckContainer = new VerticalLayout();
+        final VerticalLayout deckContainer = new VerticalLayout();
         deckContainer.setSpacing(true);
         deckContainer.setAlignItems(FlexComponent.Alignment.CENTER);
         deckContainer.setWidthFull();
@@ -369,7 +370,7 @@ public class DeckView extends Composite<VerticalLayout>
      * @throws EntityNotFoundException if deck is not found
      */
     private void loadDeck(final long deckId) {
-        Optional<Deck> deckOpt = deckUseCase.getDeckById(deckId);
+        final Optional<Deck> deckOpt = deckUseCase.getDeckById(deckId);
         if (deckOpt.isPresent()) {
             currentDeck = deckOpt.get();
             LOGGER.info("Deck loaded successfully: {}", currentDeck.getTitle());
@@ -395,12 +396,12 @@ public class DeckView extends Composite<VerticalLayout>
         if (currentDeck != null && detailHeader != null) {
             detailHeader.setDeckTitle(currentDeck.getTitle());
             // Format: (description) + card count
-            String description = Optional.ofNullable(currentDeck.getDescription())
-                    .filter(desc -> !desc.trim().isEmpty())
+            final String description = Optional.ofNullable(currentDeck.getDescription())
+                    .filter(desc -> !desc.isBlank())
                     .orElse("");
 
-            long count = cardUseCase.countByDeckId(currentDeck.getId());
-            String statsText = description.isEmpty()
+            final long count = cardUseCase.countByDeckId(currentDeck.getId());
+            final String statsText = description.isEmpty()
                     ? getTranslation(DeckConstants.DECK_COUNT, count)
                     : String.format("(%s) %s", description, getTranslation(DeckConstants.DECK_COUNT_SHORT, count));
 
@@ -416,7 +417,7 @@ public class DeckView extends Composite<VerticalLayout>
      * @param card the card to edit, or null for creating new
      */
     private void openCardDialog(final Card card) {
-        DeckCardDialog dialog = new DeckCardDialog(cardUseCase, currentDeck, savedCard -> {
+        final DeckCardDialog dialog = new DeckCardDialog(cardUseCase, currentDeck, savedCard -> {
             // Refresh grid data to reflect changes
             if (cardContainer != null) {
                 if (card == null) {
@@ -443,7 +444,7 @@ public class DeckView extends Composite<VerticalLayout>
      * @param card the card to delete
      */
     private void deleteCard(final Card card) {
-        DeckCardDeleteDialog dialog = new DeckCardDeleteDialog(cardUseCase, card, deletedCardId -> {
+        final DeckCardDeleteDialog dialog = new DeckCardDeleteDialog(cardUseCase, card, deletedCardId -> {
             // Refresh grid data to reflect deletion, STAY on current page
             // (User convenience: don't reset to page 1 after deleting)
             if (cardContainer != null) {
@@ -466,7 +467,7 @@ public class DeckView extends Composite<VerticalLayout>
             return;
         }
 
-        DeckDeleteDialog dialog = new DeckDeleteDialog(
+        final DeckDeleteDialog dialog = new DeckDeleteDialog(
                 deckUseCase,
                 cardUseCase,
                 currentDeck,
@@ -479,8 +480,7 @@ public class DeckView extends Composite<VerticalLayout>
      * Shows confirmation dialog before resetting progress.
      */
     private void showResetConfirmationDialog() {
-        com.vaadin.flow.component.confirmdialog.ConfirmDialog dialog =
-                new com.vaadin.flow.component.confirmdialog.ConfirmDialog();
+        final ConfirmDialog dialog = new ConfirmDialog();
 
         dialog.setHeader(getTranslation("deck.reset.confirm.title"));
         dialog.setText(getTranslation("deck.reset.confirm.message"));

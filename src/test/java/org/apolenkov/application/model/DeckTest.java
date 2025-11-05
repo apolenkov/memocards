@@ -24,7 +24,7 @@ class DeckTest {
     @Test
     @DisplayName("Should create deck with valid parameters")
     void shouldCreateDeckWithValidParameters() {
-        Deck deck = Deck.create(1L, "Valid Title", "Valid Description");
+        final Deck deck = Deck.create(1L, "Valid Title", "Valid Description");
 
         assertThat(deck).isNotNull();
         assertThat(deck.getUserId()).isEqualTo(1L);
@@ -69,7 +69,7 @@ class DeckTest {
     @Test
     @DisplayName("Should handle null description")
     void shouldHandleNullDescription() {
-        Deck deck = Deck.create(1L, "Valid Title", null);
+        final Deck deck = Deck.create(1L, "Valid Title", null);
 
         assertThat(deck.getDescription()).isNull();
     }
@@ -77,7 +77,7 @@ class DeckTest {
     @Test
     @DisplayName("Should trim title and description")
     void shouldTrimTitleAndDescription() {
-        Deck deck = Deck.create(1L, "  Title  ", "  Description  ");
+        final Deck deck = Deck.create(1L, "  Title  ", "  Description  ");
 
         assertThat(deck.getTitle()).isEqualTo("Title");
         assertThat(deck.getDescription()).isEqualTo("Description");
@@ -115,9 +115,9 @@ class DeckTest {
     @Test
     @DisplayName("Should handle removing non-existent card")
     void shouldHandleRemovingNonExistentCard() {
-        Card nonExistentCard = new Card(999L, 1L, "Question", "Answer");
+        final Card nonExistentCard = new Card(999L, 1L, "Question", "Answer");
         testDeck.addCard(testCard);
-        int initialCount = testDeck.getCardCount();
+        final int initialCount = testDeck.getCardCount();
 
         testDeck.removeCard(nonExistentCard);
 
@@ -139,8 +139,8 @@ class DeckTest {
     @Test
     @DisplayName("Should update title")
     void shouldUpdateTitle() {
-        String newTitle = "Updated Title";
-        LocalDateTime originalUpdatedAt = testDeck.getUpdatedAt();
+        final String newTitle = "Updated Title";
+        final LocalDateTime originalUpdatedAt = testDeck.getUpdatedAt();
 
         testDeck.setTitle(newTitle);
 
@@ -151,8 +151,8 @@ class DeckTest {
     @Test
     @DisplayName("Should update description")
     void shouldUpdateDescription() {
-        String newDescription = "Updated Description";
-        LocalDateTime originalUpdatedAt = testDeck.getUpdatedAt();
+        final String newDescription = "Updated Description";
+        final LocalDateTime originalUpdatedAt = testDeck.getUpdatedAt();
 
         testDeck.setDescription(newDescription);
 
@@ -170,13 +170,13 @@ class DeckTest {
     @Test
     @DisplayName("Should maintain card order")
     void shouldMaintainCardOrder() {
-        Card card1 = new Card(1L, 1L, "Front 1", "Back 1");
-        Card card2 = new Card(2L, 1L, "Front 2", "Back 2");
+        final Card card1 = new Card(1L, 1L, "Front 1", "Back 1");
+        final Card card2 = new Card(2L, 1L, "Front 2", "Back 2");
 
         testDeck.addCard(card1);
         testDeck.addCard(card2);
 
-        List<Card> cards = testDeck.getCards();
+        final List<Card> cards = testDeck.getCards();
         assertThat(cards).hasSize(2);
         assertThat(cards.getFirst()).isEqualTo(card1);
         assertThat(cards.get(1)).isEqualTo(card2);
@@ -185,9 +185,9 @@ class DeckTest {
     @Test
     @DisplayName("Should handle deck with multiple cards")
     void shouldHandleDeckWithMultipleCards() {
-        Card card1 = new Card(1L, 1L, "Front 1", "Back 1");
-        Card card2 = new Card(2L, 1L, "Front 2", "Back 2");
-        Card card3 = new Card(3L, 1L, "Front 3", "Back 3");
+        final Card card1 = new Card(1L, 1L, "Front 1", "Back 1");
+        final Card card2 = new Card(2L, 1L, "Front 2", "Back 2");
+        final Card card3 = new Card(3L, 1L, "Front 3", "Back 3");
 
         testDeck.addCard(card1);
         testDeck.addCard(card2);
@@ -200,7 +200,7 @@ class DeckTest {
     @Test
     @DisplayName("Should handle deck with null cards list")
     void shouldHandleDeckWithNullCardsList() {
-        Deck deck = new Deck();
+        final Deck deck = new Deck();
         deck.setCards(null);
 
         assertThat(deck.getCardCount()).isZero();
@@ -211,13 +211,13 @@ class DeckTest {
     @DisplayName("Should validate deck constraints")
     void shouldValidateDeckConstraints() {
         // Test title length constraint - @Size(max = 120) is JPA validation, not runtime
-        String longTitle = "A".repeat(121);
+        final String longTitle = "A".repeat(121);
         // This should not throw exception as @Size is JPA validation, not runtime validation
         testDeck.setTitle(longTitle);
         assertThat(testDeck.getTitle()).isEqualTo(longTitle);
 
         // Test description length constraint - @Size(max = 500) is JPA validation, not runtime
-        String longDescription = "A".repeat(501);
+        final String longDescription = "A".repeat(501);
         // This should not throw exception as @Size is JPA validation, not runtime validation
         testDeck.setDescription(longDescription);
         assertThat(testDeck.getDescription()).isEqualTo(longDescription);
@@ -226,8 +226,8 @@ class DeckTest {
     @Test
     @DisplayName("Should handle deck with special characters")
     void shouldHandleDeckWithSpecialCharacters() {
-        String specialTitle = "Deck with special chars: @#$%^&*()";
-        Deck deck = Deck.create(1L, specialTitle, "Description");
+        final String specialTitle = "Deck with special chars: @#$%^&*()";
+        final Deck deck = Deck.create(1L, specialTitle, "Description");
 
         assertThat(deck.getTitle()).isEqualTo(specialTitle);
     }
@@ -235,8 +235,8 @@ class DeckTest {
     @Test
     @DisplayName("Should handle deck with unicode characters")
     void shouldHandleDeckWithUnicodeCharacters() {
-        String unicodeTitle = "Deck with unicode characters: 你好世界";
-        Deck deck = Deck.create(1L, unicodeTitle, "Test description");
+        final String unicodeTitle = "Deck with unicode characters: 你好世界";
+        final Deck deck = Deck.create(1L, unicodeTitle, "Test description");
 
         assertThat(deck.getTitle()).isEqualTo(unicodeTitle);
     }
@@ -244,9 +244,9 @@ class DeckTest {
     @Test
     @DisplayName("Should handle deck equality and hash code")
     void shouldHandleDeckEqualityAndHashCode() {
-        Deck deck1 = new Deck(1L, 1L, "Title", "Description");
-        Deck deck2 = new Deck(1L, 1L, "Title", "Description");
-        Deck deck3 = new Deck(2L, 1L, "Title", "Description");
+        final Deck deck1 = new Deck(1L, 1L, "Title", "Description");
+        final Deck deck2 = new Deck(1L, 1L, "Title", "Description");
+        final Deck deck3 = new Deck(2L, 1L, "Title", "Description");
 
         assertThat(deck1).isEqualTo(deck2).isNotEqualTo(deck3).hasSameHashCodeAs(deck2);
         assertThat(deck1.hashCode()).isNotEqualTo(deck3.hashCode());
@@ -255,7 +255,7 @@ class DeckTest {
     @Test
     @DisplayName("Should handle deck string representation")
     void shouldHandleDeckStringRepresentation() {
-        String deckString = testDeck.toString();
+        final String deckString = testDeck.toString();
 
         assertThat(deckString)
                 .contains("Test Deck")
@@ -266,8 +266,8 @@ class DeckTest {
     @Test
     @DisplayName("Should handle deck with maximum allowed values")
     void shouldHandleDeckWithMaximumAllowedValues() {
-        String maxTitle = "A".repeat(120); // Maximum allowed title length
-        String maxDescription = "A".repeat(500); // Maximum allowed description length
+        final String maxTitle = "A".repeat(120); // Maximum allowed title length
+        final String maxDescription = "A".repeat(500); // Maximum allowed description length
 
         testDeck.setTitle(maxTitle);
         testDeck.setDescription(maxDescription);
@@ -279,7 +279,7 @@ class DeckTest {
     @Test
     @DisplayName("Should handle deck with minimum allowed values")
     void shouldHandleDeckWithMinimumAllowedValues() {
-        String minTitle = "A"; // Minimum valid title length
+        final String minTitle = "A"; // Minimum valid title length
         testDeck.setTitle(minTitle);
 
         assertThat(testDeck.getTitle()).isEqualTo(minTitle);
@@ -288,7 +288,7 @@ class DeckTest {
     @Test
     @DisplayName("Should handle deck creation with null values")
     void shouldHandleDeckCreationWithNullValues() {
-        Deck deck = new Deck();
+        final Deck deck = new Deck();
         deck.setId(1L);
         deck.setUserId(1L);
         deck.setTitle("Valid Title");

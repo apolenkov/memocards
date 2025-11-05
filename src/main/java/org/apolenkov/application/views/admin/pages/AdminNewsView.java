@@ -67,7 +67,6 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
      * Sets up layout, creates components, configures event listeners, and loads data.
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     private void init() {
         // Configure main view layout
         setPadding(false);
@@ -75,7 +74,7 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
         addClassName(AdminConstants.ADMIN_CONTENT_VIEW_CLASS);
 
         // Create content layout
-        VerticalLayout content = new VerticalLayout();
+        final VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         content.setPadding(true);
         content.setSpacing(true);
@@ -117,7 +116,7 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
      * @param news the news item to edit, or null for creating new news
      */
     private void showNewsDialog(final News news) {
-        AdminNewsDialog dialog = new AdminNewsDialog(news, formData -> {
+        final AdminNewsDialog dialog = new AdminNewsDialog(news, formData -> {
             if (formData.id() == null) {
                 createNews(formData.title(), formData.content(), formData.author());
             } else {
@@ -139,7 +138,7 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
         try {
             newsService.createNews(title, content, author);
             NotificationHelper.showSuccess(getTranslation(AdminConstants.ADMIN_NEWS_CREATED_KEY));
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             NotificationHelper.showError(getTranslation(AdminConstants.ADMIN_NEWS_ERROR_CREATE_KEY, e.getMessage()));
         }
     }
@@ -156,7 +155,7 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
         try {
             newsService.updateNews(id, title, content, author);
             NotificationHelper.showSuccess(getTranslation(AdminConstants.ADMIN_NEWS_UPDATED_KEY));
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             NotificationHelper.showError(getTranslation(AdminConstants.ADMIN_NEWS_ERROR_UPDATE_KEY, e.getMessage()));
         }
     }
@@ -167,12 +166,12 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
      * @param news the news article to delete
      */
     private void deleteNews(final News news) {
-        AdminNewsDeleteDialog dialog = new AdminNewsDeleteDialog(news, () -> {
+        final AdminNewsDeleteDialog dialog = new AdminNewsDeleteDialog(news, () -> {
             try {
                 newsService.deleteNews(news.getId());
                 refreshNews("");
                 NotificationHelper.showSuccess(getTranslation(AdminConstants.ADMIN_NEWS_DELETED_KEY));
-            } catch (Exception ex) {
+            } catch (RuntimeException ex) {
                 NotificationHelper.showError(
                         getTranslation(AdminConstants.ADMIN_NEWS_ERROR_DELETE_KEY, ex.getMessage()));
             }
@@ -206,7 +205,7 @@ public class AdminNewsView extends BaseView implements AfterNavigationObserver {
             return allNews;
         }
 
-        String lowerQuery = query.toLowerCase(Locale.ROOT);
+        final String lowerQuery = query.toLowerCase(Locale.ROOT);
         return allNews.stream().filter(news -> matchesQuery(news, lowerQuery)).toList();
     }
 

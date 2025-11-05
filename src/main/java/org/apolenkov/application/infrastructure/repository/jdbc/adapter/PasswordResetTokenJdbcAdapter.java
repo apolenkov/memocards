@@ -25,7 +25,7 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
     private final JdbcTemplate jdbcTemplate;
 
     private static final RowMapper<PasswordResetToken> PASSWORD_RESET_TOKEN_ROW_MAPPER = (rs, rowNum) -> {
-        PasswordResetToken token = new PasswordResetToken();
+        final PasswordResetToken token = new PasswordResetToken();
         token.setId(rs.getLong("id"));
         token.setToken(rs.getString("token"));
         token.setUserId(rs.getLong("user_id"));
@@ -81,7 +81,7 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
     public Optional<PasswordResetToken> findByToken(final String token) {
         LOGGER.debug("Finding password reset token: {}", token);
         try {
-            PasswordResetToken resetToken = jdbcTemplate.queryForObject(
+            final PasswordResetToken resetToken = jdbcTemplate.queryForObject(
                     PasswordResetTokenSqlQueries.SELECT_BY_TOKEN, PASSWORD_RESET_TOKEN_ROW_MAPPER, token);
             return Optional.ofNullable(resetToken);
         } catch (DataAccessException e) {
@@ -101,7 +101,7 @@ public class PasswordResetTokenJdbcAdapter implements PasswordResetTokenReposito
     public Optional<PasswordResetToken> findByUserIdAndNotUsed(final long userId) {
         LOGGER.debug("Finding unused password reset token for user ID: {}", userId);
         try {
-            PasswordResetToken resetToken = jdbcTemplate.queryForObject(
+            final PasswordResetToken resetToken = jdbcTemplate.queryForObject(
                     PasswordResetTokenSqlQueries.SELECT_BY_USER_ID_NOT_USED, PASSWORD_RESET_TOKEN_ROW_MAPPER, userId);
             return Optional.ofNullable(resetToken);
         } catch (DataAccessException e) {

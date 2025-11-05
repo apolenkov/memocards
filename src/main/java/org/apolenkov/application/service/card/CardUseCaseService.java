@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apolenkov.application.domain.constants.BusinessConstants;
 import org.apolenkov.application.domain.model.FilterOption;
 import org.apolenkov.application.domain.port.CardRepository;
 import org.apolenkov.application.domain.usecase.CardUseCase;
@@ -26,7 +27,6 @@ public class CardUseCaseService implements CardUseCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CardUseCaseService.class);
     private static final Logger AUDIT_LOGGER = LoggerFactory.getLogger("org.apolenkov.application.audit");
-    private static final int MAX_LOG_TEXT_LENGTH = 50;
     private static final String CACHE_TYPE = "pagination-count";
 
     // ==================== Fields ====================
@@ -104,16 +104,16 @@ public class CardUseCaseService implements CardUseCase {
     public void saveCard(final Card card) {
         LOGGER.debug("Saving card: frontText='{}', deckId={}", card.getFrontText(), card.getDeckId());
 
-        var violations = validator.validate(card);
+        final var violations = validator.validate(card);
         if (!violations.isEmpty()) {
-            String message = violations.stream()
+            final String message = violations.stream()
                     .map(v -> v.getPropertyPath() + CoreConstants.SEPARATOR_SPACE + v.getMessage())
                     .collect(Collectors.joining(", "));
             LOGGER.warn("Card validation failed: {}", message);
             throw new IllegalArgumentException("Validation failed: " + message);
         }
 
-        boolean isNew = card.getId() == null;
+        final boolean isNew = card.getId() == null;
         cardRepository.save(card);
 
         // Invalidate pagination count cache for this deck
@@ -121,12 +121,12 @@ public class CardUseCaseService implements CardUseCase {
         LOGGER.debug("Pagination count cache invalidated after save for deckId={}", card.getDeckId());
 
         // Publish cache invalidation event for metrics
-        CacheInvalidationEvent event =
+        final CacheInvalidationEvent event =
                 CacheInvalidationEvent.of(CACHE_TYPE, card.getDeckId(), isNew ? "card-created" : "card-updated");
         eventPublisher.publishEvent(event);
 
         // Audit log with explicit action (truncate frontText for readability)
-        String frontTextTruncated = truncate(card.getFrontText());
+        final String frontTextTruncated = truncate(card.getFrontText());
         if (isNew) {
             AUDIT_LOGGER.info(
                     "Card created: cardId={}, deckId={}, front='{}'",
@@ -157,7 +157,7 @@ public class CardUseCaseService implements CardUseCase {
 
         // Get card info before deletion for audit logging and cache invalidation
         cardRepository.findById(id).ifPresent(card -> {
-            String frontTextTruncated = truncate(card.getFrontText());
+            final String frontTextTruncated = truncate(card.getFrontText());
             AUDIT_LOGGER.warn(
                     "Card deleted: cardId={}, deckId={}, front='{}'", id, card.getDeckId(), frontTextTruncated);
 
@@ -166,7 +166,8 @@ public class CardUseCaseService implements CardUseCase {
             LOGGER.debug("Pagination count cache invalidated after delete for deckId={}", card.getDeckId());
 
             // Publish cache invalidation event for metrics
-            CacheInvalidationEvent event = CacheInvalidationEvent.of(CACHE_TYPE, card.getDeckId(), "card-deleted");
+            final CacheInvalidationEvent event =
+                    CacheInvalidationEvent.of(CACHE_TYPE, card.getDeckId(), "card-deleted");
             eventPublisher.publishEvent(event);
         });
 
@@ -202,7 +203,7 @@ public class CardUseCaseService implements CardUseCase {
         }
 
         LOGGER.debug("Batch counting cards for {} decks", deckIds.size());
-        Map<Long, Long> counts = cardRepository.countByDeckIds(deckIds);
+        final Map<Long, Long> counts = cardRepository.countByDeckIds(deckIds);
         LOGGER.debug("Batch count completed: {} decks have cards", counts.size());
 
         return counts;
@@ -216,9 +217,9 @@ public class CardUseCaseService implements CardUseCase {
      * @return truncated text or original if shorter than maxLength
      */
     private static String truncate(final String text) {
-        if (text == null || text.length() <= MAX_LOG_TEXT_LENGTH) {
+        if (text == null || text.length() <= BusinessConstants.MAX_LOG_TEXT_LENGTH) {
             return text;
         }
-        return text.substring(0, MAX_LOG_TEXT_LENGTH - 3) + "...";
+        return text.substring(0, BusinessConstants.MAX_LOG_TEXT_LENGTH - 3) + "...";
     }
 }

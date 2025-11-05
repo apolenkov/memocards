@@ -112,13 +112,13 @@ public class ApplicationInitializer implements CommandLineRunner {
     private void validateDatabaseConnection() {
         LOGGER.debug("Validating database connection...");
         try {
-            Integer result = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
+            final Integer result = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
             if (result != null && result == 1) {
                 LOGGER.info("Database connection validated successfully");
             } else {
                 throw new IllegalStateException("Database validation failed: unexpected result");
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             throw new IllegalStateException("Database connection validation failed", e);
         }
     }
@@ -130,11 +130,11 @@ public class ApplicationInitializer implements CommandLineRunner {
         LOGGER.debug("Validating application configuration...");
 
         // Check required properties
-        String[] requiredProperties = {"spring.datasource.url", "spring.datasource.username"};
+        final String[] requiredProperties = {"spring.datasource.url", "spring.datasource.username"};
 
-        for (String property : requiredProperties) {
-            String value = environment.getProperty(property);
-            if (value == null || value.trim().isEmpty()) {
+        for (final String property : requiredProperties) {
+            final String value = environment.getProperty(property);
+            if (value == null || value.isBlank()) {
                 throw new IllegalStateException("Required property not set: " + property);
             }
         }

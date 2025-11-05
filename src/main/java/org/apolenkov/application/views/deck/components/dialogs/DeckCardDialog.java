@@ -131,7 +131,7 @@ public final class DeckCardDialog extends Dialog {
         createForm();
 
         // Set dialog title
-        H3 title = new H3(
+        final H3 title = new H3(
                 card == null
                         ? getTranslation(DeckConstants.DECK_CARD_ADD_TITLE)
                         : getTranslation(DeckConstants.DECK_CARD_EDIT_TITLE));
@@ -140,7 +140,7 @@ public final class DeckCardDialog extends Dialog {
         populateForm(card);
 
         // Create dialog layout
-        VerticalLayout dialogLayout = new VerticalLayout();
+        final VerticalLayout dialogLayout = new VerticalLayout();
         dialogLayout.add(title, formLayout, createButtonsLayout());
 
         // No removeAll() needed - dialog is fresh from constructor
@@ -178,8 +178,8 @@ public final class DeckCardDialog extends Dialog {
      * Handles saving the card after form validation.
      */
     private void handleSave() {
-        String frontText = ValidationHelper.safeTrimToEmpty(frontTextField.getValue());
-        String backText = ValidationHelper.safeTrimToEmpty(backTextField.getValue());
+        final String frontText = ValidationHelper.safeTrimToEmpty(frontTextField.getValue());
+        final String backText = ValidationHelper.safeTrimToEmpty(backTextField.getValue());
 
         if (ValidationHelper.validateRequiredSimple(
                 frontTextField, frontText, getTranslation(DeckConstants.FILL_REQUIRED_KEY))) {
@@ -191,12 +191,12 @@ public final class DeckCardDialog extends Dialog {
         }
 
         try {
-            Card card = prepareCard(frontText, backText);
+            final Card card = prepareCard(frontText, backText);
             cardUseCase.saveCard(card);
 
             notifyParentAndClose(card);
 
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
             handleSaveError(ex);
         }
     }
@@ -210,7 +210,7 @@ public final class DeckCardDialog extends Dialog {
      * @return prepared card
      */
     private Card prepareCard(final String frontText, final String backText) {
-        Card card = editingCard != null ? editingCard : new Card();
+        final Card card = editingCard != null ? editingCard : new Card();
 
         if (editingCard == null) {
             card.setDeckId(currentDeck.getId());
@@ -242,8 +242,8 @@ public final class DeckCardDialog extends Dialog {
      * Shows success message based on action type.
      */
     private void showSuccessMessage() {
-        boolean isEditing = editingCard != null;
-        String message = isEditing
+        final boolean isEditing = editingCard != null;
+        final String message = isEditing
                 ? getTranslation(DeckConstants.DECK_CARD_UPDATED)
                 : getTranslation(DeckConstants.DECK_CARD_ADDED);
         NotificationHelper.showSuccessBottom(message);
@@ -265,15 +265,15 @@ public final class DeckCardDialog extends Dialog {
      * @return the horizontal layout containing buttons
      */
     private HorizontalLayout createButtonsLayout() {
-        HorizontalLayout buttonsLayout = DialogHelper.createButtonLayout();
+        final HorizontalLayout buttonsLayout = DialogHelper.createButtonLayout();
 
-        Button saveButton = ButtonHelper.createButton(
+        final Button saveButton = ButtonHelper.createButton(
                 getTranslation(DeckConstants.DIALOG_SAVE),
                 VaadinIcon.CHECK,
                 e -> handleSave(),
                 ButtonVariant.LUMO_PRIMARY);
 
-        Button cancelButton = ButtonHelper.createButton(
+        final Button cancelButton = ButtonHelper.createButton(
                 getTranslation(DeckConstants.COMMON_CANCEL), e -> close(), ButtonVariant.LUMO_TERTIARY);
 
         buttonsLayout.add(saveButton, cancelButton);

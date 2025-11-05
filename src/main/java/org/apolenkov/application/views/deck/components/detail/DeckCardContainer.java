@@ -56,7 +56,7 @@ public final class DeckCardContainer extends Composite<VerticalLayout> {
 
     @Override
     protected VerticalLayout initContent() {
-        VerticalLayout grid = new VerticalLayout();
+        final VerticalLayout grid = new VerticalLayout();
         grid.setPadding(false);
         grid.setSpacing(true);
         grid.setWidthFull();
@@ -219,7 +219,7 @@ public final class DeckCardContainer extends Composite<VerticalLayout> {
      * @param callback the callback to execute when filter value changes
      * @return registration for removing the listener
      */
-    public Registration addFilterChangeListener(final java.util.function.Consumer<FilterOption> callback) {
+    public Registration addFilterChangeListener(final Consumer<FilterOption> callback) {
         return searchControls.addFilterChangeListener(callback);
     }
 
@@ -234,7 +234,7 @@ public final class DeckCardContainer extends Composite<VerticalLayout> {
         container.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Search controls row
-        HorizontalLayout controlsRow = new HorizontalLayout();
+        final HorizontalLayout controlsRow = new HorizontalLayout();
         controlsRow.setWidthFull();
         controlsRow.setAlignItems(FlexComponent.Alignment.CENTER);
         controlsRow.setSpacing(true);

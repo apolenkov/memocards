@@ -12,6 +12,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.config.constants.RouteConstants;
+import org.apolenkov.application.domain.constants.BusinessConstants;
 import org.apolenkov.application.service.user.RegistrationService;
 import org.apolenkov.application.views.auth.constants.AuthConstants;
 import org.apolenkov.application.views.auth.utils.PasswordValidator;
@@ -75,29 +76,28 @@ public class RegisterView extends BaseView {
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     private void init() {
-        VerticalLayout wrapper = createCenteredVerticalLayout();
+        final VerticalLayout wrapper = createCenteredVerticalLayout();
 
-        Div formContainer = new Div();
+        final Div formContainer = new Div();
         formContainer.addClassName(AuthConstants.REGISTER_FORM_CLASS);
         formContainer.addClassName(AuthConstants.AUTH_FORM_CLASS);
         formContainer.addClassName(AuthConstants.SURFACE_PANEL_CLASS);
 
-        Div titleDiv = new Div();
+        final Div titleDiv = new Div();
         titleDiv.addClassName(AuthConstants.REGISTER_FORM_TITLE_CONTAINER_CLASS);
 
-        Div title = new Div();
+        final Div title = new Div();
         title.setText(getTranslation(AuthConstants.AUTH_REGISTER_TITLE_KEY));
         title.addClassName(AuthConstants.REGISTER_FORM_TITLE_CLASS);
         titleDiv.add(title);
 
-        FormLayout form = createForm();
-        Button submit = createSubmitButton();
-        Button backToHome = createBackToHomeButton();
+        final FormLayout form = createForm();
+        final Button submit = createSubmitButton();
+        final Button backToHome = createBackToHomeButton();
 
         // Add spacing between form and submit button
-        Div spacing = new Div();
+        final Div spacing = new Div();
         spacing.addClassName(AuthConstants.FORM_SPACING_CLASS);
 
         formContainer.add(titleDiv, form, spacing, submit, backToHome);
@@ -111,7 +111,7 @@ public class RegisterView extends BaseView {
      * @return configured FormLayout with all registration input fields
      */
     private FormLayout createForm() {
-        FormLayout form = new FormLayout();
+        final FormLayout form = new FormLayout();
         form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("600px", 2));
 
         name = new TextField(getTranslation(AuthConstants.AUTH_NAME_KEY));
@@ -147,7 +147,7 @@ public class RegisterView extends BaseView {
      * @return configured submit Button with registration event handler
      */
     private Button createSubmitButton() {
-        Button submit = ButtonHelper.createPrimaryButton(
+        final Button submit = ButtonHelper.createPrimaryButton(
                 getTranslation(AuthConstants.AUTH_REGISTER_KEY), e -> handleRegistration());
         submit.setWidthFull();
         return submit;
@@ -162,7 +162,7 @@ public class RegisterView extends BaseView {
      * @return configured tertiary Button that navigates to home page
      */
     private Button createBackToHomeButton() {
-        Button backToHome = ButtonHelper.createTertiaryButton(
+        final Button backToHome = ButtonHelper.createTertiaryButton(
                 getTranslation(AuthConstants.COMMON_BACK_TO_HOME_KEY), e -> NavigationHelper.navigateToHome());
         backToHome.setWidthFull();
         return backToHome;
@@ -204,10 +204,10 @@ public class RegisterView extends BaseView {
      * @return true if all form fields are valid, false otherwise
      */
     private boolean validateForm() {
-        boolean nameValid = validateName();
-        boolean emailValid = validateEmail();
-        boolean passwordValid = validatePassword();
-        boolean confirmValid = validatePasswordConfirmation();
+        final boolean nameValid = validateName();
+        final boolean emailValid = validateEmail();
+        final boolean passwordValid = validatePassword();
+        final boolean confirmValid = validatePasswordConfirmation();
 
         return nameValid && emailValid && passwordValid && confirmValid;
     }
@@ -221,14 +221,14 @@ public class RegisterView extends BaseView {
      * @return true if name is valid, false otherwise
      */
     private boolean validateName() {
-        String vName = ValidationHelper.getTrimmedValue(name);
+        final String vName = ValidationHelper.getTrimmedValue(name);
 
         if (vName.isEmpty()) {
             ValidationHelper.setFieldError(name, AuthConstants.VALIDATION_NAME_REQUIRED_KEY, this::getTranslation);
             return false;
         }
 
-        if (vName.length() < 2) {
+        if (vName.length() < BusinessConstants.NAME_MIN_LENGTH) {
             ValidationHelper.setFieldError(name, AuthConstants.VALIDATION_NAME_MIN2_KEY, this::getTranslation);
             return false;
         }
@@ -245,14 +245,14 @@ public class RegisterView extends BaseView {
      * @return true if email is valid, false otherwise
      */
     private boolean validateEmail() {
-        String vEmail = ValidationHelper.getTrimmedValue(email);
+        final String vEmail = ValidationHelper.getTrimmedValue(email);
 
         if (vEmail.isEmpty()) {
             ValidationHelper.setFieldError(email, AuthConstants.VALIDATION_EMAIL_REQUIRED_KEY, this::getTranslation);
             return false;
         }
 
-        EmailValidator validator = new EmailValidator(getTranslation(AuthConstants.VALIDATION_EMAIL_INVALID_KEY));
+        final EmailValidator validator = new EmailValidator(getTranslation(AuthConstants.VALIDATION_EMAIL_INVALID_KEY));
         if (validator.apply(vEmail, null).isError()) {
             ValidationHelper.setFieldError(email, AuthConstants.VALIDATION_EMAIL_INVALID_KEY, this::getTranslation);
             return false;
@@ -269,7 +269,7 @@ public class RegisterView extends BaseView {
      * @return true if password is valid, false otherwise
      */
     private boolean validatePassword() {
-        String vPwd = password.getValue() == null ? "" : password.getValue();
+        final String vPwd = password.getValue() == null ? "" : password.getValue();
 
         if (PasswordValidator.isInvalid(vPwd)) {
             ValidationHelper.setFieldError(
@@ -289,8 +289,8 @@ public class RegisterView extends BaseView {
      * @return true if passwords match, false otherwise
      */
     private boolean validatePasswordConfirmation() {
-        String vPwd = password.getValue() == null ? "" : password.getValue();
-        String vConfirm = confirm.getValue() == null ? "" : confirm.getValue();
+        final String vPwd = password.getValue() == null ? "" : password.getValue();
+        final String vConfirm = confirm.getValue() == null ? "" : confirm.getValue();
 
         if (!vPwd.equals(vConfirm)) {
             ValidationHelper.setFieldError(
@@ -309,14 +309,14 @@ public class RegisterView extends BaseView {
      * navigates to either the decks page (success) or login page (failure).
      */
     private void performRegistration() {
-        String vEmail = email.getValue().trim();
-        String vPwd = password.getValue();
+        final String vEmail = email.getValue().trim();
+        final String vPwd = password.getValue();
 
         try {
             registerUser(vEmail, vPwd);
             NotificationHelper.showSuccess(getTranslation(AuthConstants.AUTH_REGISTER_SUCCESS_KEY));
             NavigationHelper.navigateToLogin();
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
             NotificationHelper.showError(getTranslation(AuthConstants.AUTH_REGISTER_ERROR_KEY));
         }
     }

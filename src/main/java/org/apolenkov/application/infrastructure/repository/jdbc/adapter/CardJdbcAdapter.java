@@ -43,14 +43,14 @@ public class CardJdbcAdapter implements CardRepository {
      * RowMapper for CardDto.
      */
     private static final RowMapper<CardDto> CARD_ROW_MAPPER = (rs, rowNum) -> {
-        Long id = rs.getLong("id");
-        long deckId = rs.getLong("deck_id");
-        String frontText = rs.getString("front_text");
-        String backText = rs.getString("back_text");
-        String example = rs.getString("example");
-        String imageUrl = rs.getString("image_url");
-        Timestamp createdAt = rs.getTimestamp("created_at");
-        Timestamp updatedAt = rs.getTimestamp("updated_at");
+        final Long id = rs.getLong("id");
+        final long deckId = rs.getLong("deck_id");
+        final String frontText = rs.getString("front_text");
+        final String backText = rs.getString("back_text");
+        final String example = rs.getString("example");
+        final String imageUrl = rs.getString("image_url");
+        final Timestamp createdAt = rs.getTimestamp("created_at");
+        final Timestamp updatedAt = rs.getTimestamp("updated_at");
 
         return CardDto.forExistingCard(
                 id,
@@ -126,7 +126,7 @@ public class CardJdbcAdapter implements CardRepository {
 
         LOGGER.debug("Retrieving cards for deck ID: {}", deckId);
         try {
-            List<CardDto> cardDtos =
+            final List<CardDto> cardDtos =
                     jdbcTemplate.query(CardSqlQueries.SELECT_CARDS_BY_DECK_ID, CARD_ROW_MAPPER, deckId);
             return cardDtos.stream().map(CardJdbcAdapter::toModel).toList();
         } catch (DataAccessException e) {
@@ -144,7 +144,7 @@ public class CardJdbcAdapter implements CardRepository {
     public Optional<Card> findById(final long id) {
         LOGGER.debug("Retrieving card by ID: {}", id);
         try {
-            List<CardDto> cards = jdbcTemplate.query(CardSqlQueries.SELECT_CARD_BY_ID, CARD_ROW_MAPPER, id);
+            final List<CardDto> cards = jdbcTemplate.query(CardSqlQueries.SELECT_CARD_BY_ID, CARD_ROW_MAPPER, id);
             if (cards.isEmpty()) {
                 return Optional.empty();
             }
@@ -167,7 +167,7 @@ public class CardJdbcAdapter implements CardRepository {
             throw new IllegalArgumentException("Card cannot be null");
         }
 
-        boolean isNew = card.getId() == null;
+        final boolean isNew = card.getId() == null;
         LOGGER.debug("Saving card: frontText='{}', isNew={}", card.getFrontText(), isNew);
 
         try {
@@ -191,7 +191,7 @@ public class CardJdbcAdapter implements CardRepository {
     public void deleteById(final long id) {
         LOGGER.debug("Deleting card by ID: {}", id);
         try {
-            int deleted = jdbcTemplate.update(CardSqlQueries.DELETE_CARD, id);
+            final int deleted = jdbcTemplate.update(CardSqlQueries.DELETE_CARD, id);
             if (deleted == 0) {
                 LOGGER.warn("No card found with ID: {}", id);
             } else {
@@ -241,11 +241,11 @@ public class CardJdbcAdapter implements CardRepository {
 
         LOGGER.debug("Batch counting cards for {} decks using single query", deckIds.size());
         try {
-            String sql = buildInClauseSql(deckIds.size());
-            Map<Long, Long> counts =
+            final String sql = buildInClauseSql(deckIds.size());
+            final Map<Long, Long> counts =
                     jdbcTemplate.query(sql, ps -> setLongParameters(ps, deckIds), this::extractCountsByDeck);
 
-            Map<Long, Long> safeCounts = (counts != null) ? counts : Map.of();
+            final Map<Long, Long> safeCounts = (counts != null) ? counts : Map.of();
             LOGGER.debug(
                     "Batch count completed: {} decks have cards (out of {} requested)",
                     safeCounts.size(),
@@ -271,7 +271,7 @@ public class CardJdbcAdapter implements CardRepository {
 
         LOGGER.debug("Deleting all cards for deck ID: {}", deckId);
         try {
-            int deleted = jdbcTemplate.update(CardSqlQueries.DELETE_CARDS_BY_DECK_ID, deckId);
+            final int deleted = jdbcTemplate.update(CardSqlQueries.DELETE_CARDS_BY_DECK_ID, deckId);
             LOGGER.debug("Deleted {} cards for deck ID: {}", deleted, deckId);
         } catch (DataAccessException e) {
             throw new CardPersistenceException("Failed to delete cards for deck ID: " + deckId, e);
@@ -284,10 +284,10 @@ public class CardJdbcAdapter implements CardRepository {
      * @param card card to create
      */
     private void createCard(final Card card) {
-        CardDto cardDto = CardDto.forNewCard(
+        final CardDto cardDto = CardDto.forNewCard(
                 card.getDeckId(), card.getFrontText(), card.getBackText(), card.getExample(), card.getImageUrl());
 
-        Long generatedId = jdbcTemplate.queryForObject(
+        final Long generatedId = jdbcTemplate.queryForObject(
                 CardSqlQueries.INSERT_CARD_RETURNING_ID,
                 Long.class,
                 cardDto.deckId(),
@@ -325,7 +325,7 @@ public class CardJdbcAdapter implements CardRepository {
      * @return SQL with placeholders
      */
     private String buildInClauseSql(final int paramCount) {
-        String placeholders = "?,".repeat(Math.max(0, paramCount - 1)) + "?";
+        final String placeholders = "?,".repeat(Math.max(0, paramCount - 1)) + "?";
         return String.format(CardSqlQueries.COUNT_CARDS_BY_DECK_IDS_TEMPLATE, placeholders);
     }
 
@@ -338,7 +338,7 @@ public class CardJdbcAdapter implements CardRepository {
     private void setLongParameters(final java.sql.PreparedStatement ps, final Collection<Long> values)
             throws java.sql.SQLException {
         int index = 1;
-        for (Long value : values) {
+        for (final Long value : values) {
             ps.setLong(index++, value);
         }
     }
@@ -350,10 +350,10 @@ public class CardJdbcAdapter implements CardRepository {
      * @return map of deck ID to card count
      */
     private Map<Long, Long> extractCountsByDeck(final java.sql.ResultSet rs) throws java.sql.SQLException {
-        Map<Long, Long> results = new java.util.HashMap<>();
+        final Map<Long, Long> results = new java.util.HashMap<>();
         while (rs.next()) {
-            Long deckId = rs.getLong("deck_id");
-            Long count = rs.getLong("count");
+            final Long deckId = rs.getLong("deck_id");
+            final Long count = rs.getLong("count");
             results.put(deckId, count);
         }
         return results;
@@ -375,8 +375,8 @@ public class CardJdbcAdapter implements CardRepository {
             throw new IllegalArgumentException("Pageable cannot be null");
         }
 
-        int limit = pageable.getPageSize();
-        long offset = pageable.getOffset();
+        final int limit = pageable.getPageSize();
+        final long offset = pageable.getOffset();
 
         LOGGER.debug(
                 "Finding cards with dynamic filter: deckId={}, searchQuery='{}', filterOption={}, limit={}, offset={}",
@@ -387,9 +387,9 @@ public class CardJdbcAdapter implements CardRepository {
                 offset);
 
         try {
-            CardQueryBuilder queryBuilder = new CardQueryBuilder().withDeckId(deckId);
+            final CardQueryBuilder queryBuilder = new CardQueryBuilder().withDeckId(deckId);
 
-            if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            if (searchQuery != null && !searchQuery.isBlank()) {
                 queryBuilder.withSearchQuery(searchQuery);
             }
 
@@ -399,14 +399,14 @@ public class CardJdbcAdapter implements CardRepository {
                 queryBuilder.withUnknownStatus();
             }
 
-            String sql = queryBuilder.buildSelectQueryWithPagination(CardSqlQueries.SELECT_CARDS_BASE);
-            Object[] params = queryBuilder.getParametersWithPagination(limit, offset);
+            final String sql = queryBuilder.buildSelectQueryWithPagination(CardSqlQueries.SELECT_CARDS_BASE);
+            final Object[] params = queryBuilder.getParametersWithPagination(limit, offset);
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Dynamic SQL: {} | Parameters: {}", sql, java.util.Arrays.toString(params));
             }
 
-            List<CardDto> cardDtos = jdbcTemplate.query(sql, CARD_ROW_MAPPER, params);
+            final List<CardDto> cardDtos = jdbcTemplate.query(sql, CARD_ROW_MAPPER, params);
             return cardDtos.stream().map(CardJdbcAdapter::toModel).toList();
         } catch (DataAccessException e) {
             throw new CardRetrievalException("Failed to find cards with dynamic filter for deck ID: " + deckId, e);
@@ -431,9 +431,9 @@ public class CardJdbcAdapter implements CardRepository {
         // Use cache for COUNT queries (30 sec TTL + event-driven invalidation)
         return paginationCountCache.getCount(deckId, searchQuery, filterOption, () -> {
             try {
-                CardQueryBuilder queryBuilder = new CardQueryBuilder().withDeckId(deckId);
+                final CardQueryBuilder queryBuilder = new CardQueryBuilder().withDeckId(deckId);
 
-                if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+                if (searchQuery != null && !searchQuery.isBlank()) {
                     queryBuilder.withSearchQuery(searchQuery);
                 }
 
@@ -443,14 +443,14 @@ public class CardJdbcAdapter implements CardRepository {
                     queryBuilder.withUnknownStatus();
                 }
 
-                String sql = queryBuilder.buildCountQuery(CardSqlQueries.COUNT_CARDS_BASE);
-                Object[] params = queryBuilder.getParameters();
+                final String sql = queryBuilder.buildCountQuery(CardSqlQueries.COUNT_CARDS_BASE);
+                final Object[] params = queryBuilder.getParameters();
 
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Dynamic COUNT SQL: {} | Parameters: {}", sql, java.util.Arrays.toString(params));
                 }
 
-                Long count = jdbcTemplate.queryForObject(sql, Long.class, params);
+                final Long count = jdbcTemplate.queryForObject(sql, Long.class, params);
                 return count != null ? count : 0L;
             } catch (DataAccessException e) {
                 throw new CardRetrievalException("Failed to count cards with dynamic filter for deck ID: " + deckId, e);

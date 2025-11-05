@@ -1,5 +1,7 @@
 package org.apolenkov.application.views.deck.business;
 
+import org.apolenkov.application.domain.constants.BusinessConstants;
+
 /**
  * View model for displaying deck information in card components with progress statistics and metrics.
  *
@@ -35,9 +37,9 @@ public record DeckCardViewModel(
             throw new IllegalArgumentException("Known count cannot exceed deck size: " + knownCount + " > " + deckSize);
         }
 
-        if (progressPercent < 0 || progressPercent > 100) {
-            throw new IllegalArgumentException(
-                    "Progress percentage must be between 0 and 100, got: " + progressPercent);
+        if (progressPercent < 0 || progressPercent > BusinessConstants.PERCENTAGE_MAX) {
+            throw new IllegalArgumentException("Progress percentage must be between 0 and "
+                    + BusinessConstants.PERCENTAGE_MAX + ", got: " + progressPercent);
         }
     }
 }

@@ -73,7 +73,6 @@ public class PublicLayout extends AppLayout {
      * Sets up responsive layout with drawer for mobile and navbar for desktop.
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     private void init() {
         setPrimarySection(Section.NAVBAR);
         addClassName(CoreConstants.PUBLIC_LAYOUT_CLASS);
@@ -128,10 +127,10 @@ public class PublicLayout extends AppLayout {
      */
     private void setupNavbar() {
         // Desktop navbar (hidden on mobile via CSS)
-        HorizontalLayout desktopBar = createDesktopNavbar();
+        final HorizontalLayout desktopBar = createDesktopNavbar();
 
         // Mobile navbar (hidden on desktop via CSS)
-        HorizontalLayout mobileBar = createMobileNavbar();
+        final HorizontalLayout mobileBar = createMobileNavbar();
 
         addToNavbar(true, desktopBar, mobileBar);
     }
@@ -143,7 +142,7 @@ public class PublicLayout extends AppLayout {
      * @return configured desktop navbar layout
      */
     private HorizontalLayout createDesktopNavbar() {
-        HorizontalLayout bar = new HorizontalLayout();
+        final HorizontalLayout bar = new HorizontalLayout();
         bar.addClassName(CoreConstants.MAIN_LAYOUT_NAVBAR_CLASS);
         bar.addClassName(CoreConstants.SURFACE_PANEL_CLASS);
         bar.addClassName(CoreConstants.DESKTOP_NAV_BAR_CLASS);
@@ -155,7 +154,7 @@ public class PublicLayout extends AppLayout {
         bar.add(desktopNavigationBar);
 
         // Create right section for language switcher (will be populated in onAttach)
-        HorizontalLayout right = new HorizontalLayout();
+        final HorizontalLayout right = new HorizontalLayout();
         right.addClassName(CoreConstants.MAIN_LAYOUT_RIGHT_CLASS);
         right.addClassName(CoreConstants.SURFACE_PANEL_CLASS);
         right.setAlignItems(Alignment.CENTER);
@@ -174,7 +173,7 @@ public class PublicLayout extends AppLayout {
      * @return configured mobile navbar layout
      */
     private HorizontalLayout createMobileNavbar() {
-        HorizontalLayout bar = new HorizontalLayout();
+        final HorizontalLayout bar = new HorizontalLayout();
         bar.addClassName(CoreConstants.MOBILE_NAVBAR_CLASS);
         bar.addClassName(CoreConstants.SURFACE_PANEL_CLASS);
         bar.setWidthFull();
@@ -182,26 +181,26 @@ public class PublicLayout extends AppLayout {
         bar.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
         // Left: Hamburger menu only
-        HorizontalLayout left = new HorizontalLayout();
+        final HorizontalLayout left = new HorizontalLayout();
         left.setAlignItems(Alignment.CENTER);
         left.addClassName(CoreConstants.MOBILE_NAVBAR_LEFT_CLASS);
 
-        DrawerToggle drawerToggle = new DrawerToggle();
+        final DrawerToggle drawerToggle = new DrawerToggle();
         drawerToggle.setAriaLabel(getTranslation(CoreConstants.MAIN_DECKS_KEY)); // Accessible label
         drawerToggle.addClassName(CoreConstants.DRAWER_TOGGLE_WRAPPER_CLASS);
         left.add(drawerToggle);
 
         // Center: Text Logo
-        HorizontalLayout center = new HorizontalLayout();
+        final HorizontalLayout center = new HorizontalLayout();
         center.setAlignItems(Alignment.CENTER);
         center.setJustifyContentMode(JustifyContentMode.CENTER);
         center.addClassName(CoreConstants.MOBILE_NAVBAR_CENTER_CLASS);
 
-        Anchor textLogo = createTextLogoAnchor();
+        final Anchor textLogo = createTextLogoAnchor();
         center.add(textLogo);
 
         // Right: Mobile language switcher (will be populated in onAttach)
-        HorizontalLayout right = new HorizontalLayout();
+        final HorizontalLayout right = new HorizontalLayout();
         right.setAlignItems(Alignment.CENTER);
         right.addClassName(CoreConstants.MOBILE_NAVBAR_RIGHT_CLASS);
 
@@ -218,9 +217,9 @@ public class PublicLayout extends AppLayout {
      * @return configured Anchor with text logo
      */
     private Anchor createTextLogoAnchor() {
-        Anchor anchor = new Anchor(RouteConstants.ROOT_PATH, "");
+        final Anchor anchor = new Anchor(RouteConstants.ROOT_PATH, "");
 
-        Span textLogo = new Span(getTranslation(CoreConstants.APP_TITLE_KEY));
+        final Span textLogo = new Span(getTranslation(CoreConstants.APP_TITLE_KEY));
         textLogo.addClassName(CoreConstants.MOBILE_TEXT_LOGO_CLASS);
         anchor.add(textLogo);
         return anchor;

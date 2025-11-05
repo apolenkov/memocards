@@ -33,8 +33,8 @@ public final class CardQueryBuilder {
      * @param searchQuery search query (can be null or empty)
      */
     public void withSearchQuery(final String searchQuery) {
-        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-            String searchPattern = "%" + searchQuery.trim() + "%";
+        if (searchQuery != null && !searchQuery.isBlank()) {
+            final String searchPattern = "%" + searchQuery.trim() + "%";
             conditions.add("(f.front_text ILIKE ? OR f.back_text ILIKE ? OR f.example ILIKE ?)");
             parameters.add(searchPattern);
             parameters.add(searchPattern);
@@ -64,7 +64,7 @@ public final class CardQueryBuilder {
      * @return complete SQL query with WHERE and ORDER BY clauses
      */
     public String buildSelectQuery(final String baseQuery) {
-        StringBuilder sql = new StringBuilder(baseQuery);
+        final StringBuilder sql = new StringBuilder(baseQuery);
 
         // Add JOIN if needed for known/unknown status
         if (hasKnownJoin) {
@@ -95,7 +95,7 @@ public final class CardQueryBuilder {
      * @return complete SQL query with WHERE clause
      */
     public String buildCountQuery(final String baseQuery) {
-        StringBuilder sql = new StringBuilder(baseQuery);
+        final StringBuilder sql = new StringBuilder(baseQuery);
 
         // Add JOIN if needed for known/unknown status
         if (hasKnownJoin) {
@@ -133,7 +133,7 @@ public final class CardQueryBuilder {
      * @return array of parameters including pagination
      */
     public Object[] getParametersWithPagination(final int limit, final long offset) {
-        List<Object> params = new ArrayList<>(parameters);
+        final List<Object> params = new ArrayList<>(parameters);
         params.add(limit);
         params.add(offset);
         return params.toArray();

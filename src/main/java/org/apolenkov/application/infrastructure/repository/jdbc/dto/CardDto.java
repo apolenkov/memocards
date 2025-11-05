@@ -40,10 +40,10 @@ public record CardDto(
         if (deckId <= 0) {
             throw new IllegalArgumentException("Deck ID must be positive");
         }
-        if (frontText == null || frontText.trim().isEmpty()) {
+        if (frontText == null || frontText.isBlank()) {
             throw new IllegalArgumentException("Front text cannot be null or empty");
         }
-        if (backText == null || backText.trim().isEmpty()) {
+        if (backText == null || backText.isBlank()) {
             throw new IllegalArgumentException("Back text cannot be null or empty");
         }
     }
@@ -64,7 +64,7 @@ public record CardDto(
             final String backText,
             final String example,
             final String imageUrl) {
-        LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now();
         return new CardDto(null, deckId, frontText, backText, example, imageUrl, new CardTimestamps(now, now));
     }
 

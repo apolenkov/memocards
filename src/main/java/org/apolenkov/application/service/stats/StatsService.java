@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apolenkov.application.domain.constants.BusinessConstants;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
 import org.apolenkov.application.domain.event.ProgressChangedEvent;
 import org.apolenkov.application.domain.event.ProgressChangedEvent.ChangeType;
@@ -80,7 +81,7 @@ public class StatsService implements StatsUseCase {
             return;
         }
 
-        LocalDate today = LocalDate.now();
+        final LocalDate today = LocalDate.now();
         statsRepository.appendSession(sessionData, today);
 
         // Publish event for cache invalidation (event-driven approach)
@@ -114,15 +115,15 @@ public class StatsService implements StatsUseCase {
         }
 
         // Calculate percentage of known cards
-        int known = statsRepository.getKnownCardIds(deckId).size();
+        final int known = statsRepository.getKnownCardIds(deckId).size();
         int percent = (int) Math.round(100.0 * known / deckSize);
 
-        // Clamp percentage to valid range [0, 100]
+        // Clamp percentage to valid range [0, PERCENTAGE_MAX]
         if (percent < 0) {
             percent = 0;
         }
-        if (percent > 100) {
-            percent = 100;
+        if (percent > BusinessConstants.PERCENTAGE_MAX) {
+            percent = BusinessConstants.PERCENTAGE_MAX;
         }
         return percent;
     }
@@ -171,7 +172,7 @@ public class StatsService implements StatsUseCase {
         LOGGER.debug("Batch retrieving known cards for {} decks", deckIds.size());
 
         // Use cache with batch loader for missing entries
-        Map<Long, Set<Long>> result = knownCardsCache.getKnownCardsBatch(
+        final Map<Long, Set<Long>> result = knownCardsCache.getKnownCardsBatch(
                 Set.copyOf(deckIds), () -> statsRepository.getKnownCardIdsBatch(deckIds));
 
         LOGGER.debug("Batch retrieval completed: {} decks have known cards", result.size());
@@ -215,8 +216,8 @@ public class StatsService implements StatsUseCase {
     @Transactional
     public void toggleCardKnown(final long deckId, final long cardId) {
         // Use direct check instead of loading all known cards (optimized for single card check)
-        boolean currentlyKnown = statsRepository.isCardKnownDirect(deckId, cardId);
-        boolean newStatus = !currentlyKnown;
+        final boolean currentlyKnown = statsRepository.isCardKnownDirect(deckId, cardId);
+        final boolean newStatus = !currentlyKnown;
 
         LOGGER.debug("Toggling card {} in deck {}: {} -> {}", cardId, deckId, currentlyKnown, newStatus);
 
@@ -242,11 +243,11 @@ public class StatsService implements StatsUseCase {
         LOGGER.debug("Resetting progress for deck: {}", deckId);
 
         // Get deck info for audit logging
-        Deck deck = deckRepository
+        final Deck deck = deckRepository
                 .findById(deckId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found: " + deckId));
 
-        int knownCardsBefore = statsRepository.getKnownCardIds(deckId).size();
+        final int knownCardsBefore = statsRepository.getKnownCardIds(deckId).size();
 
         statsRepository.resetDeckProgress(deckId);
 

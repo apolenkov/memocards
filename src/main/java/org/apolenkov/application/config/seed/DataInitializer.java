@@ -271,10 +271,10 @@ public class DataInitializer {
         };
 
         for (int i = 1; i <= 600; i++) {
-            String topic = topics[i % topics.length];
-            String example = examples[i % examples.length];
+            final String topic = topics[i % topics.length];
+            final String example = examples[i % examples.length];
 
-            Card card = new Card(
+            final Card card = new Card(
                     null,
                     performance.getId(),
                     String.format("%s #%d - Word", topic, i),
@@ -332,7 +332,7 @@ public class DataInitializer {
         try {
             dataSeedService.generateTestData();
             LOGGER.info("Test data generation completed successfully");
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.error("Failed to generate test data: {}", e.getMessage(), e);
         }
     }
@@ -354,17 +354,17 @@ public class DataInitializer {
             final String rawPassword,
             final String fullName,
             final Set<String> desiredRoles) {
-        Optional<User> existingOpt = users.findByEmail(email);
+        final Optional<User> existingOpt = users.findByEmail(email);
         if (existingOpt.isEmpty()) {
             // Create new user with specified properties
-            User created = new User(null, email, fullName);
+            final User created = new User(null, email, fullName);
             created.setPasswordHash(passwordEncoder.encode(rawPassword));
             desiredRoles.forEach(created::addRole);
             users.save(created);
             return;
         }
 
-        User existing = existingOpt.get();
+        final User existing = existingOpt.get();
         existing.setPasswordHash(passwordEncoder.encode(rawPassword));
         existing.setName(fullName);
         users.save(existing);

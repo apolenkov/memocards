@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongSupplier;
+import org.apolenkov.application.domain.constants.BusinessConstants;
 import org.apolenkov.application.domain.event.DeckModifiedEvent;
 import org.apolenkov.application.domain.event.ProgressChangedEvent;
 import org.apolenkov.application.domain.model.FilterOption;
@@ -40,7 +41,7 @@ import org.springframework.web.context.WebApplicationContext;
  *   <li>Event-driven: DeckModifiedEvent (deck delete invalidates all counts)</li>
  *   <li>Event-driven: ProgressChangedEvent (known/unknown status change)</li>
  *   <li>Smart invalidation: FilterOption.ALL is NOT invalidated on progress change (count unchanged)</li>
- *   <li>Debouncing: 300ms cooldown prevents excessive invalidations during rapid clicks (balanced UX/performance)</li>
+ *   <li>Debouncing: cooldown prevents excessive invalidations during rapid clicks (balanced UX/performance)</li>
  *   <li>TTL-based: configurable backup fallback</li>
  * </ul>
  */
@@ -49,7 +50,6 @@ import org.springframework.web.context.WebApplicationContext;
 public class PaginationCountCache {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaginationCountCache.class);
-    private static final long INVALIDATION_COOLDOWN_MS = 300; // 300ms debouncing (reduced from 2s for better UX)
     private static final String CACHE_TYPE = "pagination-count";
 
     private final Map<CountKey, CachedCount> cache = new ConcurrentHashMap<>();
@@ -96,8 +96,8 @@ public class PaginationCountCache {
             return loader.getAsLong();
         }
 
-        CountKey key = new CountKey(deckId, normalizeSearch(searchQuery), filterOption);
-        CachedCount cached = cache.get(key);
+        final CountKey key = new CountKey(deckId, normalizeSearch(searchQuery), filterOption);
+        final CachedCount cached = cache.get(key);
 
         if (cached != null && cached.isValid(ttlMs)) {
             hitCount.incrementAndGet();
@@ -118,7 +118,7 @@ public class PaginationCountCache {
         missCount.incrementAndGet();
         // Record cache miss metrics
         metricsCollector.recordCacheHitMiss(CACHE_TYPE, false);
-        long count = loader.getAsLong();
+        final long count = loader.getAsLong();
 
         // Evict the oldest entry if cache is full
         if (cache.size() >= maxSize) {
@@ -151,7 +151,7 @@ public class PaginationCountCache {
             return;
         }
 
-        long removed = cache.keySet().stream()
+        final long removed = cache.keySet().stream()
                 .filter(key -> deckId.equals(key.deckId()))
                 .count();
 
@@ -159,7 +159,7 @@ public class PaginationCountCache {
 
         if (removed > 0) {
             // Publish cache invalidation event for metrics
-            CacheInvalidationEvent event = CacheInvalidationEvent.of(CACHE_TYPE, deckId, "deck-modified");
+            final CacheInvalidationEvent event = CacheInvalidationEvent.of(CACHE_TYPE, deckId, "deck-modified");
             eventPublisher.publishEvent(event);
 
             // Record metrics
@@ -183,7 +183,7 @@ public class PaginationCountCache {
             return;
         }
 
-        long removed = cache.keySet().stream()
+        final long removed = cache.keySet().stream()
                 .filter(key -> deckId.equals(key.deckId()) && filterOption.equals(key.filterOption()))
                 .count();
 
@@ -202,21 +202,21 @@ public class PaginationCountCache {
      * Checks if deck is in invalidation cooldown period.
      * Prevents excessive invalidations during rapid user interactions (practice mode).
      *
-     * <p>Note: Cooldown reduced to 300ms for better UX (was 2s).
-     * This ensures counts update quickly enough while still preventing DB spam.
+     * <p>Note: Cooldown uses {@value org.apolenkov.application.domain.constants.BusinessConstants#CACHE_INVALIDATION_COOLDOWN_MS}ms
+     * for better UX (was 2s). This ensures counts update quickly enough while still preventing DB spam.
      * UI-level debouncing (beforeClientResponse/UI.access) provides additional protection.
      *
      * @param deckId the deck ID
      * @return true if in cooldown, false otherwise
      */
     private boolean isInCooldown(final Long deckId) {
-        Instant lastInvalidation = lastInvalidationTime.get(deckId);
+        final Instant lastInvalidation = lastInvalidationTime.get(deckId);
         if (lastInvalidation == null) {
             return false;
         }
 
-        Instant now = Instant.now();
-        return now.isBefore(lastInvalidation.plusMillis(INVALIDATION_COOLDOWN_MS));
+        final Instant now = Instant.now();
+        return now.isBefore(lastInvalidation.plusMillis(BusinessConstants.CACHE_INVALIDATION_COOLDOWN_MS));
     }
 
     /**
@@ -248,11 +248,11 @@ public class PaginationCountCache {
      * <p>Optimization strategies:
      * <ul>
      *   <li>Smart invalidation: FilterOption.ALL is NOT invalidated (total count unchanged)</li>
-     *   <li>Debouncing: 300ms cooldown prevents excessive invalidations during rapid clicks</li>
+     *   <li>Debouncing: cooldown prevents excessive invalidations during rapid clicks</li>
      *   <li>Selective: Only KNOWN_ONLY and UNKNOWN_ONLY filters are invalidated</li>
      * </ul>
      *
-     * <p>Performance note: 300ms cooldown balances UX and performance.
+     * <p>Performance note: Cooldown balances UX and performance.
      * UI-level debouncing (UI.access) provides additional layer of protection against excessive updates.
      *
      * @param event progress changed event
@@ -263,7 +263,7 @@ public class PaginationCountCache {
             return;
         }
 
-        Long deckId = event.getDeckId();
+        final Long deckId = event.getDeckId();
 
         // Debouncing: Skip if last invalidation was < 300ms ago
         if (isInCooldown(deckId)) {
@@ -308,9 +308,9 @@ public class PaginationCountCache {
      */
     public void logStats() {
         if (LOGGER.isDebugEnabled()) {
-            CacheStats stats = getStats();
-            long total = stats.hits() + stats.misses();
-            String hitRate = total > 0 ? String.format("%.1f%%", (double) stats.hits() / total * 100) : "N/A";
+            final CacheStats stats = getStats();
+            final long total = stats.hits() + stats.misses();
+            final String hitRate = total > 0 ? String.format("%.1f%%", (double) stats.hits() / total * 100) : "N/A";
             LOGGER.debug(
                     "COUNT cache stats: hits={}, misses={}, hitRate={}, size={}, skippedInvalidations={}",
                     stats.hits(),
@@ -329,7 +329,7 @@ public class PaginationCountCache {
      * @return normalized search query
      */
     private String normalizeSearch(final String searchQuery) {
-        return (searchQuery == null || searchQuery.trim().isEmpty()) ? "" : searchQuery.trim();
+        return (searchQuery == null || searchQuery.isBlank()) ? "" : searchQuery.trim();
     }
 
     /**
@@ -392,7 +392,7 @@ public class PaginationCountCache {
          * @return hit rate as percentage (0.0 to 1.0)
          */
         public double hitRate() {
-            long total = hits + misses;
+            final long total = hits + misses;
             return total > 0 ? (double) hits / total : 0.0;
         }
     }

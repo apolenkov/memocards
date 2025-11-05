@@ -54,7 +54,7 @@ public abstract class BaseLanguageSwitcher extends HorizontalLayout {
             return Locale.forLanguageTag(CoreConstants.EN_LOCALE);
         }
 
-        String upperValue = selectedValue.toUpperCase();
+        final String upperValue = selectedValue.toUpperCase(Locale.ROOT);
         return switch (upperValue) {
             case LOCALE_CODE_RU -> Locale.forLanguageTag(CoreConstants.RU_LOCALE);
             case LOCALE_CODE_ES -> Locale.forLanguageTag(CoreConstants.ES_LOCALE);
@@ -104,12 +104,12 @@ public abstract class BaseLanguageSwitcher extends HorizontalLayout {
      * @return the current locale, never null
      */
     protected Locale getCurrentLocale() {
-        Object sessionAttribute = VaadinSession.getCurrent().getAttribute(SESSION_LOCALE_KEY);
+        final Object sessionAttribute = VaadinSession.getCurrent().getAttribute(SESSION_LOCALE_KEY);
         if (sessionAttribute instanceof String localeTag) {
             return Locale.forLanguageTag(localeTag);
         }
         // Fallback to cookie if present
-        Locale fromCookie = readPreferredLocaleCookie();
+        final Locale fromCookie = readPreferredLocaleCookie();
         if (fromCookie != null) {
             // Store into session for this UI and apply
             VaadinSession.getCurrent().setAttribute(SESSION_LOCALE_KEY, fromCookie.toLanguageTag());
@@ -137,9 +137,9 @@ public abstract class BaseLanguageSwitcher extends HorizontalLayout {
             return;
         }
         try {
-            long userId = userUseCase.getCurrentUser().getId();
+            final long userId = userUseCase.getCurrentUser().getId();
             userSettingsService.setPreferredLocale(userId, locale);
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
             // Intentionally ignoring exceptions when user service is unavailable
             // This allows the language switcher to work without database access
         }
@@ -155,12 +155,12 @@ public abstract class BaseLanguageSwitcher extends HorizontalLayout {
      * @param locale the locale preference to store in the cookie
      */
     private void persistPreferredLocaleCookie(final Locale locale) {
-        VaadinServletResponse vaadinResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
+        final VaadinServletResponse vaadinResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
         if (vaadinResponse == null) {
             return;
         }
-        HttpServletResponse response = vaadinResponse.getHttpServletResponse();
-        Cookie cookie = new Cookie(COOKIE_LOCALE_KEY, locale.toLanguageTag());
+        final HttpServletResponse response = vaadinResponse.getHttpServletResponse();
+        final Cookie cookie = new Cookie(COOKIE_LOCALE_KEY, locale.toLanguageTag());
         cookie.setPath(RouteConstants.ROOT_PATH);
         cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year
         cookie.setHttpOnly(true);
@@ -178,20 +178,20 @@ public abstract class BaseLanguageSwitcher extends HorizontalLayout {
      * @return the locale from the cookie, or null if not available or invalid
      */
     private Locale readPreferredLocaleCookie() {
-        VaadinServletRequest vaadinRequest = (VaadinServletRequest) VaadinService.getCurrentRequest();
+        final VaadinServletRequest vaadinRequest = (VaadinServletRequest) VaadinService.getCurrentRequest();
         if (vaadinRequest == null) {
             return null;
         }
-        HttpServletRequest request = vaadinRequest.getHttpServletRequest();
-        Cookie[] cookies = request.getCookies();
+        final HttpServletRequest request = vaadinRequest.getHttpServletRequest();
+        final Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             return null;
         }
-        for (Cookie cookie : cookies) {
+        for (final Cookie cookie : cookies) {
             if (COOKIE_LOCALE_KEY.equals(cookie.getName())) {
                 try {
                     return Locale.forLanguageTag(cookie.getValue());
-                } catch (Exception ignored) {
+                } catch (RuntimeException ignored) {
                     // Invalid locale format in cookie, continue searching
                 }
             }

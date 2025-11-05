@@ -46,17 +46,17 @@ public final class PracticeDisplay extends Composite<VerticalLayout> {
 
     @Override
     protected VerticalLayout initContent() {
-        VerticalLayout container = new VerticalLayout();
+        final VerticalLayout container = new VerticalLayout();
         container.setSpacing(true);
         container.setPadding(false);
         container.setWidthFull();
         container.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Header row: [← Back] [Deck Title]
-        HorizontalLayout headerRow = createHeaderRow();
+        final HorizontalLayout headerRow = createHeaderRow();
 
         // Progress section
-        Div progressDisplay = createProgressSection();
+        final Div progressDisplay = createProgressSection();
 
         container.add(headerRow, progressDisplay);
         return container;
@@ -68,11 +68,11 @@ public final class PracticeDisplay extends Composite<VerticalLayout> {
      * @return configured header row
      */
     private HorizontalLayout createHeaderRow() {
-        HorizontalLayout header = new HorizontalLayout();
+        final HorizontalLayout header = new HorizontalLayout();
         header.setWidthFull();
         header.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        HorizontalLayout leftSection = new HorizontalLayout();
+        final HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
         configureBackButton();
@@ -155,9 +155,9 @@ public final class PracticeDisplay extends Composite<VerticalLayout> {
         }
 
         // Calculate progress based on completed cards, not current position
-        int completedCards = progress.totalViewed();
-        int totalCards = progress.total();
-        int percent = totalCards > 0 ? Math.round((float) completedCards / totalCards * 100) : 0;
+        final int completedCards = progress.totalViewed();
+        final int totalCards = progress.total();
+        final int percent = totalCards > 0 ? Math.round((float) completedCards / totalCards * 100) : 0;
 
         progressStats.setText(getTranslation(
                 PracticeConstants.PRACTICE_PROGRESS_LINE_KEY,

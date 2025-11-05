@@ -1,5 +1,6 @@
 package org.apolenkov.application.config.ui;
 
+import org.apolenkov.application.domain.constants.BusinessConstants;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -26,8 +27,9 @@ public record UIConfig(Search search, Pagination pagination) {
             if (debounceMs < 0) {
                 throw new IllegalArgumentException("Debounce timeout must be non-negative");
             }
-            if (debounceMs > 5000) {
-                throw new IllegalArgumentException("Debounce timeout must be <= 5000ms (too long for UX)");
+            if (debounceMs > BusinessConstants.DEBOUNCE_MAX_MS) {
+                throw new IllegalArgumentException(
+                        "Debounce timeout must be <= " + BusinessConstants.DEBOUNCE_MAX_MS + "ms (too long for UX)");
             }
         }
     }
@@ -46,8 +48,9 @@ public record UIConfig(Search search, Pagination pagination) {
             if (pageSize <= 0) {
                 throw new IllegalArgumentException("Page size must be positive");
             }
-            if (pageSize > 500) {
-                throw new IllegalArgumentException("Page size must be <= 500 (performance degradation)");
+            if (pageSize > BusinessConstants.PAGE_SIZE_MAX) {
+                throw new IllegalArgumentException(
+                        "Page size must be <= " + BusinessConstants.PAGE_SIZE_MAX + " (performance degradation)");
             }
         }
     }

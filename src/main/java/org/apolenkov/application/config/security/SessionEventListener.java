@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
 import java.time.Duration;
 import java.time.Instant;
+import org.apolenkov.application.domain.constants.BusinessConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -44,7 +45,7 @@ public class SessionEventListener implements HttpSessionListener {
      */
     @Override
     public void sessionCreated(final HttpSessionEvent se) {
-        HttpSession session = se.getSession();
+        final HttpSession session = se.getSession();
 
         // Store creation time for duration tracking
         session.setAttribute(SESSION_CREATED_TIME_ATTR, Instant.now());
@@ -76,17 +77,17 @@ public class SessionEventListener implements HttpSessionListener {
      */
     @Override
     public void sessionDestroyed(final HttpSessionEvent se) {
-        HttpSession session = se.getSession();
-        String sessionId = session.getId();
+        final HttpSession session = se.getSession();
+        final String sessionId = session.getId();
 
         // Try to get authenticated user from session
-        String username = extractUsername(session);
+        final String username = extractUsername(session);
 
         // Calculate session duration
-        String duration = calculateSessionDuration(session);
+        final String duration = calculateSessionDuration(session);
 
         // Determine if this was a timeout or explicit logout
-        boolean wasTimeout = isSessionTimeout(session);
+        final boolean wasTimeout = isSessionTimeout(session);
 
         if (wasTimeout) {
             AUDIT_LOGGER.warn(
@@ -113,16 +114,16 @@ public class SessionEventListener implements HttpSessionListener {
      */
     private String extractUsername(final HttpSession session) {
         try {
-            Object securityContextObj =
+            final Object securityContextObj =
                     session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
 
             if (securityContextObj instanceof SecurityContext securityContext) {
-                Authentication auth = securityContext.getAuthentication();
+                final Authentication auth = securityContext.getAuthentication();
                 if (auth != null && auth.isAuthenticated()) {
                     return auth.getName();
                 }
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.trace("Could not extract username from session", e);
         }
         return null;
@@ -136,12 +137,12 @@ public class SessionEventListener implements HttpSessionListener {
      */
     private String calculateSessionDuration(final HttpSession session) {
         try {
-            Object createdTimeObj = session.getAttribute(SESSION_CREATED_TIME_ATTR);
+            final Object createdTimeObj = session.getAttribute(SESSION_CREATED_TIME_ATTR);
             if (createdTimeObj instanceof Instant createdTime) {
-                Duration duration = Duration.between(createdTime, Instant.now());
+                final Duration duration = Duration.between(createdTime, Instant.now());
                 return formatDuration(duration);
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.trace("Could not calculate session duration", e);
         }
         return "unknown";
@@ -154,17 +155,17 @@ public class SessionEventListener implements HttpSessionListener {
      * @return formatted string (e.g., "5m 30s", "2h 15m")
      */
     private String formatDuration(final Duration duration) {
-        long seconds = duration.getSeconds();
+        final long seconds = duration.getSeconds();
 
-        if (seconds < 60) {
+        if (seconds < BusinessConstants.MINUTE_SECONDS) {
             return seconds + "s";
-        } else if (seconds < 3600) {
-            long minutes = seconds / 60;
-            long remainingSeconds = seconds % 60;
+        } else if (seconds < BusinessConstants.HOUR_SECONDS) {
+            final long minutes = seconds / BusinessConstants.MINUTE_SECONDS;
+            final long remainingSeconds = seconds % BusinessConstants.MINUTE_SECONDS;
             return String.format("%dm %ds", minutes, remainingSeconds);
         } else {
-            long hours = seconds / 3600;
-            long remainingMinutes = (seconds % 3600) / 60;
+            final long hours = seconds / BusinessConstants.HOUR_SECONDS;
+            final long remainingMinutes = seconds % BusinessConstants.HOUR_SECONDS / BusinessConstants.MINUTE_SECONDS;
             return String.format("%dh %dm", hours, remainingMinutes);
         }
     }
@@ -179,16 +180,16 @@ public class SessionEventListener implements HttpSessionListener {
      */
     private boolean isSessionTimeout(final HttpSession session) {
         try {
-            Object createdTimeObj = session.getAttribute(SESSION_CREATED_TIME_ATTR);
+            final Object createdTimeObj = session.getAttribute(SESSION_CREATED_TIME_ATTR);
             if (createdTimeObj instanceof Instant createdTime) {
-                Duration actualDuration = Duration.between(createdTime, Instant.now());
-                long maxInactiveSeconds = session.getMaxInactiveInterval();
+                final Duration actualDuration = Duration.between(createdTime, Instant.now());
+                final long maxInactiveSeconds = session.getMaxInactiveInterval();
 
                 // If session lived close to max inactive time (within 5 seconds), consider it timeout
-                long difference = Math.abs(actualDuration.getSeconds() - maxInactiveSeconds);
+                final long difference = Math.abs(actualDuration.getSeconds() - maxInactiveSeconds);
                 return difference < 5;
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.trace("Could not determine timeout status", e);
         }
 

@@ -21,7 +21,7 @@ class PasswordValidatorTest {
     @Test
     @DisplayName("Should throw exception when trying to instantiate")
     void shouldThrowExceptionWhenInstantiating() throws Exception {
-        var constructor = PasswordValidator.class.getDeclaredConstructor();
+        final var constructor = PasswordValidator.class.getDeclaredConstructor();
         constructor.setAccessible(true);
 
         assertThatThrownBy(constructor::newInstance)
@@ -138,7 +138,7 @@ class PasswordValidatorTest {
     @Test
     @DisplayName("Should accept very long password")
     void shouldAcceptVeryLongPassword() {
-        String longPassword = "a".repeat(100) + "1";
+        final String longPassword = "a".repeat(100) + "1";
         assertThat(PasswordValidator.isInvalid(longPassword)).isFalse();
     }
 }

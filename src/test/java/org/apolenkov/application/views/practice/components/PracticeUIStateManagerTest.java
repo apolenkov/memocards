@@ -95,7 +95,7 @@ class PracticeUIStateManagerTest {
     @DisplayName("Should throw exception for unsupported component type")
     void shouldThrowExceptionForUnsupportedComponent() {
         // Given - use Div as an unsupported component type (not PracticeActions/Card/Display/Congratulations)
-        Component unsupportedComponent = new Div();
+        final Component unsupportedComponent = new Div();
 
         // When & Then
         assertThatThrownBy(() -> stateManager.registerComponent(unsupportedComponent))

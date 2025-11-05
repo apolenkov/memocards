@@ -42,8 +42,8 @@ class CaffeineCacheIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should evict entire cache on user save")
     void shouldEvictCacheOnSave() {
         // Given: user in database with unique email
-        String email = "evict." + System.nanoTime() + "@test.com";
-        User user = createAndSaveTestUser(email, "Evict User");
+        final String email = "evict." + System.nanoTime() + "@test.com";
+        final User user = createAndSaveTestUser(email, "Evict User");
 
         // Prime cache
         userRepository.findByEmail(email);
@@ -63,11 +63,11 @@ class CaffeineCacheIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should evict all entries when any user is saved")
     void shouldEvictAllEntriesWhenAnyUserIsSaved() {
         // Given: 2 users with unique emails
-        long timestamp = System.nanoTime();
-        String email1 = "user1." + timestamp + "@test.com";
-        String email2 = "user2." + (timestamp + 1) + "@test.com";
+        final long timestamp = System.nanoTime();
+        final String email1 = "user1." + timestamp + "@test.com";
+        final String email2 = "user2." + (timestamp + 1) + "@test.com";
 
-        User user1 = createAndSaveTestUser(email1, "User 1");
+        final User user1 = createAndSaveTestUser(email1, "User 1");
         createAndSaveTestUser(email2, "User 2");
 
         // Prime cache
@@ -91,11 +91,11 @@ class CaffeineCacheIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should evict all entries when user is deleted")
     void shouldEvictAllEntriesWhenUserDeleted() {
         // Given: 2 users with unique emails
-        long timestamp = System.nanoTime();
-        String email1 = "delete1." + timestamp + "@test.com";
-        String email2 = "delete2." + (timestamp + 1) + "@test.com";
+        final long timestamp = System.nanoTime();
+        final String email1 = "delete1." + timestamp + "@test.com";
+        final String email2 = "delete2." + (timestamp + 1) + "@test.com";
 
-        User user1 = createAndSaveTestUser(email1, "Delete User 1");
+        final User user1 = createAndSaveTestUser(email1, "Delete User 1");
         createAndSaveTestUser(email2, "Delete User 2");
 
         // Prime cache
@@ -118,17 +118,17 @@ class CaffeineCacheIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should cache user lookup results")
     void shouldCacheUserLookupResults() {
         // Given: user in database with unique email
-        String email = "lookup." + System.nanoTime() + "@test.com";
+        final String email = "lookup." + System.nanoTime() + "@test.com";
         createAndSaveTestUser(email, "Lookup User");
 
         // When: first lookup
-        Optional<User> first = userRepository.findByEmail(email);
+        final Optional<User> first = userRepository.findByEmail(email);
 
         // Then: user found
         assertThat(first).isPresent();
 
         // When: second lookup (should hit cache)
-        Optional<User> second = userRepository.findByEmail(email);
+        final Optional<User> second = userRepository.findByEmail(email);
 
         // Then: same result
         assertThat(second).isPresent();
@@ -143,7 +143,7 @@ class CaffeineCacheIntegrationTest extends BaseIntegrationTest {
      * @return saved user
      */
     private User createAndSaveTestUser(final String email, final String name) {
-        User user = new User();
+        final User user = new User();
         user.setEmail(email);
         user.setName(name);
         user.setPasswordHash("hashedPassword123");

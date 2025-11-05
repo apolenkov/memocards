@@ -20,7 +20,7 @@ public final class NewsList extends Composite<VerticalLayout> {
 
     @Override
     protected VerticalLayout initContent() {
-        VerticalLayout layout = new VerticalLayout();
+        final VerticalLayout layout = new VerticalLayout();
         layout.setPadding(false);
         layout.setSpacing(true);
         layout.setWidthFull();
@@ -66,7 +66,7 @@ public final class NewsList extends Composite<VerticalLayout> {
      * Displays empty state when no news found.
      */
     private void displayEmptyState() {
-        Span empty = new Span(getTranslation(AdminConstants.ADMIN_CONTENT_SEARCH_NO_RESULTS_KEY));
+        final Span empty = new Span(getTranslation(AdminConstants.ADMIN_CONTENT_SEARCH_NO_RESULTS_KEY));
         empty.addClassName(AdminConstants.ADMIN_CONTENT_EMPTY_MESSAGE_CLASS);
         getContent().add(empty);
     }
@@ -78,7 +78,7 @@ public final class NewsList extends Composite<VerticalLayout> {
      */
     private void displayNewsCards(final List<News> newsList) {
         newsList.forEach(news -> {
-            NewsCard card = new NewsCard(news, editCallback, deleteCallback);
+            final NewsCard card = new NewsCard(news, editCallback, deleteCallback);
             getContent().add(card);
         });
     }

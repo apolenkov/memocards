@@ -35,8 +35,8 @@ public record PracticeSession(SessionData data, SessionState state) {
             throw new IllegalArgumentException("Cards list cannot be empty");
         }
 
-        SessionData sessionData = SessionData.create(deckId, cards, sessionStart);
-        SessionState sessionState = SessionState.initial();
+        final SessionData sessionData = SessionData.create(deckId, cards, sessionStart);
+        final SessionState sessionState = SessionState.initial();
 
         return new PracticeSession(sessionData, sessionState);
     }

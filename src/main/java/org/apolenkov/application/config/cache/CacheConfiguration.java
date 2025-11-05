@@ -38,20 +38,13 @@ public class CacheConfiguration {
      */
     @Bean
     public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager(USER_CACHE, USER_BY_EMAIL_CACHE);
+        final CaffeineCacheManager cacheManager = new CaffeineCacheManager(USER_CACHE, USER_BY_EMAIL_CACHE);
         cacheManager.setCaffeine(caffeineCacheBuilder());
         return cacheManager;
     }
 
     /**
      * Configures Caffeine cache with TTL and maximum size.
-     *
-     * <p>Configuration:
-     * <ul>
-     *   <li>TTL: 30 minutes (configurable via property)</li>
-     *   <li>Max size: 1000 entries (configurable via property)</li>
-     *   <li>Stats: enabled for monitoring</li>
-     * </ul>
      *
      * @return Caffeine builder with configuration
      */

@@ -8,11 +8,6 @@ package org.apolenkov.application.config.constants;
 public final class LocaleConstants {
 
     /**
-     * Private constructor to prevent instantiation.
-     */
-    private LocaleConstants() {}
-
-    /**
      * Session storage key for storing user's preferred locale.
      */
     public static final String SESSION_LOCALE_KEY = "preferredLocale";
@@ -31,4 +26,9 @@ public final class LocaleConstants {
      * Locale code for Spanish language (uppercase for ComboBox values).
      */
     public static final String LOCALE_CODE_ES = "ES";
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private LocaleConstants() {}
 }

@@ -28,6 +28,7 @@ plugins {
     id("name.remal.sonarlint")
     id("com.github.spotbugs")
     id("checkstyle")
+    id("pmd")
 
     id("jacoco")
 
@@ -202,21 +203,48 @@ extensions.configure<CheckstyleExtension> {
 }
 
 /*
- * SpotBugs configuration
+ * SpotBugs configuration - Strict mode
  */
 apply(plugin = "com.github.spotbugs")
 tasks.withType<com.github.spotbugs.snom.SpotBugsTask>().configureEach {
     showProgress = true
     includeFilter = file("config/spotbugs/include.xml")
+    excludeFilter = file("config/spotbugs/exclude.xml")
+    effort = com.github.spotbugs.snom.Effort.MAX
     reports {
         create("xml") {
+            required.set(true)
+        }
+        create("html") {
             required.set(true)
         }
     }
 }
 
 /*
- * SonarLint configuration
+ * PMD configuration
+ */
+apply(plugin = "pmd")
+pmd {
+    toolVersion = "7.9.0"
+    ruleSetFiles = files("config/pmd/ruleset.xml")
+    ruleSets = emptyList()
+}
+
+tasks.withType<Pmd>().configureEach {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+// Configure separate ruleset for test files
+tasks.named<Pmd>("pmdTest") {
+    ruleSetFiles = files("config/pmd/ruleset-test.xml")
+}
+
+/*
+ * SonarLint configuration - Strict mode
  */
 apply<name.remal.gradle_plugins.sonarlint.SonarLintPlugin>()
 extensions.configure<SonarLintExtension> {
@@ -352,7 +380,7 @@ tasks.named("npmInstall") {
 }
 
 tasks.register("codeQuality") {
-    description = "Runs core code quality checks (SonarLint, SpotBugs, Checkstyle)"
+    description = "Runs core code quality checks (SonarLint, SpotBugs, Checkstyle, PMD)"
     group = JavaBasePlugin.VERIFICATION_GROUP
 
     dependsOn(
@@ -362,6 +390,8 @@ tasks.register("codeQuality") {
         "spotbugsTest",
         "checkstyleMain",
         "checkstyleTest",
+        "pmdMain",
+        "pmdTest",
     )
 }
 

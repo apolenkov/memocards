@@ -75,7 +75,7 @@ public final class DeckSimpleDeleteDialog extends Dialog {
         }
 
         configureDialog();
-        VerticalLayout layout = createDialogLayout();
+        final VerticalLayout layout = createDialogLayout();
         add(layout);
         open();
     }
@@ -95,7 +95,7 @@ public final class DeckSimpleDeleteDialog extends Dialog {
      * @return configured VerticalLayout
      */
     private VerticalLayout createDialogLayout() {
-        VerticalLayout layout = createBaseLayout();
+        final VerticalLayout layout = createBaseLayout();
 
         layout.add(createIcon());
         layout.add(createTitle());
@@ -111,7 +111,7 @@ public final class DeckSimpleDeleteDialog extends Dialog {
      * @return configured VerticalLayout
      */
     private VerticalLayout createBaseLayout() {
-        VerticalLayout layout = new VerticalLayout();
+        final VerticalLayout layout = new VerticalLayout();
         layout.setSpacing(true);
         layout.setPadding(true);
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -124,7 +124,7 @@ public final class DeckSimpleDeleteDialog extends Dialog {
      * @return configured Div with icon
      */
     private Div createIcon() {
-        Div icon = new Div();
+        final Div icon = new Div();
         icon.add(VaadinIcon.INFO_CIRCLE.create());
         icon.addClassName(DeckConstants.DECK_DELETE_DIALOG_ICON_CLASS);
         return icon;
@@ -136,7 +136,7 @@ public final class DeckSimpleDeleteDialog extends Dialog {
      * @return configured H3 title
      */
     private H3 createTitle() {
-        H3 title = new H3(getTranslation(DeckConstants.DECK_DELETE_SIMPLE_TITLE));
+        final H3 title = new H3(getTranslation(DeckConstants.DECK_DELETE_SIMPLE_TITLE));
         title.addClassName(DeckConstants.DECK_DELETE_DIALOG_TITLE_CLASS);
         return title;
     }
@@ -147,8 +147,8 @@ public final class DeckSimpleDeleteDialog extends Dialog {
      * @return configured Span description
      */
     private Span createDescription() {
-        String deckTitle = currentDeck.getTitle();
-        Span description = new Span(getTranslation(DeckConstants.DECK_DELETE_SIMPLE_DESCRIPTION, deckTitle));
+        final String deckTitle = currentDeck.getTitle();
+        final Span description = new Span(getTranslation(DeckConstants.DECK_DELETE_SIMPLE_DESCRIPTION, deckTitle));
         description.addClassName(DeckConstants.DECK_DELETE_DIALOG_DESCRIPTION_CLASS);
         return description;
     }
@@ -159,10 +159,10 @@ public final class DeckSimpleDeleteDialog extends Dialog {
      * @return configured HorizontalLayout with buttons
      */
     private HorizontalLayout createButtons() {
-        HorizontalLayout buttons = DialogHelper.createButtonLayout();
+        final HorizontalLayout buttons = DialogHelper.createButtonLayout();
 
-        Button confirmButton = createConfirmButton();
-        Button cancelButton = createCancelButton();
+        final Button confirmButton = createConfirmButton();
+        final Button cancelButton = createCancelButton();
 
         buttons.add(confirmButton, cancelButton);
         return buttons;
@@ -205,7 +205,7 @@ public final class DeckSimpleDeleteDialog extends Dialog {
             NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_DELETE_SUCCESS));
             NavigationHelper.navigateToDecks();
             notifyDeckDeleted();
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
             LOGGER.error("Error deleting deck ID {}: {}", currentDeck.getId(), ex.getMessage(), ex);
             NotificationHelper.showErrorLong(ex.getMessage());
         }

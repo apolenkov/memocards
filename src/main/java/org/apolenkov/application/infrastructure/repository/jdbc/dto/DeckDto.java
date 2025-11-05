@@ -33,7 +33,7 @@ public record DeckDto(
         if (userId <= 0) {
             throw new IllegalArgumentException("User ID must be positive");
         }
-        if (title == null || title.trim().isEmpty()) {
+        if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("Title cannot be null or empty");
         }
     }
@@ -47,7 +47,7 @@ public record DeckDto(
      * @return DeckDto for new deck
      */
     public static DeckDto forNewDeck(final long userId, final String title, final String description) {
-        LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now();
         return new DeckDto(null, userId, title, description, now, now);
     }
 

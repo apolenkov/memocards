@@ -2,6 +2,7 @@ package org.apolenkov.application.views.stats.components;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.html.Div;
+import java.util.Locale;
 import org.apolenkov.application.views.stats.constants.StatsConstants;
 
 /**
@@ -39,18 +40,18 @@ public final class StatCard extends Composite<Div> {
 
     @Override
     protected Div initContent() {
-        Div card = new Div();
+        final Div card = new Div();
         card.addClassName(StatsConstants.STATS_CARD_CLASS);
         card.addClassName(StatsConstants.SURFACE_CARD_CLASS);
 
         // Add semantic variant class for color coding
-        card.addClassName("stats-card--" + variant.name().toLowerCase());
+        card.addClassName("stats-card--" + variant.name().toLowerCase(Locale.ROOT));
 
-        Div valueDiv = new Div();
+        final Div valueDiv = new Div();
         valueDiv.addClassName(StatsConstants.STATS_CARD_VALUE_CLASS);
         valueDiv.setText(String.valueOf(value));
 
-        Div labelDiv = new Div();
+        final Div labelDiv = new Div();
         labelDiv.addClassName(StatsConstants.STATS_CARD_LABEL_CLASS);
         labelDiv.setText(getTranslation(labelKey));
 

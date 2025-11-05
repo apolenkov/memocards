@@ -31,10 +31,10 @@ public record UserDto(
      * @throws IllegalArgumentException if email or name is null/empty
      */
     public UserDto {
-        if (email == null || email.trim().isEmpty()) {
+        if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email cannot be null or empty");
         }
-        if (name == null || name.trim().isEmpty()) {
+        if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Name cannot be null or empty");
         }
         if (roles == null) {

@@ -37,12 +37,12 @@ public class DeckJdbcAdapter implements DeckRepository {
      * RowMapper for DeckDto.
      */
     private static final RowMapper<DeckDto> DECK_ROW_MAPPER = (rs, rowNum) -> {
-        Long id = rs.getLong("id");
-        long userId = rs.getLong("user_id");
-        String title = rs.getString("title");
-        String description = rs.getString("description");
-        Timestamp createdAt = rs.getTimestamp("created_at");
-        Timestamp updatedAt = rs.getTimestamp("updated_at");
+        final Long id = rs.getLong("id");
+        final long userId = rs.getLong("user_id");
+        final String title = rs.getString("title");
+        final String description = rs.getString("description");
+        final Timestamp createdAt = rs.getTimestamp("created_at");
+        final Timestamp updatedAt = rs.getTimestamp("updated_at");
 
         return DeckDto.forExistingDeck(
                 id,
@@ -98,8 +98,9 @@ public class DeckJdbcAdapter implements DeckRepository {
     public List<Deck> findAll() {
         LOGGER.debug("Retrieving all decks");
         try {
-            List<DeckDto> deckDtos = jdbcTemplate.query(DeckSqlQueries.SELECT_ALL_DECKS, DECK_ROW_MAPPER);
-            List<Deck> decks = deckDtos.stream().map(DeckJdbcAdapter::toModel).toList();
+            final List<DeckDto> deckDtos = jdbcTemplate.query(DeckSqlQueries.SELECT_ALL_DECKS, DECK_ROW_MAPPER);
+            final List<Deck> decks =
+                    deckDtos.stream().map(DeckJdbcAdapter::toModel).toList();
             LOGGER.debug("Retrieved {} decks from database", decks.size());
             return decks;
         } catch (DataAccessException e) {
@@ -122,9 +123,10 @@ public class DeckJdbcAdapter implements DeckRepository {
 
         LOGGER.debug("Retrieving decks for user ID: {}", userId);
         try {
-            List<DeckDto> deckDtos =
+            final List<DeckDto> deckDtos =
                     jdbcTemplate.query(DeckSqlQueries.SELECT_DECKS_BY_USER_ID, DECK_ROW_MAPPER, userId);
-            List<Deck> decks = deckDtos.stream().map(DeckJdbcAdapter::toModel).toList();
+            final List<Deck> decks =
+                    deckDtos.stream().map(DeckJdbcAdapter::toModel).toList();
             LOGGER.debug("Retrieved {} decks for user ID: {}", decks.size(), userId);
             return decks;
         } catch (DataAccessException e) {
@@ -150,17 +152,18 @@ public class DeckJdbcAdapter implements DeckRepository {
             throw new IllegalArgumentException("Search query cannot be null or blank");
         }
 
-        String searchPattern = "%" + searchQuery.trim() + "%";
+        final String searchPattern = "%" + searchQuery.trim() + "%";
         LOGGER.debug("Searching decks for user ID: {}, query: '{}'", userId, searchQuery);
 
         try {
-            List<DeckDto> deckDtos = jdbcTemplate.query(
+            final List<DeckDto> deckDtos = jdbcTemplate.query(
                     DeckSqlQueries.SELECT_DECKS_BY_USER_ID_AND_SEARCH,
                     DECK_ROW_MAPPER,
                     userId,
                     searchPattern,
                     searchPattern);
-            List<Deck> decks = deckDtos.stream().map(DeckJdbcAdapter::toModel).toList();
+            final List<Deck> decks =
+                    deckDtos.stream().map(DeckJdbcAdapter::toModel).toList();
             LOGGER.debug("Found {} decks for user ID: {}, query: '{}'", decks.size(), userId, searchQuery);
             return decks;
         } catch (DataAccessException e) {
@@ -179,7 +182,7 @@ public class DeckJdbcAdapter implements DeckRepository {
     public Optional<Deck> findById(final long id) {
         LOGGER.debug("Retrieving deck by ID: {}", id);
         try {
-            List<DeckDto> decks = jdbcTemplate.query(DeckSqlQueries.SELECT_DECK_BY_ID, DECK_ROW_MAPPER, id);
+            final List<DeckDto> decks = jdbcTemplate.query(DeckSqlQueries.SELECT_DECK_BY_ID, DECK_ROW_MAPPER, id);
             if (decks.isEmpty()) {
                 return Optional.empty();
             }
@@ -203,11 +206,11 @@ public class DeckJdbcAdapter implements DeckRepository {
             throw new IllegalArgumentException("Deck cannot be null");
         }
 
-        boolean isNew = deck.getId() == null;
+        final boolean isNew = deck.getId() == null;
         LOGGER.debug("Saving deck: title='{}', isNew={}", deck.getTitle(), isNew);
 
         try {
-            Deck saved = isNew ? createDeck(deck) : updateDeck(deck);
+            final Deck saved = isNew ? createDeck(deck) : updateDeck(deck);
             LOGGER.debug("Deck saved: id={}, title='{}', isNew={}", saved.getId(), saved.getTitle(), isNew);
             return saved;
         } catch (DataAccessException e) {
@@ -224,7 +227,7 @@ public class DeckJdbcAdapter implements DeckRepository {
     public void deleteById(final long id) {
         LOGGER.debug("Deleting deck by ID: {}", id);
         try {
-            int deleted = jdbcTemplate.update(DeckSqlQueries.DELETE_DECK, id);
+            final int deleted = jdbcTemplate.update(DeckSqlQueries.DELETE_DECK, id);
             if (deleted == 0) {
                 LOGGER.warn("No deck found with ID: {}", id);
             } else {
@@ -242,9 +245,9 @@ public class DeckJdbcAdapter implements DeckRepository {
      * @return created deck with generated ID
      */
     private Deck createDeck(final Deck deck) {
-        DeckDto deckDto = DeckDto.forNewDeck(deck.getUserId(), deck.getTitle(), deck.getDescription());
+        final DeckDto deckDto = DeckDto.forNewDeck(deck.getUserId(), deck.getTitle(), deck.getDescription());
 
-        Long generatedId = jdbcTemplate.queryForObject(
+        final Long generatedId = jdbcTemplate.queryForObject(
                 DeckSqlQueries.INSERT_DECK_RETURNING_ID,
                 Long.class,
                 deckDto.userId(),
@@ -253,7 +256,7 @@ public class DeckJdbcAdapter implements DeckRepository {
                 deckDto.createdAt(),
                 deckDto.updatedAt());
 
-        DeckDto createdDto = DeckDto.forExistingDeck(
+        final DeckDto createdDto = DeckDto.forExistingDeck(
                 generatedId,
                 deckDto.userId(),
                 deckDto.title(),

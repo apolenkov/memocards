@@ -21,7 +21,7 @@ public final class DialogHelper {
      * @return configured HorizontalLayout for dialog buttons
      */
     public static HorizontalLayout createButtonLayout() {
-        HorizontalLayout buttons = new HorizontalLayout();
+        final HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);

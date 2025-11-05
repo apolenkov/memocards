@@ -67,11 +67,11 @@ public final class Deck {
         if (userId <= 0) {
             throw new IllegalArgumentException("userId must be positive");
         }
-        String t = title != null ? title.trim() : null;
+        final String t = title != null ? title.trim() : null;
         if (t == null || t.isEmpty()) {
             throw new IllegalArgumentException("title is required");
         }
-        Deck d = new Deck();
+        final Deck d = new Deck();
         d.setUserId(userId);
         d.setTitle(t);
         d.setDescription(description != null ? description.trim() : null);
@@ -173,7 +173,7 @@ public final class Deck {
      * @throws IllegalArgumentException if title is null or empty
      */
     public void setTitle(final String titleValue) {
-        String t = titleValue != null ? titleValue.trim() : null;
+        final String t = titleValue != null ? titleValue.trim() : null;
         if (t == null || t.isEmpty()) {
             throw new IllegalArgumentException("title is required");
         }
@@ -265,7 +265,7 @@ public final class Deck {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Deck deck = (Deck) o;
+        final Deck deck = (Deck) o;
         return Objects.equals(id, deck.id);
     }
 

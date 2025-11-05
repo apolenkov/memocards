@@ -63,7 +63,7 @@ public final class DeckCardDeleteDialog extends Dialog {
         }
 
         addClassName(DeckConstants.DIALOG_SM_CLASS);
-        VerticalLayout layout = createDialogLayout();
+        final VerticalLayout layout = createDialogLayout();
         add(layout);
         open();
     }
@@ -74,7 +74,7 @@ public final class DeckCardDeleteDialog extends Dialog {
      * @return configured VerticalLayout
      */
     private VerticalLayout createDialogLayout() {
-        VerticalLayout layout = new VerticalLayout();
+        final VerticalLayout layout = new VerticalLayout();
         layout.add(createDialogTitle());
         layout.add(createDialogDescription());
         layout.add(createButtonLayout());
@@ -105,10 +105,10 @@ public final class DeckCardDeleteDialog extends Dialog {
      * @return configured HorizontalLayout with buttons
      */
     private HorizontalLayout createButtonLayout() {
-        HorizontalLayout buttons = DialogHelper.createButtonLayout();
+        final HorizontalLayout buttons = DialogHelper.createButtonLayout();
 
-        Button confirmButton = createConfirmButton();
-        Button cancelButton = createCancelButton();
+        final Button confirmButton = createConfirmButton();
+        final Button cancelButton = createCancelButton();
 
         buttons.add(confirmButton, cancelButton);
         return buttons;
@@ -144,7 +144,7 @@ public final class DeckCardDeleteDialog extends Dialog {
             close();
             NotificationHelper.showSuccessBottom(getTranslation(DeckConstants.DECK_CARD_DELETED));
             LOGGER.debug("Card {} deleted successfully", card.getId());
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
             handleDeletionError(ex);
         }
     }

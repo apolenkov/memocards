@@ -14,7 +14,7 @@ class StatsServiceTest {
     @Test
     @DisplayName("Should create valid session stats")
     void shouldCreateValidSessionStats() {
-        SessionStatsDto stats = SessionStatsDto.builder()
+        final SessionStatsDto stats = SessionStatsDto.builder()
                 .deckId(1L)
                 .viewed(10)
                 .correct(8)

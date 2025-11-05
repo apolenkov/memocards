@@ -7,6 +7,7 @@ import com.vaadin.flow.router.HasErrorParameter;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.Serial;
 import org.apolenkov.application.views.core.error.EntityNotFoundError;
 import org.apolenkov.application.views.core.exception.EntityNotFoundException;
 import org.apolenkov.application.views.core.layout.PublicLayout;
@@ -21,12 +22,16 @@ import org.slf4j.LoggerFactory;
 @AnonymousAllowed
 public class EntityNotFoundErrorHandler extends VerticalLayout implements HasErrorParameter<EntityNotFoundException> {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityNotFoundErrorHandler.class);
 
     /**
      * Creates a new EntityNotFoundErrorHandler.
      */
     public EntityNotFoundErrorHandler() {
+        super();
         // Constructor for dependency injection
     }
 
@@ -40,7 +45,7 @@ public class EntityNotFoundErrorHandler extends VerticalLayout implements HasErr
     @Override
     public int setErrorParameter(
             final BeforeEnterEvent event, final ErrorParameter<EntityNotFoundException> parameter) {
-        EntityNotFoundException exception = parameter.getException();
+        final EntityNotFoundException exception = parameter.getException();
 
         LOGGER.warn(
                 "Entity not found with ID '{}', redirecting to back route: {}",
@@ -48,7 +53,7 @@ public class EntityNotFoundErrorHandler extends VerticalLayout implements HasErr
                 exception.getBackRoute());
 
         // Create and display the error component
-        EntityNotFoundError errorComponent =
+        final EntityNotFoundError errorComponent =
                 new EntityNotFoundError(exception.getEntityId(), exception.getBackRoute(), exception.getMessage());
 
         // Clear existing content and add error component

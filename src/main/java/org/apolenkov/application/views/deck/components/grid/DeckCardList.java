@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import org.apolenkov.application.domain.constants.BusinessConstants;
 import org.apolenkov.application.domain.model.FilterOption;
 import org.apolenkov.application.domain.usecase.CardUseCase;
 import org.apolenkov.application.model.Card;
@@ -115,7 +117,7 @@ public final class DeckCardList extends VerticalLayout {
         topPaginationInfo.addClassName("deck-pagination-info");
 
         // Top pagination controls
-        HorizontalLayout topPagination = new HorizontalLayout();
+        final HorizontalLayout topPagination = new HorizontalLayout();
         topPagination.setWidthFull();
         topPagination.setJustifyContentMode(JustifyContentMode.CENTER);
         topPagination.setAlignItems(Alignment.CENTER);
@@ -144,7 +146,7 @@ public final class DeckCardList extends VerticalLayout {
         cardsContainer.setWidthFull();
 
         // Bottom pagination controls
-        HorizontalLayout bottomPagination = new HorizontalLayout();
+        final HorizontalLayout bottomPagination = new HorizontalLayout();
         bottomPagination.setWidthFull();
         bottomPagination.setJustifyContentMode(JustifyContentMode.CENTER);
         bottomPagination.setAlignItems(Alignment.CENTER);
@@ -240,12 +242,12 @@ public final class DeckCardList extends VerticalLayout {
         }
 
         // Load known card IDs once for all cards (prevents N+50 cache hits)
-        Set<Long> knownCardIds = currentDeckId != null ? statsService.getKnownCardIds(currentDeckId) : Set.of();
+        final Set<Long> knownCardIds = currentDeckId != null ? statsService.getKnownCardIds(currentDeckId) : Set.of();
 
         // Clear existing cards and render mnew ones
         cardsContainer.removeAll();
         cards.forEach(card -> {
-            Div cardDiv = createCardComponent(card, knownCardIds);
+            final Div cardDiv = createCardComponent(card, knownCardIds);
             cardsContainer.add(cardDiv);
         });
 
@@ -258,14 +260,14 @@ public final class DeckCardList extends VerticalLayout {
      * Handles combinations of search query and known/unknown status.
      */
     private void calculatePagination() {
-        boolean hasSearch = currentFilter != null
+        final boolean hasSearch = currentFilter != null
                 && currentFilter.searchQuery() != null
-                && !currentFilter.searchQuery().trim().isEmpty();
+                && !currentFilter.searchQuery().isBlank();
 
-        FilterOption filterOption = currentFilter != null ? currentFilter.filterOption() : FilterOption.ALL;
+        final FilterOption filterOption = currentFilter != null ? currentFilter.filterOption() : FilterOption.ALL;
 
         // ✅ Use dynamic SQL query builder - ONE method handles ALL combinations!
-        String searchQuery = hasSearch ? currentFilter.searchQuery() : null;
+        final String searchQuery = hasSearch ? currentFilter.searchQuery() : null;
         totalItems = cardUseCase.countCardsWithFilter(currentDeckId, searchQuery, filterOption);
 
         totalPages = (int) Math.ceil((double) totalItems / pageSize);
@@ -287,14 +289,14 @@ public final class DeckCardList extends VerticalLayout {
      * @return list of cards matching current filter
      */
     private List<Card> loadCardsForPage(final PageRequest pageRequest) {
-        boolean hasSearch = currentFilter != null
+        final boolean hasSearch = currentFilter != null
                 && currentFilter.searchQuery() != null
-                && !currentFilter.searchQuery().trim().isEmpty();
+                && !currentFilter.searchQuery().isBlank();
 
-        FilterOption filterOption = currentFilter != null ? currentFilter.filterOption() : FilterOption.ALL;
+        final FilterOption filterOption = currentFilter != null ? currentFilter.filterOption() : FilterOption.ALL;
 
         // ✅ Use dynamic SQL query builder - ONE method handles ALL combinations!
-        String searchQuery = hasSearch ? currentFilter.searchQuery() : null;
+        final String searchQuery = hasSearch ? currentFilter.searchQuery() : null;
         return cardUseCase.getCardsWithFilter(currentDeckId, searchQuery, filterOption, pageRequest);
     }
 
@@ -306,9 +308,9 @@ public final class DeckCardList extends VerticalLayout {
      */
     private String getContextualEmptyMessage() {
         // Check if there's an active search query
-        boolean hasSearch = currentFilter != null
+        final boolean hasSearch = currentFilter != null
                 && currentFilter.searchQuery() != null
-                && !currentFilter.searchQuery().trim().isEmpty();
+                && !currentFilter.searchQuery().isBlank();
 
         // If searching, show generic "no results" message
         if (hasSearch) {
@@ -316,13 +318,13 @@ public final class DeckCardList extends VerticalLayout {
         }
 
         // Check if deck is completely empty (no cards at all)
-        long totalCardsInDeck = cardUseCase.countByDeckId(currentDeckId);
+        final long totalCardsInDeck = cardUseCase.countByDeckId(currentDeckId);
         if (totalCardsInDeck == 0) {
             return getTranslation("deck.pagination.no-items.all");
         }
 
         // Deck has cards, but filter hides them all
-        FilterOption filterOption = currentFilter != null ? currentFilter.filterOption() : FilterOption.ALL;
+        final FilterOption filterOption = currentFilter != null ? currentFilter.filterOption() : FilterOption.ALL;
         return switch (filterOption) {
             case ALL -> getTranslation("deck.pagination.no-items"); // Should not happen if deck has cards
             case KNOWN_ONLY -> getTranslation("deck.pagination.no-items.known");
@@ -340,7 +342,7 @@ public final class DeckCardList extends VerticalLayout {
     private void updatePaginationInfo() {
         // Case 1: No items after filtering
         if (totalItems == 0) {
-            String noItemsText = getContextualEmptyMessage();
+            final String noItemsText = getContextualEmptyMessage();
 
             // ✅ Show message ONLY at top (prevents duplicate visible text)
             topPaginationInfo.setText(noItemsText);
@@ -356,7 +358,7 @@ public final class DeckCardList extends VerticalLayout {
         }
 
         // Case 2: Items exist but all fit on one page (no pagination needed)
-        if (totalPages <= 1) {
+        if (totalPages <= BusinessConstants.SINGLE_PAGE_THRESHOLD) {
             // Clear pagination info text - items are visible, no explanation needed
             topPaginationInfo.setText("");
             bottomPaginationInfo.setText("");
@@ -375,11 +377,11 @@ public final class DeckCardList extends VerticalLayout {
         topPaginationInfo.setVisible(true);
         bottomPaginationInfo.setVisible(true);
 
-        int startItem = currentPage * pageSize + 1;
-        int endItem = Math.min((currentPage + 1) * pageSize, (int) totalItems);
+        final int startItem = currentPage * pageSize + 1;
+        final int endItem = Math.min((currentPage + 1) * pageSize, (int) totalItems);
 
         // Use mobile-friendly text for all screens (CSS will handle responsive display)
-        String paginationText = getTranslation(
+        final String paginationText = getTranslation(
                 "deck.pagination.info.mobile",
                 startItem,
                 endItem,
@@ -391,7 +393,7 @@ public final class DeckCardList extends VerticalLayout {
         bottomPaginationInfo.setText(paginationText);
 
         // Add data attribute for mobile CSS to show only page numbers
-        String pageInfoText = (currentPage + 1) + " / " + Math.max(1, totalPages);
+        final String pageInfoText = (currentPage + 1) + " / " + Math.max(1, totalPages);
         topPaginationInfo.getElement().setAttribute("data-page-info", pageInfoText);
         bottomPaginationInfo.getElement().setAttribute("data-page-info", pageInfoText);
     }
@@ -437,7 +439,7 @@ public final class DeckCardList extends VerticalLayout {
     private void hidePaginationControls() {
         // Hide top pagination
         if (getComponentCount() > 1) {
-            Component topPagination = getComponentAt(1);
+            final Component topPagination = getComponentAt(1);
             if (topPagination != null) {
                 topPagination.setVisible(false);
             }
@@ -445,7 +447,7 @@ public final class DeckCardList extends VerticalLayout {
 
         // Hide bottom pagination
         if (getComponentCount() > 3) {
-            Component bottomPagination = getComponentAt(3);
+            final Component bottomPagination = getComponentAt(3);
             if (bottomPagination != null) {
                 bottomPagination.setVisible(false);
             }
@@ -458,7 +460,7 @@ public final class DeckCardList extends VerticalLayout {
     private void showPaginationControls() {
         // Show top pagination
         if (getComponentCount() > 1) {
-            Component topPagination = getComponentAt(1);
+            final Component topPagination = getComponentAt(1);
             if (topPagination != null) {
                 topPagination.setVisible(true);
             }
@@ -466,7 +468,7 @@ public final class DeckCardList extends VerticalLayout {
 
         // Show bottom pagination
         if (getComponentCount() > 3) {
-            Component bottomPagination = getComponentAt(3);
+            final Component bottomPagination = getComponentAt(3);
             if (bottomPagination != null) {
                 bottomPagination.setVisible(true);
             }
@@ -475,7 +477,7 @@ public final class DeckCardList extends VerticalLayout {
         // Update button states and page info
         updatePaginationButtons(currentPage > 0, currentPage < totalPages - 1);
 
-        String pageInfoText = (currentPage + 1) + " / " + Math.max(1, totalPages);
+        final String pageInfoText = (currentPage + 1) + " / " + Math.max(1, totalPages);
         updatePageInfoLabels(pageInfoText);
     }
 
@@ -529,11 +531,11 @@ public final class DeckCardList extends VerticalLayout {
      * @return the card component
      */
     private Div createCardComponent(final Card card, final Set<Long> knownCardIds) {
-        Div cardDiv = new Div();
+        final Div cardDiv = new Div();
         cardDiv.addClassName("card-card");
 
         // Check known status from pre-loaded set (prevents N+50 cache hits per render)
-        boolean isKnown = knownCardIds.contains(card.getId());
+        final boolean isKnown = knownCardIds.contains(card.getId());
 
         // Note: Filter logic is handled in DataProvider to avoid breaking VirtualList scroll
         // Hiding items in the renderer breaks VirtualList's virtual scrolling
@@ -557,49 +559,48 @@ public final class DeckCardList extends VerticalLayout {
         });
 
         // Card content (clickable area)
-        VerticalLayout cardContent = new VerticalLayout();
+        final VerticalLayout cardContent = new VerticalLayout();
         cardContent.setPadding(true);
         cardContent.setSpacing(true);
         cardContent.setWidthFull();
 
         // Header row: Front text + Known indicator + Actions
-        HorizontalLayout headerRow = new HorizontalLayout();
+        final HorizontalLayout headerRow = new HorizontalLayout();
         headerRow.setWidthFull();
-        headerRow.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
-        headerRow.setJustifyContentMode(
-                com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.BETWEEN);
+        headerRow.setAlignItems(FlexComponent.Alignment.CENTER);
+        headerRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 
         // Front text (grows to fill space)
-        Span frontText = new Span(card.getFrontText());
+        final Span frontText = new Span(card.getFrontText());
         frontText.addClassName("card-front");
         frontText.getStyle().set("flex-grow", "1");
 
         // Right section: Known indicator + Actions
-        HorizontalLayout rightSection = new HorizontalLayout();
+        final HorizontalLayout rightSection = new HorizontalLayout();
         rightSection.setSpacing(true);
-        rightSection.setAlignItems(com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER);
+        rightSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Known indicator (checkmark if card is known) - hidden via CSS, replaced with border
         if (isKnown) {
-            Span knownIndicator = new Span("✓");
+            final Span knownIndicator = new Span("✓");
             knownIndicator.addClassName("card-known-indicator");
             rightSection.add(knownIndicator);
         }
 
         // Desktop: action buttons (visible only on desktop via CSS)
-        HorizontalLayout desktopActions = createDesktopActionButtons(card, isKnown);
+        final HorizontalLayout desktopActions = createDesktopActionButtons(card, isKnown);
         desktopActions.addClassName("desktop-only");
 
         // Mobile: same action buttons (visible only on mobile via CSS)
-        HorizontalLayout mobileActions = createDesktopActionButtons(card, isKnown);
+        final HorizontalLayout mobileActions = createDesktopActionButtons(card, isKnown);
         mobileActions.addClassName("mobile-only");
 
         rightSection.add(desktopActions, mobileActions);
         headerRow.add(frontText, rightSection);
 
         // Example row (if exists)
-        if (card.getExample() != null && !card.getExample().trim().isEmpty()) {
-            Span exampleText = new Span(card.getExample());
+        if (card.getExample() != null && !card.getExample().isBlank()) {
+            final Span exampleText = new Span(card.getExample());
             exampleText.addClassName("card-example");
             cardContent.add(headerRow, exampleText);
         } else {
@@ -618,17 +619,15 @@ public final class DeckCardList extends VerticalLayout {
      * @return the actions buttons layout
      */
     private HorizontalLayout createDesktopActionButtons(final Card card, final boolean isKnown) {
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
+        final HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSpacing(false);
         buttonsLayout.setPadding(false);
         buttonsLayout.addClassName("card-desktop-actions");
 
         // Edit button
-        com.vaadin.flow.component.button.Button editButton = new com.vaadin.flow.component.button.Button();
-        editButton.setIcon(com.vaadin.flow.component.icon.VaadinIcon.EDIT.create());
-        editButton.addThemeVariants(
-                com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY,
-                com.vaadin.flow.component.button.ButtonVariant.LUMO_ICON);
+        final Button editButton = new Button();
+        editButton.setIcon(VaadinIcon.EDIT.create());
+        editButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
         editButton.getElement().setProperty(DeckConstants.TITLE_PROPERTY, getTranslation(DeckConstants.CARD_MENU_EDIT));
         editButton.addClickListener(e -> {
             if (editCardCallback != null) {
@@ -637,15 +636,13 @@ public final class DeckCardList extends VerticalLayout {
         });
 
         // Toggle known button
-        com.vaadin.flow.component.button.Button toggleButton = new com.vaadin.flow.component.button.Button();
-        toggleButton.setIcon(com.vaadin.flow.component.icon.VaadinIcon.CHECK.create());
-        toggleButton.addThemeVariants(
-                com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY,
-                com.vaadin.flow.component.button.ButtonVariant.LUMO_ICON);
+        final Button toggleButton = new Button();
+        toggleButton.setIcon(VaadinIcon.CHECK.create());
+        toggleButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
 
         // Green color for known cards, default for unknown
         if (isKnown) {
-            toggleButton.addThemeVariants(com.vaadin.flow.component.button.ButtonVariant.LUMO_SUCCESS);
+            toggleButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         }
 
         toggleButton
@@ -658,12 +655,9 @@ public final class DeckCardList extends VerticalLayout {
         });
 
         // Delete button
-        com.vaadin.flow.component.button.Button deleteButton = new com.vaadin.flow.component.button.Button();
-        deleteButton.setIcon(com.vaadin.flow.component.icon.VaadinIcon.TRASH.create());
-        deleteButton.addThemeVariants(
-                com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY,
-                com.vaadin.flow.component.button.ButtonVariant.LUMO_ERROR,
-                com.vaadin.flow.component.button.ButtonVariant.LUMO_ICON);
+        final Button deleteButton = new Button();
+        deleteButton.setIcon(VaadinIcon.TRASH.create());
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_ICON);
         deleteButton
                 .getElement()
                 .setProperty(DeckConstants.TITLE_PROPERTY, getTranslation(DeckConstants.CARD_MENU_DELETE));

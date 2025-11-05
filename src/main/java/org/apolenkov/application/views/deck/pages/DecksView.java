@@ -76,7 +76,7 @@ public final class DecksView extends BaseView implements AfterNavigationObserver
         addClassName(DeckConstants.DECKS_VIEW_CLASS);
 
         // Create content layout
-        VerticalLayout content = new VerticalLayout();
+        final VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
         content.setPadding(true);
         content.setSpacing(true);
@@ -127,7 +127,7 @@ public final class DecksView extends BaseView implements AfterNavigationObserver
      * is automatically refreshed to show the new deck.
      */
     private void openCreateDeckDialog() {
-        CreateDeckDialog dialog = new CreateDeckDialog(deckUseCase, userUseCase, created -> refreshDecks(""));
+        final CreateDeckDialog dialog = new CreateDeckDialog(deckUseCase, userUseCase, created -> refreshDecks(""));
         dialog.open();
     }
 

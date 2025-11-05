@@ -54,7 +54,7 @@ public final class ErrorDevInfo extends Composite<Component> {
      * @return configured dev container
      */
     private VerticalLayout createDevContainer() {
-        VerticalLayout container = new VerticalLayout();
+        final VerticalLayout container = new VerticalLayout();
         container.addClassName(CoreConstants.ERROR_DEV_CONTAINER_CLASS);
         container.addClassName(CoreConstants.SURFACE_PANEL_CLASS);
         container.setSpacing(true);
@@ -68,7 +68,7 @@ public final class ErrorDevInfo extends Composite<Component> {
      * @return configured dev title
      */
     private H3 createDevTitle() {
-        H3 title = new H3();
+        final H3 title = new H3();
         title.addClassName(CoreConstants.ERROR_DEV_TITLE_CLASS);
         return title;
     }
@@ -79,7 +79,7 @@ public final class ErrorDevInfo extends Composite<Component> {
      * @return configured error type span
      */
     private Span createErrorTypeSpan() {
-        Span span = new Span();
+        final Span span = new Span();
         span.addClassName(CoreConstants.ERROR_DEV_TYPE_CLASS);
         return span;
     }
@@ -90,7 +90,7 @@ public final class ErrorDevInfo extends Composite<Component> {
      * @return configured error message span
      */
     private Span createErrorMessageSpan() {
-        Span span = new Span();
+        final Span span = new Span();
         span.addClassName(CoreConstants.ERROR_DEV_MESSAGE_CLASS);
         return span;
     }
@@ -101,7 +101,7 @@ public final class ErrorDevInfo extends Composite<Component> {
      * @return configured current route span
      */
     private Span createCurrentRouteSpan() {
-        Span span = new Span();
+        final Span span = new Span();
         span.addClassName(CoreConstants.ERROR_DEV_ROUTE_CLASS);
         return span;
     }
@@ -112,7 +112,7 @@ public final class ErrorDevInfo extends Composite<Component> {
      * @return configured timestamp span
      */
     private Span createTimestampSpan() {
-        Span span = new Span();
+        final Span span = new Span();
         span.addClassName(CoreConstants.ERROR_DEV_TIMESTAMP_CLASS);
         return span;
     }
@@ -121,7 +121,7 @@ public final class ErrorDevInfo extends Composite<Component> {
      * Sets up the development container with all components.
      */
     private void setupDevContainer() {
-        Div errorDetails = new Div();
+        final Div errorDetails = new Div();
         errorDetails.addClassName(CoreConstants.ERROR_DEV_DETAILS_CLASS);
         errorDetails.add(errorTypeSpan, errorMessageSpan, currentRouteSpan);
 
@@ -142,10 +142,10 @@ public final class ErrorDevInfo extends Composite<Component> {
         devTitle.setText(getTranslation(CoreConstants.ERROR_DEV_TITLE_KEY));
 
         // Sanitize error details for security
-        String unknownText = getTranslation(CoreConstants.ERROR_UNKNOWN_KEY);
-        String safeErrorType = sanitizeErrorDetail(state.errorType(), unknownText);
-        String safeErrorMessage = sanitizeErrorDetail(state.errorMessage(), unknownText);
-        String safeErrorId = sanitizeErrorDetail(state.errorId(), unknownText);
+        final String unknownText = getTranslation(CoreConstants.ERROR_UNKNOWN_KEY);
+        final String safeErrorType = sanitizeErrorDetail(state.errorType(), unknownText);
+        final String safeErrorMessage = sanitizeErrorDetail(state.errorMessage(), unknownText);
+        final String safeErrorId = sanitizeErrorDetail(state.errorId(), unknownText);
 
         errorTypeSpan.setText(
                 getTranslation(CoreConstants.ERROR_TYPE_KEY) + CoreConstants.SEPARATOR_COLON_SPACE + safeErrorType);
@@ -173,7 +173,7 @@ public final class ErrorDevInfo extends Composite<Component> {
      * @param safeErrorId the sanitized error ID
      */
     private void addErrorIdSpan(final String safeErrorId) {
-        Span errorIdSpan = new Span();
+        final Span errorIdSpan = new Span();
         errorIdSpan.setText(
                 getTranslation(CoreConstants.ERROR_ID_KEY) + CoreConstants.SEPARATOR_COLON_SPACE + safeErrorId);
         errorIdSpan.addClassName(CoreConstants.ERROR_DEV_ID_CLASS);
@@ -193,7 +193,7 @@ public final class ErrorDevInfo extends Composite<Component> {
      * @return true if in development profile
      */
     private boolean isDevProfile() {
-        String[] activeProfiles = environment.getActiveProfiles();
+        final String[] activeProfiles = environment.getActiveProfiles();
         return Arrays.asList(activeProfiles).contains(CoreConstants.DEV_PROFILE);
     }
 

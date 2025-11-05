@@ -66,7 +66,6 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
     // ==================== Lifecycle & Initialization ====================
 
     @PostConstruct
-    @SuppressWarnings("unused")
     private void initializeUI() {
         LOGGER.debug("Initializing ErrorView UI components");
 
@@ -123,13 +122,13 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
      * @param event the before enter event containing query parameters
      */
     private void extractErrorParameters(final BeforeEnterEvent event) {
-        Location location = event.getLocation();
-        QueryParameters queryParams = location.getQueryParameters();
+        final Location location = event.getLocation();
+        final QueryParameters queryParams = location.getQueryParameters();
 
-        String fromRoute = extractParameter(queryParams, CoreConstants.FROM_PARAM);
-        String errorType = extractParameter(queryParams, CoreConstants.ERROR_PARAM);
-        String errorMessage = extractParameter(queryParams, CoreConstants.MESSAGE_PARAM);
-        String errorId = extractParameter(queryParams, CoreConstants.ID_PARAM);
+        final String fromRoute = extractParameter(queryParams, CoreConstants.FROM_PARAM);
+        final String errorType = extractParameter(queryParams, CoreConstants.ERROR_PARAM);
+        final String errorMessage = extractParameter(queryParams, CoreConstants.MESSAGE_PARAM);
+        final String errorId = extractParameter(queryParams, CoreConstants.ID_PARAM);
 
         errorState = new ErrorState(fromRoute, errorType, errorMessage, errorId);
 
@@ -173,7 +172,7 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
      * Adds navigation buttons to the error container.
      */
     private void addNavigationButtons() {
-        HorizontalLayout navigationButtons = createNavigationButtons();
+        final HorizontalLayout navigationButtons = createNavigationButtons();
         errorContainer.add(navigationButtons);
     }
 
@@ -183,17 +182,17 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
      * @return configured button layout
      */
     private HorizontalLayout createNavigationButtons() {
-        HorizontalLayout layout = new HorizontalLayout();
+        final HorizontalLayout layout = new HorizontalLayout();
         layout.setSpacing(true);
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
-        Button goHomeButton = ButtonHelper.createButton(
+        final Button goHomeButton = ButtonHelper.createButton(
                 getTranslation(CoreConstants.ERROR_GO_HOME_KEY),
                 e -> NavigationHelper.navigateToHome(),
                 ButtonVariant.LUMO_PRIMARY);
 
-        Button tryAgainButton = ButtonHelper.createButton(
+        final Button tryAgainButton = ButtonHelper.createButton(
                 getTranslation(CoreConstants.ERROR_TRY_AGAIN_KEY),
                 e -> NavigationHelper.navigateTo(errorState.fromRoute()),
                 ButtonVariant.LUMO_TERTIARY);
@@ -249,7 +248,7 @@ public final class ErrorView extends VerticalLayout implements HasDynamicTitle, 
      * @return true if in development profile
      */
     private boolean isDevProfile() {
-        String[] activeProfiles = environment.getActiveProfiles();
+        final String[] activeProfiles = environment.getActiveProfiles();
         return Arrays.asList(activeProfiles).contains(CoreConstants.DEV_PROFILE);
     }
 

@@ -79,7 +79,7 @@ public final class PracticeSessionManager {
      * @return updated session with new question state
      */
     public PracticeSession startQuestion(final PracticeSession session) {
-        SessionState newState = session.state().withShowingAnswer(false).withCardShowTime(clock.instant());
+        final SessionState newState = session.state().withShowingAnswer(false).withCardShowTime(clock.instant());
         return session.withState(newState);
     }
 
@@ -93,17 +93,17 @@ public final class PracticeSessionManager {
     public PracticeSession reveal(final PracticeSession session) {
         if (session.getCardShowTime() != null) {
             // Calculate time spent thinking about this card
-            long delay =
+            final long delay =
                     clock.instant().toEpochMilli() - session.getCardShowTime().toEpochMilli();
             // Ensure delay is non-negative (handle edge cases with system clock)
-            long clampedDelay = Math.clamp(delay, 0L, Long.MAX_VALUE);
+            final long clampedDelay = Math.clamp(delay, 0L, Long.MAX_VALUE);
 
-            SessionState newState =
+            final SessionState newState =
                     session.state().withAnswerDelay(clampedDelay).withShowingAnswer(true);
             return session.withState(newState);
         }
 
-        SessionState newState = session.state().withShowingAnswer(true);
+        final SessionState newState = session.state().withShowingAnswer(true);
         return session.withState(newState);
     }
 
@@ -120,13 +120,13 @@ public final class PracticeSessionManager {
             return session;
         }
 
-        Card currentCard = Objects.requireNonNull(currentCard(session));
+        final Card currentCard = Objects.requireNonNull(currentCard(session));
 
         // Update session data with known card
-        SessionData newData = session.data().addKnownCard(currentCard.getId());
+        final SessionData newData = session.data().addKnownCard(currentCard.getId());
 
         // Update session state with new statistics
-        SessionState newState = session.state()
+        final SessionState newState = session.state()
                 .withIndex(session.getIndex() + 1)
                 .withShowingAnswer(false)
                 .withCorrectCount(session.getCorrectCount() + 1)
@@ -148,13 +148,13 @@ public final class PracticeSessionManager {
             return session;
         }
 
-        Card currentCard = Objects.requireNonNull(currentCard(session));
+        final Card currentCard = Objects.requireNonNull(currentCard(session));
 
         // Update session data with failed card
-        SessionData newData = session.data().addFailedCard(currentCard.getId());
+        final SessionData newData = session.data().addFailedCard(currentCard.getId());
 
         // Update session state with new statistics
-        SessionState newState = session.state()
+        final SessionState newState = session.state()
                 .withIndex(session.getIndex() + 1)
                 .withShowingAnswer(false)
                 .withHardCount(session.getHardCount() + 1)
@@ -171,13 +171,13 @@ public final class PracticeSessionManager {
      */
     public Progress progress(final PracticeSession session) {
         // Get total cards count, handling null/empty cases
-        int total = session.getCards() != null ? session.getCards().size() : 0;
+        final int total = session.getCards() != null ? session.getCards().size() : 0;
 
         // Calculate current position (1-based) with bounds checking
-        long current = Math.clamp(session.getIndex() + 1L, 1L, total);
+        final long current = Math.clamp(session.getIndex() + 1L, 1L, total);
 
         // Calculate completion percentage, avoiding division by zero
-        long percent = total > 0 ? Math.round((current * 100.0) / total) : 0;
+        final long percent = total > 0 ? Math.round(current * 100.0 / total) : 0;
 
         return new Progress(
                 current, total, session.getTotalViewed(), session.getCorrectCount(), session.getHardCount(), percent);
@@ -191,9 +191,9 @@ public final class PracticeSessionManager {
      */
     public void recordAndPersist(final PracticeSession session, final PracticeSessionService sessionService) {
         // Calculate total session duration from start to completion
-        long durationMs =
+        final long durationMs =
                 clock.instant().toEpochMilli() - session.getSessionStart().toEpochMilli();
-        Duration duration = Duration.ofMillis(durationMs);
+        final Duration duration = Duration.ofMillis(durationMs);
         sessionService.recordSession(
                 session.getDeckId(),
                 session.getTotalViewed(),

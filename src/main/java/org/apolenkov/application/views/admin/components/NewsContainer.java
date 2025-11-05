@@ -33,7 +33,7 @@ public final class NewsContainer extends Composite<VerticalLayout> {
 
     @Override
     protected VerticalLayout initContent() {
-        VerticalLayout container = new VerticalLayout();
+        final VerticalLayout container = new VerticalLayout();
         container.setSpacing(true);
         container.setAlignItems(FlexComponent.Alignment.CENTER);
         container.setWidthFull();

@@ -42,15 +42,15 @@ class NewsServiceTest {
     @DisplayName("Should get all news ordered by creation date")
     void shouldGetAllNewsOrderedByCreationDate() {
         // Given
-        News news1 = new News(
+        final News news1 = new News(
                 1L, "Title 1", "Content 1", "Author 1", LocalDateTime.now().minusDays(1));
-        News news2 = new News(2L, "Title 2", "Content 2", "Author 2", LocalDateTime.now());
-        List<News> expectedNews = List.of(news2, news1);
+        final News news2 = new News(2L, "Title 2", "Content 2", "Author 2", LocalDateTime.now());
+        final List<News> expectedNews = List.of(news2, news1);
 
         when(newsRepository.findAllOrderByCreatedDesc()).thenReturn(expectedNews);
 
         // When
-        List<News> result = newsService.getAllNews();
+        final List<News> result = newsService.getAllNews();
 
         // Then
         assertThat(result).hasSize(2).containsExactly(news2, news1);
@@ -64,7 +64,7 @@ class NewsServiceTest {
         when(newsRepository.findAllOrderByCreatedDesc()).thenReturn(Collections.emptyList());
 
         // When
-        List<News> result = newsService.getAllNews();
+        final List<News> result = newsService.getAllNews();
 
         // Then
         assertThat(result).isEmpty();
@@ -75,11 +75,11 @@ class NewsServiceTest {
     @DisplayName("Should create news with valid data")
     void shouldCreateNewsWithValidData() {
         // Given
-        String title = "Breaking News";
-        String content = "Important announcement about new features";
-        String author = "admin";
+        final String title = "Breaking News";
+        final String content = "Important announcement about new features";
+        final String author = "admin";
 
-        ArgumentCaptor<News> newsCaptor = ArgumentCaptor.forClass(News.class);
+        final ArgumentCaptor<News> newsCaptor = ArgumentCaptor.forClass(News.class);
 
         // When
         newsService.createNews(title, content, author);
@@ -87,7 +87,7 @@ class NewsServiceTest {
         // Then
         verify(newsRepository).save(newsCaptor.capture());
 
-        News savedNews = newsCaptor.getValue();
+        final News savedNews = newsCaptor.getValue();
         assertThat(savedNews.getTitle()).isEqualTo(title);
         assertThat(savedNews.getContent()).isEqualTo(content);
         assertThat(savedNews.getAuthor()).isEqualTo(author);
@@ -131,15 +131,15 @@ class NewsServiceTest {
     @DisplayName("Should update existing news")
     void shouldUpdateExistingNews() {
         // Given
-        Long newsId = 1L;
-        String newTitle = "Updated Title";
-        String newContent = "Updated Content";
-        String newAuthor = "Updated Author";
+        final Long newsId = 1L;
+        final String newTitle = "Updated Title";
+        final String newContent = "Updated Content";
+        final String newAuthor = "Updated Author";
 
-        News existingNews = new News(newsId, "Old Title", "Old Content", "Old Author", LocalDateTime.now());
+        final News existingNews = new News(newsId, "Old Title", "Old Content", "Old Author", LocalDateTime.now());
         when(newsRepository.findById(newsId)).thenReturn(Optional.of(existingNews));
 
-        ArgumentCaptor<News> newsCaptor = ArgumentCaptor.forClass(News.class);
+        final ArgumentCaptor<News> newsCaptor = ArgumentCaptor.forClass(News.class);
 
         // When
         newsService.updateNews(newsId, newTitle, newContent, newAuthor);
@@ -147,7 +147,7 @@ class NewsServiceTest {
         // Then
         verify(newsRepository).save(newsCaptor.capture());
 
-        News updatedNews = newsCaptor.getValue();
+        final News updatedNews = newsCaptor.getValue();
         assertThat(updatedNews.getId()).isEqualTo(newsId);
         assertThat(updatedNews.getTitle()).isEqualTo(newTitle);
         assertThat(updatedNews.getContent()).isEqualTo(newContent);
@@ -158,7 +158,7 @@ class NewsServiceTest {
     @DisplayName("Should throw exception when updating non-existent news")
     void shouldThrowExceptionWhenUpdatingNonExistentNews() {
         // Given
-        long newsId = 999L;
+        final long newsId = 999L;
         when(newsRepository.findById(newsId)).thenReturn(Optional.empty());
 
         // When / Then
@@ -171,8 +171,8 @@ class NewsServiceTest {
     @DisplayName("Should delete news by id")
     void shouldDeleteNewsById() {
         // Given
-        long newsId = 1L;
-        News existingNews = new News(newsId, "Title", "Content", "Author", LocalDateTime.now());
+        final long newsId = 1L;
+        final News existingNews = new News(newsId, "Title", "Content", "Author", LocalDateTime.now());
         when(newsRepository.findById(newsId)).thenReturn(Optional.of(existingNews));
 
         // When
@@ -186,7 +186,7 @@ class NewsServiceTest {
     @DisplayName("Should handle delete of non-existent news without error")
     void shouldHandleDeleteOfNonExistentNewsWithoutError() {
         // Given
-        long newsId = 999L;
+        final long newsId = 999L;
         when(newsRepository.findById(newsId)).thenReturn(Optional.empty());
 
         // When / Then - should not throw exception

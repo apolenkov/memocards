@@ -44,8 +44,8 @@ class UserSeedGeneratorTest {
 
         // Mock TransactionTemplate to execute callback immediately
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
-            TransactionCallback<?> callback = invocation.getArgument(0, TransactionCallback.class);
-            TransactionStatus mockStatus = mock(TransactionStatus.class);
+            final TransactionCallback<?> callback = invocation.getArgument(0, TransactionCallback.class);
+            final TransactionStatus mockStatus = mock(TransactionStatus.class);
             return callback.doInTransaction(mockStatus);
         });
     }
@@ -54,14 +54,14 @@ class UserSeedGeneratorTest {
     @DisplayName("Should generate specified number of users")
     void shouldGenerateSpecifiedNumberOfUsers() {
         // Given
-        int totalUsers = 3;
-        int batchSize = 10;
+        final int totalUsers = 3;
+        final int batchSize = 10;
 
         // Mock repository to return the users passed to it
         when(seedRepository.batchInsertUsers(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        List<User> result = userGenerator.generateUsers(totalUsers, batchSize, TEST_PASSWORD_HASH);
+        final List<User> result = userGenerator.generateUsers(totalUsers, batchSize, TEST_PASSWORD_HASH);
 
         // Then
         assertThat(result)
@@ -75,13 +75,13 @@ class UserSeedGeneratorTest {
     @DisplayName("Should generate users in batches")
     void shouldGenerateUsersInBatches() {
         // Given
-        int totalUsers = 25;
-        int batchSize = 10;
+        final int totalUsers = 25;
+        final int batchSize = 10;
 
         when(seedRepository.batchInsertUsers(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        List<User> result = userGenerator.generateUsers(totalUsers, batchSize, TEST_PASSWORD_HASH);
+        final List<User> result = userGenerator.generateUsers(totalUsers, batchSize, TEST_PASSWORD_HASH);
 
         // Then
         assertThat(result).hasSize(totalUsers);
@@ -93,16 +93,16 @@ class UserSeedGeneratorTest {
     @DisplayName("Should generate unique emails for each user")
     void shouldGenerateUniqueEmailsForEachUser() {
         // Given
-        int totalUsers = 10;
-        int batchSize = 10;
+        final int totalUsers = 10;
+        final int batchSize = 10;
 
         when(seedRepository.batchInsertUsers(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        List<User> result = userGenerator.generateUsers(totalUsers, batchSize, TEST_PASSWORD_HASH);
+        final List<User> result = userGenerator.generateUsers(totalUsers, batchSize, TEST_PASSWORD_HASH);
 
         // Then
-        List<String> emails = result.stream().map(User::getEmail).toList();
+        final List<String> emails = result.stream().map(User::getEmail).toList();
         assertThat(emails).doesNotHaveDuplicates();
     }
 
@@ -110,13 +110,13 @@ class UserSeedGeneratorTest {
     @DisplayName("Should use cached password hash for all users")
     void shouldUseCachedPasswordHashForAllUsers() {
         // Given
-        int totalUsers = 5;
-        int batchSize = 10;
+        final int totalUsers = 5;
+        final int batchSize = 10;
 
         when(seedRepository.batchInsertUsers(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        List<User> result = userGenerator.generateUsers(totalUsers, batchSize, TEST_PASSWORD_HASH);
+        final List<User> result = userGenerator.generateUsers(totalUsers, batchSize, TEST_PASSWORD_HASH);
 
         // Then
         assertThat(result).isNotEmpty().allMatch(user -> user.getPasswordHash().equals(TEST_PASSWORD_HASH));
@@ -126,13 +126,13 @@ class UserSeedGeneratorTest {
     @DisplayName("Should generate users with USER role")
     void shouldGenerateUsersWithUserRole() {
         // Given
-        int totalUsers = 3;
-        int batchSize = 10;
+        final int totalUsers = 3;
+        final int batchSize = 10;
 
         when(seedRepository.batchInsertUsers(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        List<User> result = userGenerator.generateUsers(totalUsers, batchSize, TEST_PASSWORD_HASH);
+        final List<User> result = userGenerator.generateUsers(totalUsers, batchSize, TEST_PASSWORD_HASH);
 
         // Then
         assertThat(result)
@@ -145,13 +145,13 @@ class UserSeedGeneratorTest {
     @DisplayName("Should generate users with valid name format")
     void shouldGenerateUsersWithValidNameFormat() {
         // Given
-        int totalUsers = 5;
-        int batchSize = 10;
+        final int totalUsers = 5;
+        final int batchSize = 10;
 
         when(seedRepository.batchInsertUsers(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        List<User> result = userGenerator.generateUsers(totalUsers, batchSize, TEST_PASSWORD_HASH);
+        final List<User> result = userGenerator.generateUsers(totalUsers, batchSize, TEST_PASSWORD_HASH);
 
         // Then
         assertThat(result)
@@ -164,11 +164,11 @@ class UserSeedGeneratorTest {
     @DisplayName("Should batch insert users via repository")
     void shouldBatchInsertUsersViaRepository() {
         // Given
-        int totalUsers = 15;
-        int batchSize = 10;
+        final int totalUsers = 15;
+        final int batchSize = 10;
 
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<List<User>> usersCaptor = ArgumentCaptor.forClass(List.class);
+        final ArgumentCaptor<List<User>> usersCaptor = ArgumentCaptor.forClass(List.class);
 
         when(seedRepository.batchInsertUsers(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -180,7 +180,7 @@ class UserSeedGeneratorTest {
         verify(seedRepository, times(2)).batchInsertUsers(usersCaptor.capture());
 
         // First batch should have 10 users, second batch should have 5
-        List<List<User>> allBatches = usersCaptor.getAllValues();
+        final List<List<User>> allBatches = usersCaptor.getAllValues();
         assertThat(allBatches).hasSize(2);
         assertThat(allBatches.get(0)).hasSize(10);
         assertThat(allBatches.get(1)).hasSize(5);

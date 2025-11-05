@@ -63,6 +63,8 @@ services:
       VAADIN_PRODUCTION_MODE: true
       # Override database URL for Docker networking
       DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-memocards}
+      # Override logging path for Docker container (maps to /app/logs in container)
+      LOGGING_FILE_PATH: /app/logs
     volumes:
       - ${APP_LOGS_PATH:-./logs}:/app/logs
     mem_limit: ${APP_MEMORY_LIMIT:-1500m}

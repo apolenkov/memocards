@@ -1,0 +1,609 @@
+<?xml version="1.0"?>
+<ruleset name="Custom Test Ruleset"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>
+        PMD ruleset for Memocards application test files
+        Optimized minimal exclusions - test-specific patterns only
+        
+        Each exclusion includes:
+        - Detailed justification with code examples
+        - Explanation of why exclusion is necessary for test code
+        - Test-specific patterns and best practices
+    </description>
+
+    <!-- Best Practices -->
+    <rule ref="category/java/bestpractices.xml">
+        <!-- 
+        GuardLogStatement: EXCLUDED
+        
+        JUSTIFICATION:
+        Same as main ruleset - modern SLF4J handles level checks efficiently.
+        Guard statements are still useful for expensive operations in tests.
+        
+        EXAMPLE:
+        ```java
+        // ✅ CORRECT: Guard for expensive operation in test
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Test data: {}", expensiveTestDataGeneration());
+        }
+        ```
+        
+        STATUS: Keep exclusion - same as main ruleset
+        -->
+        <exclude name="GuardLogStatement"/>
+        
+        <!-- 
+        UnitTestContainsTooManyAsserts: EXCLUDED
+        
+        JUSTIFICATION:
+        Allow comprehensive test assertions. Test methods can have multiple
+        assertions to verify all aspects of the behavior.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Multiple assertions in test
+        @Test
+        void testUserCreation() {
+            User user = service.createUser("John", "john@example.com");
+            
+            assertThat(user.getId()).isNotNull();
+            assertThat(user.getName()).isEqualTo("John");
+            assertThat(user.getEmail()).isEqualTo("john@example.com");
+            assertThat(user.getCreatedAt()).isNotNull();
+            // Multiple assertions are acceptable in tests
+        }
+        ```
+        
+        STATUS: Keep exclusion - allow comprehensive test assertions
+        -->
+        <exclude name="UnitTestContainsTooManyAsserts"/>
+        
+        <!-- 
+        UnitTestAssertionsShouldIncludeMessage: EXCLUDED
+        
+        JUSTIFICATION:
+        Optional test messages. Assertions can be clear without messages
+        when using descriptive assertion methods.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Clear assertion without message
+        assertThat(user.getName()).isEqualTo("John");
+        
+        // ✅ ALSO ACCEPTABLE: With message
+        assertThat(user.getName())
+            .as("User name should be John")
+            .isEqualTo("John");
+        ```
+        
+        STATUS: Keep exclusion - optional test messages
+        -->
+        <exclude name="UnitTestAssertionsShouldIncludeMessage"/>
+        
+        <!-- 
+        AbstractClassWithoutAbstractMethod: EXCLUDED
+        
+        JUSTIFICATION:
+        Test base classes are common. Abstract test classes provide
+        common setup and utilities without abstract methods.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Test base class without abstract methods
+        @Testcontainers
+        public abstract class BaseIntegrationTest {
+            @Container
+            static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
+            
+            // Common setup methods (not abstract)
+            protected void setupTestData() { ... }
+            protected void cleanupTestData() { ... }
+        }
+        ```
+        
+        STATUS: Keep exclusion - test base classes are common
+        -->
+        <exclude name="AbstractClassWithoutAbstractMethod"/>
+        
+        <!-- 
+        LiteralsFirstInComparisons: EXCLUDED
+        
+        JUSTIFICATION:
+        Test code readability prefers literals last. This matches
+        natural reading flow: "expected equals actual".
+        
+        EXAMPLE:
+        ```java
+        // ✅ PREFERRED: Literal last (natural reading)
+        assertThat(actual).isEqualTo(expected);
+        assertThat(user.getName()).isEqualTo("John");
+        
+        // ❌ LESS READABLE: Literal first (Yoda condition)
+        assertThat(expected).isEqualTo(actual);
+        assertThat("John").isEqualTo(user.getName());
+        ```
+        
+        STATUS: Keep exclusion - test code readability prefers literals last
+        -->
+        <exclude name="LiteralsFirstInComparisons"/>
+    </rule>
+
+    <!-- Code Style -->
+    <rule ref="category/java/codestyle.xml">
+        <!-- 
+        UseExplicitTypes: EXCLUDED
+        
+        JUSTIFICATION:
+        Same as main ruleset - Java 21+ var inference is preferred.
+        
+        EXAMPLE:
+        ```java
+        // ✅ PREFERRED: var inference in tests
+        var user = service.createUser("John", "john@example.com");
+        var result = service.process(data);
+        ```
+        
+        STATUS: Keep exclusion - same as main ruleset
+        -->
+        <exclude name="UseExplicitTypes"/>
+        
+        <!-- 
+        UseUnderscoresInNumericLiterals: EXCLUDED
+        
+        JUSTIFICATION:
+        Same as main ruleset - optional style preference.
+        
+        STATUS: Keep exclusion - same as main ruleset
+        -->
+        <exclude name="UseUnderscoresInNumericLiterals"/>
+        
+        <!-- 
+        TooManyStaticImports: EXCLUDED
+        
+        JUSTIFICATION:
+        Test code benefits from static imports. Assertions and mocks
+        are more readable with static imports.
+        
+        EXAMPLE:
+        ```java
+        // ✅ PREFERRED: Static imports in tests
+        import static org.assertj.core.api.Assertions.assertThat;
+        import static org.mockito.Mockito.when;
+        
+        @Test
+        void test() {
+            assertThat(result).isNotNull(); // More readable
+            when(mock.getValue()).thenReturn("test"); // More readable
+        }
+        ```
+        
+        STATUS: Keep exclusion - test code benefits from static imports
+        -->
+        <exclude name="TooManyStaticImports"/>
+        
+        <!-- 
+        LinguisticNaming: EXCLUDED
+        
+        JUSTIFICATION:
+        Test method names can be more flexible. Test methods often
+        use descriptive names that don't follow strict naming conventions.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Flexible test method names
+        @Test
+        void should_create_user_with_valid_data() { ... }
+        
+        @Test
+        void testUserCreationWithValidData() { ... }
+        
+        @Test
+        void userCreation_should_succeed_when_data_is_valid() { ... }
+        ```
+        
+        STATUS: Keep exclusion - test method names can be more flexible
+        -->
+        <exclude name="LinguisticNaming"/>
+        
+        <!-- 
+        LocalVariableCouldBeFinal: REMOVED EXCLUSION
+        
+        JUSTIFICATION:
+        All violations have been fixed using automated script and manual fixes.
+        The rule is now enforced for test code.
+        
+        STATUS: Exclusion removed - all violations fixed
+        -->
+        <!-- LocalVariableCouldBeFinal: REMOVED exclusion - all violations fixed -->
+        
+        <!-- 
+        FieldDeclarationsShouldBeAtStartOfClass: EXCLUDED
+        
+        JUSTIFICATION:
+        Same as main ruleset - flexible field ordering.
+        
+        STATUS: Keep exclusion - same as main ruleset
+        -->
+        <exclude name="FieldDeclarationsShouldBeAtStartOfClass"/>
+        
+        <!-- 
+        CommentDefaultAccessModifier: EXCLUDED
+        
+        JUSTIFICATION:
+        Too strict for test code. Default (package-private) access is
+        acceptable in test classes for test utilities.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Package-private test utilities
+        class TestHelper {
+            void setupTestData() { ... }
+            void cleanupTestData() { ... }
+        }
+        ```
+        
+        STATUS: Keep exclusion - too strict for test code
+        -->
+        <exclude name="CommentDefaultAccessModifier"/>
+        
+        <!-- 
+        LongVariable: EXCLUDED
+        
+        JUSTIFICATION:
+        Test constants can have descriptive long names for clarity.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Long name for test constant
+        private static final String EXPECTED_USER_NAME_FOR_VALIDATION_TEST = "John";
+        private static final String TEST_DATA_FOR_INTEGRATION_TEST = "test";
+        ```
+        
+        STATUS: Keep exclusion - test constants can have descriptive long names
+        -->
+        <exclude name="LongVariable"/>
+        
+        <!-- 
+        AtLeastOneConstructor: EXCLUDED
+        
+        JUSTIFICATION:
+        Test configuration classes don't need explicit constructors.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: No constructor needed
+        @TestConfiguration
+        public class TestConfig {
+            @Bean
+            public TestService testService() { ... }
+        }
+        ```
+        
+        STATUS: Keep exclusion - test configuration classes don't need constructors
+        -->
+        <exclude name="AtLeastOneConstructor"/>
+        
+        <!-- 
+        CallSuperInConstructor: EXCLUDED
+        
+        JUSTIFICATION:
+        Test base classes don't require explicit super() calls.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: No explicit super() needed
+        public class BaseTest {
+            public BaseTest() {
+                // super() called automatically by compiler
+            }
+        }
+        ```
+        
+        STATUS: Keep exclusion - test base classes don't require super()
+        -->
+        <exclude name="CallSuperInConstructor"/>
+    </rule>
+
+    <!-- Design -->
+    <rule ref="category/java/design.xml">
+        <!-- 
+        LawOfDemeter: EXCLUDED
+        
+        JUSTIFICATION:
+        Too strict for test code. Tests often use method chaining
+        for setup and assertions.
+        
+        EXAMPLE:
+        ```java
+        // ✅ REQUIRED: Method chaining in tests
+        assertThat(user.getName())
+            .isEqualTo("John")
+            .isNotNull()
+            .isNotBlank();
+        ```
+        
+        STATUS: Keep exclusion - too strict for test code
+        -->
+        <exclude name="LawOfDemeter"/>
+        
+        <!-- 
+        DataClass: EXCLUDED
+        
+        JUSTIFICATION:
+        Same as main ruleset - records are data classes by design.
+        
+        STATUS: Keep exclusion - same as main ruleset
+        -->
+        <exclude name="DataClass"/>
+        
+        <!-- 
+        LoosePackageCoupling: EXCLUDED
+        
+        JUSTIFICATION:
+        Same as main ruleset - requires manual configuration.
+        
+        STATUS: Keep exclusion - same as main ruleset
+        -->
+        <exclude name="LoosePackageCoupling"/>
+        
+        <!-- CyclomaticComplexity: Configured separately below -->
+        
+        <!-- 
+        TooManyMethods: EXCLUDED
+        
+        JUSTIFICATION:
+        Tests can have many test methods. Each test method tests
+        a specific scenario or behavior.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Many test methods
+        @Test
+        void testUserCreation() { ... }
+        
+        @Test
+        void testUserCreationWithInvalidData() { ... }
+        
+        @Test
+        void testUserCreationWithNullName() { ... }
+        
+        @Test
+        void testUserCreationWithNullEmail() { ... }
+        // ... many more test methods
+        ```
+        
+        STATUS: Keep exclusion - tests can have many test methods
+        -->
+        <exclude name="TooManyMethods"/>
+        
+        <!-- 
+        SingularField: EXCLUDED
+        
+        JUSTIFICATION:
+        Test classes can have single-field mocks. This is common
+        in test classes with focused test scenarios.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Single-field mock
+        @ExtendWith(MockitoExtension.class)
+        class UserServiceTest {
+            @Mock
+            private UserRepository repository; // Single field is acceptable
+        }
+        ```
+        
+        STATUS: Keep exclusion - test classes can have single-field mocks
+        -->
+        <exclude name="SingularField"/>
+        
+        <!-- 
+        AvoidCatchingGenericException: EXCLUDED
+        
+        JUSTIFICATION:
+        Required for test exception handling. Tests often catch
+        generic exceptions to verify exception handling.
+        
+        EXAMPLE:
+        ```java
+        // ✅ REQUIRED: Catch generic exception in test
+        @Test
+        void testExceptionHandling() {
+            try {
+                service.processInvalidData();
+                fail("Should throw exception");
+            } catch (Exception e) { // Generic exception catch for testing
+                assertThat(e).isInstanceOf(IllegalArgumentException.class);
+            }
+        }
+        ```
+        
+        STATUS: Keep exclusion - required for test exception handling
+        -->
+        <exclude name="AvoidCatchingGenericException"/>
+    </rule>
+    
+    <!-- Configure complexity rules with custom thresholds for tests -->
+    <rule ref="category/java/design.xml/CyclomaticComplexity">
+        <properties>
+            <property name="classReportLevel" value="100"/>
+            <property name="methodReportLevel" value="20"/>
+        </properties>
+    </rule>
+
+    <!-- Error Prone -->
+    <rule ref="category/java/errorprone.xml">
+        <!-- 
+        MissingSerialVersionUID: EXCLUDED
+        
+        JUSTIFICATION:
+        Same as main ruleset - not needed for modern Java.
+        
+        STATUS: Keep exclusion - same as main ruleset
+        -->
+        <exclude name="MissingSerialVersionUID"/>
+        
+        <!-- 
+        EmptyCatchBlock: EXCLUDED
+        
+        JUSTIFICATION:
+        Required for test exception patterns. Tests often use
+        empty catch blocks to verify exception handling.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Empty catch in test
+        @Test
+        void testExceptionHandling() {
+            try {
+                service.processInvalidData();
+            } catch (IllegalArgumentException e) {
+                // Expected exception, ignore
+            }
+        }
+        ```
+        
+        STATUS: Keep exclusion - required for test exception patterns
+        -->
+        <exclude name="EmptyCatchBlock"/>
+        
+        <!-- 
+        TestClassWithoutTestCases: EXCLUDED
+        
+        JUSTIFICATION:
+        Allow utility test classes. Test utilities and base classes
+        don't need test methods.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Test utility class without test methods
+        public class TestDataHelper {
+            public static User createTestUser() { ... }
+            public static Deck createTestDeck() { ... }
+        }
+        ```
+        
+        STATUS: Keep exclusion - allow utility test classes
+        -->
+        <exclude name="TestClassWithoutTestCases"/>
+        
+        <!-- 
+        AvoidAccessibilityAlteration: EXCLUDED
+        
+        JUSTIFICATION:
+        Tests may access private members. Reflection is commonly used
+        in tests to access private fields and methods.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Access private member in test
+        @Test
+        void testPrivateField() throws Exception {
+            Field field = Service.class.getDeclaredField("privateField");
+            field.setAccessible(true); // Required for testing
+            // ... test private field
+        }
+        ```
+        
+        STATUS: Keep exclusion - tests may access private members
+        -->
+        <exclude name="AvoidAccessibilityAlteration"/>
+        
+        <!-- 
+        AvoidDuplicateLiterals: EXCLUDED
+        
+        JUSTIFICATION:
+        Test data can have duplicates. Test methods often use
+        the same test data values for different scenarios.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Duplicate literals in test data
+        @Test
+        void testUserCreation() {
+            User user = service.createUser("John", "john@example.com");
+            assertThat(user.getName()).isEqualTo("John");
+        }
+        
+        @Test
+        void testUserUpdate() {
+            User user = service.updateUser(1L, "John", "john@example.com");
+            assertThat(user.getName()).isEqualTo("John");
+        }
+        // Same literals "John" and "john@example.com" used in multiple tests
+        ```
+        
+        STATUS: Keep exclusion - test data can have duplicates
+        -->
+        <exclude name="AvoidDuplicateLiterals"/>
+    </rule>
+
+    <!-- Performance -->
+    <rule ref="category/java/performance.xml">
+        <!-- 
+        AvoidInstantiatingObjectsInLoops: EXCLUDED
+        
+        JUSTIFICATION:
+        Tests can instantiate objects in loops. Test data generation
+        often requires creating objects in loops.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Instantiate in loop for test data
+        @Test
+        void testBulkOperations() {
+            List<User> users = new ArrayList<>();
+            for (int i = 0; i < 100; i++) {
+                User user = new User("User" + i, "user" + i + "@example.com");
+                users.add(user); // Creating objects in loop is acceptable in tests
+            }
+            service.bulkCreate(users);
+        }
+        ```
+        
+        STATUS: Keep exclusion - tests can instantiate in loops
+        -->
+        <exclude name="AvoidInstantiatingObjectsInLoops"/>
+    </rule>
+
+    <!-- Security -->
+    <rule ref="category/java/security.xml"/>
+    <!-- No exclusions - security rules apply to tests too -->
+
+    <!-- Documentation -->
+    <rule ref="category/java/documentation.xml">
+        <!-- 
+        CommentRequired: EXCLUDED
+        
+        JUSTIFICATION:
+        Too strict for test code. Test method names are usually
+        self-documenting and don't require comments.
+        
+        EXAMPLE:
+        ```java
+        // ✅ ACCEPTABLE: Self-documenting test method
+        @Test
+        void should_create_user_with_valid_data() { // Name is clear
+            // Test implementation
+        }
+        ```
+        
+        STATUS: Keep exclusion - too strict for test code
+        -->
+        <exclude name="CommentRequired"/>
+        
+        <!-- CommentSize: Configured separately below -->
+    </rule>
+    
+    <!-- Configure documentation rules with custom limits for tests -->
+    <rule ref="category/java/documentation.xml/CommentSize">
+        <properties>
+            <property name="maxLines" value="50"/>
+            <property name="maxLineLength" value="120"/>
+        </properties>
+    </rule>
+
+</ruleset>

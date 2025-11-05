@@ -32,7 +32,7 @@ public final class PracticeCard extends Composite<Div> {
 
     @Override
     protected Div initContent() {
-        Div cardContainer = new Div();
+        final Div cardContainer = new Div();
         cardContainer.addClassName(PracticeConstants.PRACTICE_CARD_CONTAINER_CLASS);
 
         cardContent = new Div();
@@ -60,10 +60,10 @@ public final class PracticeCard extends Composite<Div> {
 
         cardContent.removeAll();
 
-        VerticalLayout cardLayout = createCardLayout();
-        String questionText = getQuestionText(currentCard, direction);
-        H1 question = new H1(Optional.ofNullable(questionText).orElse(""));
-        Span transcription = new Span(" ");
+        final VerticalLayout cardLayout = createCardLayout();
+        final String questionText = getQuestionText(currentCard, direction);
+        final H1 question = new H1(Optional.ofNullable(questionText).orElse(""));
+        final Span transcription = new Span(" ");
 
         cardLayout.add(question, transcription);
         cardContent.add(cardLayout);
@@ -86,13 +86,13 @@ public final class PracticeCard extends Composite<Div> {
 
         cardContent.removeAll();
 
-        VerticalLayout cardLayout = createCardLayout();
-        String questionText = getQuestionText(currentCard, direction);
-        String answerText = getAnswerText(currentCard, direction);
+        final VerticalLayout cardLayout = createCardLayout();
+        final String questionText = getQuestionText(currentCard, direction);
+        final String answerText = getAnswerText(currentCard, direction);
 
-        H2 question = new H2(Optional.ofNullable(questionText).orElse(""));
-        Hr divider = new Hr();
-        H1 answer = new H1(Optional.ofNullable(answerText).orElse(""));
+        final H2 question = new H2(Optional.ofNullable(questionText).orElse(""));
+        final Hr divider = new Hr();
+        final H1 answer = new H1(Optional.ofNullable(answerText).orElse(""));
 
         cardLayout.add(question, divider, answer);
 
@@ -139,14 +139,14 @@ public final class PracticeCard extends Composite<Div> {
         }
 
         cardContent.removeAll();
-        VerticalLayout completionLayout = new VerticalLayout();
+        final VerticalLayout completionLayout = new VerticalLayout();
         completionLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         completionLayout.setSpacing(true);
 
-        H1 completionTitle = new H1(getTranslation(PracticeConstants.PRACTICE_SESSION_COMPLETE_KEY, deckTitle));
-        H3 results =
+        final H1 completionTitle = new H1(getTranslation(PracticeConstants.PRACTICE_SESSION_COMPLETE_KEY, deckTitle));
+        final H3 results =
                 new H3(getTranslation(PracticeConstants.PRACTICE_RESULTS_KEY, correctCount, totalCards, hardCount));
-        Span timeInfo = new Span(getTranslation(PracticeConstants.PRACTICE_TIME_KEY, sessionMinutes, avgSeconds));
+        final Span timeInfo = new Span(getTranslation(PracticeConstants.PRACTICE_TIME_KEY, sessionMinutes, avgSeconds));
 
         completionLayout.add(completionTitle, results, timeInfo);
         cardContent.add(completionLayout);
@@ -158,7 +158,7 @@ public final class PracticeCard extends Composite<Div> {
      * @return configured card layout
      */
     private VerticalLayout createCardLayout() {
-        VerticalLayout cardLayout = new VerticalLayout();
+        final VerticalLayout cardLayout = new VerticalLayout();
         cardLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         cardLayout.setSpacing(true);
         return cardLayout;
@@ -194,7 +194,7 @@ public final class PracticeCard extends Composite<Div> {
      */
     private void addExampleIfPresent(final Card currentCard, final VerticalLayout cardLayout) {
         if (currentCard.getExample() != null && !currentCard.getExample().isBlank()) {
-            Span exampleText =
+            final Span exampleText =
                     new Span(getTranslation(PracticeConstants.PRACTICE_EXAMPLE_PREFIX_KEY, currentCard.getExample()));
             cardLayout.add(exampleText);
         }

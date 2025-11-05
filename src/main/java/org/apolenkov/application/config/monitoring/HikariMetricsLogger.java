@@ -3,6 +3,7 @@ package org.apolenkov.application.config.monitoring;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import javax.sql.DataSource;
+import org.apolenkov.application.domain.constants.BusinessConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -45,17 +46,17 @@ public class HikariMetricsLogger {
         }
 
         try {
-            HikariPoolMXBean poolMXBean = hikariDataSource.getHikariPoolMXBean();
+            final HikariPoolMXBean poolMXBean = hikariDataSource.getHikariPoolMXBean();
 
             if (poolMXBean == null) {
                 LOGGER.warn("HikariPoolMXBean is null, cannot retrieve metrics");
                 return;
             }
 
-            int active = poolMXBean.getActiveConnections();
-            int idle = poolMXBean.getIdleConnections();
-            int total = poolMXBean.getTotalConnections();
-            int waiting = poolMXBean.getThreadsAwaitingConnection();
+            final int active = poolMXBean.getActiveConnections();
+            final int idle = poolMXBean.getIdleConnections();
+            final int total = poolMXBean.getTotalConnections();
+            final int waiting = poolMXBean.getThreadsAwaitingConnection();
 
             // Log normal metrics at DEBUG level
             LOGGER.debug("HikariCP metrics: active={}, idle={}, total={}, waiting={}", active, idle, total, waiting);
@@ -65,17 +66,17 @@ public class HikariMetricsLogger {
                 LOGGER.warn("Connection pool under pressure: {} threads waiting for connections", waiting);
             }
 
-            // Warn if pool is near exhaustion (>90% utilized)
-            int maxPoolSize = hikariDataSource.getHikariConfigMXBean().getMaximumPoolSize();
-            double utilization = (double) active / maxPoolSize * 100;
-            if (utilization > 90 && LOGGER.isWarnEnabled()) {
+            // Warn if pool is near exhaustion (>UTILIZATION_WARN_THRESHOLD% utilized)
+            final int maxPoolSize = hikariDataSource.getHikariConfigMXBean().getMaximumPoolSize();
+            final double utilization = (double) active / maxPoolSize * 100;
+            if (utilization > BusinessConstants.UTILIZATION_WARN_THRESHOLD && LOGGER.isWarnEnabled()) {
                 // Format inside conditional to avoid String.format() evaluation overhead
                 LOGGER.warn(
                         "Connection pool high utilization: {}% ({}/{})",
                         String.format("%.1f", utilization), active, maxPoolSize);
             }
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.error("Failed to retrieve HikariCP metrics", e);
         }
     }

@@ -37,7 +37,7 @@ public final class AuthRedirectHelper {
      * @return true if user is authenticated, false otherwise
      */
     public static boolean isAuthenticated() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken);
     }
 
@@ -56,7 +56,7 @@ public final class AuthRedirectHelper {
      * @return username or null
      */
     public static String getAuthenticatedUsername() {
-        Authentication auth = getCurrentAuthentication();
+        final Authentication auth = getCurrentAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
             return auth.getName();
         }

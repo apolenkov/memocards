@@ -17,6 +17,8 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @ConfigurationPropertiesScan
 public final class Application {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
+
     /**
      * Private constructor to prevent instantiation.
      * This class is designed to be used as a Spring Boot application entry point.
@@ -24,8 +26,6 @@ public final class Application {
     private Application() {
         // Utility class - should not be instantiated
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
     /**
      * Starts the Spring Boot application.

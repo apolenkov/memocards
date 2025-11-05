@@ -61,8 +61,8 @@ public final class DeckDeleteDialog {
         }
 
         // Check if deck is empty using cardUseCase.countByDeckId() for accurate count
-        int cardCount = (int) cardUseCase.countByDeckId(currentDeck.getId());
-        boolean isEmpty = cardCount == 0;
+        final int cardCount = (int) cardUseCase.countByDeckId(currentDeck.getId());
+        final boolean isEmpty = cardCount == 0;
 
         LOGGER.debug(
                 "Deck deletion check - Title: {}, Card count: {}, isEmpty: {}",
@@ -81,7 +81,7 @@ public final class DeckDeleteDialog {
      * Shows simple deletion dialog for empty decks.
      */
     private void showSimpleDialog() {
-        DeckSimpleDeleteDialog dialog = new DeckSimpleDeleteDialog(deckUseCase, currentDeck, onDeckDeleted);
+        final DeckSimpleDeleteDialog dialog = new DeckSimpleDeleteDialog(deckUseCase, currentDeck, onDeckDeleted);
         dialog.show();
     }
 
@@ -89,7 +89,7 @@ public final class DeckDeleteDialog {
      * Shows complex deletion dialog for decks with cards.
      */
     private void showComplexDialog() {
-        DeckComplexDeleteDialog dialog =
+        final DeckComplexDeleteDialog dialog =
                 new DeckComplexDeleteDialog(deckUseCase, cardUseCase, currentDeck, onDeckDeleted);
         dialog.show();
     }

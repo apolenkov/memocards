@@ -2,6 +2,7 @@ package org.apolenkov.application.views.core.navigation;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
@@ -115,7 +116,7 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
         hasBeenInitialized = true;
 
         // Initialize authentication state tracking
-        Authentication auth = authService.getCurrentAuthentication();
+        final Authentication auth = authService.getCurrentAuthentication();
         wasAuthenticated = authService.isAuthenticated(auth);
     }
 
@@ -126,8 +127,8 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
     public void refreshMenu() {
         removeAll();
 
-        Authentication auth = authService.getCurrentAuthentication();
-        boolean isAuthenticated = authService.isAuthenticated(auth);
+        final Authentication auth = authService.getCurrentAuthentication();
+        final boolean isAuthenticated = authService.isAuthenticated(auth);
 
         if (isAuthenticated) {
             createAuthenticatedMenu(auth);
@@ -141,8 +142,8 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * Prevents unnecessary re-rendering that causes flickering.
      */
     public void refreshMenuIfNeeded() {
-        Authentication auth = authService.getCurrentAuthentication();
-        boolean isAuthenticated = authService.isAuthenticated(auth);
+        final Authentication auth = authService.getCurrentAuthentication();
+        final boolean isAuthenticated = authService.isAuthenticated(auth);
 
         // Only refresh if authentication state changed
         if (isAuthenticated != wasAuthenticated) {
@@ -160,15 +161,15 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      */
     private void createAuthenticatedMenu(final Authentication auth) {
         // App title header
-        Div header = createHeaderSection();
+        final Div header = createHeaderSection();
         add(header);
 
         // User greeting
-        Div greetingSection = createGreetingSection(auth);
+        final Div greetingSection = createGreetingSection(auth);
         add(greetingSection);
 
         // Navigation buttons (routes only) - no divider between greeting and menu
-        VerticalLayout navigationButtons = new VerticalLayout();
+        final VerticalLayout navigationButtons = new VerticalLayout();
         navigationButtons.addClassName(CoreConstants.MOBILE_NAV_SIDENAV_CLASS);
         navigationButtons.setPadding(true); // Ensure consistent spacing with action buttons
         navigationButtons.setSpacing(false);
@@ -184,12 +185,12 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
 
         add(navigationButtons);
 
-        Hr divider2 = new Hr();
+        final Hr divider2 = new Hr();
         divider2.addClassName(CoreConstants.MOBILE_NAV_DIVIDER_CLASS);
         add(divider2);
 
         // Action buttons container (non-navigation items)
-        VerticalLayout actionsContainer = new VerticalLayout();
+        final VerticalLayout actionsContainer = new VerticalLayout();
         actionsContainer.addClassName(CoreConstants.MOBILE_NAV_ACTIONS_CLASS);
         actionsContainer.setSpacing(false);
         actionsContainer.setPadding(false);
@@ -208,15 +209,15 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      */
     private void createAnonymousMenu() {
         // App title header
-        Div header = createHeaderSection();
+        final Div header = createHeaderSection();
         add(header);
 
-        Hr divider1 = new Hr();
+        final Hr divider1 = new Hr();
         divider1.addClassName(CoreConstants.MOBILE_NAV_DIVIDER_CLASS);
         add(divider1);
 
         // Actions container for buttons
-        VerticalLayout actionsContainer = new VerticalLayout();
+        final VerticalLayout actionsContainer = new VerticalLayout();
         actionsContainer.addClassName(CoreConstants.MOBILE_NAV_ACTIONS_CLASS);
         actionsContainer.setSpacing(false);
         actionsContainer.setPadding(false);
@@ -237,25 +238,25 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * @return configured header section
      */
     private Div createHeaderSection() {
-        Div header = new Div();
+        final Div header = new Div();
         header.addClassName(CoreConstants.MOBILE_NAV_HEADER_CLASS);
 
         // Left: Favicon + Title
-        Div leftSection = new Div();
+        final Div leftSection = new Div();
         leftSection.addClassName(CoreConstants.MOBILE_NAV_HEADER_LEFT_CLASS);
 
-        Image favicon = createFavicon();
+        final Image favicon = createFavicon();
         leftSection.add(favicon);
 
-        H4 title = new H4(getTranslation(CoreConstants.APP_TITLE_KEY));
+        final H4 title = new H4(getTranslation(CoreConstants.APP_TITLE_KEY));
         title.addClassName(CoreConstants.MOBILE_NAV_TITLE_CLASS);
         leftSection.add(title);
 
         // Right: Close button
-        Div rightSection = new Div();
+        final Div rightSection = new Div();
         rightSection.addClassName(CoreConstants.MOBILE_NAV_HEADER_RIGHT_CLASS);
 
-        Button closeButton = createCloseButton();
+        final Button closeButton = createCloseButton();
         rightSection.add(closeButton);
 
         header.add(leftSection, rightSection);
@@ -269,13 +270,13 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * @return configured greeting section
      */
     private Div createGreetingSection(final Authentication auth) {
-        Div greeting = new Div();
+        final Div greeting = new Div();
         greeting.addClassName(CoreConstants.MOBILE_NAV_GREETING_CLASS);
 
-        String displayName = authService.getUserDisplayName(auth);
-        String greetingText = getTranslation(CoreConstants.MAIN_GREETING_KEY);
+        final String displayName = authService.getUserDisplayName(auth);
+        final String greetingText = getTranslation(CoreConstants.MAIN_GREETING_KEY);
 
-        Span greetingSpan = new Span(greetingText.replace(CoreConstants.PLACEHOLDER_0, displayName));
+        final Span greetingSpan = new Span(greetingText.replace(CoreConstants.PLACEHOLDER_0, displayName));
         greetingSpan.addClassName(CoreConstants.MOBILE_NAV_GREETING_TEXT_CLASS);
 
         greeting.add(greetingSpan);
@@ -290,7 +291,7 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * @return configured Button
      */
     private Button createDecksButton() {
-        Button button =
+        final Button button =
                 ButtonHelper.createButton(getTranslation(CoreConstants.MAIN_DECKS_KEY), VaadinIcon.RECORDS, e -> {
                     closeDrawer(); // Close drawer first for immediate response
                     UI.getCurrent().navigate(RouteConstants.ROOT_PATH + RouteConstants.DECKS_ROUTE);
@@ -314,10 +315,11 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * @return configured Button
      */
     private Button createStatsButton() {
-        Button button = ButtonHelper.createButton(getTranslation(CoreConstants.MAIN_STATS_KEY), VaadinIcon.CHART, e -> {
-            closeDrawer(); // Close drawer first for immediate response
-            UI.getCurrent().navigate(RouteConstants.ROOT_PATH + RouteConstants.STATS_ROUTE);
-        });
+        final Button button =
+                ButtonHelper.createButton(getTranslation(CoreConstants.MAIN_STATS_KEY), VaadinIcon.CHART, e -> {
+                    closeDrawer(); // Close drawer first for immediate response
+                    UI.getCurrent().navigate(RouteConstants.ROOT_PATH + RouteConstants.STATS_ROUTE);
+                });
 
         button.setWidthFull();
         button.addClassName(CoreConstants.MOBILE_NAV_ACTION_BUTTON_CLASS);
@@ -337,11 +339,11 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * @return configured SideNavItem
      */
     private SideNavItem createAdminContentNavItem() {
-        SideNavItem item = new SideNavItem(
+        final SideNavItem item = new SideNavItem(
                 getTranslation(CoreConstants.ADMIN_CONTENT_TITLE_KEY),
                 RouteConstants.ROOT_PATH + RouteConstants.ADMIN_CONTENT_ROUTE);
 
-        Icon icon = VaadinIcon.TOOLS.create();
+        final Icon icon = VaadinIcon.TOOLS.create();
         item.setPrefixComponent(icon);
         item.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, CoreConstants.NAV_ADMIN_CONTENT_TEST_ID);
 
@@ -360,11 +362,11 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * @return configured Button
      */
     private Button createSettingsButton() {
-        Button button = ButtonHelper.createButton(
+        final Button button = ButtonHelper.createButton(
                 getTranslation(CoreConstants.MAIN_SETTINGS_KEY),
                 VaadinIcon.COG,
                 e -> {
-                    PracticeSettingsDialog dialog =
+                    final PracticeSettingsDialog dialog =
                             new PracticeSettingsDialog(practiceSettingsService, settingsComponents);
                     UI.getCurrent().add(dialog);
                     dialog.open();
@@ -385,7 +387,7 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * @return configured Button
      */
     private Button createLogoutButton() {
-        Button button = ButtonHelper.createButton(
+        final Button button = ButtonHelper.createButton(
                 getTranslation(CoreConstants.MAIN_LOGOUT_KEY),
                 VaadinIcon.SIGN_OUT,
                 e -> {
@@ -408,7 +410,7 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      */
     private void closeDrawer() {
         getParent().ifPresent(parent -> {
-            if (parent instanceof com.vaadin.flow.component.applayout.AppLayout appLayout) {
+            if (parent instanceof AppLayout appLayout) {
                 appLayout.setDrawerOpened(false);
             }
         });
@@ -420,7 +422,7 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * @return configured login button
      */
     private Button createLoginButton() {
-        Button button = ButtonHelper.createButton(
+        final Button button = ButtonHelper.createButton(
                 getTranslation(CoreConstants.MAIN_LOGIN_KEY),
                 VaadinIcon.SIGN_IN,
                 e -> {
@@ -447,7 +449,7 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * @return configured registration button
      */
     private Button createRegistrationButton() {
-        Button button = ButtonHelper.createButton(
+        final Button button = ButtonHelper.createButton(
                 getTranslation(CoreConstants.MAIN_REGISTER_KEY),
                 VaadinIcon.USER_CARD,
                 e -> {
@@ -474,7 +476,7 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * @return configured favicon image
      */
     private Image createFavicon() {
-        Image favicon = new Image();
+        final Image favicon = new Image();
         favicon.setSrc(VaadinApplicationShell.ResourcePaths.FAVICON_SVG);
         favicon.setAlt(getTranslation(CoreConstants.APP_TITLE_KEY));
         favicon.addClassName(CoreConstants.MOBILE_NAV_FAVICON_CLASS);
@@ -487,7 +489,7 @@ public class MobileNavigationMenu extends VerticalLayout implements LocaleChange
      * @return configured close button
      */
     private Button createCloseButton() {
-        Button closeButton =
+        final Button closeButton =
                 ButtonHelper.createButton("", VaadinIcon.CLOSE, e -> closeDrawer(), ButtonVariant.LUMO_TERTIARY_INLINE);
 
         closeButton.addClassName(CoreConstants.MOBILE_NAV_CLOSE_BUTTON_CLASS);

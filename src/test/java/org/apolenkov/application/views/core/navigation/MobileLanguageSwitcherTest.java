@@ -23,8 +23,8 @@ class MobileLanguageSwitcherTest {
     void setUp() {
         vaadinContext = new VaadinTestContext();
 
-        UserUseCase userUseCase = mock(UserUseCase.class);
-        UserSettingsService userSettingsService = mock(UserSettingsService.class);
+        final UserUseCase userUseCase = mock(UserUseCase.class);
+        final UserSettingsService userSettingsService = mock(UserSettingsService.class);
         switcher = new MobileLanguageSwitcher(userUseCase, userSettingsService);
     }
 
@@ -47,7 +47,7 @@ class MobileLanguageSwitcherTest {
     @Test
     void shouldInitializeOnAttach() {
         // When
-        AttachEvent event = mock(AttachEvent.class);
+        final AttachEvent event = mock(AttachEvent.class);
         switcher.onAttach(event);
 
         // Then
@@ -57,9 +57,9 @@ class MobileLanguageSwitcherTest {
     @Test
     void shouldNotReinitializeOnMultipleAttach() {
         // When
-        AttachEvent event = mock(AttachEvent.class);
+        final AttachEvent event = mock(AttachEvent.class);
         switcher.onAttach(event);
-        long initialCount = switcher.getChildren().count();
+        final long initialCount = switcher.getChildren().count();
 
         // Second attach
         switcher.onAttach(event);

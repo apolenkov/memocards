@@ -15,9 +15,9 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should create SessionData with valid parameters")
     void shouldCreateSessionDataWithValidParameters() {
-        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
+        final List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSessionRecords.SessionData sessionData =
+        final PracticeSessionRecords.SessionData sessionData =
                 PracticeSessionRecords.SessionData.create(1L, cards, Instant.now());
 
         assertThat(sessionData.deckId()).isEqualTo(1L);
@@ -30,8 +30,8 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should throw exception for invalid deck ID")
     void shouldThrowExceptionForInvalidDeckId() {
-        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
-        Instant now = Instant.now();
+        final List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
+        final Instant now = Instant.now();
 
         assertThatThrownBy(() -> PracticeSessionRecords.SessionData.create(0L, cards, now))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -41,7 +41,7 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should throw exception for null cards")
     void shouldThrowExceptionForNullCards() {
-        Instant now = Instant.now();
+        final Instant now = Instant.now();
 
         assertThatThrownBy(() -> PracticeSessionRecords.SessionData.create(1L, null, now))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -51,8 +51,8 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should throw exception for empty cards")
     void shouldThrowExceptionForEmptyCards() {
-        List<Card> emptyCards = List.of();
-        Instant now = Instant.now();
+        final List<Card> emptyCards = List.of();
+        final Instant now = Instant.now();
 
         assertThatThrownBy(() -> PracticeSessionRecords.SessionData.create(1L, emptyCards, now))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -62,12 +62,12 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should add known card to SessionData")
     void shouldAddKnownCardToSessionData() {
-        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
+        final List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSessionRecords.SessionData sessionData =
+        final PracticeSessionRecords.SessionData sessionData =
                 PracticeSessionRecords.SessionData.create(1L, cards, Instant.now());
 
-        PracticeSessionRecords.SessionData updated = sessionData.addKnownCard(1L);
+        final PracticeSessionRecords.SessionData updated = sessionData.addKnownCard(1L);
 
         assertThat(updated.knownCardIdsDelta()).hasSize(1).contains(1L);
         assertThat(updated.failedCardIds()).isEmpty();
@@ -76,12 +76,12 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should add failed card to SessionData")
     void shouldAddFailedCardToSessionData() {
-        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
+        final List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSessionRecords.SessionData sessionData =
+        final PracticeSessionRecords.SessionData sessionData =
                 PracticeSessionRecords.SessionData.create(1L, cards, Instant.now());
 
-        PracticeSessionRecords.SessionData updated = sessionData.addFailedCard(1L);
+        final PracticeSessionRecords.SessionData updated = sessionData.addFailedCard(1L);
 
         assertThat(updated.failedCardIds()).hasSize(1).contains(1L);
         assertThat(updated.knownCardIdsDelta()).isEmpty();
@@ -90,7 +90,7 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should create initial SessionState")
     void shouldCreateInitialSessionState() {
-        PracticeSessionRecords.SessionState state = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState state = PracticeSessionRecords.SessionState.initial();
 
         assertThat(state.index()).isZero();
         assertThat(state.showingAnswer()).isFalse();
@@ -104,9 +104,9 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should update SessionState with new index")
     void shouldUpdateSessionStateWithNewIndex() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
 
-        PracticeSessionRecords.SessionState updated = initialState.withIndex(5);
+        final PracticeSessionRecords.SessionState updated = initialState.withIndex(5);
 
         assertThat(updated.index()).isEqualTo(5);
         assertThat(updated.showingAnswer()).isFalse(); // Should reset
@@ -116,9 +116,9 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should update SessionState with showing answer")
     void shouldUpdateSessionStateWithShowingAnswer() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
 
-        PracticeSessionRecords.SessionState updated = initialState.withShowingAnswer(true);
+        final PracticeSessionRecords.SessionState updated = initialState.withShowingAnswer(true);
 
         assertThat(updated.showingAnswer()).isTrue();
         assertThat(updated.index()).isZero(); // Should remain unchanged
@@ -127,10 +127,10 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should update SessionState with card show time")
     void shouldUpdateSessionStateWithCardShowTime() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
-        Instant now = Instant.now();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final Instant now = Instant.now();
 
-        PracticeSessionRecords.SessionState updated = initialState.withCardShowTime(now);
+        final PracticeSessionRecords.SessionState updated = initialState.withCardShowTime(now);
 
         assertThat(updated.cardShowTime()).isEqualTo(now);
         assertThat(updated.index()).isZero(); // Should remain unchanged
@@ -139,9 +139,9 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should update SessionState with answer delay")
     void shouldUpdateSessionStateWithAnswerDelay() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
 
-        PracticeSessionRecords.SessionState updated = initialState.withAnswerDelay(1000L);
+        final PracticeSessionRecords.SessionState updated = initialState.withAnswerDelay(1000L);
 
         assertThat(updated.totalAnswerDelayMs()).isEqualTo(1000L);
         assertThat(updated.index()).isZero(); // Should remain unchanged
@@ -150,9 +150,9 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should accumulate answer delays")
     void shouldAccumulateAnswerDelays() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
 
-        PracticeSessionRecords.SessionState updated =
+        final PracticeSessionRecords.SessionState updated =
                 initialState.withAnswerDelay(500L).withAnswerDelay(300L);
 
         assertThat(updated.totalAnswerDelayMs()).isEqualTo(800L);
@@ -161,9 +161,9 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should update SessionState with correct count")
     void shouldUpdateSessionStateWithCorrectCount() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
 
-        PracticeSessionRecords.SessionState updated = initialState.withCorrectCount(3);
+        final PracticeSessionRecords.SessionState updated = initialState.withCorrectCount(3);
 
         assertThat(updated.correctCount()).isEqualTo(3);
         assertThat(updated.hardCount()).isZero(); // Should remain unchanged
@@ -172,9 +172,9 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should update SessionState with hard count")
     void shouldUpdateSessionStateWithHardCount() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
 
-        PracticeSessionRecords.SessionState updated = initialState.withHardCount(2);
+        final PracticeSessionRecords.SessionState updated = initialState.withHardCount(2);
 
         assertThat(updated.hardCount()).isEqualTo(2);
         assertThat(updated.correctCount()).isZero(); // Should remain unchanged
@@ -183,9 +183,9 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should update SessionState with total viewed")
     void shouldUpdateSessionStateWithTotalViewed() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
 
-        PracticeSessionRecords.SessionState updated = initialState.withTotalViewed(10);
+        final PracticeSessionRecords.SessionState updated = initialState.withTotalViewed(10);
 
         assertThat(updated.totalViewed()).isEqualTo(10);
         assertThat(updated.correctCount()).isZero(); // Should remain unchanged
@@ -194,7 +194,7 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should throw exception for negative index")
     void shouldThrowExceptionForNegativeIndex() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
 
         assertThatThrownBy(() -> initialState.withIndex(-1))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -204,7 +204,7 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should throw exception for negative answer delay")
     void shouldThrowExceptionForNegativeAnswerDelay() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
 
         assertThatThrownBy(() -> initialState.withAnswerDelay(-1L))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -214,7 +214,7 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should throw exception for negative correct count")
     void shouldThrowExceptionForNegativeCorrectCount() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
 
         assertThatThrownBy(() -> initialState.withCorrectCount(-1))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -224,7 +224,7 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should throw exception for negative hard count")
     void shouldThrowExceptionForNegativeHardCount() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
 
         assertThatThrownBy(() -> initialState.withHardCount(-1))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -234,7 +234,7 @@ class PracticeSessionRecordsTest {
     @Test
     @DisplayName("Should throw exception for negative total viewed")
     void shouldThrowExceptionForNegativeTotalViewed() {
-        PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
+        final PracticeSessionRecords.SessionState initialState = PracticeSessionRecords.SessionState.initial();
 
         assertThatThrownBy(() -> initialState.withTotalViewed(-1))
                 .isInstanceOf(IllegalArgumentException.class)

@@ -45,72 +45,72 @@ public class LoginView extends BaseView implements BeforeEnterObserver {
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     private void init() {
-        VerticalLayout wrapper = createCenteredVerticalLayout();
+        final VerticalLayout wrapper = createCenteredVerticalLayout();
 
         // Create a beautiful Lumo-styled form container
-        Div formContainer = new Div();
+        final Div formContainer = new Div();
         formContainer.addClassName(AuthConstants.LOGIN_FORM_CLASS);
         formContainer.addClassName(AuthConstants.AUTH_FORM_CLASS);
         formContainer.addClassName(AuthConstants.SURFACE_PANEL_CLASS);
 
         // Create form title
-        Div titleDiv = new Div();
+        final Div titleDiv = new Div();
         titleDiv.addClassName(AuthConstants.LOGIN_FORM_TITLE_CONTAINER_CLASS);
 
-        Div title = new Div();
+        final Div title = new Div();
         title.setText(getTranslation(AuthConstants.AUTH_LOGIN_KEY));
         title.addClassName(AuthConstants.LOGIN_FORM_TITLE_CLASS);
         titleDiv.add(title);
 
         // Create form fields container
-        VerticalLayout formFields = new VerticalLayout();
+        final VerticalLayout formFields = new VerticalLayout();
         formFields.setSpacing(true);
         formFields.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        TextField email = new TextField(getTranslation(AuthConstants.AUTH_EMAIL_KEY));
+        final TextField email = new TextField(getTranslation(AuthConstants.AUTH_EMAIL_KEY));
         email.setPlaceholder(getTranslation(AuthConstants.AUTH_EMAIL_PLACEHOLDER_KEY));
         email.setRequiredIndicatorVisible(true);
         email.setWidthFull();
 
-        PasswordField password = new PasswordField(getTranslation(AuthConstants.AUTH_LOGIN_PASSWORD_KEY));
+        final PasswordField password = new PasswordField(getTranslation(AuthConstants.AUTH_LOGIN_PASSWORD_KEY));
         password.setPlaceholder(getTranslation(AuthConstants.AUTH_PASSWORD_PLACEHOLDER_KEY));
         password.setWidthFull();
         password.setRequiredIndicatorVisible(true);
 
-        Button submit = ButtonHelper.createPrimaryButton(getTranslation(AuthConstants.AUTH_LOGIN_SUBMIT_KEY), e -> {
-            String emailValue = email.getValue();
-            String passwordValue = password.getValue();
+        final Button submit =
+                ButtonHelper.createPrimaryButton(getTranslation(AuthConstants.AUTH_LOGIN_SUBMIT_KEY), e -> {
+                    final String emailValue = email.getValue();
+                    final String passwordValue = password.getValue();
 
-            if (emailValue == null || emailValue.trim().isEmpty()) {
-                email.setInvalid(true);
-                email.setErrorMessage(getTranslation(AuthConstants.VAADIN_VALIDATION_EMAIL_REQUIRED_KEY));
-                return;
-            }
-            if (passwordValue == null || passwordValue.isEmpty()) {
-                password.setInvalid(true);
-                password.setErrorMessage(getTranslation(AuthConstants.VAADIN_VALIDATION_PASSWORD_REQUIRED_KEY));
-                return;
-            }
+                    if (emailValue == null || emailValue.isBlank()) {
+                        email.setInvalid(true);
+                        email.setErrorMessage(getTranslation(AuthConstants.VAADIN_VALIDATION_EMAIL_REQUIRED_KEY));
+                        return;
+                    }
+                    if (passwordValue == null || passwordValue.isEmpty()) {
+                        password.setInvalid(true);
+                        password.setErrorMessage(getTranslation(AuthConstants.VAADIN_VALIDATION_PASSWORD_REQUIRED_KEY));
+                        return;
+                    }
 
-            try {
-                authService.authenticateAndPersist(emailValue, passwordValue);
-                NavigationHelper.navigateToHome();
-            } catch (IllegalArgumentException ex) {
-                NotificationHelper.showError(ex.getMessage());
-            } catch (Exception ex) {
-                NotificationHelper.showError(getTranslation(AuthConstants.AUTH_LOGIN_ERROR_MESSAGE_KEY));
-            }
-        });
+                    try {
+                        authService.authenticateAndPersist(emailValue, passwordValue);
+                        NavigationHelper.navigateToHome();
+                    } catch (IllegalArgumentException ex) {
+                        NotificationHelper.showError(ex.getMessage());
+                    } catch (RuntimeException ex) {
+                        NotificationHelper.showError(getTranslation(AuthConstants.AUTH_LOGIN_ERROR_MESSAGE_KEY));
+                    }
+                });
         submit.setWidthFull();
 
-        Button forgot = ButtonHelper.createTertiaryButton(
+        final Button forgot = ButtonHelper.createTertiaryButton(
                 getTranslation(AuthConstants.AUTH_LOGIN_FORGOT_PASSWORD_KEY),
                 e -> NavigationHelper.navigateToForgotPassword());
         forgot.setWidthFull();
 
-        Button backToHome = ButtonHelper.createTertiaryButton(
+        final Button backToHome = ButtonHelper.createTertiaryButton(
                 getTranslation(AuthConstants.COMMON_BACK_TO_HOME_KEY), e -> NavigationHelper.navigateToHome());
         backToHome.setWidthFull();
 
@@ -135,7 +135,7 @@ public class LoginView extends BaseView implements BeforeEnterObserver {
         if (AuthRedirectHelper.redirectAuthenticatedToHome(event)) {
             return;
         }
-        boolean hasError =
+        final boolean hasError =
                 event.getLocation().getQueryParameters().getParameters().containsKey("error");
         if (hasError) {
             NotificationHelper.showError(getTranslation(AuthConstants.AUTH_LOGIN_ERROR_MESSAGE_KEY));

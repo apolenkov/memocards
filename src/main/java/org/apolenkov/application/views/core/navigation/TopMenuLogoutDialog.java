@@ -38,7 +38,7 @@ public class TopMenuLogoutDialog {
      * and redirects to the home page.
      */
     public void openLogoutDialog() {
-        Dialog dialog = createLogoutDialog();
+        final Dialog dialog = createLogoutDialog();
         UI.getCurrent().add(dialog);
         dialog.open();
     }
@@ -50,10 +50,10 @@ public class TopMenuLogoutDialog {
      * @return new configured Dialog instance
      */
     private Dialog createLogoutDialog() {
-        Dialog dialog = new Dialog();
+        final Dialog dialog = new Dialog();
         dialog.addClassName(CoreConstants.DIALOG_SM_CLASS);
 
-        VerticalLayout layout = createDialogLayout(dialog);
+        final VerticalLayout layout = createDialogLayout(dialog);
         dialog.add(layout);
 
         configureDialogBehavior(dialog);
@@ -67,13 +67,13 @@ public class TopMenuLogoutDialog {
      * @return the configured vertical layout
      */
     private VerticalLayout createDialogLayout(final Dialog dialog) {
-        VerticalLayout layout = new VerticalLayout();
+        final VerticalLayout layout = new VerticalLayout();
 
-        String confirmMessage = getTranslation(CoreConstants.AUTH_LOGOUT_CONFIRM_KEY);
+        final String confirmMessage = getTranslation(CoreConstants.AUTH_LOGOUT_CONFIRM_KEY);
         layout.add(new H3(confirmMessage));
         layout.add(new Span(confirmMessage));
 
-        HorizontalLayout buttonsLayout = createButtonsLayout(dialog);
+        final HorizontalLayout buttonsLayout = createButtonsLayout(dialog);
         layout.add(buttonsLayout);
 
         return layout;
@@ -86,14 +86,14 @@ public class TopMenuLogoutDialog {
      * @return the configured horizontal layout with buttons
      */
     private HorizontalLayout createButtonsLayout(final Dialog dialog) {
-        HorizontalLayout buttons = new HorizontalLayout();
+        final HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidthFull();
 
-        Button confirmButton = createConfirmButton(dialog);
-        Button cancelButton = createCancelButton(dialog);
+        final Button confirmButton = createConfirmButton(dialog);
+        final Button cancelButton = createCancelButton(dialog);
 
         buttons.add(confirmButton, cancelButton);
         return buttons;

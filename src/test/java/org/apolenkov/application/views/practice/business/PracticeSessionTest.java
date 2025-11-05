@@ -15,9 +15,9 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should create PracticeSession with valid parameters")
     void shouldCreatePracticeSessionWithValidParameters() {
-        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
+        final List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
+        final PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
 
         assertThat(session.getDeckId()).isEqualTo(1L);
         assertThat(session.getCards()).hasSize(1);
@@ -36,8 +36,8 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should throw exception for invalid deck ID")
     void shouldThrowExceptionForInvalidDeckId() {
-        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
-        Instant now = Instant.now();
+        final List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
+        final Instant now = Instant.now();
 
         assertThatThrownBy(() -> PracticeSession.create(0L, cards, now))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -47,7 +47,7 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should throw exception for null cards")
     void shouldThrowExceptionForNullCards() {
-        Instant now = Instant.now();
+        final Instant now = Instant.now();
 
         assertThatThrownBy(() -> PracticeSession.create(1L, null, now))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -57,8 +57,8 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should throw exception for empty cards")
     void shouldThrowExceptionForEmptyCards() {
-        List<Card> emptyCards = List.of();
-        Instant now = Instant.now();
+        final List<Card> emptyCards = List.of();
+        final Instant now = Instant.now();
 
         assertThatThrownBy(() -> PracticeSession.create(1L, emptyCards, now))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -68,15 +68,15 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should update session with new state")
     void shouldUpdateSessionWithNewState() {
-        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
+        final List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
-        PracticeSessionRecords.SessionState newState = PracticeSessionRecords.SessionState.initial()
+        final PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
+        final PracticeSessionRecords.SessionState newState = PracticeSessionRecords.SessionState.initial()
                 .withIndex(1)
                 .withShowingAnswer(true)
                 .withCorrectCount(1);
 
-        PracticeSession updated = session.withState(newState);
+        final PracticeSession updated = session.withState(newState);
 
         assertThat(updated.getIndex()).isEqualTo(1);
         assertThat(updated.isShowingAnswer()).isTrue();
@@ -87,39 +87,40 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should update session with new data")
     void shouldUpdateSessionWithNewData() {
-        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
+        final List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
-        PracticeSessionRecords.SessionData newData = PracticeSessionRecords.SessionData.create(2L, cards, Instant.now())
+        final PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
+        final PracticeSessionRecords.SessionData newData = PracticeSessionRecords.SessionData.create(
+                        2L, cards, Instant.now())
                 .addKnownCard(1L);
 
-        PracticeSession updated = session.withData(newData);
+        final PracticeSession updated = session.withData(newData);
 
         assertThat(updated.getDeckId()).isEqualTo(2L);
         assertThat(updated.getKnownCardIdsDelta()).hasSize(1).contains(1L);
         assertThat(updated.getIndex()).isZero(); // Should remain unchanged
     }
 
-    @SuppressWarnings("DataFlowIssue")
+    @SuppressWarnings("DataFlowIssue") // Intentionally testing null validation
     @Test
     @DisplayName("Should throw exception for null state")
     void shouldThrowExceptionForNullState() {
-        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
+        final List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
+        final PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
 
         assertThatThrownBy(() -> session.withState(null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Session state cannot be null");
     }
 
-    @SuppressWarnings("DataFlowIssue")
+    @SuppressWarnings("DataFlowIssue") // Intentionally testing null validation
     @Test
     @DisplayName("Should throw exception for null data")
     void shouldThrowExceptionForNullData() {
-        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
+        final List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
+        final PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
 
         assertThatThrownBy(() -> session.withData(null))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -129,9 +130,9 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should access nested data through convenience methods")
     void shouldAccessNestedDataThroughConvenienceMethods() {
-        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
+        final List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
+        final PracticeSession session = PracticeSession.create(1L, cards, Instant.now());
 
         // Test data access
         assertThat(session.getDeckId()).isEqualTo(session.data().deckId());
@@ -153,10 +154,10 @@ class PracticeSessionTest {
     @Test
     @DisplayName("Should maintain immutability")
     void shouldMaintainImmutability() {
-        List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
+        final List<Card> cards = List.of(new Card(1L, 1L, "Front", "Back", "Example"));
 
-        PracticeSession original = PracticeSession.create(1L, cards, Instant.now());
-        PracticeSession updated =
+        final PracticeSession original = PracticeSession.create(1L, cards, Instant.now());
+        final PracticeSession updated =
                 original.withState(original.state().withIndex(1).withCorrectCount(1));
 
         // Original should remain unchanged

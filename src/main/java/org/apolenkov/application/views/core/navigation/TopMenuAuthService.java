@@ -63,10 +63,10 @@ public class TopMenuAuthService {
      * @return the user's display name
      */
     public String getUserDisplayName(final Authentication auth) {
-        String authName = auth.getName();
+        final String authName = auth.getName();
 
         try {
-            String displayName = userUseCase.getCurrentUser().getName();
+            final String displayName = userUseCase.getCurrentUser().getName();
             return (displayName == null || displayName.isBlank()) ? authName : displayName;
         } catch (AuthenticationException e) {
             LOGGER.warn("Failed to get user display name due to authentication issue: {}", e.getMessage());
@@ -74,7 +74,7 @@ public class TopMenuAuthService {
         } catch (DataAccessException e) {
             LOGGER.warn("Failed to get user display name due to database issue: {}", e.getMessage());
             return authName;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.error("Unexpected error getting user display name for user: {}", authName, e);
             return authName;
         }
@@ -87,12 +87,10 @@ public class TopMenuAuthService {
      * @return true if user has USER role
      */
     public boolean hasUserRole(final Authentication auth) {
-        if (auth == null) {
-            return false;
-        }
-        return auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch(SecurityConstants.ROLE_USER::equals);
+        return auth != null
+                && auth.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .anyMatch(SecurityConstants.ROLE_USER::equals);
     }
 
     /**
@@ -102,25 +100,23 @@ public class TopMenuAuthService {
      * @return true if user has ADMIN role
      */
     public boolean hasAdminRole(final Authentication auth) {
-        if (auth == null) {
-            return false;
-        }
-        return auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch(SecurityConstants.ROLE_ADMIN::equals);
+        return auth != null
+                && auth.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .anyMatch(SecurityConstants.ROLE_ADMIN::equals);
     }
 
     /**
      * Performs the actual logout operation.
      */
     public void performLogout() {
-        Authentication auth = getCurrentAuthentication();
-        String username = auth != null ? auth.getName() : "unknown";
+        final Authentication auth = getCurrentAuthentication();
+        final String username = auth != null ? auth.getName() : "unknown";
 
         LOGGER.debug("Processing logout request for user: {}", username);
 
         try {
-            VaadinServletRequest request = VaadinServletRequest.getCurrent();
+            final VaadinServletRequest request = VaadinServletRequest.getCurrent();
             if (request == null) {
                 LOGGER.warn("Cannot perform logout: VaadinServletRequest is null");
                 NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
@@ -133,7 +129,7 @@ public class TopMenuAuthService {
         } catch (AuthenticationException e) {
             AUDIT_LOGGER.warn("Logout failed: username={}, reason={}", username, e.getMessage());
             NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             AUDIT_LOGGER.error("Logout failed: username={}", username);
             LOGGER.error("Logout error", e);
             NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);

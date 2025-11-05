@@ -30,13 +30,13 @@ public record NewsDto(
      * @throws IllegalArgumentException if required fields are null/empty
      */
     public NewsDto {
-        if (title == null || title.trim().isEmpty()) {
+        if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("Title cannot be null or empty");
         }
         if (content == null) {
             throw new IllegalArgumentException("Content cannot be null");
         }
-        if (author == null || author.trim().isEmpty()) {
+        if (author == null || author.isBlank()) {
             throw new IllegalArgumentException("Author cannot be null or empty");
         }
     }
@@ -50,7 +50,7 @@ public record NewsDto(
      * @return NewsDto for new news article
      */
     public static NewsDto forNewNews(final String title, final String content, final String author) {
-        LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now();
         return new NewsDto(null, title, content, author, now, now);
     }
 

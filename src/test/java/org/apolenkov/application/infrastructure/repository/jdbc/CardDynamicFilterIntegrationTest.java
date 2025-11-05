@@ -63,23 +63,23 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
 
         // Create test cards
         // "apple" - will be marked as KNOWN
-        Card card1 = new Card(null, testDeck.getId(), "apple", "manzana", "I like apples");
+        final Card card1 = new Card(null, testDeck.getId(), "apple", "manzana", "I like apples");
         cardRepository.save(card1);
 
         // "banana" - will be marked as KNOWN
-        Card card2 = new Card(null, testDeck.getId(), "banana", "banana", "Yellow banana");
+        final Card card2 = new Card(null, testDeck.getId(), "banana", "banana", "Yellow banana");
         cardRepository.save(card2);
 
         // "cherry" - will remain UNKNOWN
-        Card card3 = new Card(null, testDeck.getId(), "cherry", "cereza", "Red cherry");
+        final Card card3 = new Card(null, testDeck.getId(), "cherry", "cereza", "Red cherry");
         cardRepository.save(card3);
 
         // "date" - will remain UNKNOWN
-        Card card4 = new Card(null, testDeck.getId(), "date", "dátil", "Sweet date");
+        final Card card4 = new Card(null, testDeck.getId(), "date", "dátil", "Sweet date");
         cardRepository.save(card4);
 
         // "elderberry" - will remain UNKNOWN
-        Card card5 = new Card(null, testDeck.getId(), "elderberry", "saúco", "Dark elderberry");
+        final Card card5 = new Card(null, testDeck.getId(), "elderberry", "saúco", "Dark elderberry");
         cardRepository.save(card5);
 
         // Mark card1 and card2 as KNOWN
@@ -91,10 +91,11 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should retrieve all cards when no filter applied")
     void testFindAllNoFilter() {
         // Given: No filter (FilterOption.ALL, no search query)
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        final PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When: Retrieving cards
-        List<Card> result = cardRepository.findCardsWithFilter(testDeck.getId(), null, FilterOption.ALL, pageRequest);
+        final List<Card> result =
+                cardRepository.findCardsWithFilter(testDeck.getId(), null, FilterOption.ALL, pageRequest);
 
         // Then: Should return all 5 cards
         assertThat(result).hasSize(5);
@@ -108,7 +109,7 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should count cards with different filters")
     void testCountCardsWithFilter(final FilterOption filterOption, final long expectedCount) {
         // When: Counting cards with filter
-        long count = cardRepository.countCardsWithFilter(testDeck.getId(), null, filterOption);
+        final long count = cardRepository.countCardsWithFilter(testDeck.getId(), null, filterOption);
 
         // Then: Should count expected number of cards
         assertThat(count).isEqualTo(expectedCount);
@@ -118,10 +119,10 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should retrieve only KNOWN cards")
     void testFindAllKnownOnly() {
         // Given: KNOWN_ONLY filter
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        final PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When: Retrieving known cards
-        List<Card> result =
+        final List<Card> result =
                 cardRepository.findCardsWithFilter(testDeck.getId(), null, FilterOption.KNOWN_ONLY, pageRequest);
 
         // Then: Should return only card1 and card2
@@ -133,10 +134,10 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should retrieve only UNKNOWN cards")
     void testFindAllUnknownOnly() {
         // Given: UNKNOWN_ONLY filter
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        final PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When: Retrieving unknown cards
-        List<Card> result =
+        final List<Card> result =
                 cardRepository.findCardsWithFilter(testDeck.getId(), null, FilterOption.UNKNOWN_ONLY, pageRequest);
 
         // Then: Should return card3, card4, card5
@@ -149,10 +150,10 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should search cards by query in all fields (case-insensitive)")
     void testSearchCards(final String searchQuery, final String expectedFrontText) {
         // Given: Search query
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        final PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When: Searching cards
-        List<Card> result =
+        final List<Card> result =
                 cardRepository.findCardsWithFilter(testDeck.getId(), searchQuery, FilterOption.ALL, pageRequest);
 
         // Then: Should return expected card
@@ -165,7 +166,7 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     void testCountAllSearchQuery() {
         // Given: Search query "an" (should match "banana" and "manzana")
         // When: Counting matching cards
-        long count = cardRepository.countCardsWithFilter(testDeck.getId(), "an", FilterOption.ALL);
+        final long count = cardRepository.countCardsWithFilter(testDeck.getId(), "an", FilterOption.ALL);
 
         // Then: Should count 2 cards
         assertThat(count).isEqualTo(2);
@@ -176,10 +177,10 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     void testFindAllSearchWithKnownFilter() {
         // Given: Search query "a" + KNOWN_ONLY filter
         // Should match "apple" and "banana" (both contain "a" and are known)
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        final PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When: Searching known cards
-        List<Card> result =
+        final List<Card> result =
                 cardRepository.findCardsWithFilter(testDeck.getId(), "a", FilterOption.KNOWN_ONLY, pageRequest);
 
         // Then: Should return apple and banana
@@ -192,7 +193,7 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     void testCountAllSearchWithKnownFilter() {
         // Given: Search query "a" + KNOWN_ONLY filter
         // When: Counting matching known cards
-        long count = cardRepository.countCardsWithFilter(testDeck.getId(), "a", FilterOption.KNOWN_ONLY);
+        final long count = cardRepository.countCardsWithFilter(testDeck.getId(), "a", FilterOption.KNOWN_ONLY);
 
         // Then: Should count 2 cards (apple, banana)
         assertThat(count).isEqualTo(2);
@@ -203,10 +204,10 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     void testFindAllSearchWithUnknownFilter() {
         // Given: Search query "e" + UNKNOWN_ONLY filter
         // Should match "cherry", "date", "elderberry" (all contain "e" and are unknown)
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        final PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When: Searching unknown cards
-        List<Card> result =
+        final List<Card> result =
                 cardRepository.findCardsWithFilter(testDeck.getId(), "e", FilterOption.UNKNOWN_ONLY, pageRequest);
 
         // Then: Should return cherry, date, elderberry
@@ -219,7 +220,7 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     void testCountAllSearchWithUnknownFilter() {
         // Given: Search query "e" + UNKNOWN_ONLY filter (should match cherry, date, elderberry)
         // When: Counting matching unknown cards
-        long count = cardRepository.countCardsWithFilter(testDeck.getId(), "e", FilterOption.UNKNOWN_ONLY);
+        final long count = cardRepository.countCardsWithFilter(testDeck.getId(), "e", FilterOption.UNKNOWN_ONLY);
 
         // Then: Should count 3 cards (cherry, date, elderberry all contain "e" and are unknown)
         assertThat(count).isEqualTo(3);
@@ -229,10 +230,10 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should return empty list when search query matches no cards")
     void testFindAllNoMatches() {
         // Given: Search query that doesn't match anything
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        final PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When: Searching cards
-        List<Card> result =
+        final List<Card> result =
                 cardRepository.findCardsWithFilter(testDeck.getId(), "xyz123", FilterOption.ALL, pageRequest);
 
         // Then: Should return empty list
@@ -244,7 +245,7 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     void testCountAllNoMatches() {
         // Given: Search query that doesn't match anything
         // When: Counting matching cards
-        long count = cardRepository.countCardsWithFilter(testDeck.getId(), "xyz123", FilterOption.ALL);
+        final long count = cardRepository.countCardsWithFilter(testDeck.getId(), "xyz123", FilterOption.ALL);
 
         // Then: Should return 0
         assertThat(count).isZero();
@@ -254,18 +255,18 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should handle pagination correctly")
     void testFindAllPagination() {
         // Given: Request for first 2 cards
-        PageRequest pageRequest = PageRequest.of(0, 2);
+        final PageRequest pageRequest = PageRequest.of(0, 2);
 
         // When: Retrieving first page
-        List<Card> firstPage =
+        final List<Card> firstPage =
                 cardRepository.findCardsWithFilter(testDeck.getId(), null, FilterOption.ALL, pageRequest);
 
         // Then: Should return 2 cards
         assertThat(firstPage).hasSize(2);
 
         // When: Retrieving second page
-        PageRequest secondPageRequest = PageRequest.of(1, 2);
-        List<Card> secondPage =
+        final PageRequest secondPageRequest = PageRequest.of(1, 2);
+        final List<Card> secondPage =
                 cardRepository.findCardsWithFilter(testDeck.getId(), null, FilterOption.ALL, secondPageRequest);
 
         // Then: Should return 2 different cards
@@ -277,10 +278,11 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should handle empty search query as no filter")
     void testFindAllEmptySearchQuery() {
         // Given: Empty search query
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        final PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When: Retrieving cards with empty search
-        List<Card> result = cardRepository.findCardsWithFilter(testDeck.getId(), "", FilterOption.ALL, pageRequest);
+        final List<Card> result =
+                cardRepository.findCardsWithFilter(testDeck.getId(), "", FilterOption.ALL, pageRequest);
 
         // Then: Should return all cards (same as no filter)
         assertThat(result).hasSize(5);
@@ -296,13 +298,14 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
         anotherDeck.setDescription("Another Description");
         anotherDeck = deckRepository.save(anotherDeck);
 
-        Card anotherCard = new Card(null, anotherDeck.getId(), "grape", "uva", "Purple grape");
+        final Card anotherCard = new Card(null, anotherDeck.getId(), "grape", "uva", "Purple grape");
         cardRepository.save(anotherCard);
 
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        final PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When: Retrieving cards from test deck
-        List<Card> result = cardRepository.findCardsWithFilter(testDeck.getId(), null, FilterOption.ALL, pageRequest);
+        final List<Card> result =
+                cardRepository.findCardsWithFilter(testDeck.getId(), null, FilterOption.ALL, pageRequest);
 
         // Then: Should return only cards from test deck (not "grape")
         assertThat(result).hasSize(5);
@@ -313,10 +316,11 @@ class CardDynamicFilterIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Should order cards by updated_at DESC")
     void testFindAllOrderedByUpdatedAt() {
         // Given: Cards in database
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        final PageRequest pageRequest = PageRequest.of(0, 10);
 
         // When: Retrieving cards
-        List<Card> result = cardRepository.findCardsWithFilter(testDeck.getId(), null, FilterOption.ALL, pageRequest);
+        final List<Card> result =
+                cardRepository.findCardsWithFilter(testDeck.getId(), null, FilterOption.ALL, pageRequest);
 
         // Then: Should be ordered by updated_at (newest first)
         // We verify all cards are present (exact order verification would require timestamp manipulation)

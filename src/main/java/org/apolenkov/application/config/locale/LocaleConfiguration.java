@@ -25,10 +25,10 @@ public class LocaleConfiguration {
      * @param ui the UI instance to apply locale settings to
      */
     public void applyPreferredLocale(final UI ui) {
-        VaadinSession session = ui.getSession();
+        final VaadinSession session = ui.getSession();
 
         // First priority: locale from cookie (user's persistent preference)
-        Locale cookieLocale = readLocaleFromCookie();
+        final Locale cookieLocale = readLocaleFromCookie();
         if (cookieLocale != null) {
             session.setAttribute(LocaleConstants.SESSION_LOCALE_KEY, cookieLocale.toLanguageTag());
             ui.setLocale(cookieLocale);
@@ -37,9 +37,9 @@ public class LocaleConfiguration {
         }
 
         // Second priority: locale from session (temporary preference)
-        Object preferred = session.getAttribute(LocaleConstants.SESSION_LOCALE_KEY);
+        final Object preferred = session.getAttribute(LocaleConstants.SESSION_LOCALE_KEY);
         if (preferred instanceof String localeTag) {
-            Locale locale = Locale.forLanguageTag(localeTag);
+            final Locale locale = Locale.forLanguageTag(localeTag);
             ui.setLocale(locale);
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Locale set from session attribute: {} [uiId={}]", locale, ui.getUIId());
@@ -61,13 +61,13 @@ public class LocaleConfiguration {
     private Locale readLocaleFromCookie() {
         try {
             // Get current HTTP request to access cookies
-            VaadinServletRequest req = (VaadinServletRequest) VaadinService.getCurrentRequest();
+            final VaadinServletRequest req = (VaadinServletRequest) VaadinService.getCurrentRequest();
             if (req != null && req.getCookies() != null) {
                 // Search for locale preference cookie
-                for (Cookie c : req.getCookies()) {
+                for (final Cookie c : req.getCookies()) {
                     if (LocaleConstants.COOKIE_LOCALE_KEY.equals(c.getName())) {
                         // Parse locale from cookie value and validate
-                        Locale locale = Locale.forLanguageTag(c.getValue());
+                        final Locale locale = Locale.forLanguageTag(c.getValue());
                         if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Locale cookie found: {}", locale);
                         }
@@ -75,7 +75,7 @@ public class LocaleConfiguration {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
             // Log but don't fail if cookie reading fails
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Failed to read locale from cookie", e);

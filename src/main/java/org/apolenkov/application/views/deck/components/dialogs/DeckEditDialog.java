@@ -70,14 +70,14 @@ public class DeckEditDialog extends Dialog {
      * Coordinates the creation of all dialog elements.
      */
     private void build() {
-        VerticalLayout layout = new VerticalLayout();
+        final VerticalLayout layout = new VerticalLayout();
         layout.setPadding(false);
         layout.setSpacing(true);
 
-        H3 header = createHeader();
-        TextField titleField = createTitleField();
-        TextArea descriptionArea = createDescriptionArea();
-        HorizontalLayout buttons = createButtonLayout(titleField, descriptionArea);
+        final H3 header = createHeader();
+        final TextField titleField = createTitleField();
+        final TextArea descriptionArea = createDescriptionArea();
+        final HorizontalLayout buttons = createButtonLayout(titleField, descriptionArea);
 
         layout.add(header, titleField, descriptionArea, buttons);
         add(layout);
@@ -98,7 +98,7 @@ public class DeckEditDialog extends Dialog {
      * @return configured title field
      */
     private TextField createTitleField() {
-        TextField titleField = new TextField(getTranslation(DeckConstants.DECK_DECK_TITLE));
+        final TextField titleField = new TextField(getTranslation(DeckConstants.DECK_DECK_TITLE));
         titleField.setWidthFull();
         titleField.setRequiredIndicatorVisible(true);
         titleField.setMaxLength(120);
@@ -113,7 +113,7 @@ public class DeckEditDialog extends Dialog {
      * @return configured description area
      */
     private TextArea createDescriptionArea() {
-        TextArea descriptionArea = new TextArea(getTranslation(DeckConstants.DECK_DESCRIPTION));
+        final TextArea descriptionArea = new TextArea(getTranslation(DeckConstants.DECK_DESCRIPTION));
         descriptionArea.setWidthFull();
         descriptionArea.addClassName(DeckConstants.TEXT_AREA_MD_CLASS);
         descriptionArea.setMaxLength(500);
@@ -130,14 +130,14 @@ public class DeckEditDialog extends Dialog {
      * @return configured button layout
      */
     private HorizontalLayout createButtonLayout(final TextField titleField, final TextArea descriptionArea) {
-        HorizontalLayout buttons = DialogHelper.createButtonLayout();
+        final HorizontalLayout buttons = DialogHelper.createButtonLayout();
 
-        Button save = ButtonHelper.createButton(
+        final Button save = ButtonHelper.createButton(
                 getTranslation(DeckConstants.DECK_EDIT_SAVE),
                 e -> handleSaveAction(titleField, descriptionArea),
                 ButtonVariant.LUMO_PRIMARY);
 
-        Button cancel = ButtonHelper.createButton(
+        final Button cancel = ButtonHelper.createButton(
                 getTranslation(DeckConstants.COMMON_CANCEL), e -> close(), ButtonVariant.LUMO_TERTIARY);
 
         buttons.add(save, cancel);
@@ -151,8 +151,8 @@ public class DeckEditDialog extends Dialog {
      * @param descriptionArea the description area
      */
     private void handleSaveAction(final TextField titleField, final TextArea descriptionArea) {
-        String title = ValidationHelper.safeTrimToEmpty(titleField.getValue());
-        String description = ValidationHelper.safeTrim(descriptionArea.getValue()); // Nullable field
+        final String title = ValidationHelper.safeTrimToEmpty(titleField.getValue());
+        final String description = ValidationHelper.safeTrim(descriptionArea.getValue()); // Nullable field
 
         if (ValidationHelper.validateRequiredSimple(
                 titleField, title, getTranslation(DeckConstants.DECK_CREATE_ENTER_TITLE))) {
@@ -163,7 +163,7 @@ public class DeckEditDialog extends Dialog {
             deck.setTitle(title);
             deck.setDescription(description);
 
-            Deck saved = deckUseCase.saveDeck(deck);
+            final Deck saved = deckUseCase.saveDeck(deck);
 
             LOGGER.debug("Deck edited successfully: id={}, title='{}'", saved.getId(), saved.getTitle());
 
@@ -174,7 +174,7 @@ public class DeckEditDialog extends Dialog {
             if (onSaved != null) {
                 onSaved.accept(saved);
             }
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
             LOGGER.error("Error editing deck ID {}: {}", deck.getId(), ex.getMessage(), ex);
             NotificationHelper.showError(ex.getMessage());
         }

@@ -44,14 +44,14 @@ public final class NewsCard extends Composite<VerticalLayout> {
 
     @Override
     protected VerticalLayout initContent() {
-        VerticalLayout card = new VerticalLayout();
+        final VerticalLayout card = new VerticalLayout();
         card.setPadding(true);
         card.setSpacing(true);
         card.setWidthFull();
         card.addClassName(AdminConstants.NEWS_CARD_CLASS);
 
         // Title
-        H3 title = new H3(news.getTitle());
+        final H3 title = new H3(news.getTitle());
         title.addClassName(AdminConstants.NEWS_CARD_TITLE_CLASS);
 
         // Content preview (first 150 characters)
@@ -60,15 +60,15 @@ public final class NewsCard extends Composite<VerticalLayout> {
             contentPreview = contentPreview.substring(0, AdminConstants.CONTENT_PREVIEW_LENGTH)
                     + AdminConstants.CONTENT_PREVIEW_SUFFIX;
         }
-        Span content = new Span(contentPreview);
+        final Span content = new Span(contentPreview);
         content.addClassName(AdminConstants.NEWS_CARD_CONTENT_CLASS);
         content.addClassName(AdminConstants.TEXT_CONTENT_CLASS);
 
         // Author and date
-        HorizontalLayout metaInfo = createMetaInfo();
+        final HorizontalLayout metaInfo = createMetaInfo();
 
         // Action buttons
-        HorizontalLayout actions = createActions();
+        final HorizontalLayout actions = createActions();
 
         card.add(title, content, metaInfo, actions);
         return card;
@@ -80,17 +80,17 @@ public final class NewsCard extends Composite<VerticalLayout> {
      * @return layout with metadata
      */
     private HorizontalLayout createMetaInfo() {
-        HorizontalLayout metaInfo = new HorizontalLayout();
+        final HorizontalLayout metaInfo = new HorizontalLayout();
         metaInfo.setSpacing(true);
         metaInfo.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        Span author = new Span(getTranslation(AdminConstants.ADMIN_NEWS_AUTHOR_KEY)
+        final Span author = new Span(getTranslation(AdminConstants.ADMIN_NEWS_AUTHOR_KEY)
                 + CoreConstants.SEPARATOR_COLON_SPACE
                 + news.getAuthor());
         author.addClassName(AdminConstants.NEWS_CARD_AUTHOR_CLASS);
         author.addClassName(AdminConstants.TEXT_MUTED_CLASS);
 
-        Span createdAt =
+        final Span createdAt =
                 new Span(news.getCreatedAt().format(DateTimeFormatter.ofPattern(AdminConstants.DATE_TIME_PATTERN)));
         createdAt.addClassName(AdminConstants.NEWS_CARD_DATE_CLASS);
         createdAt.addClassName(AdminConstants.TEXT_MUTED_SMALL_CLASS);
@@ -105,12 +105,12 @@ public final class NewsCard extends Composite<VerticalLayout> {
      * @return layout with action buttons
      */
     private HorizontalLayout createActions() {
-        HorizontalLayout actions = new HorizontalLayout();
+        final HorizontalLayout actions = new HorizontalLayout();
         actions.setSpacing(true);
         actions.setAlignItems(FlexComponent.Alignment.CENTER);
         actions.addClassName(AdminConstants.NEWS_CARD_ACTIONS_CLASS);
 
-        Button editBtn = ButtonHelper.createButton(
+        final Button editBtn = ButtonHelper.createButton(
                 getTranslation(AdminConstants.COMMON_EDIT_KEY),
                 VaadinIcon.EDIT,
                 e -> {
@@ -121,7 +121,7 @@ public final class NewsCard extends Composite<VerticalLayout> {
                 ButtonVariant.LUMO_TERTIARY,
                 ButtonVariant.LUMO_SMALL);
 
-        Button deleteBtn = ButtonHelper.createButton(
+        final Button deleteBtn = ButtonHelper.createButton(
                 getTranslation(AdminConstants.COMMON_DELETE_KEY),
                 VaadinIcon.TRASH,
                 e -> {

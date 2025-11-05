@@ -22,7 +22,7 @@ public final class LayoutHelper {
      * @return configured horizontal layout for search functionality
      */
     public static HorizontalLayout createSearchRow(final Component searchField, final Component... filters) {
-        HorizontalLayout searchRow = new HorizontalLayout();
+        final HorizontalLayout searchRow = new HorizontalLayout();
         searchRow.setWidthFull();
         searchRow.setAlignItems(FlexComponent.Alignment.CENTER);
         searchRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN); // Changed from CENTER to BETWEEN
@@ -30,7 +30,7 @@ public final class LayoutHelper {
         searchRow.add(searchField);
 
         if (filters.length > 0) {
-            HorizontalLayout filtersLayout = new HorizontalLayout();
+            final HorizontalLayout filtersLayout = new HorizontalLayout();
             filtersLayout.setAlignItems(FlexComponent.Alignment.CENTER);
             filtersLayout.setSpacing(true);
             filtersLayout.add(filters);

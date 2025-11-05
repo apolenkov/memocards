@@ -34,7 +34,7 @@ class PracticeSessionManagerTest {
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         // Session is complete when index >= cards.size()
-        PracticeSession completeSession =
+        final PracticeSession completeSession =
                 testSession.withState(testSession.state().withIndex(1));
 
         assertThat(sessionManager.isComplete(completeSession)).isTrue();
@@ -55,7 +55,7 @@ class PracticeSessionManagerTest {
         testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
-        PracticeSession completeSession =
+        final PracticeSession completeSession =
                 testSession.withState(testSession.state().withIndex(1));
 
         assertThat(sessionManager.currentCard(completeSession)).isNull();
@@ -68,7 +68,7 @@ class PracticeSessionManagerTest {
                 new Card(1L, 1L, "Front 1", "Back 1", "Example 1"), new Card(2L, 1L, "Front 2", "Back 2", "Example 2"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
-        Card currentCard = sessionManager.currentCard(testSession);
+        final Card currentCard = sessionManager.currentCard(testSession);
 
         assertThat(currentCard).isEqualTo(testCards.getFirst());
     }
@@ -79,7 +79,7 @@ class PracticeSessionManagerTest {
         testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
-        PracticeSession updated = sessionManager.startQuestion(testSession);
+        final PracticeSession updated = sessionManager.startQuestion(testSession);
 
         assertThat(updated.isShowingAnswer()).isFalse();
         assertThat(updated.getCardShowTime()).isNotNull();
@@ -93,13 +93,13 @@ class PracticeSessionManagerTest {
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
         // Start question first
-        PracticeSession questionSession = sessionManager.startQuestion(testSession);
+        final PracticeSession questionSession = sessionManager.startQuestion(testSession);
 
         // Simulate some delay by creating a session with a past timestamp
-        PracticeSession delayedSession = questionSession.withState(
+        final PracticeSession delayedSession = questionSession.withState(
                 questionSession.state().withCardShowTime(Instant.now().minusMillis(50)));
 
-        PracticeSession revealed = sessionManager.reveal(delayedSession);
+        final PracticeSession revealed = sessionManager.reveal(delayedSession);
 
         assertThat(revealed.isShowingAnswer()).isTrue();
         assertThat(revealed.getTotalAnswerDelayMs()).isGreaterThan(0);
@@ -111,7 +111,7 @@ class PracticeSessionManagerTest {
         testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
-        PracticeSession revealed = sessionManager.reveal(testSession);
+        final PracticeSession revealed = sessionManager.reveal(testSession);
 
         assertThat(revealed.isShowingAnswer()).isTrue();
         assertThat(revealed.getTotalAnswerDelayMs()).isZero();
@@ -124,7 +124,7 @@ class PracticeSessionManagerTest {
                 new Card(1L, 1L, "Front 1", "Back 1", "Example 1"), new Card(2L, 1L, "Front 2", "Back 2", "Example 2"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
-        PracticeSession updated = sessionManager.markKnow(testSession);
+        final PracticeSession updated = sessionManager.markKnow(testSession);
 
         assertThat(updated.getIndex()).isEqualTo(1);
         assertThat(updated.getCorrectCount()).isEqualTo(1);
@@ -141,7 +141,7 @@ class PracticeSessionManagerTest {
                 new Card(1L, 1L, "Front 1", "Back 1", "Example 1"), new Card(2L, 1L, "Front 2", "Back 2", "Example 2"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
-        PracticeSession updated = sessionManager.markHard(testSession);
+        final PracticeSession updated = sessionManager.markHard(testSession);
 
         assertThat(updated.getIndex()).isEqualTo(1);
         assertThat(updated.getHardCount()).isEqualTo(1);
@@ -157,10 +157,10 @@ class PracticeSessionManagerTest {
         testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
-        PracticeSession completeSession =
+        final PracticeSession completeSession =
                 testSession.withState(testSession.state().withIndex(1));
 
-        PracticeSession updated = sessionManager.markKnow(completeSession);
+        final PracticeSession updated = sessionManager.markKnow(completeSession);
 
         assertThat(updated).isSameAs(completeSession);
     }
@@ -174,14 +174,14 @@ class PracticeSessionManagerTest {
                 new Card(3L, 1L, "Front 3", "Back 3", "Example 3"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
-        PracticeSession updated = testSession.withState(testSession
+        final PracticeSession updated = testSession.withState(testSession
                 .state()
                 .withIndex(1)
                 .withCorrectCount(1)
                 .withHardCount(1)
                 .withTotalViewed(2));
 
-        PracticeSessionManager.Progress progress = sessionManager.progress(updated);
+        final PracticeSessionManager.Progress progress = sessionManager.progress(updated);
 
         assertThat(progress.current()).isEqualTo(2); // 1-based index
         assertThat(progress.total()).isEqualTo(3);
@@ -197,7 +197,7 @@ class PracticeSessionManagerTest {
         testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
-        PracticeSessionManager.Progress progress = sessionManager.progress(testSession);
+        final PracticeSessionManager.Progress progress = sessionManager.progress(testSession);
 
         assertThat(progress.current()).isEqualTo(1);
         assertThat(progress.total()).isEqualTo(1);
@@ -210,7 +210,7 @@ class PracticeSessionManagerTest {
         testCards = List.of(new Card(1L, 1L, "Front 1", "Back 1", "Example 1"));
         testSession = PracticeSession.create(1L, testCards, Instant.now());
 
-        PracticeSession completedSession = testSession
+        final PracticeSession completedSession = testSession
                 .withState(testSession
                         .state()
                         .withCorrectCount(1)

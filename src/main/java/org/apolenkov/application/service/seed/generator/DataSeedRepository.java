@@ -64,17 +64,17 @@ public class DataSeedRepository {
         }
 
         LOGGER.debug("Batch inserting {} users", users.size());
-        LocalDateTime now = LocalDateTime.now();
-        List<User> result = new ArrayList<>(users.size());
-        List<Long> generatedIds = new ArrayList<>(users.size());
+        final LocalDateTime now = LocalDateTime.now();
+        final List<User> result = new ArrayList<>(users.size());
+        final List<Long> generatedIds = new ArrayList<>(users.size());
 
         // Insert users and collect generated IDs
-        for (User user : users) {
-            KeyHolder keyHolder = new GeneratedKeyHolder();
+        for (final User user : users) {
+            final KeyHolder keyHolder = new GeneratedKeyHolder();
 
             jdbcTemplate.update(
                     connection -> {
-                        PreparedStatement ps = connection.prepareStatement(
+                        final PreparedStatement ps = connection.prepareStatement(
                                 UserSqlQueries.INSERT_USER_ON_CONFLICT_RETURNING_ID, Statement.RETURN_GENERATED_KEYS);
                         ps.setString(1, user.getEmail());
                         ps.setString(2, user.getPasswordHash());
@@ -84,21 +84,21 @@ public class DataSeedRepository {
                     },
                     keyHolder);
 
-            Number key = keyHolder.getKey();
+            final Number key = keyHolder.getKey();
             if (key != null) {
                 generatedIds.add(key.longValue());
             }
         }
 
         // Batch insert roles for all users
-        List<Object[]> roleBatchArgs = new ArrayList<>();
-        List<User> userList = new ArrayList<>(users);
+        final List<Object[]> roleBatchArgs = new ArrayList<>();
+        final List<User> userList = new ArrayList<>(users);
 
         for (int i = 0; i < userList.size(); i++) {
-            User user = userList.get(i);
-            Long userId = generatedIds.get(i);
+            final User user = userList.get(i);
+            final Long userId = generatedIds.get(i);
 
-            for (String role : user.getRoles()) {
+            for (final String role : user.getRoles()) {
                 roleBatchArgs.add(new Object[] {userId, role});
             }
         }
@@ -109,10 +109,10 @@ public class DataSeedRepository {
 
         // Build result users with generated IDs
         for (int i = 0; i < userList.size(); i++) {
-            User user = userList.get(i);
-            Long generatedId = generatedIds.get(i);
+            final User user = userList.get(i);
+            final Long generatedId = generatedIds.get(i);
 
-            User savedUser = new User();
+            final User savedUser = new User();
             savedUser.setId(generatedId);
             savedUser.setEmail(user.getEmail());
             savedUser.setName(user.getName());
@@ -138,15 +138,15 @@ public class DataSeedRepository {
         }
 
         LOGGER.debug("Batch inserting {} decks", decks.size());
-        LocalDateTime now = LocalDateTime.now();
-        List<Deck> result = new ArrayList<>(decks.size());
+        final LocalDateTime now = LocalDateTime.now();
+        final List<Deck> result = new ArrayList<>(decks.size());
 
-        for (Deck deck : decks) {
-            KeyHolder keyHolder = new GeneratedKeyHolder();
+        for (final Deck deck : decks) {
+            final KeyHolder keyHolder = new GeneratedKeyHolder();
 
             jdbcTemplate.update(
                     connection -> {
-                        PreparedStatement ps = connection.prepareStatement(
+                        final PreparedStatement ps = connection.prepareStatement(
                                 DeckSqlQueries.INSERT_DECK_RETURNING_ID, Statement.RETURN_GENERATED_KEYS);
                         ps.setLong(1, deck.getUserId());
                         ps.setString(2, deck.getTitle());
@@ -157,10 +157,10 @@ public class DataSeedRepository {
                     },
                     keyHolder);
 
-            Number key = keyHolder.getKey();
+            final Number key = keyHolder.getKey();
             if (key != null) {
-                Long generatedId = key.longValue();
-                Deck savedDeck = new Deck(generatedId, deck.getUserId(), deck.getTitle(), deck.getDescription());
+                final Long generatedId = key.longValue();
+                final Deck savedDeck = new Deck(generatedId, deck.getUserId(), deck.getTitle(), deck.getDescription());
                 result.add(savedDeck);
             }
         }
@@ -195,10 +195,10 @@ public class DataSeedRepository {
         }
 
         LOGGER.debug("Batch inserting {} news items", items.size());
-        LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now();
 
-        List<Object[]> batchArgs = new ArrayList<>(items.size());
-        for (News news : items) {
+        final List<Object[]> batchArgs = new ArrayList<>(items.size());
+        for (final News news : items) {
             batchArgs.add(new Object[] {news.getTitle(), news.getContent(), news.getAuthor(), Timestamp.valueOf(now)});
         }
 

@@ -15,6 +15,19 @@ public record CardFilter(String searchQuery, FilterOption filterOption) {
      * Compact constructor with validation.
      */
     public CardFilter {
-        filterOption = filterOption != null ? filterOption : FilterOption.ALL;
+        if (filterOption == null) {
+            throw new IllegalArgumentException("FilterOption cannot be null");
+        }
+    }
+
+    /**
+     * Creates a CardFilter with default ALL option if filterOption is null.
+     *
+     * @param searchQueryValue search query
+     * @param filterOptionValue filter option (can be null)
+     * @return CardFilter with validated filterOption
+     */
+    public static CardFilter of(final String searchQueryValue, final FilterOption filterOptionValue) {
+        return new CardFilter(searchQueryValue, filterOptionValue != null ? filterOptionValue : FilterOption.ALL);
     }
 }

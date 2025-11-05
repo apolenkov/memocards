@@ -49,7 +49,7 @@ class CardCacheInvalidationTest {
     @DisplayName("Should invalidate cache when creating new card")
     void shouldInvalidateCacheOnCreate() {
         // Given
-        Card newCard = new Card();
+        final Card newCard = new Card();
         newCard.setId(null); // New card
         newCard.setDeckId(5L);
         newCard.setFrontText("Hello");
@@ -69,7 +69,7 @@ class CardCacheInvalidationTest {
     @DisplayName("Should invalidate cache when updating existing card")
     void shouldInvalidateCacheOnUpdate() {
         // Given
-        Card existingCard = new Card();
+        final Card existingCard = new Card();
         existingCard.setId(10L); // Existing card
         existingCard.setDeckId(7L);
         existingCard.setFrontText("Updated");
@@ -89,8 +89,8 @@ class CardCacheInvalidationTest {
     @DisplayName("Should invalidate cache when deleting card")
     void shouldInvalidateCacheOnDelete() {
         // Given
-        long cardId = 15L;
-        Card card = new Card();
+        final long cardId = 15L;
+        final Card card = new Card();
         card.setId(cardId);
         card.setDeckId(3L);
         card.setFrontText("To be deleted");
@@ -110,7 +110,7 @@ class CardCacheInvalidationTest {
     @DisplayName("Should not invalidate cache when card not found on delete")
     void shouldNotInvalidateCacheWhenCardNotFound() {
         // Given
-        long cardId = 99L;
+        final long cardId = 99L;
         when(cardRepository.findById(cardId)).thenReturn(Optional.empty());
 
         // When
@@ -125,13 +125,13 @@ class CardCacheInvalidationTest {
     @DisplayName("Should invalidate cache for correct deck ID")
     void shouldInvalidateCacheForCorrectDeck() {
         // Given - multiple decks
-        Card deck1Card = new Card();
+        final Card deck1Card = new Card();
         deck1Card.setId(null);
         deck1Card.setDeckId(1L);
         deck1Card.setFrontText("Deck 1");
         deck1Card.setBackText("First Deck");
 
-        Card deck2Card = new Card();
+        final Card deck2Card = new Card();
         deck2Card.setId(null);
         deck2Card.setDeckId(2L);
         deck2Card.setFrontText("Deck 2");
@@ -152,7 +152,7 @@ class CardCacheInvalidationTest {
     @DisplayName("Should invalidate cache multiple times for multiple operations")
     void shouldInvalidateCacheMultipleTimes() {
         // Given
-        Card card = new Card();
+        final Card card = new Card();
         card.setId(null);
         card.setDeckId(10L);
         card.setFrontText("Test");

@@ -41,14 +41,14 @@ public final class NewsToolbar extends Composite<HorizontalLayout> {
 
     @Override
     protected HorizontalLayout initContent() {
-        HorizontalLayout toolbar = new HorizontalLayout();
+        final HorizontalLayout toolbar = new HorizontalLayout();
         toolbar.setWidthFull();
         toolbar.addClassName(AdminConstants.ADMIN_CONTENT_TOOLBAR_CLASS);
 
         configureSearchField();
         configureAddButton();
 
-        HorizontalLayout searchRow = LayoutHelper.createSearchRow(searchField, addButton);
+        final HorizontalLayout searchRow = LayoutHelper.createSearchRow(searchField, addButton);
         toolbar.add(searchRow);
         return toolbar;
     }

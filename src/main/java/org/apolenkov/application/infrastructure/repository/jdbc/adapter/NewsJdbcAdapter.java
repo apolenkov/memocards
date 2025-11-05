@@ -37,12 +37,12 @@ public class NewsJdbcAdapter implements NewsRepository {
      * RowMapper for NewsDto.
      */
     private static final RowMapper<NewsDto> NEWS_ROW_MAPPER = (rs, rowNum) -> {
-        Long id = rs.getLong("id");
-        String title = rs.getString("title");
-        String content = rs.getString("content");
-        String author = rs.getString("author");
-        Timestamp createdAt = rs.getTimestamp("created_at");
-        Timestamp updatedAt = rs.getTimestamp("updated_at");
+        final Long id = rs.getLong("id");
+        final String title = rs.getString("title");
+        final String content = rs.getString("content");
+        final String author = rs.getString("author");
+        final Timestamp createdAt = rs.getTimestamp("created_at");
+        final Timestamp updatedAt = rs.getTimestamp("updated_at");
 
         return NewsDto.forExistingNews(
                 id,
@@ -98,7 +98,7 @@ public class NewsJdbcAdapter implements NewsRepository {
     public List<News> findAllOrderByCreatedDesc() {
         LOGGER.debug("Retrieving all news ordered by creation date");
         try {
-            List<NewsDto> newsDtos =
+            final List<NewsDto> newsDtos =
                     jdbcTemplate.query(NewsSqlQueries.SELECT_ALL_NEWS_ORDER_BY_CREATED_DESC, NEWS_ROW_MAPPER);
             return newsDtos.stream().map(NewsJdbcAdapter::toModel).toList();
         } catch (DataAccessException e) {
@@ -116,7 +116,7 @@ public class NewsJdbcAdapter implements NewsRepository {
     public Optional<News> findById(final long id) {
         LOGGER.debug("Retrieving news by ID: {}", id);
         try {
-            List<NewsDto> newsList = jdbcTemplate.query(NewsSqlQueries.SELECT_NEWS_BY_ID, NEWS_ROW_MAPPER, id);
+            final List<NewsDto> newsList = jdbcTemplate.query(NewsSqlQueries.SELECT_NEWS_BY_ID, NEWS_ROW_MAPPER, id);
             if (newsList.isEmpty()) {
                 return Optional.empty();
             }
@@ -139,7 +139,7 @@ public class NewsJdbcAdapter implements NewsRepository {
             throw new IllegalArgumentException("News cannot be null");
         }
 
-        boolean isNew = news.getId() == null;
+        final boolean isNew = news.getId() == null;
         LOGGER.debug("Saving news: title='{}', isNew={}", news.getTitle(), isNew);
 
         try {
@@ -163,7 +163,7 @@ public class NewsJdbcAdapter implements NewsRepository {
     public void deleteById(final long id) {
         LOGGER.debug("Deleting news by ID: {}", id);
         try {
-            int deleted = jdbcTemplate.update(NewsSqlQueries.DELETE_NEWS, id);
+            final int deleted = jdbcTemplate.update(NewsSqlQueries.DELETE_NEWS, id);
             if (deleted == 0) {
                 LOGGER.warn("No news found with ID: {}", id);
             } else {
@@ -180,10 +180,10 @@ public class NewsJdbcAdapter implements NewsRepository {
      * @param news news article to create
      */
     private void createNews(final News news) {
-        NewsDto newsDto = NewsDto.forNewNews(news.getTitle(), news.getContent(), news.getAuthor());
+        final NewsDto newsDto = NewsDto.forNewNews(news.getTitle(), news.getContent(), news.getAuthor());
 
         // Insert news and get generated ID using RETURNING clause
-        Long generatedId = jdbcTemplate.queryForObject(
+        final Long generatedId = jdbcTemplate.queryForObject(
                 NewsSqlQueries.INSERT_NEWS_RETURNING_ID,
                 Long.class,
                 newsDto.title(),
@@ -193,7 +193,7 @@ public class NewsJdbcAdapter implements NewsRepository {
                 newsDto.updatedAt());
 
         // Return created news
-        NewsDto createdDto = NewsDto.forExistingNews(
+        final NewsDto createdDto = NewsDto.forExistingNews(
                 generatedId,
                 newsDto.title(),
                 newsDto.content(),

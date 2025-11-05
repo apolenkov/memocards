@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
  * It serves as the main entry point for Vaadin application configuration.
  */
 @Configuration
-@Theme(value = "memocards")
+@Theme("memocards")
 @PageTitle("Memocards - Smart Learning with Cards")
 @Push
 public class VaadinApplicationShell implements AppShellConfigurator {

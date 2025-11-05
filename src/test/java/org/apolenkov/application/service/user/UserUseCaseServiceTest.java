@@ -34,12 +34,12 @@ class UserUseCaseServiceTest {
     @DisplayName("Should get user by id")
     void shouldGetUserById() {
         // Given
-        long userId = 1L;
-        User expectedUser = new User(userId, "test@example.com", "Test User");
+        final long userId = 1L;
+        final User expectedUser = new User(userId, "test@example.com", "Test User");
         when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUser));
 
         // When
-        Optional<User> result = userUseCaseService.getUserById(userId);
+        final Optional<User> result = userUseCaseService.getUserById(userId);
 
         // Then
         assertThat(result).isPresent().contains(expectedUser);
@@ -49,11 +49,11 @@ class UserUseCaseServiceTest {
     @DisplayName("Should handle user not found")
     void shouldHandleUserNotFound() {
         // Given
-        long userId = 999L;
+        final long userId = 999L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // When
-        Optional<User> result = userUseCaseService.getUserById(userId);
+        final Optional<User> result = userUseCaseService.getUserById(userId);
 
         // Then
         assertThat(result).isEmpty();
@@ -66,7 +66,7 @@ class UserUseCaseServiceTest {
         when(userRepository.findAll()).thenReturn(List.of());
 
         // When
-        List<User> result = userUseCaseService.getAllUsers();
+        final List<User> result = userUseCaseService.getAllUsers();
 
         // Then
         assertThat(result).isEmpty();
@@ -76,12 +76,12 @@ class UserUseCaseServiceTest {
     @DisplayName("Should get all users")
     void shouldGetAllUsers() {
         // Given
-        List<User> expectedUsers =
+        final List<User> expectedUsers =
                 List.of(new User(1L, "user1@example.com", "User 1"), new User(2L, "user2@example.com", "User 2"));
         when(userRepository.findAll()).thenReturn(expectedUsers);
 
         // When
-        List<User> result = userUseCaseService.getAllUsers();
+        final List<User> result = userUseCaseService.getAllUsers();
 
         // Then
         assertThat(result).hasSize(2).containsExactlyElementsOf(expectedUsers);
@@ -91,16 +91,16 @@ class UserUseCaseServiceTest {
     @DisplayName("Should update user")
     void shouldUpdateUser() {
         // Given: Existing user
-        User user = new User(1L, "old@example.com", "Old Name");
+        final User user = new User(1L, "old@example.com", "Old Name");
         user.setEmail("new@example.com");
         user.setName("New Name");
 
-        User updatedUser = new User(1L, "new@example.com", "New Name");
+        final User updatedUser = new User(1L, "new@example.com", "New Name");
 
         when(userRepository.save(user)).thenReturn(updatedUser);
 
         // When: Update user
-        User result = userUseCaseService.updateUser(user);
+        final User result = userUseCaseService.updateUser(user);
 
         // Then: User updated
         assertThat(result.getEmail()).isEqualTo("new@example.com");
@@ -121,7 +121,7 @@ class UserUseCaseServiceTest {
     @DisplayName("Should throw exception when updating user without ID")
     void shouldThrowExceptionWhenUpdatingUserWithoutId() {
         // Given: New user without ID
-        User user = new User(null, "test@example.com", "Test User");
+        final User user = new User(null, "test@example.com", "Test User");
 
         // When/Then
         assertThatThrownBy(() -> userUseCaseService.updateUser(user))
@@ -133,14 +133,14 @@ class UserUseCaseServiceTest {
     @DisplayName("Should update user email")
     void shouldUpdateUserEmail() {
         // Given: User with old email
-        User user = new User(1L, "old@example.com", "User Name");
+        final User user = new User(1L, "old@example.com", "User Name");
         user.setEmail("new@example.com"); // Email change
 
-        User saved = new User(1L, "new@example.com", "User Name");
+        final User saved = new User(1L, "new@example.com", "User Name");
         when(userRepository.save(user)).thenReturn(saved);
 
         // When: Update
-        User result = userUseCaseService.updateUser(user);
+        final User result = userUseCaseService.updateUser(user);
 
         // Then: Email updated and Caffeine cache evicted (allEntries=true at repository level)
         assertThat(result.getEmail()).isEqualTo("new@example.com");

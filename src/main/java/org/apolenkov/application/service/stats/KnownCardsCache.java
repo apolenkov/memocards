@@ -58,7 +58,7 @@ public class KnownCardsCache {
             return Set.of();
         }
 
-        CachedKnownCards cached = cache.get(deckId);
+        final CachedKnownCards cached = cache.get(deckId);
 
         if (cached != null && cached.isValid(ttlMs)) {
             hitCount.incrementAndGet();
@@ -68,7 +68,7 @@ public class KnownCardsCache {
 
         missCount.incrementAndGet();
         LOGGER.debug("Cache MISS: Loading known cards for deckId={}", deckId);
-        Set<Long> cardIds = loader.get();
+        final Set<Long> cardIds = loader.get();
 
         // Evict the oldest entry if cache is full
         if (cache.size() >= maxSize) {
@@ -96,11 +96,11 @@ public class KnownCardsCache {
         }
 
         // Check which decks are already cached
-        Map<Long, Set<Long>> result = new ConcurrentHashMap<>();
-        Set<Long> missingDeckIds = ConcurrentHashMap.newKeySet();
+        final Map<Long, Set<Long>> result = new ConcurrentHashMap<>();
+        final Set<Long> missingDeckIds = ConcurrentHashMap.newKeySet();
 
-        for (Long deckId : deckIds) {
-            CachedKnownCards cached = cache.get(deckId);
+        for (final Long deckId : deckIds) {
+            final CachedKnownCards cached = cache.get(deckId);
             if (cached != null && cached.isValid(ttlMs)) {
                 hitCount.incrementAndGet();
                 result.put(deckId, cached.cardIds);
@@ -113,7 +113,7 @@ public class KnownCardsCache {
         // Load missing decks in batch
         if (!missingDeckIds.isEmpty()) {
             LOGGER.debug("Cache MISS: Loading known cards for {} decks in batch", missingDeckIds.size());
-            Map<Long, Set<Long>> loaded = batchLoader.get();
+            final Map<Long, Set<Long>> loaded = batchLoader.get();
 
             // Cache newly loaded data
             loaded.forEach((deckId, cardIds) -> {
@@ -196,8 +196,8 @@ public class KnownCardsCache {
      */
     public void logStats() {
         if (LOGGER.isDebugEnabled()) {
-            CacheStats stats = getStats();
-            String hitRate = String.format("%.1f%%", stats.hitRate() * 100);
+            final CacheStats stats = getStats();
+            final String hitRate = String.format("%.1f%%", stats.hitRate() * 100);
             LOGGER.debug(
                     "Cache stats: hits={}, misses={}, hitRate={}, size={}, maxSize={}",
                     stats.hits(),
@@ -254,7 +254,7 @@ public class KnownCardsCache {
          * @return hit rate percentage as double
          */
         public double hitRate() {
-            long total = hits + misses;
+            final long total = hits + misses;
             return total > 0 ? (double) hits / total : 0.0;
         }
     }

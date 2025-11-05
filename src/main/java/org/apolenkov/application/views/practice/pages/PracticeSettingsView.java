@@ -50,7 +50,6 @@ public class PracticeSettingsView extends BaseView {
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     private void init() {
         setupLayout();
         addSettingsComponents();
@@ -69,10 +68,10 @@ public class PracticeSettingsView extends BaseView {
      * Adds all settings components to the view.
      */
     private void addSettingsComponents() {
-        Select<Integer> countSelect = settingsComponents.createCountSelect(practiceSettingsService);
-        RadioButtonGroup<String> modeGroup = settingsComponents.createModeGroup(practiceSettingsService);
-        RadioButtonGroup<String> dirGroup = settingsComponents.createDirectionGroup(practiceSettingsService);
-        HorizontalLayout actions = createActionButtons(countSelect, modeGroup, dirGroup);
+        final Select<Integer> countSelect = settingsComponents.createCountSelect(practiceSettingsService);
+        final RadioButtonGroup<String> modeGroup = settingsComponents.createModeGroup(practiceSettingsService);
+        final RadioButtonGroup<String> dirGroup = settingsComponents.createDirectionGroup(practiceSettingsService);
+        final HorizontalLayout actions = createActionButtons(countSelect, modeGroup, dirGroup);
 
         add(countSelect, modeGroup, dirGroup, actions);
     }
@@ -90,8 +89,8 @@ public class PracticeSettingsView extends BaseView {
             final RadioButtonGroup<String> modeGroup,
             final RadioButtonGroup<String> dirGroup) {
 
-        Button save = createSaveButton(countSelect, modeGroup, dirGroup);
-        Button cancel = createCancelButton();
+        final Button save = createSaveButton(countSelect, modeGroup, dirGroup);
+        final Button cancel = createCancelButton();
 
         return new HorizontalLayout(save, cancel);
     }

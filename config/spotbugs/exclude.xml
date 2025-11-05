@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    SpotBugs exclusion filter for strict mode.
+    This file should remain EMPTY - all violations must be fixed in code.
+    
+    Only add exclusions if absolutely necessary and with team approval.
+-->
+<FindBugsFilter>
+    <!-- Empty - strict mode, no exclusions -->
+</FindBugsFilter>
+

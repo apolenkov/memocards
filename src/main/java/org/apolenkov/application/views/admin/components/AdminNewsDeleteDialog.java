@@ -53,13 +53,13 @@ public final class AdminNewsDeleteDialog extends Dialog {
      * Builds the dialog UI components and layout.
      */
     private void build() {
-        VerticalLayout layout = new VerticalLayout();
+        final VerticalLayout layout = new VerticalLayout();
         layout.add(new H3(getTranslation(AdminConstants.ADMIN_NEWS_CONFIRM_DELETE_TITLE_KEY)));
 
-        Div messageContainer = createMessageContainer();
+        final Div messageContainer = createMessageContainer();
         layout.add(messageContainer);
 
-        HorizontalLayout buttons = createButtonLayout();
+        final HorizontalLayout buttons = createButtonLayout();
         layout.add(buttons);
 
         add(layout);
@@ -71,14 +71,14 @@ public final class AdminNewsDeleteDialog extends Dialog {
      * @return configured message container
      */
     private Div createMessageContainer() {
-        Div messageContainer = new Div();
+        final Div messageContainer = new Div();
         messageContainer.addClassName(AdminConstants.TEXT_CENTER_CLASS);
         messageContainer.setWidthFull();
 
-        Span prefixSpan = new Span(getTranslation(AdminConstants.ADMIN_NEWS_CONFIRM_DELETE_PREFIX_KEY) + " ");
-        Span titleSpan = new Span(news.getTitle());
+        final Span prefixSpan = new Span(getTranslation(AdminConstants.ADMIN_NEWS_CONFIRM_DELETE_PREFIX_KEY) + " ");
+        final Span titleSpan = new Span(news.getTitle());
         titleSpan.addClassName(AdminConstants.ADMIN_DIALOG_CONFIRM_TITLE_CLASS);
-        Span suffixSpan = new Span(getTranslation(AdminConstants.ADMIN_NEWS_CONFIRM_DELETE_SUFFIX_KEY));
+        final Span suffixSpan = new Span(getTranslation(AdminConstants.ADMIN_NEWS_CONFIRM_DELETE_SUFFIX_KEY));
 
         messageContainer.add(prefixSpan, titleSpan, suffixSpan);
         return messageContainer;
@@ -90,13 +90,13 @@ public final class AdminNewsDeleteDialog extends Dialog {
      * @return configured button layout
      */
     private HorizontalLayout createButtonLayout() {
-        HorizontalLayout buttons = new HorizontalLayout();
+        final HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidthFull();
 
-        Button confirmButton =
+        final Button confirmButton =
                 ButtonHelper.createConfirmButton(getTranslation(AdminConstants.DIALOG_CONFIRM_KEY), e -> {
                     if (onConfirm != null) {
                         onConfirm.run();
@@ -104,7 +104,7 @@ public final class AdminNewsDeleteDialog extends Dialog {
                     close();
                 });
 
-        Button cancelButton =
+        final Button cancelButton =
                 ButtonHelper.createCancelButton(getTranslation(AdminConstants.DIALOG_CANCEL_KEY), e -> close());
 
         buttons.add(confirmButton, cancelButton);

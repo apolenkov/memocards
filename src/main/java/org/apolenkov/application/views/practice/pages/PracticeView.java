@@ -100,7 +100,6 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     private void init() {
         // Main layout setup
         getContent().setWidthFull();
@@ -109,14 +108,14 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         getContent().setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Content container
-        VerticalLayout contentContainer = new VerticalLayout();
+        final VerticalLayout contentContainer = new VerticalLayout();
         contentContainer.setSpacing(true);
         contentContainer.setWidthFull();
         contentContainer.addClassName(PracticeConstants.CONTAINER_MD_CLASS);
         contentContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Page section
-        VerticalLayout pageSection = new VerticalLayout();
+        final VerticalLayout pageSection = new VerticalLayout();
         pageSection.setSpacing(true);
         pageSection.setPadding(true);
         pageSection.setWidthFull();
@@ -184,7 +183,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
     @Override
     public void setParameter(final BeforeEvent event, final String parameter) {
         try {
-            long deckId = Long.parseLong(parameter);
+            final long deckId = Long.parseLong(parameter);
             LOGGER.debug("Initializing practice session for deck ID: {}", deckId);
 
             loadDeck(deckId);
@@ -249,15 +248,15 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         resetUIState();
 
         // Fetch not-known cards once
-        List<Card> notKnownCards = sessionService.getNotKnownCards(currentDeck.getId());
+        final List<Card> notKnownCards = sessionService.getNotKnownCards(currentDeck.getId());
         if (notKnownCards.isEmpty()) {
             showAllKnownDialogAndRedirect();
             return;
         }
 
         // Use preloaded cards to avoid redundant SQL query and ensure consistency
-        int defaultCount = sessionService.resolveDefaultCount(notKnownCards);
-        boolean random = sessionService.isRandom();
+        final int defaultCount = sessionService.resolveDefaultCount(notKnownCards);
+        final boolean random = sessionService.isRandom();
         session = sessionService.startSessionWithCards(currentDeck.getId(), notKnownCards, defaultCount, random);
         showCurrentCard();
     }
@@ -288,7 +287,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * @param deckId the deck ID to load
      */
     private void loadDeck(final long deckId) {
-        Optional<Deck> deckOpt = sessionService.loadDeck(deckId);
+        final Optional<Deck> deckOpt = sessionService.loadDeck(deckId);
         if (deckOpt.isPresent()) {
             currentDeck = deckOpt.get();
             practiceDisplay.setDeckTitle(getTranslation(PracticeConstants.PRACTICE_TITLE_KEY, currentDeck.getTitle()));
@@ -311,7 +310,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         }
 
         updateProgress();
-        Card currentCard = sessionManager.currentCard(session);
+        final Card currentCard = sessionManager.currentCard(session);
         sessionManager.startQuestion(session);
 
         practiceCard.displayQuestionCard(currentCard, sessionDirection);
@@ -326,7 +325,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
             return;
         }
 
-        Card currentCard = sessionManager.currentCard(session);
+        final Card currentCard = sessionManager.currentCard(session);
         session = sessionManager.reveal(session);
 
         practiceCard.displayAnswerCard(currentCard, sessionDirection);
@@ -384,7 +383,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         if (session == null || session.getCards() == null || session.getCards().isEmpty()) {
             return;
         }
-        PracticeSessionManager.Progress progress = sessionManager.progress(session);
+        final PracticeSessionManager.Progress progress = sessionManager.progress(session);
         practiceDisplay.updateProgress(progress);
     }
 
@@ -404,7 +403,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * Shows completion display with session statistics.
      */
     private void showCompletionDisplay() {
-        PracticeSessionService.SessionCompletionMetrics metrics = sessionService.calculateCompletionMetrics(session);
+        final PracticeSessionService.SessionCompletionMetrics metrics =
+                sessionService.calculateCompletionMetrics(session);
 
         practiceCard.displayCompletion(
                 currentDeck.getTitle(),
@@ -419,9 +419,9 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
      * Shows completion action buttons.
      */
     private void showCompletionButtons() {
-        List<Card> failedCards = sessionService.getFailedCards(currentDeck.getId(), session.getFailedCardIds());
+        final List<Card> failedCards = sessionService.getFailedCards(currentDeck.getId(), session.getFailedCardIds());
 
-        Runnable repeatHandler = failedCards.isEmpty() ? null : () -> handleRepeatPractice(failedCards);
+        final Runnable repeatHandler = failedCards.isEmpty() ? null : () -> handleRepeatPractice(failedCards);
 
         practiceActions.showCompletionButtons(
                 repeatHandler,
@@ -455,8 +455,8 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         super.onAttach(attachEvent);
 
         // Subscribe to progress change events for reactive updates
-        UI ui = attachEvent.getUI();
-        ApplicationListener<ProgressChangedEvent> listener = event -> {
+        final UI ui = attachEvent.getUI();
+        final ApplicationListener<ProgressChangedEvent> listener = event -> {
             // Only react if event is for current deck (getDeckId() returns primitive long)
             if (currentDeck != null && event.getDeckId() == currentDeck.getId()) {
                 // Use UI.access() for thread-safe UI updates with server push
@@ -465,7 +465,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         };
 
         // Register listener with Spring application event multicaster
-        var eventMulticaster =
+        final var eventMulticaster =
                 applicationContext.getBean(org.springframework.context.event.ApplicationEventMulticaster.class);
         eventMulticaster.addApplicationListener(listener);
 
@@ -503,7 +503,7 @@ public class PracticeView extends Composite<VerticalLayout> implements HasUrlPar
         }
 
         // Check if all cards are now known
-        List<Card> notKnownCards = sessionService.getNotKnownCards(currentDeck.getId());
+        final List<Card> notKnownCards = sessionService.getNotKnownCards(currentDeck.getId());
 
         if (notKnownCards.isEmpty() && session != null) {
             LOGGER.debug(

@@ -14,7 +14,7 @@ class SessionStatsDtoTest {
     @Test
     @DisplayName("Should create valid session stats")
     void shouldCreateValidSessionStats() {
-        SessionStatsDto stats = SessionStatsDto.builder()
+        final SessionStatsDto stats = SessionStatsDto.builder()
                 .deckId(1L)
                 .viewed(10)
                 .correct(8)
@@ -71,7 +71,7 @@ class SessionStatsDtoTest {
     @Test
     @DisplayName("Should handle null known card ids delta")
     void shouldHandleNullKnownCardIdsDelta() {
-        SessionStatsDto stats = SessionStatsDto.builder()
+        final SessionStatsDto stats = SessionStatsDto.builder()
                 .deckId(1L)
                 .viewed(10)
                 .correct(8)

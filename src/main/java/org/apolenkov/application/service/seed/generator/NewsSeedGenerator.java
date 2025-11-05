@@ -44,7 +44,7 @@ public class NewsSeedGenerator {
     public int generateNews(final int totalNews) {
         LOGGER.info("Generating {} news articles in batch...", totalNews);
 
-        List<News> newsList = new ArrayList<>(totalNews);
+        final List<News> newsList = new ArrayList<>(totalNews);
         for (int i = 0; i < totalNews; i++) {
             newsList.add(createTestNews(i));
         }

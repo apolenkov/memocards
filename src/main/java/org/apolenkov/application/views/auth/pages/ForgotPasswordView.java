@@ -42,41 +42,40 @@ public final class ForgotPasswordView extends BaseView implements BeforeEnterObs
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     private void init() {
-        VerticalLayout wrapper = createCenteredVerticalLayout();
+        final VerticalLayout wrapper = createCenteredVerticalLayout();
 
         // Create a beautiful Lumo-styled form container
-        Div formContainer = new Div();
+        final Div formContainer = new Div();
         formContainer.addClassName(AuthConstants.FORGOT_PASSWORD_FORM_CLASS);
         formContainer.addClassName(AuthConstants.AUTH_FORM_CLASS);
         formContainer.addClassName(AuthConstants.SURFACE_PANEL_CLASS);
 
         // Create form title
-        H2 title = new H2(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_TITLE_KEY));
+        final H2 title = new H2(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_TITLE_KEY));
         title.addClassName(AuthConstants.FORGOT_PASSWORD_FORM_TITLE_CLASS);
 
         // Create form fields container
-        VerticalLayout formFields = new VerticalLayout();
+        final VerticalLayout formFields = new VerticalLayout();
         formFields.setSpacing(true);
         formFields.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        TextField email = new TextField(getTranslation(AuthConstants.AUTH_EMAIL_KEY));
+        final TextField email = new TextField(getTranslation(AuthConstants.AUTH_EMAIL_KEY));
         email.setPlaceholder(getTranslation(AuthConstants.AUTH_EMAIL_PLACEHOLDER_KEY));
         email.setRequiredIndicatorVisible(true);
         email.setWidthFull();
 
         // Submit button triggers password reset process
-        Button submit = ButtonHelper.createPrimaryButton(
+        final Button submit = ButtonHelper.createPrimaryButton(
                 getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_SUBMIT_KEY), e -> handleSubmit(email.getValue()));
         submit.setWidthFull();
 
-        Button backToLogin = ButtonHelper.createTertiaryButton(
+        final Button backToLogin = ButtonHelper.createTertiaryButton(
                 getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_BACK_TO_LOGIN_KEY),
                 e -> NavigationHelper.navigateToLogin());
         backToLogin.setWidthFull();
 
-        Button backToHome = ButtonHelper.createTertiaryButton(
+        final Button backToHome = ButtonHelper.createTertiaryButton(
                 getTranslation(AuthConstants.COMMON_BACK_TO_HOME_KEY), e -> NavigationHelper.navigateToHome());
         backToHome.setWidthFull();
 
@@ -94,15 +93,15 @@ public final class ForgotPasswordView extends BaseView implements BeforeEnterObs
      * @param email the email address for password reset
      */
     private void handleSubmit(final String email) {
-        if (email == null || email.trim().isEmpty()) {
+        if (email == null || email.isBlank()) {
             NotificationHelper.showError(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_EMAIL_REQUIRED_KEY));
             return;
         }
 
         try {
-            var tokenOpt = passwordResetService.createPasswordResetToken(email.trim());
+            final var tokenOpt = passwordResetService.createPasswordResetToken(email.trim());
             if (tokenOpt.isPresent()) {
-                String token = tokenOpt.get();
+                final String token = tokenOpt.get();
                 NotificationHelper.showSuccess(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_TOKEN_CREATED_KEY));
 
                 // Direct navigation for demo; production would send email with token link
@@ -110,7 +109,7 @@ public final class ForgotPasswordView extends BaseView implements BeforeEnterObs
             } else {
                 NotificationHelper.showInfo(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_EMAIL_NOT_FOUND_KEY));
             }
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
             NotificationHelper.showError(getTranslation(AuthConstants.AUTH_FORGOT_PASSWORD_ERROR_KEY));
         }
     }

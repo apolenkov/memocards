@@ -1,5 +1,6 @@
 package org.apolenkov.application.config.monitoring;
 
+import org.apolenkov.application.domain.constants.BusinessConstants;
 import org.apolenkov.application.service.stats.PaginationCountCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,6 @@ import org.springframework.stereotype.Component;
 public class CacheMetricsLogger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheMetricsLogger.class);
-    private static final double LOW_HIT_RATE_THRESHOLD = 0.5; // 50%
     private static final String HIT_RATE_FORMAT = "%.1f%%";
 
     private final ObjectProvider<PaginationCountCache> paginationCountCacheProvider;
@@ -52,16 +52,16 @@ public class CacheMetricsLogger {
 
         // PaginationCountCache metrics (SessionScope - injected via ObjectProvider)
         try {
-            PaginationCountCache cache = paginationCountCacheProvider.getIfAvailable();
+            final PaginationCountCache cache = paginationCountCacheProvider.getIfAvailable();
             if (cache != null) {
-                PaginationCountCache.CacheStats stats = cache.getStats();
+                final PaginationCountCache.CacheStats stats = cache.getStats();
                 logPaginationCacheStats(stats);
             } else {
                 LOGGER.debug("PaginationCountCache not available (no active session)");
             }
         } catch (org.springframework.beans.factory.support.ScopeNotActiveException e) {
             LOGGER.debug("PaginationCountCache not available (session scope not active)");
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.error("Failed to retrieve PaginationCountCache metrics", e);
         }
 
@@ -74,8 +74,8 @@ public class CacheMetricsLogger {
      * @param stats the cache statistics
      */
     private void logPaginationCacheStats(final PaginationCountCache.CacheStats stats) {
-        double hitRate = stats.hitRate();
-        String hitRateFormatted = String.format(HIT_RATE_FORMAT, hitRate * 100);
+        final double hitRate = stats.hitRate();
+        final String hitRateFormatted = String.format(HIT_RATE_FORMAT, hitRate * 100);
 
         LOGGER.debug(
                 "PaginationCountCache: hits={}, misses={}, hitRate={}, size={}, skippedInvalidations={}",
@@ -86,7 +86,7 @@ public class CacheMetricsLogger {
                 stats.skippedInvalidations());
 
         // Warn if hit rate is low
-        if (hitRate < LOW_HIT_RATE_THRESHOLD && (stats.hits() + stats.misses()) > 10) {
+        if (hitRate < BusinessConstants.CACHE_LOW_HIT_RATE_THRESHOLD && (stats.hits() + stats.misses()) > 10) {
             LOGGER.warn(
                     "PaginationCountCache has low hit rate: {} (consider increasing TTL or investigating invalidation patterns)",
                     hitRateFormatted);

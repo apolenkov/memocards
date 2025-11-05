@@ -133,7 +133,7 @@ public final class Card {
      * @throws IllegalArgumentException if frontText is null or empty
      */
     public void setFrontText(final String frontTextValue) {
-        String t = frontTextValue != null ? frontTextValue.trim() : null;
+        final String t = frontTextValue != null ? frontTextValue.trim() : null;
         if (t == null || t.isEmpty()) {
             throw new IllegalArgumentException("frontText is required");
         }
@@ -157,7 +157,7 @@ public final class Card {
      * @throws IllegalArgumentException if backText is null or empty
      */
     public void setBackText(final String backTextValue) {
-        String t = backTextValue != null ? backTextValue.trim() : null;
+        final String t = backTextValue != null ? backTextValue.trim() : null;
         if (t == null || t.isEmpty()) {
             throw new IllegalArgumentException("backText is required");
         }
@@ -253,7 +253,7 @@ public final class Card {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Card card = (Card) o;
+        final Card card = (Card) o;
         return Objects.equals(id, card.id);
     }
 

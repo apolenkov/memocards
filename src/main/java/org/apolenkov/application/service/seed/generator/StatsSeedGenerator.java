@@ -50,10 +50,10 @@ public class StatsSeedGenerator {
      */
     public int generateStatistics(final List<User> users) {
         LOGGER.info("Generating statistics data...");
-        List<Deck> allDecks = collectAllUserDecks(users);
+        final List<Deck> allDecks = collectAllUserDecks(users);
 
         int statsGenerated = 0;
-        for (Deck deck : allDecks) {
+        for (final Deck deck : allDecks) {
             statsGenerated += generateDeckStatistics(deck);
         }
 
@@ -68,8 +68,8 @@ public class StatsSeedGenerator {
      * @return combined list of all user decks
      */
     private List<Deck> collectAllUserDecks(final List<User> users) {
-        List<Deck> allDecks = new ArrayList<>();
-        for (User user : users) {
+        final List<Deck> allDecks = new ArrayList<>();
+        for (final User user : users) {
             allDecks.addAll(deckRepository.findByUserId(user.getId()));
         }
         return allDecks;
@@ -86,7 +86,7 @@ public class StatsSeedGenerator {
 
         for (int day = 0; day < STATS_DAYS_TO_GENERATE; day++) {
             if (shouldGenerateStatsForDay()) {
-                SessionStatsDto stats = createSessionStats(deck);
+                final SessionStatsDto stats = createSessionStats(deck);
                 statsRepository.appendSession(stats, LocalDate.now().minusDays(day));
                 statsGenerated++;
             }
@@ -111,11 +111,11 @@ public class StatsSeedGenerator {
      * @return configured session stats
      */
     private SessionStatsDto createSessionStats(final Deck deck) {
-        int viewed = random.nextInt(20) + 10;
-        int correct = (int) (viewed * 0.8);
-        int hard = random.nextInt(3);
-        long duration = viewed * 30000L;
-        long delay = viewed * 3000L;
+        final int viewed = random.nextInt(20) + 10;
+        final int correct = (int) (viewed * 0.8);
+        final int hard = random.nextInt(3);
+        final long duration = viewed * 30000L;
+        final long delay = viewed * 3000L;
 
         return SessionStatsDto.builder()
                 .deckId(deck.getId())

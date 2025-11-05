@@ -43,7 +43,7 @@ class JdbcUserDetailsServiceTest {
     @DisplayName("Should create service successfully with valid repository")
     void shouldCreateServiceSuccessfully() {
         // When
-        JdbcUserDetailsService service = new JdbcUserDetailsService(userRepository);
+        final JdbcUserDetailsService service = new JdbcUserDetailsService(userRepository);
 
         // Then
         assertThat(service).isNotNull();
@@ -55,15 +55,15 @@ class JdbcUserDetailsServiceTest {
     @DisplayName("Should load user details successfully")
     void shouldLoadUserDetailsSuccessfully() {
         // Given
-        String email = "test@example.com";
-        User user = new User(1L, email, "Test User");
+        final String email = "test@example.com";
+        final User user = new User(1L, email, "Test User");
         user.setPasswordHash("hashedPassword123");
         user.setRoles(Set.of(SecurityConstants.ROLE_USER));
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
         // When
-        UserDetails result = userDetailsService.loadUserByUsername(email);
+        final UserDetails result = userDetailsService.loadUserByUsername(email);
 
         // Then
         assertThat(result).isNotNull();
@@ -80,15 +80,15 @@ class JdbcUserDetailsServiceTest {
     @DisplayName("Should load user with admin role")
     void shouldLoadUserWithAdminRole() {
         // Given
-        String email = "admin@example.com";
-        User user = new User(1L, email, "Admin");
+        final String email = "admin@example.com";
+        final User user = new User(1L, email, "Admin");
         user.setPasswordHash("hashedPassword123");
         user.setRoles(Set.of(SecurityConstants.ROLE_ADMIN, SecurityConstants.ROLE_USER));
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
         // When
-        UserDetails result = userDetailsService.loadUserByUsername(email);
+        final UserDetails result = userDetailsService.loadUserByUsername(email);
 
         // Then
         assertThat(result.getAuthorities())
@@ -101,15 +101,15 @@ class JdbcUserDetailsServiceTest {
     @DisplayName("Should assign default USER role when user has no roles")
     void shouldAssignDefaultUserRoleWhenUserHasNoRoles() {
         // Given
-        String email = "test@example.com";
-        User user = new User(1L, email, "Test User");
+        final String email = "test@example.com";
+        final User user = new User(1L, email, "Test User");
         user.setPasswordHash("hashedPassword123");
         user.setRoles(Set.of()); // Empty roles
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
         // When
-        UserDetails result = userDetailsService.loadUserByUsername(email);
+        final UserDetails result = userDetailsService.loadUserByUsername(email);
 
         // Then
         assertThat(result.getAuthorities())
@@ -122,7 +122,7 @@ class JdbcUserDetailsServiceTest {
     @DisplayName("Should throw UsernameNotFoundException when user not found")
     void shouldThrowExceptionWhenUserNotFound() {
         // Given
-        String email = "notfound@example.com";
+        final String email = "notfound@example.com";
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         // When / Then
@@ -153,8 +153,8 @@ class JdbcUserDetailsServiceTest {
     @DisplayName("Should throw UsernameNotFoundException when user has no password hash")
     void shouldThrowExceptionWhenUserHasNoPasswordHash() {
         // Given
-        String email = "test@example.com";
-        User user = new User(1L, email, "Test User");
+        final String email = "test@example.com";
+        final User user = new User(1L, email, "Test User");
         user.setPasswordHash(null); // No password hash
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
@@ -169,8 +169,8 @@ class JdbcUserDetailsServiceTest {
     @DisplayName("Should throw UsernameNotFoundException when password hash is blank")
     void shouldThrowExceptionWhenPasswordHashIsBlank() {
         // Given
-        String email = "test@example.com";
-        User user = new User(1L, email, "Test User");
+        final String email = "test@example.com";
+        final User user = new User(1L, email, "Test User");
         user.setPasswordHash("   "); // Blank password hash
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
@@ -185,16 +185,16 @@ class JdbcUserDetailsServiceTest {
     @DisplayName("Should trim username before lookup")
     void shouldTrimUsernameBeforeLookup() {
         // Given
-        String emailWithSpaces = "  test@example.com  ";
-        String trimmedEmail = "test@example.com";
-        User user = new User(1L, trimmedEmail, "Test User");
+        final String emailWithSpaces = "  test@example.com  ";
+        final String trimmedEmail = "test@example.com";
+        final User user = new User(1L, trimmedEmail, "Test User");
         user.setPasswordHash("hashedPassword123");
         user.setRoles(Set.of(SecurityConstants.ROLE_USER));
 
         when(userRepository.findByEmail(trimmedEmail)).thenReturn(Optional.of(user));
 
         // When
-        UserDetails result = userDetailsService.loadUserByUsername(emailWithSpaces);
+        final UserDetails result = userDetailsService.loadUserByUsername(emailWithSpaces);
 
         // Then
         assertThat(result).isNotNull();

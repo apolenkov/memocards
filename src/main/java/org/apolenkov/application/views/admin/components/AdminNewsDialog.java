@@ -62,23 +62,23 @@ public final class AdminNewsDialog extends Dialog {
      * Builds the dialog UI components and layout.
      */
     private void build() {
-        VerticalLayout content = new VerticalLayout();
+        final VerticalLayout content = new VerticalLayout();
         content.setSpacing(true);
         content.setPadding(true);
 
-        H3 dialogTitle = new H3(
+        final H3 dialogTitle = new H3(
                 news == null
                         ? getTranslation(AdminConstants.ADMIN_NEWS_ADD_KEY)
                         : getTranslation(AdminConstants.DIALOG_EDIT_KEY));
         content.add(dialogTitle);
 
-        TextField titleField = createTitleField();
-        TextArea contentField = createContentField();
-        TextField authorField = createAuthorField();
+        final TextField titleField = createTitleField();
+        final TextArea contentField = createContentField();
+        final TextField authorField = createAuthorField();
 
         content.add(titleField, contentField, authorField);
 
-        HorizontalLayout buttonRow = createButtonLayout(titleField, contentField, authorField);
+        final HorizontalLayout buttonRow = createButtonLayout(titleField, contentField, authorField);
         content.add(buttonRow);
 
         add(content);
@@ -90,7 +90,7 @@ public final class AdminNewsDialog extends Dialog {
      * @return configured title field
      */
     private TextField createTitleField() {
-        TextField titleField = new TextField(getTranslation(AdminConstants.ADMIN_NEWS_TITLE_KEY));
+        final TextField titleField = new TextField(getTranslation(AdminConstants.ADMIN_NEWS_TITLE_KEY));
         titleField.setWidthFull();
         if (news != null) {
             titleField.setValue(news.getTitle());
@@ -104,7 +104,7 @@ public final class AdminNewsDialog extends Dialog {
      * @return configured content field
      */
     private TextArea createContentField() {
-        TextArea contentField = new TextArea(getTranslation(AdminConstants.ADMIN_NEWS_CONTENT_KEY));
+        final TextArea contentField = new TextArea(getTranslation(AdminConstants.ADMIN_NEWS_CONTENT_KEY));
         contentField.setWidthFull();
         contentField.addClassName(AdminConstants.ADMIN_NEWS_CONTENT_AREA_CLASS);
         if (news != null) {
@@ -119,12 +119,12 @@ public final class AdminNewsDialog extends Dialog {
      * @return configured author field
      */
     private TextField createAuthorField() {
-        TextField authorField = new TextField(getTranslation(AdminConstants.ADMIN_NEWS_AUTHOR_KEY));
+        final TextField authorField = new TextField(getTranslation(AdminConstants.ADMIN_NEWS_AUTHOR_KEY));
         authorField.setWidthFull();
         if (news != null) {
             authorField.setValue(news.getAuthor());
         } else {
-            String username = AuthRedirectHelper.getAuthenticatedUsername();
+            final String username = AuthRedirectHelper.getAuthenticatedUsername();
             if (username != null) {
                 authorField.setValue(username);
             }
@@ -142,16 +142,16 @@ public final class AdminNewsDialog extends Dialog {
      */
     private HorizontalLayout createButtonLayout(
             final TextField titleField, final TextArea contentField, final TextField authorField) {
-        Button saveBtn = ButtonHelper.createPrimaryButton(getTranslation(AdminConstants.DIALOG_SAVE_KEY), e -> {
+        final Button saveBtn = ButtonHelper.createPrimaryButton(getTranslation(AdminConstants.DIALOG_SAVE_KEY), e -> {
             if (handleSave(titleField, contentField, authorField)) {
                 close();
             }
         });
 
-        Button cancelBtn =
+        final Button cancelBtn =
                 ButtonHelper.createTertiaryButton(getTranslation(AdminConstants.COMMON_CANCEL_KEY), e -> close());
 
-        HorizontalLayout buttonRow = new HorizontalLayout();
+        final HorizontalLayout buttonRow = new HorizontalLayout();
         buttonRow.setSpacing(true);
         buttonRow.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         buttonRow.add(saveBtn, cancelBtn);
@@ -168,8 +168,8 @@ public final class AdminNewsDialog extends Dialog {
      * @return true if validation passed and callback executed
      */
     private boolean handleSave(final TextField titleField, final TextArea contentField, final TextField authorField) {
-        String t = ValidationHelper.safeTrimToEmpty(titleField.getValue());
-        String c = ValidationHelper.safeTrimToEmpty(contentField.getValue());
+        final String t = ValidationHelper.safeTrimToEmpty(titleField.getValue());
+        final String c = ValidationHelper.safeTrimToEmpty(contentField.getValue());
 
         if (ValidationHelper.validateRequiredSimple(
                 titleField, t, getTranslation(AdminConstants.ADMIN_NEWS_VALIDATION_TITLE_REQUIRED_KEY))) {
@@ -181,8 +181,8 @@ public final class AdminNewsDialog extends Dialog {
         }
 
         if (onSave != null) {
-            Long newsId = news != null ? news.getId() : null;
-            String author = ValidationHelper.safeTrimToEmpty(authorField.getValue());
+            final Long newsId = news != null ? news.getId() : null;
+            final String author = ValidationHelper.safeTrimToEmpty(authorField.getValue());
             onSave.accept(new NewsFormData(newsId, t, c, author));
         }
 

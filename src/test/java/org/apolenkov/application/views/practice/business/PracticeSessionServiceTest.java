@@ -52,7 +52,7 @@ class PracticeSessionServiceTest {
         assertThat(sessionService).isNotNull();
     }
 
-    @SuppressWarnings("DataFlowIssue")
+    @SuppressWarnings("DataFlowIssue") // Intentionally testing null validation
     @Test
     @DisplayName("Should throw exception for null DeckUseCase")
     void shouldThrowExceptionForNullDeckUseCase() {
@@ -61,7 +61,7 @@ class PracticeSessionServiceTest {
                 .hasMessage("DeckUseCase cannot be null");
     }
 
-    @SuppressWarnings("DataFlowIssue")
+    @SuppressWarnings("DataFlowIssue") // Intentionally testing null validation
     @Test
     @DisplayName("Should throw exception for null CardUseCase")
     void shouldThrowExceptionForNullCardUseCase() {
@@ -70,7 +70,7 @@ class PracticeSessionServiceTest {
                 .hasMessage("CardUseCase cannot be null");
     }
 
-    @SuppressWarnings("DataFlowIssue")
+    @SuppressWarnings("DataFlowIssue") // Intentionally testing null validation
     @Test
     @DisplayName("Should throw exception for null StatsService")
     void shouldThrowExceptionForNullStatsService() {
@@ -79,7 +79,7 @@ class PracticeSessionServiceTest {
                 .hasMessage("StatsService cannot be null");
     }
 
-    @SuppressWarnings("DataFlowIssue")
+    @SuppressWarnings("DataFlowIssue") // Intentionally testing null validation
     @Test
     @DisplayName("Should throw exception for null PracticeSettingsService")
     void shouldThrowExceptionForNullPracticeSettingsService() {
@@ -92,11 +92,11 @@ class PracticeSessionServiceTest {
     @DisplayName("Should load deck by ID")
     void shouldLoadDeckById() {
         sessionService = new PracticeSessionService(deckUseCase, cardUseCase, statsService, practiceSettingsService);
-        Deck testDeck = new Deck(1L, 1L, "Test Deck", "Test Description");
+        final Deck testDeck = new Deck(1L, 1L, "Test Deck", "Test Description");
 
         when(deckUseCase.getDeckById(1L)).thenReturn(Optional.of(testDeck));
 
-        Optional<Deck> result = sessionService.loadDeck(1L);
+        final Optional<Deck> result = sessionService.loadDeck(1L);
 
         assertThat(result).contains(testDeck);
     }
@@ -121,7 +121,7 @@ class PracticeSessionServiceTest {
         when(cardUseCase.getCardsByDeckId(1L)).thenReturn(testCards);
         when(statsService.getKnownCardIds(1L)).thenReturn(Set.of(1L));
 
-        List<Card> result = sessionService.getNotKnownCards(1L);
+        final List<Card> result = sessionService.getNotKnownCards(1L);
 
         assertThat(result).hasSize(1).contains(testCards.get(1));
     }
@@ -136,7 +136,7 @@ class PracticeSessionServiceTest {
         when(cardUseCase.getCardsByDeckId(1L)).thenReturn(testCards);
         when(statsService.getKnownCardIds(1L)).thenReturn(Set.of());
 
-        List<Card> result = sessionService.getNotKnownCards(1L);
+        final List<Card> result = sessionService.getNotKnownCards(1L);
 
         assertThat(result).hasSize(2).isEqualTo(testCards);
     }
@@ -152,7 +152,7 @@ class PracticeSessionServiceTest {
         when(statsService.getKnownCardIds(1L)).thenReturn(Set.of());
         when(practiceSettingsService.getDefaultCount()).thenReturn(10);
 
-        int result = sessionService.resolveDefaultCount(1L);
+        final int result = sessionService.resolveDefaultCount(1L);
 
         assertThat(result).isEqualTo(2); // Min of available cards and configured count
     }
@@ -172,7 +172,7 @@ class PracticeSessionServiceTest {
         when(statsService.getKnownCardIds(1L)).thenReturn(Set.of());
         when(practiceSettingsService.getDefaultCount()).thenReturn(3);
 
-        int result = sessionService.resolveDefaultCount(1L);
+        final int result = sessionService.resolveDefaultCount(1L);
 
         assertThat(result).isEqualTo(3); // Configured count
     }
@@ -183,13 +183,13 @@ class PracticeSessionServiceTest {
         sessionService = new PracticeSessionService(deckUseCase, cardUseCase, statsService, practiceSettingsService);
         when(practiceSettingsService.getDefaultCount()).thenReturn(10);
 
-        List<Card> notKnownCards = List.of(
+        final List<Card> notKnownCards = List.of(
                 new Card(1L, 1L, "Front1", "Back1", "Example1"),
                 new Card(2L, 1L, "Front2", "Back2", "Example2"),
                 new Card(3L, 1L, "Front3", "Back3", "Example3"));
 
         // When: Using optimized overload
-        int result = sessionService.resolveDefaultCount(notKnownCards);
+        final int result = sessionService.resolveDefaultCount(notKnownCards);
 
         // Then: Count calculated without database query
         assertThat(result).isEqualTo(3);
@@ -202,7 +202,7 @@ class PracticeSessionServiceTest {
 
         when(practiceSettingsService.isDefaultRandomOrder()).thenReturn(true);
 
-        boolean result = sessionService.isRandom();
+        final boolean result = sessionService.isRandom();
 
         assertThat(result).isTrue();
     }
@@ -214,7 +214,7 @@ class PracticeSessionServiceTest {
 
         when(practiceSettingsService.getDefaultDirection()).thenReturn(PracticeDirection.BACK_TO_FRONT);
 
-        PracticeDirection result = sessionService.defaultDirection();
+        final PracticeDirection result = sessionService.defaultDirection();
 
         assertThat(result).isEqualTo(PracticeDirection.BACK_TO_FRONT);
     }
@@ -226,7 +226,7 @@ class PracticeSessionServiceTest {
 
         when(practiceSettingsService.getDefaultDirection()).thenReturn(null);
 
-        PracticeDirection result = sessionService.defaultDirection();
+        final PracticeDirection result = sessionService.defaultDirection();
 
         assertThat(result).isEqualTo(PracticeDirection.FRONT_TO_BACK);
     }
@@ -243,7 +243,7 @@ class PracticeSessionServiceTest {
         when(cardUseCase.getCardsByDeckId(1L)).thenReturn(testCards);
         when(statsService.getKnownCardIds(1L)).thenReturn(Set.of());
 
-        List<Card> result = sessionService.prepareSession(1L, 2, true);
+        final List<Card> result = sessionService.prepareSession(1L, 2, true);
 
         assertThat(result).hasSize(2);
         // Note: We can't easily test randomization without mocking Collections.shuffle
@@ -261,7 +261,7 @@ class PracticeSessionServiceTest {
         when(cardUseCase.getCardsByDeckId(1L)).thenReturn(testCards);
         when(statsService.getKnownCardIds(1L)).thenReturn(Set.of());
 
-        List<Card> result = sessionService.prepareSession(1L, 2, false);
+        final List<Card> result = sessionService.prepareSession(1L, 2, false);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0)).isEqualTo(testCards.get(0));
@@ -277,7 +277,7 @@ class PracticeSessionServiceTest {
         when(cardUseCase.getCardsByDeckId(1L)).thenReturn(testCards);
         when(statsService.getKnownCardIds(1L)).thenReturn(Set.of(1L));
 
-        List<Card> result = sessionService.prepareSession(1L, 5, false);
+        final List<Card> result = sessionService.prepareSession(1L, 5, false);
 
         assertThat(result).isEmpty();
     }
@@ -292,7 +292,7 @@ class PracticeSessionServiceTest {
         when(cardUseCase.getCardsByDeckId(1L)).thenReturn(testCards);
         when(statsService.getKnownCardIds(1L)).thenReturn(Set.of());
 
-        PracticeSession result = sessionService.startSession(1L, 2, false);
+        final PracticeSession result = sessionService.startSession(1L, 2, false);
 
         assertThat(result.getDeckId()).isEqualTo(1L);
         assertThat(result.getCards()).hasSize(2);
@@ -305,16 +305,16 @@ class PracticeSessionServiceTest {
     void shouldRecordSession() {
         sessionService = new PracticeSessionService(deckUseCase, cardUseCase, statsService, practiceSettingsService);
 
-        List<Long> knownCardIds = List.of(1L, 2L);
-        Duration sessionDuration = Duration.ofMinutes(5);
-        long totalAnswerDelayMs = 30000L;
+        final List<Long> knownCardIds = List.of(1L, 2L);
+        final Duration sessionDuration = Duration.ofMinutes(5);
+        final long totalAnswerDelayMs = 30000L;
 
         sessionService.recordSession(1L, 10, 8, 2, sessionDuration, totalAnswerDelayMs, knownCardIds);
 
-        ArgumentCaptor<SessionStatsDto> captor = ArgumentCaptor.forClass(SessionStatsDto.class);
+        final ArgumentCaptor<SessionStatsDto> captor = ArgumentCaptor.forClass(SessionStatsDto.class);
         verify(statsService).recordSession(captor.capture());
 
-        SessionStatsDto recorded = captor.getValue();
+        final SessionStatsDto recorded = captor.getValue();
         assertThat(recorded.deckId()).isEqualTo(1L);
         assertThat(recorded.viewed()).isEqualTo(10);
         assertThat(recorded.correct()).isEqualTo(8);
@@ -337,10 +337,11 @@ class PracticeSessionServiceTest {
         when(statsService.getKnownCardIds(1L)).thenReturn(Set.of());
 
         // Given: Completed session
-        PracticeSession session = sessionService.startSession(1L, 3, false);
+        final PracticeSession session = sessionService.startSession(1L, 3, false);
 
         // When: Calculate metrics (session duration calculated from timestamps)
-        PracticeSessionService.SessionCompletionMetrics metrics = sessionService.calculateCompletionMetrics(session);
+        final PracticeSessionService.SessionCompletionMetrics metrics =
+                sessionService.calculateCompletionMetrics(session);
 
         // Then: Metrics calculated correctly
         assertThat(metrics.totalCards()).isEqualTo(3);
@@ -357,13 +358,13 @@ class PracticeSessionServiceTest {
                 new Card(2L, 1L, "Front 2", "Back 2", "Example 2"),
                 new Card(3L, 1L, "Front 3", "Back 3", "Example 3"));
 
-        List<Long> failedCardIds = List.of(1L, 3L);
+        final List<Long> failedCardIds = List.of(1L, 3L);
 
         when(cardUseCase.getCardsByDeckId(1L)).thenReturn(testCards);
         when(statsService.getKnownCardIds(1L)).thenReturn(Set.of(2L)); // Card 2 is known
 
         // When: Get failed cards
-        List<Card> failedCards = sessionService.getFailedCards(1L, failedCardIds);
+        final List<Card> failedCards = sessionService.getFailedCards(1L, failedCardIds);
 
         // Then: Only cards that are both failed AND not known
         assertThat(failedCards).hasSize(2);
@@ -377,7 +378,7 @@ class PracticeSessionServiceTest {
         sessionService = new PracticeSessionService(deckUseCase, cardUseCase, statsService, practiceSettingsService);
 
         // When: Null failed card IDs
-        List<Card> failedCards = sessionService.getFailedCards(1L, null);
+        final List<Card> failedCards = sessionService.getFailedCards(1L, null);
 
         // Then: Empty list
         assertThat(failedCards).isEmpty();
@@ -389,7 +390,7 @@ class PracticeSessionServiceTest {
         sessionService = new PracticeSessionService(deckUseCase, cardUseCase, statsService, practiceSettingsService);
 
         // When: Empty failed card IDs
-        List<Card> failedCards = sessionService.getFailedCards(1L, List.of());
+        final List<Card> failedCards = sessionService.getFailedCards(1L, List.of());
 
         // Then: Empty list
         assertThat(failedCards).isEmpty();
@@ -399,11 +400,11 @@ class PracticeSessionServiceTest {
     @DisplayName("Should start repeat session with failed cards")
     void shouldStartRepeatSession() {
         sessionService = new PracticeSessionService(deckUseCase, cardUseCase, statsService, practiceSettingsService);
-        List<Card> failedCards = List.of(
+        final List<Card> failedCards = List.of(
                 new Card(1L, 1L, "Front 1", "Back 1", "Example 1"), new Card(3L, 1L, "Front 3", "Back 3", "Example 3"));
 
         // When: Start repeat session
-        PracticeSession session = sessionService.startRepeatSession(1L, failedCards);
+        final PracticeSession session = sessionService.startRepeatSession(1L, failedCards);
 
         // Then: Session created with failed cards (shuffled)
         assertThat(session.getDeckId()).isEqualTo(1L);

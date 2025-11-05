@@ -26,9 +26,9 @@ class MobileNavigationMenuTest {
         vaadinContext = new VaadinTestContext();
 
         authService = mock(TopMenuAuthService.class);
-        TopMenuLogoutDialog logoutDialog = mock(TopMenuLogoutDialog.class);
-        PracticeSettingsService practiceSettingsService = mock(PracticeSettingsService.class);
-        PracticeSettingsComponents settingsComponents = mock(PracticeSettingsComponents.class);
+        final TopMenuLogoutDialog logoutDialog = mock(TopMenuLogoutDialog.class);
+        final PracticeSettingsService practiceSettingsService = mock(PracticeSettingsService.class);
+        final PracticeSettingsComponents settingsComponents = mock(PracticeSettingsComponents.class);
 
         menu = new MobileNavigationMenu(authService, logoutDialog, practiceSettingsService, settingsComponents);
     }
@@ -67,13 +67,13 @@ class MobileNavigationMenuTest {
         // Note: refreshMenu() creates StreamResource-based Images, so we test the logic without calling it
 
         // Test anonymous user
-        Authentication anonymousAuth = mock(Authentication.class);
+        final Authentication anonymousAuth = mock(Authentication.class);
         when(authService.getCurrentAuthentication()).thenReturn(anonymousAuth);
         when(authService.isAuthenticated(anonymousAuth)).thenReturn(false);
         assertThat(menu).isNotNull();
 
         // Test authenticated user
-        Authentication authenticatedAuth = mock(Authentication.class);
+        final Authentication authenticatedAuth = mock(Authentication.class);
         when(authService.getCurrentAuthentication()).thenReturn(authenticatedAuth);
         when(authService.isAuthenticated(authenticatedAuth)).thenReturn(true);
         when(authService.getUserDisplayName(authenticatedAuth)).thenReturn("Test User");

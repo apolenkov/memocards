@@ -64,7 +64,6 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     private void init() {
         getContent().setWidthFull();
         getContent().setPadding(true);
@@ -80,8 +79,8 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * Coordinates the creation of header components.
      */
     private void createHeader() {
-        HorizontalLayout headerLayout = createHeaderLayout();
-        HorizontalLayout leftSection = createLeftSection();
+        final HorizontalLayout headerLayout = createHeaderLayout();
+        final HorizontalLayout leftSection = createLeftSection();
 
         headerLayout.add(leftSection);
         getContent().add(headerLayout);
@@ -93,7 +92,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured header layout
      */
     private HorizontalLayout createHeaderLayout() {
-        HorizontalLayout headerLayout = new HorizontalLayout();
+        final HorizontalLayout headerLayout = new HorizontalLayout();
         headerLayout.setWidthFull();
         headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -106,11 +105,11 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured left section layout
      */
     private HorizontalLayout createLeftSection() {
-        HorizontalLayout leftSection = new HorizontalLayout();
+        final HorizontalLayout leftSection = new HorizontalLayout();
         leftSection.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        Button backButton = createBackButton();
-        H2 title = createTitle();
+        final Button backButton = createBackButton();
+        final H2 title = createTitle();
 
         leftSection.add(backButton, title);
         return leftSection;
@@ -122,7 +121,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured back button
      */
     private Button createBackButton() {
-        Button backButton = ButtonHelper.createButton(
+        final Button backButton = ButtonHelper.createButton(
                 getTranslation(DeckConstants.COMMON_BACK),
                 VaadinIcon.ARROW_LEFT,
                 e -> NavigationHelper.navigateToDecks(),
@@ -145,8 +144,8 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * Coordinates the creation of form components.
      */
     private void createForm() {
-        Div formContainer = createFormContainer();
-        VerticalLayout formLayout = createFormLayout();
+        final Div formContainer = createFormContainer();
+        final VerticalLayout formLayout = createFormLayout();
 
         formContainer.add(formLayout);
         getContent().add(formContainer);
@@ -158,7 +157,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured form container
      */
     private Div createFormContainer() {
-        Div formContainer = new Div();
+        final Div formContainer = new Div();
         formContainer.addClassName(DeckConstants.SURFACE_PANEL_CLASS);
         formContainer.addClassName(DeckConstants.DECK_CREATE_FORM_CLASS);
         return formContainer;
@@ -170,14 +169,14 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured form layout
      */
     private VerticalLayout createFormLayout() {
-        VerticalLayout formLayout = new VerticalLayout();
+        final VerticalLayout formLayout = new VerticalLayout();
         formLayout.setSpacing(true);
         formLayout.addClassName(DeckConstants.DECK_CREATE_FORM_LAYOUT_CLASS);
 
-        H3 formTitle = createFormTitle();
+        final H3 formTitle = createFormTitle();
         titleField = createTitleField();
         descriptionArea = createDescriptionArea();
-        HorizontalLayout buttonsLayout = createButtonsLayout();
+        final HorizontalLayout buttonsLayout = createButtonsLayout();
 
         formLayout.add(formTitle, titleField, descriptionArea, buttonsLayout);
         return formLayout;
@@ -198,7 +197,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured title field
      */
     private TextField createTitleField() {
-        TextField field = new TextField(getTranslation(DeckConstants.DECK_CREATE_NAME));
+        final TextField field = new TextField(getTranslation(DeckConstants.DECK_CREATE_NAME));
         field.setPlaceholder(getTranslation(DeckConstants.DECK_CREATE_NAME_PLACEHOLDER));
         field.setRequiredIndicatorVisible(true);
         field.setWidthFull();
@@ -211,7 +210,7 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured description area
      */
     private TextArea createDescriptionArea() {
-        TextArea area = new TextArea(getTranslation(DeckConstants.DECK_CREATE_DESCRIPTION));
+        final TextArea area = new TextArea(getTranslation(DeckConstants.DECK_CREATE_DESCRIPTION));
         area.setPlaceholder(getTranslation(DeckConstants.DECK_CREATE_DESCRIPTION_PLACEHOLDER));
         area.setClearButtonVisible(true);
         area.setWidthFull();
@@ -225,19 +224,19 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * @return configured buttons layout
      */
     private HorizontalLayout createButtonsLayout() {
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
+        final HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSpacing(true);
         buttonsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttonsLayout.setWidthFull();
 
-        Button saveButton = ButtonHelper.createButton(
+        final Button saveButton = ButtonHelper.createButton(
                 getTranslation(DeckConstants.DECK_CREATE_CREATE),
                 VaadinIcon.CHECK,
                 e -> saveDeck(),
                 ButtonVariant.LUMO_PRIMARY);
 
-        Button cancelButton = ButtonHelper.createButton(
+        final Button cancelButton = ButtonHelper.createButton(
                 getTranslation(DeckConstants.DECK_CREATE_CANCEL),
                 VaadinIcon.CLOSE,
                 e -> NavigationHelper.navigateToDecks(),
@@ -251,8 +250,8 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
      * Saves the new deck to the system.
      */
     private void saveDeck() {
-        String title = ValidationHelper.safeTrimToEmpty(titleField.getValue());
-        String description = ValidationHelper.safeTrim(descriptionArea.getValue()); // Nullable field
+        final String title = ValidationHelper.safeTrimToEmpty(titleField.getValue());
+        final String description = ValidationHelper.safeTrim(descriptionArea.getValue()); // Nullable field
 
         if (ValidationHelper.validateRequiredSimple(
                 titleField, title, getTranslation(DeckConstants.DECK_CREATE_ENTER_TITLE))) {
@@ -260,17 +259,17 @@ public class DeckCreateView extends Composite<VerticalLayout> implements HasDyna
         }
 
         try {
-            Deck deck = new Deck();
+            final Deck deck = new Deck();
             deck.setUserId(userUseCase.getCurrentUser().getId());
             deck.setTitle(title);
             deck.setDescription(description);
 
-            Deck savedDeck = deckUseCase.saveDeck(deck);
+            final Deck savedDeck = deckUseCase.saveDeck(deck);
 
             NotificationHelper.showSuccessBottom(
                     getTranslation(DeckConstants.DECK_CREATE_CREATED, savedDeck.getTitle()));
             NavigationHelper.navigateToDeck(savedDeck.getId());
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             NotificationHelper.showError(getTranslation(DeckConstants.DECK_CREATE_ERROR, e.getMessage()));
         }
     }

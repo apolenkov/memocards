@@ -2,7 +2,8 @@
 # VARIABLES & CONFIGURATION
 # =============================================================================
 GRADLE := ./gradlew
-DOCKER_COMPOSE := docker-compose
+DOCKER_COMPOSE := docker compose -f docker-compose.yml -f docker-compose.dev.yml
+DOCKER_COMPOSE_BASE := docker compose -f docker-compose.yml
 APP_PORT := 8080
 
 # =============================================================================
@@ -25,22 +26,30 @@ help: ## Show help
 # =============================================================================
 # INFRASTRUCTURE - Database Management
 # =============================================================================
-start: ## Start PostgreSQL database
-	$(DOCKER_COMPOSE) up -d postgres
+start: ## Start PostgreSQL database (with dev profile and port mapping)
+	@if [ -f .env ]; then \
+		set -a && . ./.env && set +a; \
+	fi; \
+	$(DOCKER_COMPOSE) --profile dev up -d postgres
 	@echo "PostgreSQL started. Waiting for readiness..."
-	@until $(DOCKER_COMPOSE) exec -T postgres pg_isready -U postgres; do sleep 1; done
+	@if [ -f .env ]; then \
+		set -a && . ./.env && set +a; \
+		until $(DOCKER_COMPOSE) --profile dev exec -T postgres pg_isready -U $$DB_USER -d $$DB_NAME; do sleep 1; done; \
+	else \
+		until $(DOCKER_COMPOSE) --profile dev exec -T postgres pg_isready -U memocards_user -d memocards; do sleep 1; done; \
+	fi
 	@echo "PostgreSQL is ready!"
 
 stop: ## Stop PostgreSQL database
-	$(DOCKER_COMPOSE) stop postgres
+	$(DOCKER_COMPOSE) --profile dev stop postgres
 
 restart: stop start ## Restart PostgreSQL database
 
 logs: ## Show PostgreSQL logs
-	$(DOCKER_COMPOSE) logs -f postgres
+	$(DOCKER_COMPOSE) --profile dev logs -f postgres
 
 erase: ## Remove all PostgreSQL data
-	$(DOCKER_COMPOSE) down -v
+	$(DOCKER_COMPOSE) --profile dev down -v
 	@echo "All PostgreSQL data removed"
 
 # =============================================================================
@@ -184,29 +193,34 @@ status: ## Show application and database status
 	@echo "=== Application Status ==="
 	@curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" http://localhost:$(APP_PORT) || echo "Application: Not running"
 	@echo "=== Database Status ==="
-	@$(DOCKER_COMPOSE) exec -T postgres pg_isready -U postgres 2>/dev/null && echo "Database: Ready" || echo "Database: Not ready"
+	@if [ -f .env ]; then \
+		set -a && . ./.env && set +a; \
+		$(DOCKER_COMPOSE) --profile dev exec -T postgres pg_isready -U $$DB_USER -d $$DB_NAME 2>/dev/null && echo "Database: Ready" || echo "Database: Not ready"; \
+	else \
+		$(DOCKER_COMPOSE) --profile dev exec -T postgres pg_isready -U memocards_user -d memocards 2>/dev/null && echo "Database: Ready" || echo "Database: Not ready"; \
+	fi
 
 # =============================================================================
 # DOCKER COMMANDS
 # =============================================================================
-docker: ## Start application with Docker Compose
+docker: ## Start application with Docker Compose (dev profile)
 	@echo "Starting application with Docker Compose..."
-	$(DOCKER_COMPOSE) up -d
+	$(DOCKER_COMPOSE) --profile dev up -d
 	@echo "Application started!"
 	@echo "Application: http://localhost:$(APP_PORT)"
 	@echo "Database: localhost:5432"
 
 docker-stop: ## Stop all Docker Compose services
 	@echo "Stopping all Docker Compose services..."
-	$(DOCKER_COMPOSE) down
+	$(DOCKER_COMPOSE) --profile dev down
 	@echo "All services stopped!"
 
 docker-logs: ## Show Docker Compose logs
-	$(DOCKER_COMPOSE) logs -f app
+	$(DOCKER_COMPOSE) --profile dev logs -f app
 
 docker-status: ## Show Docker Compose services status
 	@echo "=== Docker Compose Services Status ==="
-	@$(DOCKER_COMPOSE) ps
+	@$(DOCKER_COMPOSE) --profile dev ps
 	@echo ""
 	@echo "=== Application Health Check ==="
 	@curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" http://localhost:$(APP_PORT) || echo "Application: Not responding"

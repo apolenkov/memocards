@@ -33,7 +33,7 @@ class CardUseCaseServiceTest {
     void shouldGetCardsByDeckId() {
         when(cardUseCase.getCardsByDeckId(1L)).thenReturn(testCards);
 
-        List<Card> result = cardUseCase.getCardsByDeckId(1L);
+        final List<Card> result = cardUseCase.getCardsByDeckId(1L);
 
         assertThat(result).hasSize(2).isEqualTo(testCards);
     }
@@ -43,7 +43,7 @@ class CardUseCaseServiceTest {
     void shouldHandleEmptyCardList() {
         when(cardUseCase.getCardsByDeckId(1L)).thenReturn(List.of());
 
-        List<Card> result = cardUseCase.getCardsByDeckId(1L);
+        final List<Card> result = cardUseCase.getCardsByDeckId(1L);
 
         assertThat(result).isEmpty();
     }
@@ -53,8 +53,8 @@ class CardUseCaseServiceTest {
     void shouldGetFirstCard() {
         when(cardUseCase.getCardsByDeckId(1L)).thenReturn(testCards);
 
-        List<Card> result = cardUseCase.getCardsByDeckId(1L);
-        Card firstCard = result.getFirst();
+        final List<Card> result = cardUseCase.getCardsByDeckId(1L);
+        final Card firstCard = result.getFirst();
 
         assertThat(firstCard).isEqualTo(testCards.getFirst());
     }

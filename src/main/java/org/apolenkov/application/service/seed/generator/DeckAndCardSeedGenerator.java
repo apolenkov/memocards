@@ -3,6 +3,7 @@ package org.apolenkov.application.service.seed.generator;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import org.apolenkov.application.model.Card;
 import org.apolenkov.application.model.Deck;
@@ -70,7 +71,7 @@ public class DeckAndCardSeedGenerator {
      * @param batchSize batch size for user chunks
      * @return array with [totalDecks, totalCards] counts
      */
-    @SuppressWarnings("java:S2139") // Audit requires logging before rethrow
+    @SuppressWarnings("squid:S2139") // False positive: logging before rethrow required for audit trail
     public int[] generateDecksAndCards(
             final List<User> users, final int decksPerUser, final int cardsPerDeck, final int batchSize) {
         LOGGER.info("Generating decks and cards using Virtual Threads...");
@@ -80,18 +81,18 @@ public class DeckAndCardSeedGenerator {
         int totalCards = 0;
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<java.util.concurrent.Future<int[]>> futures = new ArrayList<>();
+            final List<java.util.concurrent.Future<int[]>> futures = new ArrayList<>();
 
             for (int i = 0; i < users.size(); i += batchSize) {
-                int endIdx = Math.min(i + batchSize, users.size());
-                List<User> userChunk = users.subList(i, endIdx);
+                final int endIdx = Math.min(i + batchSize, users.size());
+                final List<User> userChunk = users.subList(i, endIdx);
 
                 futures.add(executor.submit(() -> processUserChunk(userChunk, decksPerUser, cardsPerDeck)));
             }
 
             // Collect results
-            for (var future : futures) {
-                int[] counts = future.get();
+            for (final var future : futures) {
+                final int[] counts = future.get();
                 totalDecks += counts[0];
                 totalCards += counts[1];
             }
@@ -99,7 +100,7 @@ public class DeckAndCardSeedGenerator {
             Thread.currentThread().interrupt();
             LOGGER.error("Thread interrupted during parallel processing", e);
             throw new DataGenerationException("Failed to generate decks and cards - interrupted", e);
-        } catch (Exception e) {
+        } catch (ExecutionException e) {
             LOGGER.error("Error in parallel processing", e);
             throw new DataGenerationException("Failed to generate decks and cards", e);
         }
@@ -121,19 +122,19 @@ public class DeckAndCardSeedGenerator {
             int decks = 0;
             int cards = 0;
 
-            for (User user : userChunk) {
+            for (final User user : userChunk) {
                 // Generate decks for this user in batch
-                List<Deck> userDecks = new ArrayList<>(deckCount);
+                final List<Deck> userDecks = new ArrayList<>(deckCount);
                 for (int i = 0; i < deckCount; i++) {
                     userDecks.add(createTestDeck(user, i));
                 }
 
-                List<Deck> savedDecks = seedRepository.batchInsertDecks(userDecks);
+                final List<Deck> savedDecks = seedRepository.batchInsertDecks(userDecks);
                 decks += savedDecks.size();
 
                 // Generate cards for all decks in batch
-                List<Card> allCards = new ArrayList<>(deckCount * cardCount);
-                for (Deck deck : savedDecks) {
+                final List<Card> allCards = new ArrayList<>(deckCount * cardCount);
+                for (final Deck deck : savedDecks) {
                     for (int j = 0; j < cardCount; j++) {
                         allCards.add(createTestCard(deck, j));
                     }
@@ -155,7 +156,7 @@ public class DeckAndCardSeedGenerator {
      * @return configured test deck
      */
     private Deck createTestDeck(final User user, final int index) {
-        String title = DECK_TITLES[random.nextInt(DECK_TITLES.length)] + " " + (index + 1);
+        final String title = DECK_TITLES[random.nextInt(DECK_TITLES.length)] + " " + (index + 1);
         return new Deck(null, user.getId(), title, "Test deck for load testing");
     }
 
@@ -167,10 +168,10 @@ public class DeckAndCardSeedGenerator {
      * @return configured test card
      */
     private Card createTestCard(final Deck deck, final int index) {
-        int cardIndex = random.nextInt(CARD_FRONTS.length);
-        String front = CARD_FRONTS[cardIndex] + " " + (index + 1);
-        String back = CARD_BACKS[cardIndex];
-        String example = CARD_EXAMPLES[cardIndex];
+        final int cardIndex = random.nextInt(CARD_FRONTS.length);
+        final String front = CARD_FRONTS[cardIndex] + " " + (index + 1);
+        final String back = CARD_BACKS[cardIndex];
+        final String example = CARD_EXAMPLES[cardIndex];
         return new Card(null, deck.getId(), front, back, example);
     }
 }

@@ -21,7 +21,7 @@ class CardTest {
     @Test
     @DisplayName("Should create card with valid parameters")
     void shouldCreateCardWithValidParameters() {
-        Card card = new Card(1L, 1L, "Front", "Back");
+        final Card card = new Card(1L, 1L, "Front", "Back");
 
         assertThat(card).isNotNull();
         assertThat(card.getId()).isEqualTo(1L);
@@ -36,7 +36,7 @@ class CardTest {
     @Test
     @DisplayName("Should create card with example")
     void shouldCreateCardWithExample() {
-        Card card = new Card(1L, 1L, "Front", "Back", "Example");
+        final Card card = new Card(1L, 1L, "Front", "Back", "Example");
 
         assertThat(card.getExample()).isEqualTo("Example");
     }
@@ -96,7 +96,7 @@ class CardTest {
     @Test
     @DisplayName("Should handle null example")
     void shouldHandleNullExample() {
-        Card card = new Card(1L, 1L, "Front", "Back", null);
+        final Card card = new Card(1L, 1L, "Front", "Back", null);
 
         assertThat(card.getExample()).isNull();
     }
@@ -104,7 +104,7 @@ class CardTest {
     @Test
     @DisplayName("Should handle empty example")
     void shouldHandleEmptyExample() {
-        Card card = new Card(1L, 1L, "Front", "Back", "");
+        final Card card = new Card(1L, 1L, "Front", "Back", "");
 
         assertThat(card.getExample()).isEmpty();
     }
@@ -113,7 +113,7 @@ class CardTest {
     @DisplayName("Should set and get id")
     void shouldSetAndGetId() {
         // Given
-        long newId = 999L;
+        final long newId = 999L;
 
         // When
         testCard.setId(newId);
@@ -125,7 +125,7 @@ class CardTest {
     @Test
     @DisplayName("Should set and get deckId")
     void shouldSetAndGetDeckId() {
-        long newDeckId = 999L;
+        final long newDeckId = 999L;
         testCard.setDeckId(newDeckId);
 
         assertThat(testCard.getDeckId()).isEqualTo(newDeckId);
@@ -134,7 +134,7 @@ class CardTest {
     @Test
     @DisplayName("Should set and get front text")
     void shouldSetAndGetFrontText() {
-        String newFrontText = "New Front Text";
+        final String newFrontText = "New Front Text";
         testCard.setFrontText(newFrontText);
 
         assertThat(testCard.getFrontText()).isEqualTo(newFrontText);
@@ -144,7 +144,7 @@ class CardTest {
     @Test
     @DisplayName("Should set and get back text")
     void shouldSetAndGetBackText() {
-        String newBackText = "New Back Text";
+        final String newBackText = "New Back Text";
         testCard.setBackText(newBackText);
 
         assertThat(testCard.getBackText()).isEqualTo(newBackText);
@@ -154,7 +154,7 @@ class CardTest {
     @Test
     @DisplayName("Should set and get example")
     void shouldSetAndGetExample() {
-        String newExample = "New Example";
+        final String newExample = "New Example";
         testCard.setExample(newExample);
 
         assertThat(testCard.getExample()).isEqualTo(newExample);
@@ -164,7 +164,7 @@ class CardTest {
     @Test
     @DisplayName("Should set and get image URL")
     void shouldSetAndGetImageUrl() {
-        String imageUrl = "https://example.com/image.jpg";
+        final String imageUrl = "https://example.com/image.jpg";
         testCard.setImageUrl(imageUrl);
 
         assertThat(testCard.getImageUrl()).isEqualTo(imageUrl);
@@ -182,7 +182,7 @@ class CardTest {
     @DisplayName("Should validate front text length constraint")
     void shouldValidateFrontTextLengthConstraint() {
         // @Size(max = 300) is JPA validation, not runtime validation
-        String longFrontText = "A".repeat(301);
+        final String longFrontText = "A".repeat(301);
         // This should not throw exception as @Size is JPA validation, not runtime validation
         testCard.setFrontText(longFrontText);
         assertThat(testCard.getFrontText()).isEqualTo(longFrontText);
@@ -192,7 +192,7 @@ class CardTest {
     @DisplayName("Should validate back text length constraint")
     void shouldValidateBackTextLengthConstraint() {
         // @Size(max = 300) is JPA validation, not runtime validation
-        String longBackText = "A".repeat(301);
+        final String longBackText = "A".repeat(301);
         // This should not throw exception as @Size is JPA validation, not runtime validation
         testCard.setBackText(longBackText);
         assertThat(testCard.getBackText()).isEqualTo(longBackText);
@@ -202,7 +202,7 @@ class CardTest {
     @DisplayName("Should validate example length constraint")
     void shouldValidateExampleLengthConstraint() {
         // @Size(max = 500) is JPA validation, not runtime validation
-        String longExample = "A".repeat(501);
+        final String longExample = "A".repeat(501);
         // This should not throw exception as @Size is JPA validation, not runtime validation
         testCard.setExample(longExample);
         assertThat(testCard.getExample()).isEqualTo(longExample);
@@ -212,7 +212,7 @@ class CardTest {
     @DisplayName("Should validate image URL length constraint")
     void shouldValidateImageUrlLengthConstraint() {
         // @Size(max = 2048) is JPA validation, not runtime validation
-        String longImageUrl = "A".repeat(2049);
+        final String longImageUrl = "A".repeat(2049);
         // This should not throw exception as @Size is JPA validation, not runtime validation
         testCard.setImageUrl(longImageUrl);
         assertThat(testCard.getImageUrl()).isEqualTo(longImageUrl);
@@ -221,7 +221,7 @@ class CardTest {
     @Test
     @DisplayName("Should handle special characters in text")
     void shouldHandleSpecialCharactersInText() {
-        String specialText = "Text with special chars: @#$%^&*()_+-=[]{}|;':\",./<>?";
+        final String specialText = "Text with special chars: @#$%^&*()_+-=[]{}|;':\",./<>?";
         testCard.setFrontText(specialText);
 
         assertThat(testCard.getFrontText()).isEqualTo(specialText);
@@ -230,7 +230,7 @@ class CardTest {
     @Test
     @DisplayName("Should handle unicode characters in text")
     void shouldHandleUnicodeCharactersInText() {
-        String unicodeText = "Text with unicode characters: 你好世界";
+        final String unicodeText = "Text with unicode characters: 你好世界";
         testCard.setFrontText(unicodeText);
 
         assertThat(testCard.getFrontText()).isEqualTo(unicodeText);
@@ -239,7 +239,7 @@ class CardTest {
     @Test
     @DisplayName("Should handle very long valid text")
     void shouldHandleVeryLongValidText() {
-        String longText = "A".repeat(300); // Max allowed size
+        final String longText = "A".repeat(300); // Max allowed size
         testCard.setFrontText(longText);
 
         assertThat(testCard.getFrontText()).isEqualTo(longText);
@@ -248,7 +248,7 @@ class CardTest {
     @Test
     @DisplayName("Should handle very long valid example")
     void shouldHandleVeryLongValidExample() {
-        String longExample = "A".repeat(500); // Max allowed size
+        final String longExample = "A".repeat(500); // Max allowed size
         testCard.setExample(longExample);
 
         assertThat(testCard.getExample()).isEqualTo(longExample);
@@ -257,7 +257,7 @@ class CardTest {
     @Test
     @DisplayName("Should handle very long valid image URL")
     void shouldHandleVeryLongValidImageUrl() {
-        String longUrl = "https://example.com/" + "A".repeat(2048); // Max allowed size
+        final String longUrl = "https://example.com/" + "A".repeat(2048); // Max allowed size
         testCard.setImageUrl(longUrl);
 
         assertThat(testCard.getImageUrl()).isEqualTo(longUrl);
@@ -266,7 +266,7 @@ class CardTest {
     @Test
     @DisplayName("Should update timestamps when modifying content")
     void shouldUpdateTimestampsWhenModifyingContent() {
-        LocalDateTime originalUpdatedAt = testCard.getUpdatedAt();
+        final LocalDateTime originalUpdatedAt = testCard.getUpdatedAt();
 
         // Modify content to trigger timestamp update
         testCard.setFrontText("Updated Front");
@@ -280,7 +280,7 @@ class CardTest {
     @Test
     @DisplayName("Should handle card with all fields set")
     void shouldHandleCardWithAllFieldsSet() {
-        Card card = new Card();
+        final Card card = new Card();
         card.setId(1L);
         card.setDeckId(1L);
         card.setFrontText("Front");
@@ -299,7 +299,7 @@ class CardTest {
     @Test
     @DisplayName("Should handle card with minimal fields")
     void shouldHandleCardWithMinimalFields() {
-        Card card = new Card();
+        final Card card = new Card();
         card.setDeckId(1L);
         card.setFrontText("Front");
         card.setBackText("Back");

@@ -45,10 +45,9 @@ public class JdbcUserDetailsService implements UserDetailsService {
      * @throws UsernameNotFoundException if authentication fails (generic message to prevent user enumeration)
      */
     @Override
-    @SuppressWarnings("java:S2139") // Security audit requires logging before rethrow (OWASP compliance)
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         // Validate username
-        if (username == null || username.trim().isEmpty()) {
+        if (username == null || username.isBlank()) {
             LOGGER.warn("Attempted to load user with null or empty username");
             throw new UsernameNotFoundException("Bad credentials");
         }
@@ -57,7 +56,7 @@ public class JdbcUserDetailsService implements UserDetailsService {
 
         try {
             // Find user by email
-            User user = findUser(username).orElse(null);
+            final User user = findUser(username).orElse(null);
 
             // Validate user exists and has password hash
             if (user == null || !hasValidPasswordHash(user)) {
@@ -71,17 +70,18 @@ public class JdbcUserDetailsService implements UserDetailsService {
                 throw new UsernameNotFoundException("Bad credentials");
             }
 
-            Collection<? extends GrantedAuthority> authorities = mapAuthorities(user);
+            final Collection<? extends GrantedAuthority> authorities = mapAuthorities(user);
 
             LOGGER.debug("User details loaded successfully: {}", username);
             return buildUserDetails(user, authorities);
 
         } catch (UsernameNotFoundException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             // S2139: Intentionally logging before rethrow for security audit trail (OWASP compliance)
+            // Preserve stack trace by wrapping the original exception
             logAuthenticationError(username, e);
-            throw new UsernameNotFoundException("Bad credentials");
+            throw new UsernameNotFoundException("Bad credentials", e);
         }
     }
 

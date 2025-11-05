@@ -58,9 +58,9 @@ public class ErrorHandlingConfiguration {
      * @param errorEvent the error event containing error details
      */
     private void handleUiError(final UI ui, final ErrorEvent errorEvent) {
-        VaadinSession session = ui.getSession();
-        String currentRoute = getCurrentRoute(ui);
-        Throwable error = errorEvent.getThrowable();
+        final VaadinSession session = ui.getSession();
+        final String currentRoute = getCurrentRoute(ui);
+        final Throwable error = errorEvent.getThrowable();
 
         // Filter out normal client disconnection events - not actual errors
         if (isClientAbortException(error)) {
@@ -96,15 +96,15 @@ public class ErrorHandlingConfiguration {
         }
 
         // Check exception class name (handles multiple classloader scenarios)
-        String className = throwable.getClass().getName();
+        final String className = throwable.getClass().getName();
         if (className.contains("ClientAbortException") || className.contains("BrokenPipeException")) {
             return true;
         }
 
         // Check exception message for common disconnect patterns
-        String message = throwable.getMessage();
+        final String message = throwable.getMessage();
         if (message != null) {
-            String lowerMessage = message.toLowerCase(Locale.ROOT);
+            final String lowerMessage = message.toLowerCase(Locale.ROOT);
             if (lowerMessage.contains("broken pipe")
                     || lowerMessage.contains("connection reset")
                     || lowerMessage.contains("connection was aborted")) {
@@ -113,8 +113,8 @@ public class ErrorHandlingConfiguration {
         }
 
         // Check cause recursively (exceptions are often wrapped)
-        Throwable cause = throwable.getCause();
-        if (cause != null && cause != throwable) {
+        final Throwable cause = throwable.getCause();
+        if (cause != null && !cause.equals(throwable)) {
             return isClientAbortException(cause);
         }
 
@@ -130,7 +130,7 @@ public class ErrorHandlingConfiguration {
     private String getCurrentRoute(final UI ui) {
         try {
             return ui.getInternals().getActiveViewLocation().getPath();
-        } catch (Exception e) {
+        } catch (IllegalStateException | NullPointerException e) {
             LOGGER.debug("Failed to get current route [uiId={}]", ui.getUIId(), e);
             return null;
         }
@@ -147,7 +147,7 @@ public class ErrorHandlingConfiguration {
             // Try to access session - will fail if invalidated
             session.hasLock();
             return true;
-        } catch (Exception e) {
+        } catch (IllegalStateException | NullPointerException e) {
             LOGGER.trace("Session validation failed", e);
             return false;
         }
@@ -162,8 +162,8 @@ public class ErrorHandlingConfiguration {
      */
     private boolean shouldSkipNavigation(final VaadinSession session, final String currentRoute) {
         try {
-            boolean navigationInProgress = Boolean.TRUE.equals(session.getAttribute(ATTR_ERROR_NAV_GUARD));
-            boolean onErrorView = RouteConstants.ERROR_ROUTE.equals(currentRoute);
+            final boolean navigationInProgress = Boolean.TRUE.equals(session.getAttribute(ATTR_ERROR_NAV_GUARD));
+            final boolean onErrorView = RouteConstants.ERROR_ROUTE.equals(currentRoute);
 
             if (navigationInProgress) {
                 LOGGER.warn("Skipping error navigation - already in progress");
@@ -200,12 +200,12 @@ public class ErrorHandlingConfiguration {
             return;
         }
 
-        String errorId = UUID.randomUUID().toString();
+        final String errorId = UUID.randomUUID().toString();
 
         try {
             ui.access(() -> {
                 try {
-                    QueryParameters params = createErrorParameters(currentRoute, error, errorId);
+                    final QueryParameters params = createErrorParameters(currentRoute, error, errorId);
                     NavigationHelper.navigateToError(RouteConstants.ERROR_ROUTE, params);
                     LOGGER.debug("Navigated to error page [uiId={}, errorId={}]", ui.getUIId(), errorId);
                 } finally {
@@ -216,7 +216,7 @@ public class ErrorHandlingConfiguration {
                     }
                 }
             });
-        } catch (Exception e) {
+        } catch (IllegalStateException | NullPointerException e) {
             LOGGER.warn("Failed to navigate to error page [uiId={}]", ui.getUIId(), e);
             try {
                 session.setAttribute(ATTR_ERROR_NAV_GUARD, Boolean.FALSE);
@@ -264,7 +264,7 @@ public class ErrorHandlingConfiguration {
      * @return true if in development profile, false otherwise
      */
     private boolean isDevProfile() {
-        String[] activeProfiles = environment.getActiveProfiles();
+        final String[] activeProfiles = environment.getActiveProfiles();
         return Arrays.asList(activeProfiles).contains("dev");
     }
 }

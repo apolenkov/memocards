@@ -78,32 +78,32 @@ public class UserUseCaseService implements UserUseCase {
      */
     @Override
     @Transactional(readOnly = true)
-    @SuppressWarnings("java:S2139") // Security audit requires logging before rethrow (OWASP compliance)
+    @SuppressWarnings("squid:S2139") // False positive: logging before rethrow required for security audit trail
     public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             AUDIT_LOGGER.warn("Unauthenticated access attempt to getCurrentUser()");
             throw new IllegalStateException("Unauthenticated");
         }
 
-        Object principal = authentication.getPrincipal();
+        final Object principal = authentication.getPrincipal();
         if (principal == null) {
             AUDIT_LOGGER.error("Authenticated principal is null");
             throw new IllegalStateException("Authenticated principal is null");
         }
 
-        String username = getUsername(principal);
+        final String username = getUsername(principal);
 
         try {
-            User user = userRepository.findByEmail(username).orElseThrow(() -> {
+            final User user = userRepository.findByEmail(username).orElseThrow(() -> {
                 AUDIT_LOGGER.error("Authenticated principal has no domain user: username={}", username);
                 return new IllegalStateException("Authenticated principal has no domain user: " + username);
             });
 
             LOGGER.debug("Current user retrieved: userId={}, email={}", user.getId(), user.getEmail());
             return user;
-        } catch (Exception e) {
-            // S2139: Intentionally logging before rethrow for security audit trail (OWASP compliance)
+        } catch (RuntimeException e) {
+            // Logging before rethrow required for security audit trail (OWASP compliance)
             LOGGER.error("Error retrieving current user: username={}", username, e);
             throw e;
         }
@@ -135,7 +135,7 @@ public class UserUseCaseService implements UserUseCase {
             throw new IllegalArgumentException("Cannot update user without ID - use save() for new users");
         }
 
-        User saved = userRepository.save(user);
+        final User saved = userRepository.save(user);
 
         AUDIT_LOGGER.info("User updated: userId={}, email={}", saved.getId(), saved.getEmail());
         return saved;

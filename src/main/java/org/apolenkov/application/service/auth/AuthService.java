@@ -67,7 +67,7 @@ public class AuthService {
         LOGGER.debug("Attempting authentication for user: {}", username);
 
         // performAuthentication() handles detailed audit logging for failures
-        Authentication auth = performAuthentication(username, rawPassword);
+        final Authentication auth = performAuthentication(username, rawPassword);
         persistAuthenticationContext(auth);
 
         AUDIT_LOGGER.info("User logged in successfully: {}", username);
@@ -83,7 +83,7 @@ public class AuthService {
      * @throws IllegalArgumentException if credentials are invalid
      */
     private void validateCredentials(final String username, final String rawPassword) {
-        if (username == null || username.trim().isEmpty()) {
+        if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Username cannot be null or empty");
         }
         if (rawPassword == null) {
@@ -101,26 +101,23 @@ public class AuthService {
      * @return authenticated Authentication object
      * @throws IllegalArgumentException if authentication fails
      */
-    @SuppressWarnings("java:S2139") // Security audit requires logging before rethrow (OWASP compliance)
+    @SuppressWarnings("squid:S2139") // False positive: logging before rethrow required for OWASP security audit
     private Authentication performAuthentication(final String username, final String rawPassword) {
-        UsernamePasswordAuthenticationToken authRequest =
+        final UsernamePasswordAuthenticationToken authRequest =
                 new UsernamePasswordAuthenticationToken(username, rawPassword);
         try {
             return authenticationConfiguration.getAuthenticationManager().authenticate(authRequest);
         } catch (BadCredentialsException e) {
-            AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=BAD_CREDENTIALS", username);
+            AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=BAD_CREDENTIALS", username, e);
             throw new IllegalArgumentException("Invalid username or password", e);
         } catch (DisabledException e) {
-            AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=ACCOUNT_DISABLED", username);
+            AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=ACCOUNT_DISABLED", username, e);
             throw new IllegalArgumentException("Account is disabled", e);
         } catch (LockedException e) {
-            AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=ACCOUNT_LOCKED", username);
+            AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=ACCOUNT_LOCKED", username, e);
             throw new IllegalArgumentException("Account is locked", e);
         } catch (Exception e) {
-            AUDIT_LOGGER.warn(
-                    "Failed login attempt: username={}, reason=UNKNOWN ({})",
-                    username,
-                    e.getClass().getSimpleName());
+            AUDIT_LOGGER.warn("Failed login attempt: username={}, reason=UNKNOWN", username, e);
             throw new IllegalArgumentException("Authentication failed", e);
         }
     }
@@ -131,16 +128,16 @@ public class AuthService {
      * @param auth the authenticated Authentication object
      */
     private void persistAuthenticationContext(final Authentication auth) {
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        final SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(auth);
         SecurityContextHolder.setContext(context);
 
-        VaadinServletRequest vsr = (VaadinServletRequest) VaadinService.getCurrentRequest();
-        VaadinServletResponse vsp = (VaadinServletResponse) VaadinService.getCurrentResponse();
+        final VaadinServletRequest vsr = (VaadinServletRequest) VaadinService.getCurrentRequest();
+        final VaadinServletResponse vsp = (VaadinServletResponse) VaadinService.getCurrentResponse();
 
         if (vsr != null && vsp != null) {
-            HttpServletRequest req = vsr.getHttpServletRequest();
-            HttpServletResponse resp = vsp.getHttpServletResponse();
+            final HttpServletRequest req = vsr.getHttpServletRequest();
+            final HttpServletResponse resp = vsp.getHttpServletResponse();
             new HttpSessionSecurityContextRepository().saveContext(context, req, resp);
         }
     }

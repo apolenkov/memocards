@@ -61,18 +61,18 @@ public class MobileLanguageSwitcher extends BaseLanguageSwitcher {
         setPadding(false);
         setAlignItems(Alignment.CENTER);
 
-        Span label = new Span(getTranslation(CoreConstants.LANGUAGE_LABEL_KEY));
+        final Span label = new Span(getTranslation(CoreConstants.LANGUAGE_LABEL_KEY));
         label.addClassName(CoreConstants.LANGUAGE_SWITCHER_LABEL_CLASS);
 
-        ComboBox<String> combo = new ComboBox<>();
+        final ComboBox<String> combo = new ComboBox<>();
 
-        String en = getTranslation(CoreConstants.LANGUAGE_EN_KEY);
-        String ru = getTranslation(CoreConstants.LANGUAGE_RU_KEY);
-        String es = getTranslation(CoreConstants.LANGUAGE_ES_KEY);
+        final String en = getTranslation(CoreConstants.LANGUAGE_EN_KEY);
+        final String ru = getTranslation(CoreConstants.LANGUAGE_RU_KEY);
+        final String es = getTranslation(CoreConstants.LANGUAGE_ES_KEY);
         combo.setItems(en, ru, es);
 
-        Locale current = getCurrentLocale();
-        String selectedValue = getSelectedValueForLocale(current, en, ru, es);
+        final Locale current = getCurrentLocale();
+        final String selectedValue = getSelectedValueForLocale(current, en, ru, es);
         combo.setValue(selectedValue);
 
         combo.addThemeVariants(ComboBoxVariant.LUMO_SMALL);
@@ -81,10 +81,10 @@ public class MobileLanguageSwitcher extends BaseLanguageSwitcher {
                 .setAttribute(CoreConstants.ARIA_LABEL_ATTRIBUTE, getTranslation(CoreConstants.LANGUAGE_LABEL_KEY));
 
         localeChangeListenerRegistration = combo.addValueChangeListener(event -> {
-            String value = event.getValue();
+            final String value = event.getValue();
             LOGGER.info("Mobile language changed to: {}", value);
             if (value != null) {
-                Locale locale = mapSelectedValueToLocale(value);
+                final Locale locale = mapSelectedValueToLocale(value);
                 applyLocaleToApplication(locale);
             }
         });

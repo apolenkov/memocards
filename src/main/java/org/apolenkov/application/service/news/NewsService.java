@@ -62,7 +62,7 @@ public class NewsService implements NewsUseCase {
 
         validate(title, content);
 
-        News news = new News(null, title, content, author, LocalDateTime.now());
+        final News news = new News(null, title, content, author, LocalDateTime.now());
         newsRepository.save(news);
 
         AUDIT_LOGGER.info("News created: title='{}', author={}, contentLength={}", title, author, content.length());
@@ -81,7 +81,7 @@ public class NewsService implements NewsUseCase {
     public void updateNews(final long id, final String title, final String content, final String author) {
         LOGGER.debug("Updating news: id={}, title='{}'", id, title);
 
-        Optional<News> existingOpt = newsRepository.findById(id);
+        final Optional<News> existingOpt = newsRepository.findById(id);
         if (existingOpt.isEmpty()) {
             LOGGER.warn("Attempted to update non-existent news: id={}", id);
             throw new IllegalArgumentException("News not found with id: " + id);
@@ -89,8 +89,8 @@ public class NewsService implements NewsUseCase {
 
         validate(title, content);
 
-        News existing = existingOpt.get();
-        String oldTitle = existing.getTitle();
+        final News existing = existingOpt.get();
+        final String oldTitle = existing.getTitle();
 
         existing.setTitle(title);
         existing.setContent(content);
@@ -111,13 +111,13 @@ public class NewsService implements NewsUseCase {
     public void deleteNews(final long id) {
         LOGGER.debug("Deleting news: id={}", id);
 
-        Optional<News> newsOpt = newsRepository.findById(id);
+        final Optional<News> newsOpt = newsRepository.findById(id);
         if (newsOpt.isEmpty()) {
             LOGGER.warn("Attempted to delete non-existent news: id={}", id);
             return;
         }
 
-        News news = newsOpt.get();
+        final News news = newsOpt.get();
         newsRepository.deleteById(id);
 
         AUDIT_LOGGER.warn("News deleted: id={}, title='{}', author={}", id, news.getTitle(), news.getAuthor());
@@ -131,10 +131,10 @@ public class NewsService implements NewsUseCase {
      * @throws IllegalArgumentException if title or content is null or empty after trimming
      */
     private static void validate(final String title, final String content) {
-        if (title == null || title.trim().isEmpty()) {
+        if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("Title is required");
         }
-        if (content == null || content.trim().isEmpty()) {
+        if (content == null || content.isBlank()) {
             throw new IllegalArgumentException("Content is required");
         }
     }

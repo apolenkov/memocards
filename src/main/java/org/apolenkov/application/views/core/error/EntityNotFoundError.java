@@ -62,7 +62,7 @@ public final class EntityNotFoundError extends Composite<VerticalLayout> {
     protected VerticalLayout initContent() {
         LOGGER.debug("Creating EntityNotFoundError for entity with ID: {}", entityId);
 
-        VerticalLayout error = new VerticalLayout();
+        final VerticalLayout error = new VerticalLayout();
         error.setSizeFull();
         error.setAlignItems(FlexComponent.Alignment.CENTER);
         error.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
@@ -79,13 +79,13 @@ public final class EntityNotFoundError extends Composite<VerticalLayout> {
      * @return the error content container
      */
     private VerticalLayout createErrorContent() {
-        VerticalLayout errorContainer = new VerticalLayout();
+        final VerticalLayout errorContainer = new VerticalLayout();
         errorContainer.setSpacing(true);
         errorContainer.setWidthFull();
         errorContainer.addClassName(CoreConstants.CONTAINER_MD_CLASS);
         errorContainer.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        VerticalLayout errorSection = new VerticalLayout();
+        final VerticalLayout errorSection = new VerticalLayout();
         errorSection.setSpacing(true);
         errorSection.setPadding(true);
         errorSection.setWidthFull();
@@ -94,13 +94,13 @@ public final class EntityNotFoundError extends Composite<VerticalLayout> {
         errorSection.addClassName(CoreConstants.CONTAINER_MD_CLASS);
 
         // Error title
-        H2 errorTitle = new H2(getTranslation(CoreConstants.ENTITY_NOT_FOUND_TITLE_KEY));
+        final H2 errorTitle = new H2(getTranslation(CoreConstants.ENTITY_NOT_FOUND_TITLE_KEY));
         errorTitle.addClassName(CoreConstants.ENTITY_ERROR_TITLE_CLASS);
 
         // Error description
-        Paragraph errorDescription = new Paragraph();
+        final Paragraph errorDescription = new Paragraph();
         errorDescription.addClassName(CoreConstants.ENTITY_ERROR_DESCRIPTION_CLASS);
-        if (customMessage != null && !customMessage.trim().isEmpty()) {
+        if (customMessage != null && !customMessage.isBlank()) {
             // Show custom message if provided
             errorDescription.setText(customMessage);
         } else {
@@ -109,20 +109,20 @@ public final class EntityNotFoundError extends Composite<VerticalLayout> {
         }
 
         // Error suggestion
-        Paragraph errorSuggestion = new Paragraph();
+        final Paragraph errorSuggestion = new Paragraph();
         errorSuggestion.addClassName(CoreConstants.ENTITY_ERROR_SUGGESTION_CLASS);
         errorSuggestion.setText(getTranslation(CoreConstants.ENTITY_NOT_FOUND_SUGGESTION_KEY));
 
         // Navigation buttons
-        Button goBackButton = ButtonHelper.createButton(
+        final Button goBackButton = ButtonHelper.createButton(
                 getTranslation(CoreConstants.ENTITY_NOT_FOUND_GO_BACK_KEY),
                 e -> handleBackAction(),
                 ButtonVariant.LUMO_PRIMARY);
 
-        Button goHomeButton = ButtonHelper.createButton(
+        final Button goHomeButton = ButtonHelper.createButton(
                 getTranslation(CoreConstants.MAIN_GO_HOME_KEY), e -> navigateToHome(), ButtonVariant.LUMO_TERTIARY);
 
-        HorizontalLayout buttonLayout = new HorizontalLayout();
+        final HorizontalLayout buttonLayout = new HorizontalLayout();
         buttonLayout.setSpacing(true);
         buttonLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);

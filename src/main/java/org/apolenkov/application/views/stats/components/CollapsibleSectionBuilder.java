@@ -59,7 +59,7 @@ public final class CollapsibleSectionBuilder extends Composite<VerticalLayout> {
      */
     private VerticalLayout createCollapsibleSection() {
 
-        VerticalLayout section = new VerticalLayout();
+        final VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
         section.setPadding(true);
         section.setWidthFull();
@@ -67,7 +67,7 @@ public final class CollapsibleSectionBuilder extends Composite<VerticalLayout> {
         section.addClassName(StatsConstants.SURFACE_PANEL_CLASS);
 
         // Create header
-        HorizontalLayout headerLayout = createSectionHeader();
+        final HorizontalLayout headerLayout = createSectionHeader();
         section.add(headerLayout);
 
         // Setup toggle functionality
@@ -86,17 +86,17 @@ public final class CollapsibleSectionBuilder extends Composite<VerticalLayout> {
      * @return configured header layout
      */
     private HorizontalLayout createSectionHeader() {
-        HorizontalLayout headerLayout = new HorizontalLayout();
+        final HorizontalLayout headerLayout = new HorizontalLayout();
         headerLayout.setWidthFull();
         headerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         headerLayout.addClassName(StatsConstants.STATS_SECTION_HEADER_CLASS);
 
-        H3 sectionTitle = new H3(getTranslation(titleKey));
+        final H3 sectionTitle = new H3(getTranslation(titleKey));
         sectionTitle.addClassName(StatsConstants.STATS_SECTION_TITLE_CLASS);
         sectionTitle.addClassName(StatsConstants.CLICKABLE_TITLE_CLASS);
 
-        Button toggleButton = ButtonHelper.createIconButton(
+        final Button toggleButton = ButtonHelper.createIconButton(
                 openByDefault ? VaadinIcon.CHEVRON_DOWN : VaadinIcon.CHEVRON_RIGHT, ButtonVariant.LUMO_TERTIARY);
         toggleButton
                 .getElement()
@@ -117,13 +117,13 @@ public final class CollapsibleSectionBuilder extends Composite<VerticalLayout> {
     private void setupToggleFunctionality(final HorizontalLayout headerLayout) {
 
         // Find components
-        H3 sectionTitle = (H3) headerLayout
+        final H3 sectionTitle = (H3) headerLayout
                 .getChildren()
                 .filter(H3.class::isInstance)
                 .findFirst()
                 .orElse(null);
 
-        Button toggleButton = (Button) headerLayout
+        final Button toggleButton = (Button) headerLayout
                 .getChildren()
                 .filter(Button.class::isInstance)
                 .findFirst()
@@ -134,8 +134,8 @@ public final class CollapsibleSectionBuilder extends Composite<VerticalLayout> {
         }
 
         // Toggle action
-        Runnable toggleAction = () -> {
-            boolean isVisible = content.isVisible();
+        final Runnable toggleAction = () -> {
+            final boolean isVisible = content.isVisible();
             content.setVisible(!isVisible);
             toggleButton.setIcon((isVisible ? VaadinIcon.CHEVRON_RIGHT : VaadinIcon.CHEVRON_DOWN).create());
             toggleButton

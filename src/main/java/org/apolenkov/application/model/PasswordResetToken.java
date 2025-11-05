@@ -153,7 +153,7 @@ public final class PasswordResetToken {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PasswordResetToken that = (PasswordResetToken) o;
+        final PasswordResetToken that = (PasswordResetToken) o;
         return Objects.equals(id, that.id);
     }
 

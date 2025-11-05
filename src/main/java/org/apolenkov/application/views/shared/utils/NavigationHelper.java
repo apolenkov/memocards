@@ -124,7 +124,7 @@ public final class NavigationHelper {
      * @throws IllegalArgumentException if token is null or empty
      */
     public static void navigateToResetPassword(final String token) {
-        if (token == null || token.trim().isEmpty()) {
+        if (token == null || token.isBlank()) {
             throw new IllegalArgumentException("Reset password token cannot be null or empty");
         }
         navigateTo(RouteConstants.RESET_PASSWORD_ROUTE, token);

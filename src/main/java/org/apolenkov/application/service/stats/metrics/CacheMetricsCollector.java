@@ -95,7 +95,7 @@ public class CacheMetricsCollector {
                         event.getReason());
             }
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.error("Failed to record cache invalidation metrics for event: {}", event, e);
         }
     }
@@ -113,7 +113,7 @@ public class CacheMetricsCollector {
     public void recordInvalidationTiming(
             final String cacheType, final String reason, final Supplier<Duration> durationSupplier) {
         try {
-            Duration duration = durationSupplier.get();
+            final Duration duration = durationSupplier.get();
 
             Timer.builder("cache.invalidation.timing")
                     .description("Detailed timing for cache invalidation operations")
@@ -131,7 +131,7 @@ public class CacheMetricsCollector {
                         duration.toMillis());
             }
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.error("Failed to record cache invalidation timing: type={}, reason={}", cacheType, reason, e);
         }
     }
@@ -152,7 +152,7 @@ public class CacheMetricsCollector {
                     .register(meterRegistry)
                     .increment();
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.error("Failed to record cache hit/miss metrics: type={}, hit={}", cacheType, hit, e);
         }
     }
@@ -165,11 +165,12 @@ public class CacheMetricsCollector {
      */
     public void recordCacheSize(final String cacheType, final int size) {
         try {
-            List<Tag> tags = List.of(Tag.of(CACHE_TYPE_TAG, cacheType), Tag.of(APPLICATION_TAG, APPLICATION_VALUE));
+            final List<Tag> tags =
+                    List.of(Tag.of(CACHE_TYPE_TAG, cacheType), Tag.of(APPLICATION_TAG, APPLICATION_VALUE));
 
             meterRegistry.gauge("cache.size", tags, size);
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.error("Failed to record cache size metrics: type={}, size={}", cacheType, size, e);
         }
     }

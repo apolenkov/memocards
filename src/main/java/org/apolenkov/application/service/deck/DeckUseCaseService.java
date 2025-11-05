@@ -144,17 +144,17 @@ public class DeckUseCaseService implements DeckUseCase {
 
         LOGGER.debug("Saving deck: title='{}', userId={}", deck.getTitle(), deck.getUserId());
 
-        var violations = validator.validate(deck);
+        final var violations = validator.validate(deck);
         if (!violations.isEmpty()) {
-            String message = violations.stream()
+            final String message = violations.stream()
                     .map(v -> v.getPropertyPath() + CoreConstants.SEPARATOR_SPACE + v.getMessage())
                     .collect(Collectors.joining(", "));
             LOGGER.warn("Deck validation failed: {}", message);
             throw new IllegalArgumentException("Validation failed: " + message);
         }
 
-        boolean isNew = deck.getId() == null;
-        Deck savedDeck = deckRepository.save(deck);
+        final boolean isNew = deck.getId() == null;
+        final Deck savedDeck = deckRepository.save(deck);
 
         // Audit log (writes to both audit.log and application.log)
         if (isNew) {
@@ -195,13 +195,13 @@ public class DeckUseCaseService implements DeckUseCase {
         LOGGER.debug("Deleting deck with ID {}", id);
 
         // Get deck info before deletion for logging
-        Optional<Deck> deckOpt = deckRepository.findById(id);
+        final Optional<Deck> deckOpt = deckRepository.findById(id);
         if (deckOpt.isEmpty()) {
             LOGGER.warn("Attempted to delete non-existent deck {}", id);
             return;
         }
 
-        Deck deck = deckOpt.get();
+        final Deck deck = deckOpt.get();
 
         // Delete associated cards first to maintain referential integrity
         cardRepository.deleteByDeckId(id);

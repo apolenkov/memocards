@@ -27,7 +27,7 @@ public class PracticeSettingsComponents implements LocaleChangeObserver {
      * @return configured count select component
      */
     public Select<Integer> createCountSelect(final PracticeSettingsService practiceSettingsService) {
-        Select<Integer> countSelect = new Select<>();
+        final Select<Integer> countSelect = new Select<>();
         countSelect.setLabel(getTranslation(PracticeConstants.SETTINGS_COUNT_KEY));
         countSelect.setItems(5, 10, 15, 20, 25, 30);
         countSelect.setValue(practiceSettingsService.getDefaultCount());
@@ -41,10 +41,10 @@ public class PracticeSettingsComponents implements LocaleChangeObserver {
      * @return configured mode radio button group
      */
     public RadioButtonGroup<String> createModeGroup(final PracticeSettingsService practiceSettingsService) {
-        String randomText = getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY);
-        String sequentialText = getTranslation(PracticeConstants.SETTINGS_MODE_SEQUENTIAL_KEY);
+        final String randomText = getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY);
+        final String sequentialText = getTranslation(PracticeConstants.SETTINGS_MODE_SEQUENTIAL_KEY);
 
-        RadioButtonGroup<String> modeGroup = new RadioButtonGroup<>();
+        final RadioButtonGroup<String> modeGroup = new RadioButtonGroup<>();
         modeGroup.setLabel(getTranslation(PracticeConstants.SETTINGS_MODE_KEY));
         modeGroup.setItems(randomText, sequentialText);
         modeGroup.setValue(practiceSettingsService.isDefaultRandomOrder() ? randomText : sequentialText);
@@ -58,10 +58,10 @@ public class PracticeSettingsComponents implements LocaleChangeObserver {
      * @return configured direction radio button group
      */
     public RadioButtonGroup<String> createDirectionGroup(final PracticeSettingsService practiceSettingsService) {
-        String frontToBackText = getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY);
-        String backToFrontText = getTranslation(PracticeConstants.SETTINGS_DIRECTION_B2F_KEY);
+        final String frontToBackText = getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY);
+        final String backToFrontText = getTranslation(PracticeConstants.SETTINGS_DIRECTION_B2F_KEY);
 
-        RadioButtonGroup<String> dirGroup = new RadioButtonGroup<>();
+        final RadioButtonGroup<String> dirGroup = new RadioButtonGroup<>();
         dirGroup.setLabel(getTranslation(PracticeConstants.SETTINGS_DIRECTION_KEY));
         dirGroup.setItems(frontToBackText, backToFrontText);
         dirGroup.setValue(
@@ -85,8 +85,8 @@ public class PracticeSettingsComponents implements LocaleChangeObserver {
             final RadioButtonGroup<String> modeGroup,
             final RadioButtonGroup<String> dirGroup) {
 
-        String randomText = getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY);
-        String frontToBackText = getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY);
+        final String randomText = getTranslation(PracticeConstants.SETTINGS_MODE_RANDOM_KEY);
+        final String frontToBackText = getTranslation(PracticeConstants.SETTINGS_DIRECTION_F2B_KEY);
 
         practiceSettingsService.setDefaultCount(countSelect.getValue());
         practiceSettingsService.setDefaultRandomOrder(modeGroup.getValue().equals(randomText));

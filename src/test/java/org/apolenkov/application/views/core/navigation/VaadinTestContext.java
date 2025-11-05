@@ -38,9 +38,9 @@ public class VaadinTestContext implements AutoCloseable {
     public VaadinTestContext() {
         // Mock Session first
         sessionMock = mockStatic(VaadinSession.class);
-        VaadinSession mockSession = mock(VaadinSession.class);
+        final VaadinSession mockSession = mock(VaadinSession.class);
         when(mockSession.getAttribute(String.class)).thenAnswer(invocation -> {
-            String key = invocation.getArgument(0);
+            final String key = invocation.getArgument(0);
             return sessionAttributes.get(key);
         });
         doAnswer(this::setSessionAttribute).when(mockSession).setAttribute(anyString(), any());
@@ -48,7 +48,7 @@ public class VaadinTestContext implements AutoCloseable {
 
         // Mock UI
         uiMock = mockStatic(UI.class);
-        UI mockUI = mock(UI.class);
+        final UI mockUI = mock(UI.class);
         when(mockUI.getUIId()).thenReturn(1);
         when(mockUI.getLocale()).thenReturn(Locale.ENGLISH);
         when(mockUI.getSession()).thenReturn(mockSession);
@@ -58,10 +58,10 @@ public class VaadinTestContext implements AutoCloseable {
         requestMock = mockStatic(VaadinServletRequest.class);
         responseMock = mockStatic(VaadinServletResponse.class);
 
-        VaadinServletRequest mockVaadinRequest = mock(VaadinServletRequest.class);
-        VaadinServletResponse mockVaadinResponse = mock(VaadinServletResponse.class);
-        HttpServletRequest mockHttpRequest = mock(HttpServletRequest.class);
-        HttpServletResponse mockHttpResponse = mock(HttpServletResponse.class);
+        final VaadinServletRequest mockVaadinRequest = mock(VaadinServletRequest.class);
+        final VaadinServletResponse mockVaadinResponse = mock(VaadinServletResponse.class);
+        final HttpServletRequest mockHttpRequest = mock(HttpServletRequest.class);
+        final HttpServletResponse mockHttpResponse = mock(HttpServletResponse.class);
 
         when(mockVaadinRequest.getHttpServletRequest()).thenReturn(mockHttpRequest);
         when(mockVaadinResponse.getHttpServletResponse()).thenReturn(mockHttpResponse);
@@ -72,8 +72,8 @@ public class VaadinTestContext implements AutoCloseable {
 
     @SuppressWarnings("SameReturnValue")
     private Object setSessionAttribute(final InvocationOnMock invocation) {
-        String key = invocation.getArgument(0);
-        Object value = invocation.getArgument(1);
+        final String key = invocation.getArgument(0);
+        final Object value = invocation.getArgument(1);
         sessionAttributes.put(key, value);
         return null;
     }

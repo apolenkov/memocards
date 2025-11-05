@@ -35,11 +35,11 @@ class UserDecksCacheTest {
     @DisplayName("Should cache decks on first access")
     void shouldCacheDecksOnFirstAccess() {
         // Given: Empty cache
-        List<Deck> decks =
+        final List<Deck> decks =
                 List.of(new Deck(1L, 1L, "Deck 1", "Description 1"), new Deck(2L, 1L, "Deck 2", "Description 2"));
 
         // When: First access (cache MISS)
-        List<Deck> result = cache.getDecks(1L, () -> {
+        final List<Deck> result = cache.getDecks(1L, () -> {
             loaderCallCount.incrementAndGet();
             return decks;
         });
@@ -53,11 +53,11 @@ class UserDecksCacheTest {
     @DisplayName("Should return cached value on second access (cache HIT)")
     void shouldReturnCachedValueOnSecondAccess() {
         // Given: Cached decks
-        List<Deck> decks = List.of(new Deck(1L, 1L, "Deck 1", "Desc"));
+        final List<Deck> decks = List.of(new Deck(1L, 1L, "Deck 1", "Desc"));
         cache.getDecks(1L, () -> decks);
 
         // When: Second access (cache HIT)
-        List<Deck> result = cache.getDecks(1L, () -> {
+        final List<Deck> result = cache.getDecks(1L, () -> {
             throw new AssertionError("Loader should NOT be called for cache HIT");
         });
 
@@ -65,7 +65,7 @@ class UserDecksCacheTest {
         assertThat(result).hasSize(1);
 
         // And: Cache stats show 1 hit, 1 miss
-        UserDecksCache.CacheStats stats = cache.getStats();
+        final UserDecksCache.CacheStats stats = cache.getStats();
         assertThat(stats.hits()).isEqualTo(1);
         assertThat(stats.misses()).isEqualTo(1);
     }
@@ -74,17 +74,18 @@ class UserDecksCacheTest {
     @DisplayName("Should invalidate cache on deck created event")
     void shouldInvalidateCacheOnDeckCreatedEvent() {
         // Given: Cached decks for user 1
-        List<Deck> initialDecks = List.of(new Deck(1L, 1L, "Deck 1", "Desc"));
+        final List<Deck> initialDecks = List.of(new Deck(1L, 1L, "Deck 1", "Desc"));
         cache.getDecks(1L, () -> initialDecks);
 
         // When: DeckModifiedEvent (CREATED) published
-        DeckModifiedEvent event = new DeckModifiedEvent(this, 1L, 2L, ModificationType.CREATED);
+        final DeckModifiedEvent event = new DeckModifiedEvent(this, 1L, 2L, ModificationType.CREATED);
         cache.onDeckModified(event);
 
         // Then: Cache invalidated, next access reloads
-        List<Deck> updatedDecks = List.of(new Deck(1L, 1L, "Deck 1", "Desc"), new Deck(2L, 1L, "Deck 2", "New deck"));
+        final List<Deck> updatedDecks =
+                List.of(new Deck(1L, 1L, "Deck 1", "Desc"), new Deck(2L, 1L, "Deck 2", "New deck"));
 
-        List<Deck> result = cache.getDecks(1L, () -> {
+        final List<Deck> result = cache.getDecks(1L, () -> {
             loaderCallCount.incrementAndGet();
             return updatedDecks;
         });
@@ -100,11 +101,11 @@ class UserDecksCacheTest {
         cache.getDecks(1L, () -> List.of(new Deck(1L, 1L, "Old Title", "Desc")));
 
         // When: DeckModifiedEvent (UPDATED) published
-        DeckModifiedEvent event = new DeckModifiedEvent(this, 1L, 1L, ModificationType.UPDATED);
+        final DeckModifiedEvent event = new DeckModifiedEvent(this, 1L, 1L, ModificationType.UPDATED);
         cache.onDeckModified(event);
 
         // Then: Cache invalidated
-        List<Deck> result = cache.getDecks(1L, () -> {
+        final List<Deck> result = cache.getDecks(1L, () -> {
             loaderCallCount.incrementAndGet();
             return List.of(new Deck(1L, 1L, "New Title", "Desc"));
         });
@@ -120,11 +121,11 @@ class UserDecksCacheTest {
         cache.getDecks(1L, () -> List.of(new Deck(1L, 1L, "Deck 1", ""), new Deck(2L, 1L, "Deck 2", "")));
 
         // When: DeckModifiedEvent (DELETED) published for deck 2
-        DeckModifiedEvent event = new DeckModifiedEvent(this, 1L, 2L, ModificationType.DELETED);
+        final DeckModifiedEvent event = new DeckModifiedEvent(this, 1L, 2L, ModificationType.DELETED);
         cache.onDeckModified(event);
 
         // Then: Cache invalidated, next access shows only 1 deck
-        List<Deck> result = cache.getDecks(1L, () -> {
+        final List<Deck> result = cache.getDecks(1L, () -> {
             loaderCallCount.incrementAndGet();
             return List.of(new Deck(1L, 1L, "Deck 1", "")); // Deck 2 deleted
         });
@@ -137,22 +138,22 @@ class UserDecksCacheTest {
     @DisplayName("Should NOT invalidate cache for different user")
     void shouldNotInvalidateCacheForDifferentUser() {
         // Given: Cached decks for user 1
-        List<Deck> user1Decks = List.of(new Deck(1L, 1L, "User 1 Deck", ""));
+        final List<Deck> user1Decks = List.of(new Deck(1L, 1L, "User 1 Deck", ""));
         cache.getDecks(1L, () -> user1Decks);
 
         // When: DeckModifiedEvent for user 2 (different user)
-        DeckModifiedEvent event = new DeckModifiedEvent(this, 2L, 10L, ModificationType.CREATED);
+        final DeckModifiedEvent event = new DeckModifiedEvent(this, 2L, 10L, ModificationType.CREATED);
         cache.onDeckModified(event);
 
         // Then: Cache for user 1 NOT invalidated (still cached)
-        List<Deck> result = cache.getDecks(1L, () -> {
+        final List<Deck> result = cache.getDecks(1L, () -> {
             throw new AssertionError("Loader should NOT be called - cache HIT");
         });
 
         assertThat(result).hasSize(1); // Cached value
 
         // And: Cache stats show 1 hit, 1 miss
-        UserDecksCache.CacheStats stats = cache.getStats();
+        final UserDecksCache.CacheStats stats = cache.getStats();
         assertThat(stats.hits()).isEqualTo(1);
         assertThat(stats.misses()).isEqualTo(1);
     }
@@ -161,7 +162,7 @@ class UserDecksCacheTest {
     @DisplayName("Should handle null user ID gracefully")
     void shouldHandleNullUserIdGracefully() {
         // When: Null user ID
-        List<Deck> result = cache.getDecks(null, () -> {
+        final List<Deck> result = cache.getDecks(null, () -> {
             loaderCallCount.incrementAndGet();
             return List.of();
         });
@@ -175,16 +176,16 @@ class UserDecksCacheTest {
     @DisplayName("Should cache empty deck list correctly")
     void shouldCacheEmptyDeckListCorrectly() {
         // Given: User with no decks
-        List<Deck> emptyList = List.of();
+        final List<Deck> emptyList = List.of();
 
         // When: Cache empty list
-        List<Deck> result1 = cache.getDecks(1L, () -> emptyList);
+        final List<Deck> result1 = cache.getDecks(1L, () -> emptyList);
 
         // Then: Empty list cached
         assertThat(result1).isEmpty();
 
         // When: Second access
-        List<Deck> result2 = cache.getDecks(1L, () -> {
+        final List<Deck> result2 = cache.getDecks(1L, () -> {
             throw new AssertionError("Loader should NOT be called for cache HIT");
         });
 
@@ -192,7 +193,7 @@ class UserDecksCacheTest {
         assertThat(result2).isEmpty();
 
         // And: Cache stats show 1 hit, 1 miss
-        UserDecksCache.CacheStats stats = cache.getStats();
+        final UserDecksCache.CacheStats stats = cache.getStats();
         assertThat(stats.hits()).isEqualTo(1);
         assertThat(stats.misses()).isEqualTo(1);
     }
@@ -201,8 +202,8 @@ class UserDecksCacheTest {
     @DisplayName("Should return immutable list from cache")
     void shouldReturnImmutableListFromCache() {
         // Given: Mutable list passed to cache
-        List<Deck> decks = List.of(new Deck(1L, 1L, "Deck", ""));
-        List<Deck> cached = cache.getDecks(1L, () -> decks);
+        final List<Deck> decks = List.of(new Deck(1L, 1L, "Deck", ""));
+        final List<Deck> cached = cache.getDecks(1L, () -> decks);
 
         // When/Then: Returned list is immutable (List.copyOf in implementation)
         assertThat(cached).isInstanceOf(List.class).hasSize(1);
@@ -218,7 +219,7 @@ class UserDecksCacheTest {
         cache.invalidate(1L);
 
         // Then: Next access reloads
-        List<Deck> result = cache.getDecks(1L, () -> {
+        final List<Deck> result = cache.getDecks(1L, () -> {
             loaderCallCount.incrementAndGet();
             return List.of(new Deck(1L, 1L, "New", ""));
         });
@@ -231,7 +232,7 @@ class UserDecksCacheTest {
     @DisplayName("Should track cache hit rate and log statistics")
     void shouldTrackHitRateAndLogStats() {
         // Given: First access (MISS)
-        List<Deck> decks = List.of(new Deck(1L, 1L, "Test Deck", ""));
+        final List<Deck> decks = List.of(new Deck(1L, 1L, "Test Deck", ""));
         cache.getDecks(1L, () -> {
             loaderCallCount.incrementAndGet();
             return decks;

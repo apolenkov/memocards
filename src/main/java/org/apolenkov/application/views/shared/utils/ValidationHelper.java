@@ -26,7 +26,7 @@ public final class ValidationHelper {
         if (value == null) {
             return null;
         }
-        String trimmed = value.trim();
+        final String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
     }
 
@@ -70,7 +70,7 @@ public final class ValidationHelper {
      * @param fields the fields to clear errors from
      */
     public static void clearValidationErrors(final HasValidation... fields) {
-        for (HasValidation field : fields) {
+        for (final HasValidation field : fields) {
             field.setInvalid(false);
         }
     }

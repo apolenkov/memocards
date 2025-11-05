@@ -100,7 +100,7 @@ public class DesktopNavigationBar extends HorizontalLayout implements LocaleChan
         hasBeenInitialized = true;
 
         // Initialize authentication state tracking
-        Authentication auth = authService.getCurrentAuthentication();
+        final Authentication auth = authService.getCurrentAuthentication();
         wasAuthenticated = authService.isAuthenticated(auth);
     }
 
@@ -111,11 +111,11 @@ public class DesktopNavigationBar extends HorizontalLayout implements LocaleChan
     public void refreshMenu() {
         removeAll();
 
-        Authentication auth = authService.getCurrentAuthentication();
-        boolean isAuthenticated = authService.isAuthenticated(auth);
+        final Authentication auth = authService.getCurrentAuthentication();
+        final boolean isAuthenticated = authService.isAuthenticated(auth);
 
-        HorizontalLayout leftSection = createLeftSection(auth, isAuthenticated);
-        HorizontalLayout buttonsSection = createMenuButtonsLayout(auth, isAuthenticated);
+        final HorizontalLayout leftSection = createLeftSection(auth, isAuthenticated);
+        final HorizontalLayout buttonsSection = createMenuButtonsLayout(auth, isAuthenticated);
 
         add(leftSection, buttonsSection);
     }
@@ -125,8 +125,8 @@ public class DesktopNavigationBar extends HorizontalLayout implements LocaleChan
      * Prevents unnecessary re-rendering that causes flickering.
      */
     public void refreshMenuIfNeeded() {
-        Authentication auth = authService.getCurrentAuthentication();
-        boolean isAuthenticated = authService.isAuthenticated(auth);
+        final Authentication auth = authService.getCurrentAuthentication();
+        final boolean isAuthenticated = authService.isAuthenticated(auth);
 
         // Only refresh if authentication state changed
         if (isAuthenticated != wasAuthenticated) {
@@ -145,18 +145,18 @@ public class DesktopNavigationBar extends HorizontalLayout implements LocaleChan
      * @return the configured left section layout
      */
     private HorizontalLayout createLeftSection(final Authentication auth, final boolean isAuthenticated) {
-        HorizontalLayout left = new HorizontalLayout();
+        final HorizontalLayout left = new HorizontalLayout();
         left.setAlignItems(Alignment.CENTER);
         left.setSpacing(true);
         left.addClassName(CoreConstants.DESKTOP_NAV_LEFT_CLASS);
 
-        Anchor title = createTitleAnchor();
+        final Anchor title = createTitleAnchor();
         left.add(title);
 
         if (isAuthenticated) {
-            String displayName = authService.getUserDisplayName(auth);
-            String greetingText = getTranslation(CoreConstants.MAIN_GREETING_KEY);
-            Div greeting = new Div();
+            final String displayName = authService.getUserDisplayName(auth);
+            final String greetingText = getTranslation(CoreConstants.MAIN_GREETING_KEY);
+            final Div greeting = new Div();
             greeting.setText(greetingText.replace(CoreConstants.PLACEHOLDER_0, displayName));
             greeting.addClassName(CoreConstants.TOP_MENU_GREETING_CLASS);
             left.add(greeting);
@@ -171,9 +171,9 @@ public class DesktopNavigationBar extends HorizontalLayout implements LocaleChan
      * @return new Anchor instance with logo
      */
     private Anchor createTitleAnchor() {
-        Anchor anchor = new Anchor(RouteConstants.ROOT_PATH, "");
+        final Anchor anchor = new Anchor(RouteConstants.ROOT_PATH, "");
 
-        Image navIcon = new Image();
+        final Image navIcon = new Image();
         navIcon.setSrc(VaadinApplicationShell.ResourcePaths.LOGO_ICON);
         navIcon.setAlt(getTranslation(CoreConstants.APP_TITLE_KEY));
         anchor.add(navIcon);
@@ -188,7 +188,7 @@ public class DesktopNavigationBar extends HorizontalLayout implements LocaleChan
      * @return layout containing menu buttons
      */
     private HorizontalLayout createMenuButtonsLayout(final Authentication auth, final boolean isAuthenticated) {
-        HorizontalLayout buttonsLayout = new HorizontalLayout();
+        final HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSpacing(true);
         buttonsLayout.setAlignItems(Alignment.CENTER);
         buttonsLayout.addClassName(CoreConstants.DESKTOP_NAV_BUTTONS_CLASS);
@@ -218,7 +218,7 @@ public class DesktopNavigationBar extends HorizontalLayout implements LocaleChan
      * @return configured button with navigation handler
      */
     private Button createDecksButton() {
-        Button button = ButtonHelper.createTertiaryButton(
+        final Button button = ButtonHelper.createTertiaryButton(
                 getTranslation(CoreConstants.MAIN_DECKS_KEY),
                 e -> NavigationHelper.navigateTo(RouteConstants.ROOT_PATH + RouteConstants.DECKS_ROUTE));
         button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, CoreConstants.NAV_DECKS_TEST_ID);
@@ -231,7 +231,7 @@ public class DesktopNavigationBar extends HorizontalLayout implements LocaleChan
      * @return configured button with navigation handler
      */
     private Button createStatsButton() {
-        Button button = ButtonHelper.createTertiaryButton(
+        final Button button = ButtonHelper.createTertiaryButton(
                 getTranslation(CoreConstants.MAIN_STATS_KEY),
                 e -> NavigationHelper.navigateTo(RouteConstants.ROOT_PATH + RouteConstants.STATS_ROUTE));
         button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, CoreConstants.NAV_STATS_TEST_ID);
@@ -244,8 +244,9 @@ public class DesktopNavigationBar extends HorizontalLayout implements LocaleChan
      * @return configured button with dialog handler
      */
     private Button createSettingsButton() {
-        Button button = ButtonHelper.createTertiaryButton(getTranslation(CoreConstants.MAIN_SETTINGS_KEY), e -> {
-            PracticeSettingsDialog dialog = new PracticeSettingsDialog(practiceSettingsService, settingsComponents);
+        final Button button = ButtonHelper.createTertiaryButton(getTranslation(CoreConstants.MAIN_SETTINGS_KEY), e -> {
+            final PracticeSettingsDialog dialog =
+                    new PracticeSettingsDialog(practiceSettingsService, settingsComponents);
             UI.getCurrent().add(dialog);
             dialog.open();
         });
@@ -259,7 +260,7 @@ public class DesktopNavigationBar extends HorizontalLayout implements LocaleChan
      * @return configured button with navigation handler
      */
     private Button createAdminContentButton() {
-        Button button = ButtonHelper.createTertiaryButton(
+        final Button button = ButtonHelper.createTertiaryButton(
                 getTranslation(CoreConstants.ADMIN_CONTENT_TITLE_KEY),
                 e -> NavigationHelper.navigateTo(RouteConstants.ROOT_PATH + RouteConstants.ADMIN_CONTENT_ROUTE));
         button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, CoreConstants.NAV_ADMIN_CONTENT_TEST_ID);
@@ -272,7 +273,7 @@ public class DesktopNavigationBar extends HorizontalLayout implements LocaleChan
      * @return configured button with logout handler
      */
     private Button createLogoutButton() {
-        Button button = ButtonHelper.createTertiaryButton(
+        final Button button = ButtonHelper.createTertiaryButton(
                 getTranslation(CoreConstants.MAIN_LOGOUT_KEY), e -> logoutDialog.openLogoutDialog());
         button.getElement().setAttribute(CoreConstants.DATA_TEST_ID_ATTRIBUTE, CoreConstants.NAV_LOGOUT_TEST_ID);
         return button;

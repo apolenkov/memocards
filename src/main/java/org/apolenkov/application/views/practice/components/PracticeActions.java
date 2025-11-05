@@ -34,7 +34,7 @@ public final class PracticeActions extends Composite<HorizontalLayout> {
 
     @Override
     protected HorizontalLayout initContent() {
-        HorizontalLayout actionButtons = new HorizontalLayout();
+        final HorizontalLayout actionButtons = new HorizontalLayout();
         actionButtons.setSpacing(true);
         actionButtons.setWidthFull();
         actionButtons.setAlignItems(FlexComponent.Alignment.CENTER);

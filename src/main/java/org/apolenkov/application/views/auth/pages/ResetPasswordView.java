@@ -51,46 +51,46 @@ public class ResetPasswordView extends BaseView implements HasUrlParameter<Strin
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     private void init() {
-        VerticalLayout wrapper = createCenteredVerticalLayout();
+        final VerticalLayout wrapper = createCenteredVerticalLayout();
 
         // Create a beautiful Lumo-styled form container
-        Div formContainer = new Div();
+        final Div formContainer = new Div();
         formContainer.addClassName(AuthConstants.RESET_PASSWORD_FORM_CLASS);
         formContainer.addClassName(AuthConstants.AUTH_FORM_CLASS);
         formContainer.addClassName(AuthConstants.SURFACE_PANEL_CLASS);
 
         // Create form title
-        H2 title = new H2(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_TITLE_KEY));
+        final H2 title = new H2(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_TITLE_KEY));
         title.addClassName(AuthConstants.RESET_PASSWORD_FORM_TITLE_CLASS);
 
         // Create form fields container
-        VerticalLayout formFields = new VerticalLayout();
+        final VerticalLayout formFields = new VerticalLayout();
         formFields.setSpacing(true);
         formFields.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        PasswordField password = new PasswordField(getTranslation(AuthConstants.AUTH_PASSWORD_KEY));
+        final PasswordField password = new PasswordField(getTranslation(AuthConstants.AUTH_PASSWORD_KEY));
         password.setPlaceholder(getTranslation(AuthConstants.AUTH_PASSWORD_PLACEHOLDER_KEY));
         password.setWidthFull();
         password.setRequiredIndicatorVisible(true);
 
-        PasswordField confirmPassword = new PasswordField(getTranslation(AuthConstants.AUTH_PASSWORD_CONFIRM_KEY));
+        final PasswordField confirmPassword =
+                new PasswordField(getTranslation(AuthConstants.AUTH_PASSWORD_CONFIRM_KEY));
         confirmPassword.setPlaceholder(getTranslation(AuthConstants.AUTH_PASSWORD_CONFIRM_PLACEHOLDER_KEY));
         confirmPassword.setWidthFull();
         confirmPassword.setRequiredIndicatorVisible(true);
 
-        Button submit = ButtonHelper.createPrimaryButton(
+        final Button submit = ButtonHelper.createPrimaryButton(
                 getTranslation(AuthConstants.AUTH_RESET_PASSWORD_SUBMIT_KEY),
                 e -> handleSubmit(password.getValue(), confirmPassword.getValue()));
         submit.setWidthFull();
 
-        Button backToLogin = ButtonHelper.createTertiaryButton(
+        final Button backToLogin = ButtonHelper.createTertiaryButton(
                 getTranslation(AuthConstants.AUTH_RESET_PASSWORD_BACK_TO_LOGIN_KEY),
                 e -> NavigationHelper.navigateToLogin());
         backToLogin.setWidthFull();
 
-        Button backToHome = ButtonHelper.createTertiaryButton(
+        final Button backToHome = ButtonHelper.createTertiaryButton(
                 getTranslation(AuthConstants.COMMON_BACK_TO_HOME_KEY), e -> NavigationHelper.navigateToHome());
         backToHome.setWidthFull();
 
@@ -126,7 +126,7 @@ public class ResetPasswordView extends BaseView implements HasUrlParameter<Strin
 
     private void handleSubmit(final String password, final String confirmPassword) {
         // Validate password not empty
-        if (password == null || password.trim().isEmpty()) {
+        if (password == null || password.isBlank()) {
             NotificationHelper.showError(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_PASSWORD_REQUIRED_KEY));
             return;
         }
@@ -144,14 +144,14 @@ public class ResetPasswordView extends BaseView implements HasUrlParameter<Strin
         }
 
         try {
-            boolean success = passwordResetService.resetPassword(token, password);
+            final boolean success = passwordResetService.resetPassword(token, password);
             if (success) {
                 NotificationHelper.showSuccess(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_SUCCESS_KEY));
                 NavigationHelper.navigateToLogin();
             } else {
                 NotificationHelper.showError(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_FAILED_KEY));
             }
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
             NotificationHelper.showError(getTranslation(AuthConstants.AUTH_RESET_PASSWORD_ERROR_KEY));
         }
     }

@@ -37,7 +37,6 @@ public class LandingView extends BaseView {
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     private void init() {
         setupLayout();
         createAndAddSections();
@@ -58,10 +57,10 @@ public class LandingView extends BaseView {
      * Creates and adds the hero and news sections to the layout.
      */
     private void createAndAddSections() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
+        final var auth = SecurityContextHolder.getContext().getAuthentication();
 
-        HeroSection heroSection = new HeroSection(auth);
-        NewsSection newsSection = new NewsSection(newsService);
+        final HeroSection heroSection = new HeroSection(auth);
+        final NewsSection newsSection = new NewsSection(newsService);
 
         add(heroSection, newsSection);
     }

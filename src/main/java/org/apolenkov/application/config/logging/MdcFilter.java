@@ -33,19 +33,19 @@ public final class MdcFilter implements Filter {
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        final HttpServletRequest httpRequest = (HttpServletRequest) request;
+        final HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         try {
             // Generate or extract request ID
-            String requestId = extractOrGenerateRequestId(httpRequest);
+            final String requestId = extractOrGenerateRequestId(httpRequest);
             MDC.put(REQUEST_ID_MDC_KEY, requestId);
 
             // Set response header for client correlation
             httpResponse.setHeader(REQUEST_ID_HEADER, requestId);
 
             // Extract user ID from security context
-            String userId = extractUserId();
+            final String userId = extractUserId();
             if (userId != null) {
                 MDC.put(USER_ID_MDC_KEY, userId);
             }
@@ -60,12 +60,12 @@ public final class MdcFilter implements Filter {
     }
 
     private String extractOrGenerateRequestId(final HttpServletRequest request) {
-        String requestId = request.getHeader(REQUEST_ID_HEADER);
+        final String requestId = request.getHeader(REQUEST_ID_HEADER);
         return requestId != null ? requestId : UUID.randomUUID().toString().substring(0, 8);
     }
 
     private String extractUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null
                 && authentication.isAuthenticated()
                 && !"anonymousUser".equals(authentication.getName())) {

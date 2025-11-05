@@ -46,7 +46,6 @@ public class RouteNotFoundError extends VerticalLayout implements HasErrorParame
      * dependencies are properly injected before UI initialization.
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     private void initializeUI() {
         LOGGER.debug("Initializing RouteNotFoundError UI components");
 
@@ -79,45 +78,45 @@ public class RouteNotFoundError extends VerticalLayout implements HasErrorParame
      * Creates the main error content section.
      */
     private void createErrorContent() {
-        Div errorContainer = new Div();
+        final Div errorContainer = new Div();
         errorContainer.addClassName(CoreConstants.NOT_FOUND_CONTAINER_CLASS);
         errorContainer.addClassName(CoreConstants.SURFACE_PANEL_CLASS);
         errorContainer.addClassName(CoreConstants.TEXT_CENTER_CLASS);
 
         // Error code (404)
-        H1 errorCode = new H1();
+        final H1 errorCode = new H1();
         errorCode.addClassName(CoreConstants.NOT_FOUND_CODE_CLASS);
         errorCode.setText(getTranslation(CoreConstants.ERROR_404_KEY));
 
         // Error title
-        H2 errorTitle = new H2();
+        final H2 errorTitle = new H2();
         errorTitle.addClassName(CoreConstants.NOT_FOUND_TITLE_CLASS);
         errorTitle.setText(getTranslation(CoreConstants.ERROR_404_TITLE_KEY));
 
         // Error description
-        Paragraph errorDescription = new Paragraph();
+        final Paragraph errorDescription = new Paragraph();
         errorDescription.addClassName(CoreConstants.NOT_FOUND_DESCRIPTION_CLASS);
         errorDescription.setText(getTranslation(CoreConstants.ERROR_404_DESCRIPTION_KEY));
 
         // Error suggestion
-        Paragraph errorSuggestion = new Paragraph();
+        final Paragraph errorSuggestion = new Paragraph();
         errorSuggestion.addClassName(CoreConstants.NOT_FOUND_SUGGESTION_CLASS);
         errorSuggestion.setText(getTranslation(CoreConstants.ERROR_404_SUGGESTION_KEY));
 
         // Additional suggestion
-        Paragraph goHomeSuggestion = new Paragraph();
+        final Paragraph goHomeSuggestion = new Paragraph();
         goHomeSuggestion.addClassName(CoreConstants.NOT_FOUND_GO_HOME_SUGGESTION_CLASS);
         goHomeSuggestion.setText(getTranslation(CoreConstants.ERROR_404_GO_HOME_KEY));
 
         // Navigation buttons
-        Button goHomeButton = ButtonHelper.createButton(
+        final Button goHomeButton = ButtonHelper.createButton(
                 getTranslation(CoreConstants.MAIN_GO_HOME_KEY), e -> navigateToHome(), ButtonVariant.LUMO_PRIMARY);
 
-        Button goBackButton = ButtonHelper.createButton(
+        final Button goBackButton = ButtonHelper.createButton(
                 getTranslation(CoreConstants.COMMON_BACK_KEY), e -> goBack(), ButtonVariant.LUMO_TERTIARY);
 
         // Use VerticalLayout for mobile-first responsive design
-        VerticalLayout buttonLayout = new VerticalLayout(goHomeButton, goBackButton);
+        final VerticalLayout buttonLayout = new VerticalLayout(goHomeButton, goBackButton);
         buttonLayout.setSpacing(true);
         buttonLayout.setAlignItems(Alignment.CENTER);
         buttonLayout.setJustifyContentMode(JustifyContentMode.CENTER);

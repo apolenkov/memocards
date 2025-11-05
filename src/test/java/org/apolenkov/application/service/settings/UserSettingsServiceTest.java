@@ -47,8 +47,8 @@ class UserSettingsServiceTest {
     @DisplayName("Should save preferred locale")
     void shouldSavePreferredLocale() {
         // Given
-        long userId = 1L;
-        Locale locale = Locale.ENGLISH;
+        final long userId = 1L;
+        final Locale locale = Locale.ENGLISH;
 
         // When
         settingsService.setPreferredLocale(userId, locale);
@@ -61,8 +61,8 @@ class UserSettingsServiceTest {
     @DisplayName("Should save Russian locale correctly")
     void shouldSaveRussianLocaleCorrectly() {
         // Given
-        long userId = 1L;
-        Locale locale = Locale.forLanguageTag("ru");
+        final long userId = 1L;
+        final Locale locale = Locale.forLanguageTag("ru");
 
         // When
         settingsService.setPreferredLocale(userId, locale);

@@ -45,7 +45,7 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
 
     @Override
     protected HorizontalLayout initContent() {
-        HorizontalLayout controls = new HorizontalLayout();
+        final HorizontalLayout controls = new HorizontalLayout();
 
         configureSearchField();
         createLayout(controls);
@@ -87,7 +87,7 @@ public final class DeckSearchControls extends Composite<HorizontalLayout> {
         container.addClassName(DeckConstants.DECK_TOOLBAR_CLASS);
 
         // Create inner layout for proper spacing like in DecksView
-        HorizontalLayout innerLayout = new HorizontalLayout();
+        final HorizontalLayout innerLayout = new HorizontalLayout();
         innerLayout.setWidthFull();
         innerLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         innerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);

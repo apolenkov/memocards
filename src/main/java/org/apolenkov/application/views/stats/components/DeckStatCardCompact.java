@@ -31,23 +31,23 @@ public final class DeckStatCardCompact extends Composite<Div> {
 
     @Override
     protected Div initContent() {
-        Div card = new Div();
+        final Div card = new Div();
         card.addClassName(StatsConstants.DECK_STATS_CARD_CLASS);
         card.addClassName(StatsConstants.SURFACE_CARD_CLASS);
         card.addClassName("deck-stat-card-compact");
 
         // Header with deck title
-        Div header = new Div();
+        final Div header = new Div();
         header.addClassName(StatsConstants.DECK_STATS_CARD_HEADER_CLASS);
         header.addClassName("deck-stat-card-compact__header");
 
-        H3 deckTitle = new H3(deck.getTitle());
+        final H3 deckTitle = new H3(deck.getTitle());
         deckTitle.addClassName(StatsConstants.DECK_STATS_CARD_TITLE_CLASS);
         deckTitle.addClassName("deck-stat-card-compact__title");
         header.add(deckTitle);
 
         // Compact stats grid - horizontal layout
-        HorizontalLayout compactStatsGrid = new HorizontalLayout();
+        final HorizontalLayout compactStatsGrid = new HorizontalLayout();
         compactStatsGrid.setWidthFull();
         compactStatsGrid.setSpacing(true);
         compactStatsGrid.addClassName("deck-stat-card-compact__grid");
@@ -74,21 +74,21 @@ public final class DeckStatCardCompact extends Composite<Div> {
      * @return configured compact statistics item component
      */
     private Div createCompactStatItem(final String labelKey, final int total, final int today) {
-        Div item = new Div();
+        final Div item = new Div();
         item.addClassName("deck-stat-card-compact__item");
 
         // Total value (main)
-        Div totalDiv = new Div();
+        final Div totalDiv = new Div();
         totalDiv.addClassName("deck-stat-card-compact__total");
         totalDiv.setText(String.valueOf(total));
 
         // Today's value (smaller, with + prefix)
-        Div todayDiv = new Div();
+        final Div todayDiv = new Div();
         todayDiv.addClassName("deck-stat-card-compact__today");
         todayDiv.setText("+" + today);
 
         // Label (smallest)
-        Div labelDiv = new Div();
+        final Div labelDiv = new Div();
         labelDiv.addClassName("deck-stat-card-compact__label");
         labelDiv.setText(getTranslation(labelKey));
 

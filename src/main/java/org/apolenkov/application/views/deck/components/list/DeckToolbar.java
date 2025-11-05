@@ -41,14 +41,14 @@ public final class DeckToolbar extends Composite<HorizontalLayout> {
 
     @Override
     protected HorizontalLayout initContent() {
-        HorizontalLayout toolbar = new HorizontalLayout();
+        final HorizontalLayout toolbar = new HorizontalLayout();
         toolbar.setWidthFull();
         toolbar.addClassName(DeckConstants.DECK_TOOLBAR_CLASS);
 
         configureSearchField();
         configureAddButton();
 
-        HorizontalLayout searchRow = LayoutHelper.createSearchRow(searchField, addButton);
+        final HorizontalLayout searchRow = LayoutHelper.createSearchRow(searchField, addButton);
         toolbar.add(searchRow);
         return toolbar;
     }

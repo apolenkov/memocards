@@ -27,13 +27,13 @@ public final class ButtonHelper {
      */
     public static Button createPrimaryButton(
             final String text, final ComponentEventListener<ClickEvent<Button>> clickListener) {
-        if (text == null || text.trim().isEmpty()) {
+        if (text == null || text.isBlank()) {
             throw new IllegalArgumentException("Button text cannot be null or empty");
         }
         if (clickListener == null) {
             throw new IllegalArgumentException("Click listener cannot be null");
         }
-        Button button = new Button(text, clickListener);
+        final Button button = new Button(text, clickListener);
         button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         return button;
     }
@@ -48,13 +48,13 @@ public final class ButtonHelper {
      */
     public static Button createTertiaryButton(
             final String text, final ComponentEventListener<ClickEvent<Button>> clickListener) {
-        if (text == null || text.trim().isEmpty()) {
+        if (text == null || text.isBlank()) {
             throw new IllegalArgumentException("Button text cannot be null or empty");
         }
         if (clickListener == null) {
             throw new IllegalArgumentException("Click listener cannot be null");
         }
-        Button button = new Button(text, clickListener);
+        final Button button = new Button(text, clickListener);
         button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return button;
     }
@@ -73,13 +73,13 @@ public final class ButtonHelper {
             final String text,
             final ComponentEventListener<ClickEvent<Button>> clickListener,
             final ButtonVariant... variants) {
-        if (text == null || text.trim().isEmpty()) {
+        if (text == null || text.isBlank()) {
             throw new IllegalArgumentException("Button text cannot be null or empty");
         }
         if (clickListener == null) {
             throw new IllegalArgumentException("Click listener cannot be null");
         }
-        Button button = new Button(text, clickListener);
+        final Button button = new Button(text, clickListener);
         if (variants.length > 0) {
             button.addThemeVariants(variants);
         }
@@ -111,7 +111,7 @@ public final class ButtonHelper {
         if (clickListener == null) {
             throw new IllegalArgumentException("Click listener cannot be null");
         }
-        Button button = new Button(text, icon.create(), clickListener);
+        final Button button = new Button(text, icon.create(), clickListener);
         if (variants.length > 0) {
             button.addThemeVariants(variants);
         }
@@ -131,7 +131,7 @@ public final class ButtonHelper {
         if (icon == null) {
             throw new IllegalArgumentException("Icon cannot be null");
         }
-        Button button = new Button(icon.create());
+        final Button button = new Button(icon.create());
         if (variants.length > 0) {
             button.addThemeVariants(variants);
         }
@@ -149,13 +149,13 @@ public final class ButtonHelper {
      */
     public static Button createConfirmButton(
             final String text, final ComponentEventListener<ClickEvent<Button>> clickListener) {
-        if (text == null || text.trim().isEmpty()) {
+        if (text == null || text.isBlank()) {
             throw new IllegalArgumentException("Button text cannot be null or empty");
         }
         if (clickListener == null) {
             throw new IllegalArgumentException("Click listener cannot be null");
         }
-        Button button = new Button(text, VaadinIcon.CHECK.create(), clickListener);
+        final Button button = new Button(text, VaadinIcon.CHECK.create(), clickListener);
         button.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
         return button;
     }

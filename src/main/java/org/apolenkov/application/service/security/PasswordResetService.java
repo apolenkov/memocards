@@ -3,6 +3,7 @@ package org.apolenkov.application.service.security;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import org.apolenkov.application.domain.constants.BusinessConstants;
 import org.apolenkov.application.domain.port.PasswordResetTokenRepository;
 import org.apolenkov.application.domain.port.UserRepository;
 import org.apolenkov.application.domain.usecase.PasswordResetUseCase;
@@ -30,12 +31,6 @@ public class PasswordResetService implements PasswordResetUseCase {
     private final UserRepository userRepository;
     private final UserUseCase userUseCase;
     private final PasswordEncoder passwordEncoder;
-
-    /**
-     * Number of hours after which password reset token expires.
-     * Balances security with usability. 24 hours is common industry standard.
-     */
-    private static final int TOKEN_EXPIRATION_HOURS = 24;
 
     // ==================== Constructor ====================
 
@@ -84,20 +79,20 @@ public class PasswordResetService implements PasswordResetUseCase {
     @Override
     @Transactional
     public Optional<String> createPasswordResetToken(final String email) {
-        if (email == null || email.trim().isEmpty()) {
+        if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email cannot be null or empty");
         }
 
         LOGGER.debug("Processing password reset request for email: {}", email);
 
-        Optional<User> userOpt = userRepository.findByEmail(email.trim());
+        final Optional<User> userOpt = userRepository.findByEmail(email.trim());
         if (userOpt.isEmpty()) {
             AUDIT_LOGGER.warn("Password reset attempt for non-existent email: {}", email);
             // Return empty to prevent user enumeration attacks
             return Optional.empty();
         }
 
-        User user = userOpt.get();
+        final User user = userOpt.get();
 
         // Invalidate any existing unused tokens for this user
         tokenRepository.findByUserIdAndNotUsed(user.getId()).ifPresent(token -> {
@@ -106,10 +101,10 @@ public class PasswordResetService implements PasswordResetUseCase {
         });
 
         // Generate new secure token
-        String token = UUID.randomUUID().toString();
-        LocalDateTime expiresAt = LocalDateTime.now().plusHours(TOKEN_EXPIRATION_HOURS);
+        final String token = UUID.randomUUID().toString();
+        final LocalDateTime expiresAt = LocalDateTime.now().plusHours(BusinessConstants.TOKEN_EXPIRATION_HOURS);
 
-        PasswordResetToken resetToken = new PasswordResetToken(token, user.getId(), expiresAt);
+        final PasswordResetToken resetToken = new PasswordResetToken(token, user.getId(), expiresAt);
         tokenRepository.save(resetToken);
 
         AUDIT_LOGGER.info(
@@ -135,22 +130,22 @@ public class PasswordResetService implements PasswordResetUseCase {
     @Override
     @Transactional
     public boolean resetPassword(final String token, final String newPassword) {
-        if (token == null || token.trim().isEmpty()) {
+        if (token == null || token.isBlank()) {
             throw new IllegalArgumentException("Token cannot be null or empty");
         }
-        if (newPassword == null || newPassword.trim().isEmpty()) {
+        if (newPassword == null || newPassword.isBlank()) {
             throw new IllegalArgumentException("New password cannot be null or empty");
         }
 
         LOGGER.debug("Processing password reset with token");
 
-        Optional<PasswordResetToken> tokenOpt = tokenRepository.findByToken(token.trim());
+        final Optional<PasswordResetToken> tokenOpt = tokenRepository.findByToken(token.trim());
         if (tokenOpt.isEmpty()) {
             AUDIT_LOGGER.warn("Password reset attempt with invalid token");
             return false;
         }
 
-        PasswordResetToken resetToken = tokenOpt.get();
+        final PasswordResetToken resetToken = tokenOpt.get();
 
         // Validate token is still valid
         if (resetToken.isUsed() || resetToken.isExpired()) {
@@ -163,13 +158,13 @@ public class PasswordResetService implements PasswordResetUseCase {
         }
 
         // Retrieve associated user
-        Optional<User> userOpt = userRepository.findById(resetToken.getUserId());
+        final Optional<User> userOpt = userRepository.findById(resetToken.getUserId());
         if (userOpt.isEmpty()) {
             LOGGER.error("Password reset token references non-existent user: userId={}", resetToken.getUserId());
             return false;
         }
 
-        User user = userOpt.get();
+        final User user = userOpt.get();
 
         // Securely hash and update password
         user.setPasswordHash(passwordEncoder.encode(newPassword.trim()));
@@ -194,20 +189,20 @@ public class PasswordResetService implements PasswordResetUseCase {
      */
     @Override
     public boolean isTokenValid(final String token) {
-        if (token == null || token.trim().isEmpty()) {
+        if (token == null || token.isBlank()) {
             throw new IllegalArgumentException("Token cannot be null or empty");
         }
 
         LOGGER.debug("Validating password reset token");
 
-        Optional<PasswordResetToken> tokenOpt = tokenRepository.findByToken(token.trim());
+        final Optional<PasswordResetToken> tokenOpt = tokenRepository.findByToken(token.trim());
         if (tokenOpt.isEmpty()) {
             LOGGER.debug("Token validation failed - token not found");
             return false;
         }
 
-        PasswordResetToken resetToken = tokenOpt.get();
-        boolean isValid = !resetToken.isUsed() && !resetToken.isExpired();
+        final PasswordResetToken resetToken = tokenOpt.get();
+        final boolean isValid = !resetToken.isUsed() && !resetToken.isExpired();
 
         if (!isValid) {
             LOGGER.debug("Token validation failed - used={}, expired={}", resetToken.isUsed(), resetToken.isExpired());

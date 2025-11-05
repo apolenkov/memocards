@@ -90,7 +90,6 @@ public class StatsView extends BaseView implements AfterNavigationObserver {
      * Data will be loaded in afterNavigation().
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     private void initializeUI() {
         setSpacing(true);
         setAlignItems(FlexComponent.Alignment.CENTER);
@@ -98,7 +97,7 @@ public class StatsView extends BaseView implements AfterNavigationObserver {
         addClassName(StatsConstants.STATS_VIEW_CLASS);
 
         // Main container
-        VerticalLayout contentContainer = new VerticalLayout();
+        final VerticalLayout contentContainer = new VerticalLayout();
         contentContainer.setSpacing(true);
         contentContainer.setWidthFull();
         contentContainer.addClassName(StatsConstants.CONTAINER_MD_CLASS);
@@ -132,7 +131,7 @@ public class StatsView extends BaseView implements AfterNavigationObserver {
      */
     private void loadAndDisplayStats() {
         // Add main title
-        H2 mainTitle = new H2(getTranslation(StatsConstants.STATS_TITLE_KEY));
+        final H2 mainTitle = new H2(getTranslation(StatsConstants.STATS_TITLE_KEY));
         mainTitle.addClassName(StatsConstants.STATS_VIEW_TITLE_CLASS);
         pageSection.add(mainTitle);
 
@@ -153,10 +152,10 @@ public class StatsView extends BaseView implements AfterNavigationObserver {
      * Uses UI-scoped cache to avoid repeated database queries.
      */
     private void loadStatsData() {
-        long userId = userUseCase.getCurrentUser().getId();
+        final long userId = userUseCase.getCurrentUser().getId();
         decks = decksCache.getDecks(userId, () -> deckUseCase.getDecksByUserId(userId));
 
-        List<Long> deckIds = decks.stream().map(Deck::getId).toList();
+        final List<Long> deckIds = decks.stream().map(Deck::getId).toList();
         aggregates = statsService.getDeckAggregates(deckIds);
     }
 
@@ -173,18 +172,18 @@ public class StatsView extends BaseView implements AfterNavigationObserver {
      * @return configured vertical layout with today's statistics
      */
     private Component createTodayStatsSection() {
-        VerticalLayout section = new VerticalLayout();
+        final VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
         section.addClassName(STATS_SECTION_CLASS);
         section.addClassName("stats-section--today");
 
         // Section title
-        H2 sectionTitle = new H2(getTranslation(StatsConstants.STATS_TODAY_KEY));
+        final H2 sectionTitle = new H2(getTranslation(StatsConstants.STATS_TODAY_KEY));
         sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
         section.add(sectionTitle);
 
         // Today's stats grid with semantic variants
-        HorizontalLayout statsGrid = createStatsGrid(false);
+        final HorizontalLayout statsGrid = createStatsGrid(false);
         statsGrid.addClassName("stats-today-grid");
         section.add(statsGrid);
 
@@ -197,18 +196,18 @@ public class StatsView extends BaseView implements AfterNavigationObserver {
      * @return configured vertical layout with overall statistics
      */
     private Component createOverallStatsSection() {
-        VerticalLayout section = new VerticalLayout();
+        final VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
         section.addClassName(STATS_SECTION_CLASS);
         section.addClassName("stats-section--overall");
 
         // Section title
-        H2 sectionTitle = new H2(getTranslation(StatsConstants.STATS_OVERALL_KEY));
+        final H2 sectionTitle = new H2(getTranslation(StatsConstants.STATS_OVERALL_KEY));
         sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
         section.add(sectionTitle);
 
         // Overall stats grid with semantic variants
-        HorizontalLayout statsGrid = createStatsGrid(true);
+        final HorizontalLayout statsGrid = createStatsGrid(true);
         statsGrid.addClassName("stats-overall-grid");
         section.add(statsGrid);
 
@@ -221,28 +220,28 @@ public class StatsView extends BaseView implements AfterNavigationObserver {
      * @return configured vertical layout with deck statistics
      */
     private Component createDeckStatsSection() {
-        VerticalLayout section = new VerticalLayout();
+        final VerticalLayout section = new VerticalLayout();
         section.setSpacing(true);
         section.addClassName(STATS_SECTION_CLASS);
         section.addClassName("stats-section--decks");
 
         // Section title
-        H2 sectionTitle = new H2(getTranslation(StatsConstants.STATS_BY_DECK_KEY));
+        final H2 sectionTitle = new H2(getTranslation(StatsConstants.STATS_BY_DECK_KEY));
         sectionTitle.addClassName(STATS_SECTION_TITLE_CLASS);
         section.add(sectionTitle);
 
         if (decks.isEmpty()) {
-            Span noDecksMessage = new Span(getTranslation(StatsConstants.STATS_NO_DECKS_KEY));
+            final Span noDecksMessage = new Span(getTranslation(StatsConstants.STATS_NO_DECKS_KEY));
             noDecksMessage.addClassName("stats-no-decks");
             section.add(noDecksMessage);
         } else {
             // Vertical list of compact deck cards
-            VerticalLayout decksList = new VerticalLayout();
+            final VerticalLayout decksList = new VerticalLayout();
             decksList.setSpacing(false);
             decksList.addClassName("stats-decks-list");
 
-            for (Deck deck : decks) {
-                StatsRepository.DeckAggregate deckStats = aggregates.get(deck.getId());
+            for (final Deck deck : decks) {
+                final StatsRepository.DeckAggregate deckStats = aggregates.get(deck.getId());
                 if (deckStats != null) {
                     decksList.add(new DeckStatCardCompact(deck, deckStats));
                 }
@@ -261,13 +260,13 @@ public class StatsView extends BaseView implements AfterNavigationObserver {
      * @return configured horizontal layout with statistics cards
      */
     private HorizontalLayout createStatsGrid(final boolean useOverallStats) {
-        HorizontalLayout statsGrid = new HorizontalLayout();
+        final HorizontalLayout statsGrid = new HorizontalLayout();
         statsGrid.setWidthFull();
         statsGrid.setSpacing(true);
         statsGrid.setJustifyContentMode(FlexComponent.JustifyContentMode.EVENLY);
 
         // Calculate aggregated statistics
-        StatsCalculator.StatsValues stats = statsCalculator.calculateStats(useOverallStats);
+        final StatsCalculator.StatsValues stats = statsCalculator.calculateStats(useOverallStats);
 
         // Add statistics cards with semantic variants
         statsGrid.add(

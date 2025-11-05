@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.apolenkov.application.config.seed.SeedConfig;
+import org.apolenkov.application.domain.constants.BusinessConstants;
 import org.apolenkov.application.model.User;
 import org.apolenkov.application.service.seed.generator.DeckAndCardSeedGenerator;
 import org.apolenkov.application.service.seed.generator.NewsSeedGenerator;
@@ -90,7 +91,6 @@ public class DataSeedService {
      * Initializes cached password hash after bean construction.
      */
     @PostConstruct
-    @SuppressWarnings("unused")
     void initPasswordCache() {
         LOGGER.debug("Caching password hash for test data generation...");
         this.cachedPasswordHash = passwordEncoder.encode(testUserPassword);
@@ -103,24 +103,24 @@ public class DataSeedService {
      */
     public void generateTestData() {
         LOGGER.info("=== Starting test data generation ===");
-        long startTime = System.currentTimeMillis();
+        final long startTime = System.currentTimeMillis();
 
         // Step 1: Generate users
-        List<User> users = userGenerator.generateUsers(limitUsers, batchSizeUsers, cachedPasswordHash);
+        final List<User> users = userGenerator.generateUsers(limitUsers, batchSizeUsers, cachedPasswordHash);
 
         // Step 2: Generate decks and cards
-        int[] deckAndCardCounts =
+        final int[] deckAndCardCounts =
                 deckAndCardGenerator.generateDecksAndCards(users, limitDecksPerUser, limitCardsPerDeck, batchSizeUsers);
 
         // Step 3: Generate statistics and news in parallel
-        CompletableFuture<Integer> statsFuture =
+        final CompletableFuture<Integer> statsFuture =
                 CompletableFuture.supplyAsync(() -> statsGenerator.generateStatistics(users));
-        CompletableFuture<Integer> newsFuture =
+        final CompletableFuture<Integer> newsFuture =
                 CompletableFuture.supplyAsync(() -> newsGenerator.generateNews(limitNews));
 
         // Wait for parallel operations
-        int statsGenerated = statsFuture.join();
-        int newsGenerated = newsFuture.join();
+        final int statsGenerated = statsFuture.join();
+        final int newsGenerated = newsFuture.join();
 
         logGenerationSummary(
                 startTime, users.size(), deckAndCardCounts[0], deckAndCardCounts[1], statsGenerated, newsGenerated);
@@ -143,10 +143,10 @@ public class DataSeedService {
             final int cardCount,
             final int statsCount,
             final int newsCount) {
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-        long seconds = duration / 1000;
-        long minutes = seconds / 60;
+        final long endTime = System.currentTimeMillis();
+        final long duration = endTime - startTime;
+        final long seconds = duration / BusinessConstants.SECOND_MILLIS;
+        final long minutes = seconds / BusinessConstants.MINUTE_SECONDS;
 
         LOGGER.info("=== Test data generation completed in {} ms ({} min {} sec) ===", duration, minutes, seconds % 60);
         LOGGER.info(

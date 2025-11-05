@@ -52,11 +52,11 @@ public class AppI18NProvider implements I18NProvider {
         }
         final Locale used = locale != null ? locale : Locale.ENGLISH;
         try {
-            ResourceBundle bundle = ResourceBundle.getBundle(
+            final ResourceBundle bundle = ResourceBundle.getBundle(
                     BUNDLE_PREFIX,
                     used,
                     ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_PROPERTIES));
-            String value = bundle.containsKey(key) ? bundle.getString(key) : key;
+            final String value = bundle.containsKey(key) ? bundle.getString(key) : key;
             return params != null && params.length > 0 ? MessageFormat.format(value, params) : value;
         } catch (MissingResourceException e) {
             return key;

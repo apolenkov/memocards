@@ -74,7 +74,7 @@ public class StatsJdbcAdapter implements StatsRepository {
         // Update known cards if provided
         int knownCardsUpdated = 0;
         if (sessionStats.knownCardIdsDelta() != null) {
-            for (Long cardId : sessionStats.knownCardIdsDelta()) {
+            for (final Long cardId : sessionStats.knownCardIdsDelta()) {
                 jdbcTemplate.update(
                         StatsSqlQueries.INSERT_KNOWN_CARD_IF_NOT_EXISTS,
                         sessionStats.deckId(),
@@ -121,11 +121,11 @@ public class StatsJdbcAdapter implements StatsRepository {
         LOGGER.debug("Checking if card {} is known in deck ID: {}", cardId, deckId);
 
         try {
-            Boolean result =
+            final Boolean result =
                     jdbcTemplate.queryForObject(StatsSqlQueries.IS_CARD_KNOWN_DIRECT, Boolean.class, deckId, cardId);
 
             // EXISTS query always returns true/false, but queryForObject may return null if no rows
-            boolean isKnown = Boolean.TRUE.equals(result);
+            final boolean isKnown = Boolean.TRUE.equals(result);
             LOGGER.debug("Card {} in deck {}: {}", cardId, deckId, isKnown ? "KNOWN" : "UNKNOWN");
 
             return isKnown;
@@ -148,11 +148,11 @@ public class StatsJdbcAdapter implements StatsRepository {
 
         LOGGER.debug("Batch getting known card IDs for {} decks using single query", deckIds.size());
         try {
-            String sql = buildInClauseSql(StatsSqlQueries.SELECT_KNOWN_CARD_IDS_BATCH_TEMPLATE, deckIds.size());
-            Map<Long, Set<Long>> result =
+            final String sql = buildInClauseSql(StatsSqlQueries.SELECT_KNOWN_CARD_IDS_BATCH_TEMPLATE, deckIds.size());
+            final Map<Long, Set<Long>> result =
                     jdbcTemplate.query(sql, ps -> setLongParameters(ps, deckIds), this::extractKnownCardsByDeck);
 
-            Map<Long, Set<Long>> safeResult = (result != null) ? result : Map.of();
+            final Map<Long, Set<Long>> safeResult = (result != null) ? result : Map.of();
             LOGGER.debug(
                     "Batch known cards completed: {} decks have known cards (out of {} requested)",
                     safeResult.size(),
@@ -195,10 +195,10 @@ public class StatsJdbcAdapter implements StatsRepository {
         LOGGER.debug("Resetting progress for deck ID: {}", deckId);
 
         // Delete daily stats
-        int statsDeleted = jdbcTemplate.update(StatsSqlQueries.DELETE_DAILY_STATS_BY_DECK, deckId);
+        final int statsDeleted = jdbcTemplate.update(StatsSqlQueries.DELETE_DAILY_STATS_BY_DECK, deckId);
 
         // Delete known cards
-        int knownCardsDeleted = jdbcTemplate.update(StatsSqlQueries.DELETE_KNOWN_CARDS_BY_DECK, deckId);
+        final int knownCardsDeleted = jdbcTemplate.update(StatsSqlQueries.DELETE_KNOWN_CARDS_BY_DECK, deckId);
 
         LOGGER.debug(
                 "Deck progress reset: deckId={}, statsDeleted={}, knownCardsDeleted={}",
@@ -223,15 +223,15 @@ public class StatsJdbcAdapter implements StatsRepository {
             return new HashMap<>();
         }
 
-        String sql = buildInClauseSql(StatsSqlQueries.SELECT_AGGREGATES_FOR_DECKS_TEMPLATE, deckIds.size());
-        Object[] params = buildAggregateParams(today, deckIds);
+        final String sql = buildInClauseSql(StatsSqlQueries.SELECT_AGGREGATES_FOR_DECKS_TEMPLATE, deckIds.size());
+        final Object[] params = buildAggregateParams(today, deckIds);
 
-        Map<Long, DeckAggregate> result = new HashMap<>();
+        final Map<Long, DeckAggregate> result = new HashMap<>();
         jdbcTemplate.query(
                 sql,
                 rs -> {
-                    Long deckId = rs.getLong("deck_id");
-                    DeckAggregate aggregate = mapToDeckAggregate(rs);
+                    final Long deckId = rs.getLong("deck_id");
+                    final DeckAggregate aggregate = mapToDeckAggregate(rs);
                     result.put(deckId, aggregate);
                 },
                 params);
@@ -247,7 +247,7 @@ public class StatsJdbcAdapter implements StatsRepository {
      * @return SQL with placeholders
      */
     private String buildInClauseSql(final String sqlTemplate, final int paramCount) {
-        String placeholders = "?,".repeat(Math.max(0, paramCount - 1)) + "?";
+        final String placeholders = "?,".repeat(Math.max(0, paramCount - 1)) + "?";
         return String.format(sqlTemplate, placeholders);
     }
 
@@ -260,7 +260,7 @@ public class StatsJdbcAdapter implements StatsRepository {
     private void setLongParameters(final java.sql.PreparedStatement ps, final Collection<Long> values)
             throws java.sql.SQLException {
         int index = 1;
-        for (Long value : values) {
+        for (final Long value : values) {
             ps.setLong(index++, value);
         }
     }
@@ -272,10 +272,10 @@ public class StatsJdbcAdapter implements StatsRepository {
      * @return map of deck ID to set of known card IDs
      */
     private Map<Long, Set<Long>> extractKnownCardsByDeck(final java.sql.ResultSet rs) throws java.sql.SQLException {
-        Map<Long, Set<Long>> knownCardsByDeck = new HashMap<>();
+        final Map<Long, Set<Long>> knownCardsByDeck = new HashMap<>();
         while (rs.next()) {
-            Long deckId = rs.getLong("deck_id");
-            Long cardId = rs.getLong("card_id");
+            final Long deckId = rs.getLong("deck_id");
+            final Long cardId = rs.getLong("card_id");
             knownCardsByDeck.computeIfAbsent(deckId, k -> new HashSet<>()).add(cardId);
         }
         return knownCardsByDeck;
@@ -289,13 +289,13 @@ public class StatsJdbcAdapter implements StatsRepository {
      * @return parameters array
      */
     private Object[] buildAggregateParams(final LocalDate today, final Collection<Long> deckIds) {
-        Object[] params = new Object[deckIds.size() + 4];
+        final Object[] params = new Object[deckIds.size() + 4];
         params[0] = today;
         params[1] = today;
         params[2] = today;
         params[3] = today;
         int index = 4;
-        for (Long deckId : deckIds) {
+        for (final Long deckId : deckIds) {
             params[index++] = deckId;
         }
         return params;

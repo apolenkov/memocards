@@ -55,12 +55,12 @@ public class PracticeSettingsDialog extends Dialog {
     private void setupDialog() {
         addClassName(PracticeConstants.DIALOG_MD_CLASS);
 
-        VerticalLayout layout = createMainLayout();
+        final VerticalLayout layout = createMainLayout();
 
-        Select<Integer> countSelect = settingsComponents.createCountSelect(practiceSettingsService);
-        RadioButtonGroup<String> modeGroup = settingsComponents.createModeGroup(practiceSettingsService);
-        RadioButtonGroup<String> dirGroup = settingsComponents.createDirectionGroup(practiceSettingsService);
-        HorizontalLayout buttons = createButtonLayout(countSelect, modeGroup, dirGroup);
+        final Select<Integer> countSelect = settingsComponents.createCountSelect(practiceSettingsService);
+        final RadioButtonGroup<String> modeGroup = settingsComponents.createModeGroup(practiceSettingsService);
+        final RadioButtonGroup<String> dirGroup = settingsComponents.createDirectionGroup(practiceSettingsService);
+        final HorizontalLayout buttons = createButtonLayout(countSelect, modeGroup, dirGroup);
 
         layout.add(countSelect, modeGroup, dirGroup, buttons);
         add(layout);
@@ -72,7 +72,7 @@ public class PracticeSettingsDialog extends Dialog {
      * @return configured vertical layout
      */
     private VerticalLayout createMainLayout() {
-        VerticalLayout layout = new VerticalLayout();
+        final VerticalLayout layout = new VerticalLayout();
         layout.setPadding(true);
         layout.setSpacing(true);
         layout.add(new H3(getTranslation(PracticeConstants.SETTINGS_TITLE_KEY)));
@@ -92,14 +92,14 @@ public class PracticeSettingsDialog extends Dialog {
             final RadioButtonGroup<String> modeGroup,
             final RadioButtonGroup<String> dirGroup) {
 
-        HorizontalLayout buttons = new HorizontalLayout();
+        final HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         buttons.setWidthFull();
 
-        Button save = createSaveButton(countSelect, modeGroup, dirGroup);
-        Button cancel = createCancelButton();
+        final Button save = createSaveButton(countSelect, modeGroup, dirGroup);
+        final Button cancel = createCancelButton();
 
         buttons.add(save, cancel);
         return buttons;

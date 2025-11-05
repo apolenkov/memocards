@@ -32,13 +32,13 @@ class CacheMetricsCollectorTest {
     @DisplayName("Should record cache invalidation event metrics")
     void shouldRecordCacheInvalidationEventMetrics() {
         // Given
-        CacheInvalidationEvent event = CacheInvalidationEvent.of("pagination-count", 123L, "card-created");
+        final CacheInvalidationEvent event = CacheInvalidationEvent.of("pagination-count", 123L, "card-created");
 
         // When
         metricsCollector.onCacheInvalidation(event);
 
         // Then
-        Counter invalidationCounter = meterRegistry
+        final Counter invalidationCounter = meterRegistry
                 .find("cache.invalidation.count")
                 .tag("cache_type", "pagination-count")
                 .tag("reason", "card-created")
@@ -46,7 +46,8 @@ class CacheMetricsCollectorTest {
         assertThat(invalidationCounter).isNotNull();
         assertThat(invalidationCounter.count()).isEqualTo(1.0);
 
-        Counter totalCounter = meterRegistry.find("cache.invalidation.total").counter();
+        final Counter totalCounter =
+                meterRegistry.find("cache.invalidation.total").counter();
         assertThat(totalCounter).isNotNull();
         assertThat(totalCounter.count()).isEqualTo(1.0);
     }
@@ -55,13 +56,13 @@ class CacheMetricsCollectorTest {
     @DisplayName("Should record cache invalidation timing")
     void shouldRecordCacheInvalidationTiming() {
         // Given
-        Duration duration = Duration.ofMillis(150);
+        final Duration duration = Duration.ofMillis(150);
 
         // When
         metricsCollector.recordInvalidationTiming("pagination-count", "card-created", () -> duration);
 
         // Then
-        Timer timer = meterRegistry
+        final Timer timer = meterRegistry
                 .find("cache.invalidation.timing")
                 .tag("cache_type", "pagination-count")
                 .tag("reason", "card-created")
@@ -78,7 +79,7 @@ class CacheMetricsCollectorTest {
         metricsCollector.recordCacheHitMiss("pagination-count", true);
 
         // Then
-        Counter counter = meterRegistry
+        final Counter counter = meterRegistry
                 .find("cache.access.total")
                 .tag("cache_type", "pagination-count")
                 .tag("result", "hit")
@@ -94,7 +95,7 @@ class CacheMetricsCollectorTest {
         metricsCollector.recordCacheHitMiss("pagination-count", false);
 
         // Then
-        Counter counter = meterRegistry
+        final Counter counter = meterRegistry
                 .find("cache.access.total")
                 .tag("cache_type", "pagination-count")
                 .tag("result", "miss")
@@ -110,7 +111,7 @@ class CacheMetricsCollectorTest {
         metricsCollector.recordCacheSize("pagination-count", 42);
 
         // Then
-        var gauge = meterRegistry
+        final var gauge = meterRegistry
                 .find("cache.size")
                 .tag("cache_type", "pagination-count")
                 .gauge();
@@ -122,15 +123,16 @@ class CacheMetricsCollectorTest {
     @DisplayName("Should handle multiple invalidation events")
     void shouldHandleMultipleInvalidationEvents() {
         // Given
-        CacheInvalidationEvent event1 = CacheInvalidationEvent.of("cache1", 1L, "reason1");
-        CacheInvalidationEvent event2 = CacheInvalidationEvent.of("cache2", 2L, "reason2");
+        final CacheInvalidationEvent event1 = CacheInvalidationEvent.of("cache1", 1L, "reason1");
+        final CacheInvalidationEvent event2 = CacheInvalidationEvent.of("cache2", 2L, "reason2");
 
         // When
         metricsCollector.onCacheInvalidation(event1);
         metricsCollector.onCacheInvalidation(event2);
 
         // Then
-        Counter totalCounter = meterRegistry.find("cache.invalidation.total").counter();
+        final Counter totalCounter =
+                meterRegistry.find("cache.invalidation.total").counter();
         Assertions.assertNotNull(totalCounter);
         assertThat(totalCounter.count()).isEqualTo(2.0);
     }
@@ -139,7 +141,7 @@ class CacheMetricsCollectorTest {
     @DisplayName("Should handle exception in timing recording gracefully")
     void shouldHandleExceptionInTimingRecordingGracefully() {
         // Given
-        RuntimeException exception = new RuntimeException("Test exception");
+        final RuntimeException exception = new RuntimeException("Test exception");
 
         // When & Then - should not throw exception
         metricsCollector.recordInvalidationTiming("cache", "reason", () -> {
@@ -154,11 +156,11 @@ class CacheMetricsCollectorTest {
     @DisplayName("Should get invalidation count for testing")
     void shouldGetInvalidationCountForTesting() {
         // Given
-        CacheInvalidationEvent event = CacheInvalidationEvent.of("cache", 123L, "reason");
+        final CacheInvalidationEvent event = CacheInvalidationEvent.of("cache", 123L, "reason");
         metricsCollector.onCacheInvalidation(event);
 
         // When
-        double count = metricsCollector.getInvalidationCount();
+        final double count = metricsCollector.getInvalidationCount();
 
         // Then
         assertThat(count).isEqualTo(1.0);
@@ -168,7 +170,7 @@ class CacheMetricsCollectorTest {
     @DisplayName("Should get invalidation timer for testing")
     void shouldGetInvalidationTimerForTesting() {
         // When
-        Timer timer = metricsCollector.getInvalidationTimer();
+        final Timer timer = metricsCollector.getInvalidationTimer();
 
         // Then
         assertThat(timer).isNotNull();

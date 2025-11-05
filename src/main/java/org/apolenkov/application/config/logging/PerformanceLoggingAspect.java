@@ -34,23 +34,25 @@ public class PerformanceLoggingAspect {
      */
     @Around("execution(* org.apolenkov.application.infrastructure.repository.jdbc.adapter.*.*(..))")
     public Object logRepositoryPerformance(final ProceedingJoinPoint joinPoint) throws Throwable {
-        String className = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
-        String operation = className + "." + methodName;
+        final String className = joinPoint.getTarget().getClass().getSimpleName();
+        final String methodName = joinPoint.getSignature().getName();
+        final String operation = className + "." + methodName;
 
-        long startTime = System.currentTimeMillis();
+        final long startTime = System.currentTimeMillis();
 
         try {
-            Object result = joinPoint.proceed();
-            long duration = System.currentTimeMillis() - startTime;
+            final Object result = joinPoint.proceed();
+            final long duration = System.currentTimeMillis() - startTime;
 
             logPerformance(operation, duration, null);
 
             return result;
-        } catch (Throwable ex) {
-            long duration = System.currentTimeMillis() - startTime;
-            logPerformance(operation, duration, ex);
-            throw ex;
+        } catch (Throwable t) {
+            // Catch all exceptions and errors for comprehensive logging
+            // All exceptions are rethrown to maintain application state
+            final long duration = System.currentTimeMillis() - startTime;
+            logPerformance(operation, duration, t);
+            throw t;
         }
     }
 

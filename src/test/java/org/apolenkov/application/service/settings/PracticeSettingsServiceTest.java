@@ -27,7 +27,7 @@ class PracticeSettingsServiceTest {
     @DisplayName("Should return default count")
     void shouldReturnDefaultCount() {
         // When
-        int result = settingsService.getDefaultCount();
+        final int result = settingsService.getDefaultCount();
 
         // Then
         assertThat(result).isEqualTo(10);
@@ -69,7 +69,7 @@ class PracticeSettingsServiceTest {
     @DisplayName("Should return default random order as true")
     void shouldReturnDefaultRandomOrderAsTrue() {
         // When
-        boolean result = settingsService.isDefaultRandomOrder();
+        final boolean result = settingsService.isDefaultRandomOrder();
 
         // Then
         assertThat(result).isTrue();
@@ -91,7 +91,7 @@ class PracticeSettingsServiceTest {
     @DisplayName("Should return default direction as FRONT_TO_BACK")
     void shouldReturnDefaultDirectionAsFrontToBack() {
         // When
-        PracticeDirection result = settingsService.getDefaultDirection();
+        final PracticeDirection result = settingsService.getDefaultDirection();
 
         // Then
         assertThat(result).isEqualTo(PracticeDirection.FRONT_TO_BACK);

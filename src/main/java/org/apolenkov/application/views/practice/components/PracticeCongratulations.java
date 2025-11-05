@@ -33,7 +33,7 @@ public final class PracticeCongratulations extends Composite<VerticalLayout> {
 
     @Override
     protected VerticalLayout initContent() {
-        VerticalLayout layout = new VerticalLayout();
+        final VerticalLayout layout = new VerticalLayout();
         layout.addClassName("practice-congratulations");
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         layout.setSpacing(true);
@@ -41,18 +41,19 @@ public final class PracticeCongratulations extends Composite<VerticalLayout> {
         layout.setWidthFull();
 
         // Create celebration icon
-        Div iconContainer = createCelebrationIcon();
+        final Div iconContainer = createCelebrationIcon();
 
         // Create title
-        H2 title = new H2(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_TITLE_KEY));
+        final H2 title = new H2(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_TITLE_KEY));
         title.addClassName("congratulations-title");
 
         // Create message
-        Paragraph message = new Paragraph(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_MESSAGE_KEY, deckTitle));
+        final Paragraph message =
+                new Paragraph(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_MESSAGE_KEY, deckTitle));
         message.addClassName("congratulations-message");
 
         // Create action button
-        Button backToDeckButton = new Button(getTranslation(PracticeConstants.PRACTICE_BACK_TO_DECK_KEY));
+        final Button backToDeckButton = new Button(getTranslation(PracticeConstants.PRACTICE_BACK_TO_DECK_KEY));
         backToDeckButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         backToDeckButton.addClickListener(e -> {
             if (onBackToDeck != null) {
@@ -70,10 +71,10 @@ public final class PracticeCongratulations extends Composite<VerticalLayout> {
      * @return a Div container with animated trophy icon
      */
     private Div createCelebrationIcon() {
-        Div iconContainer = new Div();
+        final Div iconContainer = new Div();
         iconContainer.addClassName("celebration-icon-container");
 
-        Span trophyIcon = new Span("🏆");
+        final Span trophyIcon = new Span("🏆");
         trophyIcon.addClassName("trophy-icon");
 
         iconContainer.add(trophyIcon);
@@ -91,22 +92,23 @@ public final class PracticeCongratulations extends Composite<VerticalLayout> {
         this.onBackToDeck = newOnBackToDeck;
 
         // Rebuild the content with new data
-        VerticalLayout layout = getContent();
+        final VerticalLayout layout = getContent();
         layout.removeAll();
 
         // Create celebration icon
-        Div iconContainer = createCelebrationIcon();
+        final Div iconContainer = createCelebrationIcon();
 
         // Create title
-        H2 title = new H2(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_TITLE_KEY));
+        final H2 title = new H2(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_TITLE_KEY));
         title.addClassName("congratulations-title");
 
         // Create message
-        Paragraph message = new Paragraph(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_MESSAGE_KEY, deckTitle));
+        final Paragraph message =
+                new Paragraph(getTranslation(PracticeConstants.PRACTICE_ALL_KNOWN_MESSAGE_KEY, deckTitle));
         message.addClassName("congratulations-message");
 
         // Create action button
-        Button backToDeckButton = new Button(getTranslation(PracticeConstants.PRACTICE_BACK_TO_DECK_KEY));
+        final Button backToDeckButton = new Button(getTranslation(PracticeConstants.PRACTICE_BACK_TO_DECK_KEY));
         backToDeckButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         backToDeckButton.addClickListener(e -> {
             if (onBackToDeck != null) {

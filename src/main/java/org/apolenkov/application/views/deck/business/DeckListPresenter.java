@@ -71,10 +71,10 @@ public class DeckListPresenter {
      * @return a list of deck view models for the current user, never null (maybe empty)
      */
     public List<DeckCardViewModel> listDecksForCurrentUser(final String query) {
-        long userId = userUseCase.getCurrentUser().getId();
+        final long userId = userUseCase.getCurrentUser().getId();
 
         // Normalize search query: trim whitespace, handle null
-        String normalized = query != null ? query.trim() : "";
+        final String normalized = query != null ? query.trim() : "";
 
         // Load decks: use cache for all decks, database search for filtered results
         List<Deck> decks;
@@ -93,11 +93,11 @@ public class DeckListPresenter {
                 .toList();
 
         // Step 1: Batch load card counts for all decks in single query
-        List<Long> deckIds = decks.stream().map(Deck::getId).toList();
-        Map<Long, Long> deckSizes = cardUseCase.countByDeckIds(deckIds);
+        final List<Long> deckIds = decks.stream().map(Deck::getId).toList();
+        final Map<Long, Long> deckSizes = cardUseCase.countByDeckIds(deckIds);
 
         // Step 2: Batch load known card IDs for all decks in single query
-        Map<Long, Set<Long>> knownCardsByDeck = statsService.getKnownCardIdsBatch(deckIds);
+        final Map<Long, Set<Long>> knownCardsByDeck = statsService.getKnownCardIdsBatch(deckIds);
 
         return decks.stream()
                 .map(deck -> toViewModel(deck, deckSizes, knownCardsByDeck))
@@ -116,11 +116,11 @@ public class DeckListPresenter {
     private DeckCardViewModel toViewModel(
             final Deck deck, final Map<Long, Long> deckSizes, final Map<Long, Set<Long>> knownCardsByDeck) {
         // Get deck size from pre-loaded map (no database query)
-        int deckSize = deckSizes.getOrDefault(deck.getId(), 0L).intValue();
+        final int deckSize = deckSizes.getOrDefault(deck.getId(), 0L).intValue();
 
         // Get known cards count from pre-loaded map (no database query)
-        Set<Long> knownCards = knownCardsByDeck.getOrDefault(deck.getId(), Set.of());
-        int known = knownCards.size();
+        final Set<Long> knownCards = knownCardsByDeck.getOrDefault(deck.getId(), Set.of());
+        final int known = knownCards.size();
 
         // Calculate progress percentage inline (no additional query)
         int percent = deckSize > 0 ? (int) Math.round(100.0 * known / deckSize) : 0;

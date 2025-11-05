@@ -194,7 +194,7 @@ public final class PracticeSessionRecords {
          * @return updated session data
          */
         public SessionData addKnownCard(final long cardId) {
-            List<Long> newKnown = new ArrayList<>(knownCardIdsDelta);
+            final List<Long> newKnown = new ArrayList<>(knownCardIdsDelta);
             newKnown.add(cardId);
             return new SessionData(deckId, cards, sessionStart, newKnown, failedCardIds);
         }
@@ -206,7 +206,7 @@ public final class PracticeSessionRecords {
          * @return updated session data
          */
         public SessionData addFailedCard(final long cardId) {
-            List<Long> newFailed = new ArrayList<>(failedCardIds);
+            final List<Long> newFailed = new ArrayList<>(failedCardIds);
             newFailed.add(cardId);
             return new SessionData(deckId, cards, sessionStart, knownCardIdsDelta, newFailed);
         }

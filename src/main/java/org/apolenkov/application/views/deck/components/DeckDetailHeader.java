@@ -78,17 +78,17 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
 
     @Override
     protected VerticalLayout initContent() {
-        VerticalLayout container = new VerticalLayout();
+        final VerticalLayout container = new VerticalLayout();
         container.setSpacing(true);
         container.setPadding(false);
         container.setWidthFull();
         container.setAlignItems(FlexComponent.Alignment.CENTER);
 
         // Header section: [← Back + Menu] + [Title + Stats]
-        VerticalLayout headerRow = createHeaderRow();
+        final VerticalLayout headerRow = createHeaderRow();
 
         // Action buttons row
-        HorizontalLayout actionsRow = createActionsRow();
+        final HorizontalLayout actionsRow = createActionsRow();
 
         container.add(headerRow, actionsRow);
         return container;
@@ -103,14 +103,14 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
      * @return configured header layout
      */
     private VerticalLayout createHeaderRow() {
-        VerticalLayout headerContainer = new VerticalLayout();
+        final VerticalLayout headerContainer = new VerticalLayout();
         headerContainer.setWidthFull();
         headerContainer.setPadding(false);
         headerContainer.setSpacing(true);
         headerContainer.addClassName(DeckConstants.DECK_VIEW_HEADER_CLASS);
 
         // Top row: Back button + Desktop buttons + Mobile menu
-        HorizontalLayout topRow = new HorizontalLayout();
+        final HorizontalLayout topRow = new HorizontalLayout();
         topRow.setWidthFull();
         topRow.setAlignItems(FlexComponent.Alignment.CENTER);
         topRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -122,7 +122,7 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         configureDeleteDeckButton();
 
         // Desktop: right buttons [Edit, Delete] - visible on desktop
-        HorizontalLayout desktopHeaderButtons = new HorizontalLayout();
+        final HorizontalLayout desktopHeaderButtons = new HorizontalLayout();
         desktopHeaderButtons.setSpacing(true);
         desktopHeaderButtons.setAlignItems(FlexComponent.Alignment.CENTER);
         desktopHeaderButtons.addClassName("desktop-only");
@@ -135,14 +135,14 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         topRow.add(backButton, desktopHeaderButtons, deckActionsMenu);
 
         // Title row: Only title (first line)
-        HorizontalLayout titleRow = new HorizontalLayout();
+        final HorizontalLayout titleRow = new HorizontalLayout();
         titleRow.setWidthFull();
         titleRow.setAlignItems(FlexComponent.Alignment.START);
         titleRow.addClassName(DeckConstants.DECK_HEADER_CENTER_CLASS);
         titleRow.add(deckTitle);
 
         // Stats row: Description + count (second line)
-        HorizontalLayout statsRow = new HorizontalLayout();
+        final HorizontalLayout statsRow = new HorizontalLayout();
         statsRow.setWidthFull();
         statsRow.setAlignItems(FlexComponent.Alignment.START);
         statsRow.addClassName("deck-stats-row");
@@ -160,7 +160,7 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
      * @return configured actions row
      */
     private HorizontalLayout createActionsRow() {
-        HorizontalLayout actions = new HorizontalLayout();
+        final HorizontalLayout actions = new HorizontalLayout();
         actions.setWidthFull();
         actions.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         actions.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -173,14 +173,14 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         configureAddCardButton();
 
         // Desktop: left buttons [Practice, Reset, Add] - visible on desktop
-        HorizontalLayout desktopLeftButtons = new HorizontalLayout();
+        final HorizontalLayout desktopLeftButtons = new HorizontalLayout();
         desktopLeftButtons.setSpacing(true);
         desktopLeftButtons.setAlignItems(FlexComponent.Alignment.CENTER);
         desktopLeftButtons.addClassName("desktop-only");
         desktopLeftButtons.add(practiceButtonDesktop, resetProgressButton, addCardButtonDesktop);
 
         // Mobile: only Add button visible, Practice and Reset in menu
-        HorizontalLayout mobileButtons = new HorizontalLayout();
+        final HorizontalLayout mobileButtons = new HorizontalLayout();
         mobileButtons.setSpacing(true);
         mobileButtons.setAlignItems(FlexComponent.Alignment.CENTER);
         mobileButtons.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
@@ -280,7 +280,7 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
      * Creates the deck actions menu with practice, edit, delete, and reset progress options.
      */
     private void createDeckActionsMenu() {
-        List<MenuButton.MenuItem> menuItems = List.of(
+        final List<MenuButton.MenuItem> menuItems = List.of(
                 MenuButton.MenuItem.of(getTranslation(DeckConstants.DECK_MENU_PRACTICE), VaadinIcon.PLAY, v -> {
                     if (practiceListener != null) {
                         practiceListener.onComponentEvent(new ClickEvent<>(practiceButtonDesktop));
@@ -341,11 +341,12 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         this.practiceListener = listener;
 
         // Desktop button
-        Registration reg1 = practiceButtonDesktop.addClickListener(e -> {
+        final Registration reg1 = practiceButtonDesktop.addClickListener(e -> {
             LOGGER.debug("Practice button (desktop) clicked");
             listener.onComponentEvent(e);
         });
 
+        // Return registration that cleans up both listener and registration
         return () -> {
             reg1.remove();
             this.practiceListener = null;
@@ -362,11 +363,12 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         LOGGER.debug("Reset progress listener registered");
         this.resetProgressListener = listener;
         // Register on button and menu
-        Registration reg1 = resetProgressButton.addClickListener(e -> {
+        final Registration reg1 = resetProgressButton.addClickListener(e -> {
             LOGGER.debug("Reset progress button clicked");
             listener.onComponentEvent(e);
         });
 
+        // Return registration that cleans up both listener and registration
         return () -> {
             reg1.remove();
             this.resetProgressListener = null;
@@ -383,13 +385,13 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         LOGGER.debug("Add card listener registered");
 
         // Desktop button
-        Registration reg1 = addCardButtonDesktop.addClickListener(e -> {
+        final Registration reg1 = addCardButtonDesktop.addClickListener(e -> {
             LOGGER.debug("Add card button (desktop) clicked");
             listener.onComponentEvent(e);
         });
 
         // Mobile button
-        Registration reg2 = addCardButtonMobile.addClickListener(e -> {
+        final Registration reg2 = addCardButtonMobile.addClickListener(e -> {
             LOGGER.debug("Add card button (mobile) clicked");
             listener.onComponentEvent(e);
         });
@@ -411,11 +413,12 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         LOGGER.debug("Edit deck listener registered");
         this.editDeckListener = listener;
         // Register on button and menu
-        Registration reg1 = editDeckButton.addClickListener(e -> {
+        final Registration reg1 = editDeckButton.addClickListener(e -> {
             LOGGER.debug("Edit deck button clicked");
             listener.onComponentEvent(e);
         });
 
+        // Return registration that cleans up both listener and registration
         return () -> {
             reg1.remove();
             this.editDeckListener = null;
@@ -432,11 +435,12 @@ public final class DeckDetailHeader extends Composite<VerticalLayout> {
         LOGGER.debug("Delete deck listener registered");
         this.deleteDeckListener = listener;
         // Register on button and menu
-        Registration reg1 = deleteDeckButton.addClickListener(e -> {
+        final Registration reg1 = deleteDeckButton.addClickListener(e -> {
             LOGGER.debug("Delete deck button clicked");
             listener.onComponentEvent(e);
         });
 
+        // Return registration that cleans up both listener and registration
         return () -> {
             reg1.remove();
             this.deleteDeckListener = null;

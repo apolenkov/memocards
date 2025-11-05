@@ -41,11 +41,11 @@ public class UserJdbcAdapter implements UserRepository {
      * RowMapper for UserDto.
      */
     private static final RowMapper<UserDto> USER_ROW_MAPPER = (rs, rowNum) -> {
-        Long id = rs.getLong("id");
-        String email = rs.getString("email");
-        String passwordHash = rs.getString("password_hash");
-        String name = rs.getString("name");
-        Timestamp createdAt = rs.getTimestamp("created_at");
+        final Long id = rs.getLong("id");
+        final String email = rs.getString("email");
+        final String passwordHash = rs.getString("password_hash");
+        final String name = rs.getString("name");
+        final Timestamp createdAt = rs.getTimestamp("created_at");
 
         return UserDto.forExistingUser(
                 id, email, passwordHash, name, createdAt != null ? createdAt.toLocalDateTime() : null, new HashSet<>());
@@ -56,17 +56,17 @@ public class UserJdbcAdapter implements UserRepository {
      * Extracts user data and roles from a single result set using PostgreSQL array.
      */
     private static final RowMapper<UserDto> USER_WITH_ROLES_ROW_MAPPER = (rs, rowNum) -> {
-        Long id = rs.getLong("id");
-        String email = rs.getString("email");
-        String passwordHash = rs.getString("password_hash");
-        String name = rs.getString("name");
-        Timestamp createdAt = rs.getTimestamp("created_at");
+        final Long id = rs.getLong("id");
+        final String email = rs.getString("email");
+        final String passwordHash = rs.getString("password_hash");
+        final String name = rs.getString("name");
+        final Timestamp createdAt = rs.getTimestamp("created_at");
 
         // Extract roles from PostgreSQL array
-        java.sql.Array rolesArray = rs.getArray("roles");
-        Set<String> roles = new HashSet<>();
+        final java.sql.Array rolesArray = rs.getArray("roles");
+        final Set<String> roles = new HashSet<>();
         if (rolesArray != null) {
-            String[] rolesData = (String[]) rolesArray.getArray();
+            final String[] rolesData = (String[]) rolesArray.getArray();
             if (rolesData != null) {
                 roles.addAll(List.of(rolesData));
             }
@@ -127,7 +127,7 @@ public class UserJdbcAdapter implements UserRepository {
     public List<User> findAll() {
         LOGGER.debug("Retrieving all users");
         try {
-            List<UserDto> userDtos = jdbcTemplate.query(UserSqlQueries.SELECT_ALL_USERS, USER_ROW_MAPPER);
+            final List<UserDto> userDtos = jdbcTemplate.query(UserSqlQueries.SELECT_ALL_USERS, USER_ROW_MAPPER);
             return userDtos.stream()
                     .map(this::loadUserRoles)
                     .map(UserJdbcAdapter::toModel)
@@ -147,7 +147,7 @@ public class UserJdbcAdapter implements UserRepository {
     public Optional<User> findById(final long id) {
         LOGGER.debug("Retrieving user by ID: {}", id);
         try {
-            List<UserDto> users =
+            final List<UserDto> users =
                     jdbcTemplate.query(UserSqlQueries.SELECT_USER_WITH_ROLES_BY_ID, USER_WITH_ROLES_ROW_MAPPER, id);
             if (users.isEmpty()) {
                 return Optional.empty();
@@ -170,13 +170,13 @@ public class UserJdbcAdapter implements UserRepository {
     @Override
     @Cacheable(value = CacheConfiguration.USER_BY_EMAIL_CACHE, key = "#email")
     public Optional<User> findByEmail(final String email) {
-        if (email == null || email.trim().isEmpty()) {
+        if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email cannot be null or empty");
         }
 
         LOGGER.debug("Retrieving user by email from database: {}", email);
         try {
-            List<UserDto> users = jdbcTemplate.query(
+            final List<UserDto> users = jdbcTemplate.query(
                     UserSqlQueries.SELECT_USER_WITH_ROLES_BY_EMAIL, USER_WITH_ROLES_ROW_MAPPER, email);
             if (users.isEmpty()) {
                 return Optional.empty();
@@ -203,11 +203,11 @@ public class UserJdbcAdapter implements UserRepository {
             throw new IllegalArgumentException("User cannot be null");
         }
 
-        boolean isNew = user.getId() == null;
+        final boolean isNew = user.getId() == null;
         LOGGER.debug("Saving user: email={}, isNew={}", user.getEmail(), isNew);
 
         try {
-            User saved = isNew ? createUser(user) : updateUser(user);
+            final User saved = isNew ? createUser(user) : updateUser(user);
             LOGGER.debug(
                     "User saved: id={}, email={}, isNew={}, cache evicted", saved.getId(), saved.getEmail(), isNew);
             return saved;
@@ -230,7 +230,7 @@ public class UserJdbcAdapter implements UserRepository {
             // Delete user roles first (foreign key constraint)
             jdbcTemplate.update(UserSqlQueries.DELETE_USER_ROLES, id);
 
-            int deleted = jdbcTemplate.update(UserSqlQueries.DELETE_USER, id);
+            final int deleted = jdbcTemplate.update(UserSqlQueries.DELETE_USER, id);
             if (deleted == 0) {
                 LOGGER.warn("No user found with ID: {}", id);
             } else {
@@ -248,9 +248,10 @@ public class UserJdbcAdapter implements UserRepository {
      * @return created user with generated ID
      */
     private User createUser(final User user) {
-        UserDto userDto = UserDto.forNewUser(user.getEmail(), user.getPasswordHash(), user.getName(), user.getRoles());
+        final UserDto userDto =
+                UserDto.forNewUser(user.getEmail(), user.getPasswordHash(), user.getName(), user.getRoles());
 
-        Long generatedId = jdbcTemplate.queryForObject(
+        final Long generatedId = jdbcTemplate.queryForObject(
                 UserSqlQueries.INSERT_USER_RETURNING_ID,
                 Long.class,
                 userDto.email(),
@@ -260,7 +261,7 @@ public class UserJdbcAdapter implements UserRepository {
 
         insertUserRoles(generatedId, user.getRoles());
 
-        UserDto createdDto = UserDto.forExistingUser(
+        final UserDto createdDto = UserDto.forExistingUser(
                 generatedId,
                 userDto.email(),
                 userDto.passwordHash(),
@@ -315,7 +316,7 @@ public class UserJdbcAdapter implements UserRepository {
             return userDto;
         }
 
-        Set<String> roles =
+        final Set<String> roles =
                 new HashSet<>(jdbcTemplate.query(UserSqlQueries.SELECT_USER_ROLES, ROLE_ROW_MAPPER, userDto.id()));
 
         return UserDto.forExistingUser(

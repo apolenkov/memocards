@@ -63,18 +63,19 @@ public class SecurityAuditAspect {
             pointcut = "execution(* org.apolenkov.application.service.auth.AuthService.authenticateAndPersist(..))",
             throwing = "exception")
     public void logAuthenticationFailure(final JoinPoint joinPoint, final Exception exception) {
-        Object[] args = joinPoint.getArgs();
+        final Object[] args = joinPoint.getArgs();
         if (args.length < 1) {
             return;
         }
 
-        String username = String.valueOf(args[0]);
-        String ipAddress = getClientIpAddress();
-        String userAgent = getUserAgent();
+        final String username = String.valueOf(args[0]);
+        final String ipAddress = getClientIpAddress();
+        final String userAgent = getUserAgent();
 
         // Track failed attempt
-        FailedAttemptTracker tracker = failedLoginAttempts.computeIfAbsent(ipAddress, k -> new FailedAttemptTracker());
-        int attemptCount = tracker.incrementAndGet();
+        final FailedAttemptTracker tracker =
+                failedLoginAttempts.computeIfAbsent(ipAddress, k -> new FailedAttemptTracker());
+        final int attemptCount = tracker.incrementAndGet();
 
         // Log with IP address for security audit
         AUDIT_LOGGER.warn(
@@ -135,12 +136,12 @@ public class SecurityAuditAspect {
      */
     private String getClientIpAddress() {
         try {
-            VaadinServletRequest vaadinRequest = (VaadinServletRequest) VaadinService.getCurrentRequest();
+            final VaadinServletRequest vaadinRequest = (VaadinServletRequest) VaadinService.getCurrentRequest();
             if (vaadinRequest != null) {
-                HttpServletRequest request = vaadinRequest.getHttpServletRequest();
+                final HttpServletRequest request = vaadinRequest.getHttpServletRequest();
 
                 // Check X-Forwarded-For header (for proxied requests)
-                String xForwardedFor = request.getHeader("X-Forwarded-For");
+                final String xForwardedFor = request.getHeader("X-Forwarded-For");
                 if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
                     // X-Forwarded-For can contain multiple IPs, take first one
                     return xForwardedFor.split(",")[0].trim();
@@ -149,7 +150,7 @@ public class SecurityAuditAspect {
                 // Fallback to remote address
                 return request.getRemoteAddr();
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.trace("Could not extract client IP address", e);
         }
         return UNKNOWN_VALUE;
@@ -162,13 +163,13 @@ public class SecurityAuditAspect {
      */
     private String getUserAgent() {
         try {
-            VaadinServletRequest vaadinRequest = (VaadinServletRequest) VaadinService.getCurrentRequest();
+            final VaadinServletRequest vaadinRequest = (VaadinServletRequest) VaadinService.getCurrentRequest();
             if (vaadinRequest != null) {
-                HttpServletRequest request = vaadinRequest.getHttpServletRequest();
-                String userAgent = request.getHeader("User-Agent");
+                final HttpServletRequest request = vaadinRequest.getHttpServletRequest();
+                final String userAgent = request.getHeader("User-Agent");
                 return userAgent != null ? userAgent : UNKNOWN_VALUE;
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOGGER.trace("Could not extract user agent", e);
         }
         return UNKNOWN_VALUE;
@@ -180,10 +181,10 @@ public class SecurityAuditAspect {
      */
     @Scheduled(fixedRate = 3600000) // 1 hour
     public void cleanupOldAttempts() {
-        Instant cutoff = Instant.now().minusSeconds(failedAttemptsWindowMinutes * 60L);
+        final Instant cutoff = Instant.now().minusSeconds(failedAttemptsWindowMinutes * 60L);
 
         int removedCount = 0;
-        for (Map.Entry<String, FailedAttemptTracker> entry : failedLoginAttempts.entrySet()) {
+        for (final Map.Entry<String, FailedAttemptTracker> entry : failedLoginAttempts.entrySet()) {
             if (entry.getValue().isOlderThan(cutoff)) {
                 failedLoginAttempts.remove(entry.getKey());
                 removedCount++;

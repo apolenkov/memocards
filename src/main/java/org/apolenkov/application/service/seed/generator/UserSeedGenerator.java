@@ -53,15 +53,15 @@ public class UserSeedGenerator {
      */
     public List<User> generateUsers(final int totalUsers, final int batchSize, final String cachedPasswordHash) {
         LOGGER.info("Generating {} test users in batches of {}...", totalUsers, batchSize);
-        List<User> allUsers = new ArrayList<>();
+        final List<User> allUsers = new ArrayList<>();
 
         for (int i = 0; i < totalUsers; i += batchSize) {
-            int end = Math.min(i + batchSize, totalUsers);
-            int currentBatch = i;
+            final int end = Math.min(i + batchSize, totalUsers);
+            final int currentBatch = i;
 
             // Create batch in separate transaction to reduce lock time
-            List<User> batch = transactionTemplate.execute(status -> {
-                List<User> users = new ArrayList<>(batchSize);
+            final List<User> batch = transactionTemplate.execute(status -> {
+                final List<User> users = new ArrayList<>(batchSize);
                 for (int j = currentBatch; j < end; j++) {
                     users.add(createTestUser(j, cachedPasswordHash));
                 }
@@ -71,7 +71,7 @@ public class UserSeedGenerator {
             assert batch != null;
             allUsers.addAll(batch);
 
-            if ((i / batchSize) % 5 == 0) {
+            if (i / batchSize % 5 == 0) {
                 LOGGER.info("Generated {}/{} users", allUsers.size(), totalUsers);
             }
         }
@@ -88,13 +88,13 @@ public class UserSeedGenerator {
      * @return configured test user
      */
     private User createTestUser(final int index, final String cachedPasswordHash) {
-        String firstName = USER_NAMES[random.nextInt(USER_NAMES.length)];
-        String lastName = LAST_NAMES[random.nextInt(LAST_NAMES.length)];
-        String email = firstName.toLowerCase(Locale.ROOT) + "." + lastName.toLowerCase(Locale.ROOT) + "." + index
+        final String firstName = USER_NAMES[random.nextInt(USER_NAMES.length)];
+        final String lastName = LAST_NAMES[random.nextInt(LAST_NAMES.length)];
+        final String email = firstName.toLowerCase(Locale.ROOT) + "." + lastName.toLowerCase(Locale.ROOT) + "." + index
                 + "@example.com";
-        String name = firstName + " " + lastName;
+        final String name = firstName + " " + lastName;
 
-        User user = new User();
+        final User user = new User();
         user.setEmail(email);
         user.setName(name);
         user.setPasswordHash(cachedPasswordHash);
