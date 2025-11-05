@@ -37,15 +37,20 @@ scrape_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 15s
     relabel_configs:
-      # Keep only app containers
+      # Filter 1: Only keep containers with name matching memocards-app
+      # Docker container names include leading slash: /memocards-app-prod
       - source_labels: ['__meta_docker_container_name']
-        regex: 'memocards-app.*'
+        regex: '.*/memocards-app.*'
         action: keep
-      # Use container IP and exposed port 8080
-      - source_labels: ['__meta_docker_container_ip', '__meta_docker_container_port_private_8080']
-        regex: '(.+):(\d+)'
-        target_label: '__address__'
-        replacement: '${1}:${2}'
+      # Filter 2: Only keep containers with service label = 'app'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        regex: '^app$'
+        action: keep
+      # Filter 3: Only keep targets with port 8080 in address
+      # Docker SD sets __address__ from container IP and port, so we check the address contains :8080
+      - source_labels: ['__address__']
+        regex: '.*:8080$'
+        action: keep
       # Set labels
       - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
         target_label: 'service'
@@ -98,34 +103,63 @@ scrape_configs:
   - job_name: 'node-exporter'
     scrape_interval: 15s
     scrape_timeout: 10s
+    metrics_path: '/metrics'
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 30s  # Infrastructure services change less frequently
     relabel_configs:
+      # Filter 1: Only keep containers with name matching memocards-node-exporter
+      # Docker container names include leading slash: /memocards-node-exporter-prod
       - source_labels: ['__meta_docker_container_name']
-        regex: 'memocards-node-exporter.*'
+        regex: '.*/memocards-node-exporter.*'
         action: keep
+      # Filter 2: Only keep containers with service label = 'node-exporter'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        regex: '^node-exporter$'
+        action: keep
+      # Set address from container IP and port 9100
       - source_labels: ['__meta_docker_container_ip']
         regex: '(.+)'
         target_label: '__address__'
         replacement: '${1}:9100'
+      # Set labels
       - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
         target_label: 'service'
+      - target_label: 'application'
+        replacement: 'memocards'
+      - target_label: 'environment'
+        replacement: 'production'
+      - target_label: 'instance'
+        replacement: 'node-exporter'
 
   # cAdvisor metrics via Docker service discovery
   - job_name: 'cadvisor'
     scrape_interval: 15s
     scrape_timeout: 10s
+    metrics_path: '/metrics'
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 30s  # Infrastructure services change less frequently
     relabel_configs:
+      # Filter 1: Only keep containers with name matching memocards-cadvisor
+      # Docker container names include leading slash: /memocards-cadvisor
       - source_labels: ['__meta_docker_container_name']
-        regex: 'memocards-cadvisor.*'
+        regex: '.*/memocards-cadvisor.*'
         action: keep
-      - source_labels: ['__meta_docker_container_ip']
-        regex: '(.+)'
-        target_label: '__address__'
-        replacement: '${1}:8080'
+      # Filter 2: Only keep containers with service label = 'cadvisor'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        regex: '^cadvisor$'
+        action: keep
+      # Filter 3: Only keep targets with port 8080 in address
+      - source_labels: ['__address__']
+        regex: '.*:8080$'
+        action: keep
+      # Set labels
       - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
         target_label: 'service'
+      - target_label: 'application'
+        replacement: 'memocards'
+      - target_label: 'environment'
+        replacement: 'production'
+      - target_label: 'instance'
+        replacement: 'cadvisor'

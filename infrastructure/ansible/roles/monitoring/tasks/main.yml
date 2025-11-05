@@ -134,7 +134,7 @@
       -f docker-compose.infrastructure.yml
       -f docker-compose.prod.yml
       --profile prod
-      up -d --pull always --remove-orphans
+      up -d --pull always --remove-orphans --force-recreate
     chdir: "{{ app_deploy_path }}"
   register: monitoring_infrastructure_compose_result
   changed_when: >-
@@ -143,6 +143,10 @@
     'Recreated' in monitoring_infrastructure_compose_result.stdout or
     'Pulled' in monitoring_infrastructure_compose_result.stdout or
     monitoring_infrastructure_compose_result.rc == 0
+  failed_when: >-
+    monitoring_infrastructure_compose_result.rc != 0 and
+    'Conflict' not in monitoring_infrastructure_compose_result.stderr and
+    'already in use' not in monitoring_infrastructure_compose_result.stderr
   tags: [monitoring, deploy]
 
 - name: Wait for Grafana to be ready (after deployment)
@@ -218,7 +222,7 @@
       - Application: https://{{ domain }}
       - Grafana: https://{{ domain }}/grafana
       - Prometheus: https://{{ domain }}/prometheus
-      - Traefik Dashboard: https://{{ domain }}/traefik
+      - Traefik Dashboard: https://{{ domain }}/traefik/dashboard/
 
       🔗 Direct Access via SSH tunnel:
       - ssh -L 9090:localhost:9090 root@{{ ansible_host }}

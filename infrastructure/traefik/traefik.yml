@@ -9,7 +9,9 @@ api:
   dashboard: true
   insecure: false  # Secure mode - use Docker labels for routing with basic auth
   debug: false  # Enable debug mode via environment variable TRAEFIK_DEBUG=true if needed
-  # Note: api@internal service works only on explicit routes, not on redirect middleware
+  # Note: basePath is NOT supported in Traefik v3.0
+  # Dashboard JavaScript client must request API with full path (/traefik/api/*)
+  # Routing is handled via Docker labels with PathPrefix rules
 
 providers:
   docker:
@@ -18,8 +20,8 @@ providers:
     network: memocards-internal
     # Filter containers by Docker Compose project label
     # This improves performance by only processing relevant containers
-    # Project name is set via docker compose (default: directory name)
-    constraints: "Label(`com.docker.compose.project`, `memocards`)"
+    # Project name is set via -p memocards-prod in Ansible deployment
+    constraints: "Label(`com.docker.compose.project`, `memocards-prod`)"
 
 log:
   level: INFO

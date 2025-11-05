@@ -256,7 +256,7 @@
             -f docker-compose.yml \
             -f docker-compose.infrastructure.yml \
             -f docker-compose.prod.yml \
-            --profile prod up -d --pull always --remove-orphans
+            --profile prod up -d --pull always --remove-orphans --force-recreate
         elif [ "$app_status" != "healthy" ]; then
           echo "App container status: $app_status, starting app and postgres..."
           docker compose -p memocards-prod \
@@ -307,7 +307,7 @@
         - { url: "https://{{ domain }}/", expected_status: [200] }
         - { url: "https://{{ domain }}/grafana/", expected_status: [200, 301, 302] }
         - { url: "https://{{ domain }}/prometheus/", expected_status: [401, 403] }
-        - { url: "https://{{ domain }}/traefik/", expected_status: [401, 403] }
+        - { url: "https://{{ domain }}/traefik/dashboard/", expected_status: [200, 401] }
       tags: [always, verify, healthcheck]
       when: "'quick' not in ansible_run_tags"
 
@@ -331,7 +331,7 @@
           - Application: https://{{ domain }}
           - Grafana: https://{{ domain }}/grafana
           - Prometheus: https://{{ domain }}/prometheus
-          - Traefik Dashboard: https://{{ domain }}/traefik
+          - Traefik Dashboard: https://{{ domain }}/traefik/dashboard/
           - Health: https://{{ domain }}/actuator/health
 
           📋 Next Steps:

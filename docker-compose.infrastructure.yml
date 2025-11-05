@@ -23,25 +23,43 @@ services:
     networks:
       - internal
     labels:
-      # Traefik dashboard routing via Docker labels (no file provider needed)
+      # Traefik dashboard routing via Docker labels
+      # Note: In Traefik v3.0, basePath is not supported - routing must be explicit via PathPrefix
+      # API endpoints: /api/*, Dashboard: /dashboard/*
+      # We need to route /traefik/api and /traefik/dashboard to api@internal without stripprefix
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik-dashboard.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && (PathPrefix(`/traefik/api`) || PathPrefix(`/traefik/dashboard`))"
+      # API router - routes /traefik/api/* and /api/* to api@internal
+      # Note: api@internal expects /api/* paths
+      # For /traefik/api/*: use stripprefix to remove /traefik
+      # For /api/*: no stripprefix needed (direct path)
+      # Dashboard JS client makes requests to /api/* (relative from /traefik/dashboard/)
+      - "traefik.http.routers.traefik-api.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && (PathPrefix(`/traefik/api`) || PathPrefix(`/api`))"
+      - "traefik.http.routers.traefik-api.entrypoints=web"
+      - "traefik.http.routers.traefik-api.priority=10"
+      - "traefik.http.routers.traefik-api.service=api@internal"
+      - "traefik.http.routers.traefik-api.middlewares=traefik-api-stripprefix,traefik-basicauth"
+      # Stripprefix only removes /traefik from /traefik/api/*, not from /api/*
+      # Traefik applies stripprefix only if path matches prefix, so /api/* is passed through unchanged
+      - "traefik.http.middlewares.traefik-api-stripprefix.stripprefix.prefixes=/traefik"
+      # Dashboard router - routes /traefik/dashboard/* and static assets to api@internal with stripprefix
+      # Dashboard serves HTML, JS, CSS, and other assets from /dashboard/* and /assets/*, /icons/*, etc.
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && (PathPrefix(`/traefik/dashboard`) || PathPrefix(`/traefik/assets`) || PathPrefix(`/traefik/icons`) || PathPrefix(`/traefik/app-logo`))"
       - "traefik.http.routers.traefik-dashboard.entrypoints=web"
       - "traefik.http.routers.traefik-dashboard.priority=10"
       - "traefik.http.routers.traefik-dashboard.service=api@internal"
       - "traefik.http.routers.traefik-dashboard.middlewares=traefik-dashboard-stripprefix,traefik-basicauth"
       - "traefik.http.middlewares.traefik-dashboard-stripprefix.stripprefix.prefixes=/traefik"
-      - "traefik.http.middlewares.traefik-basicauth.basicauth.usersfile=/etc/traefik/.htpasswd"
       # Redirect /traefik/ to /traefik/dashboard/
-      # Note: api@internal doesn't work with redirect middleware, use direct dashboard route
       - "traefik.http.routers.traefik-redirect.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && (Path(`/traefik`) || Path(`/traefik/`))"
       - "traefik.http.routers.traefik-redirect.entrypoints=web"
       - "traefik.http.routers.traefik-redirect.priority=20"
-      - "traefik.http.routers.traefik-redirect.middlewares=traefik-redirect-to-dashboard"
       - "traefik.http.routers.traefik-redirect.service=api@internal"
+      - "traefik.http.routers.traefik-redirect.middlewares=traefik-redirect-to-dashboard"
       - "traefik.http.middlewares.traefik-redirect-to-dashboard.redirectregex.regex=^/traefik/?$"
       - "traefik.http.middlewares.traefik-redirect-to-dashboard.redirectregex.replacement=/traefik/dashboard/"
       - "traefik.http.middlewares.traefik-redirect-to-dashboard.redirectregex.permanent=true"
+      # Shared middleware
+      - "traefik.http.middlewares.traefik-basicauth.basicauth.usersfile=/etc/traefik/.htpasswd"
 
   prometheus:
     image: ${PROMETHEUS_IMAGE:-prom/prometheus:v2.53.0}

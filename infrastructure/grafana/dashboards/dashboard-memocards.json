@@ -103,7 +103,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "up{application=\"memocards\"}",
+          "expr": "up{application=\"memocards\",job=\"memocards\"}",
           "refId": "A"
         }
       ],
@@ -780,7 +780,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "avg(up{application=\"memocards\"}) * 100",
+          "expr": "avg(up{application=\"memocards\",job=\"memocards\"}) * 100",
           "refId": "A"
         }
       ],
@@ -2443,7 +2443,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "(container_memory_usage_bytes{name=~\"memocards-app.*\"} / container_spec_memory_limit_bytes{name=~\"memocards-app.*\"}) * 100",
+          "expr": "(container_memory_usage_bytes{container_label_com_docker_compose_service=\"app\"} / container_spec_memory_limit_bytes{container_label_com_docker_compose_service=\"app\"}) * 100",
           "legendFormat": "{{name}}",
           "refId": "A"
         }
@@ -2534,7 +2534,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "rate(container_network_receive_bytes_total{name=~\"memocards-app.*\"}[1m])",
+          "expr": "rate(container_network_receive_bytes_total{container_label_com_docker_compose_service=\"app\"}[1m])",
           "legendFormat": "Rx - {{name}}",
           "refId": "A"
         },
@@ -2543,7 +2543,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "rate(container_network_transmit_bytes_total{name=~\"memocards-app.*\"}[1m])",
+          "expr": "rate(container_network_transmit_bytes_total{container_label_com_docker_compose_service=\"app\"}[1m])",
           "legendFormat": "Tx - {{name}}",
           "refId": "B"
         }
@@ -3132,7 +3132,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "{container=~\"memocards-app.*\"} |= \"ERROR\"",
+          "expr": "{service=\"app\"} |= \"ERROR\"",
           "refId": "A"
         }
       ],
@@ -3181,7 +3181,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "{container=~\"memocards-app.*\"} |= \"WARN\"",
+          "expr": "{service=\"app\"} |= \"WARN\"",
           "refId": "A"
         }
       ],
@@ -3230,7 +3230,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "{container=~\"memocards-app.*\"} | json | level=~\"ERROR|WARN\" | logger=~\"org.apolenkov.application.audit|audit\"",
+          "expr": "{service=\"app\"} | json | level=~\"ERROR|WARN\" | logger=~\"org.apolenkov.application.audit|audit\"",
           "refId": "A"
         }
       ],
@@ -3279,7 +3279,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "{container=~\"memocards-app.*\"} |= \"INFO\"",
+          "expr": "{service=\"app\"} |= \"INFO\"",
           "refId": "A"
         }
       ],
@@ -3328,7 +3328,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "{container=~\"memocards-app.*\"}",
+          "expr": "{service=\"app\"}",
           "refId": "A"
         }
       ],
