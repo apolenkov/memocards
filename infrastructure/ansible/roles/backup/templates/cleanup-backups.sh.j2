@@ -1,0 +1,57 @@
+#!/bin/bash
+# =============================================================================
+# Backup Cleanup Script
+# =============================================================================
+# Removes old backups based on retention policy
+# =============================================================================
+
+set -euo pipefail
+
+BACKUP_PATH="{{ backup_path }}"
+RETENTION_DAYS="{{ backup_retention_days }}"
+LOG_FILE="${BACKUP_PATH}/logs/cleanup.log"
+LOG_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+
+log() {
+    echo "[${LOG_DATE}] $*" | tee -a "${LOG_FILE}"
+}
+
+log "Starting backup cleanup (retention: ${RETENTION_DAYS} days)..."
+
+# Cleanup daily backups (keep last 7 days)
+DAILY_COUNT=$(find "${BACKUP_PATH}/daily" -name "*.sql.gz" -mtime +7 -type f 2>/dev/null | wc -l)
+if [ "${DAILY_COUNT}" -gt 0 ]; then
+    find "${BACKUP_PATH}/daily" -name "*.sql.gz" -mtime +7 -type f -delete
+    log "Removed ${DAILY_COUNT} daily backup(s) older than 7 days"
+fi
+
+# Cleanup weekly backups (keep last 4 weeks)
+WEEKLY_COUNT=$(find "${BACKUP_PATH}/weekly" -name "*.sql.gz" -mtime +28 -type f 2>/dev/null | wc -l)
+if [ "${WEEKLY_COUNT}" -gt 0 ]; then
+    find "${BACKUP_PATH}/weekly" -name "*.sql.gz" -mtime +28 -type f -delete
+    log "Removed ${WEEKLY_COUNT} weekly backup(s) older than 28 days"
+fi
+
+# Cleanup monthly backups (keep last 12 months)
+MONTHLY_COUNT=$(find "${BACKUP_PATH}/monthly" -name "*.sql.gz" -mtime +365 -type f 2>/dev/null | wc -l)
+if [ "${MONTHLY_COUNT}" -gt 0 ]; then
+    find "${BACKUP_PATH}/monthly" -name "*.sql.gz" -mtime +365 -type f -delete
+    log "Removed ${MONTHLY_COUNT} monthly backup(s) older than 365 days"
+fi
+
+# Cleanup all backups older than retention period
+OLD_COUNT=$(find "${BACKUP_PATH}" -name "*.sql.gz" -mtime +${RETENTION_DAYS} -type f 2>/dev/null | wc -l)
+if [ "${OLD_COUNT}" -gt 0 ]; then
+    find "${BACKUP_PATH}" -name "*.sql.gz" -mtime +${RETENTION_DAYS} -type f -delete
+    log "Removed ${OLD_COUNT} backup(s) older than ${RETENTION_DAYS} days"
+fi
+
+# Cleanup old log files (keep last 30 days)
+LOG_COUNT=$(find "${BACKUP_PATH}/logs" -name "*.log" -mtime +30 -type f 2>/dev/null | wc -l)
+if [ "${LOG_COUNT}" -gt 0 ]; then
+    find "${BACKUP_PATH}/logs" -name "*.log" -mtime +30 -type f -delete
+    log "Removed ${LOG_COUNT} log file(s) older than 30 days"
+fi
+
+log "✅ Backup cleanup completed"
+

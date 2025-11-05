@@ -1,0 +1,88 @@
+---
+# =============================================================================
+# PLAYBOOK: backup-manual.yml
+# Manual database backup (on-demand)
+# =============================================================================
+#
+# Usage:
+#   ansible-playbook -i ../inventory/hosts.yml backup-manual.yml --ask-vault-pass
+#
+# With specific backup type:
+#   ansible-playbook -i ../inventory/hosts.yml backup-manual.yml --ask-vault-pass \
+#     --extra-vars "backup_type=weekly"
+# =============================================================================
+
+- name: Manual Database Backup
+  hosts: vps
+  become: true
+  gather_facts: true
+
+  vars_files:
+    - ../inventory/group_vars/all.yml
+    - ../secrets.yml
+
+  vars:
+    backup_type_var: "{{ backup_type | default('daily') }}"
+
+  tasks:
+    - name: Validate backup type
+      ansible.builtin.assert:
+        that:
+          - backup_type_var in ['daily', 'weekly', 'monthly']
+        fail_msg: "Invalid backup_type. Must be: daily, weekly, or monthly"
+        success_msg: "✅ Backup type validated: {{ backup_type_var }}"
+      tags: [backup]
+
+    - name: Check if backup script exists
+      ansible.builtin.stat:
+        path: "{{ backup_path }}/backup-db.sh"
+      register: backup_script
+      tags: [backup]
+
+    - name: Fail if backup script not found
+      ansible.builtin.fail:
+        msg: |
+          ❌ Backup script not found: {{ backup_path }}/backup-db.sh
+
+          Please run setup.yml first to install backup role.
+      when: not backup_script.stat.exists
+      tags: [backup]
+
+    - name: Run manual backup
+      ansible.builtin.shell: |
+        set -o pipefail
+        {{ backup_path }}/backup-db.sh {{ backup_type_var }}
+      args:
+        executable: /bin/bash
+      register: backup_result
+      changed_when: true
+      tags: [backup]
+
+    - name: Display backup result
+      ansible.builtin.debug:
+        msg: |
+          ✅ Manual backup completed:
+          - Type: {{ backup_type_var }}
+          - Output:
+          {{ backup_result.stdout_lines | default(['No output']) | join('\n') }}
+          - Exit code: {{ backup_result.rc }}
+      tags: [backup]
+
+    - name: List recent backups
+      ansible.builtin.shell: |
+        set -o pipefail
+        find {{ backup_path }}/{{ backup_type_var }} -name "*.sql.gz" -type f \
+          -printf "%T@ %p\n" | sort -rn | head -5 | cut -d' ' -f2- \
+          | xargs -I {} ls -lh {} 2>/dev/null || echo "No backups found"
+      args:
+        executable: /bin/bash
+      register: recent_backups
+      changed_when: false
+      tags: [backup]
+
+    - name: Display recent backups
+      ansible.builtin.debug:
+        msg: |
+          📋 Recent {{ backup_type_var }} backups:
+          {{ recent_backups.stdout_lines | default(['No backups found']) | join('\n') }}
+      tags: [backup]

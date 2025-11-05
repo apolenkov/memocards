@@ -1,0 +1,119 @@
+---
+# =============================================================================
+# ROLE: backup
+# Database backup automation for Memocards PostgreSQL
+# =============================================================================
+
+- name: Create backup directory
+  ansible.builtin.file:
+    path: "{{ backup_path }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  tags: [backup, setup]
+
+- name: Create backup subdirectories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  loop:
+    - "{{ backup_path }}/daily"
+    - "{{ backup_path }}/weekly"
+    - "{{ backup_path }}/monthly"
+    - "{{ backup_path }}/logs"
+  tags: [backup, setup]
+
+- name: Create database backup script
+  ansible.builtin.template:
+    src: backup-db.sh.j2
+    dest: "{{ backup_path }}/backup-db.sh"
+    mode: "0755"
+    owner: root
+    group: root
+  tags: [backup, setup]
+
+- name: Create backup verification script
+  ansible.builtin.template:
+    src: verify-backup.sh.j2
+    dest: "{{ backup_path }}/verify-backup.sh"
+    mode: "0755"
+    owner: root
+    group: root
+  tags: [backup, setup]
+
+- name: Create cleanup script for old backups
+  ansible.builtin.template:
+    src: cleanup-backups.sh.j2
+    dest: "{{ backup_path }}/cleanup-backups.sh"
+    mode: "0755"
+    owner: root
+    group: root
+  tags: [backup, setup]
+
+- name: Check if cron job exists
+  ansible.builtin.shell: |
+    crontab -l 2>/dev/null | grep -q "backup-db.sh" || echo "not_found"
+  args:
+    executable: /bin/bash
+  register: cron_check
+  changed_when: false
+  failed_when: false
+  tags: [backup, cron]
+
+- name: Add daily backup cron job
+  ansible.builtin.cron:
+    name: "Daily PostgreSQL backup"
+    minute: "0"
+    hour: "2"
+    job: "{{ backup_path }}/backup-db.sh daily >> {{ backup_path }}/logs/backup.log 2>&1"
+    user: root
+  when: cron_check.stdout == "not_found"
+  tags: [backup, cron]
+
+- name: Add weekly backup cron job (Sunday 3 AM)
+  ansible.builtin.cron:
+    name: "Weekly PostgreSQL backup"
+    minute: "0"
+    hour: "3"
+    weekday: "0"
+    job: "{{ backup_path }}/backup-db.sh weekly >> {{ backup_path }}/logs/backup.log 2>&1"
+    user: root
+  when: cron_check.stdout == "not_found"
+  tags: [backup, cron]
+
+- name: Add monthly backup cron job (1st day of month, 4 AM)
+  ansible.builtin.cron:
+    name: "Monthly PostgreSQL backup"
+    minute: "0"
+    hour: "4"
+    day: "1"
+    job: "{{ backup_path }}/backup-db.sh monthly >> {{ backup_path }}/logs/backup.log 2>&1"
+    user: root
+  when: cron_check.stdout == "not_found"
+  tags: [backup, cron]
+
+- name: Add cleanup cron job (daily at 5 AM)
+  ansible.builtin.cron:
+    name: "Cleanup old backups"
+    minute: "0"
+    hour: "5"
+    job: "{{ backup_path }}/cleanup-backups.sh >> {{ backup_path }}/logs/cleanup.log 2>&1"
+    user: root
+  tags: [backup, cron]
+
+- name: Display backup configuration
+  ansible.builtin.debug:
+    msg: |
+      ✅ Backup role completed:
+      - Backup directory: {{ backup_path }}
+      - Retention: {{ backup_retention_days }} days
+      - Daily backup: 02:00 UTC
+      - Weekly backup: Sunday 03:00 UTC
+      - Monthly backup: 1st day 04:00 UTC
+      - Cleanup: Daily 05:00 UTC
+  tags: [backup]
+

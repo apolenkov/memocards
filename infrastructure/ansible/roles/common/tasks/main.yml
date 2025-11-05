@@ -177,6 +177,7 @@
   loop:
     - "{{ app_deploy_path }}"
     - "{{ app_deploy_path }}/logs"
+    - "{{ backup_path }}"
   tags: [common, directories]
 
 - name: Display common role completion

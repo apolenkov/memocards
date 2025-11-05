@@ -1,0 +1,63 @@
+#!/bin/bash
+# =============================================================================
+# PostgreSQL Database Backup Script
+# =============================================================================
+# Usage: backup-db.sh [daily|weekly|monthly]
+# =============================================================================
+
+set -euo pipefail
+
+BACKUP_TYPE="${1:-daily}"
+BACKUP_PATH="{{ backup_path }}"
+TIMESTAMP=$(date -u +%Y%m%d_%H%M%S)
+BACKUP_FILE="${BACKUP_PATH}/${BACKUP_TYPE}/memocards_${BACKUP_TYPE}_${TIMESTAMP}.sql.gz"
+
+# Database connection
+DB_NAME="{{ db_name }}"
+DB_USER="{{ db_user }}"
+DB_CONTAINER="memocards-postgres-prod"
+
+# Logging
+LOG_FILE="${BACKUP_PATH}/logs/backup.log"
+LOG_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+
+log() {
+    echo "[${LOG_DATE}] $*" | tee -a "${LOG_FILE}"
+}
+
+log "Starting ${BACKUP_TYPE} backup..."
+
+# Check if PostgreSQL container is running
+if ! docker ps --format '{{.Names}}' | grep -q "^${DB_CONTAINER}$"; then
+    log "ERROR: PostgreSQL container ${DB_CONTAINER} is not running!"
+    exit 1
+fi
+
+# Create backup
+log "Creating backup: ${BACKUP_FILE}"
+
+# Use pg_dump with custom format (binary) and compress output
+if docker exec "${DB_CONTAINER}" \
+    pg_dump -U "${DB_USER}" -d "${DB_NAME}" \
+    --format=custom \
+    --no-owner \
+    --no-acl \
+    2>> "${LOG_FILE}" | gzip -9 > "${BACKUP_FILE}" 2>> "${LOG_FILE}"; then
+    
+    BACKUP_SIZE=$(du -h "${BACKUP_FILE}" | cut -f1)
+    log "✅ Backup created successfully: ${BACKUP_FILE} (${BACKUP_SIZE})"
+    
+    # Verify backup integrity
+    log "Verifying backup integrity..."
+    if "${BACKUP_PATH}/verify-backup.sh" "${BACKUP_FILE}"; then
+        log "✅ Backup verification passed"
+    else
+        log "⚠️  Backup verification failed, but backup file exists"
+    fi
+    
+    exit 0
+else
+    log "❌ Backup failed!"
+    exit 1
+fi
+

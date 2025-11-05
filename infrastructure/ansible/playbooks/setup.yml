@@ -227,6 +227,9 @@
     - role: monitoring
       tags: [monitoring, setup]
 
+    - role: backup
+      tags: [backup, setup]
+
   post_tasks:
     - name: Verify all containers are running
       ansible.builtin.shell: |
@@ -326,6 +329,7 @@
           ✅ Application deployed and healthy
           ✅ PostgreSQL database running
           ✅ Auto-restart enabled (Docker restart policy)
+          ✅ Database backups configured (daily, weekly, monthly)
 
           🌐 Access:
           - Application: https://{{ domain }}
