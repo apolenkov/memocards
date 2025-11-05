@@ -19,6 +19,7 @@
     - "{{ app_deploy_path }}/infrastructure/traefik"
     - "{{ app_deploy_path }}/infrastructure/traefik/dynamic"
     - "{{ app_deploy_path }}/infrastructure/loki"
+    - "{{ app_deploy_path }}/infrastructure/alertmanager"
   tags: [monitoring, config]
 
 - name: Write Traefik .htpasswd from pre-hashed Vault line (preferred)
@@ -107,6 +108,13 @@
     mode: "0644"
   tags: [monitoring, config, loki]
 
+- name: Copy Alertmanager configuration file
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../../infrastructure/alertmanager/alertmanager.yml"
+    dest: "{{ app_deploy_path }}/infrastructure/alertmanager/alertmanager.yml"
+    mode: "0644"
+  tags: [monitoring, config, alertmanager]
+
 - name: Ensure memocards-internal network exists (required for infrastructure)
   ansible.builtin.shell: |
     docker network inspect memocards-internal >/dev/null 2>&1 || \
@@ -148,6 +156,21 @@
     'Conflict' not in monitoring_infrastructure_compose_result.stderr and
     'already in use' not in monitoring_infrastructure_compose_result.stderr
   tags: [monitoring, deploy]
+
+- name: Wait for Docker Socket Proxy to be ready (after deployment)
+  ansible.builtin.uri:
+    url: "http://localhost:2375/_ping"
+    method: GET
+    status_code: 200
+    timeout: 5
+  register: docker_socket_proxy_health
+  until: docker_socket_proxy_health.status == 200
+  retries: 30
+  delay: 2
+  changed_when: false
+  failed_when: false
+  tags: [monitoring, verify, healthcheck]
+  when: "'quick' not in ansible_run_tags"
 
 - name: Wait for Grafana to be ready (after deployment)
   ansible.builtin.uri:
@@ -199,6 +222,7 @@
   loop:
     - { url: "http://localhost:8080/grafana/", expected_status: [200, 301, 302] }
     - { url: "http://localhost:8080/prometheus/", expected_status: [401, 403] }
+    - { url: "http://localhost:8080/alertmanager/", expected_status: [401, 403] }
     - { url: "http://localhost:8080/traefik/", expected_status: [401, 403, 404] }
   tags: [monitoring, verify, healthcheck]
   when: "'quick' not in ansible_run_tags"
@@ -213,7 +237,9 @@
         and monitoring_traefik_health_check.rc is defined
         and monitoring_traefik_health_check.rc == 0 %}READY ✅
         {% else %}STARTING...{% endif %}
+      🔒 Docker Socket Proxy: running (security layer)
       📊 Prometheus: localhost:9090
+      🚨 Alertmanager: localhost:9093
       📋 Loki: localhost:3100
       📝 Promtail: running
       📈 Grafana: localhost:3000
@@ -222,11 +248,13 @@
       - Application: https://{{ domain }}
       - Grafana: https://{{ domain }}/grafana
       - Prometheus: https://{{ domain }}/prometheus
+      - Alertmanager: https://{{ domain }}/alertmanager
       - Traefik Dashboard: https://{{ domain }}/traefik/dashboard/
 
       🔗 Direct Access via SSH tunnel:
-      - ssh -L 9090:localhost:9090 root@{{ ansible_host }}
-      - ssh -L 3000:localhost:3000 root@{{ ansible_host }}
-      - ssh -L 8080:localhost:8080 root@{{ ansible_host }}
-        (Traefik API)
+      - ssh -L 9090:localhost:9090 root@{{ ansible_host }} (Prometheus)
+      - ssh -L 9093:localhost:9093 root@{{ ansible_host }} (Alertmanager)
+      - ssh -L 3000:localhost:3000 root@{{ ansible_host }} (Grafana)
+      - ssh -L 8080:localhost:8080 root@{{ ansible_host }} (Traefik API)
+      - ssh -L 2375:localhost:2375 root@{{ ansible_host }} (Docker Socket Proxy)
   tags: [monitoring]

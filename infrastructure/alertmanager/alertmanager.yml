@@ -1,0 +1,181 @@
+---
+# =============================================================================
+# Alertmanager Configuration
+# =============================================================================
+# Alert routing and notification configuration
+# =============================================================================
+
+global:
+  # Default notification settings
+  resolve_timeout: 5m
+  # Slack API URL (optional, set via environment variable)
+  # slack_api_url: '${ALERTMANAGER_SLACK_API_URL}'
+  # Email SMTP settings (optional, set via environment variable)
+  # smtp_smarthost: '${ALERTMANAGER_SMTP_HOST:-localhost:587}'
+  # smtp_from: '${ALERTMANAGER_SMTP_FROM:-alertmanager@memocards.duckdns.org}'
+  # smtp_auth_username: '${ALERTMANAGER_SMTP_USER:-}'
+  # smtp_auth_password: '${ALERTMANAGER_SMTP_PASSWORD:-}'
+
+# Templates for alert notifications (optional)
+# templates:
+#   - '/etc/alertmanager/templates/*.tmpl'
+
+# Route tree for alert routing
+route:
+  # Default receiver (fallback)
+  receiver: 'default-receiver'
+  # Group alerts by these labels
+  group_by: ['alertname', 'cluster', 'service']
+  # Wait time before sending first notification
+  group_wait: 10s
+  # Wait time before sending notification about new alerts added to a group
+  group_interval: 10s
+  # Minimum time between two notifications for the same group
+  repeat_interval: 12h
+  # Child routes (more specific routing)
+  routes:
+    # Critical alerts (immediate notification)
+    - match:
+        severity: critical
+      receiver: 'critical-receiver'
+      group_wait: 10s
+      group_interval: 5m
+      repeat_interval: 3h
+      continue: true  # Continue to parent route after matching
+
+    # Warning alerts (less frequent notifications)
+    - match:
+        severity: warning
+      receiver: 'warning-receiver'
+      group_wait: 30s
+      group_interval: 1h
+      repeat_interval: 6h
+
+    # Application alerts
+    - match:
+        service: application
+      receiver: 'application-receiver'
+      group_wait: 10s
+      group_interval: 30m
+      repeat_interval: 6h
+
+    # Database alerts
+    - match:
+        service: database
+      receiver: 'database-receiver'
+      group_wait: 10s
+      group_interval: 30m
+      repeat_interval: 6h
+
+    # Infrastructure alerts
+    - match:
+        service: infrastructure
+      receiver: 'infrastructure-receiver'
+      group_wait: 10s
+      group_interval: 30m
+      repeat_interval: 6h
+
+    # Monitoring alerts (Prometheus, Grafana, Loki)
+    - match:
+        service: prometheus
+      receiver: 'monitoring-receiver'
+      group_wait: 10s
+      group_interval: 30m
+      repeat_interval: 6h
+    - match:
+        service: grafana
+      receiver: 'monitoring-receiver'
+      group_wait: 10s
+      group_interval: 30m
+      repeat_interval: 6h
+    - match:
+        service: loki
+      receiver: 'monitoring-receiver'
+      group_wait: 10s
+      group_interval: 30m
+      repeat_interval: 6h
+
+# Receivers (notification channels)
+receivers:
+  # Default receiver (fallback)
+  - name: 'default-receiver'
+    # Webhook receiver (for custom integrations)
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+  # Critical alerts receiver
+  - name: 'critical-receiver'
+    # Email notifications (uncomment and configure)
+    # email_configs:
+    #   - to: '${ALERTMANAGER_EMAIL_TO:-admin@memocards.duckdns.org}'
+    #     headers:
+    #       Subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+    #     send_resolved: true
+    #     html: |
+    #       <h2>Critical Alert: {{ .GroupLabels.alertname }}</h2>
+    #       <p><strong>Status:</strong> {{ .Status }}</p>
+    #       <p><strong>Summary:</strong> {{ .CommonAnnotations.summary }}</p>
+    #       <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>
+    #       <hr>
+    #       <h3>Alerts:</h3>
+    #       {{ range .Alerts }}
+    #       <p><strong>{{ .Labels.alertname }}</strong>: {{ .Annotations.summary }}</p>
+    #       {{ end }}
+    # Webhook (can be used with Slack, PagerDuty, etc.)
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+  # Warning alerts receiver
+  - name: 'warning-receiver'
+    # Email notifications (uncomment and configure)
+    # email_configs:
+    #   - to: '${ALERTMANAGER_EMAIL_TO:-admin@memocards.duckdns.org}'
+    #     headers:
+    #       Subject: '⚠️ WARNING: {{ .GroupLabels.alertname }}'
+    #     send_resolved: true
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+  # Application alerts receiver
+  - name: 'application-receiver'
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+  # Database alerts receiver
+  - name: 'database-receiver'
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+  # Infrastructure alerts receiver
+  - name: 'infrastructure-receiver'
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+  # Monitoring alerts receiver
+  - name: 'monitoring-receiver'
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+# Inhibition rules (suppress certain alerts when others are firing)
+inhibit_rules:
+  # Suppress warning alerts when critical alert is firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'cluster', 'service']
+
+  # Suppress low-priority alerts when high-priority alert is firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname']
+

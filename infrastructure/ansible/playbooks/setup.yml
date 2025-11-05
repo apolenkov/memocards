@@ -310,6 +310,7 @@
         - { url: "https://{{ domain }}/", expected_status: [200] }
         - { url: "https://{{ domain }}/grafana/", expected_status: [200, 301, 302] }
         - { url: "https://{{ domain }}/prometheus/", expected_status: [401, 403] }
+        - { url: "https://{{ domain }}/alertmanager/", expected_status: [401, 403] }
         - { url: "https://{{ domain }}/traefik/dashboard/", expected_status: [200, 401] }
       tags: [always, verify, healthcheck]
       when: "'quick' not in ansible_run_tags"
@@ -325,16 +326,18 @@
           ✅ System configured (firewall, swap, directories)
           ✅ Docker Engine installed and running
           ✅ Nginx installed with SSL (hybrid architecture: Nginx → Traefik → Services)
-          ✅ Infrastructure deployed (Traefik, Prometheus, Loki, Promtail, Grafana)
+          ✅ Infrastructure deployed (Traefik, Prometheus, Alertmanager, Loki, Promtail, Grafana)
           ✅ Application deployed and healthy
           ✅ PostgreSQL database running
           ✅ Auto-restart enabled (Docker restart policy)
           ✅ Database backups configured (daily, weekly, monthly)
+          ✅ Alert notifications configured (Alertmanager)
 
           🌐 Access:
           - Application: https://{{ domain }}
           - Grafana: https://{{ domain }}/grafana
           - Prometheus: https://{{ domain }}/prometheus
+          - Alertmanager: https://{{ domain }}/alertmanager
           - Traefik Dashboard: https://{{ domain }}/traefik/dashboard/
           - Health: https://{{ domain }}/actuator/health
 

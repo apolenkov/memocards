@@ -75,6 +75,10 @@ grafana_domain: "grafana.memocards.duckdns.org"
 prometheus_enabled: true
 prometheus_port: 9090
 
+# Alertmanager settings
+alertmanager_enabled: true
+alertmanager_port: 9093
+
 # Loki settings
 loki_enabled: true
 loki_port: 3100

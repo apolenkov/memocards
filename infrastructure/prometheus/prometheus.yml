@@ -8,13 +8,16 @@ global:
     environment: 'production'
 
 # Alerting configuration
-# Note: Alertmanager is not configured yet, but rules are evaluated
-# To enable Alertmanager, add:
-# alerting:
-#   alertmanagers:
-#     - static_configs:
-#         - targets:
-#           - 'alertmanager:9093'
+# Alertmanager integration for notifications
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093'
+      # Timeout for sending alerts to Alertmanager
+      timeout: 10s
+      # API version (v1 is default)
+      api_version: v2
 
 rule_files:
   - '/etc/prometheus/alerts.yml'
@@ -34,7 +37,7 @@ scrape_configs:
     scrape_timeout: 10s
     metrics_path: '/actuator/prometheus'
     docker_sd_configs:
-      - host: unix:///var/run/docker.sock
+      - host: tcp://docker-socket-proxy:2375
         refresh_interval: 15s
     relabel_configs:
       # Filter 1: Only keep containers with name matching memocards-app
@@ -67,7 +70,7 @@ scrape_configs:
     scrape_timeout: 10s
     metrics_path: '/metrics'
     docker_sd_configs:
-      - host: unix:///var/run/docker.sock
+      - host: tcp://docker-socket-proxy:2375
         refresh_interval: 30s  # Infrastructure services change less frequently
     relabel_configs:
       - source_labels: ['__meta_docker_container_name']
@@ -86,7 +89,7 @@ scrape_configs:
     scrape_timeout: 10s
     metrics_path: '/metrics'
     docker_sd_configs:
-      - host: unix:///var/run/docker.sock
+      - host: tcp://docker-socket-proxy:2375
         refresh_interval: 30s  # Infrastructure services change less frequently
     relabel_configs:
       - source_labels: ['__meta_docker_container_name']
@@ -105,7 +108,7 @@ scrape_configs:
     scrape_timeout: 10s
     metrics_path: '/metrics'
     docker_sd_configs:
-      - host: unix:///var/run/docker.sock
+      - host: tcp://docker-socket-proxy:2375
         refresh_interval: 30s  # Infrastructure services change less frequently
     relabel_configs:
       # Filter 1: Only keep containers with name matching memocards-node-exporter
@@ -138,7 +141,7 @@ scrape_configs:
     scrape_timeout: 10s
     metrics_path: '/metrics'
     docker_sd_configs:
-      - host: unix:///var/run/docker.sock
+      - host: tcp://docker-socket-proxy:2375
         refresh_interval: 30s  # Infrastructure services change less frequently
     relabel_configs:
       # Filter 1: Only keep containers with name matching memocards-cadvisor

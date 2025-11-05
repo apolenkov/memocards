@@ -31,6 +31,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: ${POSTGRES_HEALTHCHECK_START:-30s}
+    stop_grace_period: 30s  # Graceful shutdown for PostgreSQL
     restart: unless-stopped
     networks:
       - internal
@@ -77,6 +78,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: ${APP_HEALTHCHECK_START:-60s}
+    stop_grace_period: 30s  # Graceful shutdown for Spring Boot application
     networks:
       internal:
         aliases:

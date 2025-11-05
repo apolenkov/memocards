@@ -4,6 +4,49 @@
 # Usage: docker compose -f docker-compose.infrastructure.yml up -d
 
 services:
+  # Docker Socket Proxy - Security layer for Prometheus and Promtail
+  docker-socket-proxy:
+    image: ${DOCKER_SOCKET_PROXY_IMAGE:-tecnativa/docker-socket-proxy:latest}
+    container_name: ${DOCKER_SOCKET_PROXY_CONTAINER_NAME:-memocards-docker-socket-proxy}
+    profiles:
+      - prod
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      # Allow only necessary operations for Prometheus Service Discovery
+      CONTAINERS: 1      # Read container information (required for Service Discovery)
+      IMAGES: 0         # No access to images
+      NETWORKS: 0       # No access to networks
+      VOLUMES: 0        # No access to volumes
+      EXEC: 0           # No access to exec (no container control)
+      EVENTS: 1         # Docker events (required for Service Discovery)
+      PING: 1           # Health check
+      AUTH: 0           # No access to auth
+      BUILD: 0          # No access to build
+      COMMIT: 0         # No access to commit
+      CONFIG: 0         # No access to config
+      DISTRIBUTION: 0   # No access to distribution
+      INFO: 1           # Read-only system info (required for Service Discovery)
+      SECRETS: 0        # No access to secrets
+      SESSION: 0        # No access to session
+      SWARM: 0          # No access to swarm
+      SYSTEM: 0         # No access to system (except info)
+      TASKS: 0          # No access to tasks
+      VERSION: 1        # Read-only version info (required for Service Discovery)
+    restart: unless-stopped
+    mem_limit: 32m
+    cpus: ${DOCKER_SOCKET_PROXY_CPUS:-0.1}
+    networks:
+      internal:
+        aliases:
+          - docker-socket-proxy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:2375/_ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
   traefik:
     image: ${TRAEFIK_IMAGE:-traefik:v3.0}
     container_name: ${TRAEFIK_CONTAINER_NAME:-memocards-traefik}
@@ -17,6 +60,7 @@ services:
       - ./infrastructure/traefik/traefik.yml:/etc/traefik/traefik.yml
       - ./infrastructure/traefik/.htpasswd:/etc/traefik/.htpasswd:ro
       # ACME volume not needed - Nginx handles SSL certificates
+    stop_grace_period: 10s  # Graceful shutdown for Traefik
     restart: unless-stopped
     mem_limit: 128m
     cpus: ${TRAEFIK_CPUS:-0.25}
@@ -72,13 +116,16 @@ services:
       - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./infrastructure/prometheus/alerts.yml:/etc/prometheus/alerts.yml
       - prometheus_data:/prometheus
-      # Mount Docker socket for Docker Service Discovery
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    user: "0:999"  # Run as root with docker group to access Docker socket
+      # Docker socket proxy for security (instead of direct Docker socket access)
+      # No direct Docker socket mount - use docker-socket-proxy instead
+    user: "nobody"  # Run as non-root user (security improvement)
+    environment:
+      # Use docker-socket-proxy instead of direct Docker socket
+      DOCKER_HOST: tcp://docker-socket-proxy:2375
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=15d'
+      - '--storage.tsdb.retention.time=30d'
       - '--storage.tsdb.retention.size=10GB'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
@@ -90,9 +137,13 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    stop_grace_period: 20s  # Graceful shutdown for Prometheus
     restart: unless-stopped
-    mem_limit: 256m
+    mem_limit: 512m  # Increased from 256m for 30d retention
     cpus: ${PROMETHEUS_CPUS:-0.5}
+    depends_on:
+      docker-socket-proxy:
+        condition: service_healthy
     networks:
       internal:
         aliases:
@@ -106,6 +157,45 @@ services:
       - "traefik.http.middlewares.prometheus-basicauth.basicauth.usersfile=/etc/traefik/.htpasswd"
       - "traefik.http.middlewares.prometheus-stripprefix.stripprefix.prefixes=/prometheus"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  alertmanager:
+    image: ${ALERTMANAGER_IMAGE:-prom/alertmanager:v0.27.0}
+    container_name: ${ALERTMANAGER_CONTAINER_NAME:-memocards-alertmanager}
+    profiles:
+      - prod
+    ports:
+      - "127.0.0.1:${ALERTMANAGER_PORT:-9093}:9093"
+    volumes:
+      - alertmanager_data:/alertmanager
+      - ./infrastructure/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=https://${DOMAIN:-memocards.duckdns.org}/alertmanager/'
+      - '--web.route-prefix=/'
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9093/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    stop_grace_period: 15s  # Graceful shutdown for Alertmanager
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: ${ALERTMANAGER_CPUS:-0.25}
+    networks:
+      internal:
+        aliases:
+          - alertmanager
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.alertmanager.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && PathPrefix(`/alertmanager`)"
+      - "traefik.http.routers.alertmanager.entrypoints=web"
+      - "traefik.http.routers.alertmanager.priority=10"
+      - "traefik.http.routers.alertmanager.middlewares=alertmanager-stripprefix,alertmanager-basicauth"
+      - "traefik.http.middlewares.alertmanager-basicauth.basicauth.usersfile=/etc/traefik/.htpasswd"
+      - "traefik.http.middlewares.alertmanager-stripprefix.stripprefix.prefixes=/alertmanager"
+      - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
 
   loki:
     image: ${LOKI_IMAGE:-grafana/loki:2.9.8}
@@ -124,6 +214,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    stop_grace_period: 20s  # Graceful shutdown for Loki
     restart: unless-stopped
     mem_limit: 512m  # Increased from 192m to handle concurrent queries
     cpus: ${LOKI_CPUS:-1.0}  # Increased from 0.5 to handle concurrent queries
@@ -143,7 +234,11 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - ./infrastructure/promtail:/etc/promtail
       - promtail_positions:/var/lib/promtail
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Docker socket proxy for security (instead of direct Docker socket access)
+      # No direct Docker socket mount - use docker-socket-proxy instead
+    environment:
+      # Use docker-socket-proxy instead of direct Docker socket
+      DOCKER_HOST: tcp://docker-socket-proxy:2375
     command: -config.file=/etc/promtail/promtail.yml
     healthcheck:
       # Promtail doesn't have wget/curl/pgrep in minimal image, use /proc check instead
@@ -161,6 +256,8 @@ services:
         aliases:
           - promtail
     depends_on:
+      docker-socket-proxy:
+        condition: service_healthy
       loki:
         condition: service_healthy
 
@@ -193,6 +290,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    stop_grace_period: 15s  # Graceful shutdown for Grafana
     restart: unless-stopped
     depends_on:
       prometheus:
@@ -273,6 +371,8 @@ services:
 
 volumes:
   prometheus_data:
+    driver: local
+  alertmanager_data:
     driver: local
   loki_data:
     driver: local
