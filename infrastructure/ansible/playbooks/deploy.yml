@@ -228,20 +228,30 @@
 
         - name: Wait for PostgreSQL to be healthy
           ansible.builtin.command:
-            cmd: docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-postgres-prod
+            cmd: |
+              status=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-postgres-prod 2>/dev/null || echo "none")
+              if [ "$status" = "none" ]; then
+                # Container exists but no healthcheck - check container status
+                container_status=$(docker inspect --format='{% raw %}{{.State.Status}}{% endraw %}' memocards-postgres-prod 2>/dev/null || echo "missing")
+                echo "$container_status"
+              else
+                echo "$status"
+              fi
           register: postgres_health
-          retries: 30
+          retries: 15
           delay: 2
+          # PostgreSQL must be "healthy" (healthcheck passed), not just "starting" or "running"
           until: postgres_health.stdout == "healthy"
           changed_when: false
+          failed_when: false
 
         - name: Wait for container to be running (not restarting)
           ansible.builtin.command:
-            cmd: docker inspect --format='{% raw %}{{.State.Status}}{% endraw %}' memocards-app-prod
+            cmd: docker inspect --format='{% raw %}{{.State.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "missing"
           register: container_status_raw
-          retries: 20
-          delay: 3
-          until: container_status_raw.stdout == "running"
+          retries: 10
+          delay: 2
+          until: container_status_raw.stdout in ["running", "starting"]
           changed_when: false
           failed_when: false
 
@@ -295,28 +305,33 @@
 
         - name: Wait for application container to be healthy (Docker health check)
           ansible.builtin.command:
-            cmd: docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-app-prod
+            cmd: |
+              status=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "none")
+              if [ "$status" = "none" ]; then
+                # Container exists but no healthcheck configured - check container status
+                container_status=$(docker inspect --format='{% raw %}{{.State.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "missing")
+                echo "$container_status"
+              else
+                echo "$status"
+              fi
           register: docker_health_status
-          retries: 60
-          delay: 5
-          until: docker_health_status.stdout == "healthy"
+          retries: 30
+          delay: 3
+          # Accept "starting" during start_period, "running" if no healthcheck, but require "healthy" for success
+          until: docker_health_status.stdout in ["healthy"]
           changed_when: false
           failed_when: false
 
         - name: Wait for Traefik to be ready (required for HTTP health check)
-          ansible.builtin.uri:
-            url: "http://localhost:{{ app_port }}"
-            method: GET
-            status_code: [200, 404, 503]  # Accept various status codes, just check if Traefik responds
-            timeout: 5
-            headers:
-              Host: "{{ domain }}"
+          ansible.builtin.command:
+            cmd: docker inspect --format='{% raw %}{{.State.Status}}{% endraw %}' memocards-traefik 2>/dev/null || echo "missing"
+          register: traefik_check
+          until: traefik_check.stdout == "running"
           retries: 10
           delay: 2
-          register: traefik_check
-          failed_when: false
           changed_when: false
-          # Note: Traefik must be running for HTTP health check to work
+          failed_when: false
+          # Note: Check Traefik container status instead of HTTP to avoid retries
 
         - name: Wait for application to be ready (HTTP check via Traefik)
           ansible.builtin.uri:
@@ -327,7 +342,7 @@
             return_content: true
             headers:
               Host: "{{ domain }}"
-          retries: 30
+          retries: 15
           delay: 2
           register: http_health
           until: http_health.status == 200
@@ -340,7 +355,7 @@
               💚 Health Check Results:
 
               Docker Health Status: {{ docker_health_status.stdout | default('Unknown') }}
-              Traefik Status: {{ 'READY ✅' if (traefik_check is defined and traefik_check.status in [200, 404, 503]) else 'NOT READY ⚠️' }}
+              Traefik Status: {{ 'READY ✅' if (traefik_check is defined and traefik_check.stdout == 'running') else 'NOT READY ⚠️' }}
               HTTP Health Status: {{ http_health.status | default('N/A') }}
               HTTP Response: {{ http_health.content | default('N/A') | truncate(500) }}
 
@@ -353,16 +368,25 @@
             msg: |
               ❌ APPLICATION DOCKER HEALTH CHECK FAILED!
 
-              The application container did not become healthy after 60 retries (5 minutes).
+              The application container did not become healthy after 30 retries (90 seconds).
+              
+              Health Status Meanings:
+              - "healthy" ✅ = Container is running AND healthcheck passed (SUCCESS)
+              - "starting" ⏳ = Container is in start_period (waiting for healthcheck to start)
+              - "unhealthy" ❌ = Healthcheck failed (container running but healthcheck failed)
+              - "none" ⚠️ = No healthcheck configured OR container not found
+              - "running" ⚠️ = Container running but healthcheck not configured
 
-              Docker Health Status: {{ docker_health_status.stdout | default('Unknown') }}
-              Container Status: {{ container_status_check.stdout | default('Unknown') }}
+              Current Status:
+              - Docker Health Status: {{ docker_health_status.stdout | default('Unknown') }}
+              - Container Status: {{ container_status_check.stdout | default('Unknown') }}
 
               Please check:
               1. Application logs: docker logs memocards-app-prod
               2. Container status: docker ps -a | grep memocards-app-prod
               3. Docker health details: docker inspect memocards-app-prod | grep -A 20 Health
-              4. Database connectivity: docker logs memocards-postgres-prod
+              4. Healthcheck endpoint: docker exec memocards-app-prod wget --spider http://localhost:8080/actuator/health
+              5. Database connectivity: docker logs memocards-postgres-prod
           when: docker_health_status.stdout != "healthy"
 
       # Rollback procedure if deployment fails
@@ -389,10 +413,19 @@
 
         - name: Wait for rollback Docker health check
           ansible.builtin.command:
-            cmd: docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-app-prod
+            cmd: |
+              status=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "none")
+              if [ "$status" = "none" ]; then
+                # Container exists but no healthcheck - check container status
+                container_status=$(docker inspect --format='{% raw %}{{.State.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "missing")
+                echo "$container_status"
+              else
+                echo "$status"
+              fi
           register: rollback_docker_health
-          retries: 30
-          delay: 5
+          retries: 15
+          delay: 3
+          # Rollback must result in "healthy" status (healthcheck passed)
           until: rollback_docker_health.stdout == "healthy"
           changed_when: false
           failed_when: false

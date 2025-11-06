@@ -66,6 +66,7 @@ management:
       jdbc: ${MANAGEMENT_METRICS_JDBC:true}
       hikaricp: ${MANAGEMENT_METRICS_HIKARI:true}
       logback: ${MANAGEMENT_METRICS_LOGBACK:true}
+      cache: ${MANAGEMENT_METRICS_CACHE:true}
     distribution:
       # Enable histogram buckets for HikariCP connection usage metrics
       # This enables hikaricp_connections_usage_seconds_bucket metric for percentile calculations

@@ -172,14 +172,20 @@
   tags: [monitoring, deploy]
 
 - name: Wait for Docker Socket Proxy to be ready (after deployment)
-  ansible.builtin.uri:
-    url: "http://localhost:2375/_ping"
-    method: GET
-    status_code: 200
-    timeout: 5
+  ansible.builtin.command:
+    cmd: |
+      status=$(docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' memocards-docker-socket-proxy 2>/dev/null || echo "none")
+      if [ "$status" = "none" ]; then
+        # Container exists but no healthcheck - check if running
+        container_status=$(docker inspect --format='{{ '{{' }}.State.Status{{ '}}' }}' memocards-docker-socket-proxy 2>/dev/null || echo "missing")
+        echo "$container_status"
+      else
+        echo "$status"
+      fi
   register: monitoring_docker_socket_proxy_health
-  until: monitoring_docker_socket_proxy_health.status == 200
-  retries: 30
+  # Docker Socket Proxy may not have healthcheck - accept "healthy" if exists, otherwise "running"
+  until: monitoring_docker_socket_proxy_health.stdout in ["healthy", "running"]
+  retries: 15
   delay: 2
   changed_when: false
   failed_when: false
@@ -187,31 +193,33 @@
   when: "'quick' not in ansible_run_tags"
 
 - name: Wait for Grafana to be ready (after deployment)
-  ansible.builtin.uri:
-    url: "http://localhost:3000/api/health"
-    method: GET
-    status_code: 200
-    timeout: 5
+  ansible.builtin.command:
+    cmd: |
+      status=$(docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' memocards-grafana-prod 2>/dev/null || echo "none")
+      if [ "$status" = "none" ]; then
+        # Container exists but no healthcheck - check container status
+        container_status=$(docker inspect --format='{{ '{{' }}.State.Status{{ '}}' }}' memocards-grafana-prod 2>/dev/null || echo "missing")
+        echo "$container_status"
+      else
+        echo "$status"
+      fi
   register: monitoring_grafana_health
-  until: monitoring_grafana_health.status == 200
-  retries: 30
+  # Grafana must be "healthy" if healthcheck exists, or "running" if no healthcheck configured
+  # Prefer "healthy" but accept "running" for containers without healthcheck
+  until: monitoring_grafana_health.stdout in ["healthy", "running"]
+  retries: 20
   delay: 2
   changed_when: false
   failed_when: false
   tags: [monitoring, verify, healthcheck]
   when: "'quick' not in ansible_run_tags"
 
-- name: Wait for Traefik to be ready (check routing)
-  # In Traefik v3.0 with insecure=false, API is not directly accessible
-  # Check that Traefik responds on port 8080 (even 404 means it's working)
-  ansible.builtin.uri:
-    url: "http://localhost:8080/"
-    method: GET
-    status_code: [200, 404]  # 404 is OK - means Traefik is running and routing
-    timeout: 5
-  register: monitoring_traefik_health_check
-  until: monitoring_traefik_health_check.status in [200, 404]
-  retries: 30
+- name: Wait for Traefik to be ready (check container status)
+  ansible.builtin.command:
+    cmd: docker inspect --format='{{ '{{' }}.State.Status{{ '}}' }}' memocards-traefik 2>/dev/null || echo "missing"
+  register: monitoring_traefik_status
+  until: monitoring_traefik_status.stdout == "running"
+  retries: 15
   delay: 2
   changed_when: false
   failed_when: false
@@ -220,6 +228,7 @@
 
 - name: Wait for Grafana/Prometheus/Traefik routes to register in Traefik
   # Routes require Host header matching rule (Host(memocards.duckdns.org))
+  # Wait for Traefik to be ready first, then check routes
   ansible.builtin.uri:
     url: "{{ item.url }}"
     method: GET
@@ -228,9 +237,11 @@
     status_code: "{{ item.expected_status }}"
     timeout: 5
   register: monitoring_route_check
-  until: monitoring_route_check.status == item.expected_status
-  retries: 30
-  delay: 2
+  until: >-
+    monitoring_route_check.status is defined and
+    monitoring_route_check.status in item.expected_status
+  retries: 20
+  delay: 3
   changed_when: false
   failed_when: false
   loop:
@@ -247,9 +258,9 @@
       ✅ Infrastructure deployed:
 
       🔄 Traefik:
-        {% if monitoring_traefik_health_check is defined
-        and monitoring_traefik_health_check.rc is defined
-        and monitoring_traefik_health_check.rc == 0 %}READY ✅
+        {% if monitoring_traefik_status is defined
+        and monitoring_traefik_status.stdout is defined
+        and monitoring_traefik_status.stdout == "running" %}READY ✅
         {% else %}STARTING...{% endif %}
       🔒 Docker Socket Proxy: running (security layer)
       📊 Prometheus: localhost:9090

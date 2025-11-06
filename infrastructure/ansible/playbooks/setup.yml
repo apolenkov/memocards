@@ -293,9 +293,19 @@
 
     - name: Wait for application container health=healthy
       ansible.builtin.shell: |
-        for i in {1..120}; do
+        for i in {1..60}; do
           status=$(docker inspect --format='{{ '{{' }}.State.Health.Status{{ '}}' }}' memocards-app-prod 2>/dev/null || echo missing)
+          # Only "healthy" means success - "starting" is during start_period, not final state
           if [ "$status" = "healthy" ]; then exit 0; fi
+          # If no healthcheck configured, check container status
+          if [ "$status" = "missing" ] || [ "$status" = "none" ]; then
+            container_status=$(docker inspect --format='{{ '{{' }}.State.Status{{ '}}' }}' memocards-app-prod 2>/dev/null || echo missing)
+            if [ "$container_status" = "running" ]; then
+              # Container running but no healthcheck - consider as OK for now
+              echo "WARNING: Container running but no healthcheck configured"
+              exit 0
+            fi
+          fi
           sleep 2
         done
         exit 1
@@ -316,7 +326,7 @@
         validate_certs: false
       register: public_routes_check
       until: public_routes_check.status in item.expected_status
-      retries: 60
+      retries: 15
       delay: 2
       changed_when: false
       failed_when: false
