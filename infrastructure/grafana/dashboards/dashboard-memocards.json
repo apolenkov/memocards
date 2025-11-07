@@ -2383,7 +2383,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "max by (container_label_com_docker_compose_service) (rate(container_cpu_usage_seconds_total{container_label_com_docker_compose_service=~\"app|postgres|grafana|prometheus|traefik|loki|alertmanager|cadvisor|promtail|node-exporter|docker-socket-proxy\",name=~\".+\",id=~\"/docker/.+\"}[5m]) * 100)",
+          "expr": "(max by (container_label_com_docker_compose_service) (rate(container_cpu_usage_seconds_total{container_label_com_docker_compose_service!=\"\"}[5m]) * 100)) or vector(0)",
           "legendFormat": "{{container_label_com_docker_compose_service}}",
           "refId": "B"
         }
@@ -2452,7 +2452,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "max by (container_label_com_docker_compose_service) ((container_memory_usage_bytes{container_label_com_docker_compose_service=~\"app|postgres|grafana|prometheus|traefik|loki|alertmanager|cadvisor|promtail|node-exporter|docker-socket-proxy\",name=~\".+\",id=~\"/docker/.+\"} / container_spec_memory_limit_bytes{container_label_com_docker_compose_service=~\"app|postgres|grafana|prometheus|traefik|loki|alertmanager|cadvisor|promtail|node-exporter|docker-socket-proxy\",name=~\".+\",id=~\"/docker/.+\"}) * 100)",
+          "expr": "(max by (container_label_com_docker_compose_service) (((container_memory_usage_bytes{container_label_com_docker_compose_service!=\"\"}) / clamp_min(container_spec_memory_limit_bytes{container_label_com_docker_compose_service!=\"\"}, 1)) * 100)) or vector(0)",
           "legendFormat": "{{container_label_com_docker_compose_service}}",
           "refId": "A"
         }
@@ -2543,7 +2543,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum without (name, id, container_name, instance) (rate(container_network_receive_bytes_total{container_label_com_docker_compose_service=~\"app|postgres|grafana|prometheus|traefik|loki|alertmanager|cadvisor|promtail|node-exporter|docker-socket-proxy\",id=~\"/docker/.+\"}[1m]))",
+          "expr": "sum by (container_label_com_docker_compose_service) (rate(container_network_receive_bytes_total{container_label_com_docker_compose_service!=\"\",interface!=\"lo\"}[1m]))",
           "legendFormat": "Rx - {{container_label_com_docker_compose_service}}",
           "refId": "A"
         },
@@ -2552,7 +2552,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum without (name, id, container_name, instance) (rate(container_network_transmit_bytes_total{container_label_com_docker_compose_service=~\"app|postgres|grafana|prometheus|traefik|loki|alertmanager|cadvisor|promtail|node-exporter|docker-socket-proxy\",id=~\"/docker/.+\"}[1m]))",
+          "expr": "sum by (container_label_com_docker_compose_service) (rate(container_network_transmit_bytes_total{container_label_com_docker_compose_service!=\"\",interface!=\"lo\"}[1m]))",
           "legendFormat": "Tx - {{container_label_com_docker_compose_service}}",
           "refId": "B"
         }
