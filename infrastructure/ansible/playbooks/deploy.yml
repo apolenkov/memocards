@@ -304,21 +304,33 @@
           when: container_status_check.rc == 0 and app_logs.stdout is defined
 
         - name: Wait for application container to be healthy (Docker health check)
-          ansible.builtin.command:
-            cmd: |
-              status=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "none")
-              if [ "$status" = "none" ]; then
-                # Container exists but no healthcheck configured - check container status
+          ansible.builtin.shell: |
+            for i in {1..30}; do
+              # Get health status
+              health_status=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "none")
+              # If healthcheck not configured, check container status
+              if [ "$health_status" = "none" ] || [ -z "$health_status" ]; then
                 container_status=$(docker inspect --format='{% raw %}{{.State.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "missing")
-                echo "$container_status"
-              else
-                echo "$status"
+                if [ "$container_status" = "running" ]; then
+                  echo "running"
+                  exit 0
+                fi
+              elif [ "$health_status" = "healthy" ]; then
+                echo "healthy"
+                exit 0
               fi
+              sleep 3
+            done
+            # Final check
+            final_status=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "none")
+            if [ "$final_status" = "none" ] || [ -z "$final_status" ]; then
+              docker inspect --format='{% raw %}{{.State.Status}}{% endraw %}' memocards-app-prod 2>/dev/null || echo "missing"
+            else
+              echo "$final_status"
+            fi
+          args:
+            executable: /bin/bash
           register: docker_health_status
-          retries: 30
-          delay: 3
-          # Accept "starting" during start_period, "running" if no healthcheck, but require "healthy" for success
-          until: docker_health_status.stdout in ["healthy"]
           changed_when: false
           failed_when: false
 
@@ -349,12 +361,18 @@
           failed_when: false # Don't fail immediately, show diagnostics first
           # Note: HTTP check requires Host header for Traefik routing (Host rule in docker-compose.yml)
 
+        - name: Get actual health status from container status check
+          ansible.builtin.set_fact:
+            actual_docker_health: "{{ container_status_check.stdout | regex_search('Health: (\\w+)') | default([]) | first | default('unknown') }}"
+          when: container_status_check.stdout is defined
+
         - name: Show health check diagnostics
           ansible.builtin.debug:
             msg: |
               💚 Health Check Results:
 
-              Docker Health Status: {{ docker_health_status.stdout | default('Unknown') }}
+              Docker Health Status (from check): {{ docker_health_status.stdout | default('Unknown') }}
+              Docker Health Status (from container status): {{ actual_docker_health | default('Unknown') }}
               Traefik Status: {{ 'READY ✅' if (traefik_check is defined and traefik_check.stdout == 'running') else 'NOT READY ⚠️' }}
               HTTP Health Status: {{ http_health.status | default('N/A') }}
               HTTP Response: {{ http_health.content | default('N/A') | truncate(500) }}
@@ -378,7 +396,8 @@
               - "running" ⚠️ = Container running but healthcheck not configured
 
               Current Status:
-              - Docker Health Status: {{ docker_health_status.stdout | default('Unknown') }}
+              - Docker Health Status (from check): {{ docker_health_status.stdout | default('Unknown') }}
+              - Docker Health Status (from container status): {{ actual_docker_health | default('Unknown') }}
               - Container Status: {{ container_status_check.stdout | default('Unknown') }}
 
               Please check:
@@ -387,7 +406,9 @@
               3. Docker health details: docker inspect memocards-app-prod | grep -A 20 Health
               4. Healthcheck endpoint: docker exec memocards-app-prod wget --spider http://localhost:8080/actuator/health
               5. Database connectivity: docker logs memocards-postgres-prod
-          when: docker_health_status.stdout != "healthy"
+          when: >
+            (docker_health_status.stdout is not defined or docker_health_status.stdout.strip() not in ["healthy", "running"])
+            and (actual_docker_health | default('unknown') != 'healthy')
 
       # Rollback procedure if deployment fails
       rescue:
@@ -437,10 +458,13 @@
             status_code: 200
             headers:
               Host: "{{ domain }}"
-            retries: 10
-            delay: 2
-            register: rollback_http_health
-            failed_when: false
+            timeout: 5
+            return_content: true
+          register: rollback_http_health
+          until: rollback_http_health.status == 200
+          retries: 10
+          delay: 2
+          failed_when: false
 
         - name: Fail playbook after rollback attempt
           ansible.builtin.fail:
@@ -565,8 +589,8 @@
           deployment_method: "ansible"
           status: "success"
           health_check:
-            postgres: "{{ postgres_health.stdout | default('unknown') if postgres_health is defined else 'unknown' }}"
-            docker_health: "{{ docker_health_status.stdout | default('unknown') if docker_health_status is defined else 'unknown' }}"
+            postgres: "{{ postgres_health.stdout.strip() | default('unknown') if (postgres_health is defined and postgres_health.stdout is defined) else 'unknown' }}"
+            docker_health: "{{ docker_health_status.stdout.strip() | default('unknown') if (docker_health_status is defined and docker_health_status.stdout is defined) else 'unknown' }}"
             http_health: "{{ 'healthy' if (http_health is defined and http_health.status == 200) else 'failed' if http_health is defined else 'unknown' }}"
           version_info: "{{ app_info.json | default({}) }}"
       tags: [always, history]
