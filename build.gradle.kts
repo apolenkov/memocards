@@ -134,14 +134,14 @@ configurations.all {
         failOnVersionConflict()
 
         // Existing force declarations
-        force("commons-io:commons-io:2.20.0")
-        force("org.checkerframework:checker-qual:3.51.1")
+        force("commons-io:commons-io:2.21.0")
+        force("org.checkerframework:checker-qual:3.52.0")
         force("org.ow2.asm:asm:9.9") // Vaadin 24.9.2 compatibility
 
         // Resolve reported conflicts with latest versions
         force("com.google.guava:guava:33.5.0-jre")
         force("org.apache.commons:commons-compress:1.28.0")
-        force("com.google.errorprone:error_prone_annotations:2.43.0")
+        force("com.google.errorprone:error_prone_annotations:2.44.0")
         force("io.github.classgraph:classgraph:4.8.184")
 
         // Added to resolve the reported conflicts
