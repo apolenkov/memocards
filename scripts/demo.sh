@@ -8,10 +8,14 @@ cd "$(dirname "$0")/.."
 # --- Java 21 (on macOS pick it via java_home, without touching the shell profile)
 if [ -x /usr/libexec/java_home ] && JH="$(/usr/libexec/java_home -v 21 2>/dev/null)"; then
   export JAVA_HOME="$JH"
+elif command -v brew >/dev/null 2>&1 && BP="$(brew --prefix openjdk@21 2>/dev/null)" \
+  && [ -x "$BP/libexec/openjdk.jdk/Contents/Home/bin/java" ]; then
+  # Homebrew formula openjdk@21 is keg-only and not visible to java_home
+  export JAVA_HOME="$BP/libexec/openjdk.jdk/Contents/Home"
 fi
 JAVA="${JAVA_HOME:+$JAVA_HOME/bin/}java"
 if ! "$JAVA" -version 2>&1 | grep -q 'version "21'; then
-  echo "JDK 21 not found. Install it (e.g. Eclipse Temurin 21) or set JAVA_HOME." >&2
+  echo "JDK 21 not found. Install Eclipse Temurin 21 or run: brew install openjdk@21" >&2
   exit 1
 fi
 

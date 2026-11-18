@@ -52,7 +52,7 @@ PostgreSQL (схема в db/migration, Flyway)
 
 ## Локальный запуск
 
-Нужны JDK 21 и Docker с Docker Compose.
+Нужны JDK 21 (Temurin или `brew install openjdk@21`) и Docker с Docker Compose.
 
 ### Демо одной командой
 
