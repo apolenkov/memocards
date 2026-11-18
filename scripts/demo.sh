@@ -44,8 +44,24 @@ if lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
   exit 1
 fi
 
-# --- database
-make start
+# --- database (if 5432 is taken by another local PostgreSQL, use the next free port)
+COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile dev)
+DB_PORT="${POSTGRES_PORT:-5432}"
+if [ -z "$("${COMPOSE[@]}" ps -q postgres 2>/dev/null)" ]; then
+  while lsof -nP -iTCP:"$DB_PORT" -sTCP:LISTEN >/dev/null 2>&1; do
+    DB_PORT=$((DB_PORT + 1))
+  done
+else
+  DB_PORT="$("${COMPOSE[@]}" port postgres 5432 | sed 's/.*://')"
+fi
+export POSTGRES_PORT="$DB_PORT"
+DB_JDBC_URL="jdbc:postgresql://localhost:${DB_PORT}/${DB_NAME:-memocards}"
+echo "Starting PostgreSQL on 127.0.0.1:${DB_PORT}..."
+"${COMPOSE[@]}" up -d postgres
+until "${COMPOSE[@]}" exec -T postgres pg_isready -U "${DB_USER:-memocards_user}" -d "${DB_NAME:-memocards}" >/dev/null 2>&1; do
+  sleep 1
+done
+echo "PostgreSQL is ready."
 
 # --- application jar (production UI bundle, no dev tools)
 echo "Building application jar (first run takes a few minutes)..."
@@ -62,6 +78,7 @@ mkdir -p logs
 echo "Starting $JAR ..."
 "$JAVA" -jar "$JAR" \
   --spring.profiles.active=prod \
+  --spring.datasource.url="$DB_JDBC_URL" \
   --server.port="$PORT" \
   --vaadin.productionMode=true \
   --vaadin.launch-browser=false \
