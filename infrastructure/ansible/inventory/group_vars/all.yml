@@ -15,7 +15,7 @@ vps_locale: "en_US.UTF-8"
 # =============================================================================
 # APPLICATION CONFIGURATION
 # =============================================================================
-domain: "memocards.duckdns.org"
+domain: "example.com"
 # Default image and version (can be overridden with --extra-vars "app_image=...")
 # Examples:
 #   app_image: "ghcr.io/apolenkov/memocards:latest"        # Latest version
@@ -68,7 +68,7 @@ postgres_effective_cache_size: "512MB"
 grafana_enabled: true
 grafana_port: 3000
 grafana_admin_user: "admin"
-grafana_domain: "grafana.memocards.duckdns.org"
+grafana_domain: "grafana.example.com"
 # grafana_admin_password stored in secrets.yml (vault)
 
 # Prometheus settings

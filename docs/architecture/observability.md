@@ -21,10 +21,10 @@
 - Runbooks: see [operations-runbooks.md](./operations-runbooks.md).
 
 ## Grafana Dashboards (links)
-- [Overview](https://memocards.duckdns.org/grafana/d/<overview-uid>/<overview-slug>)
-- [Application (HTTP/Cache)](https://memocards.duckdns.org/grafana/d/<app-uid>/<app-slug>)
-- [Database (PostgreSQL)](https://memocards.duckdns.org/grafana/d/<db-uid>/<db-slug>)
-- [Logs (Loki Explore)](https://memocards.duckdns.org/grafana/explore?left=%5B%22now-1h%22,%22now%22,%22Loki%22,%7B%7D%5D)
+- [Overview](https://example.com/grafana/d/<overview-uid>/<overview-slug>)
+- [Application (HTTP/Cache)](https://example.com/grafana/d/<app-uid>/<app-slug>)
+- [Database (PostgreSQL)](https://example.com/grafana/d/<db-uid>/<db-slug>)
+- [Logs (Loki Explore)](https://example.com/grafana/explore?left=%5B%22now-1h%22,%22now%22,%22Loki%22,%7B%7D%5D)
 
 Replace <...-uid>/<...-slug> with real dashboard UID/slug.
 

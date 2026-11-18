@@ -1,12 +1,12 @@
 ---
-name: Main Branch Deployment
+name: Main Branch Tests
 
 on:
   # Automatic on tag creation (releases)
   push:
     tags:
       - 'v*.*.*'
-  
+
   # Manual trigger only
   workflow_dispatch:
 
@@ -20,10 +20,6 @@ env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
   TESTCONTAINERS_REUSE_ENABLE: "true"
 
-  # Docker Registry
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   test:
     name: Run Test Suite
@@ -31,163 +27,3 @@ jobs:
     with:
       gradle-opts: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
       testcontainers-reuse: "true"
-
-  ansible-validation:
-    name: Ansible Quality Checks
-    uses: ./.github/workflows/ansible-lint.yml
-    secrets: inherit
-
-  docker-build:
-    name: Build and Push Docker Image
-    runs-on: ubuntu-latest
-    timeout-minutes: 15 # Jib build and push to registry
-    needs: [test, ansible-validation]
-    permissions:
-      contents: read       # Required: checkout code
-      packages: write      # Required: push to GHCR
-      attestations: write  # Required: generate SLSA provenance
-      id-token: write      # Required: OIDC authentication for docker/login-action@v3
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-
-      - name: Setup Gradle environment
-        uses: ./.github/actions/setup-gradle
-
-      - name: Cache npm dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Get project version from JGitver
-        id: version
-        run: |
-          # JGitver automatically computes version from Git tags
-          # Use --console=plain to avoid ANSI codes and warnings
-          VERSION=$(./gradlew properties -q --console=plain | grep "^version:" | head -n 1 | awk '{print $2}')
-          
-          # Validate version format (semantic versioning)
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
-            echo "❌ ERROR: Invalid version format: '$VERSION'"
-            echo ""
-            echo "Expected semantic version like:"
-            echo "  - 1.0.0"
-            echo "  - 1.0.0-SNAPSHOT"
-            echo "  - 1.0.0-5-g8a9b2c1-SNAPSHOT"
-            echo ""
-            echo "Debug: Full gradle output:"
-            ./gradlew properties -q --console=plain | grep "version"
-            exit 1
-          fi
-          
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "✅ Project Version: $VERSION (validated)"
-          echo "🏷️  Git SHA: ${{ github.sha }}"
-
-      - name: Build and push Docker image with Jib
-        env:
-          GITHUB_SHA: ${{ github.sha }}
-        run: |
-          echo "🏗️  Building Docker image with multiple tags..."
-          ./gradlew jib \
-            -PGITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
-            -PGITHUB_ACTOR="${{ github.actor }}" \
-            -PGITHUB_REPOSITORY="${{ github.repository }}" \
-            -PGITHUB_SHA="${{ github.sha }}"
-
-          echo "✅ Image pushed successfully!"
-          echo "📦 Repository: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          echo "🏷️  Tags (automatically from Jib config):"
-          echo "   - latest (always)"
-          echo "   - ${{ steps.version.outputs.version }} (from JGitver)"
-          echo "   - ${GITHUB_SHA:0:7} (git commit)"
-
-      - name: Extract image digest
-        id: digest
-        run: |
-          if [ -f build/jib-image.digest ]; then
-            DIGEST=$(cat build/jib-image.digest)
-            echo "digest=$DIGEST" >> $GITHUB_OUTPUT
-            echo "📋 Image digest: $DIGEST"
-          else
-            echo "⚠️  Warning: jib-image.digest not found"
-          fi
-
-      - name: Generate artifact attestation
-        id: attest
-        if: steps.digest.outputs.digest != ''
-        uses: actions/attest-build-provenance@v3
-        continue-on-error: true
-        with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          subject-digest: ${{ steps.digest.outputs.digest }}
-          push-to-registry: true
-
-      - name: Log attestation status
-        if: always()
-        run: |
-          if [ "${{ steps.attest.outcome }}" = "success" ]; then
-            echo "✅ Artifact attestation generated successfully"
-          else
-            echo "⚠️  Artifact attestation skipped (may not be available for private repos)"
-          fi
-
-      - name: Upload image metadata
-        uses: actions/upload-artifact@v5
-        with:
-          name: docker-image-metadata
-          path: |
-            build/jib-image.digest
-            build/jib-image.id
-            build/jib-image.json
-          retention-days: 90  # Long retention (release artifacts)
-
-      - name: Create deployment summary
-        run: |
-          echo "## 🐳 Docker Image Built" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Repository:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Available Tags:**" >> $GITHUB_STEP_SUMMARY
-          echo "- \`latest\` (always)" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ steps.version.outputs.version }}\` (from JGitver)" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${GITHUB_SHA:0:7}\` (git commit)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Security:**" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ github.event.repository.visibility }}" == "public" ]; then
-            echo "- ✅ Artifact attestation generated (SLSA provenance)" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Supply chain transparency enabled" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- ℹ️ Artifact attestation skipped (only available for public repositories)" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Image signed and pushed to registry" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Pull Commands:**" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_SHA:0:7}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

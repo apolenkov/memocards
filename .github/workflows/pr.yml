@@ -40,42 +40,6 @@ jobs:
       gradle-opts: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
       testcontainers-reuse: "true"
 
-  # Check if Ansible files were changed in this PR
-  check-ansible-changes:
-    name: Check Ansible Changes
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    outputs:
-      ansible_changed: ${{ steps.check.outputs.changed }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          persist-credentials: true
-
-      - name: Check if Ansible files modified
-        id: check
-        run: |
-          git fetch origin ${{ github.base_ref }}
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
-          
-          if echo "$CHANGED_FILES" | grep -qE "^infrastructure/ansible/|^ansible/"; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "✅ Ansible files were modified - will run quality checks"
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "⏭️  No Ansible files changed - skipping validation"
-          fi
-
-  # Reuse the full ansible-lint.yml workflow (DRY principle!)
-  ansible-validation:
-    name: Ansible Quality Checks
-    needs: check-ansible-changes
-    if: needs.check-ansible-changes.outputs.ansible_changed == 'true'
-    uses: ./.github/workflows/ansible-lint.yml
-    secrets: inherit
-
   docker-compose-validation:
     name: Docker Compose Validation
     runs-on: ubuntu-latest

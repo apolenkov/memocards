@@ -227,7 +227,7 @@
   when: "'quick' not in ansible_run_tags"
 
 - name: Wait for Grafana/Prometheus/Traefik routes to register in Traefik
-  # Routes require Host header matching rule (Host(memocards.duckdns.org))
+  # Routes require Host header matching rule (Host(example.com))
   # Wait for Traefik to be ready first, then check routes
   ansible.builtin.uri:
     url: "{{ item.url }}"

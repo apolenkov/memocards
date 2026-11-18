@@ -74,7 +74,7 @@ services:
       - "traefik.enable=true"
       # API router for /traefik/api/* - needs stripprefix to remove /traefik
       # Note: api@internal expects /api/* paths, so /traefik/api -> /api
-      - "traefik.http.routers.traefik-api-prefixed.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && PathPrefix(`/traefik/api`)"
+      - "traefik.http.routers.traefik-api-prefixed.rule=Host(`${DOMAIN:-example.com}`) && PathPrefix(`/traefik/api`)"
       - "traefik.http.routers.traefik-api-prefixed.entrypoints=web"
       - "traefik.http.routers.traefik-api-prefixed.priority=10"
       - "traefik.http.routers.traefik-api-prefixed.service=api@internal"
@@ -82,21 +82,21 @@ services:
       - "traefik.http.middlewares.traefik-api-stripprefix.stripprefix.prefixes=/traefik"
       # API router for /api/* - direct path, no stripprefix needed
       # Dashboard JS client makes requests to /api/* (relative from /traefik/dashboard/)
-      - "traefik.http.routers.traefik-api-direct.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.traefik-api-direct.rule=Host(`${DOMAIN:-example.com}`) && PathPrefix(`/api`)"
       - "traefik.http.routers.traefik-api-direct.entrypoints=web"
       - "traefik.http.routers.traefik-api-direct.priority=10"
       - "traefik.http.routers.traefik-api-direct.service=api@internal"
       - "traefik.http.routers.traefik-api-direct.middlewares=traefik-basicauth"
       # Dashboard router - routes /traefik/dashboard/* and static assets to api@internal with stripprefix
       # Dashboard serves HTML, JS, CSS, and other assets from /dashboard/* and /assets/*, /icons/*, etc.
-      - "traefik.http.routers.traefik-dashboard.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && (PathPrefix(`/traefik/dashboard`) || PathPrefix(`/traefik/assets`) || PathPrefix(`/traefik/icons`) || PathPrefix(`/traefik/app-logo`))"
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`${DOMAIN:-example.com}`) && (PathPrefix(`/traefik/dashboard`) || PathPrefix(`/traefik/assets`) || PathPrefix(`/traefik/icons`) || PathPrefix(`/traefik/app-logo`))"
       - "traefik.http.routers.traefik-dashboard.entrypoints=web"
       - "traefik.http.routers.traefik-dashboard.priority=10"
       - "traefik.http.routers.traefik-dashboard.service=api@internal"
       - "traefik.http.routers.traefik-dashboard.middlewares=traefik-dashboard-stripprefix,traefik-basicauth"
       - "traefik.http.middlewares.traefik-dashboard-stripprefix.stripprefix.prefixes=/traefik"
       # Redirect /traefik/ to /traefik/dashboard/
-      - "traefik.http.routers.traefik-redirect.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && (Path(`/traefik`) || Path(`/traefik/`))"
+      - "traefik.http.routers.traefik-redirect.rule=Host(`${DOMAIN:-example.com}`) && (Path(`/traefik`) || Path(`/traefik/`))"
       - "traefik.http.routers.traefik-redirect.entrypoints=web"
       - "traefik.http.routers.traefik-redirect.priority=20"
       - "traefik.http.routers.traefik-redirect.service=api@internal"
@@ -133,7 +133,7 @@ services:
       - '--storage.tsdb.retention.size=10GB'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
-      - '--web.external-url=https://${DOMAIN:-memocards.duckdns.org}/prometheus/'
+      - '--web.external-url=https://${DOMAIN:-example.com}/prometheus/'
       - '--web.route-prefix=/'
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
@@ -154,7 +154,7 @@ services:
           - prometheus
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.prometheus.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && PathPrefix(`/prometheus`)"
+      - "traefik.http.routers.prometheus.rule=Host(`${DOMAIN:-example.com}`) && PathPrefix(`/prometheus`)"
       - "traefik.http.routers.prometheus.entrypoints=web"
       - "traefik.http.routers.prometheus.priority=10"
       - "traefik.http.routers.prometheus.middlewares=prometheus-stripprefix,prometheus-basicauth"
@@ -175,7 +175,7 @@ services:
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'
-      - '--web.external-url=https://${DOMAIN:-memocards.duckdns.org}/alertmanager/'
+      - '--web.external-url=https://${DOMAIN:-example.com}/alertmanager/'
       - '--web.route-prefix=/'
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9093/-/healthy || exit 1"]
@@ -193,7 +193,7 @@ services:
           - alertmanager
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.alertmanager.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && PathPrefix(`/alertmanager`)"
+      - "traefik.http.routers.alertmanager.rule=Host(`${DOMAIN:-example.com}`) && PathPrefix(`/alertmanager`)"
       - "traefik.http.routers.alertmanager.entrypoints=web"
       - "traefik.http.routers.alertmanager.priority=10"
       - "traefik.http.routers.alertmanager.middlewares=alertmanager-stripprefix,alertmanager-basicauth"
@@ -278,8 +278,8 @@ services:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
       GF_USERS_ALLOW_SIGN_UP: false
-      GF_SERVER_DOMAIN: ${DOMAIN:-memocards.duckdns.org}
-      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-https://${DOMAIN:-memocards.duckdns.org}/grafana/}
+      GF_SERVER_DOMAIN: ${DOMAIN:-example.com}
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-https://${DOMAIN:-example.com}/grafana/}
       GF_SERVER_PROTOCOL: http
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
       GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/dashboard-memocards.json
@@ -307,7 +307,7 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && PathPrefix(`/grafana`)"
+      - "traefik.http.routers.grafana.rule=Host(`${DOMAIN:-example.com}`) && PathPrefix(`/grafana`)"
       - "traefik.http.routers.grafana.entrypoints=web"
       - "traefik.http.routers.grafana.priority=10"
       # Note: stripPrefix removed - Grafana with serve_from_sub_path=true expects requests WITH /grafana prefix
@@ -383,7 +383,7 @@ services:
       # 3. Containers restarted/recreated (cAdvisor shows both old and new)
       # Solution: Clean up old containers with: docker container prune -f
       - "traefik.enable=true"
-      - "traefik.http.routers.cadvisor.rule=Host(`${DOMAIN:-memocards.duckdns.org}`) && PathPrefix(`/cadvisor`)"
+      - "traefik.http.routers.cadvisor.rule=Host(`${DOMAIN:-example.com}`) && PathPrefix(`/cadvisor`)"
       - "traefik.http.routers.cadvisor.entrypoints=web"
       - "traefik.http.routers.cadvisor.priority=10"
       - "traefik.http.routers.cadvisor.middlewares=cadvisor-stripprefix"

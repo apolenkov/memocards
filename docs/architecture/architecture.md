@@ -379,7 +379,7 @@ graph TB
     Browser -->|HTTPS 443| Nginx
     Nginx -->|HTTP :8080<br/>Single Proxy Pass| Traefik
     
-    Traefik -->|PathPrefix /<br/>Host memocards.duckdns.org| App
+    Traefik -->|PathPrefix /<br/>Host example.com| App
     Traefik -->|PathPrefix /grafana<br/>StripPrefix Middleware| Grafana
     Traefik -->|PathPrefix /prometheus| Prometheus
     Traefik -->|PathPrefix /traefik| Traefik[Traefik Dashboard<br/>:8082]
@@ -418,7 +418,7 @@ graph TB
 
 | Service | Rule | Priority | Middleware |
 |---------|------|----------|------------|
-| **App** | `Host(memocards.duckdns.org) && !PathPrefix(/grafana\|/prometheus\|/traefik)` | 1 | None (fallback) |
+| **App** | `Host(example.com) && !PathPrefix(/grafana\|/prometheus\|/traefik)` | 1 | None (fallback) |
 | **Grafana** | `PathPrefix(/grafana)` | 10 | `stripPrefix(/grafana)` |
 | **Prometheus** | `PathPrefix(/prometheus)` | 10 | None |
 | **Traefik Dashboard** | `PathPrefix(/traefik) \|\| PathPrefix(/api)` | 10 | None |

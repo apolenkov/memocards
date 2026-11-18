@@ -13,7 +13,7 @@ APP_PORT := 8080
         code-quality coverage deps npm-install vaadin-prepare dev-setup \
         lint-css lint-yaml spotless-check sonarlint spotbugs checkstyle \
         vaadin-build-frontend vaadin-clean erase docker docker-stop \
-        docker-logs docker-status jib jib-push
+        docker-logs docker-status jib jib-push demo demo-stop
 
 # =============================================================================
 # HELP
@@ -175,6 +175,12 @@ dev: start ## Start application in development mode
 prod: start vaadin-build-prod ## Start application in production mode
 	@echo "Starting application in production mode..."
 	$(GRADLE) bootRun --args="--spring.profiles.active=prod"
+
+demo: ## One-command demo: PostgreSQL in Docker + app with demo data on http://localhost:8080
+	@./scripts/demo.sh
+
+demo-stop: ## Stop demo containers (data volume is kept)
+	$(DOCKER_COMPOSE) --profile dev down
 
 # =============================================================================
 # DIAGNOSTICS & VERIFICATION

@@ -2,9 +2,7 @@
 name: Security Audit
 
 on:
-  schedule:
-    # Run every Sunday at 2 AM UTC
-    - cron: "0 2 * * 0"
+  # Manual trigger only
   workflow_dispatch:
 # Prevent concurrent security scans
 concurrency:

@@ -12,7 +12,7 @@ global:
   # slack_api_url: '${ALERTMANAGER_SLACK_API_URL}'
   # Email SMTP settings (optional, set via environment variable)
   # smtp_smarthost: '${ALERTMANAGER_SMTP_HOST:-localhost:587}'
-  # smtp_from: '${ALERTMANAGER_SMTP_FROM:-alertmanager@memocards.duckdns.org}'
+  # smtp_from: '${ALERTMANAGER_SMTP_FROM:-alertmanager@example.com}'
   # smtp_auth_username: '${ALERTMANAGER_SMTP_USER:-}'
   # smtp_auth_password: '${ALERTMANAGER_SMTP_PASSWORD:-}'
 
@@ -108,7 +108,7 @@ receivers:
   - name: 'critical-receiver'
     # Email notifications (uncomment and configure)
     # email_configs:
-    #   - to: '${ALERTMANAGER_EMAIL_TO:-admin@memocards.duckdns.org}'
+    #   - to: '${ALERTMANAGER_EMAIL_TO:-admin@example.com}'
     #     headers:
     #       Subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
     #     send_resolved: true
@@ -131,7 +131,7 @@ receivers:
   - name: 'warning-receiver'
     # Email notifications (uncomment and configure)
     # email_configs:
-    #   - to: '${ALERTMANAGER_EMAIL_TO:-admin@memocards.duckdns.org}'
+    #   - to: '${ALERTMANAGER_EMAIL_TO:-admin@example.com}'
     #     headers:
     #       Subject: '⚠️ WARNING: {{ .GroupLabels.alertname }}'
     #     send_resolved: true
