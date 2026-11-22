@@ -1,11 +1,10 @@
 # Contributing to Memocards
 
 Thank you for your interest in contributing to Memocards! This document provides guidelines for contributing to this
-source-available educational project.
+open-source educational project.
 
-**Note on License**: This project uses a proprietary Source Available License. You can view the code and contribute
-improvements via Pull Requests, but forking for independent use or redistribution is not permitted.
-See [LICENSE](../LICENSE) for complete details.
+**License**: Memocards is released under the [MIT License](../LICENSE). By contributing, you agree that your
+contributions are licensed under the same terms.
 
 ## Table of Contents
 
