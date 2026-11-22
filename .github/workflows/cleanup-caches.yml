@@ -27,7 +27,7 @@ jobs:
       - name: Cleanup caches
         run: |
           echo "🧹 Cleaning up caches for PR #${{ github.event.pull_request.number }}"
-          echo "📋 Branch: ${{ github.event.pull_request.head.ref }}"
+          echo "📋 Branch: $HEAD_REF"
           echo ""
           
           # Fetch list of cache keys for this PR branch
@@ -81,6 +81,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
+          # A fork controls the branch name: pass it as data, never inline.
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
 
       - name: Summary
         if: always()
@@ -88,8 +90,10 @@ jobs:
           echo "## 🧹 Cache Cleanup Completed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**PR:** #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** \`${{ github.event.pull_request.head.ref }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`$HEAD_REF\`" >> "$GITHUB_STEP_SUMMARY"
           echo "**Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Cache storage has been freed up for this PR branch." >> $GITHUB_STEP_SUMMARY
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
 
