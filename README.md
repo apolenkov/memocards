@@ -1,5 +1,10 @@
 # Memocards
 
+[![CI](https://github.com/apolenkov/memocards/actions/workflows/ci.yml/badge.svg)](https://github.com/apolenkov/memocards/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+![Java 21](https://img.shields.io/badge/Java-21-orange)
+![Spring Boot 3.5](https://img.shields.io/badge/Spring%20Boot-3.5-6DB33F)
+
 Веб-приложение для изучения слов по карточкам: колоды, карточки, режим тренировки, статистика,
 админка новостей, интерфейс на трех языках (ru, en, es).
 
@@ -105,4 +110,4 @@ make docker-stop
 
 ## Лицензия
 
-См. [LICENSE](LICENSE).
+MIT, см. [LICENSE](LICENSE).

@@ -55,28 +55,28 @@ jobs:
       
       - name: Validate docker-compose.yml
         run: |
-          docker compose -f docker-compose.yml config > /dev/null || {
+          docker compose --env-file env.sample -f docker-compose.yml config > /dev/null || {
             echo "::error::docker-compose.yml is invalid"
             exit 1
           }
       
       - name: Validate docker-compose.infrastructure.yml
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.infrastructure.yml config > /dev/null || {
+          docker compose --env-file env.sample -f docker-compose.yml -f docker-compose.infrastructure.yml config > /dev/null || {
             echo "::error::docker-compose.infrastructure.yml is invalid"
             exit 1
           }
       
       - name: Validate docker-compose.prod.yml
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.prod.yml config > /dev/null || {
+          docker compose --env-file env.sample -f docker-compose.yml -f docker-compose.prod.yml config > /dev/null || {
             echo "::error::docker-compose.prod.yml is invalid"
             exit 1
           }
       
       - name: Validate docker-compose.dev.yml
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.dev.yml config > /dev/null || {
+          docker compose --env-file env.sample -f docker-compose.yml -f docker-compose.dev.yml config > /dev/null || {
             echo "::error::docker-compose.dev.yml is invalid"
             exit 1
           }
