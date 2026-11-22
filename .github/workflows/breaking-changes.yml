@@ -21,16 +21,20 @@ jobs:
       
       - name: Get PR commits
         id: commits
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          COMMITS=$(git log origin/${{ github.base_ref }}..HEAD --pretty=format:"%s")
+          COMMITS=$(git log "origin/$BASE_REF..HEAD" --pretty=format:"%s")
           echo "commits<<EOF" >> $GITHUB_OUTPUT
           echo "$COMMITS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       
       - name: Check for breaking changes markers
         id: check
+        env:
+          # Commit subjects come from the PR author: pass them as data, never inline.
+          COMMITS: ${{ steps.commits.outputs.commits }}
         run: |
-          COMMITS="${{ steps.commits.outputs.commits }}"
           
           if echo "$COMMITS" | grep -qE "BREAKING CHANGE|!:"; then
             echo "has_breaking=true" >> $GITHUB_OUTPUT
