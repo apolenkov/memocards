@@ -2,6 +2,7 @@ package org.apolenkov.application.service.seed.generator;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import org.apolenkov.application.domain.dto.SessionStatsDto;
@@ -87,7 +88,8 @@ public class StatsSeedGenerator {
         for (int day = 0; day < STATS_DAYS_TO_GENERATE; day++) {
             if (shouldGenerateStatsForDay()) {
                 final SessionStatsDto stats = createSessionStats(deck);
-                statsRepository.appendSession(stats, LocalDate.now().minusDays(day));
+                statsRepository.appendSession(
+                        stats, LocalDate.now(ZoneId.systemDefault()).minusDays(day));
                 statsGenerated++;
             }
         }

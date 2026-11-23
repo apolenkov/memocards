@@ -15,8 +15,7 @@ public final class NewsSqlQueries {
     /**
      * SQL query to select all news ordered by creation date (newest first).
      */
-    public static final String SELECT_ALL_NEWS_ORDER_BY_CREATED_DESC =
-            """
+    public static final String SELECT_ALL_NEWS_ORDER_BY_CREATED_DESC = """
             SELECT n.id, n.title, n.content, n.author, n.created_at, n.updated_at
             FROM news n
             ORDER BY n.created_at DESC
@@ -25,8 +24,7 @@ public final class NewsSqlQueries {
     /**
      * SQL query to select news by ID.
      */
-    public static final String SELECT_NEWS_BY_ID =
-            """
+    public static final String SELECT_NEWS_BY_ID = """
             SELECT n.id, n.title, n.content, n.author, n.created_at, n.updated_at
             FROM news n
             WHERE n.id = ?
@@ -35,8 +33,7 @@ public final class NewsSqlQueries {
     /**
      * SQL query to insert new news article and return generated ID.
      */
-    public static final String INSERT_NEWS_RETURNING_ID =
-            """
+    public static final String INSERT_NEWS_RETURNING_ID = """
             INSERT INTO news (title, content, author, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?)
             RETURNING id
@@ -45,8 +42,7 @@ public final class NewsSqlQueries {
     /**
      * SQL query to insert new news article for batch operations.
      */
-    public static final String INSERT_NEWS =
-            """
+    public static final String INSERT_NEWS = """
             INSERT INTO news (title, content, author, created_at)
             VALUES (?, ?, ?, ?)
             """;
@@ -54,8 +50,7 @@ public final class NewsSqlQueries {
     /**
      * SQL query to update existing news article.
      */
-    public static final String UPDATE_NEWS =
-            """
+    public static final String UPDATE_NEWS = """
             UPDATE news
             SET title = ?, content = ?, author = ?, updated_at = ?
             WHERE id = ?

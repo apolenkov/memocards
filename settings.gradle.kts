@@ -1,23 +1,20 @@
 pluginManagement {
-    val jgitver: String by settings
-    val sonarlint: String by settings
-    val dependencycheck: String by settings
-    val spotbugsPluginVersion: String by settings
-    val vaadinVersion: String by settings
-    val dependencyManagement: String by settings
-    val springframeworkBoot: String by settings
-    val spotless: String by settings
-    val nodeVersion: String by settings
-    val jib: String by settings
+    val sonarlint = providers.gradleProperty("sonarlint").get()
+    val dependencycheck = providers.gradleProperty("dependencycheck").get()
+    val spotbugsPluginVersion = providers.gradleProperty("spotbugsPluginVersion").get()
+    val vaadinVersion = providers.gradleProperty("vaadinVersion").get()
+    val dependencyManagement = providers.gradleProperty("dependencyManagement").get()
+    val springframeworkBoot = providers.gradleProperty("springframeworkBoot").get()
+    val spotless = providers.gradleProperty("spotless").get()
+    val nodeGradlePlugin = providers.gradleProperty("nodeGradlePlugin").get()
+    val jib = providers.gradleProperty("jib").get()
 
     repositories {
-        gradlePluginPortal()
         mavenCentral()
+        gradlePluginPortal()
     }
 
     plugins {
-        id("fr.brouillard.oss.gradle.jgitver") version jgitver
-
         id("com.diffplug.spotless") version spotless
         id("name.remal.sonarlint") version sonarlint
         id("com.github.spotbugs") version spotbugsPluginVersion
@@ -26,7 +23,7 @@ pluginManagement {
         id("io.spring.dependency-management") version dependencyManagement
 
         id("com.vaadin") version vaadinVersion
-        id("com.github.node-gradle.node") version nodeVersion
+        id("com.github.node-gradle.node") version nodeGradlePlugin
         id("org.springframework.boot") version springframeworkBoot
 
         id("com.google.cloud.tools.jib") version jib

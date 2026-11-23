@@ -184,10 +184,10 @@ public class PaginationCountCache {
         }
 
         final long removed = cache.keySet().stream()
-                .filter(key -> deckId.equals(key.deckId()) && filterOption.equals(key.filterOption()))
+                .filter(key -> deckId.equals(key.deckId()) && filterOption == key.filterOption())
                 .count();
 
-        cache.keySet().removeIf(key -> deckId.equals(key.deckId()) && filterOption.equals(key.filterOption()));
+        cache.keySet().removeIf(key -> deckId.equals(key.deckId()) && filterOption == key.filterOption());
 
         if (removed > 0 && LOGGER.isDebugEnabled()) {
             LOGGER.debug(

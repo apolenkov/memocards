@@ -1,6 +1,7 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.dto;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /**
  * JDBC DTO for deck data transfer operations.
@@ -47,7 +48,7 @@ public record DeckDto(
      * @return DeckDto for new deck
      */
     public static DeckDto forNewDeck(final long userId, final String title, final String description) {
-        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
         return new DeckDto(null, userId, title, description, now, now);
     }
 

@@ -1,12 +1,10 @@
 package org.apolenkov.application.config.security;
 
-import com.vaadin.flow.spring.security.VaadinAwareSecurityContextHolderStrategyConfiguration;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.logging.MdcFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -22,7 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  */
 @Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
-@Import(VaadinAwareSecurityContextHolderStrategyConfiguration.class)
 public class SecurityConfig {
 
     private final MdcFilter mdcFilter;
@@ -41,14 +38,13 @@ public class SecurityConfig {
      *
      * @param http the HttpSecurity builder
      * @return configured SecurityFilterChain
-     * @throws Exception if configuration fails (Spring Security API requirement)
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(final HttpSecurity http) {
         // Configure public resources and actuator endpoints
         http.authorizeHttpRequests(auth -> auth
                 // Public static resources (icons, images, etc.)
-                .requestMatchers("/icons/**")
+                .requestMatchers("/icons/**", "/styles/memocards/**")
                 .permitAll()
                 // Actuator endpoints: health, info, metrics, env, prometheus are public
                 .requestMatchers(

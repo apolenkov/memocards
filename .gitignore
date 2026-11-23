@@ -34,6 +34,11 @@ out/
 
 # The following files are generated/updated by vaadin-gradle-plugin
 node_modules/
+/tsconfig.json
+/types.d.ts
+# Flow generates the default Vite configuration for this application.
+/vite.config.ts
+/vite.generated.ts
 webpack.generated.js
 target
 out

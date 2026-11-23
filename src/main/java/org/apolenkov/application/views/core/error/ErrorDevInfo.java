@@ -7,6 +7,7 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import org.apolenkov.application.views.core.constants.CoreConstants;
@@ -157,7 +158,8 @@ public final class ErrorDevInfo extends Composite<Component> {
                 + state.fromRoute());
         timestampSpan.setText(getTranslation(CoreConstants.ERROR_TIMESTAMP_KEY)
                 + CoreConstants.SEPARATOR_SPACE
-                + LocalDateTime.now().format(DateTimeFormatter.ofPattern(CoreConstants.DATETIME_PATTERN)));
+                + LocalDateTime.now(ZoneId.systemDefault())
+                        .format(DateTimeFormatter.ofPattern(CoreConstants.DATETIME_PATTERN)));
 
         // Add error ID to dev info if available
         if (safeErrorId != null && !safeErrorId.isEmpty()) {

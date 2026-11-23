@@ -1,7 +1,7 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.domain.port.DeckRepository;
@@ -41,16 +41,10 @@ public class DeckJdbcAdapter implements DeckRepository {
         final long userId = rs.getLong("user_id");
         final String title = rs.getString("title");
         final String description = rs.getString("description");
-        final Timestamp createdAt = rs.getTimestamp("created_at");
-        final Timestamp updatedAt = rs.getTimestamp("updated_at");
+        final LocalDateTime createdAt = rs.getObject("created_at", LocalDateTime.class);
+        final LocalDateTime updatedAt = rs.getObject("updated_at", LocalDateTime.class);
 
-        return DeckDto.forExistingDeck(
-                id,
-                userId,
-                title,
-                description,
-                createdAt != null ? createdAt.toLocalDateTime() : null,
-                updatedAt != null ? updatedAt.toLocalDateTime() : null);
+        return DeckDto.forExistingDeck(id, userId, title, description, createdAt, updatedAt);
     };
 
     // ==================== Fields ====================
@@ -279,7 +273,7 @@ public class DeckJdbcAdapter implements DeckRepository {
                 deck.getUserId(),
                 deck.getTitle(),
                 deck.getDescription(),
-                LocalDateTime.now(),
+                LocalDateTime.now(ZoneId.systemDefault()),
                 deck.getId());
 
         return deck;

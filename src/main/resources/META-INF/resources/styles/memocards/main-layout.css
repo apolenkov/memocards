@@ -9,6 +9,7 @@
     flex-shrink: 0;
     background-color: var(--lumo-base-color);
     border-bottom: 1px solid var(--lumo-contrast-10pct);
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
 }
 

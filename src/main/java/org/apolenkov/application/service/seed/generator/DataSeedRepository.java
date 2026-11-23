@@ -1,9 +1,9 @@
 package org.apolenkov.application.service.seed.generator;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -20,8 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -64,31 +63,27 @@ public class DataSeedRepository {
         }
 
         LOGGER.debug("Batch inserting {} users", users.size());
-        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
         final List<User> result = new ArrayList<>(users.size());
         final List<Long> generatedIds = new ArrayList<>(users.size());
 
         // Insert users and collect generated IDs
-        for (final User user : users) {
-            final KeyHolder keyHolder = new GeneratedKeyHolder();
-
-            jdbcTemplate.update(
-                    connection -> {
-                        final PreparedStatement ps = connection.prepareStatement(
-                                UserSqlQueries.INSERT_USER_ON_CONFLICT_RETURNING_ID, Statement.RETURN_GENERATED_KEYS);
+        jdbcTemplate.execute(UserSqlQueries.INSERT_USER_ON_CONFLICT_RETURNING_ID, (PreparedStatementCallback<Void>)
+                ps -> {
+                    for (final User user : users) {
                         ps.setString(1, user.getEmail());
                         ps.setString(2, user.getPasswordHash());
                         ps.setString(3, user.getName());
                         ps.setTimestamp(4, Timestamp.valueOf(now));
-                        return ps;
-                    },
-                    keyHolder);
-
-            final Number key = keyHolder.getKey();
-            if (key != null) {
-                generatedIds.add(key.longValue());
-            }
-        }
+                        try (ResultSet rs = ps.executeQuery()) {
+                            if (!rs.next()) {
+                                throw new IllegalStateException("Missing ID after inserting user");
+                            }
+                            generatedIds.add(rs.getLong(1));
+                        }
+                    }
+                    return null;
+                });
 
         // Batch insert roles for all users
         final List<Object[]> roleBatchArgs = new ArrayList<>();
@@ -138,32 +133,25 @@ public class DataSeedRepository {
         }
 
         LOGGER.debug("Batch inserting {} decks", decks.size());
-        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
         final List<Deck> result = new ArrayList<>(decks.size());
 
-        for (final Deck deck : decks) {
-            final KeyHolder keyHolder = new GeneratedKeyHolder();
-
-            jdbcTemplate.update(
-                    connection -> {
-                        final PreparedStatement ps = connection.prepareStatement(
-                                DeckSqlQueries.INSERT_DECK_RETURNING_ID, Statement.RETURN_GENERATED_KEYS);
-                        ps.setLong(1, deck.getUserId());
-                        ps.setString(2, deck.getTitle());
-                        ps.setString(3, deck.getDescription());
-                        ps.setTimestamp(4, Timestamp.valueOf(now));
-                        ps.setTimestamp(5, Timestamp.valueOf(now));
-                        return ps;
-                    },
-                    keyHolder);
-
-            final Number key = keyHolder.getKey();
-            if (key != null) {
-                final Long generatedId = key.longValue();
-                final Deck savedDeck = new Deck(generatedId, deck.getUserId(), deck.getTitle(), deck.getDescription());
-                result.add(savedDeck);
+        jdbcTemplate.execute(DeckSqlQueries.INSERT_DECK_RETURNING_ID, (PreparedStatementCallback<Void>) ps -> {
+            for (final Deck deck : decks) {
+                ps.setLong(1, deck.getUserId());
+                ps.setString(2, deck.getTitle());
+                ps.setString(3, deck.getDescription());
+                ps.setTimestamp(4, Timestamp.valueOf(now));
+                ps.setTimestamp(5, Timestamp.valueOf(now));
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new IllegalStateException("Missing ID after inserting deck");
+                    }
+                    result.add(new Deck(rs.getLong(1), deck.getUserId(), deck.getTitle(), deck.getDescription()));
+                }
             }
-        }
+            return null;
+        });
 
         LOGGER.debug("Batch inserted {} decks successfully", result.size());
         return result;
@@ -195,7 +183,7 @@ public class DataSeedRepository {
         }
 
         LOGGER.debug("Batch inserting {} news items", items.size());
-        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
 
         final List<Object[]> batchArgs = new ArrayList<>(items.size());
         for (final News news : items) {

@@ -3,7 +3,7 @@
 [![CI](https://github.com/apolenkov/memocards/actions/workflows/ci.yml/badge.svg)](https://github.com/apolenkov/memocards/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 ![Java 21](https://img.shields.io/badge/Java-21-orange)
-![Spring Boot 3.5](https://img.shields.io/badge/Spring%20Boot-3.5-6DB33F)
+![Spring Boot 4.2](https://img.shields.io/badge/Spring%20Boot-4.2-6DB33F)
 
 Веб-приложение для изучения слов по карточкам: колоды, карточки, режим тренировки, статистика,
 админка новостей, интерфейс на трех языках (ru, en, es).
@@ -14,11 +14,11 @@
 
 ## Стек
 
-- Java 21, Spring Boot 3.5, Spring Security, Spring JDBC
-- Vaadin 24 (серверный UI)
+- Java 21, Spring Boot 4.2, Spring Security, Spring JDBC
+- Vaadin 25.3 (серверный UI)
 - PostgreSQL 16, миграции Flyway
 - Caffeine для кэша, инвалидация через Spring Events
-- JUnit 5, Mockito, Testcontainers; Checkstyle, SpotBugs, PMD, Spotless
+- JUnit 6, Mockito, Testcontainers; Checkstyle, SpotBugs, PMD, Spotless
 - Docker-образ собирается через Jib; Prometheus, Loki и Grafana для мониторинга;
   деплой через Ansible
 
@@ -106,7 +106,7 @@ make docker-stop
 
 ## Релизы
 
-34 тега релизов, от `v0.1.0` до `v0.9.1`. Версию сборки JGitver берет из тега.
+34 тега релизов, от `v0.1.0` до `v0.9.1`. Версия сборки берётся из вывода `git describe`.
 
 ## Лицензия
 

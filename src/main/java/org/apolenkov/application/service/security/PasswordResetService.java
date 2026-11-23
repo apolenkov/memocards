@@ -1,6 +1,7 @@
 package org.apolenkov.application.service.security;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 import org.apolenkov.application.domain.constants.BusinessConstants;
@@ -102,7 +103,8 @@ public class PasswordResetService implements PasswordResetUseCase {
 
         // Generate new secure token
         final String token = UUID.randomUUID().toString();
-        final LocalDateTime expiresAt = LocalDateTime.now().plusHours(BusinessConstants.TOKEN_EXPIRATION_HOURS);
+        final LocalDateTime expiresAt =
+                LocalDateTime.now(ZoneId.systemDefault()).plusHours(BusinessConstants.TOKEN_EXPIRATION_HOURS);
 
         final PasswordResetToken resetToken = new PasswordResetToken(token, user.getId(), expiresAt);
         tokenRepository.save(resetToken);

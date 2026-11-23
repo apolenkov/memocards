@@ -26,6 +26,7 @@
 	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 50%, transparent);
 	border-radius: var(--lumo-border-radius-m);
 	background: color-mix(in srgb, var(--lumo-base-color) 92%, transparent);
+	-webkit-backdrop-filter: blur(4px);
 	backdrop-filter: blur(4px);
 }
 
@@ -33,6 +34,7 @@
 	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
 	border-radius: var(--lumo-border-radius-l);
 	background: color-mix(in srgb, var(--lumo-base-color) 90%, transparent);
+	-webkit-backdrop-filter: blur(6px);
 	backdrop-filter: blur(6px);
 }
 
@@ -40,6 +42,7 @@
 	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
 	border-radius: var(--lumo-border-radius-l);
 	background: color-mix(in srgb, var(--lumo-base-color) 88%, transparent);
+	-webkit-backdrop-filter: blur(8px);
 	backdrop-filter: blur(8px);
 }
 

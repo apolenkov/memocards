@@ -62,17 +62,14 @@ public class LocaleConfiguration {
         try {
             // Get current HTTP request to access cookies
             final VaadinServletRequest req = (VaadinServletRequest) VaadinService.getCurrentRequest();
-            if (req != null && req.getCookies() != null) {
-                // Search for locale preference cookie
-                for (final Cookie c : req.getCookies()) {
-                    if (LocaleConstants.COOKIE_LOCALE_KEY.equals(c.getName())) {
-                        // Parse locale from cookie value and validate
-                        final Locale locale = Locale.forLanguageTag(c.getValue());
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Locale cookie found: {}", locale);
-                        }
-                        return locale;
-                    }
+            if (req == null || req.getCookies() == null) {
+                return null;
+            }
+            for (final Cookie cookie : req.getCookies()) {
+                if (LocaleConstants.COOKIE_LOCALE_KEY.equals(cookie.getName())) {
+                    final Locale locale = Locale.forLanguageTag(cookie.getValue());
+                    LOGGER.debug("Locale cookie found: {}", locale);
+                    return locale;
                 }
             }
         } catch (IllegalArgumentException | NullPointerException e) {

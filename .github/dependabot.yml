@@ -1,0 +1,53 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    # Name-only ignores suppress version and security PRs. Upgrade the Gradle Vaadin
+    # platform to pick up security fixes for the frontend packages managed by Flow.
+    ignore:
+      - dependency-name: "@babel/*"
+      - dependency-name: "@preact/*"
+      - dependency-name: "@rolldown/plugin-babel"
+      - dependency-name: "@rollup/*"
+      - dependency-name: "@types/node"
+      - dependency-name: "@types/react*"
+      - dependency-name: "@typescript/native"
+      - dependency-name: "@vaadin/*"
+      - dependency-name: "@vitejs/plugin-react"
+      - dependency-name: "date-fns"
+      - dependency-name: "lit"
+      - dependency-name: "magic-string"
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      - dependency-name: "react-router"
+      - dependency-name: "rollup-plugin-brotli"
+      - dependency-name: "rollup-plugin-visualizer"
+      - dependency-name: "strip-css-comments"
+      - dependency-name: "transform-ast"
+      - dependency-name: "typescript"
+      - dependency-name: "vite"
+      - dependency-name: "vite-plugin-checker"
+    groups:
+      npm-updates:
+        patterns: ["*"]
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    groups:
+      gradle-updates:
+        patterns: ["*"]
+  - package-ecosystem: "github-actions"
+    directories:
+      - "/"
+      - "/.github/actions/*"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    groups:
+      github-actions-updates:
+        patterns: ["*"]

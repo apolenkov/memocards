@@ -132,9 +132,7 @@ public final class DeckCardDialog extends Dialog {
 
         // Set dialog title
         final H3 title = new H3(
-                card == null
-                        ? getTranslation(DeckConstants.DECK_CARD_ADD_TITLE)
-                        : getTranslation(DeckConstants.DECK_CARD_EDIT_TITLE));
+                getTranslation(card == null ? DeckConstants.DECK_CARD_ADD_TITLE : DeckConstants.DECK_CARD_EDIT_TITLE));
 
         // Populate form with card data
         populateForm(card);
@@ -243,9 +241,8 @@ public final class DeckCardDialog extends Dialog {
      */
     private void showSuccessMessage() {
         final boolean isEditing = editingCard != null;
-        final String message = isEditing
-                ? getTranslation(DeckConstants.DECK_CARD_UPDATED)
-                : getTranslation(DeckConstants.DECK_CARD_ADDED);
+        final String message =
+                getTranslation(isEditing ? DeckConstants.DECK_CARD_UPDATED : DeckConstants.DECK_CARD_ADDED);
         NotificationHelper.showSuccessBottom(message);
     }
 

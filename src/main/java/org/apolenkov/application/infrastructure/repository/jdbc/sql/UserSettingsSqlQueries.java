@@ -15,8 +15,7 @@ public final class UserSettingsSqlQueries {
     /**
      * SQL query to upsert preferred locale code for user.
      */
-    public static final String UPSERT_PREFERRED_LOCALE =
-            """
+    public static final String UPSERT_PREFERRED_LOCALE = """
             INSERT INTO user_settings (user_id, preferred_locale_code)
             VALUES (?, ?)
             ON CONFLICT (user_id)

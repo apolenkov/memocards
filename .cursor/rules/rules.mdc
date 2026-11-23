@@ -5,7 +5,7 @@ version: "4.0.0"
 ---
 
 # PROJECT RULES - SENIOR+ LEVEL
-Java 21+ | Vaadin 24+ | Spring Boot 3.x | PostgreSQL
+Java 21+ | Vaadin 25 | Spring Boot 4.x | PostgreSQL
 
 ## CORE AI BEHAVIOR
 - **Autonomous**: Complete tasks end-to-end without confirmation

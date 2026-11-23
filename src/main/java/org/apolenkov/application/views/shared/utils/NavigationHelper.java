@@ -53,7 +53,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to practice view
+     * Navigate to practice view.
      *
      * <p>Navigates to the practice session view for a specific deck.
      * This method provides quick access to start practicing with
@@ -70,7 +70,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to decks list
+     * Navigate to decks list.
      *
      * <p>Navigates to the main decks listing page where users can
      * view, manage, and organize their card decks. This is
@@ -81,7 +81,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to login page
+     * Navigate to login page.
      *
      * <p>Navigates to the user authentication page where users can
      * sign in to their accounts. This is typically used for
@@ -92,7 +92,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to register page
+     * Navigate to register page.
      *
      * <p>Navigates to the user registration page where new users can
      * create accounts. This is typically used for redirecting users
@@ -103,7 +103,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to forgot password page
+     * Navigate to forgot password page.
      *
      * <p>Navigates to the password recovery page where users can
      * request a password reset. This is typically used when users
@@ -114,7 +114,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to reset password page with token
+     * Navigate to reset password page with token.
      *
      * <p>Navigates to the password reset page with a specific token.
      * This is typically used when users click on password reset links
@@ -131,7 +131,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to home page
+     * Navigate to home page.
      *
      * <p>Navigates to the main home page of the application.
      * This is typically the landing page for authenticated users.</p>
@@ -141,7 +141,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Forward to home page using BeforeEnterEvent
+     * Forward to home page using BeforeEnterEvent.
      *
      * <p>Forwards to the main home page using BeforeEnterEvent.
      * This method should be used in BeforeEnterObserver implementations
@@ -154,7 +154,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to error page
+     * Navigate to error page.
      *
      * <p>Navigates to the error page with a reference to the page
      * that caused the error. This is useful for error handling scenarios
@@ -167,7 +167,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Navigate to error page with custom parameters
+     * Navigate to error page with custom parameters.
      *
      * <p>Navigates to the error page with custom query parameters.
      * This is useful for system error handling where we need to pass
@@ -181,7 +181,7 @@ public final class NavigationHelper {
     }
 
     /**
-     * Get current UI safely
+     * Get current UI safely.
      *
      * <p>Retrieves the current UI context in a safe manner, handling
      * cases where the UI might not be available. This method prevents

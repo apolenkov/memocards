@@ -1,6 +1,7 @@
 package org.apolenkov.application.service.seed.generator;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import org.apolenkov.application.model.News;
@@ -70,6 +71,6 @@ public class NewsSeedGenerator {
                 "Test News " + (index + 1),
                 "Test content for news item " + (index + 1),
                 "admin",
-                LocalDateTime.now());
+                LocalDateTime.now(ZoneId.systemDefault()));
     }
 }

@@ -1,22 +1,21 @@
+import groovy.json.JsonSlurper
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import name.remal.gradle_plugins.sonarlint.SonarLintExtension
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+import java.util.zip.ZipFile
 
 val javaTargetVersion = JavaVersion.VERSION_21
-val vaadinVersion: String by project
-val lineAwesome: String by project
-val assertj: String by project
-val mockito: String by project
-val webdrivermanager: String by project
-val springDotenv: String by project
-val testcontainersVersion: String by project
+val vaadinVersion = providers.gradleProperty("vaadinVersion").get()
+val assertj = providers.gradleProperty("assertj").get()
+val mockito = providers.gradleProperty("mockito").get()
+val springDotenv = providers.gradleProperty("springDotenv").get()
+val testcontainersVersion = providers.gradleProperty("testcontainersVersion").get()
 
 plugins {
     idea
     id("java")
 
-    id("fr.brouillard.oss.gradle.jgitver")
     id("org.springframework.boot")
     id("com.github.node-gradle.node")
     id("com.vaadin")
@@ -36,11 +35,21 @@ plugins {
 }
 
 group = "org.apolenkov.application"
-// version is automatically managed by JGitver plugin from Git tags (see line 228)
-// For tagged commits: version = "1.0.0"
-// For non-tagged commits: version = "1.0.0-5-g8a9b2c1-SNAPSHOT"
-// For feature branches: version = "1.0.0-5-g8a9b2c1-feature-xyz-SNAPSHOT"
-// To check current version: ./gradlew properties | grep "version:"
+// Use the release tag on tagged commits and include distance and SHA on snapshots.
+version =
+    providers.gradleProperty("version").orNull ?: if (file(".git").exists()) {
+        providers
+            .exec {
+                commandLine("git", "describe", "--tags", "--match", "v[0-9]*", "--always", "--dirty", "--abbrev=8")
+                isIgnoreExitValue = true
+            }.standardOutput.asText
+            .get()
+            .trim()
+            .removePrefix("v")
+            .ifEmpty { "0.0.0-SNAPSHOT" }
+    } else {
+        "0.0.0-SNAPSHOT"
+    }
 description = "Memocards application"
 
 idea {
@@ -59,13 +68,18 @@ java {
 }
 
 repositories {
-    gradlePluginPortal()
     mavenCentral()
-    maven(url = "https://maven.vaadin.com/vaadin-addons")
+}
+
+val nodeRuntimeVersion = providers.fileContents(layout.projectDirectory.file(".nvmrc")).asText.map { it.trim() }
+
+vaadin {
+    frontendHotdeploy.set(true)
+    nodeVersion.set(nodeRuntimeVersion.map { "v$it" })
 }
 
 node {
-    version.set("20.19.0")
+    version.set(nodeRuntimeVersion)
     download.set(true)
 }
 
@@ -75,6 +89,7 @@ node {
 apply(plugin = "io.spring.dependency-management")
 extensions.configure<DependencyManagementExtension> {
     dependencies {
+        dependency("com.google.errorprone:error_prone_annotations:${providers.gradleProperty("errorProneAnnotationsVersion").get()}")
         imports {
             mavenBom(BOM_COORDINATES)
             mavenBom("com.vaadin:vaadin-bom:$vaadinVersion")
@@ -86,15 +101,13 @@ dependencies {
     implementation("me.paulschwarz:spring-dotenv:$springDotenv")
 
     // Utilities
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.google.guava:guava")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    implementation("com.google.guava:guava:${providers.gradleProperty("guava").get()}")
     implementation("org.apache.commons:commons-lang3")
 
     // Vaadin
-    implementation("com.vaadin:vaadin")
+    implementation("com.vaadin:vaadin-core")
     implementation("com.vaadin:vaadin-spring-boot-starter")
-
-    implementation("org.parttio:line-awesome:$lineAwesome")
 
     // Spring Boot starters
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -102,52 +115,37 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("org.springframework.boot:spring-boot-starter-aop")
+    implementation("org.springframework.boot:spring-boot-starter-aspectj")
     implementation("org.aspectj:aspectjweaver")
     implementation("com.github.ben-manes.caffeine:caffeine")
 
     // Persistence
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
-    implementation("org.flywaydb:flyway-core")
+    implementation("org.springframework.data:spring-data-commons")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.postgresql:postgresql")
 
     // Dev tools
+    developmentOnly("com.vaadin:vaadin-dev")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("com.vaadin:vaadin-testbench-junit5")
 
     testImplementation("org.assertj:assertj-core:$assertj")
     testImplementation("org.mockito:mockito-core:$mockito")
-    testImplementation("io.github.bonigarcia:webdrivermanager:$webdrivermanager")
 
     // Test containers for integration tests
-    testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion") // Using variable
-    testImplementation("org.testcontainers:postgresql:$testcontainersVersion") // Using variable
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter:$testcontainersVersion") // Using variable
+    testImplementation("org.testcontainers:testcontainers-postgresql:$testcontainersVersion") // Using variable
 }
 
 configurations.all {
     resolutionStrategy {
         failOnVersionConflict()
-
-        // Existing force declarations
-        force("commons-io:commons-io:2.21.0")
-        force("org.checkerframework:checker-qual:3.52.0")
-        force("org.ow2.asm:asm:9.9") // Vaadin 24.9.2 compatibility
-
-        // Resolve reported conflicts with latest versions
-        force("com.google.guava:guava:33.5.0-jre")
-        force("org.apache.commons:commons-compress:1.28.0")
-        force("com.google.errorprone:error_prone_annotations:2.44.0")
-        force("io.github.classgraph:classgraph:4.8.184")
-
-        // Added to resolve the reported conflicts
-        force("com.github.docker-java:docker-java-api:3.6.0")
-        force("com.github.docker-java:docker-java-transport:3.6.0")
-        force("org.jetbrains:annotations:26.0.2-1")
     }
 }
 
@@ -181,7 +179,7 @@ extensions.configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         trimTrailingWhitespace()
         endWithNewline()
 
-        palantirJavaFormat("2.63.0")
+        palantirJavaFormat(providers.gradleProperty("palantirJavaFormatVersion").get())
     }
 
     kotlinGradle {
@@ -198,7 +196,7 @@ extensions.configure<com.diffplug.gradle.spotless.SpotlessExtension> {
  */
 apply(plugin = "checkstyle")
 extensions.configure<CheckstyleExtension> {
-    toolVersion = "10.12.1"
+    toolVersion = providers.gradleProperty("checkstyleVersion").get()
     configFile = rootProject.file("config/checkstyle/checkstyle.xml")
 }
 
@@ -226,7 +224,7 @@ tasks.withType<com.github.spotbugs.snom.SpotBugsTask>().configureEach {
  */
 apply(plugin = "pmd")
 pmd {
-    toolVersion = "7.9.0"
+    toolVersion = providers.gradleProperty("pmdVersion").get()
     ruleSetFiles = files("config/pmd/ruleset.xml")
     ruleSets = emptyList()
 }
@@ -257,25 +255,11 @@ extensions.configure<SonarLintExtension> {
 apply(plugin = "org.owasp.dependencycheck")
 
 /*
- * JGitver automatic versioning
- */
-plugins.apply(fr.brouillard.oss.gradle.plugins.JGitverPlugin::class.java)
-extensions.configure<fr.brouillard.oss.gradle.plugins.JGitverPluginExtension> {
-    strategy("PATTERN")
-    nonQualifierBranches("main,master")
-    tagVersionPattern("\${v}\${<meta.DIRTY_TEXT}")
-    versionPattern(
-        "\${v}\${<meta.COMMIT_DISTANCE}\${<meta.GIT_SHA1_8}" +
-            "\${<meta.QUALIFIED_BRANCH_NAME}\${<meta.DIRTY_TEXT}-SNAPSHOT",
-    )
-}
-
-/*
  * Enhanced JaCoCo configuration with coverage verification
  */
 apply(plugin = "jacoco")
 jacoco {
-    toolVersion = "0.8.12"
+    toolVersion = providers.gradleProperty("jacocoVersion").get()
 }
 
 tasks.withType<Test> {
@@ -379,6 +363,9 @@ tasks.named("npmInstall") {
     outputs.dir("node_modules")
 }
 
+// Both tasks use the lockfile when lint and production packaging run together.
+tasks.named("vaadinBuildFrontend") { mustRunAfter("npmInstall") }
+
 tasks.register("codeQuality") {
     description = "Runs core code quality checks (SonarLint, SpotBugs, Checkstyle, PMD)"
     group = JavaBasePlugin.VERIFICATION_GROUP
@@ -437,17 +424,10 @@ tasks.register("codeQualityFull") {
     )
 }
 
-// Ensure frontend is built for production mode before Jib
-tasks.named("jibDockerBuild") {
-    dependsOn("vaadinBuildFrontend")
-}
-
-tasks.named("jib") {
-    dependsOn("vaadinBuildFrontend")
-}
-
-// Jib configuration for different profiles
+// Vaadin adds the frontend and its production token when it assembles the project JAR.
 jib {
+    containerizingMode = "packaged"
+    configurationName.set("productionRuntimeClasspath")
     from {
         image = "eclipse-temurin:21-jre-alpine"
         platforms {
@@ -463,11 +443,10 @@ jib {
     }
     to {
         image = "ghcr.io/${project.findProperty("GITHUB_REPOSITORY") ?: "apolenkov/memocards"}"
-        // Tags: latest, version (from JGitver), git SHA
         tags =
             setOf(
                 "latest",
-                project.version.toString(), // Automatically from JGitver (e.g., "1.0.0")
+                project.version.toString(),
                 System.getenv("GITHUB_SHA")?.take(7) ?: "latest",
             )
         auth {
@@ -494,5 +473,41 @@ jib {
             ),
         )
         creationTime.set("USE_CURRENT_TIMESTAMP")
+    }
+}
+
+val verifyJibFrontend =
+    tasks.register("verifyJibFrontend") {
+        group = JavaBasePlugin.VERIFICATION_GROUP
+        description = "Verify the Vaadin production frontend in the JAR that Jib puts on the image classpath"
+        val archive = tasks.jar.flatMap { it.archiveFile }
+        val mode = jib.containerizingMode
+        inputs.file(archive)
+        inputs.property("containerizingMode", mode)
+        doLast {
+            check(mode == "packaged") { "Jib must include the application JAR" }
+            ZipFile(archive.get().asFile).use { jar ->
+                val webapp = "META-INF/VAADIN/webapp"
+                check(jar.getEntry("$webapp/index.html") != null) { "Missing Vaadin index.html" }
+                check(jar.entries().asSequence().any { it.name.startsWith("$webapp/VAADIN/build/") && it.name.endsWith(".js") }) {
+                    "Missing compiled Vaadin JavaScript"
+                }
+                val token = checkNotNull(jar.getEntry("META-INF/VAADIN/config/flow-build-info.json")) { "Missing Vaadin build token" }
+                val info = jar.getInputStream(token).use { JsonSlurper().parse(it) as Map<*, *> }
+                check(info["productionMode"] == true) { "Vaadin build token must enable production mode" }
+            }
+        }
+    }
+
+tasks.check { dependsOn(verifyJibFrontend) }
+
+tasks.register("printJibMetadata") {
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    description = "Print the tags and version label configured for the container image"
+    val tags = jib.to.tags
+    val labels = jib.container.labels
+    doLast {
+        println("tags=" + tags.sorted().joinToString(","))
+        println("org.opencontainers.image.version=" + labels.get().getValue("org.opencontainers.image.version"))
     }
 }

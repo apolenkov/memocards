@@ -2,6 +2,7 @@ package org.apolenkov.application.infrastructure.repository.jdbc.batch;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -65,7 +66,7 @@ public class CardBatchOperations {
      * @param newCards list of new cards
      */
     private void batchInsert(final JdbcTemplate jdbcTemplate, final List<Card> newCards) {
-        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
         final long startTime = System.currentTimeMillis();
         int chunkCount = 0;
 
@@ -120,7 +121,7 @@ public class CardBatchOperations {
      */
     private void batchUpdate(final JdbcTemplate jdbcTemplate, final List<Card> existingCards) {
         final long startTime = System.currentTimeMillis();
-        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
         final List<Object[]> batchArgs = prepareBatchUpdateArgs(existingCards, now);
         jdbcTemplate.batchUpdate(CardSqlQueries.UPDATE_CARD, batchArgs);
 

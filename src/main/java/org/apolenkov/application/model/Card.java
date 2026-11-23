@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Objects;
 
 /**
@@ -36,8 +37,8 @@ public final class Card {
      * Creates card with current timestamps.
      */
     public Card() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now(ZoneId.systemDefault());
+        this.updatedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     /**
@@ -138,7 +139,7 @@ public final class Card {
             throw new IllegalArgumentException("frontText is required");
         }
         this.frontText = t;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     /**
@@ -162,7 +163,7 @@ public final class Card {
             throw new IllegalArgumentException("backText is required");
         }
         this.backText = t;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     /**
@@ -181,7 +182,7 @@ public final class Card {
      */
     public void setExample(final String exampleValue) {
         this.example = exampleValue != null ? exampleValue.trim() : null;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     /**
@@ -200,7 +201,7 @@ public final class Card {
      */
     public void setImageUrl(final String imageUrlValue) {
         this.imageUrl = imageUrlValue != null ? imageUrlValue.trim() : null;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     /**

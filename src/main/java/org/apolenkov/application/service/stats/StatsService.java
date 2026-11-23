@@ -1,6 +1,7 @@
 package org.apolenkov.application.service.stats;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +82,7 @@ public class StatsService implements StatsUseCase {
             return;
         }
 
-        final LocalDate today = LocalDate.now();
+        final LocalDate today = LocalDate.now(ZoneId.systemDefault());
         statsRepository.appendSession(sessionData, today);
 
         // Publish event for cache invalidation (event-driven approach)
@@ -277,6 +278,6 @@ public class StatsService implements StatsUseCase {
         if (deckIds == null || deckIds.isEmpty()) {
             return Map.of();
         }
-        return statsRepository.getAggregatesForDecks(deckIds, LocalDate.now());
+        return statsRepository.getAggregatesForDecks(deckIds, LocalDate.now(ZoneId.systemDefault()));
     }
 }

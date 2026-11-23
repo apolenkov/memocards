@@ -1,6 +1,7 @@
 package org.apolenkov.application.model;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Objects;
 
 /**
@@ -131,7 +132,7 @@ public final class PasswordResetToken {
      * @return true if token has expired
      */
     public boolean isExpired() {
-        return LocalDateTime.now().isAfter(expiresAt);
+        return LocalDateTime.now(ZoneId.systemDefault()).isAfter(expiresAt);
     }
 
     /**

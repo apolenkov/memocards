@@ -1,7 +1,7 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -49,19 +49,11 @@ public class CardJdbcAdapter implements CardRepository {
         final String backText = rs.getString("back_text");
         final String example = rs.getString("example");
         final String imageUrl = rs.getString("image_url");
-        final Timestamp createdAt = rs.getTimestamp("created_at");
-        final Timestamp updatedAt = rs.getTimestamp("updated_at");
+        final LocalDateTime createdAt = rs.getObject("created_at", LocalDateTime.class);
+        final LocalDateTime updatedAt = rs.getObject("updated_at", LocalDateTime.class);
 
         return CardDto.forExistingCard(
-                id,
-                deckId,
-                frontText,
-                backText,
-                example,
-                imageUrl,
-                new CardDto.CardTimestamps(
-                        createdAt != null ? createdAt.toLocalDateTime() : null,
-                        updatedAt != null ? updatedAt.toLocalDateTime() : null));
+                id, deckId, frontText, backText, example, imageUrl, new CardDto.CardTimestamps(createdAt, updatedAt));
     };
 
     // ==================== Fields ====================
@@ -245,12 +237,9 @@ public class CardJdbcAdapter implements CardRepository {
             final Map<Long, Long> counts =
                     jdbcTemplate.query(sql, ps -> setLongParameters(ps, deckIds), this::extractCountsByDeck);
 
-            final Map<Long, Long> safeCounts = (counts != null) ? counts : Map.of();
             LOGGER.debug(
-                    "Batch count completed: {} decks have cards (out of {} requested)",
-                    safeCounts.size(),
-                    deckIds.size());
-            return safeCounts;
+                    "Batch count completed: {} decks have cards (out of {} requested)", counts.size(), deckIds.size());
+            return counts;
 
         } catch (DataAccessException e) {
             throw new CardRetrievalException("Failed to count cards for deck IDs: " + deckIds, e);
@@ -314,7 +303,7 @@ public class CardJdbcAdapter implements CardRepository {
                 card.getBackText(),
                 card.getExample(),
                 card.getImageUrl(),
-                LocalDateTime.now(),
+                LocalDateTime.now(ZoneId.systemDefault()),
                 card.getId());
     }
 
@@ -339,7 +328,8 @@ public class CardJdbcAdapter implements CardRepository {
             throws java.sql.SQLException {
         int index = 1;
         for (final Long value : values) {
-            ps.setLong(index++, value);
+            ps.setLong(index, value);
+            index++;
         }
     }
 

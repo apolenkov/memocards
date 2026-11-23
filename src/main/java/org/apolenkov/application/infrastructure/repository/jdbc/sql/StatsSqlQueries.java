@@ -15,8 +15,7 @@ public final class StatsSqlQueries {
     /**
      * SQL query to upsert daily statistics for deck.
      */
-    public static final String UPSERT_DAILY_STATS =
-            """
+    public static final String UPSERT_DAILY_STATS = """
             INSERT INTO deck_daily_stats (deck_id, date, sessions, viewed, correct, hard, total_duration_ms, total_delay_ms)
             VALUES (?, ?, 1, ?, ?, ?, ?, ?)
             ON CONFLICT (deck_id, date)
@@ -32,8 +31,7 @@ public final class StatsSqlQueries {
     /**
      * SQL query to insert known card if not exists.
      */
-    public static final String INSERT_KNOWN_CARD_IF_NOT_EXISTS =
-            """
+    public static final String INSERT_KNOWN_CARD_IF_NOT_EXISTS = """
             INSERT INTO known_cards (deck_id, card_id)
             SELECT ?, ?
             WHERE NOT EXISTS (
@@ -45,8 +43,7 @@ public final class StatsSqlQueries {
     /**
      * SQL query to select known card IDs for deck.
      */
-    public static final String SELECT_KNOWN_CARD_IDS =
-            """
+    public static final String SELECT_KNOWN_CARD_IDS = """
             SELECT kc.card_id
             FROM known_cards kc
             JOIN cards f ON kc.card_id = f.id
@@ -58,8 +55,7 @@ public final class StatsSqlQueries {
      * More efficient than SELECT_KNOWN_CARD_IDS + contains() for single card checks.
      * Uses EXISTS for optimal performance (stops after first match).
      */
-    public static final String IS_CARD_KNOWN_DIRECT =
-            """
+    public static final String IS_CARD_KNOWN_DIRECT = """
             SELECT EXISTS(
                 SELECT 1
                 FROM known_cards kc
@@ -73,8 +69,7 @@ public final class StatsSqlQueries {
      * Returns both deck_id and card_id for grouping by deck.
      * Note: Requires dynamic SQL for IN clause (deckIds parameter).
      */
-    public static final String SELECT_KNOWN_CARD_IDS_BATCH_TEMPLATE =
-            """
+    public static final String SELECT_KNOWN_CARD_IDS_BATCH_TEMPLATE = """
             SELECT f.deck_id, kc.card_id
             FROM known_cards kc
             JOIN cards f ON kc.card_id = f.id
@@ -84,8 +79,7 @@ public final class StatsSqlQueries {
     /**
      * SQL query to delete known card.
      */
-    public static final String DELETE_KNOWN_CARD =
-            """
+    public static final String DELETE_KNOWN_CARD = """
             DELETE FROM known_cards
             WHERE deck_id = ? AND card_id = ?
             """;
@@ -93,8 +87,7 @@ public final class StatsSqlQueries {
     /**
      * SQL query to delete all daily stats for deck.
      */
-    public static final String DELETE_DAILY_STATS_BY_DECK =
-            """
+    public static final String DELETE_DAILY_STATS_BY_DECK = """
             DELETE FROM deck_daily_stats
             WHERE deck_id = ?
             """;
@@ -102,8 +95,7 @@ public final class StatsSqlQueries {
     /**
      * SQL query to delete all known cards for deck.
      */
-    public static final String DELETE_KNOWN_CARDS_BY_DECK =
-            """
+    public static final String DELETE_KNOWN_CARDS_BY_DECK = """
             DELETE FROM known_cards
             WHERE deck_id = ?
             """;
@@ -112,8 +104,7 @@ public final class StatsSqlQueries {
      * SQL query template for aggregating statistics for multiple decks.
      * Requires placeholders for deck IDs to be formatted at runtime.
      */
-    public static final String SELECT_AGGREGATES_FOR_DECKS_TEMPLATE =
-            """
+    public static final String SELECT_AGGREGATES_FOR_DECKS_TEMPLATE = """
             SELECT d.id as deck_id,
                    COALESCE(SUM(dds.sessions), 0) as sessions_all,
                    COALESCE(SUM(dds.viewed), 0) as viewed_all,

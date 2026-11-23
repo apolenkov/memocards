@@ -15,8 +15,7 @@ public final class UserSqlQueries {
     /**
      * SQL query to select all users.
      */
-    public static final String SELECT_ALL_USERS =
-            """
+    public static final String SELECT_ALL_USERS = """
             SELECT u.id, u.email, u.password_hash, u.name, u.created_at
             FROM users u
             ORDER BY u.created_at DESC
@@ -26,8 +25,7 @@ public final class UserSqlQueries {
      * SQL query to select user with roles by email (optimized single query).
      * Uses LEFT JOIN and ARRAY_AGG to fetch user and roles in one query.
      */
-    public static final String SELECT_USER_WITH_ROLES_BY_EMAIL =
-            """
+    public static final String SELECT_USER_WITH_ROLES_BY_EMAIL = """
             SELECT u.id, u.email, u.password_hash, u.name, u.created_at,
                    COALESCE(ARRAY_AGG(ur.role ORDER BY ur.role) FILTER (WHERE ur.role IS NOT NULL), ARRAY[]::TEXT[]) as roles
             FROM users u
@@ -40,8 +38,7 @@ public final class UserSqlQueries {
      * SQL query to select user with roles by ID (optimized single query).
      * Uses LEFT JOIN and ARRAY_AGG to fetch user and roles in one query.
      */
-    public static final String SELECT_USER_WITH_ROLES_BY_ID =
-            """
+    public static final String SELECT_USER_WITH_ROLES_BY_ID = """
             SELECT u.id, u.email, u.password_hash, u.name, u.created_at,
                    COALESCE(ARRAY_AGG(ur.role ORDER BY ur.role) FILTER (WHERE ur.role IS NOT NULL), ARRAY[]::TEXT[]) as roles
             FROM users u
@@ -53,8 +50,7 @@ public final class UserSqlQueries {
     /**
      * SQL query to select user roles by user ID.
      */
-    public static final String SELECT_USER_ROLES =
-            """
+    public static final String SELECT_USER_ROLES = """
             SELECT ur.role
             FROM user_roles ur
             WHERE ur.user_id = ?
@@ -64,8 +60,7 @@ public final class UserSqlQueries {
     /**
      * SQL query to insert new user and return generated ID.
      */
-    public static final String INSERT_USER_RETURNING_ID =
-            """
+    public static final String INSERT_USER_RETURNING_ID = """
             INSERT INTO users (email, password_hash, name, created_at)
             VALUES (?, ?, ?, ?)
             RETURNING id
@@ -75,8 +70,7 @@ public final class UserSqlQueries {
      * SQL query to insert new user with conflict handling (for seed/batch operations).
      * Returns existing ID if email already exists, new ID otherwise.
      */
-    public static final String INSERT_USER_ON_CONFLICT_RETURNING_ID =
-            """
+    public static final String INSERT_USER_ON_CONFLICT_RETURNING_ID = """
             INSERT INTO users (email, password_hash, name, created_at)
             VALUES (?, ?, ?, ?)
             ON CONFLICT (email) DO UPDATE
@@ -87,8 +81,7 @@ public final class UserSqlQueries {
     /**
      * SQL query to update existing user.
      */
-    public static final String UPDATE_USER =
-            """
+    public static final String UPDATE_USER = """
             UPDATE users
             SET email = ?, password_hash = ?, name = ?
             WHERE id = ?
@@ -105,8 +98,7 @@ public final class UserSqlQueries {
     /**
      * SQL query to insert user role.
      */
-    public static final String INSERT_USER_ROLE =
-            """
+    public static final String INSERT_USER_ROLE = """
             INSERT INTO user_roles (user_id, role)
             VALUES (?, ?)
             """;
@@ -114,8 +106,7 @@ public final class UserSqlQueries {
     /**
      * SQL query to insert user role with conflict handling (for seed/batch operations).
      */
-    public static final String INSERT_USER_ROLE_ON_CONFLICT =
-            """
+    public static final String INSERT_USER_ROLE_ON_CONFLICT = """
             INSERT INTO user_roles (user_id, role)
             VALUES (?, ?)
             ON CONFLICT (user_id, role) DO NOTHING
@@ -124,8 +115,7 @@ public final class UserSqlQueries {
     /**
      * SQL query to delete all user roles.
      */
-    public static final String DELETE_USER_ROLES =
-            """
+    public static final String DELETE_USER_ROLES = """
             DELETE FROM user_roles
             WHERE user_id = ?
             """;

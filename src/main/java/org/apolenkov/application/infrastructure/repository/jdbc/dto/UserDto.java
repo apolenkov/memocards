@@ -1,6 +1,7 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.dto;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Set;
 
 /**
@@ -53,7 +54,7 @@ public record UserDto(
      */
     public static UserDto forNewUser(
             final String email, final String passwordHash, final String name, final Set<String> roles) {
-        return new UserDto(null, email, passwordHash, name, LocalDateTime.now(), roles);
+        return new UserDto(null, email, passwordHash, name, LocalDateTime.now(ZoneId.systemDefault()), roles);
     }
 
     /**

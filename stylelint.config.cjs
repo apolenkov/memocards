@@ -3,7 +3,8 @@ module.exports = {
     "stylelint-config-standard",
   ],
   plugins: [
-    "stylelint-order"
+    "stylelint-order",
+    "@stylistic/stylelint-plugin"
   ],
   rules: {
     // 1. STRICT COLOR MANAGEMENT - ONLY LUMO TOKENS
@@ -56,8 +57,8 @@ module.exports = {
     "length-zero-no-unit": true,
     "unit-allowed-list": ["px", "em", "rem", "%", "vw", "vh", "deg", "ms", "s", "fr"],
     
-    // 9. NO BROWSER PREFIXES - USE AUTOPREFIXER
-    "property-no-vendor-prefix": true,
+    // Safari through 17 needs the prefixed backdrop filter in static CSS.
+    "property-no-vendor-prefix": [true, { ignoreProperties: ["-webkit-backdrop-filter"] }],
     "value-no-vendor-prefix": true,
     
     // 10. STRICT ORDERING
@@ -159,7 +160,7 @@ module.exports = {
     }],
     
     // 18. DECLARATION BLOCK
-    "declaration-block-single-line-max-declarations": 1,
+    "@stylistic/declaration-block-single-line-max-declarations": 1,
     "block-no-empty": true
   },
   
@@ -173,7 +174,7 @@ module.exports = {
       }
     },
     {
-      files: ["src/main/frontend/themes/memocards/mobile-responsive.css"],
+      files: ["src/main/resources/META-INF/resources/styles/memocards/mobile-responsive.css"],
       rules: {
         "unit-allowed-list": ["px", "em", "rem", "%", "vw", "vh", "deg", "ms", "s", "fr"]
       }
