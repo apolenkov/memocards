@@ -170,7 +170,8 @@ checkstyle: ## Run Checkstyle analysis for main and test classes
 # =============================================================================
 dev: start ## Start application in development mode
 	@echo "Starting application in development mode..."
-	$(GRADLE) bootRun --args="--spring.profiles.active=dev"
+	@if [ -f .env ]; then set -a && . ./.env && set +a; fi; \
+	exec $(GRADLE) bootRun --args="--spring.profiles.active=dev"
 
 prod: start vaadin-build-prod ## Start application in production mode
 	@echo "Starting application in production mode..."

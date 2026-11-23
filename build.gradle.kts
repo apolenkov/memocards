@@ -66,6 +66,7 @@ repositories {
 val nodeRuntimeVersion = providers.fileContents(layout.projectDirectory.file(".nvmrc")).asText.map { it.trim() }
 
 vaadin {
+    frontendHotdeploy.set(true)
     nodeVersion.set(nodeRuntimeVersion.map { "v$it" })
 }
 
@@ -118,6 +119,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     // Dev tools
+    developmentOnly("com.vaadin:vaadin-dev")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // Test

@@ -30,7 +30,7 @@ spring:
     clean-disabled: true
 
 vaadin:
-  allowed-packages: com.vaadin,org.vaadin,com.flowingcode,org.apolenkov.application
+  allowed-packages: org.apolenkov.application
   launch-browser: ${VAADIN_LAUNCH_BROWSER:true}   # Enable browser launch for local development
   productionMode: ${VAADIN_PRODUCTION_MODE:false}  # Development mode for local development
 
@@ -133,6 +133,10 @@ spring:
   config:
     activate:
       on-profile: dev
+
+vaadin:
+  frontend:
+    hotdeploy: true
 
 logging:
   level:
