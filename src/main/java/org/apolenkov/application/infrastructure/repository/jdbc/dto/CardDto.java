@@ -1,6 +1,7 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.dto;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /**
  * JDBC DTO for card data transfer operations.
@@ -64,7 +65,7 @@ public record CardDto(
             final String backText,
             final String example,
             final String imageUrl) {
-        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
         return new CardDto(null, deckId, frontText, backText, example, imageUrl, new CardTimestamps(now, now));
     }
 

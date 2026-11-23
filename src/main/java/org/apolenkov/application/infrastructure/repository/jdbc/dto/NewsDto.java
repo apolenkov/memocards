@@ -1,6 +1,7 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.dto;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /**
  * JDBC DTO for news data transfer operations.
@@ -50,7 +51,7 @@ public record NewsDto(
      * @return NewsDto for new news article
      */
     public static NewsDto forNewNews(final String title, final String content, final String author) {
-        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
         return new NewsDto(null, title, content, author, now, now);
     }
 

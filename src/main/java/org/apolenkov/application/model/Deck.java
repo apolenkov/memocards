@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,8 +34,8 @@ public final class Deck {
      * Creates empty deck with current timestamps.
      */
     public Deck() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now(ZoneId.systemDefault());
+        this.updatedAt = LocalDateTime.now(ZoneId.systemDefault());
         this.cards = new ArrayList<>();
     }
 
@@ -102,7 +103,7 @@ public final class Deck {
         }
         cards.add(card);
         card.setDeckId(this.id);
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     /**
@@ -113,7 +114,7 @@ public final class Deck {
     public void removeCard(final Card card) {
         if (cards != null) {
             cards.remove(card);
-            this.updatedAt = LocalDateTime.now();
+            this.updatedAt = LocalDateTime.now(ZoneId.systemDefault());
         }
     }
 
@@ -178,7 +179,7 @@ public final class Deck {
             throw new IllegalArgumentException("title is required");
         }
         this.title = t;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     /**
@@ -200,7 +201,7 @@ public final class Deck {
      */
     public void setDescription(final String descriptionValue) {
         this.description = descriptionValue != null ? descriptionValue.trim() : null;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 
     /**

@@ -152,12 +152,11 @@ public class StatsJdbcAdapter implements StatsRepository {
             final Map<Long, Set<Long>> result =
                     jdbcTemplate.query(sql, ps -> setLongParameters(ps, deckIds), this::extractKnownCardsByDeck);
 
-            final Map<Long, Set<Long>> safeResult = (result != null) ? result : Map.of();
             LOGGER.debug(
                     "Batch known cards completed: {} decks have known cards (out of {} requested)",
-                    safeResult.size(),
+                    result.size(),
                     deckIds.size());
-            return safeResult;
+            return result;
 
         } catch (DataAccessException e) {
             throw new StatsRetrievalException("Failed to get known card IDs for deck IDs: " + deckIds, e);

@@ -1,6 +1,7 @@
 package org.apolenkov.application.config.seed;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -307,14 +308,14 @@ public class DataInitializer {
                 "Our app helps you efficiently learn new words and phrases. "
                         + "Create decks, practice, and track your progress.",
                 ADMIN_EMAIL,
-                LocalDateTime.now()));
+                LocalDateTime.now(ZoneId.systemDefault())));
 
         news.save(new News(
                 null,
                 "New features in the application",
                 "We have added statistics tracking, practice settings, and much more. " + "Stay tuned for updates!",
                 ADMIN_EMAIL,
-                LocalDateTime.now()));
+                LocalDateTime.now(ZoneId.systemDefault())));
     }
 
     /**

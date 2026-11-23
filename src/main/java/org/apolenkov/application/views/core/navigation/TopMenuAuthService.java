@@ -1,6 +1,7 @@
 package org.apolenkov.application.views.core.navigation;
 
 import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
 import org.apolenkov.application.config.constants.RouteConstants;
 import org.apolenkov.application.config.security.SecurityConstants;
 import org.apolenkov.application.domain.usecase.UserUseCase;
@@ -14,13 +15,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * Service responsible for authentication and authorization operations in the top menu.
  * Handles user authentication status, role checks, and logout operations.
  */
-@Component
+@Service
 public class TopMenuAuthService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TopMenuAuthService.class);
@@ -117,13 +118,15 @@ public class TopMenuAuthService {
 
         try {
             final VaadinServletRequest request = VaadinServletRequest.getCurrent();
-            if (request == null) {
-                LOGGER.warn("Cannot perform logout: VaadinServletRequest is null");
+            final VaadinServletResponse response = VaadinServletResponse.getCurrent();
+            if (request == null || response == null) {
+                LOGGER.warn("Cannot perform logout: no current HTTP request or response");
                 NavigationHelper.navigateToError(RouteConstants.HOME_ROUTE);
                 return;
             }
 
-            new SecurityContextLogoutHandler().logout(request.getHttpServletRequest(), null, null);
+            new SecurityContextLogoutHandler()
+                    .logout(request.getHttpServletRequest(), response.getHttpServletResponse(), auth);
 
             AUDIT_LOGGER.info("User logged out successfully: {}", username);
         } catch (AuthenticationException e) {

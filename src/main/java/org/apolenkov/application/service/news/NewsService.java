@@ -1,6 +1,7 @@
 package org.apolenkov.application.service.news;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.domain.port.NewsRepository;
@@ -62,7 +63,7 @@ public class NewsService implements NewsUseCase {
 
         validate(title, content);
 
-        final News news = new News(null, title, content, author, LocalDateTime.now());
+        final News news = new News(null, title, content, author, LocalDateTime.now(ZoneId.systemDefault()));
         newsRepository.save(news);
 
         AUDIT_LOGGER.info("News created: title='{}', author={}, contentLength={}", title, author, content.length());
@@ -95,7 +96,7 @@ public class NewsService implements NewsUseCase {
         existing.setTitle(title);
         existing.setContent(content);
         existing.setAuthor(author);
-        existing.setUpdatedAt(LocalDateTime.now());
+        existing.setUpdatedAt(LocalDateTime.now(ZoneId.systemDefault()));
 
         newsRepository.save(existing);
 

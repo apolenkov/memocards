@@ -4,13 +4,11 @@ import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
 val javaTargetVersion = JavaVersion.VERSION_21
-val vaadinVersion: String by project
-val lineAwesome: String by project
-val assertj: String by project
-val mockito: String by project
-val webdrivermanager: String by project
-val springDotenv: String by project
-val testcontainersVersion: String by project
+val vaadinVersion = providers.gradleProperty("vaadinVersion").get()
+val assertj = providers.gradleProperty("assertj").get()
+val mockito = providers.gradleProperty("mockito").get()
+val springDotenv = providers.gradleProperty("springDotenv").get()
+val testcontainersVersion = providers.gradleProperty("testcontainersVersion").get()
 
 plugins {
     idea
@@ -59,13 +57,17 @@ java {
 }
 
 repositories {
-    gradlePluginPortal()
     mavenCentral()
-    maven(url = "https://maven.vaadin.com/vaadin-addons")
+}
+
+val nodeRuntimeVersion = providers.fileContents(layout.projectDirectory.file(".nvmrc")).asText.map { it.trim() }
+
+vaadin {
+    nodeVersion.set(nodeRuntimeVersion.map { "v$it" })
 }
 
 node {
-    version.set("20.19.0")
+    version.set(nodeRuntimeVersion)
     download.set(true)
 }
 
@@ -75,6 +77,7 @@ node {
 apply(plugin = "io.spring.dependency-management")
 extensions.configure<DependencyManagementExtension> {
     dependencies {
+        dependency("com.google.errorprone:error_prone_annotations:2.52.0")
         imports {
             mavenBom(BOM_COORDINATES)
             mavenBom("com.vaadin:vaadin-bom:$vaadinVersion")
@@ -86,15 +89,13 @@ dependencies {
     implementation("me.paulschwarz:spring-dotenv:$springDotenv")
 
     // Utilities
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.google.guava:guava")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    implementation("com.google.guava:guava:${project.property("guava")}")
     implementation("org.apache.commons:commons-lang3")
 
     // Vaadin
-    implementation("com.vaadin:vaadin")
+    implementation("com.vaadin:vaadin-core")
     implementation("com.vaadin:vaadin-spring-boot-starter")
-
-    implementation("org.parttio:line-awesome:$lineAwesome")
 
     // Spring Boot starters
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -102,13 +103,14 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("org.springframework.boot:spring-boot-starter-aop")
+    implementation("org.springframework.boot:spring-boot-starter-aspectj")
     implementation("org.aspectj:aspectjweaver")
     implementation("com.github.ben-manes.caffeine:caffeine")
 
     // Persistence
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
-    implementation("org.flywaydb:flyway-core")
+    implementation("org.springframework.data:spring-data-commons")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.postgresql:postgresql")
 
@@ -117,37 +119,20 @@ dependencies {
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("com.vaadin:vaadin-testbench-junit5")
 
     testImplementation("org.assertj:assertj-core:$assertj")
     testImplementation("org.mockito:mockito-core:$mockito")
-    testImplementation("io.github.bonigarcia:webdrivermanager:$webdrivermanager")
 
     // Test containers for integration tests
-    testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion") // Using variable
-    testImplementation("org.testcontainers:postgresql:$testcontainersVersion") // Using variable
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter:$testcontainersVersion") // Using variable
+    testImplementation("org.testcontainers:testcontainers-postgresql:$testcontainersVersion") // Using variable
 }
 
 configurations.all {
     resolutionStrategy {
         failOnVersionConflict()
-
-        // Existing force declarations
-        force("commons-io:commons-io:2.21.0")
-        force("org.checkerframework:checker-qual:3.52.0")
-        force("org.ow2.asm:asm:9.9") // Vaadin 24.9.2 compatibility
-
-        // Resolve reported conflicts with latest versions
-        force("com.google.guava:guava:33.5.0-jre")
-        force("org.apache.commons:commons-compress:1.28.0")
-        force("com.google.errorprone:error_prone_annotations:2.44.0")
-        force("io.github.classgraph:classgraph:4.8.184")
-
-        // Added to resolve the reported conflicts
-        force("com.github.docker-java:docker-java-api:3.6.0")
-        force("com.github.docker-java:docker-java-transport:3.6.0")
-        force("org.jetbrains:annotations:26.0.2-1")
     }
 }
 

@@ -2,6 +2,7 @@ package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.domain.port.NewsRepository;
@@ -216,7 +217,7 @@ public class NewsJdbcAdapter implements NewsRepository {
                 news.getTitle(),
                 news.getContent(),
                 news.getAuthor(),
-                LocalDateTime.now(), // Update timestamp
+                LocalDateTime.now(ZoneId.systemDefault()), // Update timestamp
                 news.getId());
     }
 }

@@ -2,7 +2,7 @@ package org.apolenkov.application.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
  * Configuration class for TestContainers setup.
@@ -13,7 +13,7 @@ public class TestContainersConfig {
     /**
      * Custom PostgreSQL container implementation for testing.
      */
-    public static final class CustomPostgreSQLContainer extends PostgreSQLContainer<CustomPostgreSQLContainer> {
+    public static final class CustomPostgreSQLContainer extends PostgreSQLContainer {
         private static final String IMAGE_VERSION = "postgres:15";
         private static CustomPostgreSQLContainer container;
 

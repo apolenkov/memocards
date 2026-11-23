@@ -1,10 +1,12 @@
 package org.apolenkov.application.config.vaadin;
 
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.theme.Theme;
+import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -16,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @Theme("memocards")
+@StyleSheet(Lumo.UTILITY_STYLESHEET)
 @PageTitle("Memocards - Smart Learning with Cards")
 @Push
 public class VaadinApplicationShell implements AppShellConfigurator {

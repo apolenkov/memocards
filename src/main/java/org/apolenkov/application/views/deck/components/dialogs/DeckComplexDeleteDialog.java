@@ -1,5 +1,6 @@
 package org.apolenkov.application.views.deck.components.dialogs;
 
+import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -93,7 +94,7 @@ public final class DeckComplexDeleteDialog extends Dialog {
      * Configures basic dialog properties.
      */
     private void configureDialog() {
-        setModal(true);
+        setModality(ModalityMode.STRICT);
         setCloseOnEsc(true);
         setCloseOnOutsideClick(false);
     }

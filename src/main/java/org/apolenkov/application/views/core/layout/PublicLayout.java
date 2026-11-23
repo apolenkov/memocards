@@ -8,6 +8,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.PostConstruct;
 import org.apolenkov.application.config.constants.RouteConstants;
@@ -32,7 +34,7 @@ import org.apolenkov.application.views.core.navigation.MobileNavigationMenu;
  * </ul>
  */
 @AnonymousAllowed
-public class PublicLayout extends AppLayout {
+public class PublicLayout extends AppLayout implements AfterNavigationObserver {
 
     // ==================== Dependencies ====================
 
@@ -239,9 +241,7 @@ public class PublicLayout extends AppLayout {
      * </ul>
      */
     @Override
-    protected void afterNavigation() {
-        super.afterNavigation();
-
+    public void afterNavigation(final AfterNavigationEvent event) {
         if (getContent() != null) {
             getContent().addClassName(CoreConstants.APP_CONTENT_CLASS);
         }

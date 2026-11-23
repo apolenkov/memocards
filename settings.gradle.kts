@@ -1,18 +1,18 @@
 pluginManagement {
-    val jgitver: String by settings
-    val sonarlint: String by settings
-    val dependencycheck: String by settings
-    val spotbugsPluginVersion: String by settings
-    val vaadinVersion: String by settings
-    val dependencyManagement: String by settings
-    val springframeworkBoot: String by settings
-    val spotless: String by settings
-    val nodeVersion: String by settings
-    val jib: String by settings
+    val jgitver = providers.gradleProperty("jgitver").get()
+    val sonarlint = providers.gradleProperty("sonarlint").get()
+    val dependencycheck = providers.gradleProperty("dependencycheck").get()
+    val spotbugsPluginVersion = providers.gradleProperty("spotbugsPluginVersion").get()
+    val vaadinVersion = providers.gradleProperty("vaadinVersion").get()
+    val dependencyManagement = providers.gradleProperty("dependencyManagement").get()
+    val springframeworkBoot = providers.gradleProperty("springframeworkBoot").get()
+    val spotless = providers.gradleProperty("spotless").get()
+    val nodeVersion = providers.gradleProperty("nodeVersion").get()
+    val jib = providers.gradleProperty("jib").get()
 
     repositories {
-        gradlePluginPortal()
         mavenCentral()
+        gradlePluginPortal()
     }
 
     plugins {

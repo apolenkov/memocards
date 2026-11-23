@@ -16,13 +16,13 @@ import org.apolenkov.application.model.Deck;
 import org.apolenkov.application.model.PracticeDirection;
 import org.apolenkov.application.service.settings.PracticeSettingsService;
 import org.apolenkov.application.service.stats.StatsService;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * Service for managing practice session preparation and configuration.
  * Handles deck loading, card filtering, and session initialization.
  */
-@Component
+@Service
 public final class PracticeSessionService {
 
     // Dependencies

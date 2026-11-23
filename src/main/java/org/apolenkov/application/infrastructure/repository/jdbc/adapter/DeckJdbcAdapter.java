@@ -2,6 +2,7 @@ package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import org.apolenkov.application.domain.port.DeckRepository;
@@ -279,7 +280,7 @@ public class DeckJdbcAdapter implements DeckRepository {
                 deck.getUserId(),
                 deck.getTitle(),
                 deck.getDescription(),
-                LocalDateTime.now(),
+                LocalDateTime.now(ZoneId.systemDefault()),
                 deck.getId());
 
         return deck;

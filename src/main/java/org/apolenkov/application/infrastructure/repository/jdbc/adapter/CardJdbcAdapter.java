@@ -2,6 +2,7 @@ package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -245,12 +246,9 @@ public class CardJdbcAdapter implements CardRepository {
             final Map<Long, Long> counts =
                     jdbcTemplate.query(sql, ps -> setLongParameters(ps, deckIds), this::extractCountsByDeck);
 
-            final Map<Long, Long> safeCounts = (counts != null) ? counts : Map.of();
             LOGGER.debug(
-                    "Batch count completed: {} decks have cards (out of {} requested)",
-                    safeCounts.size(),
-                    deckIds.size());
-            return safeCounts;
+                    "Batch count completed: {} decks have cards (out of {} requested)", counts.size(), deckIds.size());
+            return counts;
 
         } catch (DataAccessException e) {
             throw new CardRetrievalException("Failed to count cards for deck IDs: " + deckIds, e);
@@ -314,7 +312,7 @@ public class CardJdbcAdapter implements CardRepository {
                 card.getBackText(),
                 card.getExample(),
                 card.getImageUrl(),
-                LocalDateTime.now(),
+                LocalDateTime.now(ZoneId.systemDefault()),
                 card.getId());
     }
 

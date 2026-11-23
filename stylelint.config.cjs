@@ -3,7 +3,8 @@ module.exports = {
     "stylelint-config-standard",
   ],
   plugins: [
-    "stylelint-order"
+    "stylelint-order",
+    "@stylistic/stylelint-plugin"
   ],
   rules: {
     // 1. STRICT COLOR MANAGEMENT - ONLY LUMO TOKENS
@@ -159,7 +160,7 @@ module.exports = {
     }],
     
     // 18. DECLARATION BLOCK
-    "declaration-block-single-line-max-declarations": 1,
+    "@stylistic/declaration-block-single-line-max-declarations": 1,
     "block-no-empty": true
   },
   

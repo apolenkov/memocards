@@ -67,9 +67,7 @@ public final class AdminNewsDialog extends Dialog {
         content.setPadding(true);
 
         final H3 dialogTitle = new H3(
-                news == null
-                        ? getTranslation(AdminConstants.ADMIN_NEWS_ADD_KEY)
-                        : getTranslation(AdminConstants.DIALOG_EDIT_KEY));
+                getTranslation(news == null ? AdminConstants.ADMIN_NEWS_ADD_KEY : AdminConstants.DIALOG_EDIT_KEY));
         content.add(dialogTitle);
 
         final TextField titleField = createTitleField();
