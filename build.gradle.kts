@@ -1,7 +1,9 @@
+import groovy.json.JsonSlurper
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import name.remal.gradle_plugins.sonarlint.SonarLintExtension
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+import java.util.zip.ZipFile
 
 val javaTargetVersion = JavaVersion.VERSION_21
 val vaadinVersion = providers.gradleProperty("vaadinVersion").get()
@@ -35,13 +37,19 @@ plugins {
 group = "org.apolenkov.application"
 // Use the release tag on tagged commits and include distance and SHA on snapshots.
 version =
-    providers
-        .exec {
-            commandLine("git", "describe", "--tags", "--match", "v[0-9]*", "--always", "--dirty", "--abbrev=8")
-        }.standardOutput.asText
-        .get()
-        .trim()
-        .removePrefix("v")
+    providers.gradleProperty("version").orNull ?: if (file(".git").exists()) {
+        providers
+            .exec {
+                commandLine("git", "describe", "--tags", "--match", "v[0-9]*", "--always", "--dirty", "--abbrev=8")
+                isIgnoreExitValue = true
+            }.standardOutput.asText
+            .get()
+            .trim()
+            .removePrefix("v")
+            .ifEmpty { "0.0.0-SNAPSHOT" }
+    } else {
+        "0.0.0-SNAPSHOT"
+    }
 description = "Memocards application"
 
 idea {
@@ -355,6 +363,9 @@ tasks.named("npmInstall") {
     outputs.dir("node_modules")
 }
 
+// Both tasks use the lockfile when lint and production packaging run together.
+tasks.named("vaadinBuildFrontend") { mustRunAfter("npmInstall") }
+
 tasks.register("codeQuality") {
     description = "Runs core code quality checks (SonarLint, SpotBugs, Checkstyle, PMD)"
     group = JavaBasePlugin.VERIFICATION_GROUP
@@ -413,17 +424,10 @@ tasks.register("codeQualityFull") {
     )
 }
 
-// Ensure frontend is built for production mode before Jib
-tasks.named("jibDockerBuild") {
-    dependsOn("vaadinBuildFrontend")
-}
-
-tasks.named("jib") {
-    dependsOn("vaadinBuildFrontend")
-}
-
-// Jib configuration for different profiles
+// Vaadin adds the frontend and its production token when it assembles the project JAR.
 jib {
+    containerizingMode = "packaged"
+    configurationName.set("productionRuntimeClasspath")
     from {
         image = "eclipse-temurin:21-jre-alpine"
         platforms {
@@ -471,6 +475,31 @@ jib {
         creationTime.set("USE_CURRENT_TIMESTAMP")
     }
 }
+
+val verifyJibFrontend =
+    tasks.register("verifyJibFrontend") {
+        group = JavaBasePlugin.VERIFICATION_GROUP
+        description = "Verify the Vaadin production frontend in the JAR that Jib puts on the image classpath"
+        val archive = tasks.jar.flatMap { it.archiveFile }
+        val mode = jib.containerizingMode
+        inputs.file(archive)
+        inputs.property("containerizingMode", mode)
+        doLast {
+            check(mode == "packaged") { "Jib must include the application JAR" }
+            ZipFile(archive.get().asFile).use { jar ->
+                val webapp = "META-INF/VAADIN/webapp"
+                check(jar.getEntry("$webapp/index.html") != null) { "Missing Vaadin index.html" }
+                check(jar.entries().asSequence().any { it.name.startsWith("$webapp/VAADIN/build/") && it.name.endsWith(".js") }) {
+                    "Missing compiled Vaadin JavaScript"
+                }
+                val token = checkNotNull(jar.getEntry("META-INF/VAADIN/config/flow-build-info.json")) { "Missing Vaadin build token" }
+                val info = jar.getInputStream(token).use { JsonSlurper().parse(it) as Map<*, *> }
+                check(info["productionMode"] == true) { "Vaadin build token must enable production mode" }
+            }
+        }
+    }
+
+tasks.check { dependsOn(verifyJibFrontend) }
 
 tasks.register("printJibMetadata") {
     group = JavaBasePlugin.VERIFICATION_GROUP
