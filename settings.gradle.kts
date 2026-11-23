@@ -6,7 +6,7 @@ pluginManagement {
     val dependencyManagement = providers.gradleProperty("dependencyManagement").get()
     val springframeworkBoot = providers.gradleProperty("springframeworkBoot").get()
     val spotless = providers.gradleProperty("spotless").get()
-    val nodeVersion = providers.gradleProperty("nodeVersion").get()
+    val nodeGradlePlugin = providers.gradleProperty("nodeGradlePlugin").get()
     val jib = providers.gradleProperty("jib").get()
 
     repositories {
@@ -23,7 +23,7 @@ pluginManagement {
         id("io.spring.dependency-management") version dependencyManagement
 
         id("com.vaadin") version vaadinVersion
-        id("com.github.node-gradle.node") version nodeVersion
+        id("com.github.node-gradle.node") version nodeGradlePlugin
         id("org.springframework.boot") version springframeworkBoot
 
         id("com.google.cloud.tools.jib") version jib

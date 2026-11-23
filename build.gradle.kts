@@ -80,7 +80,7 @@ node {
 apply(plugin = "io.spring.dependency-management")
 extensions.configure<DependencyManagementExtension> {
     dependencies {
-        dependency("com.google.errorprone:error_prone_annotations:2.52.0")
+        dependency("com.google.errorprone:error_prone_annotations:${providers.gradleProperty("errorProneAnnotationsVersion").get()}")
         imports {
             mavenBom(BOM_COORDINATES)
             mavenBom("com.vaadin:vaadin-bom:$vaadinVersion")
@@ -93,7 +93,7 @@ dependencies {
 
     // Utilities
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
-    implementation("com.google.guava:guava:${project.property("guava")}")
+    implementation("com.google.guava:guava:${providers.gradleProperty("guava").get()}")
     implementation("org.apache.commons:commons-lang3")
 
     // Vaadin
@@ -169,7 +169,7 @@ extensions.configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         trimTrailingWhitespace()
         endWithNewline()
 
-        palantirJavaFormat("2.63.0")
+        palantirJavaFormat(providers.gradleProperty("palantirJavaFormatVersion").get())
     }
 
     kotlinGradle {
@@ -186,7 +186,7 @@ extensions.configure<com.diffplug.gradle.spotless.SpotlessExtension> {
  */
 apply(plugin = "checkstyle")
 extensions.configure<CheckstyleExtension> {
-    toolVersion = "10.12.1"
+    toolVersion = providers.gradleProperty("checkstyleVersion").get()
     configFile = rootProject.file("config/checkstyle/checkstyle.xml")
 }
 
@@ -214,7 +214,7 @@ tasks.withType<com.github.spotbugs.snom.SpotBugsTask>().configureEach {
  */
 apply(plugin = "pmd")
 pmd {
-    toolVersion = "7.9.0"
+    toolVersion = providers.gradleProperty("pmdVersion").get()
     ruleSetFiles = files("config/pmd/ruleset.xml")
     ruleSets = emptyList()
 }
@@ -249,7 +249,7 @@ apply(plugin = "org.owasp.dependencycheck")
  */
 apply(plugin = "jacoco")
 jacoco {
-    toolVersion = "0.8.12"
+    toolVersion = providers.gradleProperty("jacocoVersion").get()
 }
 
 tasks.withType<Test> {

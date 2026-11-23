@@ -6,6 +6,7 @@ package org.apolenkov.application.domain.port;
  * <p>Defines contract for storing and retrieving user-specific
  * configuration such as locale preferences and other personal settings.</p>
  */
+@FunctionalInterface
 public interface UserSettingsRepository {
 
     /**

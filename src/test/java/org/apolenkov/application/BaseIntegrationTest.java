@@ -1,6 +1,6 @@
 package org.apolenkov.application;
 
-import org.apolenkov.application.config.TestContainersConfig;
+import org.apolenkov.application.config.CustomPostgreSQLContainer;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -16,14 +16,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 public abstract class BaseIntegrationTest {
 
-    private static TestContainersConfig.CustomPostgreSQLContainer container;
+    private static CustomPostgreSQLContainer container;
 
     /**
      * Initializes the PostgreSQL container before all tests.
      */
     @BeforeAll
     public static void init() {
-        container = TestContainersConfig.CustomPostgreSQLContainer.getInstance();
+        container = CustomPostgreSQLContainer.getInstance();
         container.start();
     }
 

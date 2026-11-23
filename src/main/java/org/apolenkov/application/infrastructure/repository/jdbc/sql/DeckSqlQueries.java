@@ -15,8 +15,7 @@ public final class DeckSqlQueries {
     /**
      * SQL query to select all decks.
      */
-    public static final String SELECT_ALL_DECKS =
-            """
+    public static final String SELECT_ALL_DECKS = """
             SELECT d.id, d.user_id, d.title, d.description, d.created_at, d.updated_at
             FROM decks d
             ORDER BY d.created_at DESC
@@ -25,8 +24,7 @@ public final class DeckSqlQueries {
     /**
      * SQL query to select deck by ID.
      */
-    public static final String SELECT_DECK_BY_ID =
-            """
+    public static final String SELECT_DECK_BY_ID = """
             SELECT d.id, d.user_id, d.title, d.description, d.created_at, d.updated_at
             FROM decks d
             WHERE d.id = ?
@@ -35,8 +33,7 @@ public final class DeckSqlQueries {
     /**
      * SQL query to select decks by user ID.
      */
-    public static final String SELECT_DECKS_BY_USER_ID =
-            """
+    public static final String SELECT_DECKS_BY_USER_ID = """
             SELECT d.id, d.user_id, d.title, d.description, d.created_at, d.updated_at
             FROM decks d
             WHERE d.user_id = ?
@@ -48,8 +45,7 @@ public final class DeckSqlQueries {
      * Searches in title and description fields (case-insensitive).
      * Uses ILIKE for case-insensitive pattern matching (PostgreSQL).
      */
-    public static final String SELECT_DECKS_BY_USER_ID_AND_SEARCH =
-            """
+    public static final String SELECT_DECKS_BY_USER_ID_AND_SEARCH = """
             SELECT d.id, d.user_id, d.title, d.description, d.created_at, d.updated_at
             FROM decks d
             WHERE d.user_id = ?
@@ -60,8 +56,7 @@ public final class DeckSqlQueries {
     /**
      * SQL query to insert new deck and return generated ID.
      */
-    public static final String INSERT_DECK_RETURNING_ID =
-            """
+    public static final String INSERT_DECK_RETURNING_ID = """
             INSERT INTO decks (user_id, title, description, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?)
             RETURNING id
@@ -70,8 +65,7 @@ public final class DeckSqlQueries {
     /**
      * SQL query to update existing deck.
      */
-    public static final String UPDATE_DECK =
-            """
+    public static final String UPDATE_DECK = """
             UPDATE decks
             SET user_id = ?, title = ?, description = ?, updated_at = ?
             WHERE id = ?

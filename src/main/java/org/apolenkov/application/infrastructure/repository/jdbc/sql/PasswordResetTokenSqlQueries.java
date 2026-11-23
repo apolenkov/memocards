@@ -15,8 +15,7 @@ public final class PasswordResetTokenSqlQueries {
     /**
      * SQL query to insert new password reset token.
      */
-    public static final String INSERT_TOKEN =
-            """
+    public static final String INSERT_TOKEN = """
             INSERT INTO password_reset_tokens (token, user_id, expires_at, used)
             VALUES (?, ?, ?, ?)
             """;
@@ -24,8 +23,7 @@ public final class PasswordResetTokenSqlQueries {
     /**
      * SQL query to update existing password reset token.
      */
-    public static final String UPDATE_TOKEN =
-            """
+    public static final String UPDATE_TOKEN = """
             UPDATE password_reset_tokens
             SET token = ?, user_id = ?, expires_at = ?, used = ?
             WHERE id = ?
@@ -34,8 +32,7 @@ public final class PasswordResetTokenSqlQueries {
     /**
      * SQL query to select password reset token by token string.
      */
-    public static final String SELECT_BY_TOKEN =
-            """
+    public static final String SELECT_BY_TOKEN = """
             SELECT id, token, user_id, expires_at, used
             FROM password_reset_tokens
             WHERE token = ?
@@ -44,8 +41,7 @@ public final class PasswordResetTokenSqlQueries {
     /**
      * SQL query to select unused password reset token for user.
      */
-    public static final String SELECT_BY_USER_ID_NOT_USED =
-            """
+    public static final String SELECT_BY_USER_ID_NOT_USED = """
             SELECT id, token, user_id, expires_at, used
             FROM password_reset_tokens
             WHERE user_id = ? AND used = false
@@ -56,8 +52,7 @@ public final class PasswordResetTokenSqlQueries {
     /**
      * SQL query to mark password reset token as used.
      */
-    public static final String MARK_AS_USED =
-            """
+    public static final String MARK_AS_USED = """
             UPDATE password_reset_tokens
             SET used = true
             WHERE id = ?

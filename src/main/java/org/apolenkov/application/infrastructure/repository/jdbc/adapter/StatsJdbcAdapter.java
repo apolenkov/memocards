@@ -260,7 +260,8 @@ public class StatsJdbcAdapter implements StatsRepository {
             throws java.sql.SQLException {
         int index = 1;
         for (final Long value : values) {
-            ps.setLong(index++, value);
+            ps.setLong(index, value);
+            index++;
         }
     }
 
@@ -295,7 +296,8 @@ public class StatsJdbcAdapter implements StatsRepository {
         params[3] = today;
         int index = 4;
         for (final Long deckId : deckIds) {
-            params[index++] = deckId;
+            params[index] = deckId;
+            index++;
         }
         return params;
     }

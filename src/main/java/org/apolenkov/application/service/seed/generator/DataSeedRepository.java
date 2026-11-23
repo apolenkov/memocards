@@ -68,8 +68,8 @@ public class DataSeedRepository {
         final List<Long> generatedIds = new ArrayList<>(users.size());
 
         // Insert users and collect generated IDs
-        jdbcTemplate.execute(
-                UserSqlQueries.INSERT_USER_ON_CONFLICT_RETURNING_ID, (PreparedStatementCallback<Void>) ps -> {
+        jdbcTemplate.execute(UserSqlQueries.INSERT_USER_ON_CONFLICT_RETURNING_ID, (PreparedStatementCallback<Void>)
+                ps -> {
                     for (final User user : users) {
                         ps.setString(1, user.getEmail());
                         ps.setString(2, user.getPasswordHash());

@@ -1,6 +1,5 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -42,16 +41,10 @@ public class NewsJdbcAdapter implements NewsRepository {
         final String title = rs.getString("title");
         final String content = rs.getString("content");
         final String author = rs.getString("author");
-        final Timestamp createdAt = rs.getTimestamp("created_at");
-        final Timestamp updatedAt = rs.getTimestamp("updated_at");
+        final LocalDateTime createdAt = rs.getObject("created_at", LocalDateTime.class);
+        final LocalDateTime updatedAt = rs.getObject("updated_at", LocalDateTime.class);
 
-        return NewsDto.forExistingNews(
-                id,
-                title,
-                content,
-                author,
-                createdAt != null ? createdAt.toLocalDateTime() : null,
-                updatedAt != null ? updatedAt.toLocalDateTime() : null);
+        return NewsDto.forExistingNews(id, title, content, author, createdAt, updatedAt);
     };
 
     // ==================== Fields ====================

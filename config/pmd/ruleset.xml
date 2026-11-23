@@ -130,6 +130,8 @@
 
     <!-- Code Style -->
     <rule ref="category/java/codestyle.xml">
+        <!-- Declare and initialize final locals at first use to keep their scope small. -->
+        <exclude name="LocalVariableDeclarationShouldBeAtStartOfBlock"/>
         <!-- 
         UseExplicitTypes: EXCLUDED
         
@@ -505,31 +507,6 @@
         <exclude name="CouplingBetweenObjects"/>
 
         <!-- 
-        AvoidCatchingGenericException: EXCLUDED
-        
-        JUSTIFICATION:
-        Required for Spring framework patterns and AOP.
-        Spring uses generic Exception for aspect handling.
-        
-        EXAMPLE:
-        ```java
-        // ✅ REQUIRED: Spring AOP pattern
-        @Around("execution(* service.*(..))")
-        public Object logPerformance(ProceedingJoinPoint joinPoint) throws Throwable {
-            try {
-                return joinPoint.proceed();
-            } catch (Throwable t) { // Required for Spring AOP
-                logError(t);
-                throw t;
-            }
-        }
-        ```
-        
-        STATUS: Keep exclusion - required for Spring framework
-        -->
-        <exclude name="AvoidCatchingGenericException"/>
-
-        <!-- 
         AvoidRethrowingException: EXCLUDED
         
         JUSTIFICATION:
@@ -638,6 +615,8 @@
 
     <!-- Error Prone -->
     <rule ref="category/java/errorprone.xml">
+        <!-- Preserve framework-boundary exception handling in UI callbacks and Spring aspects. -->
+        <exclude name="AvoidCatchingGenericException"/>
         <!-- 
         MissingSerialVersionUID: EXCLUDED
         

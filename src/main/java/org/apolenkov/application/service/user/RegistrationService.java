@@ -4,6 +4,7 @@ package org.apolenkov.application.service.user;
  * Service interface for user registration operations.
  * Provides abstraction for user registration regardless of persistence technology.
  */
+@FunctionalInterface
 public interface RegistrationService {
 
     /**

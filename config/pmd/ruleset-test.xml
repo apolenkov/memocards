@@ -133,6 +133,8 @@
 
     <!-- Code Style -->
     <rule ref="category/java/codestyle.xml">
+        <!-- Declare and initialize final locals at first use to keep their scope small. -->
+        <exclude name="LocalVariableDeclarationShouldBeAtStartOfBlock"/>
         <!-- 
         UseExplicitTypes: EXCLUDED
         
@@ -400,30 +402,6 @@
         -->
         <exclude name="SingularField"/>
         
-        <!-- 
-        AvoidCatchingGenericException: EXCLUDED
-        
-        JUSTIFICATION:
-        Required for test exception handling. Tests often catch
-        generic exceptions to verify exception handling.
-        
-        EXAMPLE:
-        ```java
-        // ✅ REQUIRED: Catch generic exception in test
-        @Test
-        void testExceptionHandling() {
-            try {
-                service.processInvalidData();
-                fail("Should throw exception");
-            } catch (Exception e) { // Generic exception catch for testing
-                assertThat(e).isInstanceOf(IllegalArgumentException.class);
-            }
-        }
-        ```
-        
-        STATUS: Keep exclusion - required for test exception handling
-        -->
-        <exclude name="AvoidCatchingGenericException"/>
     </rule>
     
     <!-- Configure complexity rules with custom thresholds for tests -->
@@ -436,6 +414,8 @@
 
     <!-- Error Prone -->
     <rule ref="category/java/errorprone.xml">
+        <!-- Preserve framework-boundary exception handling in test setup. -->
+        <exclude name="AvoidCatchingGenericException"/>
         <!-- 
         MissingSerialVersionUID: EXCLUDED
         

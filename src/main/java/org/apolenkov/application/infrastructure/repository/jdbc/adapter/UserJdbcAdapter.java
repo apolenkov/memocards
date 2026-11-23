@@ -1,6 +1,6 @@
 package org.apolenkov.application.infrastructure.repository.jdbc.adapter;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -45,10 +45,9 @@ public class UserJdbcAdapter implements UserRepository {
         final String email = rs.getString("email");
         final String passwordHash = rs.getString("password_hash");
         final String name = rs.getString("name");
-        final Timestamp createdAt = rs.getTimestamp("created_at");
+        final LocalDateTime createdAt = rs.getObject("created_at", LocalDateTime.class);
 
-        return UserDto.forExistingUser(
-                id, email, passwordHash, name, createdAt != null ? createdAt.toLocalDateTime() : null, new HashSet<>());
+        return UserDto.forExistingUser(id, email, passwordHash, name, createdAt, new HashSet<>());
     };
 
     /**
@@ -60,7 +59,7 @@ public class UserJdbcAdapter implements UserRepository {
         final String email = rs.getString("email");
         final String passwordHash = rs.getString("password_hash");
         final String name = rs.getString("name");
-        final Timestamp createdAt = rs.getTimestamp("created_at");
+        final LocalDateTime createdAt = rs.getObject("created_at", LocalDateTime.class);
 
         // Extract roles from PostgreSQL array
         final java.sql.Array rolesArray = rs.getArray("roles");
@@ -72,8 +71,7 @@ public class UserJdbcAdapter implements UserRepository {
             }
         }
 
-        return UserDto.forExistingUser(
-                id, email, passwordHash, name, createdAt != null ? createdAt.toLocalDateTime() : null, roles);
+        return UserDto.forExistingUser(id, email, passwordHash, name, createdAt, roles);
     };
 
     /**
