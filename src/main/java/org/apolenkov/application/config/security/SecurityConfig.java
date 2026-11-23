@@ -44,7 +44,7 @@ public class SecurityConfig {
         // Configure public resources and actuator endpoints
         http.authorizeHttpRequests(auth -> auth
                 // Public static resources (icons, images, etc.)
-                .requestMatchers("/icons/**")
+                .requestMatchers("/icons/**", "/styles/memocards/**")
                 .permitAll()
                 // Actuator endpoints: health, info, metrics, env, prometheus are public
                 .requestMatchers(

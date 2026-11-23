@@ -1,4 +1,10 @@
 /* Common Component Styles */
+vaadin-text-field,
+vaadin-email-field,
+vaadin-password-field {
+    --vaadin-input-field-placeholder-color: var(--lumo-body-text-color);
+}
+
 .surface-panel {
 	border: 1px solid color-mix(in srgb, var(--lumo-contrast-10pct) 60%, transparent);
 	border-radius: var(--lumo-border-radius-l);

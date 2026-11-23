@@ -174,7 +174,7 @@ module.exports = {
       }
     },
     {
-      files: ["src/main/frontend/themes/memocards/mobile-responsive.css"],
+      files: ["src/main/resources/META-INF/resources/styles/memocards/mobile-responsive.css"],
       rules: {
         "unit-allowed-list": ["px", "em", "rem", "%", "vw", "vh", "deg", "ms", "s", "fr"]
       }

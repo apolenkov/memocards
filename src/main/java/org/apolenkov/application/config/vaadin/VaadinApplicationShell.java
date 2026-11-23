@@ -5,7 +5,6 @@ import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.AppShellSettings;
-import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,8 +16,9 @@ import org.springframework.context.annotation.Configuration;
  * It serves as the main entry point for Vaadin application configuration.
  */
 @Configuration
-@Theme("memocards")
+@StyleSheet(Lumo.STYLESHEET)
 @StyleSheet(Lumo.UTILITY_STYLESHEET)
+@StyleSheet("styles/memocards/styles.css")
 @PageTitle("Memocards - Smart Learning with Cards")
 @Push
 public class VaadinApplicationShell implements AppShellConfigurator {

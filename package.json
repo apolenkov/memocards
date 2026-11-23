@@ -37,8 +37,8 @@
     "yaml-lint": "1.7.0"
   },
   "scripts": {
-    "lint:css": "stylelint \"src/main/frontend/themes/**/*.css\"",
-    "lint:css:fix": "stylelint \"src/main/frontend/themes/**/*.css\" --fix",
+    "lint:css": "stylelint \"src/main/resources/META-INF/resources/styles/**/*.css\"",
+    "lint:css:fix": "stylelint \"src/main/resources/META-INF/resources/styles/**/*.css\" --fix",
     "lint:yaml": "yamllint 'infrastructure/ansible/**/*.yml'",
     "lint:yaml:fix": "prettier --write 'infrastructure/ansible/**/*.yml' && yamllint 'infrastructure/ansible/**/*.yml'"
   },
