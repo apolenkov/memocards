@@ -1,6 +1,6 @@
 ---
 name: Run Code Quality Checks
-description: Runs Spotless, Checkstyle, SpotBugs, SonarLint, and CSS linting
+description: Runs Spotless, Checkstyle, PMD, SpotBugs, SonarLint, and CSS linting
 
 inputs:
   gradle-opts:
@@ -19,32 +19,8 @@ runs:
         restore-keys: |
           ${{ runner.os }}-npm-
 
-    - name: Run Spotless check
+    - name: Run static analysis and CSS linting
       shell: bash
       env:
         GRADLE_OPTS: ${{ inputs.gradle-opts }}
-      run: ./gradlew spotlessCheck
-
-    - name: Run Checkstyle
-      shell: bash
-      env:
-        GRADLE_OPTS: ${{ inputs.gradle-opts }}
-      run: ./gradlew checkstyleMain checkstyleTest
-
-    - name: Run SpotBugs
-      shell: bash
-      env:
-        GRADLE_OPTS: ${{ inputs.gradle-opts }}
-      run: ./gradlew spotbugsMain spotbugsTest
-
-    - name: Run SonarLint
-      shell: bash
-      env:
-        GRADLE_OPTS: ${{ inputs.gradle-opts }}
-      run: ./gradlew sonarlintMain sonarlintTest
-
-    - name: Run CSS linting
-      shell: bash
-      env:
-        GRADLE_OPTS: ${{ inputs.gradle-opts }}
-      run: ./gradlew lintCss
+      run: ./gradlew spotlessCheck codeQuality lintCss verifyJibFrontend

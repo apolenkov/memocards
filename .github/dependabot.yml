@@ -5,7 +5,8 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 2
-    # Flow selects these versions when the Gradle Vaadin platform changes.
+    # Name-only ignores suppress version and security PRs. Upgrade the Gradle Vaadin
+    # platform to pick up security fixes for the frontend packages managed by Flow.
     ignore:
       - dependency-name: "@babel/*"
       - dependency-name: "@preact/*"
