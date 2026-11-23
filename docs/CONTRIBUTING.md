@@ -46,7 +46,7 @@ This project follows a simple code of conduct:
 - Java 21+ (Eclipse Temurin or Amazon Corretto recommended)
 - Docker + Docker Compose
 - Git
-- (Optional) Node.js 20+ for frontend development
+- (Optional) Node.js 26 LTS (see `.nvmrc`) for frontend development
 
 ### Initial Setup
 
@@ -315,7 +315,7 @@ Before submitting your PR, verify:
 
 - **Unit Tests**: Test single class in isolation (Mockito)
 - **Integration Tests**: Test with real database (TestContainers)
-- **UI Tests**: Test Vaadin components (TestBench)
+- **UI Tests**: Check the rendered login and decks pages in a browser
 
 ### Naming Conventions
 

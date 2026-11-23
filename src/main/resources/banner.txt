@@ -5,4 +5,4 @@
 | | | | ____| | | | |_| ( (___/ ___ | |  ( (_| |___ |
 |_|_|_|_____)_|_|_|\___/ \____)_____|_|   \____(___/ 
                                                   
- :: Spring Boot ${spring-boot.version} :: Java ${java.version} :: Vaadin 24 ::
+ :: Spring Boot ${spring-boot.version} :: Java ${java.version} :: Vaadin 25 ::
