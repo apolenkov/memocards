@@ -14,7 +14,6 @@ plugins {
     idea
     id("java")
 
-    id("fr.brouillard.oss.gradle.jgitver")
     id("org.springframework.boot")
     id("com.github.node-gradle.node")
     id("com.vaadin")
@@ -34,11 +33,15 @@ plugins {
 }
 
 group = "org.apolenkov.application"
-// version is automatically managed by JGitver plugin from Git tags (see line 228)
-// For tagged commits: version = "1.0.0"
-// For non-tagged commits: version = "1.0.0-5-g8a9b2c1-SNAPSHOT"
-// For feature branches: version = "1.0.0-5-g8a9b2c1-feature-xyz-SNAPSHOT"
-// To check current version: ./gradlew properties | grep "version:"
+// Use the release tag on tagged commits and include distance and SHA on snapshots.
+version =
+    providers
+        .exec {
+            commandLine("git", "describe", "--tags", "--match", "v[0-9]*", "--always", "--dirty", "--abbrev=8")
+        }.standardOutput.asText
+        .get()
+        .trim()
+        .removePrefix("v")
 description = "Memocards application"
 
 idea {
@@ -242,20 +245,6 @@ extensions.configure<SonarLintExtension> {
 apply(plugin = "org.owasp.dependencycheck")
 
 /*
- * JGitver automatic versioning
- */
-plugins.apply(fr.brouillard.oss.gradle.plugins.JGitverPlugin::class.java)
-extensions.configure<fr.brouillard.oss.gradle.plugins.JGitverPluginExtension> {
-    strategy("PATTERN")
-    nonQualifierBranches("main,master")
-    tagVersionPattern("\${v}\${<meta.DIRTY_TEXT}")
-    versionPattern(
-        "\${v}\${<meta.COMMIT_DISTANCE}\${<meta.GIT_SHA1_8}" +
-            "\${<meta.QUALIFIED_BRANCH_NAME}\${<meta.DIRTY_TEXT}-SNAPSHOT",
-    )
-}
-
-/*
  * Enhanced JaCoCo configuration with coverage verification
  */
 apply(plugin = "jacoco")
@@ -448,11 +437,10 @@ jib {
     }
     to {
         image = "ghcr.io/${project.findProperty("GITHUB_REPOSITORY") ?: "apolenkov/memocards"}"
-        // Tags: latest, version (from JGitver), git SHA
         tags =
             setOf(
                 "latest",
-                project.version.toString(), // Automatically from JGitver (e.g., "1.0.0")
+                project.version.toString(),
                 System.getenv("GITHUB_SHA")?.take(7) ?: "latest",
             )
         auth {
@@ -479,5 +467,16 @@ jib {
             ),
         )
         creationTime.set("USE_CURRENT_TIMESTAMP")
+    }
+}
+
+tasks.register("printJibMetadata") {
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    description = "Print the tags and version label configured for the container image"
+    val tags = jib.to.tags
+    val labels = jib.container.labels
+    doLast {
+        println("tags=" + tags.sorted().joinToString(","))
+        println("org.opencontainers.image.version=" + labels.get().getValue("org.opencontainers.image.version"))
     }
 }

@@ -1,5 +1,4 @@
 pluginManagement {
-    val jgitver = providers.gradleProperty("jgitver").get()
     val sonarlint = providers.gradleProperty("sonarlint").get()
     val dependencycheck = providers.gradleProperty("dependencycheck").get()
     val spotbugsPluginVersion = providers.gradleProperty("spotbugsPluginVersion").get()
@@ -16,8 +15,6 @@ pluginManagement {
     }
 
     plugins {
-        id("fr.brouillard.oss.gradle.jgitver") version jgitver
-
         id("com.diffplug.spotless") version spotless
         id("name.remal.sonarlint") version sonarlint
         id("com.github.spotbugs") version spotbugsPluginVersion
