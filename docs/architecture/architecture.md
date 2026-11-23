@@ -2,7 +2,7 @@
 
 ## System Overview
 
-Memocards is a flashcard learning application built with Clean Architecture principles, leveraging Spring Boot 3.5, Vaadin 24.9, and PostgreSQL 16.
+Memocards is a flashcard learning application built with Clean Architecture principles, leveraging Spring Boot 4.2, Vaadin 25.3, and PostgreSQL 16.
 
 Note: Diagrams are Mermaid blocks maintained in this file. Update inline and review via IDE preview or MR diffs (include date of change in commit message).
 
@@ -47,7 +47,7 @@ graph TB
 ```mermaid
 graph TB
     subgraph "Browser"
-        UI[Vaadin 24.9<br/>Server-Side UI<br/>@Push<br/>@SessionScope Cache]
+        UI[Vaadin 25.3<br/>Server-Side UI<br/>@Push<br/>@SessionScope Cache]
     end
     
     subgraph "Infrastructure Layer (Host)"
@@ -114,7 +114,7 @@ graph TB
 **Technologies:**
 - **Edge Proxy**: Nginx (SSL termination, security headers)
 - **Internal Router**: Traefik v3.0 (dynamic service discovery)
-- **UI**: Vaadin 24.9 with server push
+- **UI**: Vaadin 25.3 with server push
 - **Business Logic**: Spring Boot services with @Transactional
 - **Data Access**: Spring Data JDBC with explicit SQL control
 - **Cache**: Caffeine + custom @UIScope/@SessionScope caches
@@ -447,8 +447,8 @@ labels:
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| **UI** | Vaadin 24.9 | Server-side rendering, PWA |
-| **Business Logic** | Spring Boot 3.5 | Dependency injection, transactions |
+| **UI** | Vaadin 25.3 | Server-side rendering, PWA |
+| **Business Logic** | Spring Boot 4.2 | Dependency injection, transactions |
 | **Data Access** | Spring Data JDBC | Explicit SQL control |
 | **Database** | PostgreSQL 16 | Relational database |
 | **Cache** | Caffeine + Custom | Multi-layer caching |
