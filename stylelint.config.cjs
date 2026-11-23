@@ -57,8 +57,8 @@ module.exports = {
     "length-zero-no-unit": true,
     "unit-allowed-list": ["px", "em", "rem", "%", "vw", "vh", "deg", "ms", "s", "fr"],
     
-    // 9. NO BROWSER PREFIXES - USE AUTOPREFIXER
-    "property-no-vendor-prefix": true,
+    // Safari through 17 needs the prefixed backdrop filter in static CSS.
+    "property-no-vendor-prefix": [true, { ignoreProperties: ["-webkit-backdrop-filter"] }],
     "value-no-vendor-prefix": true,
     
     // 10. STRICT ORDERING
