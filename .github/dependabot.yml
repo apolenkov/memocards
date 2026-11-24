@@ -1,7 +1,17 @@
 version: 2
+
+# One version PR per scheduled run for the three members marked multi-ecosystem-group below.
+multi-ecosystem-groups:
+  all-dependencies:
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 2
+
 updates:
   - package-ecosystem: "npm"
     directory: "/"
+    multi-ecosystem-group: "all-dependencies"
+    patterns: ["*"]
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 2
@@ -31,23 +41,30 @@ updates:
       - dependency-name: "vite"
       - dependency-name: "vite-plugin-checker"
     groups:
-      npm-updates:
+      security-updates:
+        applies-to: security-updates
         patterns: ["*"]
   - package-ecosystem: "gradle"
     directory: "/"
+    multi-ecosystem-group: "all-dependencies"
+    patterns: ["*"]
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 2
     groups:
-      gradle-updates:
+      security-updates:
+        applies-to: security-updates
         patterns: ["*"]
   - package-ecosystem: "github-actions"
     directories:
       - "/"
       - "/.github/actions/*"
+    multi-ecosystem-group: "all-dependencies"
+    patterns: ["*"]
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 2
     groups:
-      github-actions-updates:
+      security-updates:
+        applies-to: security-updates
         patterns: ["*"]
