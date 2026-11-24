@@ -14,7 +14,6 @@ updates:
     patterns: ["*"]
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 2
     # Name-only ignores suppress version and security PRs. Upgrade the Gradle Vaadin
     # platform to pick up security fixes for the frontend packages managed by Flow.
     ignore:
@@ -50,7 +49,6 @@ updates:
     patterns: ["*"]
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 2
     groups:
       security-updates:
         applies-to: security-updates
@@ -63,7 +61,6 @@ updates:
     patterns: ["*"]
     schedule:
       interval: "monthly"
-    open-pull-requests-limit: 2
     groups:
       security-updates:
         applies-to: security-updates
