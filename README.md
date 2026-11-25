@@ -8,14 +8,15 @@
 Веб-приложение для изучения слов по карточкам: колоды, карточки, режим тренировки, статистика,
 админка новостей, интерфейс на трех языках (ru, en, es).
 
-Выпускной проект курса OTUS "Java Developer. Professional", 2025.
+Выпускной проект курса OTUS "Java Developer. Professional", 2025. В [выпускной версии v0.9.1](https://github.com/apolenkov/memocards/tree/v0.9.1) использованы Spring Boot 3.5.5 и Vaadin 24.9.2.
+Локальное демо (`make demo`) запускаем из ветки `master` со стеком, указанным ниже.
 
 > Демо-стенд выключен. Ниже описан локальный запуск.
 
 ## Стек
 
-- Java 21, Spring Boot 4.2, Spring Security, Spring JDBC
-- Vaadin 25.3 (серверный UI)
+- Java 21, Spring Boot 4.2.0, Spring Security, Spring JDBC
+- Vaadin 25.3.6 (серверный UI)
 - PostgreSQL 16, миграции Flyway
 - Caffeine для кэша, инвалидация через Spring Events
 - JUnit 6, Mockito, Testcontainers; Checkstyle, SpotBugs, PMD, Spotless
